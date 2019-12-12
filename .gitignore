@@ -131,3 +131,5 @@ $RECYCLE.BIN/
 .DS_Store
 
 *.msl
+*.ide-shm
+*.ide-wal
