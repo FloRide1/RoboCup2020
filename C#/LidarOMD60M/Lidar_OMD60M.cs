@@ -305,7 +305,7 @@ namespace LidarOMD60M
 
                     if (packet_number == 1)
                     {
-                        OnLidar("Robot1", angle, distance);
+                        OnLidar("Robot1Team1", angle, distance);
                         distance = new List<double>();
                         angle = new List<double>();
                         RSSI = new List<double>();

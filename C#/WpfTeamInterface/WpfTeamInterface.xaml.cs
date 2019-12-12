@@ -13,39 +13,44 @@ namespace TeamInterface
         public WpfTeamInterface()
         {
             InitializeComponent();
-            localWorldMapDisplay1.InitRobot("Robot1");
-            localWorldMapDisplay2.InitRobot("Robot2");
-            localWorldMapDisplay3.InitRobot("Robot3");
-            localWorldMapDisplay4.InitRobot("Robot4");
-            localWorldMapDisplay5.InitRobot("Robot5");
-            localWorldMapDisplay6.InitRobot("Robot6");
+            localWorldMapDisplay1.InitRobot("Robot1Team1");
+            localWorldMapDisplay2.InitRobot("Robot2Team1");
+            localWorldMapDisplay3.InitRobot("Robot3Team1");
+            localWorldMapDisplay4.InitRobot("Robot4Team1");
+            localWorldMapDisplay5.InitRobot("Robot5Team1");
+            localWorldMapDisplay6.InitRobot("Robot6Team1");
 
             for (int i = 0; i < 6; i++)
             {
-                globalWorldMapDisplay.InitRobot("Robot" + i.ToString());
-            }            
+                globalWorldMapDisplay.InitRobot("Robot" + i.ToString() + "Team1");
+            }
+
+            for (int i = 0; i < 6; i++)
+            {
+                globalWorldMapDisplay.InitRobot("Robot" + i.ToString() + "Team2");
+            }
         }
 
         public void OnLocalWorldMapReceived(object sender, LocalWorldMapArgs e)
         {
             switch(e.RobotName)
             {
-                case "Robot1":
+                case "Robot1Team1":
                     localWorldMapDisplay1.UpdateLocalWorldMap(e.RobotName, e.LocalWorldMap);
                     break;
-                case "Robot2":
+                case "Robot2Team1":
                     localWorldMapDisplay2.UpdateLocalWorldMap(e.RobotName, e.LocalWorldMap);
                     break;
-                case "Robot3":
+                case "Robot3Team1":
                     localWorldMapDisplay3.UpdateLocalWorldMap(e.RobotName, e.LocalWorldMap);
                     break;
-                case "Robot4":
+                case "Robot4Team1":
                     localWorldMapDisplay4.UpdateLocalWorldMap(e.RobotName, e.LocalWorldMap);
                     break;
-                case "Robot5":
+                case "Robot5Team1":
                     localWorldMapDisplay5.UpdateLocalWorldMap(e.RobotName, e.LocalWorldMap);
                     break;
-                case "Robot6":
+                case "Robot6Team1":
                     localWorldMapDisplay6.UpdateLocalWorldMap(e.RobotName, e.LocalWorldMap);
                     break;
             }

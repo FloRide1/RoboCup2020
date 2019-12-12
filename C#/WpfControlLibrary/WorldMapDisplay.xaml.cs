@@ -203,7 +203,7 @@ namespace WpfControlLibrary
                 robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
                 RobotDisplay rd = new RobotDisplay(robotShape);
                 rd.SetPosition((float)(i * 0.50), (float)(Math.Pow(i, 1.3) * 0.50), (float)Math.PI / 4 * i);
-                robotDictionary.Add("Robot" + (i + 1).ToString(), rd);
+                robotDictionary.Add("Robot" + (i + 1).ToString()+"Team1", rd);
             }
         }
 

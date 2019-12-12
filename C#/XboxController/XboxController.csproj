@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="SciChart.Charting, Version=5.4.0.12119, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL" />
     <Reference Include="SharpDX, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\Robot\packages\SharpDX.4.2.0\lib\net45\SharpDX.dll</HintPath>
     </Reference>
@@ -45,6 +48,9 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\Robot\packages\WindowsBase.4.6.1055.0\lib\WindowsBase.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs" />
@@ -54,9 +60,89 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CameraAdapter\CameraAdapter.csproj">
+      <Project>{856F8DFD-84D3-4FF6-889F-22517ADDADCF}</Project>
+      <Name>CameraAdapter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EthernetTeamNetwork\EthernetTeamNetwork.csproj">
+      <Project>{5B37C95C-DEFB-4B49-88C9-8692D14916C7}</Project>
+      <Name>EthernetTeamNetwork</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EventArgsLibrary\EventArgsLibrary.csproj">
       <Project>{9c46a7c0-4675-41be-b282-e6f0825ad73e}</Project>
       <Name>EventArgsLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ExtendedSerialPort\ExtendedSerialPort\ExtendedSerialPort.csproj">
+      <Project>{21AC599E-E3D5-4181-AA0F-7C2E00CCA016}</Project>
+      <Name>ExtendedSerialPort</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HighFreqTimer\AdvancedTimers.csproj">
+      <Project>{ECC907ED-F9B2-457F-901E-720987934E47}</Project>
+      <Name>AdvancedTimers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ImageProcessingOmniCamera\ImageProcessingOmniCamera.csproj">
+      <Project>{9EAC5BB2-FA20-45A4-B8E9-97C145F38F25}</Project>
+      <Name>ImageProcessingOmniCamera</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LidarOMD60M\LidarOMD60M.csproj">
+      <Project>{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}</Project>
+      <Name>LidarOMD60M</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LidarSimulator\LidarSimulator.csproj">
+      <Project>{45A044B5-1D4F-4B6E-964B-3B2FA5E39AB2}</Project>
+      <Name>LidarSimulator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MessageDecoder\MessageDecoder.csproj">
+      <Project>{4603885F-CC5E-43E5-A4AF-063030CB0A32}</Project>
+      <Name>MessageDecoder</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MessageEncoder\MessageEncoder.csproj">
+      <Project>{EFAFBA95-1787-41A9-8F12-14ECD9FE127A}</Project>
+      <Name>MessageEncoder</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PhysicalGameSimulator\PhysicalGameSimulator.csproj">
+      <Project>{0F8DBEDC-02E3-4F9E-8EC6-DE065B9F32F1}</Project>
+      <Name>PhysicalGameSimulator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RefereeBoxAdapter\RefereeBoxAdapter.csproj">
+      <Project>{A8C04138-90DC-42F9-AB39-E71125B805B9}</Project>
+      <Name>RefereeBoxAdapter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RobotInterfaceWPF_Supervision_Systeme_Embarqué\RobotInterface\WpfRobotInterface.csproj">
+      <Project>{1CDC0611-A2E5-42E8-A28B-BA4269343C68}</Project>
+      <Name>WpfRobotInterface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RobotMessageGenerator\RobotMessageGenerator.csproj">
+      <Project>{7F098EE2-A8CD-48CF-B9F4-256EA3DF2BC6}</Project>
+      <Name>RobotMessageGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RobotPilot\RobotPilot.csproj">
+      <Project>{4012F5AF-50E3-40BD-ABF0-4AFE3F30D5E3}</Project>
+      <Name>RobotPilot</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SimulatedCamera\SimulatedCamera.csproj">
+      <Project>{57F578BF-38FA-4A86-844A-EECAFACC2412}</Project>
+      <Name>SimulatedCamera</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StrategyManager\StrategyManager.csproj">
+      <Project>{F2D3FB95-F97A-4049-BCA4-71854FD4FAF3}</Project>
+      <Name>StrategyManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TrajectoryPlanner\TrajectoryGeneration.csproj">
+      <Project>{4CEE8012-7D63-49ED-AADC-2FD4F092AB7B}</Project>
+      <Name>TrajectoryGeneration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WayPointGenerator\WayPointGenerator.csproj">
+      <Project>{66799E02-D6D6-40A0-9D98-B6CD718E76C7}</Project>
+      <Name>WayPointGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WorldMapManager\WorldMapManager.csproj">
+      <Project>{01E89552-13A5-4A24-80B2-9246700F72FD}</Project>
+      <Name>WorldMapManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WpfRobotMonitor\WpfCameraMonitor.csproj">
+      <Project>{BA7276F6-9386-42CB-894A-04095E5F75B9}</Project>
+      <Name>WpfCameraMonitor</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,24 +1,22 @@
-﻿using System;
-using System.IO.Ports;
-using System.Threading;
+﻿using AdvancedTimers;
+using CameraAdapter;
+using EthernetTeamNetwork;
 using ExtendedSerialPort;
+using ImageProcessingOmniCamera;
+using LidarOMD60M;
 using MessageDecoder;
 using MessageEncoder;
+using PhysicalGameSimulator;
+using RobotInterface;
 using RobotMessageGenerator;
 using RobotMonitor;
-using CameraAdapter;
-using AdvancedTimers;
-using EthernetTeamNetwork;
-using RobotInterface;
-using ImageProcessingOmniCamera;
 using SciChart.Charting.Visuals;
-using PhysicalGameSimulator;
+using System;
+using System.IO.Ports;
+using System.Threading;
 using TrajectoryGeneration;
 using WayPointGenerator;
 using WorldMapManager;
-using LidarSimulator;
-using LidarOMD60M;
-using XBoxController;
 
 namespace Robot
 {
@@ -82,20 +80,20 @@ namespace Robot
             robotMsgGenerator = new RobotMsgGenerator();
 
             physicalSimulator = new PhysicalSimulator();
-            physicalSimulator.RegisterRobot("Robot1",0,0);
+            physicalSimulator.RegisterRobot("Robot1Team1",0,0);
 
-            robotPilot = new RobotPilot.RobotPilot("Robot1");
+            robotPilot = new RobotPilot.RobotPilot("Robot1Team1");
             refBoxAdapter = new RefereeBoxAdapter.RefereeBoxAdapter();
-            trajectoryPlanner = new TrajectoryPlanner("Robot1");
-            waypointGenerator = new WaypointGenerator("Robot1");
-            strategyManager = new StrategyManager.StrategyManager("Robot1");
-            localWorldMapManager = new LocalWorldMapManager("Robot1");
-            lidarSimulator = new LidarSimulator.LidarSimulator("Robot1");
+            trajectoryPlanner = new TrajectoryPlanner("Robot1Team1");
+            waypointGenerator = new WaypointGenerator("Robot1Team1");
+            strategyManager = new StrategyManager.StrategyManager("Robot1Team1");
+            localWorldMapManager = new LocalWorldMapManager("Robot1Team1");
+            lidarSimulator = new LidarSimulator.LidarSimulator("Robot1Team1");
 
             if (usingLidar)
-                lidar_OMD60M = new Lidar_OMD60M("Robot1");
+                lidar_OMD60M = new Lidar_OMD60M("Robot1Team1");
 
-            xBoxManette = new XBoxController.XBoxController("Robot1");
+            xBoxManette = new XBoxController.XBoxController("Robot1Team1");
 
             if (!usingSimulatedCamera)
                 omniCamera = new BaslerCameraAdapter();

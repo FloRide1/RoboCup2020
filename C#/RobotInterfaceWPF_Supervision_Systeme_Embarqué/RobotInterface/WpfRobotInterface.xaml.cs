@@ -25,7 +25,7 @@ namespace RobotInterface
 
             InitializeComponent();
             
-            worldMapDisplay.InitRobot("Robot1");
+            worldMapDisplay.InitRobot("Robot1Team1");
 
             foreach (string s in SerialPort.GetPortNames())
             {

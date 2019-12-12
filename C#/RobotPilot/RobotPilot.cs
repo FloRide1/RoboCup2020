@@ -31,7 +31,7 @@ namespace RobotPilot
         public void SendPositionFromKalmanFilter()
         {
             Location loc = new Location((float)(0.100 + rand.Next(-30, 30) / 100.0), (float)(0.1 + rand.Next(-30, 30) / 100.0), (float)(rand.NextDouble() * Math.PI / 12), 0, 0, 0);
-            OnSendPositionFromKalmanFilter("Robot1", loc);
+            OnSendPositionFromKalmanFilter("Robot1Team1", loc);
         }
 
         //Events générés en sortie

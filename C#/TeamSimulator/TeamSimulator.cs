@@ -19,12 +19,13 @@ namespace TeamSimulator
 
         static HighFreqTimer timerStrategie;
         static PhysicalSimulator physicalSimulator;
-        static GlobalWorldMapManager globalWorldMapManager;
+        static GlobalWorldMapManager globalWorldMapManagerTeam1;
+        static GlobalWorldMapManager globalWorldMapManagerTeam2;
 
         static List<RobotPilot.RobotPilot> robotPilotList;
         static List<TrajectoryPlanner> trajectoryPlannerList;
         static List<WaypointGenerator> waypointGeneratorList;
-        static List<StrategyManager.StrategyManager> strategyManagerList;
+        static Dictionary<string, StrategyManager.StrategyManager> strategyManagerDictionary;
         static List<LocalWorldMapManager> localWorldMapManagerList;
         static List<LidarSimulator.LidarSimulator> lidarSimulatorList;
 
@@ -32,7 +33,8 @@ namespace TeamSimulator
         static object ExitLock = new object();
 
 
-        static int nbPlayers = 3;
+        static int nbPlayersTeam1 = 5;
+        static int nbPlayersTeam2 = 5;
 
 
         [STAThread] //à ajouter au projet initial
@@ -53,46 +55,25 @@ namespace TeamSimulator
             trajectoryPlannerList = new List<TrajectoryPlanner>();
             waypointGeneratorList = new List<WaypointGenerator>();
             lidarSimulatorList = new List<LidarSimulator.LidarSimulator>();
-            strategyManagerList = new List<StrategyManager.StrategyManager>();
+            strategyManagerDictionary = new Dictionary<string, StrategyManager.StrategyManager>();
             localWorldMapManagerList = new List<LocalWorldMapManager>();
             physicalSimulator = new PhysicalSimulator();
-            globalWorldMapManager = new GlobalWorldMapManager();
 
-            for (int i = 0; i < nbPlayers; i++)
+            globalWorldMapManagerTeam1 = new GlobalWorldMapManager();
+            globalWorldMapManagerTeam2 = new GlobalWorldMapManager();
+
+            for (int i = 0; i < nbPlayersTeam1; i++)
             {
                 //ethernetTeamNetworkAdapter = new EthernetTeamNetworkAdapter();
                 //var LocalWorldMapManager = new  ("Robot" + (i + 1).ToString());
-                var robotPilot = new RobotPilot.RobotPilot("Robot" + (i + 1).ToString());
-                var trajectoryPlanner = new TrajectoryPlanner("Robot" + (i + 1).ToString());
-                var waypointGenerator = new WaypointGenerator("Robot" + (i + 1).ToString());
-                var strategyManager = new StrategyManager.StrategyManager("Robot" + (i + 1).ToString());
-                var localWorldMapManager = new LocalWorldMapManager("Robot" + (i + 1).ToString());
-                var lidarSimulator = new LidarSimulator.LidarSimulator("Robot" + (i + 1).ToString());
+                CreatePlayer(i+1, 1);
+            }
 
-                //Liens entre modules
-                trajectoryPlanner.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
-                physicalSimulator.OnPhysicalPositionEvent += trajectoryPlanner.OnPhysicalPositionReceived;
-                waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
-                strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
-
-                physicalSimulator.OnPhysicalPositionEvent += localWorldMapManager.OnPhysicalPositionReceived;
-                lidarSimulator.OnSimulatedLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
-                strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
-                waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
-                //strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
-                waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;                
-                localWorldMapManager.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
-
-                globalWorldMapManager.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
-
-                robotPilotList.Add(robotPilot);
-                trajectoryPlannerList.Add(trajectoryPlanner);
-                waypointGeneratorList.Add(waypointGenerator);
-                strategyManagerList.Add(strategyManager);
-                localWorldMapManagerList.Add(localWorldMapManager);
-                lidarSimulatorList.Add(lidarSimulator);
-
-                physicalSimulator.RegisterRobot("Robot" + (i + 1).ToString(), i*4-10 , i*1.5-4);
+            for (int i = 0; i < nbPlayersTeam2; i++)
+            {
+                //ethernetTeamNetworkAdapter = new EthernetTeamNetworkAdapter();
+                //var LocalWorldMapManager = new  ("Robot" + (i + 1).ToString());
+                CreatePlayer(i + 1, 2);
             }
 
             DefineRoles();
@@ -113,45 +94,91 @@ namespace TeamSimulator
             }
         }
 
-        static Random rand = new Random();
+        static Random randomGenerator = new Random();
+        private static void CreatePlayer(int RobotNumber, int TeamNumber)
+        {
+            string robotName = "Robot" + RobotNumber.ToString() + "Team" + TeamNumber.ToString();
+            var strategyManager = new StrategyManager.StrategyManager(robotName);
+            var waypointGenerator = new WaypointGenerator(robotName);
+            var trajectoryPlanner = new TrajectoryPlanner(robotName);
+            var robotPilot = new RobotPilot.RobotPilot(robotName);
+            var localWorldMapManager = new LocalWorldMapManager(robotName);
+            var lidarSimulator = new LidarSimulator.LidarSimulator(robotName);
+
+            //Liens entre modules
+            if (TeamNumber == 1)
+            {
+                globalWorldMapManagerTeam1.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
+                localWorldMapManager.OnLocalWorldMapEvent += globalWorldMapManagerTeam1.OnLocalWorldMapReceived;
+            }
+            else if (TeamNumber == 2)
+            {
+                globalWorldMapManagerTeam2.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
+                localWorldMapManager.OnLocalWorldMapEvent += globalWorldMapManagerTeam2.OnLocalWorldMapReceived;
+            }
+            strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
+            waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
+            trajectoryPlanner.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
+            physicalSimulator.OnPhysicalPositionEvent += trajectoryPlanner.OnPhysicalPositionReceived;
+            
+            physicalSimulator.OnPhysicalPositionEvent += localWorldMapManager.OnPhysicalPositionReceived;
+            lidarSimulator.OnSimulatedLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
+            strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
+            waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
+            //strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
+            waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
+
+            strategyManagerDictionary.Add(robotName, strategyManager);
+            waypointGeneratorList.Add(waypointGenerator);
+            trajectoryPlannerList.Add(trajectoryPlanner);
+            robotPilotList.Add(robotPilot);
+            localWorldMapManagerList.Add(localWorldMapManager);
+            lidarSimulatorList.Add(lidarSimulator);
+
+            physicalSimulator.RegisterRobot(robotName, randomGenerator.Next(-10,10), randomGenerator.Next(-6, 6));
+        }
+
         private static void TimerStrategie_Tick(object sender, EventArgs e)
         {
             DefineRoles();
-
-            //foreach (var strategyManager in strategyManagerList)
-            //{
-            //    var role = (StrategyManager.PlayerRole)rand.Next(1, 5);
-            //    strategyManager.SetRole(role);
-            //    strategyManager.ProcessStrategy();
-            //}
         }
 
         private static void DefineRoles()
         {
             List<int> roleList = new List<int>();
 
-            for (int i = 0; i < nbPlayers; i++)
-            {
+            for (int i = 0; i < nbPlayersTeam1; i++)
                 roleList.Add(i + 1);
-            }
 
             Shuffle(roleList);
 
-            for (int i = 0; i < nbPlayers; i++)
+            for (int i = 0; i < nbPlayersTeam1; i++)
             {
-                strategyManagerList[i].SetRole((StrategyManager.PlayerRole)roleList[i]);
-                strategyManagerList[i].ProcessStrategy();
+                strategyManagerDictionary["Robot" + (i + 1).ToString() + "Team1"].SetRole((StrategyManager.PlayerRole)roleList[i]);
+                strategyManagerDictionary["Robot" + (i + 1).ToString() + "Team1"].ProcessStrategy();
+            }
+            
+            roleList = new List<int>();
+
+            for (int i = 0; i < nbPlayersTeam2; i++)
+                roleList.Add(i + 1);
+
+            Shuffle(roleList);
+
+            for (int i = 0; i < nbPlayersTeam2; i++)
+            {
+                strategyManagerDictionary["Robot" + (i + 1).ToString() + "Team2"].SetRole((StrategyManager.PlayerRole)roleList[i]);
+                strategyManagerDictionary["Robot" + (i + 1).ToString() + "Team2"].ProcessStrategy();
             }
         }
 
         public static void Shuffle<T>(this IList<T> list)
         { 
-            Random rng = new Random(); 
             int n = list.Count; 
             while (n > 1) 
             { 
                 n--; 
-                int k = rng.Next(n + 1); 
+                int k = randomGenerator.Next(n + 1); 
                 T value = list[k]; 
                 list[k] = list[n]; 
                 list[n] = value; 
@@ -177,11 +204,12 @@ namespace TeamSimulator
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
                 TeamConsole = new WpfTeamInterface();
 
-                for (int i = 0; i < nbPlayers; i++)
+                for (int i = 0; i < nbPlayersTeam1; i++)
                 {
                     localWorldMapManagerList[i].OnLocalWorldMapEvent += TeamConsole.OnLocalWorldMapReceived;
                 }
-                globalWorldMapManager.OnGlobalWorldMapEvent += TeamConsole.OnGlobalWorldMapReceived;
+                globalWorldMapManagerTeam1.OnGlobalWorldMapEvent += TeamConsole.OnGlobalWorldMapReceived;
+                globalWorldMapManagerTeam2.OnGlobalWorldMapEvent += TeamConsole.OnGlobalWorldMapReceived;
                 TeamConsole.ShowDialog();
             });
             t1.SetApartmentState(ApartmentState.STA);

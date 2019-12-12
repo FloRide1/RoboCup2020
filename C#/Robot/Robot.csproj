@@ -69,19 +69,19 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CameraAdapter\CameraAdapter.csproj">
-      <Project>{856F8DFD-84D3-4FF6-889F-22517ADDADCF}</Project>
+      <Project>{856f8dfd-84d3-4ff6-889f-22517addadcf}</Project>
       <Name>CameraAdapter</Name>
     </ProjectReference>
     <ProjectReference Include="..\EthernetTeamNetwork\EthernetTeamNetwork.csproj">
-      <Project>{5B37C95C-DEFB-4B49-88C9-8692D14916C7}</Project>
+      <Project>{5b37c95c-defb-4b49-88c9-8692d14916c7}</Project>
       <Name>EthernetTeamNetwork</Name>
     </ProjectReference>
     <ProjectReference Include="..\EventArgsLibrary\EventArgsLibrary.csproj">
-      <Project>{9C46A7C0-4675-41BE-B282-E6F0825AD73E}</Project>
+      <Project>{9c46a7c0-4675-41be-b282-e6f0825ad73e}</Project>
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
     <ProjectReference Include="..\ExtendedSerialPort\ExtendedSerialPort\ExtendedSerialPort.csproj">
-      <Project>{21AC599E-E3D5-4181-AA0F-7C2E00CCA016}</Project>
+      <Project>{21ac599e-e3d5-4181-aa0f-7c2e00cca016}</Project>
       <Name>ExtendedSerialPort</Name>
     </ProjectReference>
     <ProjectReference Include="..\HighFreqTimer\AdvancedTimers.csproj">
