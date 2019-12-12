@@ -2,6 +2,8 @@
 using EventArgsLibrary;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,26 +17,22 @@ namespace WayPointGenerator
     {
         string robotName;
 
-        Timer timerWayPointGeneration;
+        //Timer timerWayPointGeneration;
 
         Location destinationLocation;
         GlobalWorldMap globalWorldMap;
+        double[,] strategyManagerHeatMap = new double[0, 0];
 
-        double heatMapCellsize = 0.5;
+        double heatMapCellsize = 1; //doit etre la meme que celle du strategy manager
         double fieldLength = 22;
         double fieldHeight = 14;
 
         public WaypointGenerator(string name)
         {
             robotName = name;
-            timerWayPointGeneration = new Timer(100);
-            timerWayPointGeneration.Elapsed += TimerWayPointGeneration_Elapsed;
-            timerWayPointGeneration.Start();
-        }
-
-        private void TimerWayPointGeneration_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            CalculateOptimalWayPoint();
+            //timerWayPointGeneration = new Timer(100);
+            //timerWayPointGeneration.Elapsed += TimerWayPointGeneration_Elapsed;
+            //timerWayPointGeneration.Start();
         }
 
         public void SetNextWayPoint(Location waypointLocation)
@@ -47,6 +45,17 @@ namespace WayPointGenerator
             if (e.RobotName == robotName)
             {
                 destinationLocation = e.Location;
+            }
+        }
+
+        public void OnStrategyHeatMapReceived(object sender, EventArgsLibrary.HeatMapArgs e)
+        {
+            if (strategyManagerHeatMap == null)
+                return;
+            if (robotName == e.RobotName)
+            {
+                strategyManagerHeatMap = e.HeatMap;
+                CalculateOptimalWayPoint();
             }
         }
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
@@ -66,61 +75,63 @@ namespace WayPointGenerator
             int maxPosX = 0;
             int maxPosY = 0;
 
-            //try //Au début la collection peut être modifiée...
-            //{
             //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
-            for (int y = 0; y < nbCellInHeatMapHeight; y++)
+            for(int y = 0; y < nbCellInHeatMapHeight; y++)
+            {
                 for (int x = 0; x < nbCellInHeatMapWidth; x++)
                 {
                     //Prise en compte de la destination
                     if (destinationLocation != null)
                     {
-                        data[y, x] = Math.Max(0, 1 - Toolbox.Distance(new PointD(destinationLocation.X, destinationLocation.Y), GetFieldPosFromHeatMapCoordinates(x, y)) / 20.0);
+                        data[y, x] = strategyManagerHeatMap[y,x];
                     }
                 }
+            }
 
-                //if (globalWorldMap != null)
-                //{
-                //    Location robotLocation = globalWorldMap.robotLocationDictionary[robotName];
-                //    double angleDestination = Math.Atan2(destinationLocation.Y - robotLocation.Y, destinationLocation.X - robotLocation.X);
+            if (globalWorldMap != null)
+            {
+                if (globalWorldMap.robotLocationDictionary.ContainsKey(robotName))
+                {
+                    Location robotLocation = globalWorldMap.robotLocationDictionary[robotName];
+                    double angleDestination = Math.Atan2(destinationLocation.Y - robotLocation.Y, destinationLocation.X - robotLocation.X);
 
-                //    //On veut éviter de taper les autres robots
-                //    foreach (var r in globalWorldMap.robotLocationDictionary)
-                //    {
-                //        //On itère sur tous les robots sauf celui-ci
-                //        if (r.Key != robotName)
-                //        {
-                //            double angleRobotAdverse = Math.Atan2(r.Value.Y - robotLocation.Y, r.Value.X - robotLocation.X);
-                //            double distanceRobotAdverse = Toolbox.Distance(r.Value.X, r.Value.Y, robotLocation.X, robotLocation.Y);
-
-                //            for (int y = 0; y < nbCellInHeatMapHeight; y++)
-                //                for (int x = 0; x < nbCellInHeatMapWidth; x++)
-                //                {
-                //                    PointD ptCourant = GetFieldPosFromHeatMapCoordinates(x, y);
-                //                    double distancePt = Toolbox.Distance(ptCourant.X, ptCourant.Y, robotLocation.X, robotLocation.Y);
-                //                    double anglePtCourant = Math.Atan2(ptCourant.Y - robotLocation.Y, ptCourant.X - robotLocation.X);
-
-                //                    if (Math.Abs(distanceRobotAdverse * (anglePtCourant - angleRobotAdverse)) < 2.0 && distancePt > distanceRobotAdverse - 3)
-                //                        data[y, x] -= 1;// Math.Max(0, 1 - Math.Abs(anglePtCourant - angleRobotAdverse) *10.0);
-                //                }
-                //        }
-                //    }
-                //}
-                for (int y = 0; y < nbCellInHeatMapHeight; y++)
-                    for (int x = 0; x < nbCellInHeatMapWidth; x++)
+                    //On veut éviter de taper les autres robots
+                    for(int i=0; i<globalWorldMap.robotLocationDictionary.Count;i++)
                     {
-                        if (data[y, x] > max)
+                        string competitorName = globalWorldMap.robotLocationDictionary.Keys.ElementAt(i);
+                        Location competitorLocation = globalWorldMap.robotLocationDictionary.Values.ElementAt(i);
+                        //On itère sur tous les robots sauf celui-ci
+                        if (competitorName != robotName)
                         {
-                            max = data[y, x];
-                            maxPosX = x;
-                            maxPosY = y;
+                            double angleRobotAdverse = Math.Atan2(competitorLocation.Y - robotLocation.Y, competitorLocation.X - robotLocation.X);
+                            double distanceRobotAdverse = Toolbox.Distance(competitorLocation.X, competitorLocation.Y, robotLocation.X, robotLocation.Y);
+
+                            for (int y = 0; y < nbCellInHeatMapHeight; y++)
+                                for (int x = 0; x < nbCellInHeatMapWidth; x++)
+                                {
+                                    PointD ptCourant = GetFieldPosFromHeatMapCoordinates(x, y);
+                                    double distancePt = Toolbox.Distance(ptCourant.X, ptCourant.Y, robotLocation.X, robotLocation.Y);
+                                    double anglePtCourant = Math.Atan2(ptCourant.Y - robotLocation.Y, ptCourant.X - robotLocation.X);
+
+                                    if (Math.Abs(distanceRobotAdverse * (anglePtCourant - angleRobotAdverse)) < 2.0 && distancePt > distanceRobotAdverse - 3)
+                                        data[y, x] -= 1;// Math.Max(0, 1 - Math.Abs(anglePtCourant - angleRobotAdverse) *10.0);
+                                }
                         }
                     }
-            //}
-            //catch
-            //{
-
-            //}
+                }
+            }
+            for (int y = 0; y < nbCellInHeatMapHeight; y++)
+            {
+                for (int x = 0; x < nbCellInHeatMapWidth; x++)
+                {
+                    if (data[y, x] > max)
+                    {
+                        max = data[y, x];
+                        maxPosX = x;
+                        maxPosY = y;
+                    }
+                }
+            }
 
             PointD OptimalPosition = GetFieldPosFromHeatMapCoordinates(maxPosX, maxPosY);
             OnHeatMap(robotName, data);

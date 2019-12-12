@@ -21,9 +21,11 @@ namespace StrategyManager
         double vyDestination = 0;
         double vthetaDestination = 0;
 
+        GlobalWorldMap globalWorldMap = new GlobalWorldMap();
+
         bool AttackOnRight = true;
 
-        double heatMapCellsize = 0.1;
+        double heatMapCellsize = 1;
         double fieldLength = 22;
         double fieldHeight = 14;
 
@@ -34,6 +36,12 @@ namespace StrategyManager
         public StrategyManager(string name)
         {
             robotName = name;
+        }
+
+        public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
+        {
+            globalWorldMap = e.GlobalWorldMap;
+            ProcessStrategy();
         }
 
         public void ProcessStrategy()
@@ -84,13 +92,20 @@ namespace StrategyManager
                     if (AttackOnRight)
                     {
                         //Prise en compte de la position théorique du gardien au centre des buts
-                        data[y, x] = 1 / (1 + Toolbox.Distance(new PointD(-10.5, 0), GetFieldPosFromHeatMapCoordinates(x, y)));
-                        if (data[y, x] > max)
-                        {
-                            max = data[y, x];
-                            maxPosX = x;
-                            maxPosY = y;
-                        }
+                        data[y, x] = Math.Max(0, 1 - Toolbox.Distance(new PointD(-10.5, 0), GetFieldPosFromHeatMapCoordinates(x, y)) / 20.0);
+                        //data[y, x] = 1 / (1 + Toolbox.Distance(new PointD(-10.5, 0), GetFieldPosFromHeatMapCoordinates(x, y)));
+                    }
+                    else
+                    {
+                        //Prise en compte de la position théorique du gardien au centre des buts
+                        data[y, x] = Math.Max(0, 1 - Toolbox.Distance(new PointD(10.5, 0), GetFieldPosFromHeatMapCoordinates(x, y)) / 20.0);
+                        //data[y, x] = 1 / (1 + Toolbox.Distance(new PointD(-10.5, 0), GetFieldPosFromHeatMapCoordinates(x, y)));
+                    }
+                    if (data[y, x] > max)
+                    {
+                        max = data[y, x];
+                        maxPosX = x;
+                        maxPosY = y;
                     }
                 }
             PointD OptimalPosition = GetFieldPosFromHeatMapCoordinates(maxPosX, maxPosY);
@@ -113,8 +128,8 @@ namespace StrategyManager
             int maxPosY = 0;
 
 
-            double xBestLocation = -8 + (rand.NextDouble()-0.5) * 2;
-            double yBestLocation = 3 + (rand.NextDouble() - 0.5) * 2;
+            double xBestLocation = -8 + 0*(rand.NextDouble()-0.5) * 2;
+            double yBestLocation = 3 + 0*(rand.NextDouble() - 0.5) * 2;
 
             //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
             for (int y = 0; y < nbCellInHeatMapHeight; y++)
@@ -123,7 +138,8 @@ namespace StrategyManager
                     if (AttackOnRight)
                     {
                         //Prise en compte de la position théorique du gardien au centre des buts
-                        data[y, x] = 1 / (1 + Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)));
+                        data[y, x] = Math.Max(0, 1 - Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)) / 20.0);
+                        //data[y, x] = 1 / (1 + Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)));
                         if (data[y, x] > max)
                         {
                             max = data[y, x];
@@ -150,8 +166,8 @@ namespace StrategyManager
             int maxPosY = 0;
 
 
-            double xBestLocation = -8 + (rand.NextDouble() - 0.5) * 2;
-            double yBestLocation = -3 + (rand.NextDouble() - 0.5) * 2;
+            double xBestLocation = -8 + 0*(rand.NextDouble() - 0.5) * 2;
+            double yBestLocation = -3 + 0 * (rand.NextDouble() - 0.5) * 2;
 
             //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
             for (int y = 0; y < nbCellInHeatMapHeight; y++)
@@ -160,7 +176,8 @@ namespace StrategyManager
                     if (AttackOnRight)
                     {
                         //Prise en compte de la position théorique du gardien au centre des buts
-                        data[y, x] = 1 / (1 + Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)));
+                        data[y, x] = Math.Max(0, 1 - Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)) / 20.0);
+                        //data[y, x] = 1 / (1 + Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)));
                         if (data[y, x] > max)
                         {
                             max = data[y, x];
@@ -187,8 +204,8 @@ namespace StrategyManager
             int maxPosY = 0;
 
 
-            double xBestLocation = 3 + (rand.NextDouble() - 0.5) * 1;
-            double yBestLocation = 0 + (rand.NextDouble() - 0.5) * 5;
+            double xBestLocation = 3 + 0 * (rand.NextDouble() - 0.5) * 1;
+            double yBestLocation = 0 + 0 * (rand.NextDouble() - 0.5) * 5;
 
             //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
             for (int y = 0; y < nbCellInHeatMapHeight; y++)
@@ -197,7 +214,8 @@ namespace StrategyManager
                     if (AttackOnRight)
                     {
                         //Prise en compte de la position théorique du gardien au centre des buts
-                        data[y, x] = 1 / (1 + Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)));
+                        data[y, x] = Math.Max(0, 1 - Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)) / 20.0);
+                        //data[y, x] = 1 / (1 + Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)));
                         if (data[y, x] > max)
                         {
                             max = data[y, x];
@@ -222,8 +240,8 @@ namespace StrategyManager
             int maxPosX = 0;
             int maxPosY = 0;
             
-            double xBestLocation = 6 + (rand.NextDouble() - 0.5) * 1;
-            double yBestLocation = 0 + (rand.NextDouble() - 0.5) * 5;
+            double xBestLocation = 6 + 0 * (rand.NextDouble() - 0.5) * 1;
+            double yBestLocation = 0 + 0 * (rand.NextDouble() - 0.5) * 5;
 
             //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
             for (int y = 0; y < nbCellInHeatMapHeight; y++)
@@ -232,7 +250,8 @@ namespace StrategyManager
                     if (AttackOnRight)
                     {
                         //Prise en compte de la position théorique du gardien au centre des buts
-                        data[y, x] = 1 / (1 + Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)));
+                        data[y, x] = Math.Max(0, 1 - Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)) / 20.0);
+                        //data[y, x] = 1 / (1 + Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)));
                         if (data[y, x] > max)
                         {
                             max = data[y, x];

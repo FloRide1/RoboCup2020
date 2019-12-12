@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using AdvancedTimers;
 using SciChart.Charting.Visuals;
 using PhysicalGameSimulator;
@@ -10,6 +9,8 @@ using RobotInterface;
 using TeamInterface;
 using WorldMapManager;
 using LidarSimulator;
+using System.Timers;
+using System.Threading;
 
 namespace TeamSimulator
 {
@@ -17,7 +18,7 @@ namespace TeamSimulator
     {
         //static bool usingPhysicalSimulator = true;
 
-        static HighFreqTimer timerStrategie;
+        static System.Timers.Timer timerStrategie;
         static PhysicalSimulator physicalSimulator;
         static GlobalWorldMapManager globalWorldMapManagerTeam1;
         static GlobalWorldMapManager globalWorldMapManagerTeam2;
@@ -82,8 +83,8 @@ namespace TeamSimulator
             StartInterfaces();
             
             //Timer de stratégie
-            timerStrategie = new HighFreqTimer(0.2);
-            timerStrategie.Tick += TimerStrategie_Tick;
+            timerStrategie = new System.Timers.Timer(5000);
+            timerStrategie.Elapsed += TimerStrategie_Tick;
             timerStrategie.Start();
 
             lock (ExitLock)
@@ -108,11 +109,13 @@ namespace TeamSimulator
             //Liens entre modules
             if (TeamNumber == 1)
             {
+                globalWorldMapManagerTeam1.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
                 globalWorldMapManagerTeam1.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
                 localWorldMapManager.OnLocalWorldMapEvent += globalWorldMapManagerTeam1.OnLocalWorldMapReceived;
             }
             else if (TeamNumber == 2)
             {
+                globalWorldMapManagerTeam2.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
                 globalWorldMapManagerTeam2.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
                 localWorldMapManager.OnLocalWorldMapEvent += globalWorldMapManagerTeam2.OnLocalWorldMapReceived;
             }
@@ -127,6 +130,7 @@ namespace TeamSimulator
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             //strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
             waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
+            strategyManager.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
 
             strategyManagerDictionary.Add(robotName, strategyManager);
             waypointGeneratorList.Add(waypointGenerator);
