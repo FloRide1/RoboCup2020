@@ -1,0 +1,14 @@
+
+ACTIVATED BY 	SERIAL 	ACTIVATED ON 	DEACTIVATE
+Valentin Gies (gies@univ-tln.fr) 	f999f1e3-3c3d-4874-90d0-25dc4596bf65 	December 2, 2019 	Deactivate
+
+<LicenseContract>
+  <Customer>Universite De Toulon</Customer>
+  <OrderId>EDUCATIONAL-USE-0128</OrderId>
+  <LicenseCount>1</LicenseCount>
+  <IsTrialLicense>false</IsTrialLicense>
+  <SupportExpires>02/17/2020 00:00:00</SupportExpires>
+  <ProductCode>SC-WPF-2D-PRO-SITE</ProductCode>
+  <KeyCode>lwAAAQEAAACS9FAFUqnVAXkAQ3VzdG9tZXI9VW5pdmVyc2l0ZSBEZSBUb3Vsb247T3JkZXJJZD1FRFVDQVRJT05BTC1VU0UtMDEyODtTdWJzY3JpcHRpb25WYWxpZFRvPTE3LUZlYi0yMDIwO1Byb2R1Y3RDb2RlPVNDLVdQRi0yRC1QUk8tU0lURYcbnXYui4rna7TqbkEmUz1V7oD1EwrO3FhU179M9GNhkL/nkD/SUjwJ/46hJZ31CQ==</KeyCode>
+</LicenseContract>
+

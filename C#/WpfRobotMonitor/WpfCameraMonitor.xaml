@@ -1,0 +1,51 @@
+﻿<Window x:Class="RobotMonitor.WpfCameraMonitor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RobotMonitor"
+        mc:Ignorable="d"
+        Title="Camera Monitor" Height="600" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition/>
+            <RowDefinition Height="30"/>
+            <RowDefinition/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="0.5*"/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="30"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="30"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="30"/>
+        </Grid.ColumnDefinitions>
+
+        <GroupBox x:Name="ImageDebug1" Header="ImageDebug1" Margin="0" BorderBrush="Black" Foreground="Black" Background="#FFDDDDDD" Grid.Column="1" Grid.Row="1">
+            <Image x:Name="imageCamera1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        </GroupBox>
+
+
+        <GroupBox x:Name="ImageDebug2" Header="ImageDebug2" Margin="0" BorderBrush="Black" Foreground="Black" Background="#FFDDDDDD" Grid.Column="3" Grid.Row="1">
+            <Image x:Name="imageCamera2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        </GroupBox>
+
+
+        <GroupBox x:Name="ImageDebug3" Header="ImageDebug3" Margin="0" BorderBrush="Black" Foreground="Black" Background="#FFDDDDDD" Grid.Column="1" Grid.Row="3">
+            <Image x:Name="imageCamera3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        </GroupBox>
+
+
+        <GroupBox x:Name="ImageDebug4" Header="ImageDebug4" Margin="0" BorderBrush="Black" Foreground="Black" Background="#FFDDDDDD" Grid.Column="3" Grid.Row="3">
+            <Image x:Name="imageCamera4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        </GroupBox>
+
+
+        <GroupBox x:Name="ConsoleDebug" Header="Console" Margin="0" Background="#FFDDDDDD" BorderBrush="Black" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="5">
+            <TextBox x:Name="textBoxDebug" Margin="0"  TextWrapping="Wrap" Background="{x:Null}" BorderBrush="{x:Null}" IsReadOnly="True" AcceptsReturn="True"/>
+        </GroupBox>
+    </Grid>
+</Window>

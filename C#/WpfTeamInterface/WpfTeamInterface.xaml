@@ -1,0 +1,61 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:s="http://schemas.abtsoftware.co.uk/scichart" 
+        xmlns:ext="clr-namespace:WpfControlLibrary;assembly=WpfControlLibrary"
+        xmlns:local="clr-namespace:TeamInterface"
+        xmlns:lcu="http://schemas.arction.com/charting/ultimate/" xmlns:lcub="http://schemas.arction.com/bindablecharting/ultimate/" x:Class="TeamInterface.WpfTeamInterface"
+        mc:Ignorable="d"
+        Title="Team Interface" Closing="Window_Closing" SourceInitialized="Window_SourceInitialized"  
+        xmlns:p="clr-namespace:TeamInterface.Properties"  
+    >
+    
+    <Grid Background="#222222">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="5"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="30"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="30"/>
+        </Grid.ColumnDefinitions>
+        <GroupBox x:Name="groupBox" Header="Reception" Margin="0" Background="#FFDDDDDD" BorderBrush="Black" Grid.Column="5" Grid.Row="7">
+            <TextBox x:Name="textBoxReception" Grid.Column="3" Margin="0" Grid.Row="1" TextWrapping="Wrap" Background="{x:Null}" BorderBrush="{x:Null}" IsReadOnly="True" AcceptsReturn="True"/>
+        </GroupBox>
+        <GroupBox x:Name="groupBox1" Header="Emission" Margin="0" BorderBrush="Black" Foreground="Black" Background="#FFDDDDDD" Grid.Column="1" Grid.Row="7">
+            <TextBox x:Name="textBoxEmission" Margin="0" TextWrapping="Wrap" Background="{x:Null}" BorderBrush="{x:Null}" AcceptsReturn="True"/>
+        </GroupBox>
+        <!--<Button x:Name="buttonEnvoyer" Content="Envoyer" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="3" Width="100"/>
+        <Button x:Name="buttonTest" Content="Test" Grid.Column="3" HorizontalAlignment="Center"  Grid.Row="3" Width="100"/>-->
+        
+        <!--  Create the chart surface  -->
+        <ext:WorldMapDisplay x:Name="globalWorldMapDisplay" Grid.Column="3" Grid.ColumnSpan="1" Grid.Row="1">
+        </ext:WorldMapDisplay>
+        <ext:WorldMapDisplay x:Name="localWorldMapDisplay1" Grid.Column="1" Grid.Row="3">
+        </ext:WorldMapDisplay>
+        <ext:WorldMapDisplay x:Name="localWorldMapDisplay2" Grid.Column="3" Grid.Row="3">
+        </ext:WorldMapDisplay>
+        <ext:WorldMapDisplay x:Name="localWorldMapDisplay3" Grid.Column="5" Grid.Row="3">
+        </ext:WorldMapDisplay>
+        <ext:WorldMapDisplay x:Name="localWorldMapDisplay5" Grid.Column="1" Grid.Row="5">
+        </ext:WorldMapDisplay>
+        <ext:WorldMapDisplay x:Name="localWorldMapDisplay4" Grid.Column="3" Grid.Row="5">
+        </ext:WorldMapDisplay>
+        <ext:WorldMapDisplay x:Name="localWorldMapDisplay6" Grid.Column="5" Grid.Row="5">
+        </ext:WorldMapDisplay>
+    </Grid>
+</Window>

@@ -1,0 +1,185 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1CDC0611-A2E5-42E8-A28B-BA4269343C68}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>RobotInterface</RootNamespace>
+    <AssemblyName>RobotInterface</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>7.2</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>7.2</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Arction.DirectX, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
+      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.DirectX.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.DirectXFiles, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
+      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.DirectXFiles.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.DirectXInit, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
+      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.DirectXInit.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.Licensing, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
+      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.Licensing.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.RenderingDefinitions, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
+      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.RenderingDefinitions.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.RenderingEngine, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
+      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.RenderingEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.RenderingEngine11, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
+      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.RenderingEngine11.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.RenderingEngine9, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
+      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.RenderingEngine9.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.Wpf.BindableCharting.LightningChartUltimate, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
+      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.Wpf.BindableCharting.LightningChartUltimate.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.Wpf.Charting.LightningChartUltimate, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
+      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.Wpf.Charting.LightningChartUltimate.dll</HintPath>
+    </Reference>
+    <Reference Include="Arction.Wpf.SemibindableCharting.LightningChartUltimate, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
+      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.Wpf.SemibindableCharting.LightningChartUltimate.dll</HintPath>
+    </Reference>
+    <Reference Include="SciChart.Charting, Version=5.4.0.12119, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL">
+      <HintPath>..\..\Robot\packages\SciChart.5.4.0.12119\lib\net47\SciChart.Charting.dll</HintPath>
+    </Reference>
+    <Reference Include="SciChart.Core, Version=5.4.0.12119, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL">
+      <HintPath>..\..\Robot\packages\SciChart.5.4.0.12119\lib\net47\SciChart.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="SciChart.Data, Version=5.4.0.12119, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL">
+      <HintPath>..\..\Robot\packages\SciChart.5.4.0.12119\lib\net47\SciChart.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="SciChart.Drawing, Version=5.4.0.12119, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL">
+      <HintPath>..\..\Robot\packages\SciChart.5.4.0.12119\lib\net47\SciChart.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="WpfRobotInterface.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="WpfRobotInterface.xaml.cs">
+      <DependentUpon>WpfRobotInterface.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\EventArgsLibrary\EventArgsLibrary.csproj">
+      <Project>{9C46A7C0-4675-41BE-B282-E6F0825AD73E}</Project>
+      <Name>EventArgsLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ExtendedSerialPort\ExtendedSerialPort\ExtendedSerialPort.csproj">
+      <Project>{21ac599e-e3d5-4181-aa0f-7c2e00cca016}</Project>
+      <Name>ExtendedSerialPort</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\HighFreqTimer\AdvancedTimers.csproj">
+      <Project>{ecc907ed-f9b2-457f-901e-720987934e47}</Project>
+      <Name>AdvancedTimers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\MessageDecoder\MessageDecoder.csproj">
+      <Project>{4603885f-cc5e-43e5-a4af-063030cb0a32}</Project>
+      <Name>MessageDecoder</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\MessageEncoder\MessageEncoder.csproj">
+      <Project>{EFAFBA95-1787-41A9-8F12-14ECD9FE127A}</Project>
+      <Name>MessageEncoder</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\RobotMessageGenerator\RobotMessageGenerator.csproj">
+      <Project>{7f098ee2-a8cd-48cf-b9f4-256ea3df2bc6}</Project>
+      <Name>RobotMessageGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\RobotPilot\RobotPilot.csproj">
+      <Project>{4012f5af-50e3-40bd-abf0-4afe3f30d5e3}</Project>
+      <Name>RobotPilot</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\WorldMap\WorldMap.csproj">
+      <Project>{B2D0126F-8C82-4EAA-87E5-67415F589098}</Project>
+      <Name>WorldMap</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\WpfControlLibrary\WpfWorldMapLibrary.csproj">
+      <Project>{89604641-927e-47ff-8db6-91cf5c4976c1}</Project>
+      <Name>WpfWorldMapLibrary</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
