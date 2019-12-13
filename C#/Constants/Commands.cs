@@ -99,6 +99,8 @@ namespace Constants
         StartExperience = 442,
         GetCamera = 443,
         TirCommand = 444,
+        MoveTirUp = 445,
+        MoveTirDown = 446,
 
 
         // Setters de variables d'informations sur les robots

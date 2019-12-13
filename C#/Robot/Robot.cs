@@ -23,7 +23,7 @@ namespace Robot
     class Robot
     {
         static bool usingSimulatedCamera = true;
-        static bool usingLidar = true;
+        static bool usingLidar = false;
         static bool usingPhysicalSimulator = true;
         static bool usingXBoxController = true;
 
@@ -114,6 +114,10 @@ namespace Robot
             {
                 xBoxManette.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
                 xBoxManette.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
+                xBoxManette.OnPriseBalleEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
+                xBoxManette.OnMoveTirUpEvent += robotMsgGenerator.GenerateMessageMoveTirUp;
+                xBoxManette.OnMoveTirDownEvent += robotMsgGenerator.GenerateMessageMoveTirDown;
+                xBoxManette.OnTirEvent += robotMsgGenerator.GenerateMessageTir;
             }
 
             physicalSimulator.OnPhysicalPositionEvent += trajectoryPlanner.OnPhysicalPositionReceived;

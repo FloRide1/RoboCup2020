@@ -59,7 +59,11 @@ namespace EventArgsLibrary
         public float Vy { get; set; }
         public float Vtheta { get; set; }
     }
-
+    public class TirEventArgs : EventArgs
+    {
+        public string RobotName { get; set; }
+        public float Puissance { get; set; }
+    }
     public class SpeedConsigneToMotorArgs : EventArgs
     {
         public float V { get; set; }

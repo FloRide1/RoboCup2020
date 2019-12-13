@@ -11,7 +11,7 @@ namespace XBoxController
         Controller controller;
         Gamepad gamepad;
         public bool connected = false;
-        public int deadband = 2500;
+        public int deadband = 3000;
         public float leftTrigger, rightTrigger;
 
         Timer timerGamepad = new Timer(100);
@@ -31,7 +31,7 @@ namespace XBoxController
             double Vx;
             double Vy;
             double Vtheta;
-
+            double vitessePriseBalle;
             if (controller.IsConnected)
             {
                 gamepad = controller.GetState().Gamepad;
@@ -51,7 +51,23 @@ namespace XBoxController
                 else
                     Vtheta = (float)gamepad.RightThumbX / short.MinValue * 1;
 
+                vitessePriseBalle = (float)(gamepad.RightTrigger) / 2.55;
+                if (gamepad.Buttons.HasFlag(GamepadButtonFlags.X))
+                {
+                    OnTirToRobot(robotName, 50);
+                }
+
+                if(gamepad.Buttons.HasFlag(GamepadButtonFlags.DPadUp))
+                {
+                    OnMoveTirUpToRobot();
+                }
+                if (gamepad.Buttons.HasFlag(GamepadButtonFlags.DPadDown))
+                {
+                    OnMoveTirDownToRobot();
+                }
                 OnSpeedConsigneToRobot(robotName, (float)Vy, (float)Vx, (float)Vtheta);
+                OnPriseBalleToRobot(5, (float)vitessePriseBalle);
+                OnPriseBalleToRobot(6, (float)-vitessePriseBalle);
             }
         }
 
@@ -64,6 +80,50 @@ namespace XBoxController
             if (handler != null)
             {
                 handler(this, new SpeedConsigneArgs { RobotName = name, Vx = vx, Vy = vy, Vtheta = vtheta });
+            }
+        }
+
+        public delegate void OnTirEventHandler(object sender, TirEventArgs e);
+        public event EventHandler<TirEventArgs> OnTirEvent;
+        public virtual void OnTirToRobot(string name, float puissance)
+        {
+            var handler = OnTirEvent;
+            if (handler != null)
+            {
+                handler(this, new TirEventArgs { RobotName = name, Puissance = puissance });
+            }
+        }
+
+        public delegate void OnMoveTirUpEventHandler(object sender, EventArgs e);
+        public event EventHandler<EventArgs> OnMoveTirUpEvent;
+        public virtual void OnMoveTirUpToRobot()
+        {
+            var handler = OnMoveTirUpEvent;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
+            }
+        }
+
+        public delegate void OnMoveTirDownEventHandler(object sender, EventArgs e);
+        public event EventHandler<EventArgs> OnMoveTirDownEvent;
+        public virtual void OnMoveTirDownToRobot()
+        {
+            var handler = OnMoveTirDownEvent;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
+            }
+        }
+
+        public delegate void OnPriseBalleEventHandler(object sender, SpeedConsigneToMotorArgs e);
+        public event EventHandler<SpeedConsigneToMotorArgs> OnPriseBalleEvent;
+        public virtual void OnPriseBalleToRobot(byte motorNumber, float vitesse)
+        {
+            var handler = OnPriseBalleEvent;
+            if (handler != null)
+            {
+                handler(this, new SpeedConsigneToMotorArgs { MotorNumber = motorNumber, V = vitesse });
             }
         }
     }

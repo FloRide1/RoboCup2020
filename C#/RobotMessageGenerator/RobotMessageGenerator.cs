@@ -15,17 +15,18 @@ namespace RobotMessageGenerator
         public void GenerateMessageSetSpeedConsigneToRobot(object sender, SpeedConsigneArgs e)
         {
             byte[] payload = new byte[12];
-            Int32 Vx = (Int32)(e.Vx*1000);
-            Int32 Vy = (Int32)(e.Vy * 1000);
-            Int32 Vtheta = (Int32)(e.Vtheta * 1000);
+            //Int32 Vx = (Int32)(e.Vx*1000);
+            //Int32 Vy = (Int32)(e.Vy * 1000);
+            //Int32 Vtheta = (Int32)(e.Vtheta * 1000);
 
-            payload.SetValueRange(Vx.GetBytes(), 0);
-            payload.SetValueRange(Vy.GetBytes(), 4);
-            payload.SetValueRange(Vtheta.GetBytes(), 8);
-
-
+            //payload.SetValueRange(Vx.GetBytes(), 0);
             //payload.SetValueRange(Vy.GetBytes(), 4);
             //payload.SetValueRange(Vtheta.GetBytes(), 8);
+
+
+            payload.SetValueRange((e.Vx*100).GetBytes(), 0);
+            payload.SetValueRange((e.Vy*100).GetBytes(), 4);
+            payload.SetValueRange((e.Vtheta*100).GetBytes(), 8);
 
             OnMessageToRobot((Int16)Commands.SetSpeedConsigne, 12, payload);
         }
@@ -37,7 +38,21 @@ namespace RobotMessageGenerator
             payload[4] = (byte)e.MotorNumber;
             OnMessageToRobot((Int16)Commands.SetMotorSpeedConsigne, 5, payload);
         }
-
+        public void GenerateMessageTir(object sender, TirEventArgs e)
+        {
+            byte[] payload = new byte[4];
+            payload.SetValueRange(e.Puissance.GetBytes(), 0);
+            OnMessageToRobot((Int16)Commands.TirCommand, 4, payload);
+        }
+        public void GenerateMessageMoveTirUp(object sender, EventArgs e)
+        {
+            OnMessageToRobot((Int16)Commands.MoveTirUp, 0, null);
+        }
+        
+        public void GenerateMessageMoveTirDown(object sender, EventArgs e)
+        {
+            OnMessageToRobot((Int16)Commands.MoveTirDown, 0, null);
+        }
         //public void GenerateTextMessage(object sender, EventArgsLibrary.SpeedConsigneArgs e)
         //{
         //    byte[] payload = new byte[12];
