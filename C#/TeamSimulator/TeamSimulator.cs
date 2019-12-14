@@ -128,8 +128,8 @@ namespace TeamSimulator
             lidarSimulator.OnSimulatedLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
-            strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
-            //waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
+            //strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
+            waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
             strategyManager.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
 
             strategyManagerDictionary.Add(robotName, strategyManager);
