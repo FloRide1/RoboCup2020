@@ -7,35 +7,25 @@ using System.Threading.Tasks;
 using System.Drawing;
 using Utilities;
 using WorldMap;
+using HeatMap;
 
 namespace StrategyManager
 {
     public class StrategyManager
     {
         string robotName = "";
-
-        double xDestination = 0;
-        double yDestination = 0;
-        double thetaDestination = 0;
-        double vxDestination = 0;
-        double vyDestination = 0;
-        double vthetaDestination = 0;
-
+        
         GlobalWorldMap globalWorldMap = new GlobalWorldMap();
 
         bool AttackOnRight = true;
-
-        double heatMapCellsize = 1;
-        double fieldLength = 22;
-        double fieldHeight = 14;
-
-        Point pt;
-
+        
         PlayerRole robotRole = PlayerRole.Stop;
+        double heatMapBaseCellSize = 0.01;
 
         public StrategyManager(string name)
         {
             robotName = name;
+
         }
 
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
@@ -46,25 +36,136 @@ namespace StrategyManager
 
         public void ProcessStrategy()
         {
-            switch(robotRole)
+            //Génération de la HeatMap
+            Heatmap heatMap = new Heatmap(22, 14, 0.01);
+            PointD theoreticalOptimalPos = new PointD(-8, 3);
+
+            //On construit le heatMap en mode multi-résolution :
+            //On commence par une heatmap très peu précise, puis on construit une heat map de taille réduite plus précise autour du point chaud,
+            //Puis on construit une heatmap très précise au cm autour du point chaud.
+            int nbComputations = 0;
+            for (int y = 0; y < heatMap.nbCellInSubSampledHeatMapHeight2; y += 1)
+            {
+                for (int x = 0; x < heatMap.nbCellInSubSampledHeatMapWidth2; x += 1)
+                {
+                    //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
+                    //double value = Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, heatMap.GetFieldPosFromSubSampledHeatMapCoordinates(x, y)) / 20.0);
+                    double value = EvaluateStrategyCostFunction(robotRole, heatMap.GetFieldPosFromSubSampledHeatMapCoordinates2(x, y));
+                    heatMap.SubSampledHeatMapData2[y, x] = value;
+                    int yBase = (int)(y * heatMap.SubSamplingRate2);
+                    int xBase = (int)(x * heatMap.SubSamplingRate2);
+                    heatMap.BaseHeatMapData[yBase, xBase] = value;
+                    nbComputations++;
+                    //for (int i = 0; i < heatMap.SubSamplingRate2; i += 1)
+                    //{
+                    //    for (int j = 0; j < heatMap.SubSamplingRate2; j += 1)
+                    //    {
+                    //        heatMap.BaseHeatMapData[yBase + i, xBase + j] = value;
+                    //    }
+                    //}
+                }
+            }
+
+            Console.WriteLine("Nombre d'opérations pour le calcul de la HeatMap sous échantillonnée de niveau 2 : " + nbComputations);
+
+            PointD OptimalPosition = heatMap.GetMaxPositionInBaseHeatMap();
+            PointD OptimalPosInBaseHeatMapCoordinates = heatMap.GetMaxPositionInBaseHeatMapCoordinates();
+
+            int optimizedAreaSize = (int)(heatMap.SubSamplingRate2/ heatMap.SubSamplingRate1);
+            nbComputations = 0;
+            for (int y = (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.Y / heatMap.SubSamplingRate1 - optimizedAreaSize, 0, heatMap.nbCellInSubSampledHeatMapHeight1);
+                y < (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.Y / heatMap.SubSamplingRate1 + optimizedAreaSize, 0, heatMap.nbCellInSubSampledHeatMapHeight1); y += 1)
+            {
+                for (int x = (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.X / heatMap.SubSamplingRate1 - optimizedAreaSize, 0, heatMap.nbCellInSubSampledHeatMapWidth1);
+                    x < (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.X / heatMap.SubSamplingRate1 + optimizedAreaSize, 0, heatMap.nbCellInSubSampledHeatMapWidth1); x += 1)
+                {
+                    //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
+                    //double value = Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, heatMap.GetFieldPosFromSubSampledHeatMapCoordinates(x, y)) / 20.0);
+                    double value = EvaluateStrategyCostFunction(robotRole, heatMap.GetFieldPosFromSubSampledHeatMapCoordinates1(x, y));
+                    heatMap.SubSampledHeatMapData1[y, x] = value;
+                    int yBase = (int)(y * heatMap.SubSamplingRate1);
+                    int xBase = (int)(x * heatMap.SubSamplingRate1);
+                    heatMap.BaseHeatMapData[yBase, xBase] = value;
+                    nbComputations++;
+                    for (int i = 0; i < heatMap.SubSamplingRate1; i += 1)
+                    {
+                        for (int j = 0; j < heatMap.SubSamplingRate1; j += 1)
+                        {
+                            heatMap.BaseHeatMapData[yBase + i, xBase + j] = value;
+                        }
+                    }
+                }
+            }
+            Console.WriteLine("Nombre d'opérations pour le calcul du raffinement de la HeatMap intermédiaire : " + nbComputations);
+
+            optimizedAreaSize = (int)(heatMap.SubSamplingRate1);
+            nbComputations = 0;
+            for (int y = (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.Y - optimizedAreaSize, 0, heatMap.nbCellInBaseHeatMapHeight); 
+                y < (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.Y + optimizedAreaSize, 0, heatMap.nbCellInBaseHeatMapHeight); y += 1)
+            {
+                for (int x = (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.X - optimizedAreaSize, 0, heatMap.nbCellInBaseHeatMapWidth); 
+                    x < (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.X + optimizedAreaSize, 0, heatMap.nbCellInBaseHeatMapWidth) ; x += 1)
+                {
+                    //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
+                    //double value = Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, heatMap.GetFieldPosFromBaseHeatMapCoordinates(x, y)) / 20.0);
+                    double value = EvaluateStrategyCostFunction(robotRole, heatMap.GetFieldPosFromBaseHeatMapCoordinates(x, y));
+                    heatMap.BaseHeatMapData[y, x] = value;
+                    nbComputations++;
+                }
+            }
+            Console.WriteLine("Nombre d'opérations pour le calcul du raffinement de la HeatMap final : " + nbComputations);
+
+            OptimalPosition = heatMap.GetMaxPositionInBaseHeatMap();
+
+            OnHeatMap(robotName, heatMap);
+            SetDestination(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, 0, 0, 0, 0));
+            
+            
+        }
+
+        double EvaluateStrategyCostFunction(PlayerRole role, PointD fieldPos)
+        {
+            //C'est ici qu'il faut calculer les fonctions de cout pour chacun des roles.
+            switch (role)
             {
                 case PlayerRole.Stop:
+                    {
+                        PointD theoreticalOptimalPos = new PointD(-8, 3);
+                        return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, fieldPos) / 20.0);
+                    }
                     break;
                 case PlayerRole.Gardien:
-                    ProcessStrategieGardien();
+                    {
+                        PointD theoreticalOptimalPos = new PointD(-10.5, 0);
+                        return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, fieldPos) / 20.0);
+                    }
                     break;
                 case PlayerRole.DefenseurPlace:
-                    ProcessStrategieDefenseurPlace();
+                    {
+                        PointD theoreticalOptimalPos = new PointD(-8, 3);
+                        return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, fieldPos) / 20.0);
+                    }
                     break;
                 case PlayerRole.DefenseurActif:
-                    ProcessStrategieDefenseurActif();
+                    {
+                        PointD theoreticalOptimalPos = new PointD(-8, -3);
+                        return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, fieldPos) / 20.0);
+                    }
                     break;
                 case PlayerRole.AttaquantPlace:
-                    ProcessStrategieAttaquantPlace();
+                    {
+                        PointD theoreticalOptimalPos = new PointD(6, 3);
+                        return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, fieldPos) / 20.0);
+                    }
                     break;
                 case PlayerRole.AttaquantAvecBalle:
-                    ProcessStrategieAttaquantAvecBalle();
+                    {
+                        PointD theoreticalOptimalPos = new PointD(6, -3);
+                        return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, fieldPos) / 20.0);
+                    }
                     break;
+                default:
+                    return 0;
             }
         }
 
@@ -72,206 +173,7 @@ namespace StrategyManager
         {
             robotRole = role;
         }
-
-        private void ProcessStrategieGardien()
-        {
-            //Génération de la HeatMap
-            int nbCellInHeatMapHeight = (int)(fieldHeight / heatMapCellsize);
-            int nbCellInHeatMapWidth = (int)(fieldLength / heatMapCellsize);
-            var data = new double[nbCellInHeatMapHeight, nbCellInHeatMapWidth];
-
-            //On calcule les valeurs de la HeatMap en chacun des points
-            double max = 0;
-            int maxPosX = 0;
-            int maxPosY = 0;
-
-            //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
-            for (int y = 0; y < nbCellInHeatMapHeight; y++)
-                for (int x = 0; x < nbCellInHeatMapWidth; x++)
-                {
-                    if (AttackOnRight)
-                    {
-                        //Prise en compte de la position théorique du gardien au centre des buts
-                        data[y, x] = Math.Max(0, 1 - Toolbox.Distance(new PointD(-10.5, 0), GetFieldPosFromHeatMapCoordinates(x, y)) / 20.0);
-                        //data[y, x] = 1 / (1 + Toolbox.Distance(new PointD(-10.5, 0), GetFieldPosFromHeatMapCoordinates(x, y)));
-                    }
-                    else
-                    {
-                        //Prise en compte de la position théorique du gardien au centre des buts
-                        data[y, x] = Math.Max(0, 1 - Toolbox.Distance(new PointD(10.5, 0), GetFieldPosFromHeatMapCoordinates(x, y)) / 20.0);
-                        //data[y, x] = 1 / (1 + Toolbox.Distance(new PointD(-10.5, 0), GetFieldPosFromHeatMapCoordinates(x, y)));
-                    }
-                    if (data[y, x] > max)
-                    {
-                        max = data[y, x];
-                        maxPosX = x;
-                        maxPosY = y;
-                    }
-                }
-            PointD OptimalPosition = GetFieldPosFromHeatMapCoordinates(maxPosX, maxPosY);
-            OnHeatMap(robotName, data);
-            SetDestination(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, 0, 0, 0, 0));
-        }
-
-        Random rand = new Random();
-
-        private void ProcessStrategieDefenseurPlace()
-        {
-            //Génération de la HeatMap
-            int nbCellInHeatMapHeight = (int)(fieldHeight / heatMapCellsize);
-            int nbCellInHeatMapWidth = (int)(fieldLength / heatMapCellsize);
-            var data = new double[nbCellInHeatMapHeight, nbCellInHeatMapWidth];
-
-            //On calcule les valeurs de la HeatMap en chacun des points
-            double max = 0;
-            int maxPosX = 0;
-            int maxPosY = 0;
-
-
-            double xBestLocation = -8 + 0*(rand.NextDouble()-0.5) * 2;
-            double yBestLocation = 3 + 0*(rand.NextDouble() - 0.5) * 2;
-
-            //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
-            for (int y = 0; y < nbCellInHeatMapHeight; y++)
-                for (int x = 0; x < nbCellInHeatMapWidth; x++)
-                {
-                    if (AttackOnRight)
-                    {
-                        //Prise en compte de la position théorique du gardien au centre des buts
-                        data[y, x] = Math.Max(0, 1 - Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)) / 20.0);
-                        //data[y, x] = 1 / (1 + Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)));
-                        if (data[y, x] > max)
-                        {
-                            max = data[y, x];
-                            maxPosX = x;
-                            maxPosY = y;
-                        }
-                    }
-                }
-            PointD OptimalPosition = GetFieldPosFromHeatMapCoordinates(maxPosX, maxPosY);
-            OnHeatMap(robotName, data);
-            SetDestination(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, 0, 0, 0, 0));
-        }
-
-        private void ProcessStrategieDefenseurActif()
-        {
-            //Génération de la HeatMap
-            int nbCellInHeatMapHeight = (int)(fieldHeight / heatMapCellsize);
-            int nbCellInHeatMapWidth = (int)(fieldLength / heatMapCellsize);
-            var data = new double[nbCellInHeatMapHeight, nbCellInHeatMapWidth];
-
-            //On calcule les valeurs de la HeatMap en chacun des points
-            double max = 0;
-            int maxPosX = 0;
-            int maxPosY = 0;
-
-
-            double xBestLocation = -8 + 0*(rand.NextDouble() - 0.5) * 2;
-            double yBestLocation = -3 + 0 * (rand.NextDouble() - 0.5) * 2;
-
-            //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
-            for (int y = 0; y < nbCellInHeatMapHeight; y++)
-                for (int x = 0; x < nbCellInHeatMapWidth; x++)
-                {
-                    if (AttackOnRight)
-                    {
-                        //Prise en compte de la position théorique du gardien au centre des buts
-                        data[y, x] = Math.Max(0, 1 - Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)) / 20.0);
-                        //data[y, x] = 1 / (1 + Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)));
-                        if (data[y, x] > max)
-                        {
-                            max = data[y, x];
-                            maxPosX = x;
-                            maxPosY = y;
-                        }
-                    }
-                }
-            PointD OptimalPosition = GetFieldPosFromHeatMapCoordinates(maxPosX, maxPosY);
-            OnHeatMap(robotName, data);
-            SetDestination(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, 0, 0, 0, 0));
-        }
-
-        private void ProcessStrategieAttaquantAvecBalle()
-        {
-            //Génération de la HeatMap
-            int nbCellInHeatMapHeight = (int)(fieldHeight / heatMapCellsize);
-            int nbCellInHeatMapWidth = (int)(fieldLength / heatMapCellsize);
-            var data = new double[nbCellInHeatMapHeight, nbCellInHeatMapWidth];
-
-            //On calcule les valeurs de la HeatMap en chacun des points
-            double max = 0;
-            int maxPosX = 0;
-            int maxPosY = 0;
-
-
-            double xBestLocation = 3 + 0 * (rand.NextDouble() - 0.5) * 1;
-            double yBestLocation = 0 + 0 * (rand.NextDouble() - 0.5) * 5;
-
-            //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
-            for (int y = 0; y < nbCellInHeatMapHeight; y++)
-                for (int x = 0; x < nbCellInHeatMapWidth; x++)
-                {
-                    if (AttackOnRight)
-                    {
-                        //Prise en compte de la position théorique du gardien au centre des buts
-                        data[y, x] = Math.Max(0, 1 - Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)) / 20.0);
-                        //data[y, x] = 1 / (1 + Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)));
-                        if (data[y, x] > max)
-                        {
-                            max = data[y, x];
-                            maxPosX = x;
-                            maxPosY = y;
-                        }
-                    }
-                }
-            PointD OptimalPosition = GetFieldPosFromHeatMapCoordinates(maxPosX, maxPosY);
-            OnHeatMap(robotName, data);
-            SetDestination(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, 0, 0, 0, 0));
-        }
-        private void ProcessStrategieAttaquantPlace()
-        {
-            //Génération de la HeatMap
-            int nbCellInHeatMapHeight = (int)(fieldHeight / heatMapCellsize);
-            int nbCellInHeatMapWidth = (int)(fieldLength / heatMapCellsize);
-            var data = new double[nbCellInHeatMapHeight, nbCellInHeatMapWidth];
-
-            //On calcule les valeurs de la HeatMap en chacun des points
-            double max = 0;
-            int maxPosX = 0;
-            int maxPosY = 0;
-            
-            double xBestLocation = 6 + 0 * (rand.NextDouble() - 0.5) * 1;
-            double yBestLocation = 0 + 0 * (rand.NextDouble() - 0.5) * 5;
-
-            //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
-            for (int y = 0; y < nbCellInHeatMapHeight; y++)
-                for (int x = 0; x < nbCellInHeatMapWidth; x++)
-                {
-                    if (AttackOnRight)
-                    {
-                        //Prise en compte de la position théorique du gardien au centre des buts
-                        data[y, x] = Math.Max(0, 1 - Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)) / 20.0);
-                        //data[y, x] = 1 / (1 + Toolbox.Distance(new PointD(xBestLocation, yBestLocation), GetFieldPosFromHeatMapCoordinates(x, y)));
-                        if (data[y, x] > max)
-                        {
-                            max = data[y, x];
-                            maxPosX = x;
-                            maxPosY = y;
-                        }
-                    }
-                }
-            PointD OptimalPosition = GetFieldPosFromHeatMapCoordinates(maxPosX, maxPosY);
-            OnHeatMap(robotName, data);
-            SetDestination(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, 0, 0, 0, 0));
-        }
-
-
-
-        private PointD GetFieldPosFromHeatMapCoordinates(int x, int y)
-        {
-            return new PointD(-fieldLength / 2 + x * heatMapCellsize, -fieldHeight / 2 + y * heatMapCellsize);
-        }
-
+                     
         public void SetDestination(Location location)
         {
             OnDestination(robotName, location);
@@ -290,7 +192,7 @@ namespace StrategyManager
 
         public delegate void HeatMapEventHandler(object sender, HeatMapArgs e);
         public event EventHandler<HeatMapArgs> OnHeatMapEvent;
-        public virtual void OnHeatMap(string name, double[,] heatMap)
+        public virtual void OnHeatMap(string name, Heatmap heatMap)
         {
             var handler = OnHeatMapEvent;
             if (handler != null)
@@ -309,4 +211,6 @@ namespace StrategyManager
         AttaquantAvecBalle,
         AttaquantPlace
     }
+
+    
 }

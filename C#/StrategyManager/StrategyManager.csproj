@@ -51,6 +51,10 @@
       <Project>{9C46A7C0-4675-41BE-B282-E6F0825AD73E}</Project>
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\HeatMap\HeatMap.csproj">
+      <Project>{BDF7D4A0-1E8B-4487-862E-2DA58A7BC267}</Project>
+      <Name>HeatMap</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8e7d0da4-9a13-4b18-a90e-0243bbcce40a}</Project>
       <Name>Utilities</Name>

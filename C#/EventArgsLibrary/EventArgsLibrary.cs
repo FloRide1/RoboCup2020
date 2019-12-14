@@ -1,4 +1,5 @@
 ﻿using Emgu.CV;
+using HeatMap;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -87,7 +88,7 @@ namespace EventArgsLibrary
     public class HeatMapArgs : EventArgs
     {
         public string RobotName { get; set; }
-        public double[,] HeatMap { get; set; }
+        public Heatmap HeatMap { get; set; }
     }
 
     public class LocalWorldMapArgs : EventArgs

@@ -25,7 +25,7 @@ namespace Robot
         static bool usingSimulatedCamera = true;
         static bool usingLidar = false;
         static bool usingPhysicalSimulator = true;
-        static bool usingXBoxController = true;
+        static bool usingXBoxController = false;
 
         static HighFreqTimer highFrequencyTimer;
         static HighFreqTimer timerStrategie;
@@ -105,6 +105,10 @@ namespace Robot
             StartInterfaces();
 
             //Liens entre modules
+
+            strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
+            strategyManager.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
+            waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
             if (!usingXBoxController)
             {
                 trajectoryPlanner.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
@@ -128,16 +132,14 @@ namespace Robot
             msgEncoder.OnMessageEncodedEvent += serialPort1.SendMessage;
             serialPort1.OnDataReceivedEvent += msgDecoder.DecodeMsgReceived;
 
-            waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
-            strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
 
 
             physicalSimulator.OnPhysicalPositionEvent += localWorldMapManager.OnPhysicalPositionReceived;
             //lidarSimulator.OnSimulatedLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
-            //strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
-            waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
+            strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
+            //waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
             //lidarSimulator.OnSimulatedLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
             if(usingLidar)
                 lidar_OMD60M.OnLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
@@ -166,7 +168,6 @@ namespace Robot
             var role = (StrategyManager.PlayerRole)rand.Next(1, 3);
             strategyManager.SetRole(role);
             strategyManager.ProcessStrategy();
-            //strategyManager.SetDestination((rand.NextDouble() - 0.5) * 22, (rand.NextDouble() - 0.5) * 14, (rand.NextDouble() - 0.5)*2*Math.PI, 0, 0, 0);
         }
 
         static int nbMsgSent = 0;

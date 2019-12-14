@@ -71,7 +71,8 @@ namespace WpfControlLibrary
             UpdateRobotLocation(robotName, localWorldMap.robotLocation);
             UpdateRobotDestination(robotName, localWorldMap.destinationLocation);
             UpdateRobotWaypoint(robotName, localWorldMap.waypointLocation);
-            UpdateHeatMap(robotName, localWorldMap.heatMap);
+            if(localWorldMap.heatMap!=null)
+                UpdateHeatMap(robotName, localWorldMap.heatMap.BaseHeatMapData);
             UpdateLidarMap(robotName, localWorldMap.lidarMap);
         }
         public void UpdateGlobalWorldMap(GlobalWorldMap globalWorldMap)

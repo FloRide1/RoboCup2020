@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HeatMap;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,7 @@ namespace WorldMap
         public Location waypointLocation { get; set; }
         public List<Location> obstaclesLocation { get; set; }
         public List<PointD> lidarMap { get; set; }
-        public double[,] heatMap { get; set; }
+        public Heatmap heatMap { get; set; }
 
         public LocalWorldMap()
         {

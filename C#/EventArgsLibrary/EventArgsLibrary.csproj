@@ -65,6 +65,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HeatMap\HeatMap.csproj">
+      <Project>{BDF7D4A0-1E8B-4487-862E-2DA58A7BC267}</Project>
+      <Name>HeatMap</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WorldMap\WorldMap.csproj">
       <Project>{B2D0126F-8C82-4EAA-87E5-67415F589098}</Project>
       <Name>WorldMap</Name>
