@@ -1,4 +1,5 @@
 ﻿using AdvancedTimers;
+using Constants;
 using EventArgsLibrary;
 using HeatMap;
 using PerceptionManagement;
@@ -18,7 +19,7 @@ namespace WayPointGenerator
 {
     public class WaypointGenerator
     {
-        string robotName;
+        int robotId;
 
         //Timer timerWayPointGeneration;
 
@@ -32,9 +33,9 @@ namespace WayPointGenerator
 
         Heatmap StrategyHeatmap; 
 
-        public WaypointGenerator(string name)
+        public WaypointGenerator(int id)
         {
-            robotName = name;
+            robotId = id;
             //timerWayPointGeneration = new Timer(100);
             //timerWayPointGeneration.Elapsed += TimerWayPointGeneration_Elapsed;
             //timerWayPointGeneration.Start();
@@ -44,12 +45,12 @@ namespace WayPointGenerator
 
         public void SetNextWayPoint(Location waypointLocation)
         {
-            OnWaypoint(robotName, waypointLocation);
+            OnWaypoint(robotId, waypointLocation);
         }
 
         public void OnDestinationReceived(object sender, EventArgsLibrary.LocationArgs e)
         {
-            if (e.RobotName == robotName)
+            if (e.RobotId == robotId)
             {
                 destinationLocation = e.Location;
             }
@@ -57,7 +58,7 @@ namespace WayPointGenerator
 
         public void OnStrategyHeatMapReceived(object sender, EventArgsLibrary.HeatMapArgs e)
         {            
-            if (robotName == e.RobotName)
+            if (robotId == e.RobotId)
             {
                 StrategyHeatmap = e.HeatMap;
                 CalculateOptimalWayPoint();
@@ -75,7 +76,8 @@ namespace WayPointGenerator
             //Heatmap StrategyHeatmap = StrategyHeatmap.Copy();
 
             //Génération de la HeatMap
-            //Heatmap heatMap = new Heatmap(22, 14, 0.01);            
+            //Heatmap heatMap = new Heatmap(22, 14, 0.01);    
+            sw.Reset();
             sw.Start(); // début de la mesure
 
             //Génération de la HeatMap
@@ -152,15 +154,15 @@ namespace WayPointGenerator
 
             //var OptimalPosition = destinationLocation;
 
-            OnHeatMap(robotName, waypointHeatMap);            
+            OnHeatMap(robotId, waypointHeatMap);            
             if(OptimalPosition != null)
                 SetNextWayPoint(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, 0, 0, 0, 0));
 
             sw.Stop(); // Fin de la mesure
-            for (int n = 0; n < nbComputationsList.Length; n++)
-            {
-                Console.WriteLine("Calcul WayPoint - Nb Calculs Etape " + n + " : " + nbComputationsList[n]);
-            }
+            //for (int n = 0; n < nbComputationsList.Length; n++)
+            //{
+            //    Console.WriteLine("Calcul WayPoint - Nb Calculs Etape " + n + " : " + nbComputationsList[n]);
+            //}
             Console.WriteLine("Temps de calcul de la heatMap WayPoint : " + (sw.ElapsedTicks / (double)TimeSpan.TicksPerMillisecond).ToString("N4")); // Affichage de la mesure
         }
 
@@ -170,65 +172,66 @@ namespace WayPointGenerator
             if (globalWorldMap != null)
             {
                 //Si le robot existe dans le distionnaire des robots
-                if (globalWorldMap.robotLocationDictionary.ContainsKey(robotName))
+                if (globalWorldMap.robotLocationDictionary.ContainsKey(robotId))
                 {
-                    Location robotLocation = globalWorldMap.robotLocationDictionary[robotName];
+                    Location robotLocation = globalWorldMap.robotLocationDictionary[robotId];
                     double angleDestination = Math.Atan2(destinationLocation.Y - robotLocation.Y, destinationLocation.X - robotLocation.X);
 
                     //On génère la liste des robots à éviter...
-                    Dictionary<string, Location> robotToAvoidList = new Dictionary<string, Location>();
+                    Dictionary<int, Location> robotToAvoidDictionary = new Dictionary<int, Location>();
+
                     lock (globalWorldMap.robotLocationDictionary)
                     {
                         foreach (var robot in globalWorldMap.robotLocationDictionary)
                         {
-                            robotToAvoidList.Add(robot.Key, robot.Value);
+                            robotToAvoidDictionary.Add(robot.Key, robot.Value);
                         }
                     }
-                    lock (globalWorldMap.opponentsLocationListDictionary)
+
+                    var opponentsListList = globalWorldMap.opponentsLocationListDictionary.ToList(); //On évite un lock couteux en perf en faisant une copie locale
+                    //lock (globalWorldMap.opponentsLocationListDictionary)
+                    //{
+                    int i = 0;
+                    foreach (var robotList in opponentsListList)
                     {
-                        int i = 0;
-                        foreach (var robotList in globalWorldMap.opponentsLocationListDictionary)
+                        List<Location> rList = new List<Location>();
+                        try { rList = robotList.Value.ToList(); }
+                        catch {; }
+
+                        foreach (var robot in rList)
                         {
-                            try
-                            {
-                                foreach (var robot in robotList.Value)
-                                {
-                                    i++;
-                                    robotToAvoidList.Add(i.ToString(), robot);
-                                }
-                            }
-                            catch { }
+                            i++;
+                            robotToAvoidDictionary.Add((int)TeamId.Opponents+i, robot);
                         }
+                    }
 
-                        //On veut éviter de taper les autres robots                        
-                        //lock (globalWorldMap.robotLocationDictionary)
-                        //{
-                        //    foreach (var robot in globalWorldMap.robotLocationDictionary)
-                        lock (robotToAvoidList)
+                    //On veut éviter de taper les autres robots                        
+                    //lock (robotToAvoidList)
+                    var robotToAvoidList = robotToAvoidDictionary.ToList();   //On évite un lock couteux en perf en faisant une copie locale
+                    {
+                        foreach (var robot in robotToAvoidList)
                         {
-                            foreach (var robot in robotToAvoidList)
+                            int competitorId = robot.Key;
+                            Location competitorLocation = robot.Value;
+
+                            //On itère sur tous les robots sauf celui-ci
+                            if (competitorId != robotId && competitorLocation != null)
                             {
-                                string competitorName = robot.Key;
-                                Location competitorLocation = robot.Value;
-
-                                //On itère sur tous les robots sauf celui-ci
-                                if (competitorName != robotName && competitorLocation!=null)
-                                {
-                                    double angleRobotAdverse = Math.Atan2(competitorLocation.Y - robotLocation.Y, competitorLocation.X - robotLocation.X);
-                                    double distanceRobotAdverse = Toolbox.Distance(competitorLocation.X, competitorLocation.Y, robotLocation.X, robotLocation.Y);
+                                double angleRobotAdverse = Math.Atan2(competitorLocation.Y - robotLocation.Y, competitorLocation.X - robotLocation.X);
+                                double distanceRobotAdverse = Toolbox.Distance(competitorLocation.X, competitorLocation.Y, robotLocation.X, robotLocation.Y);
 
 
-                                    //PointD ptCourant = GetFieldPosFromHeatMapCoordinates(x, y);
-                                    double distancePt = Toolbox.Distance(ptCourant.X, ptCourant.Y, robotLocation.X, robotLocation.Y);
-                                    double anglePtCourant = Math.Atan2(ptCourant.Y - robotLocation.Y, ptCourant.X - robotLocation.X);
+                                //PointD ptCourant = GetFieldPosFromHeatMapCoordinates(x, y);
+                                double distancePt = Toolbox.Distance(ptCourant.X, ptCourant.Y, robotLocation.X, robotLocation.Y);
+                                double anglePtCourant = Math.Atan2(ptCourant.Y - robotLocation.Y, ptCourant.X - robotLocation.X);
 
-                                    if (Math.Abs(distanceRobotAdverse * (anglePtCourant - angleRobotAdverse)) < 2.0 && distancePt > distanceRobotAdverse - 3)
-                                        penalisation += 1;// Math.Max(0, 1 - Math.Abs(anglePtCourant - angleRobotAdverse) *10.0);
+                                if (Math.Abs(distanceRobotAdverse * (anglePtCourant - angleRobotAdverse)) < 2.0 && distancePt > distanceRobotAdverse - 3)
+                                    penalisation += 1;// Math.Max(0, 1 - Math.Abs(anglePtCourant - angleRobotAdverse) *10.0);
 
-                                }
                             }
                         }
                     }
+                    //}
                 }
             }
             return penalisation;
@@ -242,24 +245,24 @@ namespace WayPointGenerator
 
         public delegate void NewWayPointEventHandler(object sender, LocationArgs e);
         public event EventHandler<LocationArgs> OnWaypointEvent;
-        public virtual void OnWaypoint(string name, Location wayPointlocation)
+        public virtual void OnWaypoint(int id, Location wayPointlocation)
         {
             var handler = OnWaypointEvent;
             if (handler != null)
             {
-                handler(this, new LocationArgs { RobotName = name, Location = wayPointlocation});
+                handler(this, new LocationArgs { RobotId = id, Location = wayPointlocation});
             }
         }
 
 
         public delegate void HeatMapEventHandler(object sender, HeatMapArgs e);
         public event EventHandler<HeatMapArgs> OnHeatMapEvent;
-        public virtual void OnHeatMap(string name, Heatmap heatMap)
+        public virtual void OnHeatMap(int id, Heatmap heatMap)
         {
             var handler = OnHeatMapEvent;
             if (handler != null)
             {
-                handler(this, new HeatMapArgs { RobotName = name, HeatMap = heatMap });
+                handler(this, new HeatMapArgs { RobotId = id, HeatMap = heatMap });
             }
         }
     }

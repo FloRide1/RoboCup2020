@@ -110,6 +110,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Constants\Constants.csproj">
+      <Project>{0540B497-B2CE-40A1-84B5-3109CE2F3146}</Project>
+      <Name>Constants</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EventArgsLibrary\EventArgsLibrary.csproj">
       <Project>{9c46a7c0-4675-41be-b282-e6f0825ad73e}</Project>
       <Name>EventArgsLibrary</Name>

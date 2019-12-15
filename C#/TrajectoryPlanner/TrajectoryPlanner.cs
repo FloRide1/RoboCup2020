@@ -11,7 +11,7 @@ namespace TrajectoryGeneration
     {
         double FreqEch = 50;
 
-        string robotName = "";
+        int robotId = 0;
 
         Location currentLocation;
         Location wayPointLocation;
@@ -26,9 +26,9 @@ namespace TrajectoryGeneration
         //HighFreqTimer highFrequencyTimer;
 
 
-        public TrajectoryPlanner(string name)
+        public TrajectoryPlanner(int id)
         {
-            robotName = name;
+            robotId = id;
             //highFrequencyTimer = new HighFreqTimer(fSampling);
             //highFrequencyTimer.Tick += HighFrequencyTimer_Tick; ;
             //highFrequencyTimer.Start();
@@ -43,7 +43,7 @@ namespace TrajectoryGeneration
 
         public void OnPhysicalPositionReceived(object sender, EventArgsLibrary.LocationArgs e)
         {
-            if(robotName == e.RobotName)
+            if(robotId == e.RobotId)
             {
                 currentLocation = e.Location;
                 CalculateSpeedOrders();
@@ -133,7 +133,7 @@ namespace TrajectoryGeneration
             double ecartOrientationRobot = wayPointLocation.Theta - currentLocation.Theta;
             double newVTheta = 30.0 * ecartOrientationRobot / FreqEch;
 
-            OnSpeedConsigneToRobot(robotName, (float)newVx, (float)newVy, (float)newVTheta);
+            OnSpeedConsigneToRobot(robotId, (float)newVx, (float)newVy, (float)newVTheta);
         }
 
         //Input Events
@@ -145,12 +145,12 @@ namespace TrajectoryGeneration
         //Output events
         public delegate void SpeedConsigneEventHandler(object sender, SpeedConsigneArgs e);
         public event EventHandler<SpeedConsigneArgs> OnSpeedConsigneEvent;
-        public virtual void OnSpeedConsigneToRobot(string name, float vx, float vy, float vtheta)
+        public virtual void OnSpeedConsigneToRobot(int id, float vx, float vy, float vtheta)
         {
             var handler = OnSpeedConsigneEvent;
             if (handler != null)
             {
-                handler(this, new SpeedConsigneArgs { RobotName = name, Vx = vx, Vy = vy, Vtheta = vtheta });
+                handler(this, new SpeedConsigneArgs { RobotId = id, Vx = vx, Vy = vy, Vtheta = vtheta });
             }
         }
     }

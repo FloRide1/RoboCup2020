@@ -66,6 +66,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Constants\Constants.csproj">
+      <Project>{0540b497-b2ce-40a1-84b5-3109ce2f3146}</Project>
+      <Name>Constants</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EthernetTeamNetwork\EthernetTeamNetwork.csproj">
       <Project>{5b37c95c-defb-4b49-88c9-8692d14916c7}</Project>
       <Name>EthernetTeamNetwork</Name>

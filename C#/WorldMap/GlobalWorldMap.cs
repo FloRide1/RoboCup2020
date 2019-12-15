@@ -9,57 +9,57 @@ namespace WorldMap
 {
     public class GlobalWorldMap
     {
-        public Dictionary<string, Location> robotLocationDictionary { get; set; }
-        public Dictionary<string, Location> destinationLocationDictionary { get; set; }
-        public Dictionary<string, Location> waypointLocationDictionary { get; set; }
-        public Dictionary<string,List<Location>> opponentsLocationListDictionary { get; set; }
+        public Dictionary<int, Location> robotLocationDictionary { get; set; }
+        public Dictionary<int, Location> destinationLocationDictionary { get; set; }
+        public Dictionary<int, Location> waypointLocationDictionary { get; set; }
+        public Dictionary<int, List<Location>> opponentsLocationListDictionary { get; set; }
 
         public GlobalWorldMap()
         {
-            robotLocationDictionary = new Dictionary<string, Location>();
-            destinationLocationDictionary = new Dictionary<string, Location>();
-            waypointLocationDictionary = new Dictionary<string, Location>();
-            opponentsLocationListDictionary = new Dictionary<string, List<Location>>();
+            robotLocationDictionary = new Dictionary<int, Location>();
+            destinationLocationDictionary = new Dictionary<int, Location>();
+            waypointLocationDictionary = new Dictionary<int, Location>();
+            opponentsLocationListDictionary = new Dictionary<int, List<Location>>();
         }
 
-        public void AddOrUpdateRobotLocation(string name, Location loc)
+        public void AddOrUpdateRobotLocation(int id, Location loc)
         {
             lock (robotLocationDictionary)
             {
-                if (robotLocationDictionary.ContainsKey(name))
-                    robotLocationDictionary[name] = loc;
+                if (robotLocationDictionary.ContainsKey(id))
+                    robotLocationDictionary[id] = loc;
                 else
-                    robotLocationDictionary.Add(name, loc);
+                    robotLocationDictionary.Add(id, loc);
             }
         }
-        public void AddOrUpdateRobotDestination(string name, Location loc)
+        public void AddOrUpdateRobotDestination(int id, Location loc)
         {
             lock (destinationLocationDictionary)
             {
-                if (destinationLocationDictionary.ContainsKey(name))
-                    destinationLocationDictionary[name] = loc;
+                if (destinationLocationDictionary.ContainsKey(id))
+                    destinationLocationDictionary[id] = loc;
                 else
-                    destinationLocationDictionary.Add(name, loc);
+                    destinationLocationDictionary.Add(id, loc);
             }
         }
-        public void AddOrUpdateRobotWayPoint(string name, Location loc)
+        public void AddOrUpdateRobotWayPoint(int id, Location loc)
         {
             lock (waypointLocationDictionary)
             {
-                if (waypointLocationDictionary.ContainsKey(name))
-                    waypointLocationDictionary[name] = loc;
+                if (waypointLocationDictionary.ContainsKey(id))
+                    waypointLocationDictionary[id] = loc;
                 else
-                    waypointLocationDictionary.Add(name, loc);
+                    waypointLocationDictionary.Add(id, loc);
             }
         }
-        public void AddOrUpdateOpponentsList(string name, List<Location> locList)
+        public void AddOrUpdateOpponentsList(int id, List<Location> locList)
         {
             lock (opponentsLocationListDictionary)
             {
-                if (opponentsLocationListDictionary.ContainsKey(name))
-                    opponentsLocationListDictionary[name] = locList;
+                if (opponentsLocationListDictionary.ContainsKey(id))
+                    opponentsLocationListDictionary[id] = locList;
                 else
-                    opponentsLocationListDictionary.Add(name, locList);
+                    opponentsLocationListDictionary.Add(id, locList);
             }
         }
     }

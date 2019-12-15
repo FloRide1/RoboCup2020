@@ -1,4 +1,5 @@
-﻿using EventArgsLibrary;
+﻿using Constants;
+using EventArgsLibrary;
 using System;
 using System.Windows;
 using System.Windows.Threading;
@@ -13,45 +14,45 @@ namespace TeamInterface
         public WpfTeamInterface()
         {
             InitializeComponent();
-            localWorldMapDisplay1.InitRobot("Robot1Team1");
-            localWorldMapDisplay2.InitRobot("Robot2Team1");
-            localWorldMapDisplay3.InitRobot("Robot3Team1");
-            localWorldMapDisplay4.InitRobot("Robot4Team1");
-            localWorldMapDisplay5.InitRobot("Robot5Team1");
-            localWorldMapDisplay6.InitRobot("Robot6Team1");
+            localWorldMapDisplay1.InitRobot((int)TeamId.Team1 + (int)RobotId.Robot1);
+            localWorldMapDisplay2.InitRobot((int)TeamId.Team1 + (int)RobotId.Robot2);
+            localWorldMapDisplay3.InitRobot((int)TeamId.Team1 + (int)RobotId.Robot3);
+            localWorldMapDisplay4.InitRobot((int)TeamId.Team1 + (int)RobotId.Robot4);
+            localWorldMapDisplay5.InitRobot((int)TeamId.Team1 + (int)RobotId.Robot5);
+            localWorldMapDisplay6.InitRobot((int)TeamId.Team1 + (int)RobotId.Robot6);
 
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < 5; i++)
             {
-                globalWorldMapDisplay.InitRobot("Robot" + i.ToString() + "Team1");
+                globalWorldMapDisplay.InitRobot((int)TeamId.Team1 + i);
             }
 
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < 5; i++)
             {
-                globalWorldMapDisplay.InitRobot("Robot" + i.ToString() + "Team2");
+                globalWorldMapDisplay.InitRobot((int)TeamId.Team2 + i);
             }
         }
 
         public void OnLocalWorldMapReceived(object sender, LocalWorldMapArgs e)
         {
-            switch(e.RobotName)
+            switch(e.RobotId)
             {
-                case "Robot1Team1":
-                    localWorldMapDisplay1.UpdateLocalWorldMap(e.RobotName, e.LocalWorldMap);
+                case (int)TeamId.Team1+ (int)RobotId.Robot1:
+                    localWorldMapDisplay1.UpdateLocalWorldMap(e.RobotId, e.LocalWorldMap);
                     break;
-                case "Robot2Team1":
-                    localWorldMapDisplay2.UpdateLocalWorldMap(e.RobotName, e.LocalWorldMap);
+                case (int)TeamId.Team1 + (int)RobotId.Robot2:
+                    localWorldMapDisplay2.UpdateLocalWorldMap(e.RobotId, e.LocalWorldMap);
                     break;
-                case "Robot3Team1":
-                    localWorldMapDisplay3.UpdateLocalWorldMap(e.RobotName, e.LocalWorldMap);
+                case (int)TeamId.Team1 + (int)RobotId.Robot3:
+                    localWorldMapDisplay3.UpdateLocalWorldMap(e.RobotId, e.LocalWorldMap);
                     break;
-                case "Robot4Team1":
-                    localWorldMapDisplay4.UpdateLocalWorldMap(e.RobotName, e.LocalWorldMap);
+                case (int)TeamId.Team1 + (int)RobotId.Robot4:
+                    localWorldMapDisplay4.UpdateLocalWorldMap(e.RobotId, e.LocalWorldMap);
                     break;
-                case "Robot5Team1":
-                    localWorldMapDisplay5.UpdateLocalWorldMap(e.RobotName, e.LocalWorldMap);
+                case (int)TeamId.Team1 + (int)RobotId.Robot5:
+                    localWorldMapDisplay5.UpdateLocalWorldMap(e.RobotId, e.LocalWorldMap);
                     break;
-                case "Robot6Team1":
-                    localWorldMapDisplay6.UpdateLocalWorldMap(e.RobotName, e.LocalWorldMap);
+                case (int)TeamId.Team1 + (int)RobotId.Robot6:
+                    localWorldMapDisplay6.UpdateLocalWorldMap(e.RobotId, e.LocalWorldMap);
                     break;
             }
         }

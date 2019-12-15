@@ -15,7 +15,7 @@ namespace StrategyManager
 {
     public class StrategyManager
     {
-        string robotName = "";
+        int robotId = 0;
         
         GlobalWorldMap globalWorldMap = new GlobalWorldMap();
 
@@ -24,9 +24,9 @@ namespace StrategyManager
         PlayerRole robotRole = PlayerRole.Stop;
         double heatMapBaseCellSize = 0.01;
 
-        public StrategyManager(string name)
+        public StrategyManager(int id)
         {
-            robotName = name;
+            robotId = id;
             heatMap = new Heatmap(22.0, 14.0, 22.0/Math.Pow(2,8), 2);
 
         }
@@ -41,7 +41,8 @@ namespace StrategyManager
         Stopwatch sw = new Stopwatch();
         public void ProcessStrategy()
         {
-            //sw.Start(); // début de la mesure
+            sw.Reset();
+            sw.Start(); // début de la mesure
                         
             //Génération de la HeatMap
             heatMap.ReInitHeatMapData();
@@ -113,16 +114,16 @@ namespace StrategyManager
             OptimalPosition = heatMap.GetFieldPosFromBaseHeatMapCoordinates(OptimalPosInBaseHeatMapCoordinates.X, OptimalPosInBaseHeatMapCoordinates.Y);
 
 
-            OnHeatMap(robotName, heatMap);
+            OnHeatMap(robotId, heatMap);
             SetDestination(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, 0, 0, 0, 0));
 
             //heatMap.Dispose();
-            //sw.Stop(); // Fin de la mesure
+            sw.Stop(); // Fin de la mesure
             //for (int n = 0; n < nbComputationsList.Length; n++)
             //{
             //    Console.WriteLine("Calcul Strategy - Nb Calculs Etape " + n + " : " + nbComputationsList[n]);
             //}
-            //Console.WriteLine("Temps de calcul de la heatMap de stratégie : " + (sw.ElapsedTicks / (double)TimeSpan.TicksPerMillisecond).ToString("N4")); // Affichage de la mesure
+            Console.WriteLine("Temps de calcul de la heatMap de stratégie : " + (sw.ElapsedTicks / (double)TimeSpan.TicksPerMillisecond).ToString("N4")); // Affichage de la mesure
         }
 
 
@@ -180,28 +181,28 @@ namespace StrategyManager
                      
         public void SetDestination(Location location)
         {
-            OnDestination(robotName, location);
+            OnDestination(robotId, location);
         }
 
         public delegate void DestinationEventHandler(object sender, LocationArgs e);
         public event EventHandler<LocationArgs> OnDestinationEvent;
-        public virtual void OnDestination(string name, Location location)
+        public virtual void OnDestination(int id, Location location)
         {
             var handler = OnDestinationEvent;
             if (handler != null)
             {
-                handler(this, new LocationArgs { RobotName = name, Location = location });
+                handler(this, new LocationArgs { RobotId = id, Location = location });
             }
         }
 
         public delegate void HeatMapEventHandler(object sender, HeatMapArgs e);
         public event EventHandler<HeatMapArgs> OnHeatMapEvent;
-        public virtual void OnHeatMap(string name, Heatmap heatMap)
+        public virtual void OnHeatMap(int id, Heatmap heatMap)
         {
             var handler = OnHeatMapEvent;
             if (handler != null)
             {
-                handler(this, new HeatMapArgs { RobotName = name, HeatMap = heatMap });
+                handler(this, new HeatMapArgs { RobotId = id, HeatMap = heatMap });
             }
         }
     }

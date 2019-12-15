@@ -11,12 +11,12 @@ namespace WorldMapManager
 {
     public class LocalWorldMapManager
     {
-        string robotName = "";
+        int robotId = 0;
         LocalWorldMap localWorldMap;
 
-        public LocalWorldMapManager(string name)
+        public LocalWorldMapManager(int id)
         {
-            robotName = name;
+            robotId = id;
             localWorldMap = new LocalWorldMap();
         }
 
@@ -24,10 +24,10 @@ namespace WorldMapManager
         {
             if (localWorldMap == null)
                 return;
-            if (robotName == e.RobotName)
+            if (robotId == e.RobotId)
             {
                 localWorldMap.robotLocation = e.Location;
-                OnLocalWorldMap(robotName, localWorldMap);
+                OnLocalWorldMap(robotId, localWorldMap);
             }
         }
 
@@ -35,7 +35,7 @@ namespace WorldMapManager
         {
             if (localWorldMap == null)
                 return;
-            if (robotName == e.RobotName)
+            if (robotId == e.RobotId)
             {
                 localWorldMap.robotLocation = e.Perception.robotLocation;
                 localWorldMap.teamLocationList = e.Perception.teamLocationList;
@@ -43,7 +43,7 @@ namespace WorldMapManager
                 localWorldMap.obstacleLocationList = e.Perception.obstacleLocationList;
 
                 if (localWorldMap.robotLocation !=null)
-                    OnLocalWorldMap(robotName, localWorldMap);
+                    OnLocalWorldMap(robotId, localWorldMap);
             }
         }
 
@@ -51,7 +51,7 @@ namespace WorldMapManager
         {
             if (localWorldMap == null)
                 return;
-            if (robotName == e.RobotName)
+            if (robotId == e.RobotId)
             {
                 localWorldMap.waypointLocation = e.Location;
             }
@@ -61,7 +61,7 @@ namespace WorldMapManager
         {
             if (localWorldMap == null)
                 return;
-            if (robotName == e.RobotName)
+            if (robotId == e.RobotId)
             {
                 localWorldMap.destinationLocation = e.Location;
             }
@@ -71,7 +71,7 @@ namespace WorldMapManager
         {
             if (localWorldMap == null)
                 return;
-            if (robotName == e.RobotName)
+            if (robotId == e.RobotId)
             {
                 localWorldMap.heatMap = e.HeatMap;
             }
@@ -81,7 +81,7 @@ namespace WorldMapManager
         {
             if (localWorldMap == null || localWorldMap.robotLocation == null)
                 return;
-            if (robotName == e.RobotName)
+            if (robotId == e.RobotId)
             {
                 List<PointD> listPtLidar = new List<PointD>();
                 for (int i=0; i< e.AngleList.Count; i++)
@@ -95,12 +95,12 @@ namespace WorldMapManager
 
         public delegate void LocalWorldMapEventHandler(object sender, LocalWorldMapArgs e);
         public event EventHandler<LocalWorldMapArgs> OnLocalWorldMapEvent;
-        public virtual void OnLocalWorldMap(string name, LocalWorldMap localWorldMap)
+        public virtual void OnLocalWorldMap(int id, LocalWorldMap localWorldMap)
         {
             var handler = OnLocalWorldMapEvent;
             if (handler != null)
             {
-                handler(this, new LocalWorldMapArgs { RobotName = name, LocalWorldMap = this.localWorldMap });
+                handler(this, new LocalWorldMapArgs { RobotId = id, LocalWorldMap = this.localWorldMap });
             }
         }
     }

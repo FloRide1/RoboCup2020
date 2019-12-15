@@ -12,7 +12,7 @@ namespace WorldMapManager
     public class GlobalWorldMapManager
     {
         double freqRafraichissementWolrdMap = 30;
-        Dictionary<string, LocalWorldMap> localWorldMapDictionary = new Dictionary<string, LocalWorldMap>();
+        Dictionary<int, LocalWorldMap> localWorldMapDictionary = new Dictionary<int, LocalWorldMap>();
         GlobalWorldMap globalWorldMap = new GlobalWorldMap();
         Timer globalWorldMapSendTimer;
 
@@ -31,17 +31,17 @@ namespace WorldMapManager
 
         public void OnLocalWorldMapReceived(object sender, EventArgsLibrary.LocalWorldMapArgs e)
         {
-            AddOrUpdateLocalWorldMap(e.RobotName, e.LocalWorldMap);
+            AddOrUpdateLocalWorldMap(e.RobotId, e.LocalWorldMap);
         }
 
-        private void AddOrUpdateLocalWorldMap(string name, LocalWorldMap localWorldMap)
+        private void AddOrUpdateLocalWorldMap(int id, LocalWorldMap localWorldMap)
         {
             lock (localWorldMapDictionary)
             {
-                if (localWorldMapDictionary.ContainsKey(name))
-                    localWorldMapDictionary[name] = localWorldMap;
+                if (localWorldMapDictionary.ContainsKey(id))
+                    localWorldMapDictionary[id] = localWorldMap;
                 else
-                    localWorldMapDictionary.Add(name, localWorldMap);
+                    localWorldMapDictionary.Add(id, localWorldMap);
             }
             MergeLocalWorldMaps();
         }

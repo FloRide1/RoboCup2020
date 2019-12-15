@@ -10,7 +10,7 @@ namespace PhysicalGameSimulator
 {
     public class PhysicalSimulator
     {
-        Dictionary<string, PhysicalRobotSimulator> robotList = new Dictionary<string, PhysicalRobotSimulator>();
+        Dictionary<int, PhysicalRobotSimulator> robotList = new Dictionary<int, PhysicalRobotSimulator>();
         double fSampling = 50;
 
         HighFreqTimer highFrequencyTimer;
@@ -22,11 +22,11 @@ namespace PhysicalGameSimulator
             highFrequencyTimer.Start();
         }
 
-        public void RegisterRobot(string name, double xpos, double yPos)
+        public void RegisterRobot(int id, double xpos, double yPos)
         {
             lock (robotList)
             {
-                robotList.Add(name, new PhysicalRobotSimulator(xpos, yPos));
+                robotList.Add(id, new PhysicalRobotSimulator(xpos, yPos));
             }
         }
 
@@ -81,7 +81,7 @@ namespace PhysicalGameSimulator
                     }
 
                     //Emission d'un event de position physique 
-                    Location loc = new Location((float)robot.Value.X, (float)robot.Value.Y, (float)robot.Value.Theta, (float)robot.Value.Vx, (float)robot.Value.Vy, (float)robot.Value.Vtheta);
+                    Location loc = new Location(robot.Value.X, robot.Value.Y, robot.Value.Theta, robot.Value.Vx, robot.Value.Vy, robot.Value.Vtheta);
                     OnPhysicalPosition(robot.Key, loc);
                 }
 
@@ -96,23 +96,23 @@ namespace PhysicalGameSimulator
 
         public void SetRobotSpeed(object sender, SpeedConsigneArgs e)
         {
-            if (robotList.ContainsKey(e.RobotName))
+            if (robotList.ContainsKey(e.RobotId))
             {
-                robotList[e.RobotName].Vx = e.Vx;
-                robotList[e.RobotName].Vy = e.Vy;
-                robotList[e.RobotName].Vtheta = e.Vtheta;
+                robotList[e.RobotId].Vx = e.Vx;
+                robotList[e.RobotId].Vy = e.Vy;
+                robotList[e.RobotId].Vtheta = e.Vtheta;
             }
         }
 
         //Output events
         public delegate void PhysicalPositionEventHandler(object sender, LocationArgs e);
         public event EventHandler<LocationArgs> OnPhysicalPositionEvent;
-        public virtual void OnPhysicalPosition(string name, Location location)
+        public virtual void OnPhysicalPosition(int id, Location location)
         {
             var handler = OnPhysicalPositionEvent;
             if (handler != null)
             {
-                handler(this, new LocationArgs { RobotName = name, Location = location});
+                handler(this, new LocationArgs { RobotId = id, Location = location});
             }
         }
 

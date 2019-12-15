@@ -56,14 +56,14 @@ namespace EventArgsLibrary
     }
     public class SpeedConsigneArgs : EventArgs
     {
-        public string RobotName { get; set; }
+        public int RobotId { get; set; }
         public float Vx { get; set; }
         public float Vy { get; set; }
         public float Vtheta { get; set; }
     }
     public class TirEventArgs : EventArgs
     {
-        public string RobotName { get; set; }
+        public int RobotId { get; set; }
         public float Puissance { get; set; }
     }
     public class SpeedConsigneToMotorArgs : EventArgs
@@ -82,7 +82,7 @@ namespace EventArgsLibrary
 
     public class LocationArgs : EventArgs
     {
-        public string RobotName { get; set; }
+        public int RobotId { get; set; }
 
         public Location Location { get; set; }
     }
@@ -92,18 +92,18 @@ namespace EventArgsLibrary
     }
     public class PerceptionArgs : EventArgs
     {
-        public string RobotName { get; set; }
+        public int RobotId { get; set; }
         public Perception Perception { get; set; }
     }
     public class HeatMapArgs : EventArgs
     {
-        public string RobotName { get; set; }
+        public int RobotId { get; set; }
         public Heatmap HeatMap { get; set; }
     }
 
     public class LocalWorldMapArgs : EventArgs
     {
-        public string RobotName { get; set; }
+        public int RobotId { get; set; }
         public LocalWorldMap LocalWorldMap { get; set; }
     }
 
@@ -113,7 +113,7 @@ namespace EventArgsLibrary
     }
     public class RawLidarArgs : EventArgs
     {
-        public string RobotName { get; set; }
+        public int RobotId { get; set; }
         public List<double> AngleList { get; set; }
         public List<double> DistanceList { get; set; }
     }

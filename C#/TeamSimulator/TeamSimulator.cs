@@ -11,6 +11,7 @@ using WorldMapManager;
 using LidarSimulator;
 using System.Threading;
 using PerceptionManagement;
+using Constants;
 
 namespace TeamSimulator
 {
@@ -26,7 +27,7 @@ namespace TeamSimulator
         static List<RobotPilot.RobotPilot> robotPilotList;
         static List<TrajectoryPlanner> trajectoryPlannerList;
         static List<WaypointGenerator> waypointGeneratorList;
-        static Dictionary<string, StrategyManager.StrategyManager> strategyManagerDictionary;
+        static Dictionary<int, StrategyManager.StrategyManager> strategyManagerDictionary;
         static List<LocalWorldMapManager> localWorldMapManagerList;
         static List<LidarSimulator.LidarSimulator> lidarSimulatorList;
         static List<PerceptionSimulator> perceptionSimulatorList;
@@ -57,7 +58,7 @@ namespace TeamSimulator
             trajectoryPlannerList = new List<TrajectoryPlanner>();
             waypointGeneratorList = new List<WaypointGenerator>();
             lidarSimulatorList = new List<LidarSimulator.LidarSimulator>();
-            strategyManagerDictionary = new Dictionary<string, StrategyManager.StrategyManager>();
+            strategyManagerDictionary = new Dictionary<int, StrategyManager.StrategyManager>();
             localWorldMapManagerList = new List<LocalWorldMapManager>();
             perceptionSimulatorList = new List<PerceptionSimulator>();
 
@@ -69,14 +70,14 @@ namespace TeamSimulator
             {
                 //ethernetTeamNetworkAdapter = new EthernetTeamNetworkAdapter();
                 //var LocalWorldMapManager = new  ("Robot" + (i + 1).ToString());
-                CreatePlayer(i+1, 1);
+                CreatePlayer((int)TeamId.Team1, i);
             }
 
             for (int i = 0; i < nbPlayersTeam2; i++)
             {
                 //ethernetTeamNetworkAdapter = new EthernetTeamNetworkAdapter();
                 //var LocalWorldMapManager = new  ("Robot" + (i + 1).ToString());
-                CreatePlayer(i + 1, 2);
+                CreatePlayer((int)TeamId.Team2, i);
             }
 
             DefineRoles();
@@ -98,26 +99,26 @@ namespace TeamSimulator
         }
 
         static Random randomGenerator = new Random();
-        private static void CreatePlayer(int RobotNumber, int TeamNumber)
-        {
-            string robotName = "Robot" + RobotNumber.ToString() + "Team" + TeamNumber.ToString();
-            var strategyManager = new StrategyManager.StrategyManager(robotName);
-            var waypointGenerator = new WaypointGenerator(robotName);
-            var trajectoryPlanner = new TrajectoryPlanner(robotName);
-            var robotPilot = new RobotPilot.RobotPilot(robotName);
-            var localWorldMapManager = new LocalWorldMapManager(robotName);
-            var lidarSimulator = new LidarSimulator.LidarSimulator(robotName);
-            var perceptionSimulator = new PerceptionSimulator(robotName);
+        private static void CreatePlayer(int TeamNumber, int RobotNumber)
+        {   
+            int robotId = TeamNumber + RobotNumber;
+            var strategyManager = new StrategyManager.StrategyManager(robotId);
+            var waypointGenerator = new WaypointGenerator(robotId);
+            var trajectoryPlanner = new TrajectoryPlanner(robotId);
+            var robotPilot = new RobotPilot.RobotPilot(robotId);
+            var localWorldMapManager = new LocalWorldMapManager(robotId);
+            var lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
+            var perceptionSimulator = new PerceptionSimulator(robotId);
 
             //Liens entre modules
-            if (TeamNumber == 1)
+            if (TeamNumber == (int)TeamId.Team1)
             {
                 globalWorldMapManagerTeam1.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
                 globalWorldMapManagerTeam1.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
                 globalWorldMapManagerTeam1.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
                 localWorldMapManager.OnLocalWorldMapEvent += globalWorldMapManagerTeam1.OnLocalWorldMapReceived;
             }
-            else if (TeamNumber == 2)
+            else if (TeamNumber == (int)TeamId.Team2)
             {
                 globalWorldMapManagerTeam2.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
                 globalWorldMapManagerTeam2.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
@@ -128,7 +129,7 @@ namespace TeamSimulator
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
             trajectoryPlanner.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
 
-            physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicicalObjectListLocationReceived;
+            physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicalObjectListLocationReceived;
             physicalSimulator.OnPhysicalPositionEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             physicalSimulator.OnPhysicalPositionEvent += perceptionSimulator.OnPhysicalPositionReceived;
             //physicalSimulator.OnPhysicalPositionEvent += localWorldMapManager.OnPhysicalPositionReceived;
@@ -141,7 +142,7 @@ namespace TeamSimulator
             waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
             strategyManager.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
 
-            strategyManagerDictionary.Add(robotName, strategyManager);
+            strategyManagerDictionary.Add(robotId, strategyManager);
             waypointGeneratorList.Add(waypointGenerator);
             trajectoryPlannerList.Add(trajectoryPlanner);
             robotPilotList.Add(robotPilot);
@@ -149,7 +150,7 @@ namespace TeamSimulator
             lidarSimulatorList.Add(lidarSimulator);
             perceptionSimulatorList.Add(perceptionSimulator);
 
-            physicalSimulator.RegisterRobot(robotName, randomGenerator.Next(-10,10), randomGenerator.Next(-6, 6));
+            physicalSimulator.RegisterRobot(robotId, randomGenerator.Next(-10,10), randomGenerator.Next(-6, 6));
         }
 
         private static void TimerStrategie_Tick(object sender, EventArgs e)
@@ -168,8 +169,10 @@ namespace TeamSimulator
 
             for (int i = 0; i < nbPlayersTeam1; i++)
             {
-                strategyManagerDictionary["Robot" + (i + 1).ToString() + "Team1"].SetRole((StrategyManager.PlayerRole)roleList[i]);
-                strategyManagerDictionary["Robot" + (i + 1).ToString() + "Team1"].ProcessStrategy();
+                //strategyManagerDictionary["Robot" + (i + 1).ToString() + "Team1"].SetRole((StrategyManager.PlayerRole)roleList[i]);
+                //strategyManagerDictionary["Robot" + (i + 1).ToString() + "Team1"].ProcessStrategy();
+                strategyManagerDictionary[(int)TeamId.Team1 + i].SetRole((StrategyManager.PlayerRole)roleList[i]);
+                strategyManagerDictionary[(int)TeamId.Team1 + i].ProcessStrategy();
             }
             
             roleList = new List<int>();
@@ -181,8 +184,8 @@ namespace TeamSimulator
 
             for (int i = 0; i < nbPlayersTeam2; i++)
             {
-                strategyManagerDictionary["Robot" + (i + 1).ToString() + "Team2"].SetRole((StrategyManager.PlayerRole)roleList[i]);
-                strategyManagerDictionary["Robot" + (i + 1).ToString() + "Team2"].ProcessStrategy();
+                strategyManagerDictionary[(int)TeamId.Team2 + i].SetRole((StrategyManager.PlayerRole)roleList[i]);
+                strategyManagerDictionary[(int)TeamId.Team2 + i].ProcessStrategy();
             }
         }
 

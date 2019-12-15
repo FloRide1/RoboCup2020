@@ -12,7 +12,7 @@ namespace WorldMap
     public class LocalWorldMap
     {
         public Location robotLocation { get; set; }
-        public Dictionary<string, Location> teamLocationList {get; set;}
+        public Dictionary<int, Location> teamLocationList {get; set;}
         public List<Location> opponentLocationList { get; set; }
         public List<Location> obstacleLocationList { get; set; }
         public Location destinationLocation { get; set; }

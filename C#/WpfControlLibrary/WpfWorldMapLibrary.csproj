@@ -97,6 +97,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Constants\Constants.csproj">
+      <Project>{0540B497-B2CE-40A1-84B5-3109CE2F3146}</Project>
+      <Name>Constants</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HeatMap\HeatMap.csproj">
       <Project>{BDF7D4A0-1E8B-4487-862E-2DA58A7BC267}</Project>
       <Name>HeatMap</Name>

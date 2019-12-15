@@ -1,4 +1,5 @@
 ﻿using AdvancedTimers;
+using Constants;
 using PerceptionManagement;
 using SciChart.Charting.Model.DataSeries;
 using SciChart.Charting.Model.DataSeries.Heatmap2DArrayDataSeries;
@@ -43,7 +44,7 @@ namespace WpfControlLibrary
         double TerrainUpperY = 7;
 
         //Liste des robots à afficher
-        Dictionary<string, RobotDisplay> robotDictionary = new Dictionary<string, RobotDisplay>();
+        Dictionary<int, RobotDisplay> robotDictionary = new Dictionary<int, RobotDisplay>();
 
         public WorldMapDisplay()
         {
@@ -67,14 +68,14 @@ namespace WpfControlLibrary
             }
         }
 
-        public void UpdateLocalWorldMap(string robotName, LocalWorldMap localWorldMap)
+        public void UpdateLocalWorldMap(int robotId, LocalWorldMap localWorldMap)
         {
-            UpdateRobotLocation(robotName, localWorldMap.robotLocation);
-            UpdateRobotDestination(robotName, localWorldMap.destinationLocation);
-            UpdateRobotWaypoint(robotName, localWorldMap.waypointLocation);
+            UpdateRobotLocation(robotId, localWorldMap.robotLocation);
+            UpdateRobotDestination(robotId, localWorldMap.destinationLocation);
+            UpdateRobotWaypoint(robotId, localWorldMap.waypointLocation);
             if(localWorldMap.heatMap!=null)
-                UpdateHeatMap(robotName, localWorldMap.heatMap.BaseHeatMapData);
-            UpdateLidarMap(robotName, localWorldMap.lidarMap);
+                UpdateHeatMap(robotId, localWorldMap.heatMap.BaseHeatMapData);
+            UpdateLidarMap(robotId, localWorldMap.lidarMap);
 
         }
         public void UpdateGlobalWorldMap(GlobalWorldMap globalWorldMap)
@@ -108,16 +109,16 @@ namespace WpfControlLibrary
                 }
             }
         }
-        private void DrawHeatMap(string robotName)
+        private void DrawHeatMap(int robotId)
         {
-            if (robotDictionary.ContainsKey(robotName))
+            if (robotDictionary.ContainsKey(robotId))
             {
-                if (robotDictionary[robotName].heatMap == null)
+                if (robotDictionary[robotId].heatMap == null)
                     return;
                 //heatmapSeries.DataSeries = new UniformHeatmapDataSeries<double, double, double>(data, startX, stepX, startY, stepY);
-                double xStep = (TerrainUpperX - TerrainLowerX) / (robotDictionary[robotName].heatMap.GetUpperBound(1) + 1);
-                double yStep = (TerrainUpperY - TerrainLowerY) / (robotDictionary[robotName].heatMap.GetUpperBound(0) + 1);
-                var heatmapDataSeries = new UniformHeatmapDataSeries<double, double, double>(robotDictionary[robotName].heatMap, TerrainLowerX, yStep, TerrainLowerY, xStep);
+                double xStep = (TerrainUpperX - TerrainLowerX) / (robotDictionary[robotId].heatMap.GetUpperBound(1) + 1);
+                double yStep = (TerrainUpperY - TerrainLowerY) / (robotDictionary[robotId].heatMap.GetUpperBound(0) + 1);
+                var heatmapDataSeries = new UniformHeatmapDataSeries<double, double, double>(robotDictionary[robotId].heatMap, TerrainLowerX, yStep, TerrainLowerY, xStep);
 
                 // Apply the dataseries to the heatmap
                 heatmapSeries.DataSeries = heatmapDataSeries;
@@ -131,9 +132,9 @@ namespace WpfControlLibrary
             foreach (var r in robotDictionary)
             {
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key, robotDictionary[r.Key].GetRobotPolygon());
-                PolygonSeries.AddOrUpdatePolygonExtended(r.Key + "Speed", robotDictionary[r.Key].GetRobotSpeedArrow());
-                PolygonSeries.AddOrUpdatePolygonExtended(r.Key + "Destination", robotDictionary[r.Key].GetRobotDestinationArrow());
-                PolygonSeries.AddOrUpdatePolygonExtended(r.Key + "WayPoint", robotDictionary[r.Key].GetRobotWaypointArrow());
+                PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Speed, robotDictionary[r.Key].GetRobotSpeedArrow());
+                PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Destination, robotDictionary[r.Key].GetRobotDestinationArrow());
+                PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.WayPoint, robotDictionary[r.Key].GetRobotWaypointArrow());
 
                 //Rendering des points Lidar
                 lidarPts.AcceptsUnsortedData = true;
@@ -144,67 +145,67 @@ namespace WpfControlLibrary
         }
 
 
-        private void UpdateRobotLocation(string robotName, Location location)
+        private void UpdateRobotLocation(int robotId, Location location)
         {
             if (location == null)
                 return;
-            if (robotDictionary.ContainsKey(robotName))
+            if (robotDictionary.ContainsKey(robotId))
             {
-                robotDictionary[robotName].SetPosition(location.X, location.Y, location.Theta);
-                robotDictionary[robotName].SetSpeed(location.Vx, location.Vy, location.Vtheta);
+                robotDictionary[robotId].SetPosition(location.X, location.Y, location.Theta);
+                robotDictionary[robotId].SetSpeed(location.Vx, location.Vy, location.Vtheta);
             }
         }
         
-        private void UpdateHeatMap(string robotName, double[,] data)
+        private void UpdateHeatMap(int robotId, double[,] data)
         {
             if (data == null)
                 return;
-            if (robotDictionary.ContainsKey(robotName))
+            if (robotDictionary.ContainsKey(robotId))
             {
-                robotDictionary[robotName].SetHeatMap(data);
+                robotDictionary[robotId].SetHeatMap(data);
             }
         }
         
-        private void UpdateLidarMap(string robotName, List<PointD> lidarMap)
+        private void UpdateLidarMap(int robotId, List<PointD> lidarMap)
         {
             if (lidarMap == null)
                 return;
-            if (robotDictionary.ContainsKey(robotName))
+            if (robotDictionary.ContainsKey(robotId))
             {
-                robotDictionary[robotName].SetLidarMap(lidarMap);
+                robotDictionary[robotId].SetLidarMap(lidarMap);
             }
         }
-        public void UpdateRobotWaypoint(string robotName, Location waypointLocation)
+        public void UpdateRobotWaypoint(int robotId, Location waypointLocation)
         {
             if (waypointLocation == null)
                 return;
-            if (robotDictionary.ContainsKey(robotName))
+            if (robotDictionary.ContainsKey(robotId))
             {
-                robotDictionary[robotName].SetWayPoint(waypointLocation.X, waypointLocation.Y, waypointLocation.Theta);
+                robotDictionary[robotId].SetWayPoint(waypointLocation.X, waypointLocation.Y, waypointLocation.Theta);
             }
         }
 
-        public void UpdateRobotDestination(string robotName, Location destinationLocation)
+        public void UpdateRobotDestination(int robotId, Location destinationLocation)
         {
             if (destinationLocation == null)
                 return;
-            if (robotDictionary.ContainsKey(robotName))
+            if (robotDictionary.ContainsKey(robotId))
             {
-                robotDictionary[robotName].SetDestination(destinationLocation.X, destinationLocation.Y, destinationLocation.Theta);
+                robotDictionary[robotId].SetDestination(destinationLocation.X, destinationLocation.Y, destinationLocation.Theta);
             }
         }
 
-        public void UpdateOpponentsLocationList(string robotName, List<Location> locList)
+        public void UpdateOpponentsLocationList(int robotId, List<Location> locList)
         {
             if (locList == null)
                 return;
-            if(robotDictionary.ContainsKey(robotName))
+            if(robotDictionary.ContainsKey(robotId))
             {
-                robotDictionary[robotName].SetObstaclesLocationList(locList);
+                robotDictionary[robotId].SetObstaclesLocationList(locList);
             }
         }
 
-        public void InitRobot(string robotName)
+        public void InitRobot(int robotId)
         {
             PolygonExtended robotShape = new PolygonExtended();
             robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
@@ -215,28 +216,28 @@ namespace WpfControlLibrary
             robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
             RobotDisplay rd = new RobotDisplay(robotShape);
             rd.SetPosition(0, 0, 0);
-            robotDictionary.Add(robotName, rd);
+            robotDictionary.Add(robotId, rd);
         }
 
-        void InitTeam()
-        {
-            //Team1
-            for (int i = 0; i < 1; i++)
-            {
-                PolygonExtended robotShape = new PolygonExtended();
-                robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
-                robotShape.polygon.Points.Add(new Point(0.25, -0.25));
-                robotShape.polygon.Points.Add(new Point(0.2, 0));
-                robotShape.polygon.Points.Add(new Point(0.25, 0.25));
-                robotShape.polygon.Points.Add(new Point(-0.25, 0.25));
-                robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
-                RobotDisplay rd = new RobotDisplay(robotShape);
-                rd.SetPosition((float)(i * 0.50), (float)(Math.Pow(i, 1.3) * 0.50), (float)Math.PI / 4 * i);
-                robotDictionary.Add("Robot" + (i + 1).ToString()+"Team1", rd);
-            }
-        }
+        //void InitTeam()
+        //{
+        //    //Team1
+        //    for (int i = 0; i < 1; i++)
+        //    {
+        //        PolygonExtended robotShape = new PolygonExtended();
+        //        robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
+        //        robotShape.polygon.Points.Add(new Point(0.25, -0.25));
+        //        robotShape.polygon.Points.Add(new Point(0.2, 0));
+        //        robotShape.polygon.Points.Add(new Point(0.25, 0.25));
+        //        robotShape.polygon.Points.Add(new Point(-0.25, 0.25));
+        //        robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
+        //        RobotDisplay rd = new RobotDisplay(robotShape);
+        //        rd.SetPosition((float)(i * 0.50), (float)(Math.Pow(i, 1.3) * 0.50), (float)Math.PI / 4 * i);
+        //        robotDictionary.Add((int)TeamId.Team1+i, rd);
+        //    }
+        //}
 
-        public void RegisterRobot(string name)
+        public void RegisterRobot(int id)
         {
             PolygonExtended robotShape = new PolygonExtended();
             robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
@@ -247,7 +248,7 @@ namespace WpfControlLibrary
             robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
             RobotDisplay rd = new RobotDisplay(robotShape);
             rd.SetPosition(0, 0, 0);
-            robotDictionary.Add(name, rd);
+            robotDictionary.Add(id, rd);
         }
 
         void InitSoccerField()
@@ -262,7 +263,7 @@ namespace WpfControlLibrary
             p.borderWidth = fieldLineWidth;
             p.borderColor = Color.FromArgb(0x00, 0x00, 0x00, 0x00);
             p.backgroundColor = Color.FromArgb(0xFF, 0x22, 0x22, 0x22);
-            PolygonSeries.AddOrUpdatePolygonExtended("Zone Protegee", p);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.ZoneProtegee, p);
 
             p = new PolygonExtended();
             p.polygon.Points.Add(new Point(11, -7));
@@ -272,7 +273,7 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(11, -7));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = Color.FromArgb(0xFF, 0x00, 0x66, 0x00);
-            PolygonSeries.AddOrUpdatePolygonExtended("DemiTerrainDroit", p);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.DemiTerrainDroit, p);
 
             p = new PolygonExtended();
             p.polygon.Points.Add(new Point(-11, -7));
@@ -282,7 +283,7 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(-11, -7));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = Color.FromArgb(0xFF, 0x00, 0x66, 0x00);
-            PolygonSeries.AddOrUpdatePolygonExtended("DemiTerrainGauche", p);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.DemiTerrainGauche, p);
 
 
             p = new PolygonExtended();
@@ -293,7 +294,7 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(-11.00, -1.95));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
-            PolygonSeries.AddOrUpdatePolygonExtended("SurfaceButGauche", p);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.SurfaceButGauche, p);
 
             p = new PolygonExtended();
             p.polygon.Points.Add(new Point(11.00, -1.95));
@@ -303,7 +304,7 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(11.00, -1.95));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
-            PolygonSeries.AddOrUpdatePolygonExtended("SurfaceButDroit", p);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.SurfaceButDroit, p);
 
             p = new PolygonExtended();
             p.polygon.Points.Add(new Point(11.00, -3.45));
@@ -313,7 +314,7 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(11.00, -3.45));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
-            PolygonSeries.AddOrUpdatePolygonExtended("SurfaceReparationDroit", p);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.SurfaceReparationDroit, p);
 
             p = new PolygonExtended();
             p.polygon.Points.Add(new Point(-11.00, -3.45));
@@ -323,7 +324,7 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(-11.00, -3.45));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
-            PolygonSeries.AddOrUpdatePolygonExtended("SurfaceReparationGauche", p);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.SurfaceReparationGauche, p);
 
             p = new PolygonExtended();
             p.polygon.Points.Add(new Point(-11.00, -1.20));
@@ -333,7 +334,7 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(-11.00, -1.20));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
-            PolygonSeries.AddOrUpdatePolygonExtended("ButGauche", p);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.ButGauche, p);
 
             p = new PolygonExtended();
             p.polygon.Points.Add(new Point(11.00, -1.20));
@@ -343,7 +344,7 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(11.00, -1.20));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
-            PolygonSeries.AddOrUpdatePolygonExtended("ButDroit", p);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.ButDroit, p);
 
 
             p = new PolygonExtended();
@@ -355,7 +356,7 @@ namespace WpfControlLibrary
             p.borderWidth = fieldLineWidth;
             p.borderColor = Color.FromArgb(0x00, 0x00, 0x00, 0x00);
             p.backgroundColor = Color.FromArgb(0xFF, 0x00, 0x00, 0xFF);
-            PolygonSeries.AddOrUpdatePolygonExtended("Zone Technique Gauche", p);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.ZoneTechniqueGauche, p);
 
             p = new PolygonExtended();
             p.polygon.Points.Add(new Point(+12.00, -8.00));
@@ -366,7 +367,7 @@ namespace WpfControlLibrary
             p.borderWidth = fieldLineWidth;
             p.borderColor = Color.FromArgb(0x00, 0x00, 0x00, 0x00);
             p.backgroundColor = Color.FromArgb(0xFF, 0x00, 0x00, 0xFF);
-            PolygonSeries.AddOrUpdatePolygonExtended("Zone Technique Droite", p);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.ZoneTechniqueDroite, p);
 
             p = new PolygonExtended();
             int nbSteps = 30;
@@ -374,49 +375,49 @@ namespace WpfControlLibrary
                 p.polygon.Points.Add(new Point(1.0f * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 1.0f * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
-            PolygonSeries.AddOrUpdatePolygonExtended("Rond Central", p);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.RondCentral, p);
 
             p = new PolygonExtended();
             for (int i = 0; i < (int)(nbSteps / 4) + 1; i++)
                 p.polygon.Points.Add(new Point(-11.00 + 0.75 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), -7.0 + 0.75 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
-            PolygonSeries.AddOrUpdatePolygonExtended("Corner Bas Gauche", p);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.CornerBasGauche, p);
 
             p = new PolygonExtended();
             for (int i = (int)(nbSteps / 4) + 1; i < (int)(2 * nbSteps / 4) + 1; i++)
                 p.polygon.Points.Add(new Point(11 + 0.75 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), -7 + 0.75 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
-            PolygonSeries.AddOrUpdatePolygonExtended("Corner Bas Droite", p);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.CornerBasDroite, p);
 
             p = new PolygonExtended();
             for (int i = (int)(2 * nbSteps / 4); i < (int)(3 * nbSteps / 4) + 1; i++)
                 p.polygon.Points.Add(new Point(11 + 0.75 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 7 + 0.75 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
-            PolygonSeries.AddOrUpdatePolygonExtended("Corner Haut Droite", p);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.CornerHautDroite, p);
 
             p = new PolygonExtended();
             for (int i = (int)(3 * nbSteps / 4) + 1; i < (int)(nbSteps) + 1; i++)
                 p.polygon.Points.Add(new Point(-11 + 0.75 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 7 + 0.75 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
-            PolygonSeries.AddOrUpdatePolygonExtended("Corner Haut Gauche", p);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.CornerHautGauche, p);
 
             p = new PolygonExtended();
             for (int i = 0; i < (int)(nbSteps) + 1; i++)
                 p.polygon.Points.Add(new Point(-7.4 + 0.075 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 0.075 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
-            PolygonSeries.AddOrUpdatePolygonExtended("Pt Avant Surface Gauche", p);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.PtAvantSurfaceGauche, p);
 
             p = new PolygonExtended();
             for (int i = 0; i < (int)(nbSteps) + 1; i++)
                 p.polygon.Points.Add(new Point(7.4 + 0.075 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 0.075 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
-            PolygonSeries.AddOrUpdatePolygonExtended("Pt Avant Surface Droit", p);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.PtAvantSurfaceDroit, p);
 
         }
     }
@@ -433,19 +434,19 @@ namespace WpfControlLibrary
 
     public class PolygonRenderableSeries : CustomRenderableSeries
     {
-        Dictionary<string, PolygonExtended> polygonList = new Dictionary<string, PolygonExtended>();
+        Dictionary<int, PolygonExtended> polygonList = new Dictionary<int, PolygonExtended>();
         XyDataSeries<double, double> lineData = new XyDataSeries<double, double> { }; //Nécessaire pour l'update d'affichage
 
         public PolygonRenderableSeries()
         {
         }
 
-        public void AddOrUpdatePolygonExtended(string name, PolygonExtended p)
+        public void AddOrUpdatePolygonExtended(int id, PolygonExtended p)
         {
-            if (polygonList.ContainsKey(name))
-                polygonList[name] = p;
+            if (polygonList.ContainsKey(id))
+                polygonList[id] = p;
             else
-                polygonList.Add(name, p);
+                polygonList.Add(id, p);
         }
 
         public void RedrawAll()

@@ -10,6 +10,7 @@ using System.Windows.Media;
 
 using Arction.Wpf.Charting;             // LightningChartUltimate and general types.
 using Arction.Wpf.Charting.SeriesXY;    // Series for 2D chart.
+using Constants;
 
 namespace RobotInterface
 {
@@ -25,7 +26,7 @@ namespace RobotInterface
 
             InitializeComponent();
             
-            worldMapDisplay.InitRobot("Robot1Team1");
+            worldMapDisplay.InitRobot((int)TeamId.Team1+(int)RobotId.Robot1);
 
             foreach (string s in SerialPort.GetPortNames())
             {
@@ -46,9 +47,9 @@ namespace RobotInterface
             nbMsgReceived += 1;
         }
 
-        public void RegisterRobot(string name)
+        public void RegisterRobot(int id)
         {
-            worldMapDisplay.RegisterRobot(name);
+            worldMapDisplay.RegisterRobot(id);
         }
 
         int nbMsgReceivedErrors = 0;
@@ -65,7 +66,7 @@ namespace RobotInterface
         public void OnLocalWorldMapEvent(object sender, EventArgsLibrary.LocalWorldMapArgs e)
         {
             //throw new NotImplementedException();
-            worldMapDisplay.UpdateLocalWorldMap(e.RobotName, e.LocalWorldMap);
+            worldMapDisplay.UpdateLocalWorldMap(e.RobotId, e.LocalWorldMap);
         }
         
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

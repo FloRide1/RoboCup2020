@@ -12,15 +12,15 @@ namespace RobotPilot
 {
     public class RobotPilot
     {
-        string Name = "";
-        public RobotPilot(string robotName)
+        int RobotId = 0;
+        public RobotPilot(int robotId)
         {
-            Name = robotName;
+            RobotId = robotId;
         }
 
         public void SendSpeedConsigneToRobot()
         {
-            OnSpeedConsigneToRobot(Name, (float)0.5, (float)0.2, (float)0.02);
+            OnSpeedConsigneToRobot(RobotId, (float)0.5, (float)0.2, (float)0.02);
         }
 
         public void SendSpeedConsigneToMotor()
@@ -32,18 +32,18 @@ namespace RobotPilot
         public void SendPositionFromKalmanFilter()
         {
             Location loc = new Location((float)(0.100 + rand.Next(-30, 30) / 100.0), (float)(0.1 + rand.Next(-30, 30) / 100.0), (float)(rand.NextDouble() * Math.PI / 12), 0, 0, 0);
-            OnSendPositionFromKalmanFilter("Robot1Team1", loc);
+            OnSendPositionFromKalmanFilter((int)TeamId.Team1+1, loc);
         }
 
         //Events générés en sortie
         public delegate void SpeedConsigneEventHandler(object sender, SpeedConsigneArgs e);
         public event EventHandler<SpeedConsigneArgs> OnSpeedConsigneEvent;
-        public virtual void OnSpeedConsigneToRobot(string name, float vx, float vy, float vtheta)
+        public virtual void OnSpeedConsigneToRobot(int id, float vx, float vy, float vtheta)
         {
             var handler = OnSpeedConsigneEvent;
             if (handler != null)
             {
-                handler(this, new SpeedConsigneArgs {RobotName=name, Vx = vx, Vy = vy, Vtheta = vtheta });
+                handler(this, new SpeedConsigneArgs {RobotId=id, Vx = vx, Vy = vy, Vtheta = vtheta });
             }
         }
 
@@ -62,12 +62,12 @@ namespace RobotPilot
 
         public delegate void SendPositionFromKalmanFilterEventHandler(object sender, LocationArgs e);
         public event EventHandler<LocationArgs> OnSendPositionFromKalmanFilterEvent;
-        public virtual void OnSendPositionFromKalmanFilter(string name, Location location )
+        public virtual void OnSendPositionFromKalmanFilter(int id, Location location )
         {
             var handler = OnSendPositionFromKalmanFilterEvent;
             if (handler != null)
             {
-                handler(this, new LocationArgs { RobotName = name, Location = location});
+                handler(this, new LocationArgs { RobotId = id, Location = location});
             }
         }
     }

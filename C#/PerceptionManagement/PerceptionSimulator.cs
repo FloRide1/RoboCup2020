@@ -8,22 +8,22 @@ namespace PerceptionManagement
 {
     public class PerceptionSimulator
     {
-        string robotName = "";
+        int robotId = 0;
 
         GlobalWorldMap globalWorldMap = new GlobalWorldMap();
 
         List<Location> physicalObjectList;
         Perception robotPerception;
 
-        public PerceptionSimulator(string name)
+        public PerceptionSimulator(int id)
         {
             robotPerception = new Perception();
-            robotPerception.teamLocationList = new Dictionary<string, Location>();
+            robotPerception.teamLocationList = new Dictionary<int, Location>();
             robotPerception.opponentLocationList = new List<Location>();
             robotPerception.obstacleLocationList = new List<Location>();
 
             physicalObjectList = new List<Location>();
-            robotName = name;
+            robotId = id;
         }
 
         void GeneratePerception()
@@ -46,9 +46,10 @@ namespace PerceptionManagement
                         if (r.Value != null)
                         {
                             var robotOfOurTeam = r.Value;
+                            //On regarde si la distance entre l'objet considéré et la position des robots de l'équipe est suffisament petite pour que ce soient les même.
                             if (Toolbox.Distance(obj.X, obj.Y, robotOfOurTeam.X, robotOfOurTeam.Y) < 0.4)
                             {
-                                if (robotName != r.Key && !robotPerception.teamLocationList.ContainsKey(r.Key)) //On vérifie que le robot ne s'ajoute pas lui même
+                                if (robotId != r.Key && !robotPerception.teamLocationList.ContainsKey(r.Key)) //On vérifie que le robot ne s'ajoute pas lui même
                                     robotPerception.teamLocationList.Add(r.Key, new Location(robotOfOurTeam.X, robotOfOurTeam.Y, robotOfOurTeam.Theta, robotOfOurTeam.Vx, robotOfOurTeam.Vy, robotOfOurTeam.Vtheta));
                                 
                                 isRobot = true;
@@ -76,7 +77,7 @@ namespace PerceptionManagement
             GeneratePerception();
         }
 
-        public void OnPhysicicalObjectListLocationReceived(object sender, LocationListArgs e)
+        public void OnPhysicalObjectListLocationReceived(object sender, LocationListArgs e)
         {
             //On récupère la liste des objets physiques vus par le robot en simulation (y compris lui-même)
             physicalObjectList = e.LocationList;
@@ -87,7 +88,7 @@ namespace PerceptionManagement
             //On calcule la perception simulée de position d'après le retour du simulateur physique directement
             //On réel on utilisera la triangulation lidar et la caméra
             //robotPerception.robotLocation = new Location(robotOfOurTeam.X, robotOfOurTeam.Y, robotOfOurTeam.Theta, robotOfOurTeam.Vx, robotOfOurTeam.Vy, robotOfOurTeam.Vtheta);
-            if (robotName == e.RobotName)
+            if (robotId == e.RobotId)
             {
                 robotPerception.robotLocation = e.Location;
                 //OnLocalWorldMap(robotName, localWorldMap);
@@ -101,7 +102,7 @@ namespace PerceptionManagement
             var handler = OnPerceptionEvent;
             if (handler != null)
             {
-                handler(this, new PerceptionArgs { RobotName=robotName, Perception = perception });
+                handler(this, new PerceptionArgs { RobotId=robotId, Perception = perception });
             }
         }
     }

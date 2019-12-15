@@ -1,4 +1,5 @@
 ﻿using AdvancedTimers;
+using Constants;
 using EventArgsLibrary;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -21,7 +22,7 @@ namespace LidarOMD60M
 {
     public class Lidar_OMD60M
     {
-        string robotName = "";
+        int robotId = 0;
 
         private static readonly HttpClient HttpClient = new HttpClient();
         IPAddress LidarIpAddress = new IPAddress(new byte[] { 169, 254, 235, 44 });
@@ -43,9 +44,9 @@ namespace LidarOMD60M
 
         Timer watchDogFeedTimer;
         Timer LidarDisplayTimer;
-        public Lidar_OMD60M(string name)
+        public Lidar_OMD60M(int id)
         {
-            robotName = name;
+            robotId = id;
             LocalIp = GetComputerIp();
 
             //On lance un tmer de fedd watchdog pour éviter la déconnexion du LIDAR
@@ -305,7 +306,7 @@ namespace LidarOMD60M
 
                     if (packet_number == 1)
                     {
-                        OnLidar("Robot1Team1", angle, distance);
+                        OnLidar((int)TeamId.Team1 + 1, angle, distance);
                         distance = new List<double>();
                         angle = new List<double>();
                         RSSI = new List<double>();
@@ -507,12 +508,12 @@ namespace LidarOMD60M
 
         public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<RawLidarArgs> OnLidarEvent;
-        public virtual void OnLidar(string name, List<double> angleList, List<double> distanceList)
+        public virtual void OnLidar(int id, List<double> angleList, List<double> distanceList)
         {
             var handler = OnLidarEvent;
             if (handler != null)
             {
-                handler(this, new RawLidarArgs { RobotName = name, AngleList = angleList, DistanceList = distanceList });
+                handler(this, new RawLidarArgs { RobotId = id, AngleList = angleList, DistanceList = distanceList });
             }
         }
     }
