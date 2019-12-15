@@ -19,7 +19,7 @@ namespace WorldMapManager
             robotName = name;
             localWorldMap = new LocalWorldMap();
         }
-        
+
         public void OnPhysicalPositionReceived(object sender, EventArgsLibrary.LocationArgs e)
         {
             if (localWorldMap == null)
@@ -28,6 +28,22 @@ namespace WorldMapManager
             {
                 localWorldMap.robotLocation = e.Location;
                 OnLocalWorldMap(robotName, localWorldMap);
+            }
+        }
+
+        public void OnPerceptionReceived(object sender, EventArgsLibrary.PerceptionArgs e)
+        {
+            if (localWorldMap == null)
+                return;
+            if (robotName == e.RobotName)
+            {
+                localWorldMap.robotLocation = e.Perception.robotLocation;
+                localWorldMap.teamLocationList = e.Perception.teamLocationList;
+                localWorldMap.opponentLocationList = e.Perception.opponentLocationList;
+                localWorldMap.obstacleLocationList = e.Perception.obstacleLocationList;
+
+                if (localWorldMap.robotLocation !=null)
+                    OnLocalWorldMap(robotName, localWorldMap);
             }
         }
 

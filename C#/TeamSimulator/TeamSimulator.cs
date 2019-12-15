@@ -9,8 +9,8 @@ using RobotInterface;
 using TeamInterface;
 using WorldMapManager;
 using LidarSimulator;
-using System.Timers;
 using System.Threading;
+using PerceptionManagement;
 
 namespace TeamSimulator
 {
@@ -29,6 +29,7 @@ namespace TeamSimulator
         static Dictionary<string, StrategyManager.StrategyManager> strategyManagerDictionary;
         static List<LocalWorldMapManager> localWorldMapManagerList;
         static List<LidarSimulator.LidarSimulator> lidarSimulatorList;
+        static List<PerceptionSimulator> perceptionSimulatorList;
 
 
         static object ExitLock = new object();
@@ -58,8 +59,9 @@ namespace TeamSimulator
             lidarSimulatorList = new List<LidarSimulator.LidarSimulator>();
             strategyManagerDictionary = new Dictionary<string, StrategyManager.StrategyManager>();
             localWorldMapManagerList = new List<LocalWorldMapManager>();
-            physicalSimulator = new PhysicalSimulator();
+            perceptionSimulatorList = new List<PerceptionSimulator>();
 
+            physicalSimulator = new PhysicalSimulator();
             globalWorldMapManagerTeam1 = new GlobalWorldMapManager();
             globalWorldMapManagerTeam2 = new GlobalWorldMapManager();
 
@@ -105,26 +107,33 @@ namespace TeamSimulator
             var robotPilot = new RobotPilot.RobotPilot(robotName);
             var localWorldMapManager = new LocalWorldMapManager(robotName);
             var lidarSimulator = new LidarSimulator.LidarSimulator(robotName);
+            var perceptionSimulator = new PerceptionSimulator(robotName);
 
             //Liens entre modules
             if (TeamNumber == 1)
             {
                 globalWorldMapManagerTeam1.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
                 globalWorldMapManagerTeam1.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
+                globalWorldMapManagerTeam1.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
                 localWorldMapManager.OnLocalWorldMapEvent += globalWorldMapManagerTeam1.OnLocalWorldMapReceived;
             }
             else if (TeamNumber == 2)
             {
                 globalWorldMapManagerTeam2.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
                 globalWorldMapManagerTeam2.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
+                globalWorldMapManagerTeam2.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
                 localWorldMapManager.OnLocalWorldMapEvent += globalWorldMapManagerTeam2.OnLocalWorldMapReceived;
             }
             strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
             trajectoryPlanner.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
+
+            physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicicalObjectListLocationReceived;
             physicalSimulator.OnPhysicalPositionEvent += trajectoryPlanner.OnPhysicalPositionReceived;
-            
-            physicalSimulator.OnPhysicalPositionEvent += localWorldMapManager.OnPhysicalPositionReceived;
+            physicalSimulator.OnPhysicalPositionEvent += perceptionSimulator.OnPhysicalPositionReceived;
+            //physicalSimulator.OnPhysicalPositionEvent += localWorldMapManager.OnPhysicalPositionReceived;
+
+            perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
             lidarSimulator.OnSimulatedLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
@@ -138,6 +147,7 @@ namespace TeamSimulator
             robotPilotList.Add(robotPilot);
             localWorldMapManagerList.Add(localWorldMapManager);
             lidarSimulatorList.Add(lidarSimulator);
+            perceptionSimulatorList.Add(perceptionSimulator);
 
             physicalSimulator.RegisterRobot(robotName, randomGenerator.Next(-10,10), randomGenerator.Next(-6, 6));
         }

@@ -1,0 +1,135 @@
+﻿<UserControl x:Class="Controls.Interactive.RefereeBox.RefereeBoxControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Controls.Interactive.RefereeBox"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d"
+
+             MinWidth="350"
+             d:DesignHeight="800" d:DesignWidth="450">
+
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="SeparatorBrush" Color="Gray"/>
+        <system:Double x:Key="ScoreGradientStop">0.8</system:Double>
+    </UserControl.Resources>
+
+    <Grid DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:RefereeBoxControl}}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="27.5"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1.2*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+
+        <!--Score & Info-->
+
+        <Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="0"
+                Margin="15" CornerRadius="5" BorderThickness="2">
+
+            <Border.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#33dddd" Offset="0"/>
+                    <GradientStop Color="Transparent" Offset="{StaticResource ScoreGradientStop}"/>
+                </LinearGradientBrush>
+            </Border.Background>
+
+            <Border.BorderBrush>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="WhiteSmoke" Offset="0"/>
+                    <GradientStop Color="Transparent" Offset="{StaticResource ScoreGradientStop}"/>
+                </LinearGradientBrush>
+            </Border.BorderBrush>
+        </Border>
+
+        <TextBlock Name="CyanScoreTextBlock" FontSize="25" Foreground="Black" FontWeight="SemiBold"
+                   Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
+                   HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+
+        <Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="2"
+                Margin="15" CornerRadius="5" BorderThickness="2">
+
+            <Border.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#ff33ff" Offset="0"/>
+                    <GradientStop Color="Transparent" Offset="{StaticResource ScoreGradientStop}"/>
+                </LinearGradientBrush>
+            </Border.Background>
+
+            <Border.BorderBrush>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="WhiteSmoke" Offset="0"/>
+                    <GradientStop Color="Transparent" Offset="{StaticResource ScoreGradientStop}"/>
+                </LinearGradientBrush>
+            </Border.BorderBrush>
+        </Border>
+
+        <TextBlock Name="MagentaScoreTextBlock" FontSize="25" Foreground="Black" FontWeight="SemiBold"
+                   Grid.Row="0" Grid.RowSpan="2" Grid.Column="2"
+                   HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+
+        <TextBlock Name="ClockTextBlock" Grid.Row="0" Grid.Column="1" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" FontSize="16" HorizontalAlignment="Center">
+            <Run Name="GamePartRun"/> [<Run Name="GamePartRealTimeRun" Text="00:00"/>]
+        </TextBlock>
+
+        <!--Cyan side-->
+
+        <StackPanel Orientation="Vertical" Grid.Row="2" Grid.Column="0" DataContext="Cyan">
+            <ToggleButton Name="CyanGoalButton" Content="Goal" Padding="5" Margin="5" Checked="SendCommandButton_OnClick" Unchecked="GoalButton_OnUnchecked"/>
+            <Rectangle Stroke="{StaticResource SeparatorBrush}" StrokeThickness="0,0,0,1"/>
+
+            <ToggleButton Name="CyanKickOffButton" Content="KickOff" Padding="5" Margin="5,5,5,3"  Checked="SendCommandButton_OnClick"/>
+            <ToggleButton Name="CyanFreeKickButton" Content="FreeKick" Padding="5" Margin="5,3" Checked="SendCommandButton_OnClick"/>
+            <ToggleButton Name="CyanGoalKickButton" Content="GoalKick" Padding="5" Margin="5,3" Checked="SendCommandButton_OnClick"/>
+            <ToggleButton Name="CyanThrowInButton" Content="ThrowIn" Padding="5" Margin="5,3" Checked="SendCommandButton_OnClick"/>
+            <ToggleButton Name="CyanCornerButton" Content="Corner" Padding="5" Margin="5,3" Checked="SendCommandButton_OnClick"/>
+            <ToggleButton Name="CyanPenaltyButton" Content="Penalty" Padding="5" Margin="5,3" Checked="SendCommandButton_OnClick"/>
+        </StackPanel>
+
+        <!--Magenta side-->
+
+        <StackPanel Orientation="Vertical" Grid.Row="2" Grid.Column="2" DataContext="Magenta">
+            <ToggleButton Name="MagentaGoalButton" Content="Goal" Padding="5" Margin="5" Checked="SendCommandButton_OnClick" Unchecked="GoalButton_OnUnchecked"/>
+            <Rectangle Stroke="{StaticResource SeparatorBrush}" StrokeThickness="0,0,0,1"/>
+
+            <ToggleButton Name="MagentaKickOffButton" Content="KickOff" Padding="5" Margin="5,5,5,3" Checked="SendCommandButton_OnClick"/>
+            <ToggleButton Name="MagentaFreeKickButton" Content="FreeKick" Padding="5" Margin="5,3" Checked="SendCommandButton_OnClick"/>
+            <ToggleButton Name="MagentaGoalKickButton" Content="GoalKick" Padding="5" Margin="5,3" Checked="SendCommandButton_OnClick"/>
+            <ToggleButton Name="MagentaThrowInButton" Content="ThrowIn" Padding="5" Margin="5,3" Checked="SendCommandButton_OnClick"/>
+            <ToggleButton Name="MagentaCornerButton" Content="Corner" Padding="5" Margin="5,3" Checked="SendCommandButton_OnClick"/>
+            <ToggleButton Name="MagentaPenaltyButton" Content="Penalty" Padding="5" Margin="5,3" Checked="SendCommandButton_OnClick"/>
+        </StackPanel>
+
+        <!--Shared controls-->
+
+        <Border VerticalAlignment="Center" Grid.Row="2" Grid.Column="1" BorderThickness="1" BorderBrush="{StaticResource SeparatorBrush}" Padding="5">
+            <StackPanel Orientation="Vertical" DataContext="SHARED">
+                <Button Name="StartButton" Content="START" Padding="5" Margin="3" Background="Green" Click="SendCommandButton_OnClick" Foreground="WhiteSmoke"/>
+                <Button Name="StopButton" Content="STOP" Padding="5" Margin="3" Background="IndianRed" Click="SendCommandButton_OnClick" Foreground="WhiteSmoke"/>
+                <Rectangle Stroke="{StaticResource SeparatorBrush}" StrokeThickness="0,0,0,1" StrokeDashArray="4 4"/>
+
+                <Button Name="DropBallButton" Content="Dropped_Ball" Padding="5" Margin="3" Background="#cf9d12" Click="SendCommandButton_OnClick" Foreground="WhiteSmoke"/>
+                <Button Name="ParkButton" Content="Parking" Padding="5" Margin="3" Background="#cf9d12" Click="SendCommandButton_OnClick" Foreground="WhiteSmoke"/>
+                <Rectangle Stroke="{StaticResource SeparatorBrush}" StrokeThickness="0,0,0,1" StrokeDashArray="4 4"/>
+
+                <Button Name="EndPartButton" Content="End Part" Padding="5" Margin="3" Background="#4f8e90" Click="SendCommandButton_OnClick" Foreground="WhiteSmoke"/>
+                <Button Name="ResetButton" Content="RESET" Padding="5" Margin="3" Background="#0e80ef" Click="SendCommandButton_OnClick" Foreground="WhiteSmoke"/>
+            </StackPanel>
+        </Border>
+
+        <!--Others-->
+
+        <TextBlock Name="LastMessageTextBlock" Visibility="Hidden"
+                   Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" 
+                   HorizontalAlignment="Center" FontWeight="SemiBold">
+            <Run Name="LastMessageTimeRun"/> : <Run Name="LastMessageRun"/>
+        </TextBlock>
+    </Grid>
+</UserControl>

@@ -1,5 +1,6 @@
 ﻿using Emgu.CV;
 using HeatMap;
+using PerceptionManagement;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -84,6 +85,15 @@ namespace EventArgsLibrary
         public string RobotName { get; set; }
 
         public Location Location { get; set; }
+    }
+    public class LocationListArgs : EventArgs
+    {
+        public List<Location> LocationList { get; set; }
+    }
+    public class PerceptionArgs : EventArgs
+    {
+        public string RobotName { get; set; }
+        public Perception Perception { get; set; }
     }
     public class HeatMapArgs : EventArgs
     {

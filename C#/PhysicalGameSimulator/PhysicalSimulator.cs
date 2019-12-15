@@ -1,5 +1,6 @@
 ﻿using AdvancedTimers;
 using EventArgsLibrary;
+using PerceptionManagement;
 using System;
 using System.Collections.Generic;
 using Utilities;
@@ -23,7 +24,10 @@ namespace PhysicalGameSimulator
 
         public void RegisterRobot(string name, double xpos, double yPos)
         {
-            robotList.Add(name, new PhysicalRobotSimulator(xpos, yPos));
+            lock (robotList)
+            {
+                robotList.Add(name, new PhysicalRobotSimulator(xpos, yPos));
+            }
         }
 
         private void HighFrequencyTimer_Tick(object sender, EventArgs e)
@@ -32,51 +36,61 @@ namespace PhysicalGameSimulator
             double newTheoricalY;
             double newTheoricalTheta;
             //Calcul des déplacements théoriques des robots
-            foreach (var robot in robotList)
+            lock (robotList)
             {
-                newTheoricalX = robot.Value.X + (robot.Value.Vx * Math.Cos(robot.Value.Theta) - robot.Value.Vy * Math.Sin(robot.Value.Theta)) / fSampling;
-                newTheoricalY = robot.Value.Y + (robot.Value.Vx * Math.Sin(robot.Value.Theta) + robot.Value.Vy * Math.Cos(robot.Value.Theta)) / fSampling;
-                newTheoricalTheta = robot.Value.Theta + robot.Value.Vtheta / fSampling;
-
-                bool collision = false;
-                //Vérification d'éventuelles collisions.
-                //On check les murs 
-                if ((newTheoricalX + robot.Value.radius > 13) || (newTheoricalX - robot.Value.radius < -13)
-                    || (newTheoricalY + robot.Value.radius > 9) || (newTheoricalY - robot.Value.radius < -9))
+                foreach (var robot in robotList)
                 {
-                    collision = true;
-                }
+                    newTheoricalX = robot.Value.X + (robot.Value.Vx * Math.Cos(robot.Value.Theta) - robot.Value.Vy * Math.Sin(robot.Value.Theta)) / fSampling;
+                    newTheoricalY = robot.Value.Y + (robot.Value.Vx * Math.Sin(robot.Value.Theta) + robot.Value.Vy * Math.Cos(robot.Value.Theta)) / fSampling;
+                    newTheoricalTheta = robot.Value.Theta + robot.Value.Vtheta / fSampling;
 
-                //On check les autres robots
-                foreach(var otherRobot in robotList)
-                {
-                    if (otherRobot.Key != robot.Key) //On exclu le test entre robots identiques
+                    bool collision = false;
+                    //Vérification d'éventuelles collisions.
+                    //On check les murs 
+                    if ((newTheoricalX + robot.Value.radius > 13) || (newTheoricalX - robot.Value.radius < -13)
+                        || (newTheoricalY + robot.Value.radius > 9) || (newTheoricalY - robot.Value.radius < -9))
                     {
-                        double newTheoricalXotherRobot = otherRobot.Value.X + (otherRobot.Value.Vx * Math.Cos(otherRobot.Value.Theta) - otherRobot.Value.Vy * Math.Sin(otherRobot.Value.Theta)) / fSampling;
-                        double newTheoricalYotherRobot = otherRobot.Value.Y + (otherRobot.Value.Vx * Math.Sin(otherRobot.Value.Theta) + otherRobot.Value.Vy * Math.Cos(otherRobot.Value.Theta)) / fSampling;
-
-                        if (Toolbox.Distance(newTheoricalX, newTheoricalY, newTheoricalXotherRobot, newTheoricalYotherRobot) < robot.Value.radius * 2)
-                            collision = true;
+                        collision = true;
                     }
+
+                    //On check les autres robots
+                    foreach (var otherRobot in robotList)
+                    {
+                        if (otherRobot.Key != robot.Key) //On exclu le test entre robots identiques
+                        {
+                            double newTheoricalXotherRobot = otherRobot.Value.X + (otherRobot.Value.Vx * Math.Cos(otherRobot.Value.Theta) - otherRobot.Value.Vy * Math.Sin(otherRobot.Value.Theta)) / fSampling;
+                            double newTheoricalYotherRobot = otherRobot.Value.Y + (otherRobot.Value.Vx * Math.Sin(otherRobot.Value.Theta) + otherRobot.Value.Vy * Math.Cos(otherRobot.Value.Theta)) / fSampling;
+
+                            if (Toolbox.Distance(newTheoricalX, newTheoricalY, newTheoricalXotherRobot, newTheoricalYotherRobot) < robot.Value.radius * 2)
+                                collision = true;
+                        }
+                    }
+
+                    //Validation des déplacements
+                    if (!collision)
+                    {
+                        robot.Value.X = newTheoricalX;
+                        robot.Value.Y = newTheoricalY;
+                        robot.Value.Theta = newTheoricalTheta;
+                    }
+                    else
+                    {
+                        robot.Value.Vx = 0;
+                        robot.Value.Vy = 0;
+                        robot.Value.Vtheta = 0;
+                    }
+
+                    //Emission d'un event de position physique 
+                    Location loc = new Location((float)robot.Value.X, (float)robot.Value.Y, (float)robot.Value.Theta, (float)robot.Value.Vx, (float)robot.Value.Vy, (float)robot.Value.Vtheta);
+                    OnPhysicalPosition(robot.Key, loc);
                 }
 
-                //Validation des déplacements
-                if (!collision)
+                List<Location> objectsLocationList = new List<Location>();
+                foreach (var robot in robotList)
                 {
-                    robot.Value.X = newTheoricalX;
-                    robot.Value.Y = newTheoricalY;
-                    robot.Value.Theta = newTheoricalTheta;
+                    objectsLocationList.Add(new Location(robot.Value.X, robot.Value.Y, robot.Value.Theta, robot.Value.Vx, robot.Value.Vy, robot.Value.Vtheta));
                 }
-                else
-                {
-                    robot.Value.Vx = 0;
-                    robot.Value.Vy = 0;
-                    robot.Value.Vtheta = 0;
-                }
-
-                //Emission d'un event de position physique 
-                Location loc = new Location((float)robot.Value.X, (float)robot.Value.Y, (float)robot.Value.Theta, (float)robot.Value.Vx, (float)robot.Value.Vy, (float)robot.Value.Vtheta);
-                OnPhysicalPosition(robot.Key, loc);
+                OnPhysicicalObjectListLocation(objectsLocationList);
             }
         }
 
@@ -99,6 +113,17 @@ namespace PhysicalGameSimulator
             if (handler != null)
             {
                 handler(this, new LocationArgs { RobotName = name, Location = location});
+            }
+        }
+
+        public delegate void ObjectsPositionEventHandler(object sender, LocationListArgs e);
+        public event EventHandler<LocationListArgs> OnPhysicicalObjectListLocationEvent;
+        public virtual void OnPhysicicalObjectListLocation(List<Location> locationList)
+        {
+            var handler = OnPhysicicalObjectListLocationEvent;
+            if (handler != null)
+            {
+                handler(this, new LocationListArgs {LocationList = locationList });
             }
         }
     }

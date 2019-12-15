@@ -36,11 +36,13 @@ namespace WorldMapManager
 
         private void AddOrUpdateLocalWorldMap(string name, LocalWorldMap localWorldMap)
         {
-            if (localWorldMapDictionary.ContainsKey(name))
-                localWorldMapDictionary[name] = localWorldMap;
-            else
-                localWorldMapDictionary.Add(name, localWorldMap);
-
+            lock (localWorldMapDictionary)
+            {
+                if (localWorldMapDictionary.ContainsKey(name))
+                    localWorldMapDictionary[name] = localWorldMap;
+                else
+                    localWorldMapDictionary.Add(name, localWorldMap);
+            }
             MergeLocalWorldMaps();
         }
 
@@ -49,11 +51,17 @@ namespace WorldMapManager
             //Fusion des World Map locales pour construire la world map globale
 
             //Position des robots
-            foreach(var localMap in localWorldMapDictionary)
+            lock (localWorldMapDictionary)
             {
-                globalWorldMap.AddOrUpdateRobotLocation(localMap.Key, localMap.Value.robotLocation);
-                globalWorldMap.AddOrUpdateRobotDestination(localMap.Key, localMap.Value.destinationLocation);
-                globalWorldMap.AddOrUpdateRobotWayPoint(localMap.Key, localMap.Value.waypointLocation);
+                foreach (var localMap in localWorldMapDictionary)
+                {
+                    globalWorldMap.AddOrUpdateRobotLocation(localMap.Key, localMap.Value.robotLocation);
+                    globalWorldMap.AddOrUpdateRobotDestination(localMap.Key, localMap.Value.destinationLocation);
+                    globalWorldMap.AddOrUpdateRobotWayPoint(localMap.Key, localMap.Value.waypointLocation);
+                    globalWorldMap.AddOrUpdateOpponentsList(localMap.Key, localMap.Value.opponentLocationList);
+                }
+
+                //Fusion des listes d'adversaires récupérées.
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using AdvancedTimers;
+using PerceptionManagement;
 using SciChart.Charting.Model.DataSeries;
 using SciChart.Charting.Model.DataSeries.Heatmap2DArrayDataSeries;
 using SciChart.Charting.Numerics.CoordinateCalculators;
@@ -74,6 +75,7 @@ namespace WpfControlLibrary
             if(localWorldMap.heatMap!=null)
                 UpdateHeatMap(robotName, localWorldMap.heatMap.BaseHeatMapData);
             UpdateLidarMap(robotName, localWorldMap.lidarMap);
+
         }
         public void UpdateGlobalWorldMap(GlobalWorldMap globalWorldMap)
         {
@@ -96,6 +98,13 @@ namespace WpfControlLibrary
                 foreach (var robotLoc in globalWorldMap.destinationLocationDictionary)
                 {
                     UpdateRobotDestination(robotLoc.Key, robotLoc.Value);
+                }
+            }
+            lock (globalWorldMap.opponentsLocationListDictionary)
+            {
+                foreach (var opponentList in globalWorldMap.opponentsLocationListDictionary)
+                {
+                    UpdateOpponentsLocationList(opponentList.Key, opponentList.Value);
                 }
             }
         }
@@ -182,6 +191,16 @@ namespace WpfControlLibrary
             if (robotDictionary.ContainsKey(robotName))
             {
                 robotDictionary[robotName].SetDestination(destinationLocation.X, destinationLocation.Y, destinationLocation.Theta);
+            }
+        }
+
+        public void UpdateOpponentsLocationList(string robotName, List<Location> locList)
+        {
+            if (locList == null)
+                return;
+            if(robotDictionary.ContainsKey(robotName))
+            {
+                robotDictionary[robotName].SetObstaclesLocationList(locList);
             }
         }
 
@@ -510,6 +529,9 @@ namespace WpfControlLibrary
         private Location waypointLocation;
         public double[,] heatMap;
         List<PointD> lidarMap;
+        List<Location> opponentLocationList;
+        List<Location> teamLocationList;
+        List<Location> obstaclesLocationList;
 
         public RobotDisplay(PolygonExtended pe)
         {
@@ -520,25 +542,25 @@ namespace WpfControlLibrary
             lidarMap = new List<PointD>();
         }
 
-        public void SetPosition(float x, float y, float theta)
+        public void SetPosition(double x, double y, double theta)
         {
             location.X = x;
             location.Y = y;
             location.Theta = theta;
         }
-        public void SetSpeed(float vx, float vy, float vTheta)
+        public void SetSpeed(double vx, double vy, double vTheta)
         {
             location.Vx = vx;
             location.Vy = vy;
             location.Vtheta = vTheta;
         }
-        public void SetDestination(float x, float y, float theta)
+        public void SetDestination(double x, double y, double theta)
         {
             destinationLocation.X = x;
             destinationLocation.Y = y;
             destinationLocation.Theta = theta;
         }
-        public void SetWayPoint(float x, float y, float theta)
+        public void SetWayPoint(double x, double y, double theta)
         {
             waypointLocation.X = x;
             waypointLocation.Y = y;
@@ -554,7 +576,22 @@ namespace WpfControlLibrary
         {
             this.lidarMap = lidarMap;
         }
-        public void SetPositionAndSpeed(float x, float y, float theta, float vx, float vy, float vTheta)
+
+        public void SetOpponentLocationList(List<Location> list)
+        {
+            this.opponentLocationList = list;
+        }
+
+        public void SetObstaclesLocationList(List<Location> list)
+        {
+            this.obstaclesLocationList = list;
+        }
+
+        public void SetTeamLocationList(List<Location> list)
+        {
+            this.teamLocationList = list;
+        }
+        public void SetPositionAndSpeed(double x, double y, double theta, double vx, double vy, double vTheta)
         {
             location.X = x;
             location.Y = y;

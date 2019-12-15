@@ -82,6 +82,14 @@
       <Project>{45A044B5-1D4F-4B6E-964B-3B2FA5E39AB2}</Project>
       <Name>LidarSimulator</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PerceptionManagement\PerceptionManagement.csproj">
+      <Project>{CA5585EB-5C96-4DF3-823C-878C0AD7D739}</Project>
+      <Name>PerceptionManagement</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Perception\Perception.csproj">
+      <Project>{dd8fd061-d3b2-43ae-b74d-03d94a2876a3}</Project>
+      <Name>Perception</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PhysicalGameSimulator\PhysicalGameSimulator.csproj">
       <Project>{0f8dbedc-02e3-4f9e-8ec6-de065b9f32f1}</Project>
       <Name>PhysicalGameSimulator</Name>

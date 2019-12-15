@@ -65,6 +65,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XboxController", "..\XboxCo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeatMap", "..\HeatMap\HeatMap.csproj", "{BDF7D4A0-1E8B-4487-862E-2DA58A7BC267}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perception", "..\Perception\Perception.csproj", "{DD8FD061-D3B2-43AE-B74D-03D94A2876A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerceptionManagement", "..\PerceptionManagement\PerceptionManagement.csproj", "{CA5585EB-5C96-4DF3-823C-878C0AD7D739}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -195,6 +199,14 @@ Global
 		{BDF7D4A0-1E8B-4487-862E-2DA58A7BC267}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDF7D4A0-1E8B-4487-862E-2DA58A7BC267}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDF7D4A0-1E8B-4487-862E-2DA58A7BC267}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD8FD061-D3B2-43AE-B74D-03D94A2876A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD8FD061-D3B2-43AE-B74D-03D94A2876A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD8FD061-D3B2-43AE-B74D-03D94A2876A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD8FD061-D3B2-43AE-B74D-03D94A2876A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA5585EB-5C96-4DF3-823C-878C0AD7D739}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA5585EB-5C96-4DF3-823C-878C0AD7D739}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA5585EB-5C96-4DF3-823C-878C0AD7D739}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA5585EB-5C96-4DF3-823C-878C0AD7D739}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

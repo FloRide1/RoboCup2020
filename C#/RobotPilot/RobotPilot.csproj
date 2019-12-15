@@ -55,6 +55,10 @@
       <Project>{9C46A7C0-4675-41BE-B282-E6F0825AD73E}</Project>
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Perception\Perception.csproj">
+      <Project>{DD8FD061-D3B2-43AE-B74D-03D94A2876A3}</Project>
+      <Name>Perception</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WorldMap\WorldMap.csproj">
       <Project>{B2D0126F-8C82-4EAA-87E5-67415F589098}</Project>
       <Name>WorldMap</Name>

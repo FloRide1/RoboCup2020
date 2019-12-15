@@ -9,6 +9,7 @@ using Utilities;
 using WorldMap;
 using HeatMap;
 using System.Diagnostics;
+using PerceptionManagement;
 
 namespace StrategyManager
 {
