@@ -77,17 +77,26 @@ namespace WpfControlLibrary
         }
         public void UpdateGlobalWorldMap(GlobalWorldMap globalWorldMap)
         {
-            foreach (var robotLoc in globalWorldMap.robotLocationDictionary)
+            lock (globalWorldMap.robotLocationDictionary)
             {
-                UpdateRobotLocation(robotLoc.Key, robotLoc.Value);
+                foreach (var robotLoc in globalWorldMap.robotLocationDictionary)
+                {
+                    UpdateRobotLocation(robotLoc.Key, robotLoc.Value);
+                }
             }
-            foreach (var robotLoc in globalWorldMap.waypointLocationDictionary)
+            lock (globalWorldMap.waypointLocationDictionary)
             {
-                UpdateRobotWaypoint(robotLoc.Key, robotLoc.Value);
+                foreach (var robotLoc in globalWorldMap.waypointLocationDictionary)
+                {
+                    UpdateRobotWaypoint(robotLoc.Key, robotLoc.Value);
+                }
             }
-            foreach (var robotLoc in globalWorldMap.destinationLocationDictionary)
+            lock (globalWorldMap.destinationLocationDictionary)
             {
-                UpdateRobotDestination(robotLoc.Key, robotLoc.Value);
+                foreach (var robotLoc in globalWorldMap.destinationLocationDictionary)
+                {
+                    UpdateRobotDestination(robotLoc.Key, robotLoc.Value);
+                }
             }
         }
         private void DrawHeatMap(string robotName)

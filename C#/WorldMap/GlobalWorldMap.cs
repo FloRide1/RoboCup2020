@@ -24,24 +24,33 @@ namespace WorldMap
 
         public void AddOrUpdateRobotLocation(string name, Location loc)
         {
-            if (robotLocationDictionary.ContainsKey(name))
-                robotLocationDictionary[name] = loc;
-            else
-                robotLocationDictionary.Add(name, loc);
+            lock (robotLocationDictionary)
+            {
+                if (robotLocationDictionary.ContainsKey(name))
+                    robotLocationDictionary[name] = loc;
+                else
+                    robotLocationDictionary.Add(name, loc);
+            }
         }
         public void AddOrUpdateRobotDestination(string name, Location loc)
         {
-            if (destinationLocationDictionary.ContainsKey(name))
-                destinationLocationDictionary[name] = loc;
-            else
-                destinationLocationDictionary.Add(name, loc);
+            lock (destinationLocationDictionary)
+            {
+                if (destinationLocationDictionary.ContainsKey(name))
+                    destinationLocationDictionary[name] = loc;
+                else
+                    destinationLocationDictionary.Add(name, loc);
+            }
         }
         public void AddOrUpdateRobotWayPoint(string name, Location loc)
         {
-            if (waypointLocationDictionary.ContainsKey(name))
-                waypointLocationDictionary[name] = loc;
-            else
-                waypointLocationDictionary.Add(name, loc);
+            lock (waypointLocationDictionary)
+            {
+                if (waypointLocationDictionary.ContainsKey(name))
+                    waypointLocationDictionary[name] = loc;
+                else
+                    waypointLocationDictionary.Add(name, loc);
+            }
         }
     }
 }

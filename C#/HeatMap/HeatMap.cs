@@ -19,10 +19,10 @@ namespace HeatMap
 
         public int nbIterations;
 
-        public List<double> SubSamplingRateList;
-        public List<double> SubSamplingCellSizeList;
-        public List<double> nbCellInSubSampledHeatMapHeightList;
-        public List<double> nbCellInSubSampledHeatMapWidthList;
+        public double[] SubSamplingRateList;
+        public double[] SubSamplingCellSizeList;
+        public double[] nbCellInSubSampledHeatMapHeightList;
+        public double[] nbCellInSubSampledHeatMapWidthList;
 
         ////public double[,] SubSampledHeatMapData1;
         //public double SubSamplingRate1;
@@ -50,41 +50,31 @@ namespace HeatMap
 
             nbIterations = iterations;
 
-            SubSamplingRateList = new List<double>();
-            SubSamplingCellSizeList = new List<double>();
-            nbCellInSubSampledHeatMapHeightList = new List<double>();
-            nbCellInSubSampledHeatMapWidthList = new List<double>();
+            SubSamplingRateList = new double[nbIterations];
+            SubSamplingCellSizeList = new double[nbIterations];
+            nbCellInSubSampledHeatMapHeightList = new double[nbIterations];
+            nbCellInSubSampledHeatMapWidthList = new double[nbIterations];
 
             for (int i = 0; i < nbIterations; i++)
             {
                 double subSamplingRate = Math.Pow(length / baseCellSize, (nbIterations-(i+1.0)) / nbIterations);
-                SubSamplingRateList.Add(subSamplingRate);
-                SubSamplingCellSizeList.Add((double)(BaseCellSize * subSamplingRate));
-                nbCellInSubSampledHeatMapHeightList.Add((double)(FieldHeight / BaseCellSize / subSamplingRate));
-                nbCellInSubSampledHeatMapWidthList.Add((double)(FieldLength / BaseCellSize /subSamplingRate));
-            }
-            
-            //subSamplingRate1 = Math.Round(Math.Pow(length / baseCellSize, 1 / 3.0));
-            //subSamplingRate2 = Math.Round(Math.Pow(length / baseCellSize, 2 / 3.0));
+                SubSamplingRateList[i]=subSamplingRate;
+                SubSamplingCellSizeList[i] = (double)(BaseCellSize * subSamplingRate);
+                nbCellInSubSampledHeatMapHeightList[i] = (double)(FieldHeight / BaseCellSize / subSamplingRate);
+                nbCellInSubSampledHeatMapWidthList[i] = (double)(FieldLength / BaseCellSize /subSamplingRate);
+            }            
 
             BaseCellSize = baseCellSize;
             nbCellInBaseHeatMapHeight = (int)(FieldHeight / BaseCellSize);
             nbCellInBaseHeatMapWidth = (int)(FieldLength / BaseCellSize);
             BaseHeatMapData = new double[nbCellInBaseHeatMapHeight, nbCellInBaseHeatMapWidth];
-
-            //SubSamplingRate1 = subSamplingRate1;
-            //SubSampledCellSize1 = BaseCellSize * subSamplingRate1;
-            //nbCellInSubSampledHeatMapHeight1 = (int)(FieldHeight / BaseCellSize / subSamplingRate1);
-            //nbCellInSubSampledHeatMapWidth1 = (int)(FieldLength / BaseCellSize / subSamplingRate1);
-            //SubSampledHeatMapData1 = new double[nbCellInSubSampledHeatMapHeight1, nbCellInSubSampledHeatMapWidth1];
-
-            //SubSamplingRate2 = subSamplingRate2;
-            //SubSampledCellSize2 = BaseCellSize * subSamplingRate2;
-            //nbCellInSubSampledHeatMapHeight2 = (int)(FieldHeight / BaseCellSize / subSamplingRate2);
-            //nbCellInSubSampledHeatMapWidth2 = (int)(FieldLength / BaseCellSize / subSamplingRate2);
-            //SubSampledHeatMapData2 = new double[nbCellInSubSampledHeatMapHeight2, nbCellInSubSampledHeatMapWidth2];
         }
 
+        public void ReInitHeatMapData()
+        {
+            BaseHeatMapData = new double[nbCellInBaseHeatMapHeight, nbCellInBaseHeatMapWidth];
+        }
+               
         public PointD GetFieldPosFromBaseHeatMapCoordinates(double x, double y)
         {
             return new PointD(-HalfFieldLength + x * BaseCellSize, -HalfFieldHeight + y * BaseCellSize);
@@ -92,22 +82,12 @@ namespace HeatMap
         public PointD GetBaseHeatMapPosFromFieldCoordinates(double x, double y)
         {
             return new PointD((x + HalfFieldLength) / BaseCellSize, (y + HalfFieldHeight) / BaseCellSize);
-            //return new PointD(-HalfFieldLength + x * BaseCellSize, -HalfFieldHeight + y * BaseCellSize);
         }
 
         public PointD GetFieldPosFromSubSampledHeatMapCoordinates(double x, double y, int n)
         {
             return new PointD(-HalfFieldLength + x * SubSamplingCellSizeList[n], -HalfFieldHeight + y * SubSamplingCellSizeList[n]);
         }
-        //public PointD GetFieldPosFromSubSampledHeatMapCoordinates1(int x, int y)
-        //{
-        //    return new PointD(-HalfFieldLength + x * SubSampledCellSize1, -HalfFieldHeight + y * SubSampledCellSize1);
-        //}
-
-        //public PointD GetFieldPosFromSubSampledHeatMapCoordinates2(int x, int y)
-        //{
-        //    return new PointD(-HalfFieldLength + x * SubSampledCellSize2, -HalfFieldHeight + y * SubSampledCellSize2);
-        //}
 
         double max = double.NegativeInfinity;
         int maxPosX = 0;
@@ -115,6 +95,7 @@ namespace HeatMap
 
         public PointD GetMaxPositionInBaseHeatMap()
         {
+            //Fonction couteuse en temps : à éviter !
             max = double.NegativeInfinity;
             for (int y = 0; y < nbCellInBaseHeatMapHeight; y++)
             {
@@ -132,6 +113,7 @@ namespace HeatMap
         }
         public PointD GetMaxPositionInBaseHeatMapCoordinates()
         {
+            //Fonction couteuse en temps : à éviter
             max = double.NegativeInfinity;
             for (int y = 0; y < nbCellInBaseHeatMapHeight; y++)
             {
@@ -148,12 +130,11 @@ namespace HeatMap
             return new PointD(maxPosX, maxPosY);
         }
 
-        public Heatmap Copy()
-        {
-            Heatmap copyHeatmap = new Heatmap(FieldLength, FieldHeight, BaseCellSize, nbIterations);            
-            copyHeatmap.BaseHeatMapData = this.BaseHeatMapData;
-            return copyHeatmap;
-        }
-
+        //public Heatmap Copy()
+        //{
+        //    Heatmap copyHeatmap = new Heatmap(FieldLength, FieldHeight, BaseCellSize, nbIterations);            
+        //    copyHeatmap.BaseHeatMapData = this.BaseHeatMapData;
+        //    return copyHeatmap;
+        //}
     }
 }

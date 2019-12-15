@@ -3,6 +3,7 @@ using EventArgsLibrary;
 using HeatMap;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -36,6 +37,8 @@ namespace WayPointGenerator
             //timerWayPointGeneration = new Timer(100);
             //timerWayPointGeneration.Elapsed += TimerWayPointGeneration_Elapsed;
             //timerWayPointGeneration.Start();
+
+            waypointHeatMap = new Heatmap(22.0, 14.0, 22.0 / Math.Pow(2, 8), 2);
         }
 
         public void SetNextWayPoint(Location waypointLocation)
@@ -64,94 +67,100 @@ namespace WayPointGenerator
             globalWorldMap = e.GlobalWorldMap;
         }
 
+        Stopwatch sw = new Stopwatch();
+        Heatmap waypointHeatMap;
         private void CalculateOptimalWayPoint()
         {
             //Heatmap StrategyHeatmap = StrategyHeatmap.Copy();
 
             //Génération de la HeatMap
-            //Heatmap heatMap = new Heatmap(22, 14, 0.01);
-            Heatmap heatMap = StrategyHeatmap;// new Heatmap(22, 14, 0.01);
-            PointD theoreticalOptimalPos = new PointD(-8, 3);
+            //Heatmap heatMap = new Heatmap(22, 14, 0.01);            
+            sw.Start(); // début de la mesure
+
+            //Génération de la HeatMap
+            waypointHeatMap.ReInitHeatMapData();
+            int[] nbComputationsList = new int[waypointHeatMap.nbIterations];
 
             //On construit le heatMap en mode multi-résolution :
             //On commence par une heatmap très peu précise, puis on construit une heat map de taille réduite plus précise autour du point chaud,
             //Puis on construit une heatmap très précise au cm autour du point chaud.
-            //int nbComputations = 0;
-            //for (int y = 0; y < heatMap.nbCellInSubSampledHeatMapHeight2; y += 1)
-            //{
-            //    for (int x = 0; x < heatMap.nbCellInSubSampledHeatMapWidth2; x += 1)
-            //    {
-            //        //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
-            //        //double value = Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, heatMap.GetFieldPosFromSubSampledHeatMapCoordinates(x, y)) / 20.0);
-            //        double value = CalculPenalisation(heatMap.GetFieldPosFromSubSampledHeatMapCoordinates2(x, y));
-            //        heatMap.SubSampledHeatMapData2[y, x] = value;
-            //        int yBase = (int)(y * heatMap.SubSamplingRate2);
-            //        int xBase = (int)(x * heatMap.SubSamplingRate2);
-            //        heatMap.BaseHeatMapData[yBase, xBase] = value;
-            //        nbComputations++;
-            //        for (int i = 0; i < heatMap.SubSamplingRate2; i += 1)
-            //        {
-            //            for (int j = 0; j < heatMap.SubSamplingRate2; j += 1)
-            //            {
-            //                heatMap.BaseHeatMapData[yBase + i, xBase + j] -= value;
-            //            }
-            //        }
-            //    }
-            //}
+            double optimizedAreaSize;
 
-            ////Console.WriteLine("Nombre d'opérations pour le calcul de la HeatMap sous échantillonnée de niveau 2 : " + nbComputations);
+            PointD OptimalPosition = new PointD(0, 0);
+            PointD OptimalPosInBaseHeatMapCoordinates = waypointHeatMap.GetBaseHeatMapPosFromFieldCoordinates(0, 0);
 
-            //PointD OptimalPosition = heatMap.GetMaxPositionInBaseHeatMap();
-            //PointD OptimalPosInBaseHeatMapCoordinates = heatMap.GetMaxPositionInBaseHeatMapCoordinates();
+            for (int n = 0; n < waypointHeatMap.nbIterations; n++)
+            {
+                double subSamplingRate = waypointHeatMap.SubSamplingRateList[n];
+                if (n >= 1)
+                    optimizedAreaSize = waypointHeatMap.nbCellInSubSampledHeatMapWidthList[n] / waypointHeatMap.nbCellInSubSampledHeatMapWidthList[n - 1];
+                else
+                    optimizedAreaSize = waypointHeatMap.nbCellInSubSampledHeatMapWidthList[n];
 
-            //int optimizedAreaSize = (int)(heatMap.SubSamplingRate2 / heatMap.SubSamplingRate1);
-            //nbComputations = 0;
-            //for (int y = (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.Y / heatMap.SubSamplingRate1 - optimizedAreaSize, 0, heatMap.nbCellInSubSampledHeatMapHeight1);
-            //    y < (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.Y / heatMap.SubSamplingRate1 + optimizedAreaSize, 0, heatMap.nbCellInSubSampledHeatMapHeight1); y += 1)
-            //{
-            //    for (int x = (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.X / heatMap.SubSamplingRate1 - optimizedAreaSize, 0, heatMap.nbCellInSubSampledHeatMapWidth1);
-            //        x < (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.X / heatMap.SubSamplingRate1 + optimizedAreaSize, 0, heatMap.nbCellInSubSampledHeatMapWidth1); x += 1)
-            //    {
-            //        //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
-            //        //double value = Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, heatMap.GetFieldPosFromSubSampledHeatMapCoordinates(x, y)) / 20.0);
-            //        double value = CalculPenalisation(heatMap.GetFieldPosFromSubSampledHeatMapCoordinates1(x, y));
-            //        heatMap.SubSampledHeatMapData1[y, x] = value;
-            //        int yBase = (int)(y * heatMap.SubSamplingRate1);
-            //        int xBase = (int)(x * heatMap.SubSamplingRate1);
-            //        heatMap.BaseHeatMapData[yBase, xBase] = value;
-            //        nbComputations++;
-            //        for (int i = 0; i < heatMap.SubSamplingRate1; i += 1)
-            //        {
-            //            for (int j = 0; j < heatMap.SubSamplingRate1; j += 1)
-            //            {
-            //                heatMap.BaseHeatMapData[yBase + i, xBase + j] = StrategyHeatmap.BaseHeatMapData[yBase + i, xBase + j] - value;
-            //            }
-            //        }
-            //    }
-            //}
-            ////Console.WriteLine("Nombre d'opérations pour le calcul du raffinement de la HeatMap intermédiaire : " + nbComputations);
+                optimizedAreaSize /= 2;
 
-            //optimizedAreaSize = (int)(heatMap.SubSamplingRate1);
-            //nbComputations = 0;
-            //for (int y = (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.Y - optimizedAreaSize, 0, heatMap.nbCellInBaseHeatMapHeight);
-            //    y < (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.Y + optimizedAreaSize, 0, heatMap.nbCellInBaseHeatMapHeight); y += 1)
-            //{
-            //    for (int x = (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.X - optimizedAreaSize, 0, heatMap.nbCellInBaseHeatMapWidth);
-            //        x < (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.X + optimizedAreaSize, 0, heatMap.nbCellInBaseHeatMapWidth); x += 1)
-            //    {
-            //        //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
-            //        //double value = Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, heatMap.GetFieldPosFromBaseHeatMapCoordinates(x, y)) / 20.0);
-            //        double value = CalculPenalisation(heatMap.GetFieldPosFromBaseHeatMapCoordinates(x, y));
-            //        heatMap.BaseHeatMapData[y, x] = StrategyHeatmap.BaseHeatMapData[y, x] - value;
-            //        nbComputations++;
-            //    }
-            //}
-            ////Console.WriteLine("Nombre d'opérations pour le calcul du raffinement de la HeatMap final : " + nbComputations);
+                double minY = Math.Max(OptimalPosInBaseHeatMapCoordinates.Y / subSamplingRate - optimizedAreaSize, 0);
+                double maxY = Math.Min(OptimalPosInBaseHeatMapCoordinates.Y / subSamplingRate + optimizedAreaSize, Math.Min(waypointHeatMap.nbCellInSubSampledHeatMapHeightList[n], waypointHeatMap.nbCellInBaseHeatMapHeight));
+                double minX = Math.Max(OptimalPosInBaseHeatMapCoordinates.X / subSamplingRate - optimizedAreaSize, 0);
+                double maxX = Math.Min(OptimalPosInBaseHeatMapCoordinates.X / subSamplingRate + optimizedAreaSize, Math.Min(waypointHeatMap.nbCellInSubSampledHeatMapWidthList[n], waypointHeatMap.nbCellInBaseHeatMapWidth));
 
-            var OptimalPosition = heatMap.GetMaxPositionInBaseHeatMap();
+                double max = double.NegativeInfinity;
+                int maxXpos = 0;
+                int maxYpos = 0;
 
-            OnHeatMap(robotName, heatMap);            
-            SetNextWayPoint(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, 0, 0, 0, 0));
+                for (double y = minY; y < maxY; y += 1)
+                {
+                    for (double x = minX; x < maxX; x += 1)
+                    {
+                        //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
+                        //double value = Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, heatMap.GetFieldPosFromSubSampledHeatMapCoordinates(x, y)) / 20.0);
+                        var heatMapPos = waypointHeatMap.GetFieldPosFromSubSampledHeatMapCoordinates(x, y, n);
+                        double pen = CalculPenalisation(heatMapPos); 
+                        //double value = EvaluateStrategyCostFunction(robotRole, heatMapPos);
+                        //heatMap.SubSampledHeatMapData1[y, x] = value;
+                        int yBase = (int)(y * subSamplingRate);
+                        int xBase = (int)(x * subSamplingRate);
+                        double value = StrategyHeatmap.BaseHeatMapData[yBase, xBase] - pen;
+                        waypointHeatMap.BaseHeatMapData[yBase, xBase] = value;
+                        nbComputationsList[n]++;
+
+                        if (value > max)
+                        {
+                            max = value;
+                            maxXpos = xBase;
+                            maxYpos = yBase;
+                        }
+
+                        //Code ci-dessous utile si on veut afficher la heatmap complete(video), mais consommateur en temps
+                        for (int i = 0; i < waypointHeatMap.SubSamplingRateList[n]; i += 1)
+                        {
+                            for (int j = 0; j < waypointHeatMap.SubSamplingRateList[n]; j += 1)
+                            {
+                                if ((xBase + j < waypointHeatMap.nbCellInBaseHeatMapWidth) && (yBase + i < waypointHeatMap.nbCellInBaseHeatMapHeight))
+                                    waypointHeatMap.BaseHeatMapData[yBase + i, xBase + j] = value;
+                            }
+                        }
+                    }
+                }
+                //OptimalPosInBaseHeatMapCoordinates = heatMap.GetMaxPositionInBaseHeatMapCoordinates();
+                OptimalPosInBaseHeatMapCoordinates = new PointD(maxXpos, maxYpos);
+            }
+
+            //var OptimalPosition = heatMap.GetMaxPositionInBaseHeatMap();
+            OptimalPosition = waypointHeatMap.GetFieldPosFromBaseHeatMapCoordinates(OptimalPosInBaseHeatMapCoordinates.X, OptimalPosInBaseHeatMapCoordinates.Y);
+
+            //var OptimalPosition = destinationLocation;
+
+            OnHeatMap(robotName, waypointHeatMap);            
+            if(OptimalPosition != null)
+                SetNextWayPoint(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, 0, 0, 0, 0));
+
+            sw.Stop(); // Fin de la mesure
+            for (int n = 0; n < nbComputationsList.Length; n++)
+            {
+                Console.WriteLine("Calcul WayPoint - Nb Calculs Etape " + n + " : " + nbComputationsList[n]);
+            }
+            Console.WriteLine("Temps de calcul de la heatMap WayPoint : " + (sw.ElapsedTicks / (double)TimeSpan.TicksPerMillisecond).ToString("N4")); // Affichage de la mesure
         }
 
         double CalculPenalisation(PointD ptCourant)
@@ -165,24 +174,32 @@ namespace WayPointGenerator
                     double angleDestination = Math.Atan2(destinationLocation.Y - robotLocation.Y, destinationLocation.X - robotLocation.X);
 
                     //On veut éviter de taper les autres robots
-                    for (int i = 0; i < globalWorldMap.robotLocationDictionary.Count; i++)
+                    //for (int i = 0; i < globalWorldMap.robotLocationDictionary.Count; i++)
+                    //{
+                    //    string competitorName = globalWorldMap.robotLocationDictionary.Keys.ElementAt(i);
+                    //    Location competitorLocation = globalWorldMap.robotLocationDictionary.Values.ElementAt(i);
+                    lock (globalWorldMap.robotLocationDictionary)
                     {
-                        string competitorName = globalWorldMap.robotLocationDictionary.Keys.ElementAt(i);
-                        Location competitorLocation = globalWorldMap.robotLocationDictionary.Values.ElementAt(i);
-                        //On itère sur tous les robots sauf celui-ci
-                        if (competitorName != robotName)
+                        foreach (var robot in globalWorldMap.robotLocationDictionary)
                         {
-                            double angleRobotAdverse = Math.Atan2(competitorLocation.Y - robotLocation.Y, competitorLocation.X - robotLocation.X);
-                            double distanceRobotAdverse = Toolbox.Distance(competitorLocation.X, competitorLocation.Y, robotLocation.X, robotLocation.Y);
+                            string competitorName = robot.Key;
+                            Location competitorLocation = robot.Value;
+
+                            //On itère sur tous les robots sauf celui-ci
+                            if (competitorName != robotName)
+                            {
+                                double angleRobotAdverse = Math.Atan2(competitorLocation.Y - robotLocation.Y, competitorLocation.X - robotLocation.X);
+                                double distanceRobotAdverse = Toolbox.Distance(competitorLocation.X, competitorLocation.Y, robotLocation.X, robotLocation.Y);
 
 
-                            //PointD ptCourant = GetFieldPosFromHeatMapCoordinates(x, y);
-                            double distancePt = Toolbox.Distance(ptCourant.X, ptCourant.Y, robotLocation.X, robotLocation.Y);
-                            double anglePtCourant = Math.Atan2(ptCourant.Y - robotLocation.Y, ptCourant.X - robotLocation.X);
+                                //PointD ptCourant = GetFieldPosFromHeatMapCoordinates(x, y);
+                                double distancePt = Toolbox.Distance(ptCourant.X, ptCourant.Y, robotLocation.X, robotLocation.Y);
+                                double anglePtCourant = Math.Atan2(ptCourant.Y - robotLocation.Y, ptCourant.X - robotLocation.X);
 
-                            if (Math.Abs(distanceRobotAdverse * (anglePtCourant - angleRobotAdverse)) < 2.0 && distancePt > distanceRobotAdverse - 3)
-                                penalisation += 1;// Math.Max(0, 1 - Math.Abs(anglePtCourant - angleRobotAdverse) *10.0);
+                                if (Math.Abs(distanceRobotAdverse * (anglePtCourant - angleRobotAdverse)) < 2.0 && distancePt > distanceRobotAdverse - 3)
+                                    penalisation += 1;// Math.Max(0, 1 - Math.Abs(anglePtCourant - angleRobotAdverse) *10.0);
 
+                            }
                         }
                     }
                 }

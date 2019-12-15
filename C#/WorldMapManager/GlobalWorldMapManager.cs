@@ -4,15 +4,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using WorldMap;
 
 namespace WorldMapManager
 {
     public class GlobalWorldMapManager
     {
+        double freqRafraichissementWolrdMap = 30;
         Dictionary<string, LocalWorldMap> localWorldMapDictionary = new Dictionary<string, LocalWorldMap>();
         GlobalWorldMap globalWorldMap = new GlobalWorldMap();
-        
+        Timer globalWorldMapSendTimer;
+
+
+        public GlobalWorldMapManager()
+        {
+            globalWorldMapSendTimer = new Timer(1000/freqRafraichissementWolrdMap);
+            globalWorldMapSendTimer.Elapsed += GlobalWorldMapSendTimer_Elapsed;
+            globalWorldMapSendTimer.Start();
+        }
+
+        private void GlobalWorldMapSendTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            OnGlobalWorldMap(globalWorldMap);
+        }
+
         public void OnLocalWorldMapReceived(object sender, EventArgsLibrary.LocalWorldMapArgs e)
         {
             AddOrUpdateLocalWorldMap(e.RobotName, e.LocalWorldMap);
@@ -39,8 +55,6 @@ namespace WorldMapManager
                 globalWorldMap.AddOrUpdateRobotDestination(localMap.Key, localMap.Value.destinationLocation);
                 globalWorldMap.AddOrUpdateRobotWayPoint(localMap.Key, localMap.Value.waypointLocation);
             }
-
-            OnGlobalWorldMap(globalWorldMap);
         }
 
         public delegate void GlobalWorldMapEventHandler(object sender, GlobalWorldMapArgs e);

@@ -26,6 +26,7 @@ namespace StrategyManager
         public StrategyManager(string name)
         {
             robotName = name;
+            heatMap = new Heatmap(22.0, 14.0, 22.0/Math.Pow(2,8), 2);
 
         }
 
@@ -35,15 +36,14 @@ namespace StrategyManager
             ProcessStrategy();
         }
 
+        Heatmap heatMap;
+        Stopwatch sw = new Stopwatch();
         public void ProcessStrategy()
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start(); // début de la mesure
+            //sw.Start(); // début de la mesure
                         
             //Génération de la HeatMap
-            Heatmap heatMap = new Heatmap(22.0, 14.0, 22.0/Math.Pow(2,8), 4);
-            PointD theoreticalOptimalPos = new PointD(-8, 3);
-
+            heatMap.ReInitHeatMapData();
             int[] nbComputationsList = new int[heatMap.nbIterations];
 
             //On construit le heatMap en mode multi-résolution :
@@ -54,21 +54,25 @@ namespace StrategyManager
             PointD OptimalPosition = new PointD(0, 0);
             PointD OptimalPosInBaseHeatMapCoordinates = heatMap.GetBaseHeatMapPosFromFieldCoordinates(0, 0); 
 
-            for (int n=0; n<heatMap.nbIterations-1; n++)
+            for (int n=0; n<heatMap.nbIterations; n++)
             {
-                optimizedAreaSize = heatMap.SubSamplingRateList[n] / heatMap.SubSamplingRateList[n + 1]/2;
+                double subSamplingRate = heatMap.SubSamplingRateList[n];
+                if(n>=1)
+                    optimizedAreaSize = heatMap.nbCellInSubSampledHeatMapWidthList[n] / heatMap.nbCellInSubSampledHeatMapWidthList[n-1];
+                else
+                    optimizedAreaSize = heatMap.nbCellInSubSampledHeatMapWidthList[n];
 
-                double minY = Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.Y / heatMap.SubSamplingRateList[n] - optimizedAreaSize, 0, heatMap.nbCellInSubSampledHeatMapHeightList[n]);
-                double maxY = Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.Y / heatMap.SubSamplingRateList[n] + optimizedAreaSize, 0, heatMap.nbCellInSubSampledHeatMapHeightList[n]);
-                double minX = Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.X / heatMap.SubSamplingRateList[n] - optimizedAreaSize, 0, heatMap.nbCellInSubSampledHeatMapWidthList[n]);
-                double maxX = Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.X / heatMap.SubSamplingRateList[n] + optimizedAreaSize, 0, heatMap.nbCellInSubSampledHeatMapWidthList[n]);
+                optimizedAreaSize /= 2;
+
+                double minY = Math.Max(OptimalPosInBaseHeatMapCoordinates.Y / subSamplingRate - optimizedAreaSize, 0);
+                double maxY = Math.Min(OptimalPosInBaseHeatMapCoordinates.Y / subSamplingRate + optimizedAreaSize, heatMap.nbCellInSubSampledHeatMapHeightList[n]);
+                double minX = Math.Max(OptimalPosInBaseHeatMapCoordinates.X / subSamplingRate - optimizedAreaSize, 0);
+                double maxX = Math.Min(OptimalPosInBaseHeatMapCoordinates.X / subSamplingRate + optimizedAreaSize, heatMap.nbCellInSubSampledHeatMapWidthList[n]);
 
                 double max = double.NegativeInfinity;
                 int maxXpos = 0;
                 int maxYpos = 0;
-
-                double subSamplingRate = heatMap.SubSamplingRateList[n];
-
+                
                 for (double y = minY; y < maxY; y += 1)
                 {
                     for (double x = minX; x < maxX; x += 1)
@@ -90,6 +94,7 @@ namespace StrategyManager
                             maxYpos = yBase;
                         }
 
+                        ////Code ci-dessous utile si on veut afficher la heatmap complete(video), mais consommateur en temps
                         //for (int i = 0; i < heatMap.SubSamplingRateList[n]; i += 1)
                         //{
                         //    for (int j = 0; j < heatMap.SubSamplingRateList[n]; j += 1)
@@ -103,67 +108,20 @@ namespace StrategyManager
                 //OptimalPosInBaseHeatMapCoordinates = heatMap.GetMaxPositionInBaseHeatMapCoordinates();
                 OptimalPosInBaseHeatMapCoordinates = new PointD(maxXpos, maxYpos);
             }
-            OptimalPosition = heatMap.GetMaxPositionInBaseHeatMap();
-
-
-            //int optimizedAreaSize = (int)(heatMap.SubSamplingRate2/ heatMap.SubSamplingRate1);
-            //int nbComputations1 = 0;
-            //for (int y = (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.Y / heatMap.SubSamplingRate1 - optimizedAreaSize, 0, heatMap.nbCellInSubSampledHeatMapHeight1);
-            //    y < (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.Y / heatMap.SubSamplingRate1 + optimizedAreaSize, 0, heatMap.nbCellInSubSampledHeatMapHeight1); y += 1)
-            //{
-            //    for (int x = (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.X / heatMap.SubSamplingRate1 - optimizedAreaSize, 0, heatMap.nbCellInSubSampledHeatMapWidth1);
-            //        x < (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.X / heatMap.SubSamplingRate1 + optimizedAreaSize, 0, heatMap.nbCellInSubSampledHeatMapWidth1); x += 1)
-            //    {
-            //        //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
-            //        //double value = Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, heatMap.GetFieldPosFromSubSampledHeatMapCoordinates(x, y)) / 20.0);
-            //        double value = EvaluateStrategyCostFunction(robotRole, heatMap.GetFieldPosFromSubSampledHeatMapCoordinates1(x, y));
-            //        //heatMap.SubSampledHeatMapData1[y, x] = value;
-            //        int yBase = (int)(y * heatMap.SubSamplingRate1);
-            //        int xBase = (int)(x * heatMap.SubSamplingRate1);
-            //        heatMap.BaseHeatMapData[yBase, xBase] = value;
-            //        nbComputations1++;
-            //        for (int i = 0; i < heatMap.SubSamplingRate1; i += 1)
-            //        {
-            //            for (int j = 0; j < heatMap.SubSamplingRate1; j += 1)
-            //            {
-            //                heatMap.BaseHeatMapData[yBase + i, xBase + j] = value;
-            //            }
-            //        }
-            //    }
-            //}
-            //Console.WriteLine("Nombre d'opérations pour le calcul du raffinement de la HeatMap intermédiaire : " + nbComputations);
-
-            //optimizedAreaSize = (int)(heatMap.SubSamplingRate1);
-            //int nbComputations0 = 0;
-            //for (int y = (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.Y - optimizedAreaSize, 0, heatMap.nbCellInBaseHeatMapHeight); 
-            //    y < (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.Y + optimizedAreaSize, 0, heatMap.nbCellInBaseHeatMapHeight); y += 1)
-            //{
-            //    for (int x = (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.X - optimizedAreaSize, 0, heatMap.nbCellInBaseHeatMapWidth); 
-            //        x < (int)Toolbox.LimitToInterval(OptimalPosInBaseHeatMapCoordinates.X + optimizedAreaSize, 0, heatMap.nbCellInBaseHeatMapWidth) ; x += 1)
-            //    {
-            //        //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
-            //        //double value = Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, heatMap.GetFieldPosFromBaseHeatMapCoordinates(x, y)) / 20.0);
-            //        double value = EvaluateStrategyCostFunction(robotRole, heatMap.GetFieldPosFromBaseHeatMapCoordinates(x, y));
-            //        heatMap.BaseHeatMapData[y, x] = value;
-            //        nbComputations0++;
-            //    }
-            //}
-
             //OptimalPosition = heatMap.GetMaxPositionInBaseHeatMap();
+            OptimalPosition = heatMap.GetFieldPosFromBaseHeatMapCoordinates(OptimalPosInBaseHeatMapCoordinates.X, OptimalPosInBaseHeatMapCoordinates.Y);
 
-
-            sw.Stop(); // Fin de la mesure
-            Console.WriteLine("Nombre d'opérations pour le calcul de la HeatMap : " + nbComputationsList.ToString());
-            for(int n =0; n< nbComputationsList.Length; n++)
-            {
-                Console.WriteLine("Nombre d'opérations étape " + n + " : " + nbComputationsList[n]);
-            }
-            Console.WriteLine("Temps de calcul de la heatMap de stratégie : "+(sw.ElapsedTicks/ (double)TimeSpan.TicksPerMillisecond).ToString("N4")); // Affichage de la mesure
 
             OnHeatMap(robotName, heatMap);
             SetDestination(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, 0, 0, 0, 0));
-            
-            
+
+            //heatMap.Dispose();
+            //sw.Stop(); // Fin de la mesure
+            //for (int n = 0; n < nbComputationsList.Length; n++)
+            //{
+            //    Console.WriteLine("Calcul Strategy - Nb Calculs Etape " + n + " : " + nbComputationsList[n]);
+            //}
+            //Console.WriteLine("Temps de calcul de la heatMap de stratégie : " + (sw.ElapsedTicks / (double)TimeSpan.TicksPerMillisecond).ToString("N4")); // Affichage de la mesure
         }
 
 

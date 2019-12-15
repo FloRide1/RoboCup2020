@@ -76,8 +76,16 @@ namespace Utilities
 
         public static double Distance(PointD pt1, PointD pt2)
         {
-            return Math.Sqrt(Math.Pow(pt2.X - pt1.X, 2) + Math.Pow(pt2.Y - pt1.Y, 2));
+            return Math.Sqrt((pt2.X - pt1.X)* (pt2.X - pt1.X) + (pt2.Y - pt1.Y)* (pt2.Y - pt1.Y));
+            //return Math.Sqrt(Math.Pow(pt2.X - pt1.X, 2) + Math.Pow(pt2.Y - pt1.Y, 2));
         }
+        
+        public static double DistanceL1(PointD pt1, PointD pt2)
+        {
+            return Math.Abs(pt2.X - pt1.X) + Math.Abs(pt2.Y - pt1.Y);
+            //return Math.Sqrt(Math.Pow(pt2.X - pt1.X, 2) + Math.Pow(pt2.Y - pt1.Y, 2));
+        }
+
         public static double Distance(double xPt1, double yPt1, double xPt2, double yPt2)
         {
             return Math.Sqrt(Math.Pow(xPt2 - xPt1, 2) + Math.Pow(yPt2 - yPt1, 2));
