@@ -13,6 +13,10 @@ namespace XBoxController
         public bool connected = false;
         public int deadband = 6000;
         public float leftTrigger, rightTrigger;
+        double Vtheta;
+        double VxRampe = 0;
+        double VyRampe = 0;
+        double VthetaRampe = 0;
 
         Timer timerGamepad = new Timer(100);
 
@@ -30,12 +34,10 @@ namespace XBoxController
         {
             double VLinMax = 3.0;
             double VThetaMax = 6.0;
+            double valeurRampe = 0.3;
             double Vx;
             double Vy;
-            double Vtheta;
-            double VxRampe=0;
-            double VyRampe=0;
-            double VthetaRampe=0;
+
             double vitessePriseBalle;
             if (controller.IsConnected)
             {
@@ -73,32 +75,38 @@ namespace XBoxController
 
                 if (Vx >= 0)
                 {
-                    VxRampe = Math.Min((VxRampe += 0.1), Vx);
+                    VxRampe += valeurRampe;
+                    VxRampe = Math.Min(VxRampe , Vx);
                 }
                 else
                 {
-                    VxRampe = Math.Max(VxRampe -= 0.1, Vx);
+                    VxRampe -= valeurRampe;
+                    VxRampe = Math.Max(VxRampe , Vx);
                 }
 
                 if (Vy >= 0)
                 {
-                    VyRampe = Math.Min((VyRampe += 0.1), Vy);
+                    VyRampe += valeurRampe;
+                    VyRampe = Math.Min(VyRampe, Vy);
                 }
                 else
                 {
-                    VyRampe = Math.Max(VyRampe -= 0.1, Vy);
+                    VyRampe -= valeurRampe;
+                    VyRampe = Math.Max(VyRampe , Vy);
                 }
 
                 if (Vtheta >= 0)
                 {
-                    VthetaRampe = Math.Min((VthetaRampe += 0.1), Vtheta);
+                    VthetaRampe += valeurRampe;
+                    VthetaRampe = Math.Min(VthetaRampe , Vtheta);
                 }
                 else
                 {
-                    VthetaRampe = Math.Max(VthetaRampe -= 0.1, Vtheta);
+                    VthetaRampe -= valeurRampe;
+                    VthetaRampe = Math.Max(VthetaRampe, Vtheta);
                 }
 
-                OnSpeedConsigneToRobot(robotId, (float)Vy, (float)Vx, (float)Vtheta);
+                OnSpeedConsigneToRobot(robotId, (float)VyRampe, (float)VxRampe, (float)VthetaRampe);
                 OnPriseBalleToRobot(5, (float)vitessePriseBalle);
                 OnPriseBalleToRobot(6, (float)-vitessePriseBalle);
             }
