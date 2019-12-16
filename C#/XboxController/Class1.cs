@@ -29,10 +29,13 @@ namespace XBoxController
         private void TimerGamepad_Elapsed(object sender, ElapsedEventArgs e)
         {
             double VLinMax = 3.0;
-            double VThetaMax = 3.0;
+            double VThetaMax = 6.0;
             double Vx;
             double Vy;
             double Vtheta;
+            double VxRampe=0;
+            double VyRampe=0;
+            double VthetaRampe=0;
             double vitessePriseBalle;
             if (controller.IsConnected)
             {
@@ -67,6 +70,34 @@ namespace XBoxController
                 {
                     OnMoveTirDownToRobot();
                 }
+
+                if (Vx >= 0)
+                {
+                    VxRampe = Math.Min((VxRampe += 0.1), Vx);
+                }
+                else
+                {
+                    VxRampe = Math.Max(VxRampe -= 0.1, Vx);
+                }
+
+                if (Vy >= 0)
+                {
+                    VyRampe = Math.Min((VyRampe += 0.1), Vy);
+                }
+                else
+                {
+                    VyRampe = Math.Max(VyRampe -= 0.1, Vy);
+                }
+
+                if (Vtheta >= 0)
+                {
+                    VthetaRampe = Math.Min((VthetaRampe += 0.1), Vtheta);
+                }
+                else
+                {
+                    VthetaRampe = Math.Max(VthetaRampe -= 0.1, Vtheta);
+                }
+
                 OnSpeedConsigneToRobot(robotId, (float)Vy, (float)Vx, (float)Vtheta);
                 OnPriseBalleToRobot(5, (float)vitessePriseBalle);
                 OnPriseBalleToRobot(6, (float)-vitessePriseBalle);
