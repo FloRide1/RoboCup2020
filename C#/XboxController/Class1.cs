@@ -41,12 +41,12 @@ namespace XBoxController
                 if (Math.Abs((float)gamepad.LeftThumbY) < deadband)
                     Vx = 0;
                 else
-                    Vx = -(float)gamepad.LeftThumbY / short.MinValue * VLinMax;
+                    Vx = (float)gamepad.LeftThumbY / short.MinValue * VLinMax;
 
                 if (Math.Abs((float)gamepad.LeftThumbX) < deadband)
                     Vy = 0;
                 else
-                    Vy = -(float)gamepad.LeftThumbX / short.MinValue * -VLinMax;
+                    Vy = -(float)gamepad.LeftThumbX / short.MinValue * VLinMax;
 
                 if (Math.Abs((float)gamepad.RightThumbX) < deadband)
                     Vtheta = 0;
