@@ -72,7 +72,7 @@ namespace Constants
         Y = 415,
         Theta = 416,
         XYTheta = 417,
-        GyroData = 418,
+        IMUData = 418,
         XYTheta_Speed = 419,
         EncoderData = 420,
         ConsignesData = 421,
@@ -96,11 +96,11 @@ namespace Constants
         ServoFinishedDeplacement = 439,
         CMPS12Value = 440,
         SetCalibration = 441,
-        StartExperience = 442,
         GetCamera = 443,
         TirCommand = 444,
         MoveTirUp = 445,
         MoveTirDown = 446,
+
 
 
         // Setters de variables d'informations sur les robots

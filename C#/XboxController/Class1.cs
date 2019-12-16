@@ -11,7 +11,7 @@ namespace XBoxController
         Controller controller;
         Gamepad gamepad;
         public bool connected = false;
-        public int deadband = 3000;
+        public int deadband = 6000;
         public float leftTrigger, rightTrigger;
 
         Timer timerGamepad = new Timer(100);
@@ -28,6 +28,8 @@ namespace XBoxController
 
         private void TimerGamepad_Elapsed(object sender, ElapsedEventArgs e)
         {
+            double VLinMax = 3.0;
+            double VThetaMax = 3.0;
             double Vx;
             double Vy;
             double Vtheta;
@@ -36,20 +38,20 @@ namespace XBoxController
             {
                 gamepad = controller.GetState().Gamepad;
 
-                if (Math.Abs((float)gamepad.LeftThumbX) < deadband)
+                if (Math.Abs((float)gamepad.LeftThumbY) < deadband)
                     Vx = 0;
                 else
-                    Vx = (float)gamepad.LeftThumbX / short.MinValue * 1;
+                    Vx = -(float)gamepad.LeftThumbY / short.MinValue * VLinMax;
 
-                if (Math.Abs((float)gamepad.LeftThumbY) < deadband)
+                if (Math.Abs((float)gamepad.LeftThumbX) < deadband)
                     Vy = 0;
                 else
-                    Vy = (float)gamepad.LeftThumbY / short.MinValue * -1;
+                    Vy = -(float)gamepad.LeftThumbX / short.MinValue * -VLinMax;
 
                 if (Math.Abs((float)gamepad.RightThumbX) < deadband)
                     Vtheta = 0;
                 else
-                    Vtheta = (float)gamepad.RightThumbX / short.MinValue * 1;
+                    Vtheta = (float)gamepad.RightThumbX / short.MinValue * VThetaMax;
 
                 vitessePriseBalle = (float)(gamepad.RightTrigger) / 2.55;
                 if (gamepad.Buttons.HasFlag(GamepadButtonFlags.X))

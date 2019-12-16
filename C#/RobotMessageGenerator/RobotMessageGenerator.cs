@@ -24,9 +24,9 @@ namespace RobotMessageGenerator
             //payload.SetValueRange(Vtheta.GetBytes(), 8);
 
 
-            payload.SetValueRange((e.Vx*100).GetBytes(), 0);
-            payload.SetValueRange((e.Vy*100).GetBytes(), 4);
-            payload.SetValueRange((e.Vtheta*100).GetBytes(), 8);
+            payload.SetValueRange((e.Vx).GetBytes(), 0);
+            payload.SetValueRange((e.Vy).GetBytes(), 4);
+            payload.SetValueRange((e.Vtheta).GetBytes(), 8);
 
             OnMessageToRobot((Int16)Commands.SetSpeedConsigne, 12, payload);
         }

@@ -26,9 +26,9 @@ namespace Robot
         static bool usingSimulatedCamera = true;
         static bool usingLidar = false;
         static bool usingPhysicalSimulator = true;
-        static bool usingXBoxController = false;
+        static bool usingXBoxController = true;
 
-        static HighFreqTimer highFrequencyTimer;
+        //static HighFreqTimer highFrequencyTimer;
         static HighFreqTimer timerStrategie;
 
         static ReliableSerialPort serialPort1;
@@ -146,9 +146,9 @@ namespace Robot
                 lidar_OMD60M.OnLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
 
             //Timer de simulation
-            highFrequencyTimer = new HighFreqTimer(2000);
-            highFrequencyTimer.Tick += HighFrequencyTimer_Tick;
-            highFrequencyTimer.Start();
+            //highFrequencyTimer = new HighFreqTimer(2000);
+            //highFrequencyTimer.Tick += HighFrequencyTimer_Tick;
+            //highFrequencyTimer.Start();
 
             //Timer de stratégie
             timerStrategie = new HighFreqTimer(0.5);
@@ -172,15 +172,15 @@ namespace Robot
         }
 
         static int nbMsgSent = 0;
-        static private void HighFrequencyTimer_Tick(object sender, EventArgs e)
-        {
-            //Utilisé pour des tests de stress sur l'interface série.
-            robotPilot.SendSpeedConsigneToRobot();
-            nbMsgSent += 1;
-            robotPilot.SendSpeedConsigneToMotor();
-            nbMsgSent += 1;
-            robotPilot.SendPositionFromKalmanFilter();
-        }
+        //static private void HighFrequencyTimer_Tick(object sender, EventArgs e)
+        //{
+        //    //Utilisé pour des tests de stress sur l'interface série.
+        //    //robotPilot.SendSpeedConsigneToRobot();
+        //    //nbMsgSent += 1;
+        //    //robotPilot.SendSpeedConsigneToMotor();
+        //    //nbMsgSent += 1;
+        //    //robotPilot.SendPositionFromKalmanFilter();
+        //}
 
         static void ExitProgram()
         {
