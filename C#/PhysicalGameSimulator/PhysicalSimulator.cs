@@ -38,17 +38,29 @@ namespace PhysicalGameSimulator
             //Calcul des déplacements théoriques des robots
             lock (robotList)
             {
+                //On calcule le nouvelles positions théoriques si il n'y a pas collision
                 foreach (var robot in robotList)
                 {
-                    newTheoricalX = robot.Value.X + (robot.Value.Vx * Math.Cos(robot.Value.Theta) - robot.Value.Vy * Math.Sin(robot.Value.Theta)) / fSampling;
-                    newTheoricalY = robot.Value.Y + (robot.Value.Vx * Math.Sin(robot.Value.Theta) + robot.Value.Vy * Math.Cos(robot.Value.Theta)) / fSampling;
-                    newTheoricalTheta = robot.Value.Theta + robot.Value.Vtheta / fSampling;
+                    robot.Value.newXWithoutCollision = robot.Value.X + (robot.Value.Vx * Math.Cos(robot.Value.Theta) - robot.Value.Vy * Math.Sin(robot.Value.Theta)) / fSampling;
+                    robot.Value.newYWithoutCollision = robot.Value.Y + (robot.Value.Vx * Math.Sin(robot.Value.Theta) + robot.Value.Vy * Math.Cos(robot.Value.Theta)) / fSampling;
+                    robot.Value.newThetaWithoutCollision = robot.Value.Theta + robot.Value.Vtheta / fSampling;
+                }
 
+                //TODO : Gérer les collisions polygoniales en déclenchant l'étude fine à l'aide d'un cercle englobant.
+                //TODO : gérer la balle et les rebonds robots poteaux cages
+                //TODO : gérer la perte d'énergie de la balle : modèle à trouver... mesure précise :) faite sur le terrain : 1m.s-1 -> arrêt à 10m
+                //TODO : gérer le tir (ou passe)
+                //TODO : gérer les déplacements balle au pied
+                //TODO : gérer les cas de contestation
+
+                foreach (var robot in robotList)
+                {                    
                     bool collision = false;
+
                     //Vérification d'éventuelles collisions.
                     //On check les murs 
-                    if ((newTheoricalX + robot.Value.radius > 13) || (newTheoricalX - robot.Value.radius < -13)
-                        || (newTheoricalY + robot.Value.radius > 9) || (newTheoricalY - robot.Value.radius < -9))
+                    if ((robot.Value.newXWithoutCollision + robot.Value.radius > 13) || (robot.Value.newXWithoutCollision - robot.Value.radius < -13)
+                        || (robot.Value.newYWithoutCollision + robot.Value.radius > 9) || (robot.Value.newYWithoutCollision - robot.Value.radius < -9))
                     {
                         collision = true;
                     }
@@ -58,10 +70,7 @@ namespace PhysicalGameSimulator
                     {
                         if (otherRobot.Key != robot.Key) //On exclu le test entre robots identiques
                         {
-                            double newTheoricalXotherRobot = otherRobot.Value.X + (otherRobot.Value.Vx * Math.Cos(otherRobot.Value.Theta) - otherRobot.Value.Vy * Math.Sin(otherRobot.Value.Theta)) / fSampling;
-                            double newTheoricalYotherRobot = otherRobot.Value.Y + (otherRobot.Value.Vx * Math.Sin(otherRobot.Value.Theta) + otherRobot.Value.Vy * Math.Cos(otherRobot.Value.Theta)) / fSampling;
-
-                            if (Toolbox.Distance(newTheoricalX, newTheoricalY, newTheoricalXotherRobot, newTheoricalYotherRobot) < robot.Value.radius * 2)
+                            if (Toolbox.Distance(robot.Value.newXWithoutCollision, robot.Value.newYWithoutCollision, otherRobot.Value.newXWithoutCollision, otherRobot.Value.newYWithoutCollision) < robot.Value.radius * 2)
                                 collision = true;
                         }
                     }
@@ -69,9 +78,9 @@ namespace PhysicalGameSimulator
                     //Validation des déplacements
                     if (!collision)
                     {
-                        robot.Value.X = newTheoricalX;
-                        robot.Value.Y = newTheoricalY;
-                        robot.Value.Theta = newTheoricalTheta;
+                        robot.Value.X = robot.Value.newXWithoutCollision;
+                        robot.Value.Y = robot.Value.newYWithoutCollision;
+                        robot.Value.Theta = robot.Value.newThetaWithoutCollision;
                     }
                     else
                     {
@@ -134,6 +143,10 @@ namespace PhysicalGameSimulator
         public double X;
         public double Y;
         public double Theta;
+        
+        public double newXWithoutCollision;
+        public double newYWithoutCollision;
+        public double newThetaWithoutCollision;
 
         public double Vx;
         public double Vy;
