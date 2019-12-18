@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Utilities;
 using WorldMap;
 
-namespace PhysicalGameSimulator
+namespace PhysicalSimulator
 {
     public class PhysicalSimulator
     {

@@ -7,7 +7,7 @@ using ImageProcessingOmniCamera;
 using LidarOMD60M;
 using MessageDecoder;
 using MessageEncoder;
-using PhysicalGameSimulator;
+using PhysicalSimulator;
 using RobotInterface;
 using RobotMessageGenerator;
 using RobotMonitor;
@@ -41,7 +41,7 @@ namespace Robot
         static BaslerCameraAdapter omniCamera;
         static SimulatedCamera.SimulatedCamera omniCameraSimulator;
         static ImageProcessingPositionFromOmniCamera imageProcessingPositionFromOmniCamera;
-        static PhysicalSimulator physicalSimulator;
+        static PhysicalSimulator.PhysicalSimulator physicalSimulator;
         static TrajectoryPlanner trajectoryPlanner;
         static WaypointGenerator waypointGenerator;
         static LocalWorldMapManager localWorldMapManager;
@@ -80,7 +80,7 @@ namespace Robot
             msgEncoder = new MsgEncoder();
             robotMsgGenerator = new RobotMsgGenerator();
 
-            physicalSimulator = new PhysicalSimulator();
+            physicalSimulator = new PhysicalSimulator.PhysicalSimulator();
             physicalSimulator.RegisterRobot((int)TeamId.Team1+1,0,0);
 
             robotPilot = new RobotPilot.RobotPilot((int)TeamId.Team1 + 1);

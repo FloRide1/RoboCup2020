@@ -1,17 +1,15 @@
 ﻿using System;
-using AdvancedTimers;
 using SciChart.Charting.Visuals;
-using PhysicalGameSimulator;
 using WayPointGenerator;
 using System.Collections.Generic;
 using RobotInterface;
 using TeamInterface;
 using WorldMapManager;
-using LidarSimulator;
 using System.Threading;
 using PerceptionManagement;
 using Constants;
 using TrajectoryGenerator;
+using PhysicalSimulator;
 
 namespace TeamSimulator
 {
@@ -20,7 +18,7 @@ namespace TeamSimulator
         //static bool usingPhysicalSimulator = true;
 
         static System.Timers.Timer timerStrategie;
-        static PhysicalSimulator physicalSimulator;
+        static PhysicalSimulator.PhysicalSimulator physicalSimulator;
         static GlobalWorldMapManager globalWorldMapManagerTeam1;
         static GlobalWorldMapManager globalWorldMapManagerTeam2;
 
@@ -62,7 +60,7 @@ namespace TeamSimulator
             localWorldMapManagerList = new List<LocalWorldMapManager>();
             perceptionSimulatorList = new List<PerceptionSimulator>();
 
-            physicalSimulator = new PhysicalSimulator();
+            physicalSimulator = new PhysicalSimulator.PhysicalSimulator();
             globalWorldMapManagerTeam1 = new GlobalWorldMapManager();
             globalWorldMapManagerTeam2 = new GlobalWorldMapManager();
 
