@@ -9,12 +9,17 @@ using Utilities;
 
 namespace WorldMap
 {
-    public class LocalWorldMap
+    public class GlobalWorldMap
     {
-        public Location robotLocation { get; set; }
-        public Dictionary<int, Location> teamLocationList {get; set;}
+        public Location ballLocation { get; set; }
+        public Dictionary<int, Location> teamLocationList { get; set; }
         public List<Location> opponentLocationList { get; set; }
         public List<Location> obstacleLocationList { get; set; }
+
+    }
+    public class LocalWorldMap : GlobalWorldMap
+    {
+        public Location robotLocation { get; set; }
         public Location destinationLocation { get; set; }
         public Location waypointLocation { get; set; }
         public List<Location> obstaclesLocation { get; set; }

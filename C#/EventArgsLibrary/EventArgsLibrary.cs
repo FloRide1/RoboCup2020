@@ -109,7 +109,7 @@ namespace EventArgsLibrary
 
     public class GlobalWorldMapArgs : EventArgs
     {
-        public GlobalWorldMap GlobalWorldMap { get; set; }
+        public GlobalWorldMapStorage GlobalWorldMap { get; set; }
     }
     public class RawLidarArgs : EventArgs
     {

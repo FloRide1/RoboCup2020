@@ -24,7 +24,7 @@ namespace WayPointGenerator
         //Timer timerWayPointGeneration;
 
         Location destinationLocation;
-        GlobalWorldMap globalWorldMap;
+        GlobalWorldMapStorage globalWorldMap;
         //double[,] strategyManagerHeatMap = new double[0, 0];
 
         //double heatMapCellsize = 2; //doit être la même que celle du strategy manager

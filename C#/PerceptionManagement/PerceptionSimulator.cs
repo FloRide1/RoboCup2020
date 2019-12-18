@@ -10,7 +10,7 @@ namespace PerceptionManagement
     {
         int robotId = 0;
 
-        GlobalWorldMap globalWorldMap = new GlobalWorldMap();
+        GlobalWorldMapStorage globalWorldMap = new GlobalWorldMapStorage();
 
         List<Location> physicalObjectList;
         Perception robotPerception;
@@ -63,6 +63,9 @@ namespace PerceptionManagement
                 }
             }
 
+            //Gestion de la balle
+
+
             OnPerception(robotPerception);
         }
 
@@ -83,16 +86,21 @@ namespace PerceptionManagement
             physicalObjectList = e.LocationList;
         }
 
-        public void OnPhysicalPositionReceived(object sender, LocationArgs e)
+        public void OnPhysicalRobotPositionReceived(object sender, LocationArgs e)
         {
             //On calcule la perception simulée de position d'après le retour du simulateur physique directement
             //On réel on utilisera la triangulation lidar et la caméra
-            //robotPerception.robotLocation = new Location(robotOfOurTeam.X, robotOfOurTeam.Y, robotOfOurTeam.Theta, robotOfOurTeam.Vx, robotOfOurTeam.Vy, robotOfOurTeam.Vtheta);
             if (robotId == e.RobotId)
             {
                 robotPerception.robotLocation = e.Location;
-                //OnLocalWorldMap(robotName, localWorldMap);
             }
+        }
+
+        public void OnPhysicalBallPositionReceived(object sender, LocationArgs e)
+        {
+            //On calcule la perception simulée de position balle d'après le retour du simulateur physique directement
+            //On réel on utilisera la caméra
+            robotPerception.ballLocation = e.Location;            
         }
 
         public delegate void PerceptionEventHandler(object sender, PerceptionArgs e);

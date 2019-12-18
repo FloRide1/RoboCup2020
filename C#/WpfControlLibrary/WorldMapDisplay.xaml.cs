@@ -84,9 +84,11 @@ namespace WpfControlLibrary
             if (localWorldMap.heatMap != null)
                 UpdateHeatMap(robotId, localWorldMap.heatMap.BaseHeatMapData);
             UpdateLidarMap(robotId, localWorldMap.lidarMap);
+            UpdateBallLocation(localWorldMap.ballLocation);
+
 
         }
-        public void UpdateGlobalWorldMap(GlobalWorldMap globalWorldMap)
+        public void UpdateGlobalWorldMap(GlobalWorldMapStorage globalWorldMap)
         {
             lock (globalWorldMap.robotLocationDictionary)
             {

@@ -17,7 +17,7 @@ namespace StrategyManager
     {
         int robotId = 0;
         
-        GlobalWorldMap globalWorldMap = new GlobalWorldMap();
+        GlobalWorldMapStorage globalWorldMap = new GlobalWorldMapStorage();
 
         bool AttackOnRight = true;
         

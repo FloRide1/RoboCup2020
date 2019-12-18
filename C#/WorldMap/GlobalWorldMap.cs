@@ -7,16 +7,18 @@ using System.Threading.Tasks;
 
 namespace WorldMap
 {
-    public class GlobalWorldMap
+    public class GlobalWorldMapStorage
     {
         public Dictionary<int, Location> robotLocationDictionary { get; set; }
+        public Dictionary<int, Location> ballLocationDictionary { get; set; }
         public Dictionary<int, Location> destinationLocationDictionary { get; set; }
         public Dictionary<int, Location> waypointLocationDictionary { get; set; }
         public Dictionary<int, List<Location>> opponentsLocationListDictionary { get; set; }
 
-        public GlobalWorldMap()
+        public GlobalWorldMapStorage()
         {
             robotLocationDictionary = new Dictionary<int, Location>();
+            ballLocationDictionary = new Dictionary<int, Location>();
             destinationLocationDictionary = new Dictionary<int, Location>();
             waypointLocationDictionary = new Dictionary<int, Location>();
             opponentsLocationListDictionary = new Dictionary<int, List<Location>>();
@@ -30,6 +32,17 @@ namespace WorldMap
                     robotLocationDictionary[id] = loc;
                 else
                     robotLocationDictionary.Add(id, loc);
+            }
+        }
+
+        public void AddOrUpdateBallLocation(int id, Location loc)
+        {
+            lock (ballLocationDictionary)
+            {
+                if (ballLocationDictionary.ContainsKey(id))
+                    ballLocationDictionary[id] = loc;
+                else
+                    ballLocationDictionary.Add(id, loc);
             }
         }
         public void AddOrUpdateRobotDestination(int id, Location loc)

@@ -109,27 +109,17 @@ namespace TeamSimulator
             var perceptionSimulator = new PerceptionSimulator(robotId);
 
             //Liens entre modules
-            if (TeamNumber == (int)TeamId.Team1)
-            {
-                globalWorldMapManagerTeam1.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
-                globalWorldMapManagerTeam1.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
-                globalWorldMapManagerTeam1.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
-                localWorldMapManager.OnLocalWorldMapEvent += globalWorldMapManagerTeam1.OnLocalWorldMapReceived;
-            }
-            else if (TeamNumber == (int)TeamId.Team2)
-            {
-                globalWorldMapManagerTeam2.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
-                globalWorldMapManagerTeam2.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
-                globalWorldMapManagerTeam2.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
-                localWorldMapManager.OnLocalWorldMapEvent += globalWorldMapManagerTeam2.OnLocalWorldMapReceived;
-            }
+            
             strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
+            strategyManager.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
+
             trajectoryPlanner.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
 
+            physicalSimulator.OnPhysicalRobotPositionEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicalObjectListLocationReceived;
-            physicalSimulator.OnPhysicalPositionEvent += trajectoryPlanner.OnPhysicalPositionReceived;
-            physicalSimulator.OnPhysicalPositionEvent += perceptionSimulator.OnPhysicalPositionReceived;
+            physicalSimulator.OnPhysicalRobotPositionEvent += perceptionSimulator.OnPhysicalRobotPositionReceived;
+            physicalSimulator.OnPhysicalBallPositionEvent += perceptionSimulator.OnPhysicalBallPositionReceived;
             //physicalSimulator.OnPhysicalPositionEvent += localWorldMapManager.OnPhysicalPositionReceived;
 
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
@@ -138,7 +128,21 @@ namespace TeamSimulator
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             //strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
             waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
-            strategyManager.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
+
+            if (TeamNumber == (int)TeamId.Team1)
+            {
+                localWorldMapManager.OnLocalWorldMapEvent += globalWorldMapManagerTeam1.OnLocalWorldMapReceived;
+                globalWorldMapManagerTeam1.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
+                globalWorldMapManagerTeam1.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
+                globalWorldMapManagerTeam1.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
+            }
+            else if (TeamNumber == (int)TeamId.Team2)
+            {
+                localWorldMapManager.OnLocalWorldMapEvent += globalWorldMapManagerTeam2.OnLocalWorldMapReceived;
+                globalWorldMapManagerTeam2.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
+                globalWorldMapManagerTeam2.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
+                globalWorldMapManagerTeam2.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
+            }
 
             strategyManagerDictionary.Add(robotId, strategyManager);
             waypointGeneratorList.Add(waypointGenerator);

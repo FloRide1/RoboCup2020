@@ -41,6 +41,7 @@ namespace WorldMapManager
                 localWorldMap.teamLocationList = e.Perception.teamLocationList;
                 localWorldMap.opponentLocationList = e.Perception.opponentLocationList;
                 localWorldMap.obstacleLocationList = e.Perception.obstacleLocationList;
+                localWorldMap.ballLocation = e.Perception.ballLocation;
 
                 if (localWorldMap.robotLocation !=null)
                     OnLocalWorldMap(robotId, localWorldMap);
