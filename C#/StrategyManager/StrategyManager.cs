@@ -123,7 +123,7 @@ namespace StrategyManager
             //{
             //    Console.WriteLine("Calcul Strategy - Nb Calculs Etape " + n + " : " + nbComputationsList[n]);
             //}
-            Console.WriteLine("Temps de calcul de la heatMap de stratégie en ms : " + (sw.Elapsed.TotalMilliseconds.ToString("N4")); // Affichage de la mesure
+            Console.WriteLine("Temps de calcul de la heatMap de stratégie en ms : " + sw.Elapsed.TotalMilliseconds.ToString("N4")); // Affichage de la mesure
         }
 
 

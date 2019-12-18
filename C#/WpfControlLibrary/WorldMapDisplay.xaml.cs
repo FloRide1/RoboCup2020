@@ -38,6 +38,8 @@ namespace WpfControlLibrary
         Random random = new Random();
         DispatcherTimer timerAffichage;
 
+        public bool IsExtended = false;
+
         double TerrainLowerX = -11;
         double TerrainUpperX = 11;
         double TerrainLowerY = -7;
@@ -45,6 +47,10 @@ namespace WpfControlLibrary
 
         //Liste des robots à afficher
         Dictionary<int, RobotDisplay> robotDictionary = new Dictionary<int, RobotDisplay>();
+
+        //Liste des balles à afficher
+        BallDisplay Balle = new BallDisplay();
+        //List<BallDisplay> ListBalles = new List<BallDisplay>();
 
         public WorldMapDisplay()
         {
@@ -63,8 +69,10 @@ namespace WpfControlLibrary
             foreach (var r in robotDictionary)
             {
                 DrawHeatMap(r.Key);
+                DrawBall();
                 DrawTeam();
                 PolygonSeries.RedrawAll();
+                BallPolygon.RedrawAll();
             }
         }
 
@@ -73,7 +81,7 @@ namespace WpfControlLibrary
             UpdateRobotLocation(robotId, localWorldMap.robotLocation);
             UpdateRobotDestination(robotId, localWorldMap.destinationLocation);
             UpdateRobotWaypoint(robotId, localWorldMap.waypointLocation);
-            if(localWorldMap.heatMap!=null)
+            if (localWorldMap.heatMap != null)
                 UpdateHeatMap(robotId, localWorldMap.heatMap.BaseHeatMapData);
             UpdateLidarMap(robotId, localWorldMap.lidarMap);
 
@@ -126,11 +134,19 @@ namespace WpfControlLibrary
             }
         }
 
+        public void DrawBall()
+        {
+            //Affichage de la balle
+            BallPolygon.AddOrUpdatePolygonExtended((int)BallId.Ball, Balle.GetBallPolygon());
+            BallPolygon.AddOrUpdatePolygonExtended((int)BallId.Ball + (int)Caracteristique.Speed, Balle.GetBallSpeedArrow());
+        }
+
         public void DrawTeam()
         {
             XyDataSeries<double, double> lidarPts = new XyDataSeries<double, double>();
             foreach (var r in robotDictionary)
             {
+                //Affichage des robots
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key, robotDictionary[r.Key].GetRobotPolygon());
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Speed, robotDictionary[r.Key].GetRobotSpeedArrow());
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Destination, robotDictionary[r.Key].GetRobotDestinationArrow());
@@ -141,7 +157,8 @@ namespace WpfControlLibrary
                 var lidarData = robotDictionary[r.Key].GetRobotLidarPoints();
                 lidarPts.Append(lidarData.XValues, lidarData.YValues);
             }
-            ScatterPointSeries.DataSeries = lidarPts;
+            //Affichage des points lidar
+            LidarPoints.DataSeries = lidarPts;
         }
 
 
@@ -155,7 +172,7 @@ namespace WpfControlLibrary
                 robotDictionary[robotId].SetSpeed(location.Vx, location.Vy, location.Vtheta);
             }
         }
-        
+
         private void UpdateHeatMap(int robotId, double[,] data)
         {
             if (data == null)
@@ -165,7 +182,7 @@ namespace WpfControlLibrary
                 robotDictionary[robotId].SetHeatMap(data);
             }
         }
-        
+
         private void UpdateLidarMap(int robotId, List<PointD> lidarMap)
         {
             if (lidarMap == null)
@@ -175,6 +192,12 @@ namespace WpfControlLibrary
                 robotDictionary[robotId].SetLidarMap(lidarMap);
             }
         }
+
+        public void UpdateBallLocation(Location ballLocation)
+        {
+            Balle.SetLocation(ballLocation);
+        }
+
         public void UpdateRobotWaypoint(int robotId, Location waypointLocation)
         {
             if (waypointLocation == null)
@@ -199,7 +222,7 @@ namespace WpfControlLibrary
         {
             if (locList == null)
                 return;
-            if(robotDictionary.ContainsKey(robotId))
+            if (robotDictionary.ContainsKey(robotId))
             {
                 robotDictionary[robotId].SetObstaclesLocationList(locList);
             }
@@ -250,7 +273,7 @@ namespace WpfControlLibrary
             rd.SetPosition(0, 0, 0);
             robotDictionary.Add(id, rd);
         }
-
+        
         void InitSoccerField()
         {
             int fieldLineWidth = 2;
@@ -536,7 +559,7 @@ namespace WpfControlLibrary
 
         public RobotDisplay(PolygonExtended pe)
         {
-            location = new Location(0,0,0,0,0,0);
+            location = new Location(0, 0, 0, 0, 0, 0);
             destinationLocation = new Location(0, 0, 0, 0, 0, 0);
             waypointLocation = new Location(0, 0, 0, 0, 0, 0);
             shape = pe;
@@ -705,6 +728,90 @@ namespace WpfControlLibrary
             dataSeries.AcceptsUnsortedData = true;
             dataSeries.Append(listX, listY);
             return dataSeries;
+        }
+    }
+
+    public class BallDisplay
+    {
+        private Random rand = new Random();
+        private Location location;
+        private Color backgroundColor = Color.FromArgb(0xFF, 0xFF, 0xF2, 0x00);
+        private Color borderColor = Color.FromArgb(0xFF, 0x00, 0x00, 0x00);
+        private int borderWidth = 2;
+
+        public BallDisplay()
+        {
+            location = new Location(0, 0, 0, 0, 0, 0);
+        }
+
+        public void SetPosition(double x, double y, double theta)
+        {
+            location.X = x;
+            location.Y = y;
+            location.Theta = theta;
+        }
+        public void SetSpeed(double vx, double vy, double vTheta)
+        {
+            location.Vx = vx;
+            location.Vy = vy;
+            location.Vtheta = vTheta;
+        }
+
+        public void SetLocation(double x, double y, double theta, double vx, double vy, double vTheta)
+        {
+            location.X = x;
+            location.Y = y;
+            location.Theta = theta;
+            location.Vx = vx;
+            location.Vy = vy;
+            location.Vtheta = vTheta;
+        }
+        public void SetLocation(Location l)
+        {
+            location = l;
+        }
+
+        public PolygonExtended GetBallPolygon()
+        {
+            PolygonExtended polygonToDisplay = new PolygonExtended();
+            int nbSegments = 10;
+            double radius = 0.4;
+            for (double theta= 0; theta<=Math.PI*2; theta+=Math.PI*2/nbSegments)
+            {
+                Point pt = new Point(radius * Math.Cos(theta), radius*Math.Sin(theta));
+                pt.X += location.X;
+                pt.Y += location.Y;
+                polygonToDisplay.polygon.Points.Add(pt);
+                polygonToDisplay.backgroundColor = backgroundColor;
+                polygonToDisplay.borderColor = borderColor;
+                polygonToDisplay.borderWidth = borderWidth;
+            }
+            return polygonToDisplay;
+        }
+        public PolygonExtended GetBallSpeedArrow()
+        {
+            PolygonExtended polygonToDisplay = new PolygonExtended();
+            double angleTeteFleche = Math.PI / 6;
+            double longueurTeteFleche = 0.30;
+            double LongueurFleche = Math.Sqrt(location.Vx * location.Vx + location.Vy * location.Vy);
+            double headingAngle = Math.Atan2(location.Vy, location.Vx) + location.Theta;
+            double xTete = LongueurFleche * Math.Cos(headingAngle);
+            double yTete = LongueurFleche * Math.Sin(headingAngle);
+
+            polygonToDisplay.polygon.Points.Add(new Point(location.X, location.Y));
+            polygonToDisplay.polygon.Points.Add(new Point(location.X + xTete, location.Y + yTete));
+            double angleTeteFleche1 = headingAngle + angleTeteFleche;
+            double angleTeteFleche2 = headingAngle - angleTeteFleche;
+            polygonToDisplay.polygon.Points.Add(new Point(location.X + xTete - longueurTeteFleche * Math.Cos(angleTeteFleche1), location.Y + yTete - longueurTeteFleche * Math.Sin(angleTeteFleche1)));
+            polygonToDisplay.polygon.Points.Add(new Point(location.X + xTete, location.Y + yTete));
+            polygonToDisplay.polygon.Points.Add(new Point(location.X + xTete - longueurTeteFleche * Math.Cos(angleTeteFleche2), location.Y + yTete - longueurTeteFleche * Math.Sin(angleTeteFleche2)));
+            polygonToDisplay.polygon.Points.Add(new Point(location.X + xTete, location.Y + yTete));
+            polygonToDisplay.borderWidth = 2;
+            polygonToDisplay.borderColor = Color.FromArgb(0xFF, 0xFF, 0x00, 0x00);
+            polygonToDisplay.borderDashPattern = new double[] { 3, 3 };
+            polygonToDisplay.borderOpacity = 1;
+            polygonToDisplay.backgroundColor = Color.FromArgb(0x00, 0x00, 0x00, 0x00);
+            return polygonToDisplay;
         }
     }
 }

@@ -23,11 +23,13 @@
             <s:SciChartSurface.RenderableSeries>
                 <local:PolygonRenderableSeries x:Name="PolygonSeries" Opacity="0.5" >
                 </local:PolygonRenderableSeries>
-                <s:XyScatterRenderableSeries x:Name="ScatterPointSeries" Opacity="0.5">
+                <local:PolygonRenderableSeries x:Name="BallPolygon" Opacity="1" >
+                </local:PolygonRenderableSeries>
+                <s:XyScatterRenderableSeries x:Name="LidarPoints" Opacity="0.5">
                     <s:XyScatterRenderableSeries.PointMarker>
                         <s:EllipsePointMarker Width="2" Height="2" Fill="SteelBlue" Stroke="LightSteelBlue" StrokeThickness="1"/>
                     </s:XyScatterRenderableSeries.PointMarker>
-                </s:XyScatterRenderableSeries>
+                </s:XyScatterRenderableSeries>                
                 <s:FastUniformHeatmapRenderableSeries x:Name="heatmapSeries" Opacity="0.6">
                     <s:FastUniformHeatmapRenderableSeries.ColorMap>
                         <s:HeatmapColorPalette Maximum="1">

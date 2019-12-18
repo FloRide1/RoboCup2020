@@ -12,7 +12,7 @@
         xmlns:p="clr-namespace:TeamInterface.Properties"  
     >
     
-    <Grid Background="#222222">
+    <Grid x:Name="BaseGrid" Background="#222222">
         <Grid.RowDefinitions>
             <RowDefinition Height="5"/>
             <RowDefinition Height="3*"/>
@@ -43,19 +43,19 @@
         <Button x:Name="buttonTest" Content="Test" Grid.Column="3" HorizontalAlignment="Center"  Grid.Row="3" Width="100"/>-->
         
         <!--  Create the chart surface  -->
-        <ext:WorldMapDisplay x:Name="globalWorldMapDisplay" Grid.Column="3" Grid.ColumnSpan="1" Grid.Row="1">
+        <ext:WorldMapDisplay x:Name="globalWorldMapDisplay" Grid.Column="3" Grid.ColumnSpan="1" Grid.Row="1" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
         </ext:WorldMapDisplay>
-        <ext:WorldMapDisplay x:Name="localWorldMapDisplay1" Grid.Column="1" Grid.Row="3">
+        <ext:WorldMapDisplay x:Name="localWorldMapDisplay1" Grid.Column="1" Grid.Row="3" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
         </ext:WorldMapDisplay>
-        <ext:WorldMapDisplay x:Name="localWorldMapDisplay2" Grid.Column="3" Grid.Row="3">
+        <ext:WorldMapDisplay x:Name="localWorldMapDisplay2" Grid.Column="3" Grid.Row="3" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
         </ext:WorldMapDisplay>
-        <ext:WorldMapDisplay x:Name="localWorldMapDisplay3" Grid.Column="5" Grid.Row="3">
+        <ext:WorldMapDisplay x:Name="localWorldMapDisplay3" Grid.Column="5" Grid.Row="3" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
         </ext:WorldMapDisplay>
-        <ext:WorldMapDisplay x:Name="localWorldMapDisplay5" Grid.Column="1" Grid.Row="5">
+        <ext:WorldMapDisplay x:Name="localWorldMapDisplay5" Grid.Column="1" Grid.Row="5" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
         </ext:WorldMapDisplay>
-        <ext:WorldMapDisplay x:Name="localWorldMapDisplay4" Grid.Column="3" Grid.Row="5">
+        <ext:WorldMapDisplay x:Name="localWorldMapDisplay4" Grid.Column="3" Grid.Row="5" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
         </ext:WorldMapDisplay>
-        <ext:WorldMapDisplay x:Name="localWorldMapDisplay6" Grid.Column="5" Grid.Row="5">
+        <ext:WorldMapDisplay x:Name="localWorldMapDisplay6" Grid.Column="5" Grid.Row="5" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
         </ext:WorldMapDisplay>
     </Grid>
 </Window>

@@ -204,6 +204,7 @@ namespace Robot
                 Console1.ShowDialog();
             });
             t1.SetApartmentState(ApartmentState.STA);
+            t1.Start();
 
             //Thread t2 = new Thread(() =>
             //{
@@ -232,7 +233,6 @@ namespace Robot
             //});
             //t2.SetApartmentState(ApartmentState.STA);
 
-            t1.Start();
             //t2.Start();
         }
 

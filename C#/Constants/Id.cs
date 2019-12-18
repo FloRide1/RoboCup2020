@@ -12,6 +12,11 @@ namespace Constants
         Team2 = 20,
         Opponents = 100,
     }
+    
+    public enum BallId
+    {
+        Ball = 1000,
+    }
     public enum RobotId
     {
         Robot1 = 0,
