@@ -2,7 +2,6 @@
 using AdvancedTimers;
 using SciChart.Charting.Visuals;
 using PhysicalGameSimulator;
-using TrajectoryGeneration;
 using WayPointGenerator;
 using System.Collections.Generic;
 using RobotInterface;
@@ -12,6 +11,7 @@ using LidarSimulator;
 using System.Threading;
 using PerceptionManagement;
 using Constants;
+using TrajectoryGenerator;
 
 namespace TeamSimulator
 {

@@ -54,7 +54,7 @@ namespace PhysicalGameSimulator
                 //TODO : gérer les cas de contestation
 
                 foreach (var robot in robotList)
-                {                    
+                {
                     bool collision = false;
 
                     //Vérification d'éventuelles collisions.
@@ -121,7 +121,7 @@ namespace PhysicalGameSimulator
             var handler = OnPhysicalPositionEvent;
             if (handler != null)
             {
-                handler(this, new LocationArgs { RobotId = id, Location = location});
+                handler(this, new LocationArgs { RobotId = id, Location = location });
             }
         }
 
@@ -132,7 +132,7 @@ namespace PhysicalGameSimulator
             var handler = OnPhysicicalObjectListLocationEvent;
             if (handler != null)
             {
-                handler(this, new LocationListArgs {LocationList = locationList });
+                handler(this, new LocationListArgs { LocationList = locationList });
             }
         }
     }
@@ -143,7 +143,7 @@ namespace PhysicalGameSimulator
         public double X;
         public double Y;
         public double Theta;
-        
+
         public double newXWithoutCollision;
         public double newYWithoutCollision;
         public double newThetaWithoutCollision;

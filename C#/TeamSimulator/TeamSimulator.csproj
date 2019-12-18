@@ -8,10 +8,11 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>TeamSimulator</RootNamespace>
     <AssemblyName>TeamSimulator</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -95,7 +96,7 @@
       <Name>Perception</Name>
     </ProjectReference>
     <ProjectReference Include="..\PhysicalGameSimulator\PhysicalGameSimulator.csproj">
-      <Project>{0f8dbedc-02e3-4f9e-8ec6-de065b9f32f1}</Project>
+      <Project>{fe8ed5b8-b793-4378-ab51-698932b8773f}</Project>
       <Name>PhysicalGameSimulator</Name>
     </ProjectReference>
     <ProjectReference Include="..\RobotInterfaceWPF_Supervision_Systeme_Embarqué\RobotInterface\WpfRobotInterface.csproj">
@@ -114,9 +115,9 @@
       <Project>{f2d3fb95-f97a-4049-bca4-71854fd4faf3}</Project>
       <Name>StrategyManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TrajectoryPlanner\TrajectoryGeneration.csproj">
-      <Project>{4cee8012-7d63-49ed-aadc-2fd4f092ab7b}</Project>
-      <Name>TrajectoryGeneration</Name>
+    <ProjectReference Include="..\TrajectoryGenerator\TrajectoryGenerator.csproj">
+      <Project>{bb381252-44cf-4962-984b-abd697dcc9fb}</Project>
+      <Name>TrajectoryGenerator</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8e7d0da4-9a13-4b18-a90e-0243bbcce40a}</Project>

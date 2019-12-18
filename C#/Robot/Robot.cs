@@ -15,7 +15,7 @@ using SciChart.Charting.Visuals;
 using System;
 using System.IO.Ports;
 using System.Threading;
-using TrajectoryGeneration;
+using TrajectoryGenerator;
 using WayPointGenerator;
 using WorldMapManager;
 

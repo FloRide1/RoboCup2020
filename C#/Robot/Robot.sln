@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29409.12
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.421
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Robot", "Robot.csproj", "{F48FF3AC-50C6-4016-8F67-F5430FED1A2C}"
 EndProject
@@ -39,10 +39,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageProcessingOmniCamera",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfWorldMapLibrary", "..\WpfControlLibrary\WpfWorldMapLibrary.csproj", "{89604641-927E-47FF-8DB6-91CF5C4976C1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PhysicalGameSimulator", "..\PhysicalGameSimulator\PhysicalGameSimulator.csproj", "{0F8DBEDC-02E3-4F9E-8EC6-DE065B9F32F1}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrajectoryGeneration", "..\TrajectoryPlanner\TrajectoryGeneration.csproj", "{4CEE8012-7D63-49ED-AADC-2FD4F092AB7B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WayPointGenerator", "..\WayPointGenerator\WayPointGenerator.csproj", "{66799E02-D6D6-40A0-9D98-B6CD718E76C7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StrategyManager", "..\StrategyManager\StrategyManager.csproj", "{F2D3FB95-F97A-4049-BCA4-71854FD4FAF3}"
@@ -68,6 +64,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perception", "..\Perception\Perception.csproj", "{DD8FD061-D3B2-43AE-B74D-03D94A2876A3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerceptionManagement", "..\PerceptionManagement\PerceptionManagement.csproj", "{CA5585EB-5C96-4DF3-823C-878C0AD7D739}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrajectoryGenerator", "..\TrajectoryGenerator\TrajectoryGenerator.csproj", "{BB381252-44CF-4962-984B-ABD697DCC9FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhysicalGameSimulator", "..\PhysicalGameSimulator\PhysicalGameSimulator.csproj", "{FE8ED5B8-B793-4378-AB51-698932B8773F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -147,14 +147,6 @@ Global
 		{89604641-927E-47FF-8DB6-91CF5C4976C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89604641-927E-47FF-8DB6-91CF5C4976C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89604641-927E-47FF-8DB6-91CF5C4976C1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0F8DBEDC-02E3-4F9E-8EC6-DE065B9F32F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0F8DBEDC-02E3-4F9E-8EC6-DE065B9F32F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0F8DBEDC-02E3-4F9E-8EC6-DE065B9F32F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0F8DBEDC-02E3-4F9E-8EC6-DE065B9F32F1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4CEE8012-7D63-49ED-AADC-2FD4F092AB7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4CEE8012-7D63-49ED-AADC-2FD4F092AB7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4CEE8012-7D63-49ED-AADC-2FD4F092AB7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4CEE8012-7D63-49ED-AADC-2FD4F092AB7B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{66799E02-D6D6-40A0-9D98-B6CD718E76C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{66799E02-D6D6-40A0-9D98-B6CD718E76C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66799E02-D6D6-40A0-9D98-B6CD718E76C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -207,6 +199,14 @@ Global
 		{CA5585EB-5C96-4DF3-823C-878C0AD7D739}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA5585EB-5C96-4DF3-823C-878C0AD7D739}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA5585EB-5C96-4DF3-823C-878C0AD7D739}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB381252-44CF-4962-984B-ABD697DCC9FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB381252-44CF-4962-984B-ABD697DCC9FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB381252-44CF-4962-984B-ABD697DCC9FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB381252-44CF-4962-984B-ABD697DCC9FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE8ED5B8-B793-4378-AB51-698932B8773F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE8ED5B8-B793-4378-AB51-698932B8773F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE8ED5B8-B793-4378-AB51-698932B8773F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE8ED5B8-B793-4378-AB51-698932B8773F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

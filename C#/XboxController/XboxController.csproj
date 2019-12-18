@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>XboxController</RootNamespace>
     <AssemblyName>XboxController</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -100,10 +101,6 @@
       <Project>{EFAFBA95-1787-41A9-8F12-14ECD9FE127A}</Project>
       <Name>MessageEncoder</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PhysicalGameSimulator\PhysicalGameSimulator.csproj">
-      <Project>{0F8DBEDC-02E3-4F9E-8EC6-DE065B9F32F1}</Project>
-      <Name>PhysicalGameSimulator</Name>
-    </ProjectReference>
     <ProjectReference Include="..\RefereeBoxAdapter\RefereeBoxAdapter.csproj">
       <Project>{A8C04138-90DC-42F9-AB39-E71125B805B9}</Project>
       <Name>RefereeBoxAdapter</Name>
@@ -127,10 +124,6 @@
     <ProjectReference Include="..\StrategyManager\StrategyManager.csproj">
       <Project>{F2D3FB95-F97A-4049-BCA4-71854FD4FAF3}</Project>
       <Name>StrategyManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TrajectoryPlanner\TrajectoryGeneration.csproj">
-      <Project>{4CEE8012-7D63-49ED-AADC-2FD4F092AB7B}</Project>
-      <Name>TrajectoryGeneration</Name>
     </ProjectReference>
     <ProjectReference Include="..\WayPointGenerator\WayPointGenerator.csproj">
       <Project>{66799E02-D6D6-40A0-9D98-B6CD718E76C7}</Project>
