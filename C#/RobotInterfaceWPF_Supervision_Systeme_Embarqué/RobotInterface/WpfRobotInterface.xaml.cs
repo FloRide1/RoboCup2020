@@ -60,7 +60,7 @@ namespace RobotInterface
 
         private void TimerAffichage_Tick(object sender, EventArgs e)
         {
-            textBoxReception.Text = "Nb Message Sent : " + nbMsgSent + " Nb Message Received : " + nbMsgReceived + " Nb Message Received Errors : " + nbMsgReceivedErrors;
+            //textBoxReception.Text = "Nb Message Sent : " + nbMsgSent + " Nb Message Received : " + nbMsgReceived + " Nb Message Received Errors : " + nbMsgReceivedErrors;
         }
         
         public void OnLocalWorldMapEvent(object sender, EventArgsLibrary.LocalWorldMapArgs e)

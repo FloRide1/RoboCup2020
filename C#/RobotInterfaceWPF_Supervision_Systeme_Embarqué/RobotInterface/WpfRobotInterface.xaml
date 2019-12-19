@@ -15,9 +15,7 @@
     <Grid Background="#222222">
         <Grid.RowDefinitions>
             <RowDefinition Height="5"/>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="5"/>
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="3*"/>
             <RowDefinition Height="5"/>
             <RowDefinition Height="3*"/>
             <RowDefinition Height="5"/>
@@ -26,19 +24,31 @@
             <ColumnDefinition Width="30"/>
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="30"/>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="30"/>
         </Grid.ColumnDefinitions>
-        <GroupBox x:Name="groupBox" Header="Reception" Margin="0" Background="#FFDDDDDD" BorderBrush="Black" Grid.Column="3" Grid.Row="1">
-            <TextBox x:Name="textBoxReception" Grid.Column="3" Margin="0" Grid.Row="1" TextWrapping="Wrap" Background="{x:Null}" BorderBrush="{x:Null}" IsReadOnly="True" AcceptsReturn="True"/>
-        </GroupBox>
-        <GroupBox x:Name="groupBox1" Header="Emission" Margin="0" BorderBrush="Black" Foreground="Black" Background="#FFDDDDDD" Grid.Column="1" Grid.Row="1">
-            <TextBox x:Name="textBoxEmission" Margin="0" TextWrapping="Wrap" Background="{x:Null}" BorderBrush="{x:Null}" AcceptsReturn="True"/>
-        </GroupBox>
-        <Button x:Name="buttonEnvoyer" Content="Envoyer" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="3" Width="100"/>
-        <Button x:Name="buttonTest" Content="Test" Grid.Column="3" HorizontalAlignment="Center"  Grid.Row="3" Width="100"/>
+        <Grid x:Name="AffichageTelemetrieRobot" Grid.Column="1" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Canvas Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Line
+                    X1="10" Y1="10"
+                    X2="50" Y2="50"
+                    Stroke="White"
+                    StrokeThickness="12" />
+            </Canvas>
+        </Grid>
+        <!--<GroupBox x:Name="groupBox" Header="Reception" Margin="0" Background="#FFDDDDDD" BorderBrush="Black" Grid.Column="1" Grid.Row="1">
+            <TextBox x:Name="textBoxReception" Margin="0" Grid.Row="1" TextWrapping="Wrap" Background="{x:Null}" BorderBrush="{x:Null}" IsReadOnly="True" AcceptsReturn="True"/>
+        </GroupBox>-->
         <!--  Create the chart surface  -->
-        <ext:WorldMapDisplay x:Name="worldMapDisplay" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="5">
+        <ext:WorldMapDisplay x:Name="worldMapDisplay" Grid.Column="1" Grid.ColumnSpan="1" Grid.Row="3">
         </ext:WorldMapDisplay>
     </Grid>
 </Window>

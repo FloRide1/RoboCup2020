@@ -26,7 +26,7 @@ namespace Robot
         static bool usingSimulatedCamera = true;
         static bool usingLidar = false;
         static bool usingPhysicalSimulator = true;
-        static bool usingXBoxController = true;
+        static bool usingXBoxController = false;
 
         //static HighFreqTimer highFrequencyTimer;
         static HighFreqTimer timerStrategie;
@@ -81,20 +81,22 @@ namespace Robot
             robotMsgGenerator = new RobotMsgGenerator();
 
             physicalSimulator = new PhysicalSimulator.PhysicalSimulator();
-            physicalSimulator.RegisterRobot((int)TeamId.Team1+1,0,0);
 
-            robotPilot = new RobotPilot.RobotPilot((int)TeamId.Team1 + 1);
+            int robotId = (int)TeamId.Team1 + (int)RobotId.Robot1;
+            physicalSimulator.RegisterRobot(robotId, 0,0);
+
+            robotPilot = new RobotPilot.RobotPilot(robotId);
             refBoxAdapter = new RefereeBoxAdapter.RefereeBoxAdapter();
-            trajectoryPlanner = new TrajectoryPlanner((int)TeamId.Team1 + 1);
-            waypointGenerator = new WaypointGenerator((int)TeamId.Team1 + 1);
-            strategyManager = new StrategyManager.StrategyManager((int)TeamId.Team1 + 1);
-            localWorldMapManager = new LocalWorldMapManager((int)TeamId.Team1 + 1);
-            lidarSimulator = new LidarSimulator.LidarSimulator((int)TeamId.Team1 + 1);
+            trajectoryPlanner = new TrajectoryPlanner(robotId);
+            waypointGenerator = new WaypointGenerator(robotId);
+            strategyManager = new StrategyManager.StrategyManager(robotId);
+            localWorldMapManager = new LocalWorldMapManager(robotId);
+            lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
 
             if (usingLidar)
-                lidar_OMD60M = new Lidar_OMD60M((int)TeamId.Team1 + 1);
+                lidar_OMD60M = new Lidar_OMD60M(robotId);
 
-            xBoxManette = new XBoxController.XBoxController((int)TeamId.Team1 + 1);
+            xBoxManette = new XBoxController.XBoxController(robotId);
 
             if (!usingSimulatedCamera)
                 omniCamera = new BaslerCameraAdapter();
@@ -125,7 +127,7 @@ namespace Robot
                 xBoxManette.OnTirEvent += robotMsgGenerator.GenerateMessageTir;
             }
 
-            physicalSimulator.OnPhysicalPositionEvent += trajectoryPlanner.OnPhysicalPositionReceived;
+            physicalSimulator.OnPhysicalRobotPositionEvent += trajectoryPlanner.OnPhysicalPositionReceived;
 
            
             robotPilot.OnSpeedConsigneToMotorEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
@@ -135,7 +137,7 @@ namespace Robot
 
 
 
-            physicalSimulator.OnPhysicalPositionEvent += localWorldMapManager.OnPhysicalPositionReceived;
+            physicalSimulator.OnPhysicalRobotPositionEvent += localWorldMapManager.OnPhysicalPositionReceived;
             //lidarSimulator.OnSimulatedLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
