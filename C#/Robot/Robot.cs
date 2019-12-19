@@ -19,6 +19,7 @@ using TrajectoryGenerator;
 using WayPointGenerator;
 using WorldMapManager;
 using RobotMessageProcessor;
+using PerceptionManagement;
 
 namespace Robot
 {
@@ -27,7 +28,7 @@ namespace Robot
         static bool usingSimulatedCamera = true;
         static bool usingLidar = false;
         static bool usingPhysicalSimulator = true;
-        static bool usingXBoxController = true;
+        static bool usingXBoxController = false;
 
         //static HighFreqTimer highFrequencyTimer;
         static HighFreqTimer timerStrategie;
@@ -49,6 +50,7 @@ namespace Robot
         static LocalWorldMapManager localWorldMapManager;
         static LidarSimulator.LidarSimulator lidarSimulator;
         static StrategyManager.StrategyManager strategyManager;
+        static PerceptionSimulator perceptionSimulator;
         static Lidar_OMD60M lidar_OMD60M;
 
         static XBoxController.XBoxController xBoxManette;
@@ -86,6 +88,7 @@ namespace Robot
             physicalSimulator = new PhysicalSimulator.PhysicalSimulator();
 
             int robotId = (int)TeamId.Team1 + (int)RobotId.Robot1;
+            int teamId = (int)TeamId.Team1;
             physicalSimulator.RegisterRobot(robotId, 0,0);
 
             robotPilot = new RobotPilot.RobotPilot(robotId);
@@ -93,8 +96,9 @@ namespace Robot
             trajectoryPlanner = new TrajectoryPlanner(robotId);
             waypointGenerator = new WaypointGenerator(robotId);
             strategyManager = new StrategyManager.StrategyManager(robotId);
-            localWorldMapManager = new LocalWorldMapManager(robotId);
+            localWorldMapManager = new LocalWorldMapManager(robotId, teamId);
             lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
+            perceptionSimulator = new PerceptionSimulator(robotId);
 
             if (usingLidar)
                 lidar_OMD60M = new Lidar_OMD60M(robotId);
@@ -130,32 +134,26 @@ namespace Robot
                 xBoxManette.OnMoveTirDownEvent += robotMsgGenerator.GenerateMessageMoveTirDown;
                 xBoxManette.OnTirEvent += robotMsgGenerator.GenerateMessageTir;
             }
-
-            physicalSimulator.OnPhysicalRobotPositionEvent += trajectoryPlanner.OnPhysicalPositionReceived;
-
-           
-            robotPilot.OnSpeedConsigneToMotorEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
             robotMsgGenerator.OnMessageToRobotGeneratedEvent += msgEncoder.EncodeMessageToRobot;
             msgEncoder.OnMessageEncodedEvent += serialPort1.SendMessage;
             serialPort1.OnDataReceivedEvent += msgDecoder.DecodeMsgReceived;
             msgDecoder.OnMessageDecodedEvent += robotMsgProcessor.ProcessRobotDecodedMessage;
 
+            physicalSimulator.OnPhysicalRobotPositionEvent += trajectoryPlanner.OnPhysicalPositionReceived;
+            physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicalObjectListLocationReceived;
+            physicalSimulator.OnPhysicalRobotPositionEvent += perceptionSimulator.OnPhysicalRobotPositionReceived;
+            physicalSimulator.OnPhysicalBallPositionEvent += perceptionSimulator.OnPhysicalBallPositionReceived;
 
-            physicalSimulator.OnPhysicalRobotPositionEvent += localWorldMapManager.OnPhysicalPositionReceived;
+            perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
             //lidarSimulator.OnSimulatedLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
             //waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
-            //lidarSimulator.OnSimulatedLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
-            if(usingLidar)
+            
+            if (usingLidar)
                 lidar_OMD60M.OnLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
-
-            //Timer de simulation
-            //highFrequencyTimer = new HighFreqTimer(2000);
-            //highFrequencyTimer.Tick += HighFrequencyTimer_Tick;
-            //highFrequencyTimer.Start();
-
+            
             //Timer de stratégie
             timerStrategie = new HighFreqTimer(0.5);
             timerStrategie.Tick += TimerStrategie_Tick;
@@ -177,7 +175,7 @@ namespace Robot
             strategyManager.ProcessStrategy();
         }
 
-        static int nbMsgSent = 0;
+        //static int nbMsgSent = 0;
         //static private void HighFrequencyTimer_Tick(object sender, EventArgs e)
         //{
         //    //Utilisé pour des tests de stress sur l'interface série.
@@ -205,9 +203,9 @@ namespace Robot
                 msgDecoder.OnMessageDecodedEvent += interfaceRobot.DisplayMessageDecoded;
                 msgDecoder.OnMessageDecodedErrorEvent += interfaceRobot.DisplayMessageDecodedError;
                 
-                robotMsgProcessor.OnIMUDataFromRobotGeneratedEvent += interfaceRobot.ActualizeIMUDataOnGraph;
-                robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += interfaceRobot.ActualizeMotorsCurrentsOnGraph;
-                xBoxManette.OnSpeedConsigneEvent += interfaceRobot.ActualizeSpeedConsigneOnGraph;
+                robotMsgProcessor.OnIMUDataFromRobotGeneratedEvent += interfaceRobot.UpdateImuDataOnGraph;
+                robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += interfaceRobot.UpdateMotorsCurrentsOnGraph;
+                xBoxManette.OnSpeedConsigneEvent += interfaceRobot.UpdateSpeedConsigneOnGraph;
 
                 localWorldMapManager.OnLocalWorldMapEvent+= interfaceRobot.OnLocalWorldMapEvent;
 

@@ -18,7 +18,7 @@
             <RowDefinition Height="5"/>
             <RowDefinition Height="3*"/>
             <RowDefinition Height="5"/>
-            <RowDefinition Height="3*"/>
+            <RowDefinition Height="2*"/>
             <RowDefinition Height="5"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -26,6 +26,7 @@
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="30"/>
         </Grid.ColumnDefinitions>
+        
         <Grid x:Name="AffichageTelemetrieRobot" Grid.Column="1" Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="1*"/>
@@ -75,11 +76,21 @@
                 </Grid>
             </GroupBox>
         </Grid>
-        <!--<GroupBox x:Name="groupBox" Header="Reception" Margin="0" Background="#FFDDDDDD" BorderBrush="Black" Grid.Column="1" Grid.Row="1">
+
+        <Grid Grid.Column="1" Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <ext:WorldMapDisplay x:Name="worldMapDisplay" Grid.Column="1" Grid.ColumnSpan="1" Grid.Row="3">
+            </ext:WorldMapDisplay>
+        </Grid>
+            
+            <!--<GroupBox x:Name="groupBox" Header="Reception" Margin="0" Background="#FFDDDDDD" BorderBrush="Black" Grid.Column="1" Grid.Row="1">
             <TextBox x:Name="textBoxReception" Margin="0" Grid.Row="1" TextWrapping="Wrap" Background="{x:Null}" BorderBrush="{x:Null}" IsReadOnly="True" AcceptsReturn="True"/>
         </GroupBox>-->
         <!--  Create the chart surface  -->
-        <ext:WorldMapDisplay x:Name="worldMapDisplay" Grid.Column="1" Grid.ColumnSpan="1" Grid.Row="3">
-        </ext:WorldMapDisplay>
+        
     </Grid>
 </Window>

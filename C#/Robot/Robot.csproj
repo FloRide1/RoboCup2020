@@ -113,6 +113,10 @@
       <Project>{EFAFBA95-1787-41A9-8F12-14ECD9FE127A}</Project>
       <Name>MessageEncoder</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PerceptionManagement\PerceptionManagement.csproj">
+      <Project>{CA5585EB-5C96-4DF3-823C-878C0AD7D739}</Project>
+      <Name>PerceptionManagement</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PhysicalSimulator\PhysicalSimulator.csproj">
       <Project>{4CF48B4E-AB93-479E-B79C-F9101F24B7BA}</Project>
       <Name>PhysicalSimulator</Name>

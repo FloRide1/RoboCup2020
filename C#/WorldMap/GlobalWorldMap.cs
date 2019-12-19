@@ -13,7 +13,7 @@ namespace WorldMap
         public Dictionary<int, Location> ballLocationDictionary { get; set; }
         public Dictionary<int, Location> destinationLocationDictionary { get; set; }
         public Dictionary<int, Location> waypointLocationDictionary { get; set; }
-        public Dictionary<int, List<Location>> opponentsLocationListDictionary { get; set; }
+        public Dictionary<int, List<Location>> ObstaclesLocationListDictionary { get; set; }
 
         public GlobalWorldMapStorage()
         {
@@ -21,7 +21,7 @@ namespace WorldMap
             ballLocationDictionary = new Dictionary<int, Location>();
             destinationLocationDictionary = new Dictionary<int, Location>();
             waypointLocationDictionary = new Dictionary<int, Location>();
-            opponentsLocationListDictionary = new Dictionary<int, List<Location>>();
+            ObstaclesLocationListDictionary = new Dictionary<int, List<Location>>();
         }
 
         public void AddOrUpdateRobotLocation(int id, Location loc)
@@ -65,14 +65,14 @@ namespace WorldMap
                     waypointLocationDictionary.Add(id, loc);
             }
         }
-        public void AddOrUpdateOpponentsList(int id, List<Location> locList)
+        public void AddOrUpdateObstaclesList(int id, List<Location> locList)
         {
-            lock (opponentsLocationListDictionary)
+            lock (ObstaclesLocationListDictionary)
             {
-                if (opponentsLocationListDictionary.ContainsKey(id))
-                    opponentsLocationListDictionary[id] = locList;
+                if (ObstaclesLocationListDictionary.ContainsKey(id))
+                    ObstaclesLocationListDictionary[id] = locList;
                 else
-                    opponentsLocationListDictionary.Add(id, locList);
+                    ObstaclesLocationListDictionary.Add(id, locList);
             }
         }
     }

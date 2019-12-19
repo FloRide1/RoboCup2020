@@ -33,6 +33,16 @@
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="30"/>
         </Grid.ColumnDefinitions>
+        <Grid x:Name="TeamDisplayGrid" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <ext:WorldMapDisplay x:Name="globalWorldMapDisplayTeam1" Grid.Column="0" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
+            </ext:WorldMapDisplay>
+            <ext:WorldMapDisplay x:Name="globalWorldMapDisplayTeam2" Grid.Column="1" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
+            </ext:WorldMapDisplay>
+        </Grid>
         <GroupBox x:Name="groupBox" Header="Reception" Margin="0" Background="#FFDDDDDD" BorderBrush="Black" Grid.Column="5" Grid.Row="7">
             <TextBox x:Name="textBoxReception" Grid.Column="3" Margin="0" Grid.Row="1" TextWrapping="Wrap" Background="{x:Null}" BorderBrush="{x:Null}" IsReadOnly="True" AcceptsReturn="True"/>
         </GroupBox>
@@ -43,8 +53,6 @@
         <Button x:Name="buttonTest" Content="Test" Grid.Column="3" HorizontalAlignment="Center"  Grid.Row="3" Width="100"/>-->
         
         <!--  Create the chart surface  -->
-        <ext:WorldMapDisplay x:Name="globalWorldMapDisplay" Grid.Column="3" Grid.ColumnSpan="1" Grid.Row="1" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
-        </ext:WorldMapDisplay>
         <ext:WorldMapDisplay x:Name="localWorldMapDisplay1" Grid.Column="1" Grid.Row="3" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
         </ext:WorldMapDisplay>
         <ext:WorldMapDisplay x:Name="localWorldMapDisplay2" Grid.Column="3" Grid.Row="3" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">

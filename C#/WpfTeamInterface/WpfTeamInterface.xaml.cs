@@ -25,12 +25,14 @@ namespace TeamInterface
 
             for (int i = 0; i < 5; i++)
             {
-                globalWorldMapDisplay.InitRobot((int)TeamId.Team1 + i);
+                globalWorldMapDisplayTeam1.InitRobot((int)TeamId.Team1 + i);
+                globalWorldMapDisplayTeam2.InitRobot((int)TeamId.Team1 + i);
             }
 
             for (int i = 0; i < 5; i++)
             {
-                globalWorldMapDisplay.InitRobot((int)TeamId.Team2 + i);
+                globalWorldMapDisplayTeam1.InitRobot((int)TeamId.Team2 + i);
+                globalWorldMapDisplayTeam2.InitRobot((int)TeamId.Team2 + i);
             }
         }
 
@@ -60,7 +62,10 @@ namespace TeamInterface
         }
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
         {
-            globalWorldMapDisplay.UpdateGlobalWorldMap(e.GlobalWorldMap);
+            if(e.TeamId == (int)TeamId.Team1)
+                globalWorldMapDisplayTeam1.UpdateGlobalWorldMap(e.GlobalWorldMap);
+            else if (e.TeamId == (int)TeamId.Team2)
+                globalWorldMapDisplayTeam2.UpdateGlobalWorldMap(e.GlobalWorldMap);
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

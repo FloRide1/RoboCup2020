@@ -1,26 +1,32 @@
 ﻿using EventArgsLibrary;
+using PerceptionManagement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using Utilities;
 using WorldMap;
+using Constants;
 
 namespace WorldMapManager
 {
     public class GlobalWorldMapManager
     {
-        double freqRafraichissementWolrdMap = 30;
+        int TeamId = 0;
+        double freqRafraichissementWorldMap = 30;
+
         Dictionary<int, LocalWorldMap> localWorldMapDictionary = new Dictionary<int, LocalWorldMap>();
         GlobalWorldMapStorage globalWorldMapStorage = new GlobalWorldMapStorage();
         GlobalWorldMap globalWorldMap = new GlobalWorldMap();
         Timer globalWorldMapSendTimer;
 
 
-        public GlobalWorldMapManager()
+        public GlobalWorldMapManager(int teamId)
         {
-            globalWorldMapSendTimer = new Timer(1000/freqRafraichissementWolrdMap);
+            TeamId = teamId;
+            globalWorldMapSendTimer = new Timer(1000/freqRafraichissementWorldMap);
             globalWorldMapSendTimer.Elapsed += GlobalWorldMapSendTimer_Elapsed;
             globalWorldMapSendTimer.Start();
         }
@@ -32,17 +38,17 @@ namespace WorldMapManager
 
         public void OnLocalWorldMapReceived(object sender, EventArgsLibrary.LocalWorldMapArgs e)
         {
-            AddOrUpdateLocalWorldMap(e.RobotId, e.LocalWorldMap);
+            AddOrUpdateLocalWorldMap(e.RobotId, e.TeamId, e.LocalWorldMap);
         }
 
-        private void AddOrUpdateLocalWorldMap(int id, LocalWorldMap localWorldMap)
+        private void AddOrUpdateLocalWorldMap(int robotId, int teamId, LocalWorldMap localWorldMap)
         {
             lock (localWorldMapDictionary)
             {
-                if (localWorldMapDictionary.ContainsKey(id))
-                    localWorldMapDictionary[id] = localWorldMap;
+                if (localWorldMapDictionary.ContainsKey(robotId))
+                    localWorldMapDictionary[robotId] = localWorldMap;
                 else
-                    localWorldMapDictionary.Add(id, localWorldMap);
+                    localWorldMapDictionary.Add(robotId, localWorldMap);
             }
         }
 
@@ -58,45 +64,97 @@ namespace WorldMapManager
                     globalWorldMapStorage.AddOrUpdateBallLocation(localMap.Key, localMap.Value.ballLocation);
                     globalWorldMapStorage.AddOrUpdateRobotDestination(localMap.Key, localMap.Value.destinationLocation);
                     globalWorldMapStorage.AddOrUpdateRobotWayPoint(localMap.Key, localMap.Value.waypointLocation);
-                    globalWorldMapStorage.AddOrUpdateOpponentsList(localMap.Key, localMap.Value.opponentLocationList);
+                    globalWorldMapStorage.AddOrUpdateObstaclesList(localMap.Key, localMap.Value.obstaclesLocationList);
                 }
 
-                //Fusion des listes d'adversaires récupérées.
-                //TODO : faire un algo de fusion 
+                //Génération de la carte fusionnée à partir des perceptions des robots de l'équipe
                 //La fusion porte avant tout sur la balle et sur les adversaires.
+
+                //TODO : faire un algo de fusion robuste pour la balle
                 globalWorldMap = new WorldMap.GlobalWorldMap();
-                
+
                 //Pour l'instant on prend la position de balle vue par le robot 1 comme vérité, mais c'est à améliorer !
-                if (localWorldMapDictionary.Count>0)
+                if (localWorldMapDictionary.Count > 0)
                     globalWorldMap.ballLocation = localWorldMapDictionary.First().Value.ballLocation;
                 globalWorldMap.teamLocationList = new Dictionary<int, PerceptionManagement.Location>();
                 globalWorldMap.opponentLocationList = new List<PerceptionManagement.Location>();
 
-                //Pour l'instant on ajoute tous les opposants vus par chacun des robots, mais c'est à fusionner !
+                //On place tous les robots de l'équipe dans la global map
                 foreach (var localMap in localWorldMapDictionary)
                 {
                     //On ajoute la position des robots de l'équipe dans la WorldMap
                     globalWorldMap.teamLocationList.Add(localMap.Key, localMap.Value.robotLocation);
-                    //On ajoute la position des adversaires dans la WorldMap
-                    var opponentLocationList = localMap.Value.opponentLocationList.ToList();
-                    foreach (var oppLocation in opponentLocationList)
+                }
+
+                //On établit une liste des emplacements d'adversaires potentiels afin de les fusionner si possible
+                List<Location> AdversairesPotentielsList = new List<Location>();
+                List<int> AdversairesPotentielsMatchOccurenceList = new List<int>();
+                foreach (var localMap in localWorldMapDictionary)
+                {
+                    //On tente de transformer les objets vus et ne correspondant pas à des robots alliés en des adversaires
+                    List<Location> obstacleLocationList = new List<Location>();
+                    try
                     {
-                        globalWorldMap.opponentLocationList.Add(oppLocation);
-                    }                    
+                         obstacleLocationList = localMap.Value.obstaclesLocationList.ToList();
+                    }
+                    catch { }
+
+                    foreach (var obstacleLocation in obstacleLocationList)
+                    {
+                        bool isTeamMate = false;
+                        bool isAlreadyPresentInOpponentList = false;
+
+                        //On regarde si l'obstacle est un coéquipier ou pas
+                        foreach (var robotTeamLocation in globalWorldMap.teamLocationList.Values)
+                        {
+                            if (obstacleLocation != null && robotTeamLocation != null)
+                            {
+                                if (Toolbox.Distance(obstacleLocation.X, obstacleLocation.Y, robotTeamLocation.X, robotTeamLocation.Y) < 0.4)
+                                    isTeamMate = true;
+                            }
+                        }
+
+                        //On regarde si l'obstacle existe dans la liste des adversaires potentiels ou pas
+                        foreach (var opponentLocation in AdversairesPotentielsList)
+                        {
+                            if (Toolbox.Distance(obstacleLocation.X, obstacleLocation.Y, opponentLocation.X, opponentLocation.Y) < 0.4)
+                            {
+                                isAlreadyPresentInOpponentList = true;
+                                var index = AdversairesPotentielsList.IndexOf(opponentLocation);
+                                AdversairesPotentielsMatchOccurenceList[index]++;
+                            }
+                        }
+
+                        //Si un obstacle n'est ni un coéquipier, ni un adversaire potentiel déjà trouvé, c'est un nouvel adversaire potentiel
+                        if (!isTeamMate && !isAlreadyPresentInOpponentList)
+                        {
+                            AdversairesPotentielsList.Add(obstacleLocation);
+                            AdversairesPotentielsMatchOccurenceList.Add(1);
+                        }
+                    }
+                }
+
+                //On valide les adversaires potentiels si ils ont été perçus plus d'une fois par les robots
+                for(int i=0; i< AdversairesPotentielsList.Count; i++)
+                {
+                    if (AdversairesPotentielsMatchOccurenceList[i] >= 2)
+                    {
+                        var opponentLocation = AdversairesPotentielsList[i];
+                        globalWorldMap.opponentLocationList.Add(opponentLocation);
+                    }
                 }
             }
-
-            OnGlobalWorldMap(globalWorldMap);
+            OnGlobalWorldMap(globalWorldMap, TeamId);
         }
 
         public delegate void GlobalWorldMapEventHandler(object sender, GlobalWorldMapArgs e);
         public event EventHandler<GlobalWorldMapArgs> OnGlobalWorldMapEvent;
-        public virtual void OnGlobalWorldMap(GlobalWorldMap globalWorldMap)
+        public virtual void OnGlobalWorldMap(GlobalWorldMap globalWorldMap, int teamId)
         {
             var handler = OnGlobalWorldMapEvent;
             if (handler != null)
             {
-                handler(this, new GlobalWorldMapArgs {GlobalWorldMap = this.globalWorldMapStorage });
+                handler(this, new GlobalWorldMapArgs {GlobalWorldMap = globalWorldMap, TeamId = teamId });
             }
         }
     }

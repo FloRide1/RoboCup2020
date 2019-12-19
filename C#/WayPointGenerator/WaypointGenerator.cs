@@ -24,7 +24,7 @@ namespace WayPointGenerator
         //Timer timerWayPointGeneration;
 
         Location destinationLocation;
-        GlobalWorldMapStorage globalWorldMap;
+        GlobalWorldMap globalWorldMap;
         //double[,] strategyManagerHeatMap = new double[0, 0];
 
         //double heatMapCellsize = 2; //doit être la même que celle du strategy manager
@@ -172,37 +172,28 @@ namespace WayPointGenerator
             if (globalWorldMap != null)
             {
                 //Si le robot existe dans le distionnaire des robots
-                if (globalWorldMap.robotLocationDictionary.ContainsKey(robotId))
+                if (globalWorldMap.teamLocationList.ContainsKey(robotId))
                 {
-                    Location robotLocation = globalWorldMap.robotLocationDictionary[robotId];
+                    Location robotLocation = globalWorldMap.teamLocationList[robotId];
                     double angleDestination = Math.Atan2(destinationLocation.Y - robotLocation.Y, destinationLocation.X - robotLocation.X);
 
                     //On génère la liste des robots à éviter...
                     Dictionary<int, Location> robotToAvoidDictionary = new Dictionary<int, Location>();
 
-                    lock (globalWorldMap.robotLocationDictionary)
+                    lock (globalWorldMap.teamLocationList)
                     {
-                        foreach (var robot in globalWorldMap.robotLocationDictionary)
+                        foreach (var robot in globalWorldMap.teamLocationList)
                         {
                             robotToAvoidDictionary.Add(robot.Key, robot.Value);
                         }
                     }
 
-                    var opponentsListList = globalWorldMap.opponentsLocationListDictionary.ToList(); //On évite un lock couteux en perf en faisant une copie locale
-                    //lock (globalWorldMap.opponentsLocationListDictionary)
-                    //{
+                    var opponentsList = globalWorldMap.opponentLocationList.ToList(); //On évite un lock couteux en perf en faisant une copie locale
                     int i = 0;
-                    foreach (var robotList in opponentsListList)
+                    foreach (var robot in opponentsList)
                     {
-                        List<Location> rList = new List<Location>();
-                        try { rList = robotList.Value.ToList(); }
-                        catch {; }
-
-                        foreach (var robot in rList)
-                        {
-                            i++;
-                            robotToAvoidDictionary.Add((int)TeamId.Opponents+i, robot);
-                        }
+                        i++;
+                        robotToAvoidDictionary.Add((int)TeamId.Opponents+i, robot);
                     }
 
                     //On veut éviter de taper les autres robots                        

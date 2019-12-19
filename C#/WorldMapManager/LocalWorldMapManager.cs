@@ -11,40 +11,42 @@ namespace WorldMapManager
 {
     public class LocalWorldMapManager
     {
-        int robotId = 0;
+        int RobotId = 0;
+        int TeamId = 0;
         LocalWorldMap localWorldMap;
 
-        public LocalWorldMapManager(int id)
+        public LocalWorldMapManager(int robotId, int teamId)
         {
-            robotId = id;
+            RobotId = robotId;
+            TeamId = teamId;
             localWorldMap = new LocalWorldMap();
         }
 
-        public void OnPhysicalPositionReceived(object sender, EventArgsLibrary.LocationArgs e)
-        {
-            if (localWorldMap == null)
-                return;
-            if (robotId == e.RobotId)
-            {
-                localWorldMap.robotLocation = e.Location;
-                OnLocalWorldMap(robotId, localWorldMap);
-            }
-        }
+        //public void OnPhysicalPositionReceived(object sender, EventArgsLibrary.LocationArgs e)
+        //{
+        //    if (localWorldMap == null)
+        //        return;
+        //    if (robotId == e.RobotId)
+        //    {
+        //        localWorldMap.robotLocation = e.Location;
+        //        OnLocalWorldMap(robotId, localWorldMap);
+        //    }
+        //}
 
         public void OnPerceptionReceived(object sender, EventArgsLibrary.PerceptionArgs e)
         {
             if (localWorldMap == null)
                 return;
-            if (robotId == e.RobotId)
+            if (RobotId == e.RobotId)
             {
                 localWorldMap.robotLocation = e.Perception.robotLocation;
-                localWorldMap.teamLocationList = e.Perception.teamLocationList;
-                localWorldMap.opponentLocationList = e.Perception.opponentLocationList;
-                localWorldMap.obstacleLocationList = e.Perception.obstacleLocationList;
+                localWorldMap.obstaclesLocationList = e.Perception.obstaclesLocationList;
+                //localWorldMap.opponentLocationList = e.Perception.opponentLocationList;
+                //localWorldMap.obstacleLocationList = e.Perception.obstacleLocationList;
                 localWorldMap.ballLocation = e.Perception.ballLocation;
 
                 if (localWorldMap.robotLocation !=null)
-                    OnLocalWorldMap(robotId, localWorldMap);
+                    OnLocalWorldMap(localWorldMap);
             }
         }
 
@@ -52,7 +54,7 @@ namespace WorldMapManager
         {
             if (localWorldMap == null)
                 return;
-            if (robotId == e.RobotId)
+            if (RobotId == e.RobotId)
             {
                 localWorldMap.waypointLocation = e.Location;
             }
@@ -62,7 +64,7 @@ namespace WorldMapManager
         {
             if (localWorldMap == null)
                 return;
-            if (robotId == e.RobotId)
+            if (RobotId == e.RobotId)
             {
                 localWorldMap.destinationLocation = e.Location;
             }
@@ -72,7 +74,7 @@ namespace WorldMapManager
         {
             if (localWorldMap == null)
                 return;
-            if (robotId == e.RobotId)
+            if (RobotId == e.RobotId)
             {
                 localWorldMap.heatMap = e.HeatMap;
             }
@@ -82,7 +84,7 @@ namespace WorldMapManager
         {
             if (localWorldMap == null || localWorldMap.robotLocation == null)
                 return;
-            if (robotId == e.RobotId)
+            if (RobotId == e.RobotId)
             {
                 List<PointD> listPtLidar = new List<PointD>();
                 for (int i=0; i< e.AngleList.Count; i++)
@@ -96,12 +98,12 @@ namespace WorldMapManager
 
         public delegate void LocalWorldMapEventHandler(object sender, LocalWorldMapArgs e);
         public event EventHandler<LocalWorldMapArgs> OnLocalWorldMapEvent;
-        public virtual void OnLocalWorldMap(int id, LocalWorldMap localWorldMap)
+        public virtual void OnLocalWorldMap(LocalWorldMap localWorldMap)
         {
             var handler = OnLocalWorldMapEvent;
             if (handler != null)
             {
-                handler(this, new LocalWorldMapArgs { RobotId = id, LocalWorldMap = this.localWorldMap });
+                handler(this, new LocalWorldMapArgs { RobotId = this.RobotId, TeamId = this.TeamId, LocalWorldMap = this.localWorldMap });
             }
         }
     }

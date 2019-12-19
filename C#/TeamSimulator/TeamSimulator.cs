@@ -61,8 +61,8 @@ namespace TeamSimulator
             perceptionSimulatorList = new List<PerceptionSimulator>();
 
             physicalSimulator = new PhysicalSimulator.PhysicalSimulator();
-            globalWorldMapManagerTeam1 = new GlobalWorldMapManager();
-            globalWorldMapManagerTeam2 = new GlobalWorldMapManager();
+            globalWorldMapManagerTeam1 = new GlobalWorldMapManager((int)TeamId.Team1);
+            globalWorldMapManagerTeam2 = new GlobalWorldMapManager((int)TeamId.Team2);
 
             for (int i = 0; i < nbPlayersTeam1; i++)
             {
@@ -104,7 +104,7 @@ namespace TeamSimulator
             var waypointGenerator = new WaypointGenerator(robotId);
             var trajectoryPlanner = new TrajectoryPlanner(robotId);
             var robotPilot = new RobotPilot.RobotPilot(robotId);
-            var localWorldMapManager = new LocalWorldMapManager(robotId);
+            var localWorldMapManager = new LocalWorldMapManager(robotId, TeamNumber);
             var lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             var perceptionSimulator = new PerceptionSimulator(robotId);
 
@@ -120,7 +120,6 @@ namespace TeamSimulator
             physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicalObjectListLocationReceived;
             physicalSimulator.OnPhysicalRobotPositionEvent += perceptionSimulator.OnPhysicalRobotPositionReceived;
             physicalSimulator.OnPhysicalBallPositionEvent += perceptionSimulator.OnPhysicalBallPositionReceived;
-            //physicalSimulator.OnPhysicalPositionEvent += localWorldMapManager.OnPhysicalPositionReceived;
 
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
             lidarSimulator.OnSimulatedLidarEvent += localWorldMapManager.OnRawLidarDataReceived;

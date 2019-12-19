@@ -111,20 +111,20 @@ namespace RobotInterface
             
         }
 
-        public void ActualizeIMUDataOnGraph(object sender, IMUDataEventArgs e)
+        public void UpdateImuDataOnGraph(object sender, IMUDataEventArgs e)
         {
             oscilloX.AddPointToLine(2, e.timeStampMS/1000.0, e.accelX);
             oscilloY.AddPointToLine(2, e.timeStampMS/1000.0, e.accelY);
             currentTime = e.timeStampMS/1000.0;
         }
 
-        public void ActualizeSpeedConsigneOnGraph(object sender, SpeedConsigneArgs e)
+        public void UpdateSpeedConsigneOnGraph(object sender, SpeedConsigneArgs e)
         {
             oscilloX.AddPointToLine(0, currentTime, e.Vx);
             oscilloY.AddPointToLine(0, currentTime, e.Vy);
         }
 
-        public void ActualizeMotorsCurrentsOnGraph(object sender, MotorsCurrentsEventArgs e)
+        public void UpdateMotorsCurrentsOnGraph(object sender, MotorsCurrentsEventArgs e)
         {
             oscilloM1.AddPointToLine(1, e.timeStampMS / 1000.0, e.motor1);
             oscilloM2.AddPointToLine(1, e.timeStampMS / 1000.0, e.motor2);

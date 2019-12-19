@@ -9,10 +9,11 @@ namespace PerceptionManagement
     public class Perception
     {
         public Location robotLocation;
-        public Dictionary<int, Location> teamLocationList;
-        public List<Location> opponentLocationList;
-        public List<Location> obstacleLocationList;
         public Location ballLocation;
+        //public Dictionary<int, Location> teamLocationList;
+        public List<Location> obstaclesLocationList;
+        //public List<Location> opponentLocationList;
+        //public List<Location> obstacleLocationList;
     }
     public class Location
     {
