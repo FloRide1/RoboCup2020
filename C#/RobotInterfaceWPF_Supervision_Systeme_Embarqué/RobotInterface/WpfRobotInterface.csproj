@@ -185,6 +185,10 @@
       <Project>{89604641-927e-47ff-8db6-91cf5c4976c1}</Project>
       <Name>WpfWorldMapLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\WpfOscilloscope\WpfOscilloscopeControl.csproj">
+      <Project>{88baa407-3fea-4f4b-bb41-5309ce48884e}</Project>
+      <Name>WpfOscilloscopeControl</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

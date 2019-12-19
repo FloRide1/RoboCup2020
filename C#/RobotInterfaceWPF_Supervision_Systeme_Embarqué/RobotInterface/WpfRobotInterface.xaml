@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:s="http://schemas.abtsoftware.co.uk/scichart" 
         xmlns:ext="clr-namespace:WpfControlLibrary;assembly=WpfControlLibrary"
+        xmlns:oscillo="clr-namespace:WpfOscilloscopeControl;assembly=WpfOscilloscopeControl"
         xmlns:local="clr-namespace:RobotInterface"
         xmlns:lcu="http://schemas.arction.com/charting/ultimate/" xmlns:lcub="http://schemas.arction.com/bindablecharting/ultimate/" x:Class="RobotInterface.WpfRobotInterface"
         mc:Ignorable="d"
@@ -43,6 +44,7 @@
                     Stroke="White"
                     StrokeThickness="12" />
             </Canvas>
+            <oscillo:WpfOscilloscope x:Name="oscilloDeplacementX" Grid.Column="0" Grid.Row="0"/>
         </Grid>
         <!--<GroupBox x:Name="groupBox" Header="Reception" Margin="0" Background="#FFDDDDDD" BorderBrush="Black" Grid.Column="1" Grid.Row="1">
             <TextBox x:Name="textBoxReception" Margin="0" Grid.Row="1" TextWrapping="Wrap" Background="{x:Null}" BorderBrush="{x:Null}" IsReadOnly="True" AcceptsReturn="True"/>

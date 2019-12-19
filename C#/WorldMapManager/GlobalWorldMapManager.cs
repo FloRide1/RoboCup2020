@@ -78,13 +78,11 @@ namespace WorldMapManager
                     //On ajoute la position des robots de l'équipe dans la WorldMap
                     globalWorldMap.teamLocationList.Add(localMap.Key, localMap.Value.robotLocation);
                     //On ajoute la position des adversaires dans la WorldMap
-                    lock (localMap.Value.opponentLocationList)
+                    var opponentLocationList = localMap.Value.opponentLocationList.ToList();
+                    foreach (var oppLocation in opponentLocationList)
                     {
-                        foreach (var oppLocation in localMap.Value.opponentLocationList)
-                        {
-                            globalWorldMap.opponentLocationList.Add(oppLocation);
-                        }
-                    }
+                        globalWorldMap.opponentLocationList.Add(oppLocation);
+                    }                    
                 }
             }
 
