@@ -66,6 +66,41 @@ namespace EventArgsLibrary
         public int RobotId { get; set; }
         public float Puissance { get; set; }
     }
+
+    public class IMUDataEventArgs : EventArgs
+    {
+        public uint timeStampMS;
+        public double accelX;
+        public double accelY;
+        public double accelZ;
+        public double gyrX;
+        public double gyrY;
+        public double gyrZ;
+    }
+    public class MotorsCurrentsEventArgs : EventArgs
+    {
+        public uint timeStampMS;
+        public double motor1;
+        public double motor2;
+        public double motor3;
+        public double motor4;
+        public double motor5;
+        public double motor6;
+        public double motor7;
+    }
+    
+
+    public class AccelEventArgs : EventArgs
+    {
+        public int timeStampMS;
+        public double accelX;
+        public double accelY;
+        public double accelZ;
+    }
+    public class BoolEventArgs : EventArgs
+    {
+        public bool value { get; set; }
+    }
     public class SpeedConsigneToMotorArgs : EventArgs
     {
         public float V { get; set; }

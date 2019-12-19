@@ -34,7 +34,7 @@ namespace XBoxController
         {
             double VLinMax = 3.0;
             double VThetaMax = 6.0;
-            double valeurRampe = 0.3;
+            double valeurRampe = 0.6;
             double Vx;
             double Vy;
 

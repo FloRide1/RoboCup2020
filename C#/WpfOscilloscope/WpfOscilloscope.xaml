@@ -16,10 +16,10 @@
         <s:SciChartSurface x:Name="sciChart" Grid.Row="1">
 
             <!--  Declare RenderableSeries  -->
-            <s:SciChartSurface.RenderableSeries>
+            <!--<s:SciChartSurface.RenderableSeries>
                 <s:FastLineRenderableSeries x:Name="lineRenderSeries" Stroke="Red" />
                 <s:FastLineRenderableSeries x:Name="lineRenderSeries2" Stroke="Green" />
-            </s:SciChartSurface.RenderableSeries>
+            </s:SciChartSurface.RenderableSeries>-->
 
             <!--  Create an X Axis with Growby  -->
             <s:SciChartSurface.XAxis>

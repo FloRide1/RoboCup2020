@@ -18,6 +18,7 @@ using System.Threading;
 using TrajectoryGenerator;
 using WayPointGenerator;
 using WorldMapManager;
+using RobotMessageProcessor;
 
 namespace Robot
 {
@@ -26,7 +27,7 @@ namespace Robot
         static bool usingSimulatedCamera = true;
         static bool usingLidar = false;
         static bool usingPhysicalSimulator = true;
-        static bool usingXBoxController = false;
+        static bool usingXBoxController = true;
 
         //static HighFreqTimer highFrequencyTimer;
         static HighFreqTimer timerStrategie;
@@ -37,6 +38,7 @@ namespace Robot
         static MsgDecoder msgDecoder;
         static MsgEncoder msgEncoder;
         static RobotMsgGenerator robotMsgGenerator;
+        static RobotMsgProcessor robotMsgProcessor;
         static RobotPilot.RobotPilot robotPilot;
         static BaslerCameraAdapter omniCamera;
         static SimulatedCamera.SimulatedCamera omniCameraSimulator;
@@ -53,7 +55,7 @@ namespace Robot
 
         static object ExitLock = new object();
 
-        static WpfRobotInterface Console1;
+        static WpfRobotInterface interfaceRobot;
         static WpfCameraMonitor ConsoleCamera;
 
 
@@ -79,6 +81,7 @@ namespace Robot
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
             robotMsgGenerator = new RobotMsgGenerator();
+            robotMsgProcessor = new RobotMsgProcessor();
 
             physicalSimulator = new PhysicalSimulator.PhysicalSimulator();
 
@@ -119,6 +122,7 @@ namespace Robot
             }
             else
             {
+                //Sur evenement xx              -->>        Action a effectuer
                 xBoxManette.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
                 xBoxManette.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
                 xBoxManette.OnPriseBalleEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
@@ -134,7 +138,7 @@ namespace Robot
             robotMsgGenerator.OnMessageToRobotGeneratedEvent += msgEncoder.EncodeMessageToRobot;
             msgEncoder.OnMessageEncodedEvent += serialPort1.SendMessage;
             serialPort1.OnDataReceivedEvent += msgDecoder.DecodeMsgReceived;
-
+            msgDecoder.OnMessageDecodedEvent += robotMsgProcessor.ProcessRobotDecodedMessage;
 
 
             physicalSimulator.OnPhysicalRobotPositionEvent += localWorldMapManager.OnPhysicalPositionReceived;
@@ -197,13 +201,17 @@ namespace Robot
             Thread t1 = new Thread(() =>
             {
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
-                Console1 = new RobotInterface.WpfRobotInterface();
-                msgDecoder.OnMessageDecodedEvent += Console1.DisplayMessageDecoded;
-                msgDecoder.OnMessageDecodedErrorEvent += Console1.DisplayMessageDecodedError;                
+                interfaceRobot = new RobotInterface.WpfRobotInterface();
+                msgDecoder.OnMessageDecodedEvent += interfaceRobot.DisplayMessageDecoded;
+                msgDecoder.OnMessageDecodedErrorEvent += interfaceRobot.DisplayMessageDecodedError;
+                
+                robotMsgProcessor.OnIMUDataFromRobotGeneratedEvent += interfaceRobot.ActualizeIMUDataOnGraph;
+                robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += interfaceRobot.ActualizeMotorsCurrentsOnGraph;
+                xBoxManette.OnSpeedConsigneEvent += interfaceRobot.ActualizeSpeedConsigneOnGraph;
 
-                localWorldMapManager.OnLocalWorldMapEvent+= Console1.OnLocalWorldMapEvent;
+                localWorldMapManager.OnLocalWorldMapEvent+= interfaceRobot.OnLocalWorldMapEvent;
 
-                Console1.ShowDialog();
+                interfaceRobot.ShowDialog();
             });
             t1.SetApartmentState(ApartmentState.STA);
             t1.Start();

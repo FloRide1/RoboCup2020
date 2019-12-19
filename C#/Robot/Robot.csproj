@@ -129,6 +129,10 @@
       <Project>{7F098EE2-A8CD-48CF-B9F4-256EA3DF2BC6}</Project>
       <Name>RobotMessageGenerator</Name>
     </ProjectReference>
+    <ProjectReference Include="..\RobotMessageProcessor\RobotMessageProcessor.csproj">
+      <Project>{12c1db8f-4309-43e2-b576-feb50b59ec25}</Project>
+      <Name>RobotMessageProcessor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RobotPilot\RobotPilot.csproj">
       <Project>{4012F5AF-50E3-40BD-ABF0-4AFE3F30D5E3}</Project>
       <Name>RobotPilot</Name>

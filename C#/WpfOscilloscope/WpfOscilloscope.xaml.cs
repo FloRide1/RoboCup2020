@@ -1,4 +1,5 @@
 ﻿using SciChart.Charting.Model.DataSeries;
+using SciChart.Charting.Visuals.RenderableSeries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,39 +23,53 @@ namespace WpfOscilloscopeControl
     /// </summary>
     public partial class WpfOscilloscope : UserControl
     {
-        Timer timerSimulation = new Timer(100);
-        XyDataSeries<double, double> dataSeries = new XyDataSeries<double, double>(100) { SeriesName = "Speed Robot 1"};
-        XyDataSeries<double, double> dataSeries2 = new XyDataSeries<double, double>(100) { SeriesName = "Speed Robot 2" };
+        Dictionary<int, XyDataSeries<double, double> > lineDictionary = new Dictionary<int, XyDataSeries<double, double>>();
 
         public WpfOscilloscope()
         {
             InitializeComponent();
-            timerSimulation.Elapsed += TimerSimulation_Elapsed;
-            timerSimulation.Start();
-            lineRenderSeries.DataSeries = dataSeries;
-            lineRenderSeries2.DataSeries = dataSeries2;
+
+            //lineRenderSeries.DataSeries = dataSeries;
+            //lineRenderSeries2.DataSeries = dataSeries2;
             //sciChart.ZoomExtents();
         }
 
-
-        double currentTime = 0;
-        private void TimerSimulation_Elapsed(object sender, ElapsedEventArgs e)
+        public void AddOrUpdateLine(int id, int maxNumberOfPoints, string lineName)
         {
-            currentTime += 0.1;
-            double value = Math.Sin(0.5 * currentTime);
-            double value2 = Math.Cos(0.5 * currentTime);
-            dataSeries.Append(currentTime, value);
-            if(dataSeries.Count> dataSeries.Capacity)
-                dataSeries.RemoveAt(0);
-            dataSeries2.Append(currentTime, value2);
-            if (dataSeries2.Count > dataSeries2.Capacity)
-                dataSeries2.RemoveAt(0);
-            //lineRenderSeries.DataSeries = dataSeries;
+            if (lineDictionary.ContainsKey(id))
+                lineDictionary[id] = new XyDataSeries<double, double>(maxNumberOfPoints) { SeriesName = lineName };
+            else
+            {
+                lineDictionary.Add(id, new XyDataSeries<double, double>(maxNumberOfPoints) { SeriesName = lineName });
+                var lineRenderableSerie = new FastLineRenderableSeries();
+                lineRenderableSerie.Name = "lineRenderableSerie"+id.ToString();
+                lineRenderableSerie.DataSeries = lineDictionary[id];
+                
+                //Ajout de la ligne dans le scichart
+                sciChart.RenderableSeries.Add(lineRenderableSerie);
+            }
         }
+
 
         public void SetTitle(string title)
         {
             titleText.Text = title;
+        }
+        public void SetSerieName(string name)
+        {
+            titleText.Text = name;
+        }
+
+        public void ChangeLineColor(string lineName, Color color)
+        {
+            sciChart.RenderableSeries.Single(x => x.DataSeries.SeriesName == lineName).Stroke=color;
+        }
+
+        public void AddPointToLine(int lineId, double x, double y)
+        {
+            lineDictionary[lineId].Append(x, y);
+            if (lineDictionary[lineId].Count > lineDictionary[lineId].Capacity)
+                lineDictionary[lineId].RemoveAt(0);
         }
     }
 }
