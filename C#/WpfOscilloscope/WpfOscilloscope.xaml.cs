@@ -23,8 +23,8 @@ namespace WpfOscilloscopeControl
     public partial class WpfOscilloscope : UserControl
     {
         Timer timerSimulation = new Timer(100);
-        XyDataSeries<double, double> dataSeries = new XyDataSeries<double, double> { SeriesName = "Speed Robot 1"};
-        XyDataSeries<double, double> dataSeries2 = new XyDataSeries<double, double> { SeriesName = "Speed Robot 2" };
+        XyDataSeries<double, double> dataSeries = new XyDataSeries<double, double>(100) { SeriesName = "Speed Robot 1"};
+        XyDataSeries<double, double> dataSeries2 = new XyDataSeries<double, double>(100) { SeriesName = "Speed Robot 2" };
 
         public WpfOscilloscope()
         {
@@ -44,7 +44,11 @@ namespace WpfOscilloscopeControl
             double value = Math.Sin(0.5 * currentTime);
             double value2 = Math.Cos(0.5 * currentTime);
             dataSeries.Append(currentTime, value);
+            if(dataSeries.Count> dataSeries.Capacity)
+                dataSeries.RemoveAt(0);
             dataSeries2.Append(currentTime, value2);
+            if (dataSeries2.Count > dataSeries2.Capacity)
+                dataSeries2.RemoveAt(0);
             //lineRenderSeries.DataSeries = dataSeries;
         }
 
