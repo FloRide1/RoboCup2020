@@ -166,7 +166,8 @@ namespace StrategyManager
                     break;
                 case PlayerRole.AttaquantAvecBalle:
                     {
-                        if(globalWorldMap.ballLocation != null)
+                        var test = GetInterceptionLocation(new Location(1, 0, 0, 0, 1, 0), new Location(0,0,0,0,0,0), 2);
+                        if (globalWorldMap.ballLocation != null)
                             return Math.Max(0, 1 - Toolbox.Distance(new PointD(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y), fieldPos) / 20.0);
                         else
                             return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPosAttaquantAvecBalle, fieldPos) / 20.0);
@@ -177,6 +178,34 @@ namespace StrategyManager
             }
         }
 
+        public PointD GetInterceptionLocation(Location target, Location hunter, double huntingSpeed)
+        {
+            //D'après Al-Kashi, si d est la distance entre le pt target et le pt chasseur, que les vitesses sont constantes 
+            //et égales à Vtarget et Vhunter
+            double targetSpeed = Math.Sqrt(Math.Pow(target.Vx, 2) + Math.Pow(target.Vy, 2));
+            double initialDistance = Toolbox.Distance(new PointD(hunter.X, hunter.Y), new PointD(target.X, target.Y));
+            double capCible = Math.Atan2(target.Vy, target.Vx);
+            double angleCible = Math.Atan2(target.Y- hunter.Y, target.X- hunter.X);
+            double angleCapCibleDirectionCibleChasseur = capCible - angleCible;
+
+            //Résolution de ax²+bx+c=0
+            double a = Math.Pow(targetSpeed, 2) - Math.Pow(huntingSpeed, 2);
+            double b = 2 * initialDistance * targetSpeed * Math.Cos(angleCapCibleDirectionCibleChasseur);
+            double c = -Math.Pow(initialDistance, 2);
+
+            double delta = b * b - 4 * a * c;
+            double t1 = (-b - Math.Sqrt(delta)) / (2 * a);
+            double t2 = (-b + Math.Sqrt(delta)) / (2 * a);
+
+            if (delta > 0 && t2<10)
+            {
+                double xInterception = target.X + targetSpeed * Math.Cos(capCible) * t2;
+                double yInterception = target.Y + targetSpeed * Math.Sin(capCible) * t2;
+                return new PointD(xInterception, yInterception);
+            }
+            else
+                return null;
+        }
         public void SetRole(PlayerRole role)
         {
             robotRole = role;
@@ -222,3 +251,4 @@ namespace StrategyManager
 
     
 }
+
