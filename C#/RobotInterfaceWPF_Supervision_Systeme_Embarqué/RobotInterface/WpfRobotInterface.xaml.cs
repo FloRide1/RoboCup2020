@@ -57,13 +57,13 @@ namespace RobotInterface
             oscilloM4.AddOrUpdateLine(1, 100, "Courant M4");
             oscilloM4.ChangeLineColor("Courant M4", Colors.Red);
 
-            oscilloX.SetTitle("X");
+            oscilloX.SetTitle("Vx");
             oscilloX.AddOrUpdateLine(0, 100, "Vitesse X Consigne");
             oscilloX.AddOrUpdateLine(1, 100, "Vitesse X");
             oscilloX.AddOrUpdateLine(2, 100, "Accel X");
             oscilloX.ChangeLineColor("Vitesse X", Colors.Red);
             oscilloX.ChangeLineColor("Vitesse X Consigne", Colors.Blue);
-            oscilloY.SetTitle("Y");
+            oscilloY.SetTitle("Vy");
             oscilloY.AddOrUpdateLine(0, 100, "Vitesse Y Consigne");
             oscilloY.AddOrUpdateLine(1, 100, "Vitesse Y");
             oscilloY.AddOrUpdateLine(2, 100, "Accel Y");
@@ -164,9 +164,59 @@ namespace RobotInterface
             }
         }
 
-        private void CheckBoxDisableMotors_Checked(object sender, RoutedEventArgs e)
+        bool motorsDisabled = false;
+        private void ButtonDisableMotors_Click(object sender, RoutedEventArgs e)
         {
-            
+            if (!motorsDisabled)
+            {
+                motorsDisabled = true;
+                OnEnableDisableMotorsFromInterface(false);
+            }
+            else
+            {
+                motorsDisabled = false;
+                OnEnableDisableMotorsFromInterface(true);
+            }
+        }
+        
+        //Methode appelée sur evenement (event) provenant du port Serie.
+        //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
+        public void ActualizeEnableDisableMotorsButton(object sender, BoolEventArgs e)
+        {
+            //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
+            //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
+            //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
+            //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
+            //Utilisation ici d'une methode anonyme
+            ButtonDisableMotors.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
+            {
+                if (!e.value)
+                    ButtonDisableMotors.Content = "Enable Motors";
+                else
+                    ButtonDisableMotors.Content = "Disable Motors";
+            }));
+        }
+
+        private void ButtonEnableDisableTir_Click(object sender, RoutedEventArgs e)
+        {
+            OnEnableDisableTirFromInterface(true);
+        }
+
+        //Methode appelée sur evenement (event) provenant du port Serie.
+        //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
+        public void ActualizeEnableDisableTirButton(object sender, BoolEventArgs e)
+        {
+            //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
+            //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
+            //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
+            //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
+            ButtonEnableDisableTir.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
+            {
+                if (!e.value)
+                    ButtonEnableDisableTir.Content = "Enable Tir";
+                else
+                    ButtonEnableDisableTir.Content = "Disable Tir";
+            }));
         }
 
         double zoomFactor = 5;
@@ -209,5 +259,52 @@ namespace RobotInterface
                 }
             }
         }
+
+        //OUTPUT EVENT
+        public delegate void EnableDisableMotorsEventHandler(object sender, BoolEventArgs e);
+        public event EnableDisableMotorsEventHandler OnEnableDisableMotorsFromInterfaceGeneratedEvent;
+        public virtual void OnEnableDisableMotorsFromInterface(bool val)
+        {
+            var handler = OnEnableDisableMotorsFromInterfaceGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = val } );
+            }
+        }
+
+        //public delegate void EnableDisableTirEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<BoolEventArgs> OnEnableDisableTirFromInterfaceGeneratedEvent;
+        public virtual void OnEnableDisableTirFromInterface(bool val)
+        {
+            var handler = OnEnableDisableTirFromInterfaceGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = val });
+            }
+        }
+
+        //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<BoolEventArgs> OnEnableDisableControlManetteFromInterfaceGeneratedEvent;
+        public virtual void OnEnableDisableControlManetteFromInterface(bool val)
+        {
+            var handler = OnEnableDisableControlManetteFromInterfaceGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = val });
+            }
+        }
+
+        private void CheckBox_CheckedChanged(object sender, RoutedEventArgs e)
+        {
+            if(CheckBoxControlManette.IsChecked ?? false)
+            {
+                OnEnableDisableControlManetteFromInterface(true);
+            }
+            else
+            {
+                OnEnableDisableControlManetteFromInterface(false);
+            }
+        }
+
     }
 }
