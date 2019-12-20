@@ -112,9 +112,8 @@ namespace WpfControlLibrary
                 UpdateHeatMap(robotId, localWorldMap.heatMap.BaseHeatMapData);
             UpdateLidarMap(robotId, localWorldMap.lidarMap);
             UpdateBallLocation(localWorldMap.ballLocation);
-
-
         }
+
         public void UpdateGlobalWorldMap(GlobalWorldMap globalWorldMap)
         {
             lock (globalWorldMap.teammateLocationList)
@@ -129,29 +128,16 @@ namespace WpfControlLibrary
                 int i = 0;
                 foreach (var opponentLocation in globalWorldMap.opponentLocationList)
                 {
-                    if(globalWorldMap.TeamId == (int)TeamId.Team1)
-                        UpdateOpponentsLocation((int)TeamId.Team2+i, opponentLocation); //TODO régler l'id
-                    else if(globalWorldMap.TeamId == (int)TeamId.Team2)
-                        UpdateOpponentsLocation((int)TeamId.Team1 + i, opponentLocation); //TODO régler l'id
+                    if (globalWorldMap.TeamId == (int)TeamId.Team1)
+                        UpdateOpponentsLocation((int)TeamId.Team2 + i, opponentLocation);
+                    else if (globalWorldMap.TeamId == (int)TeamId.Team2)
+                        UpdateOpponentsLocation((int)TeamId.Team1 + i, opponentLocation);
                     i++;
                 }
             }
-            //lock (globalWorldMap.waypointLocationDictionary)
-            //{
-            //    foreach (var robotLoc in globalWorldMap.waypointLocationDictionary)
-            //    {
-            //        UpdateRobotWaypoint(robotLoc.Key, robotLoc.Value);
-            //    }
-            //}
-            //lock (globalWorldMap.destinationLocationDictionary)
-            //{
-            //    foreach (var robotLoc in globalWorldMap.destinationLocationDictionary)
-            //    {
-            //        UpdateRobotDestination(robotLoc.Key, robotLoc.Value);
-            //    }
-            //}
-
+            UpdateBallLocation(globalWorldMap.ballLocation);
         }
+
         private void DrawHeatMap(int robotId)
         {
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))

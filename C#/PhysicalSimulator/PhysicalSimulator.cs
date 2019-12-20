@@ -33,7 +33,6 @@ namespace PhysicalSimulator
 
         private void HighFrequencyTimer_Tick(object sender, EventArgs e)
         {
-            bool ballCollisionOccured = false;
 
             //Calcul des déplacements théoriques des robots avec gestion des collisions
             lock (robotList)
@@ -60,15 +59,15 @@ namespace PhysicalSimulator
                 //Pour chacun des robots, on regarde les collisions possibles 
                 foreach (var robot in robotList)
                 {
-                    bool collisionMur = false;
-                    bool collisionRobot = false;
-                    bool collisionBalle = false;
+                    bool collisionRobotMur = false;
+                    bool collisionRobotRobot = false;
+                    bool collisionRobotBalle = false;
 
                     //On check les murs 
                     if ((robot.Value.newXWithoutCollision + robot.Value.radius > 13) || (robot.Value.newXWithoutCollision - robot.Value.radius < -13)
                         || (robot.Value.newYWithoutCollision + robot.Value.radius > 9) || (robot.Value.newYWithoutCollision - robot.Value.radius < -9))
                     {
-                        collisionMur = true;
+                        collisionRobotMur = true;
                     }
 
                     //On check les autres robots
@@ -77,19 +76,18 @@ namespace PhysicalSimulator
                         if (otherRobot.Key != robot.Key) //On exclu le test entre robots identiques
                         {
                             if (Toolbox.Distance(robot.Value.newXWithoutCollision, robot.Value.newYWithoutCollision, otherRobot.Value.newXWithoutCollision, otherRobot.Value.newYWithoutCollision) < robot.Value.radius * 2)
-                                collisionRobot = true;
+                                collisionRobotRobot = true;
                         }
                     }
 
                     //On check les collisions avec la balle
-                    if(Toolbox.Distance(robot.Value.newXWithoutCollision, robot.Value.newYWithoutCollision, ballSimulated.newXWithoutCollision, ballSimulated.newYWithoutCollision) < robot.Value.radius +ballSimulated.radius)
+                    if(Toolbox.Distance(robot.Value.newXWithoutCollision, robot.Value.newYWithoutCollision, ballSimulated.newXWithoutCollision, ballSimulated.newYWithoutCollision) < 10*(robot.Value.radius +ballSimulated.radius))
                     {
-                        collisionBalle = true;
+                        collisionRobotBalle = true;
                     }
 
-
-                    //Validation des déplacements
-                    if (!collisionRobot && !collisionMur)
+                    //Validation des déplacements robot
+                    if (!collisionRobotRobot && !collisionRobotMur)
                     {
                         robot.Value.X = robot.Value.newXWithoutCollision;
                         robot.Value.Y = robot.Value.newYWithoutCollision;
@@ -102,27 +100,43 @@ namespace PhysicalSimulator
                         robot.Value.Vtheta = 0;
                     }
 
-                    if(collisionBalle)
+                    if(collisionRobotBalle)
                     {
-                        ballCollisionOccured = true;
                         ballSimulated.Vx = 1.5 * robot.Value.Vx;
                         ballSimulated.Vy = 1.5 * robot.Value.Vy;
-                    }                    
+                        ballSimulated.newXWithoutCollision = ballSimulated.X + (ballSimulated.Vx * Math.Cos(ballSimulated.Theta) - ballSimulated.Vy * Math.Sin(ballSimulated.Theta)) / fSampling;
+                        ballSimulated.newYWithoutCollision = ballSimulated.Y + (ballSimulated.Vx * Math.Sin(ballSimulated.Theta) + ballSimulated.Vy * Math.Cos(ballSimulated.Theta)) / fSampling;
+                    }
 
                     //Emission d'un event de position physique 
                     Location loc = new Location(robot.Value.X, robot.Value.Y, robot.Value.Theta, robot.Value.Vx, robot.Value.Vy, robot.Value.Vtheta);
                     OnPhysicalRobotPosition(robot.Key, loc);
                 }
 
-                if(!ballCollisionOccured)
+                //Gestion des collisions balle-murs
+                //On check les murs virtuels
+                //Mur haut ou bas
+                if ((ballSimulated.newYWithoutCollision + ballSimulated.radius > 7) || (ballSimulated.newYWithoutCollision + ballSimulated.radius < -7))
                 {
-                    //Si pas de collision, on simule le freinage de la balle par frottement sec : décroissance de vitesse de X m.s-2
-                    double deceleration = 0.5;
-                    ballSimulated.X = ballSimulated.newXWithoutCollision;
-                    ballSimulated.Y = ballSimulated.newYWithoutCollision;
-                    ballSimulated.Vx = Math.Max(0, ballSimulated.Vx - deceleration / fSampling);
-                    ballSimulated.Vy = Math.Max(0, ballSimulated.Vy - deceleration / fSampling);
+                    ballSimulated.Vy = -ballSimulated.Vy; //On simule un rebond
+                    ballSimulated.newXWithoutCollision = ballSimulated.X + (ballSimulated.Vx * Math.Cos(ballSimulated.Theta) - ballSimulated.Vy * Math.Sin(ballSimulated.Theta)) / fSampling;
+                    ballSimulated.newYWithoutCollision = ballSimulated.Y + (ballSimulated.Vx * Math.Sin(ballSimulated.Theta) + ballSimulated.Vy * Math.Cos(ballSimulated.Theta)) / fSampling;
                 }
+                //Mur gauche ou droit
+                if ((ballSimulated.newXWithoutCollision + ballSimulated.radius < -11) || (ballSimulated.newXWithoutCollision + ballSimulated.radius > 11))
+                {
+                    ballSimulated.Vx = -ballSimulated.Vx; //On simule un rebond
+                    ballSimulated.newXWithoutCollision = ballSimulated.X + (ballSimulated.Vx * Math.Cos(ballSimulated.Theta) - ballSimulated.Vy * Math.Sin(ballSimulated.Theta)) / fSampling;
+                    ballSimulated.newYWithoutCollision = ballSimulated.Y + (ballSimulated.Vx * Math.Sin(ballSimulated.Theta) + ballSimulated.Vy * Math.Cos(ballSimulated.Theta)) / fSampling;
+                }
+
+                //Gestion de la décélération de la balle
+                double deceleration = 0.5;
+                ballSimulated.X = ballSimulated.newXWithoutCollision;
+                ballSimulated.Y = ballSimulated.newYWithoutCollision;
+                //ballSimulated.Vx = Math.Max(0, ballSimulated.Vx - deceleration / fSampling);
+                //ballSimulated.Vy = Math.Max(0, ballSimulated.Vy - deceleration / fSampling);
+                
                 OnPhysicalBallPosition(new Location(ballSimulated.X, ballSimulated.Y, ballSimulated.Theta, ballSimulated.Vx, ballSimulated.Vy, ballSimulated.Vtheta));
 
                 List<Location> objectsLocationList = new List<Location>();
@@ -220,6 +234,7 @@ namespace PhysicalSimulator
         {
             X = xPos;
             Y = yPos;
+            Vy = 8;
         }
     }
 }
