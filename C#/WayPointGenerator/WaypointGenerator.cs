@@ -163,7 +163,7 @@ namespace WayPointGenerator
             //{
             //    Console.WriteLine("Calcul WayPoint - Nb Calculs Etape " + n + " : " + nbComputationsList[n]);
             //}
-            Console.WriteLine("Temps de calcul de la heatMap WayPoint : " + sw.Elapsed.TotalMilliseconds.ToString("N4")+" ms"); // Affichage de la mesure
+            //Console.WriteLine("Temps de calcul de la heatMap WayPoint : " + sw.Elapsed.TotalMilliseconds.ToString("N4")+" ms"); // Affichage de la mesure
         }
 
         double CalculPenalisation(PointD ptCourant)
@@ -172,17 +172,17 @@ namespace WayPointGenerator
             if (globalWorldMap != null)
             {
                 //Si le robot existe dans le distionnaire des robots
-                if (globalWorldMap.teamLocationList.ContainsKey(robotId))
+                if (globalWorldMap.teammateLocationList.ContainsKey(robotId))
                 {
-                    Location robotLocation = globalWorldMap.teamLocationList[robotId];
+                    Location robotLocation = globalWorldMap.teammateLocationList[robotId];
                     double angleDestination = Math.Atan2(destinationLocation.Y - robotLocation.Y, destinationLocation.X - robotLocation.X);
 
                     //On génère la liste des robots à éviter...
                     Dictionary<int, Location> robotToAvoidDictionary = new Dictionary<int, Location>();
 
-                    lock (globalWorldMap.teamLocationList)
+                    lock (globalWorldMap.teammateLocationList)
                     {
-                        foreach (var robot in globalWorldMap.teamLocationList)
+                        foreach (var robot in globalWorldMap.teammateLocationList)
                         {
                             robotToAvoidDictionary.Add(robot.Key, robot.Value);
                         }

@@ -14,7 +14,7 @@ namespace WorldMapManager
 {
     public class GlobalWorldMapManager
     {
-        int TeamId = 0;
+        int TeamId;
         double freqRafraichissementWorldMap = 30;
 
         Dictionary<int, LocalWorldMap> localWorldMapDictionary = new Dictionary<int, LocalWorldMap>();
@@ -71,19 +71,19 @@ namespace WorldMapManager
                 //La fusion porte avant tout sur la balle et sur les adversaires.
 
                 //TODO : faire un algo de fusion robuste pour la balle
-                globalWorldMap = new WorldMap.GlobalWorldMap();
+                globalWorldMap = new WorldMap.GlobalWorldMap(TeamId);
 
                 //Pour l'instant on prend la position de balle vue par le robot 1 comme vérité, mais c'est à améliorer !
                 if (localWorldMapDictionary.Count > 0)
                     globalWorldMap.ballLocation = localWorldMapDictionary.First().Value.ballLocation;
-                globalWorldMap.teamLocationList = new Dictionary<int, PerceptionManagement.Location>();
+                globalWorldMap.teammateLocationList = new Dictionary<int, PerceptionManagement.Location>();
                 globalWorldMap.opponentLocationList = new List<PerceptionManagement.Location>();
 
                 //On place tous les robots de l'équipe dans la global map
                 foreach (var localMap in localWorldMapDictionary)
                 {
                     //On ajoute la position des robots de l'équipe dans la WorldMap
-                    globalWorldMap.teamLocationList.Add(localMap.Key, localMap.Value.robotLocation);
+                    globalWorldMap.teammateLocationList.Add(localMap.Key, localMap.Value.robotLocation);
                 }
 
                 //On établit une liste des emplacements d'adversaires potentiels afin de les fusionner si possible
@@ -105,7 +105,7 @@ namespace WorldMapManager
                         bool isAlreadyPresentInOpponentList = false;
 
                         //On regarde si l'obstacle est un coéquipier ou pas
-                        foreach (var robotTeamLocation in globalWorldMap.teamLocationList.Values)
+                        foreach (var robotTeamLocation in globalWorldMap.teammateLocationList.Values)
                         {
                             if (obstacleLocation != null && robotTeamLocation != null)
                             {
@@ -117,11 +117,14 @@ namespace WorldMapManager
                         //On regarde si l'obstacle existe dans la liste des adversaires potentiels ou pas
                         foreach (var opponentLocation in AdversairesPotentielsList)
                         {
-                            if (Toolbox.Distance(obstacleLocation.X, obstacleLocation.Y, opponentLocation.X, opponentLocation.Y) < 0.4)
+                            if (obstacleLocation != null && opponentLocation != null)
                             {
-                                isAlreadyPresentInOpponentList = true;
-                                var index = AdversairesPotentielsList.IndexOf(opponentLocation);
-                                AdversairesPotentielsMatchOccurenceList[index]++;
+                                if (Toolbox.Distance(obstacleLocation.X, obstacleLocation.Y, opponentLocation.X, opponentLocation.Y) < 0.4)
+                                {
+                                    isAlreadyPresentInOpponentList = true;
+                                    var index = AdversairesPotentielsList.IndexOf(opponentLocation);
+                                    AdversairesPotentielsMatchOccurenceList[index]++;
+                                }
                             }
                         }
 
@@ -144,17 +147,17 @@ namespace WorldMapManager
                     }
                 }
             }
-            OnGlobalWorldMap(globalWorldMap, TeamId);
+            OnGlobalWorldMap(globalWorldMap);
         }
 
         public delegate void GlobalWorldMapEventHandler(object sender, GlobalWorldMapArgs e);
         public event EventHandler<GlobalWorldMapArgs> OnGlobalWorldMapEvent;
-        public virtual void OnGlobalWorldMap(GlobalWorldMap globalWorldMap, int teamId)
+        public virtual void OnGlobalWorldMap(GlobalWorldMap globalWorldMap)
         {
             var handler = OnGlobalWorldMapEvent;
             if (handler != null)
             {
-                handler(this, new GlobalWorldMapArgs {GlobalWorldMap = globalWorldMap, TeamId = teamId });
+                handler(this, new GlobalWorldMapArgs {GlobalWorldMap = globalWorldMap});
             }
         }
     }

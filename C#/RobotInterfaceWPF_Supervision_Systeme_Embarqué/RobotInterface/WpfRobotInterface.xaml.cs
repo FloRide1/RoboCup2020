@@ -12,6 +12,7 @@ using Arction.Wpf.Charting;             // LightningChartUltimate and general ty
 using Arction.Wpf.Charting.SeriesXY;    // Series for 2D chart.
 using Constants;
 using WpfOscilloscopeControl;
+using WpfControlLibrary;
 
 namespace RobotInterface
 {
@@ -27,7 +28,7 @@ namespace RobotInterface
 
             InitializeComponent();
             
-            worldMapDisplay.InitRobot((int)TeamId.Team1+(int)RobotId.Robot1);
+            worldMapDisplay.InitTeamMate((int)TeamId.Team1+(int)RobotId.Robot1);
 
             foreach (string s in SerialPort.GetPortNames())
             {
@@ -77,12 +78,7 @@ namespace RobotInterface
         {
             nbMsgReceived += 1;
         }
-
-        public void RegisterRobot(int id)
-        {
-            worldMapDisplay.RegisterRobot(id);
-        }
-
+        
         int nbMsgReceivedErrors = 0;
         public void DisplayMessageDecodedError(object sender, MessageDecodedArgs e)
         {
@@ -192,21 +188,21 @@ namespace RobotInterface
 
             if (!isZoomed)
             {
-                AffichageTelemetrieRobot.ColumnDefinitions[column].Width = new GridLength(AffichageTelemetrieRobot.ColumnDefinitions[column].Width.Value * zoomFactor, GridUnitType.Star);
-                AffichageTelemetrieRobot.RowDefinitions[row].Height = new GridLength(AffichageTelemetrieRobot.RowDefinitions[row].Height.Value * zoomFactor, GridUnitType.Star);
+                GridAffichageTelemetrie.ColumnDefinitions[column].Width = new GridLength(GridAffichageTelemetrie.ColumnDefinitions[column].Width.Value * zoomFactor, GridUnitType.Star);
+                GridAffichageTelemetrie.RowDefinitions[row].Height = new GridLength(GridAffichageTelemetrie.RowDefinitions[row].Height.Value * zoomFactor, GridUnitType.Star);
                 lastZoomedCol = column;
                 lastZoomedRow = row;
                 isZoomed = true;
             }
             else
             {
-                AffichageTelemetrieRobot.ColumnDefinitions[lastZoomedCol].Width = new GridLength(AffichageTelemetrieRobot.ColumnDefinitions[lastZoomedCol].Width.Value / zoomFactor, GridUnitType.Star);
-                AffichageTelemetrieRobot.RowDefinitions[lastZoomedRow].Height = new GridLength(AffichageTelemetrieRobot.RowDefinitions[lastZoomedRow].Height.Value / zoomFactor, GridUnitType.Star);
+                GridAffichageTelemetrie.ColumnDefinitions[lastZoomedCol].Width = new GridLength(GridAffichageTelemetrie.ColumnDefinitions[lastZoomedCol].Width.Value / zoomFactor, GridUnitType.Star);
+                GridAffichageTelemetrie.RowDefinitions[lastZoomedRow].Height = new GridLength(GridAffichageTelemetrie.RowDefinitions[lastZoomedRow].Height.Value / zoomFactor, GridUnitType.Star);
                 isZoomed = false;
                 if (lastZoomedRow != row || lastZoomedCol != column)
                 {
-                    AffichageTelemetrieRobot.ColumnDefinitions[column].Width = new GridLength(AffichageTelemetrieRobot.ColumnDefinitions[column].Width.Value * zoomFactor, GridUnitType.Star);
-                    AffichageTelemetrieRobot.RowDefinitions[row].Height = new GridLength(AffichageTelemetrieRobot.RowDefinitions[row].Height.Value * zoomFactor, GridUnitType.Star);
+                    GridAffichageTelemetrie.ColumnDefinitions[column].Width = new GridLength(GridAffichageTelemetrie.ColumnDefinitions[column].Width.Value * zoomFactor, GridUnitType.Star);
+                    GridAffichageTelemetrie.RowDefinitions[row].Height = new GridLength(GridAffichageTelemetrie.RowDefinitions[row].Height.Value * zoomFactor, GridUnitType.Star);
                     lastZoomedCol = column;
                     lastZoomedRow = row;
                     isZoomed = true;

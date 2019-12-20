@@ -16,23 +16,19 @@ namespace TeamInterface
         public WpfTeamInterface()
         {
             InitializeComponent();
-            localWorldMapDisplay1.InitRobot((int)TeamId.Team1 + (int)RobotId.Robot1);
-            localWorldMapDisplay2.InitRobot((int)TeamId.Team1 + (int)RobotId.Robot2);
-            localWorldMapDisplay3.InitRobot((int)TeamId.Team1 + (int)RobotId.Robot3);
-            localWorldMapDisplay4.InitRobot((int)TeamId.Team1 + (int)RobotId.Robot4);
-            localWorldMapDisplay5.InitRobot((int)TeamId.Team1 + (int)RobotId.Robot5);
-            localWorldMapDisplay6.InitRobot((int)TeamId.Team1 + (int)RobotId.Robot6);
+            localWorldMapDisplay1.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1);
+            localWorldMapDisplay2.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot2);
+            localWorldMapDisplay3.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot3);
+            localWorldMapDisplay4.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot4);
+            localWorldMapDisplay5.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot5);
+            localWorldMapDisplay6.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot6);
 
             for (int i = 0; i < 5; i++)
             {
-                globalWorldMapDisplayTeam1.InitRobot((int)TeamId.Team1 + i);
-                globalWorldMapDisplayTeam2.InitRobot((int)TeamId.Team1 + i);
-            }
-
-            for (int i = 0; i < 5; i++)
-            {
-                globalWorldMapDisplayTeam1.InitRobot((int)TeamId.Team2 + i);
-                globalWorldMapDisplayTeam2.InitRobot((int)TeamId.Team2 + i);
+                globalWorldMapDisplayTeam1.InitTeamMate((int)TeamId.Team1 + i);
+                globalWorldMapDisplayTeam1.InitOpponent((int)TeamId.Team2 + i);
+                globalWorldMapDisplayTeam2.InitTeamMate((int)TeamId.Team2 + i);
+                globalWorldMapDisplayTeam2.InitOpponent((int)TeamId.Team1 + i);
             }
         }
 
@@ -62,9 +58,9 @@ namespace TeamInterface
         }
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
         {
-            if(e.TeamId == (int)TeamId.Team1)
+            if(e.GlobalWorldMap.TeamId == (int)TeamId.Team1)
                 globalWorldMapDisplayTeam1.UpdateGlobalWorldMap(e.GlobalWorldMap);
-            else if (e.TeamId == (int)TeamId.Team2)
+            else if (e.GlobalWorldMap.TeamId == (int)TeamId.Team2)
                 globalWorldMapDisplayTeam2.UpdateGlobalWorldMap(e.GlobalWorldMap);
         }
 

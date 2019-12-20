@@ -6,11 +6,10 @@
         xmlns:s="http://schemas.abtsoftware.co.uk/scichart" 
         xmlns:ext="clr-namespace:WpfControlLibrary;assembly=WpfControlLibrary"
         xmlns:oscillo="clr-namespace:WpfOscilloscopeControl;assembly=WpfOscilloscopeControl"
-        xmlns:local="clr-namespace:RobotInterface"
-        xmlns:lcu="http://schemas.arction.com/charting/ultimate/" xmlns:lcub="http://schemas.arction.com/bindablecharting/ultimate/" x:Class="RobotInterface.WpfRobotInterface"
+        x:Class="RobotInterface.WpfRobotInterface"
         mc:Ignorable="d"
         Title="Robot Interface" Closing="Window_Closing" SourceInitialized="Window_SourceInitialized"  
-        xmlns:p="clr-namespace:RobotInterface.Properties"  
+        
     >
 
     <Grid Background="#222222">
@@ -27,7 +26,7 @@
             <ColumnDefinition Width="30"/>
         </Grid.ColumnDefinitions>
         
-        <Grid x:Name="AffichageTelemetrieRobot" Grid.Column="1" Grid.Row="1">
+        <Grid x:Name="GridAffichageTelemetrie" Grid.Column="1" Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>

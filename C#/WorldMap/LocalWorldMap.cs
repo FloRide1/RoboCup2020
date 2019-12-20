@@ -11,10 +11,19 @@ namespace WorldMap
 {
     public class GlobalWorldMap
     {
+        public int TeamId;
         public Location ballLocation { get; set; }
-        public Dictionary<int, Location> teamLocationList { get; set; }
+        public Dictionary<int, Location> teammateLocationList { get; set; }
         public List<Location> opponentLocationList { get; set; }
         public List<Location> obstacleLocationList { get; set; }
+
+        public GlobalWorldMap()
+        {
+        }
+        public GlobalWorldMap(int teamId)
+        {
+            TeamId = teamId;
+        }
 
     }
     public class LocalWorldMap
