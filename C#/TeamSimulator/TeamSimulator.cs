@@ -84,7 +84,7 @@ namespace TeamSimulator
             StartInterfaces();
             
             //Timer de stratégie
-            timerStrategie = new System.Timers.Timer(5000);
+            timerStrategie = new System.Timers.Timer(20000);
             timerStrategie.Elapsed += TimerStrategie_Tick;
             timerStrategie.Start();
 

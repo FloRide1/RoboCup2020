@@ -81,7 +81,7 @@ namespace PhysicalSimulator
                     }
 
                     //On check les collisions avec la balle
-                    if(Toolbox.Distance(robot.Value.newXWithoutCollision, robot.Value.newYWithoutCollision, ballSimulated.newXWithoutCollision, ballSimulated.newYWithoutCollision) < 10*(robot.Value.radius +ballSimulated.radius))
+                    if(Toolbox.Distance(robot.Value.newXWithoutCollision, robot.Value.newYWithoutCollision, ballSimulated.newXWithoutCollision, ballSimulated.newYWithoutCollision) < 1*(robot.Value.radius +ballSimulated.radius))
                     {
                         collisionRobotBalle = true;
                     }

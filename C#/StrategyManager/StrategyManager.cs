@@ -67,9 +67,9 @@ namespace StrategyManager
                 optimizedAreaSize /= 2;
 
                 double minY = Math.Max(OptimalPosInBaseHeatMapCoordinates.Y / subSamplingRate - optimizedAreaSize, 0);
-                double maxY = Math.Min(OptimalPosInBaseHeatMapCoordinates.Y / subSamplingRate + optimizedAreaSize, heatMap.nbCellInSubSampledHeatMapHeightList[n]);
+                double maxY = Math.Min(OptimalPosInBaseHeatMapCoordinates.Y / subSamplingRate + optimizedAreaSize, (int)heatMap.nbCellInSubSampledHeatMapHeightList[n]);
                 double minX = Math.Max(OptimalPosInBaseHeatMapCoordinates.X / subSamplingRate - optimizedAreaSize, 0);
-                double maxX = Math.Min(OptimalPosInBaseHeatMapCoordinates.X / subSamplingRate + optimizedAreaSize, heatMap.nbCellInSubSampledHeatMapWidthList[n]);
+                double maxX = Math.Min(OptimalPosInBaseHeatMapCoordinates.X / subSamplingRate + optimizedAreaSize, (int)heatMap.nbCellInSubSampledHeatMapWidthList[n]);
 
                 double max = double.NegativeInfinity;
                 int maxXpos = 0;
@@ -166,7 +166,10 @@ namespace StrategyManager
                     break;
                 case PlayerRole.AttaquantAvecBalle:
                     {
-                        return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPosAttaquantAvecBalle, fieldPos) / 20.0);
+                        if(globalWorldMap.ballLocation != null)
+                            return Math.Max(0, 1 - Toolbox.Distance(new PointD(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y), fieldPos) / 20.0);
+                        else
+                            return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPosAttaquantAvecBalle, fieldPos) / 20.0);
                     }
                     break;
                 default:
