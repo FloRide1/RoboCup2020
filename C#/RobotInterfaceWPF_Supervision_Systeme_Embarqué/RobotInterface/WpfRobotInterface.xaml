@@ -25,7 +25,7 @@
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="30"/>
         </Grid.ColumnDefinitions>
-        
+
         <Grid x:Name="GridAffichageTelemetrie" Grid.Column="1" Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="1*"/>
@@ -69,10 +69,13 @@
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
-                    <CheckBox Content="Disable Motors" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Checked="CheckBoxDisableMotors_Checked"/>
-                    <CheckBox Content="Enable Tir" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"/>
-                    <CheckBox Content="Enable Manette" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2"/>
+                    <CheckBox Name="CheckBoxControlManette" Content="Enable Manette" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Checked="CheckBox_CheckedChanged" Unchecked="CheckBox_CheckedChanged"/>
+                    <Button Name="ButtonDisableMotors" Grid.ColumnSpan="2" Content="Disable Motors" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="85" Click="ButtonDisableMotors_Click"/>
+                    <Button Name="ButtonEnableDisableTir" Grid.ColumnSpan="2" Content="Enable Tir" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="1" VerticalAlignment="Top" Width="85" Click="ButtonEnableDisableTir_Click"/>
                 </Grid>
+            </GroupBox>
+            <GroupBox Grid.Column="1" Header="Console" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Stretch">
+                <TextBlock Name="textBoxConsole" HorizontalAlignment="Stretch" Margin="0,0,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Stretch" Background="Gray"/>
             </GroupBox>
         </Grid>
 
@@ -85,11 +88,11 @@
             <ext:WorldMapDisplay x:Name="worldMapDisplay" Grid.Column="1" Grid.ColumnSpan="1" Grid.Row="3">
             </ext:WorldMapDisplay>
         </Grid>
-            
-            <!--<GroupBox x:Name="groupBox" Header="Reception" Margin="0" Background="#FFDDDDDD" BorderBrush="Black" Grid.Column="1" Grid.Row="1">
+
+        <!--<GroupBox x:Name="groupBox" Header="Reception" Margin="0" Background="#FFDDDDDD" BorderBrush="Black" Grid.Column="1" Grid.Row="1">
             <TextBox x:Name="textBoxReception" Margin="0" Grid.Row="1" TextWrapping="Wrap" Background="{x:Null}" BorderBrush="{x:Null}" IsReadOnly="True" AcceptsReturn="True"/>
         </GroupBox>-->
         <!--  Create the chart surface  -->
-        
+
     </Grid>
 </Window>

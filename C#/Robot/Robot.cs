@@ -20,6 +20,7 @@ using WayPointGenerator;
 using WorldMapManager;
 using RobotMessageProcessor;
 using PerceptionManagement;
+using EventArgsLibrary;
 
 namespace Robot
 {
@@ -79,7 +80,7 @@ namespace Robot
             //TODO : Créer un projet World...
 
             ethernetTeamNetworkAdapter = new EthernetTeamNetworkAdapter();
-            serialPort1 = new ReliableSerialPort("FTDI", 115200, Parity.None, 8, StopBits.One);                    
+            serialPort1 = new ReliableSerialPort("FTDI", 230400/*115200*/, Parity.None, 8, StopBits.One);                    
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
             robotMsgGenerator = new RobotMsgGenerator();
@@ -185,6 +186,30 @@ namespace Robot
         //    //nbMsgSent += 1;
         //    //robotPilot.SendPositionFromKalmanFilter();
         //}
+        static void ChangeUseOfXBoxController(object sender, BoolEventArgs e)
+        {
+            if (e.value)
+            {
+                usingXBoxController = e.value;
+                xBoxManette.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
+                xBoxManette.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
+                xBoxManette.OnPriseBalleEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
+                xBoxManette.OnMoveTirUpEvent += robotMsgGenerator.GenerateMessageMoveTirUp;
+                xBoxManette.OnMoveTirDownEvent += robotMsgGenerator.GenerateMessageMoveTirDown;
+                xBoxManette.OnTirEvent += robotMsgGenerator.GenerateMessageTir;
+            }
+            else
+            {
+                //On se desabonne aux evenements suivants:
+                xBoxManette.OnSpeedConsigneEvent -= physicalSimulator.SetRobotSpeed;
+                xBoxManette.OnSpeedConsigneEvent -= robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
+                xBoxManette.OnPriseBalleEvent -= robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
+                xBoxManette.OnMoveTirUpEvent -= robotMsgGenerator.GenerateMessageMoveTirUp;
+                xBoxManette.OnMoveTirDownEvent -= robotMsgGenerator.GenerateMessageMoveTirDown;
+                xBoxManette.OnTirEvent -= robotMsgGenerator.GenerateMessageTir;
+            }
+
+        }
 
         static void ExitProgram()
         {
@@ -200,12 +225,18 @@ namespace Robot
             {
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
                 interfaceRobot = new RobotInterface.WpfRobotInterface();
+                //Sur evenement xx              -->>        Action a effectuer
                 msgDecoder.OnMessageDecodedEvent += interfaceRobot.DisplayMessageDecoded;
                 msgDecoder.OnMessageDecodedErrorEvent += interfaceRobot.DisplayMessageDecodedError;
                 
                 robotMsgProcessor.OnIMUDataFromRobotGeneratedEvent += interfaceRobot.UpdateImuDataOnGraph;
                 robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += interfaceRobot.UpdateMotorsCurrentsOnGraph;
+                robotMsgProcessor.OnEnableDisableMotorsACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableDisableMotorsButton;
+                robotMsgProcessor.OnEnableDisableTirACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableDisableTirButton;
                 xBoxManette.OnSpeedConsigneEvent += interfaceRobot.UpdateSpeedConsigneOnGraph;
+                interfaceRobot.OnEnableDisableMotorsFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableMotors;
+                interfaceRobot.OnEnableDisableTirFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableTir;
+                interfaceRobot.OnEnableDisableControlManetteFromInterfaceGeneratedEvent += ChangeUseOfXBoxController;
 
                 localWorldMapManager.OnLocalWorldMapEvent+= interfaceRobot.OnLocalWorldMapEvent;
 

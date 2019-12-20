@@ -69,8 +69,19 @@ namespace RobotMessageProcessor
                         float motor6Current = tab.GetFloat();
                         tab = payload.GetRange(28, 4);
                         float motor7Current = tab.GetFloat();
+                        //On envois l'event aux abonnés
                         OnMotorsCurrentsFromRobot(time, motor1Current, motor2Current, motor3Current, motor4Current, motor5Current, motor6Current, motor7Current);
                     }
+                    break;
+                case (short)Commands.EnableDisableMotors:
+                    bool value = Convert.ToBoolean(payload[0]);
+                    //On envois l'event aux abonnés
+                    OnEnableDisableMotorsACKFromRobot(value);
+                    break;
+                case (short)Commands.EnableDisableTir:
+                    value = Convert.ToBoolean(payload[0]);
+                    //On envois l'event aux abonnés
+                    OnEnableDisableTirACKFromRobot(value);
                     break;
                 default: break;
             }
@@ -85,6 +96,28 @@ namespace RobotMessageProcessor
             if (handler != null)
             {
                 handler(this, new IMUDataEventArgs { timeStampMS = timeStamp, accelX = accelxyz.X, accelY = accelxyz.Y, accelZ= accelxyz.Z , gyrX=gyroxyz.X, gyrY=gyroxyz.Y, gyrZ=gyroxyz.Z });
+            }
+        }
+
+        public delegate void EnableDisableMotorsEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<BoolEventArgs> OnEnableDisableMotorsACKFromRobotGeneratedEvent;
+        public virtual void OnEnableDisableMotorsACKFromRobot(bool isEnabled)
+        {
+            var handler = OnEnableDisableMotorsACKFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value=isEnabled });
+            }
+        }
+
+        public delegate void EnableDisableTirEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<BoolEventArgs> OnEnableDisableTirACKFromRobotGeneratedEvent;
+        public virtual void OnEnableDisableTirACKFromRobot(bool isEnabled)
+        {
+            var handler = OnEnableDisableTirACKFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = isEnabled });
             }
         }
 
