@@ -133,3 +133,4 @@ $RECYCLE.BIN/
 *.msl
 *.ide-shm
 *.ide-wal
+C#/Robot/.vs/Robot/v16/Server/sqlite3/storage.ide
