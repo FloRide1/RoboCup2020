@@ -166,9 +166,16 @@ namespace StrategyManager
                     break;
                 case PlayerRole.AttaquantAvecBalle:
                     {
-                        var test = GetInterceptionLocation(new Location(1, 0, 0, 0, 1, 0), new Location(0,0,0,0,0,0), 2);
                         if (globalWorldMap.ballLocation != null)
-                            return Math.Max(0, 1 - Toolbox.Distance(new PointD(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y), fieldPos) / 20.0);
+                        {
+                            var ptInterception = GetInterceptionLocation(new Location(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y, 0, globalWorldMap.ballLocation.Vx, globalWorldMap.ballLocation.Vy, 0), new Location(fieldPos.X, fieldPos.Y, 0, 0, 0, 0), 3);
+                            //return Math.Max(0, 1 - Toolbox.Distance(new PointD(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y), fieldPos) / 20.0);
+                            
+                            if(ptInterception  != null) 
+                                return Math.Max(0, 1 - Toolbox.Distance(ptInterception, fieldPos) / 20.0);
+                            else
+                                return Math.Max(0, 1 - Toolbox.Distance(new PointD(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y), fieldPos) / 20.0);
+                        }
                         else
                             return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPosAttaquantAvecBalle, fieldPos) / 20.0);
                     }
@@ -182,14 +189,21 @@ namespace StrategyManager
         {
             //D'après Al-Kashi, si d est la distance entre le pt target et le pt chasseur, que les vitesses sont constantes 
             //et égales à Vtarget et Vhunter
+            //Rappel Al Kashi : A² = B²+C²-2BCcos(alpha) , alpha angle opposé au segment A
+            //On a au moment de l'interception à l'instant Tinter: 
+            //A = Vh * Tinter
+            //B = VT * Tinter
+            //C = initialDistance;
+            //alpha = Pi - capCible - angleCible
+
             double targetSpeed = Math.Sqrt(Math.Pow(target.Vx, 2) + Math.Pow(target.Vy, 2));
             double initialDistance = Toolbox.Distance(new PointD(hunter.X, hunter.Y), new PointD(target.X, target.Y));
             double capCible = Math.Atan2(target.Vy, target.Vx);
             double angleCible = Math.Atan2(target.Y- hunter.Y, target.X- hunter.X);
-            double angleCapCibleDirectionCibleChasseur = capCible - angleCible;
+            double angleCapCibleDirectionCibleChasseur = Math.PI - capCible + angleCible;
 
-            //Résolution de ax²+bx+c=0
-            double a = Math.Pow(targetSpeed, 2) - Math.Pow(huntingSpeed, 2);
+            //Résolution de ax²+bx+c=0 pour trouver Tinter
+            double a = Math.Pow(huntingSpeed, 2) - Math.Pow(targetSpeed, 2);
             double b = 2 * initialDistance * targetSpeed * Math.Cos(angleCapCibleDirectionCibleChasseur);
             double c = -Math.Pow(initialDistance, 2);
 
