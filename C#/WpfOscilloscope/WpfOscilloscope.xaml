@@ -12,9 +12,8 @@
             <RowDefinition Height="20"/>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
-        
-        <s:SciChartSurface x:Name="sciChart" Grid.Row="1">
 
+        <s:SciChartSurface x:Name="sciChart" Grid.Row="1">
             <!--  Declare RenderableSeries  -->
             <!--<s:SciChartSurface.RenderableSeries>
                 <s:FastLineRenderableSeries x:Name="lineRenderSeries" Stroke="Red" />

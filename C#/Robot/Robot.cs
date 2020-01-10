@@ -67,14 +67,14 @@ namespace Robot
         static void Main(string[] args)
         {
             SciChartSurface.SetRuntimeLicenseKey(@"<LicenseContract>
-            <Customer>Universite De Toulon</Customer>
-            <OrderId>EDUCATIONAL-USE-0128</OrderId>
-            <LicenseCount>1</LicenseCount>
-            <IsTrialLicense>false</IsTrialLicense>
-            <SupportExpires>02/17/2020 00:00:00</SupportExpires>
-            <ProductCode>SC-WPF-2D-PRO-SITE</ProductCode>
-            <KeyCode>lwAAAQEAAACS9FAFUqnVAXkAQ3VzdG9tZXI9VW5pdmVyc2l0ZSBEZSBUb3Vsb247T3JkZXJJZD1FRFVDQVRJT05BTC1VU0UtMDEyODtTdWJzY3JpcHRpb25WYWxpZFRvPTE3LUZlYi0yMDIwO1Byb2R1Y3RDb2RlPVNDLVdQRi0yRC1QUk8tU0lURYcbnXYui4rna7TqbkEmUz1V7oD1EwrO3FhU179M9GNhkL/nkD/SUjwJ/46hJZ31CQ==</KeyCode>
-            </LicenseContract>");
+  <Customer>University of  Toulon</Customer>
+  <OrderId>EDUCATIONAL-USE-0109</OrderId>
+  <LicenseCount>1</LicenseCount>
+  <IsTrialLicense>false</IsTrialLicense>
+  <SupportExpires>11/04/2019 00:00:00</SupportExpires>
+  <ProductCode>SC-WPF-SDK-PRO-SITE</ProductCode>
+  <KeyCode>lwABAQEAAABZVzOfQ0zVAQEAewBDdXN0b21lcj1Vbml2ZXJzaXR5IG9mICBUb3Vsb247T3JkZXJJZD1FRFVDQVRJT05BTC1VU0UtMDEwOTtTdWJzY3JpcHRpb25WYWxpZFRvPTA0LU5vdi0yMDE5O1Byb2R1Y3RDb2RlPVNDLVdQRi1TREstUFJPLVNJVEWDf0QgB8GnCQXI6yAqNM2njjnGbUt2KsujTDzeE+k69K1XYVF1s1x1Hb/i/E3GHaU=</KeyCode>
+</LicenseContract>");
 
 
             //TODO : Créer un projet World...
