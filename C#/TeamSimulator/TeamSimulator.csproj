@@ -134,6 +134,10 @@
       <Project>{bb381252-44cf-4962-984b-abd697dcc9fb}</Project>
       <Name>TrajectoryGenerator</Name>
     </ProjectReference>
+    <ProjectReference Include="..\UDPMulticast\UDPMulticast.csproj">
+      <Project>{6DA72C33-AC0E-4174-AA47-5A12453F5900}</Project>
+      <Name>UDPMulticast</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8e7d0da4-9a13-4b18-a90e-0243bbcce40a}</Project>
       <Name>Utilities</Name>

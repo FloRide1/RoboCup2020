@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.106
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29503.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Robot", "Robot.csproj", "{F48FF3AC-50C6-4016-8F67-F5430FED1A2C}"
 EndProject
@@ -72,6 +72,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfOscilloscopeControl", "..\WpfOscilloscope\WpfOscilloscopeControl.csproj", "{88BAA407-3FEA-4F4B-BB41-5309CE48884E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobotMessageProcessor", "..\RobotMessageProcessor\RobotMessageProcessor.csproj", "{12C1DB8F-4309-43E2-B576-FEB50B59EC25}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDPMulticast", "..\UDPMulticast\UDPMulticast.csproj", "{6DA72C33-AC0E-4174-AA47-5A12453F5900}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -219,6 +221,10 @@ Global
 		{12C1DB8F-4309-43E2-B576-FEB50B59EC25}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12C1DB8F-4309-43E2-B576-FEB50B59EC25}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12C1DB8F-4309-43E2-B576-FEB50B59EC25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DA72C33-AC0E-4174-AA47-5A12453F5900}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DA72C33-AC0E-4174-AA47-5A12453F5900}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DA72C33-AC0E-4174-AA47-5A12453F5900}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DA72C33-AC0E-4174-AA47-5A12453F5900}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
