@@ -27,7 +27,7 @@ namespace Robot
     class Robot
     {
         static bool usingSimulatedCamera = true;
-        static bool usingLidar = false;
+        static bool usingLidar = true;
         static bool usingPhysicalSimulator = true;
         static bool usingXBoxController = false;
 
@@ -52,6 +52,7 @@ namespace Robot
         static LidarSimulator.LidarSimulator lidarSimulator;
         static StrategyManager.StrategyManager strategyManager;
         static PerceptionSimulator perceptionSimulator;
+
         static Lidar_OMD60M lidar_OMD60M;
 
         static XBoxController.XBoxController xBoxManette;
@@ -171,7 +172,7 @@ namespace Robot
         static Random rand = new Random();
         private static void TimerStrategie_Tick(object sender, EventArgs e)
         {
-            var role = (StrategyManager.PlayerRole)rand.Next(1, 3);
+            var role = (StrategyManager.PlayerRole)rand.Next(1, 5);
             strategyManager.SetRole(role);
             strategyManager.ProcessStrategy();
         }

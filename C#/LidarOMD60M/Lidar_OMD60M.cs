@@ -15,6 +15,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TCPAdapter;
 using TCPClient;
 using Timer = System.Timers.Timer;
 
@@ -27,20 +28,11 @@ namespace LidarOMD60M
         private static readonly HttpClient HttpClient = new HttpClient();
         IPAddress LidarIpAddress = new IPAddress(new byte[] { 169, 254, 235, 44 });
         IPAddress LocalIp;
-
-        int UDPport = 1000;
-        string UDPHandle = "";
-
+        
         int TCPPort = 555;
         string TCPHandle = "";
 
-        TCPClientWithEvents TcpLidarClient;
-
-        UdpClient UDPLidarClient;
-        TcpClient TCPLidarClient;
-        bool TCPCLientConnected = false;
-
-        private bool IsLidarConnected = false;
+        TCPAdapter.TCPAdapter TcpLidarAdapter;
 
         Timer watchDogFeedTimer;
         Timer LidarDisplayTimer;
@@ -65,14 +57,23 @@ namespace LidarOMD60M
             LidarTCPInit();
 
             //On crée un client TCP/IP corrresponant au handle, pour recevoir le flux de data de scan.
-            TcpLidarClient = new TCPClientWithEvents();
-            TcpLidarClient.ConnectToServer(LidarIpAddress.ToString(), TCPPort);
-            TcpLidarClient.OnDataReceived += TcpLidarClient_OnDataReceived;
+            //TcpLidarClient = new TCPClientWithEvents();
+            //TcpLidarClient.ConnectToServer(LidarIpAddress.ToString(), TCPPort);
+            //TcpLidarClient.OnDataReceived += TcpLidarClient_OnDataReceived;
+
+            TcpLidarAdapter = new TCPAdapter.TCPAdapter(LidarIpAddress.ToString(), TCPPort, "Lidar TCP Adapter");
+            TcpLidarAdapter.OnDataReceivedEvent += TcpLidarAdapter_OnDataReceivedEvent;
+
             watchDogFeedTimer.Start();
             LidarDisplayTimer.Start();
 
             //On démarre le scan
             LidarStartTCPScan();
+        }
+
+        private void TcpLidarAdapter_OnDataReceivedEvent(object sender, DataReceivedArgs e)
+        {
+            DecodeLidarScanData(e.Data, e.Data.Length);
         }
 
         int horizontalShift = -50;
@@ -95,7 +96,7 @@ namespace LidarOMD60M
         }
 
 
-        /********************************************** Version UDP ******************************************/
+        /********************************************** Version TCP ******************************************/
         private async Task LidarTCPInit()
         {
             // On demande un handle UDP : cf. page 32 de la doc R2000 Ehternet Protocol
@@ -197,74 +198,74 @@ namespace LidarOMD60M
             var content = await HttpClient.GetStringAsync(request);
         }
 
-        /********************************************** Version UDP ******************************************/
-        private void LidarUDPInit()
-        {
-            // Lance une tâche asynchrone qui permet de récupérer le message de retour avant de continuer
-            // On demande un handle UDP : cf. page 32 de la doc R2000 Ehternet Protocol
-            Task<string> udpHandleRequestTask = Task.Run(() => LidarRequestUDPHandle());
-            // Wait for it to finish
-            udpHandleRequestTask.Wait();
-            UDPHandle = udpHandleRequestTask.Result;
+        ///********************************************** Version UDP ******************************************/
+        //private void LidarUDPInit()
+        //{
+        //    // Lance une tâche asynchrone qui permet de récupérer le message de retour avant de continuer
+        //    // On demande un handle UDP : cf. page 32 de la doc R2000 Ehternet Protocol
+        //    Task<string> udpHandleRequestTask = Task.Run(() => LidarRequestUDPHandle());
+        //    // Wait for it to finish
+        //    udpHandleRequestTask.Wait();
+        //    UDPHandle = udpHandleRequestTask.Result;
 
-            // Lance une tâche asynchrone qui permet de récupérer le message de retour avant de continuer
-            // On démarre le scan sur le Lidar : cf. page 35 de la doc R2000 Ehternet Protocol
-            Task startLidarTask = Task.Run(() => LidarStartScan());
-            // Wait for it to finish
-            startLidarTask.Wait();
+        //    // Lance une tâche asynchrone qui permet de récupérer le message de retour avant de continuer
+        //    // On démarre le scan sur le Lidar : cf. page 35 de la doc R2000 Ehternet Protocol
+        //    Task startLidarTask = Task.Run(() => LidarStartScan());
+        //    // Wait for it to finish
+        //    startLidarTask.Wait();
 
-            //Etablit la liaison UDP
-            UDPLidarClient = new UdpClient(UDPport);
-            IPEndPoint ep = new IPEndPoint(LidarIpAddress, 11000); // endpoint where server is listening
-            UDPLidarClient.Connect(ep);
-            UDPLidarClient.BeginReceive(new AsyncCallback(UDPPacketReceived), null);
-        }
+        //    //Etablit la liaison UDP
+        //    UDPLidarClient = new UdpClient(UDPport);
+        //    IPEndPoint ep = new IPEndPoint(LidarIpAddress, 11000); // endpoint where server is listening
+        //    UDPLidarClient.Connect(ep);
+        //    UDPLidarClient.BeginReceive(new AsyncCallback(UDPPacketReceived), null);
+        //}
 
-        //CallBack
-        private void UDPPacketReceived(IAsyncResult res)
-        {
-            //page 39 de la doc R2000 Ehternet Protocol
-            IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 8000);
-            byte[] received = UDPLidarClient.EndReceive(res, ref RemoteIpEndPoint);
+        ////CallBack
+        //private void UDPPacketReceived(IAsyncResult res)
+        //{
+        //    //page 39 de la doc R2000 Ehternet Protocol
+        //    IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 8000);
+        //    byte[] received = UDPLidarClient.EndReceive(res, ref RemoteIpEndPoint);
 
-            //Process codes
-            Console.WriteLine(Encoding.UTF8.GetString(received));
-            UDPLidarClient.BeginReceive(new AsyncCallback(UDPPacketReceived), null);
-        }
+        //    //Process codes
+        //    Console.WriteLine(Encoding.UTF8.GetString(received));
+        //    UDPLidarClient.BeginReceive(new AsyncCallback(UDPPacketReceived), null);
+        //}
 
-        async Task<string> LidarRequestUDPHandle()
-        {
-            // On démarre le scan sur le Lidar : cf. page 35 de la doc R2000 Ehternet Protocol
-            string handle = "";
-            string request = @"http://" + LidarIpAddress + "/cmd/request_handle_udp?address=" + LocalIp + "&port=" + UDPport + "&packet_type=C";
-            var content = await HttpClient.GetStringAsync(request);
-            JObject info = (JObject)JsonConvert.DeserializeObject(content);
-            if (info["error_text"].ToString() == "success")
-            {
-                handle = info["handle"].ToString();
-                //Console.WriteLine(content);
-            }
-            return handle;
-        }
+        //async Task<string> LidarRequestUDPHandle()
+        //{
+        //    // On démarre le scan sur le Lidar : cf. page 35 de la doc R2000 Ehternet Protocol
+        //    string handle = "";
+        //    string request = @"http://" + LidarIpAddress + "/cmd/request_handle_udp?address=" + LocalIp + "&port=" + UDPport + "&packet_type=C";
+        //    var content = await HttpClient.GetStringAsync(request);
+        //    JObject info = (JObject)JsonConvert.DeserializeObject(content);
+        //    if (info["error_text"].ToString() == "success")
+        //    {
+        //        handle = info["handle"].ToString();
+        //        //Console.WriteLine(content);
+        //    }
+        //    return handle;
+        //}
 
-        async Task LidarStartScan()
-        {
-            // On démarre le scan sur le Lidar : cf. page 35 de la doc R2000 Ehternet Protocol
-            string request = @"http://" + LidarIpAddress + "/cmd/start_scanoutput?handle=" + UDPHandle;
-            var content = await HttpClient.GetStringAsync(request);
-            Console.WriteLine(content);
-        }
-        async Task LidarReboot()
-        {
-            // On démarre le scan sur le Lidar : cf. page 35 de la doc R2000 Ehternet Protocol
-            string request = @"http://" + LidarIpAddress + "/cmd/reboot_device";
-            var content = await HttpClient.GetStringAsync(request);
-            Console.WriteLine(content);
-        }
+        //async Task LidarStartScan()
+        //{
+        //    // On démarre le scan sur le Lidar : cf. page 35 de la doc R2000 Ehternet Protocol
+        //    string request = @"http://" + LidarIpAddress + "/cmd/start_scanoutput?handle=" + UDPHandle;
+        //    var content = await HttpClient.GetStringAsync(request);
+        //    Console.WriteLine(content);
+        //}
+        //async Task LidarReboot()
+        //{
+        //    // On démarre le scan sur le Lidar : cf. page 35 de la doc R2000 Ehternet Protocol
+        //    string request = @"http://" + LidarIpAddress + "/cmd/reboot_device";
+        //    var content = await HttpClient.GetStringAsync(request);
+        //    Console.WriteLine(content);
+        //}
 
-        List<double> distance;
-        List<double> angle;
-        List<double> RSSI;
+        List<double> distance = new List<double>();
+        List<double> angle = new List<double>();
+        List<double> RSSI = new List<double>();
                            
         /**************************************************** Fonctions d'analyse **************************************************************/
         private void DecodeLidarScanData(byte[] buffer, int bufferSize)
@@ -306,7 +307,7 @@ namespace LidarOMD60M
 
                     if (packet_number == 1)
                     {
-                        OnLidar((int)TeamId.Team1 + 1, angle, distance);
+                        OnLidar((int)TeamId.Team1, angle, distance);
                         distance = new List<double>();
                         angle = new List<double>();
                         RSSI = new List<double>();
@@ -408,7 +409,9 @@ namespace LidarOMD60M
             }
             catch
             {
-
+                distance = new List<double>();
+                angle = new List<double>();
+                RSSI = new List<double>();
             }
         }
 

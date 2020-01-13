@@ -63,6 +63,10 @@
       <Project>{ECC907ED-F9B2-457F-901E-720987934E47}</Project>
       <Name>AdvancedTimers</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TCPAdapter\TCPAdapter.csproj">
+      <Project>{DEDA47B4-8F22-4A8B-8F18-96981C6B408D}</Project>
+      <Name>TCPAdapter</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TCPClient\TCPClient.csproj">
       <Project>{54D19BA4-AC57-4A0E-BF19-42A567F28108}</Project>
       <Name>TCPClient</Name>

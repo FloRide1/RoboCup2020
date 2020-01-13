@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EventArgsLibrary;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -10,6 +11,7 @@ namespace TCPAdapter
 {
     public class TCPAdapter
     {
+        private string name;
         private int port;
         private string ipAddress;
 
@@ -18,10 +20,11 @@ namespace TCPAdapter
         private bool isConnected = false;
 
         Timer connectionManagementTimer;
-        public TCPAdapter(string ipAddress, int port)
+        public TCPAdapter(string ipAddress, int port, string name)
         {
             this.ipAddress = ipAddress;
             this.port = port;
+            this.name = name;
 
             connectionManagementTimer = new Timer(5000);
             connectionManagementTimer.Elapsed += ConnectionManagementTimer_Elapsed;
@@ -36,13 +39,13 @@ namespace TCPAdapter
                 connectionManagementTimer.Interval = 5000;
                 try
                 {
-                    Console.WriteLine("Trying to Connect");
+                    Console.WriteLine(name+" : Trying to Connect");
                     Connect();
-                    Console.WriteLine("Connection successful");
+                    Console.WriteLine(name + " : Connection successful");
                 }
                 catch
                 {
-                    Console.WriteLine("Connection failed");
+                    Console.WriteLine(name + " : Connection failed");
                 }
             }
             else
@@ -51,11 +54,11 @@ namespace TCPAdapter
                 connectionManagementTimer.Interval = 200;
                 if (!IsConnected())
                 {
-                    Console.WriteLine("Connection lost");
+                    Console.WriteLine(name + " : Connection lost");
                     isConnected = false;
                 }
                 else
-                    Console.WriteLine("Connection alive");
+                    Console.WriteLine(name + " : Connection alive");
             }
         }
 
@@ -77,13 +80,20 @@ namespace TCPAdapter
                 if (tcpClient.Client.Poll(0, SelectMode.SelectRead))
                 {
                     byte[] buff = new byte[1];
-                    if (tcpClient.Client.Receive(buff, SocketFlags.Peek) == 0)
+                    try
                     {
-                        // Client disconnected
+                        if (tcpClient.Client.Receive(buff, SocketFlags.Peek) == 0)
+                        {
+                            // Client disconnected
+                            return false;
+                        }
+                        else
+                            return true;
+                    }
+                    catch
+                    {
                         return false;
                     }
-                    else
-                        return true;
                 }
                 return true;
             }
@@ -96,9 +106,9 @@ namespace TCPAdapter
             // the closure captures it.
             AsyncCallback callback = null;
 
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[65536 * 2];
             int offset = 0;
-            int count = 1024;
+            //int count = 1024;
 
             // Assign the callback.
             callback = ar => {
@@ -108,17 +118,29 @@ namespace TCPAdapter
                 // Process the bytes here.
                 byte[] dst = new byte[bytesRead];
                 Buffer.BlockCopy(buffer, 0, dst, 0, bytesRead);
-                Console.WriteLine(System.Text.Encoding.UTF8.GetString(dst));
+                OnDataReceived(dst);
+                //Console.WriteLine(System.Text.Encoding.UTF8.GetString(dst));
 
                 // Determine if you want to read again.  If not, return.
                 if (!isConnected) return;
 
                 // Read again.  This callback will be called again.
-                clientStream.BeginRead(buffer, offset, count, callback, null);
+                clientStream.BeginRead(buffer, offset, buffer.Length, callback, null);
             };
 
             // Trigger the initial read.
-            clientStream.BeginRead(buffer, offset, count, callback, null);
+            clientStream.BeginRead(buffer, offset, buffer.Length, callback, null);
+        }
+
+        public delegate void DataReceivedEventHandler(object sender, DataReceivedArgs e);
+        public event EventHandler<DataReceivedArgs> OnDataReceivedEvent;
+        public virtual void OnDataReceived(byte[] data)
+        {
+            var handler = OnDataReceivedEvent;
+            if (handler != null)
+            {
+                handler(this, new DataReceivedArgs { Data = data });
+            }
         }
     }
 }
