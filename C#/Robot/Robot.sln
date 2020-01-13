@@ -75,6 +75,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobotMessageProcessor", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDPMulticast", "..\UDPMulticast\UDPMulticast.csproj", "{6DA72C33-AC0E-4174-AA47-5A12453F5900}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPAdapter", "..\TCPAdapter\TCPAdapter.csproj", "{DEDA47B4-8F22-4A8B-8F18-96981C6B408D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -225,6 +227,10 @@ Global
 		{6DA72C33-AC0E-4174-AA47-5A12453F5900}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6DA72C33-AC0E-4174-AA47-5A12453F5900}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6DA72C33-AC0E-4174-AA47-5A12453F5900}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEDA47B4-8F22-4A8B-8F18-96981C6B408D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEDA47B4-8F22-4A8B-8F18-96981C6B408D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEDA47B4-8F22-4A8B-8F18-96981C6B408D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEDA47B4-8F22-4A8B-8F18-96981C6B408D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
