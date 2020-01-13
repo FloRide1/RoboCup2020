@@ -105,6 +105,10 @@
       <Project>{45A044B5-1D4F-4B6E-964B-3B2FA5E39AB2}</Project>
       <Name>LidarSimulator</Name>
     </ProjectReference>
+    <ProjectReference Include="..\LogRecorder\LogRecorder.csproj">
+      <Project>{128114E9-1A4D-4EBF-BA5C-5C4E136D3F53}</Project>
+      <Name>LogRecorder</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MessageDecoder\MessageDecoder.csproj">
       <Project>{4603885F-CC5E-43E5-A4AF-063030CB0A32}</Project>
       <Name>MessageDecoder</Name>

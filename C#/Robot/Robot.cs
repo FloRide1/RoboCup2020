@@ -21,6 +21,7 @@ using WorldMapManager;
 using RobotMessageProcessor;
 using PerceptionManagement;
 using EventArgsLibrary;
+using LogRecorder;
 
 namespace Robot
 {
@@ -30,6 +31,7 @@ namespace Robot
         static bool usingLidar = true;
         static bool usingPhysicalSimulator = true;
         static bool usingXBoxController = false;
+        static bool usingLogging = true;
 
         //static HighFreqTimer highFrequencyTimer;
         static HighFreqTimer timerStrategie;
@@ -52,15 +54,14 @@ namespace Robot
         static LidarSimulator.LidarSimulator lidarSimulator;
         static StrategyManager.StrategyManager strategyManager;
         static PerceptionSimulator perceptionSimulator;
-
         static Lidar_OMD60M lidar_OMD60M;
-
         static XBoxController.XBoxController xBoxManette;
 
         static object ExitLock = new object();
 
         static WpfRobotInterface interfaceRobot;
         static WpfCameraMonitor ConsoleCamera;
+        static LogRecorder.LogRecorder logRecorder;
 
 
         [STAThread] //à ajouter au projet initial
@@ -76,12 +77,9 @@ namespace Robot
   <ProductCode>SC-WPF-SDK-PRO-SITE</ProductCode>
   <KeyCode>lwABAQEAAABZVzOfQ0zVAQEAewBDdXN0b21lcj1Vbml2ZXJzaXR5IG9mICBUb3Vsb247T3JkZXJJZD1FRFVDQVRJT05BTC1VU0UtMDEwOTtTdWJzY3JpcHRpb25WYWxpZFRvPTA0LU5vdi0yMDE5O1Byb2R1Y3RDb2RlPVNDLVdQRi1TREstUFJPLVNJVEWDf0QgB8GnCQXI6yAqNM2njjnGbUt2KsujTDzeE+k69K1XYVF1s1x1Hb/i/E3GHaU=</KeyCode>
 </LicenseContract>");
-
-
-            //TODO : Créer un projet World...
-
+            
             ethernetTeamNetworkAdapter = new EthernetTeamNetworkAdapter();
-            serialPort1 = new ReliableSerialPort("FTDI", 230400/*115200*/, Parity.None, 8, StopBits.One);                    
+            serialPort1 = new ReliableSerialPort("COM1", 115200, Parity.None, 8, StopBits.One);                    
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
             robotMsgGenerator = new RobotMsgGenerator();
@@ -114,7 +112,10 @@ namespace Robot
 
             imageProcessingPositionFromOmniCamera = new ImageProcessingPositionFromOmniCamera();
                         
+            //Démarrage des interface de visualisation
             StartInterfaces();
+            //Démarrage ddu logger
+            logRecorder = new LogRecorder.LogRecorder();
 
             //Liens entre modules
 
@@ -155,7 +156,11 @@ namespace Robot
             
             if (usingLidar)
                 lidar_OMD60M.OnLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
-            
+
+            //Event de recording
+            if (usingLidar)
+                lidar_OMD60M.OnLidarEvent += logRecorder.OnRawLidarDataReceived;
+
             //Timer de stratégie
             timerStrategie = new HighFreqTimer(0.5);
             timerStrategie.Tick += TimerStrategie_Tick;
