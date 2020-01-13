@@ -114,6 +114,10 @@
       <Project>{4CF48B4E-AB93-479E-B79C-F9101F24B7BA}</Project>
       <Name>PhysicalSimulator</Name>
     </ProjectReference>
+    <ProjectReference Include="..\RefereeBoxAdapter\RefereeBoxAdapter.csproj">
+      <Project>{A8C04138-90DC-42F9-AB39-E71125B805B9}</Project>
+      <Name>RefereeBoxAdapter</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RobotInterfaceWPF_Supervision_Systeme_Embarqué\RobotInterface\WpfRobotInterface.csproj">
       <Project>{1cdc0611-a2e5-42e8-a28b-ba4269343c68}</Project>
       <Name>WpfRobotInterface</Name>

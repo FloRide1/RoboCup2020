@@ -13,6 +13,7 @@ using PhysicalSimulator;
 using UDPMulticast;
 using System.Text;
 using TCPAdapter;
+using RefereeBoxAdapter;
 
 namespace TeamSimulator
 {
@@ -33,6 +34,8 @@ namespace TeamSimulator
         static List<LidarSimulator.LidarSimulator> lidarSimulatorList;
         static List<PerceptionSimulator> perceptionSimulatorList;
 
+        static RefereeBoxAdapter.RefereeBoxAdapter refBoxAdapter;
+        static RefereeBoxAdapter.RefereeBoxAdapter refBoxAdapter2;
 
         static System.Timers.Timer timerTest;
         static UDPMulticastSender sender1;
@@ -68,7 +71,7 @@ namespace TeamSimulator
             physicalSimulator = new PhysicalSimulator.PhysicalSimulator();
             globalWorldMapManagerTeam1 = new GlobalWorldMapManager((int)TeamId.Team1);
             globalWorldMapManagerTeam2 = new GlobalWorldMapManager((int)TeamId.Team2);
-
+            
             for (int i = 0; i < nbPlayersTeam1; i++)
             {
                 //ethernetTeamNetworkAdapter = new EthernetTeamNetworkAdapter();
@@ -85,9 +88,11 @@ namespace TeamSimulator
 
             DefineRoles();
 
-
             StartInterfaces();
-            
+
+            refBoxAdapter = new RefereeBoxAdapter.RefereeBoxAdapter();
+            refBoxAdapter2 = new RefereeBoxAdapter.RefereeBoxAdapter();
+
             //Timer de stratégie
             timerStrategie = new System.Timers.Timer(20000);
             timerStrategie.Elapsed += TimerStrategie_Tick;
@@ -109,7 +114,6 @@ namespace TeamSimulator
             //receiver3.OnDataReceivedEvent += Receiver3_OnDataReceivedEvent;
             //timerTest.Start();
 
-            TCPAdapter.TCPAdapter tcpAdapter = new TCPAdapter.TCPAdapter("127.0.0.1", 28097);
 
             lock (ExitLock)
             {

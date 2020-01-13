@@ -112,20 +112,28 @@ namespace TCPAdapter
 
             // Assign the callback.
             callback = ar => {
-                // Call EndRead.
-                int bytesRead = clientStream.EndRead(ar);
+                try
+                {
+                    // Call EndRead.
+                    int bytesRead = clientStream.EndRead(ar);
 
-                // Process the bytes here.
-                byte[] dst = new byte[bytesRead];
-                Buffer.BlockCopy(buffer, 0, dst, 0, bytesRead);
-                OnDataReceived(dst);
-                //Console.WriteLine(System.Text.Encoding.UTF8.GetString(dst));
+                    // Process the bytes here.
+                    byte[] dst = new byte[bytesRead];
+                    Buffer.BlockCopy(buffer, 0, dst, 0, bytesRead);
+                    OnDataReceived(dst);
+                    //Console.WriteLine(System.Text.Encoding.UTF8.GetString(dst));
 
-                // Determine if you want to read again.  If not, return.
-                if (!isConnected) return;
+                    // Determine if you want to read again.  If not, return.
+                    if (!isConnected) return;
 
-                // Read again.  This callback will be called again.
-                clientStream.BeginRead(buffer, offset, buffer.Length, callback, null);
+                    // Read again.  This callback will be called again.
+                    clientStream.BeginRead(buffer, offset, buffer.Length, callback, null);
+                }
+                catch
+                {
+                    isConnected = false;
+                    return;
+                }
             };
 
             // Trigger the initial read.
