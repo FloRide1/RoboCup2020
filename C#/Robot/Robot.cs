@@ -22,6 +22,8 @@ using RobotMessageProcessor;
 using PerceptionManagement;
 using EventArgsLibrary;
 using LogRecorder;
+using LogReplay;
+using LidarProcessor;
 
 namespace Robot
 {
@@ -31,7 +33,8 @@ namespace Robot
         static bool usingLidar = true;
         static bool usingPhysicalSimulator = true;
         static bool usingXBoxController = false;
-        static bool usingLogging = true;
+        static bool usingLogging = false;
+        static bool usingLogReplay = true;
 
         //static HighFreqTimer highFrequencyTimer;
         static HighFreqTimer timerStrategie;
@@ -55,6 +58,7 @@ namespace Robot
         static StrategyManager.StrategyManager strategyManager;
         static PerceptionSimulator perceptionSimulator;
         static Lidar_OMD60M lidar_OMD60M;
+        static LidarProcessor.LidarProcessor lidarProcessor;
         static XBoxController.XBoxController xBoxManette;
 
         static object ExitLock = new object();
@@ -62,6 +66,7 @@ namespace Robot
         static WpfRobotInterface interfaceRobot;
         static WpfCameraMonitor ConsoleCamera;
         static LogRecorder.LogRecorder logRecorder;
+        static LogReplay.LogReplay logReplay;
 
 
         [STAThread] //à ajouter au projet initial
@@ -77,9 +82,9 @@ namespace Robot
   <ProductCode>SC-WPF-SDK-PRO-SITE</ProductCode>
   <KeyCode>lwABAQEAAABZVzOfQ0zVAQEAewBDdXN0b21lcj1Vbml2ZXJzaXR5IG9mICBUb3Vsb247T3JkZXJJZD1FRFVDQVRJT05BTC1VU0UtMDEwOTtTdWJzY3JpcHRpb25WYWxpZFRvPTA0LU5vdi0yMDE5O1Byb2R1Y3RDb2RlPVNDLVdQRi1TREstUFJPLVNJVEWDf0QgB8GnCQXI6yAqNM2njjnGbUt2KsujTDzeE+k69K1XYVF1s1x1Hb/i/E3GHaU=</KeyCode>
 </LicenseContract>");
-            
+
             ethernetTeamNetworkAdapter = new EthernetTeamNetworkAdapter();
-            serialPort1 = new ReliableSerialPort("COM1", 115200, Parity.None, 8, StopBits.One);                    
+            serialPort1 = new ReliableSerialPort("COM1", 115200, Parity.None, 8, StopBits.One);
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
             robotMsgGenerator = new RobotMsgGenerator();
@@ -89,7 +94,7 @@ namespace Robot
 
             int robotId = (int)TeamId.Team1 + (int)RobotId.Robot1;
             int teamId = (int)TeamId.Team1;
-            physicalSimulator.RegisterRobot(robotId, 0,0);
+            physicalSimulator.RegisterRobot(robotId, 0, 0);
 
             robotPilot = new RobotPilot.RobotPilot(robotId);
             refBoxAdapter = new RefereeBoxAdapter.RefereeBoxAdapter();
@@ -101,7 +106,10 @@ namespace Robot
             perceptionSimulator = new PerceptionSimulator(robotId);
 
             if (usingLidar)
+            {
                 lidar_OMD60M = new Lidar_OMD60M(robotId);
+                lidarProcessor = new LidarProcessor.LidarProcessor(robotId);
+            }
 
             xBoxManette = new XBoxController.XBoxController(robotId);
 
@@ -111,14 +119,20 @@ namespace Robot
                 omniCameraSimulator = new SimulatedCamera.SimulatedCamera();
 
             imageProcessingPositionFromOmniCamera = new ImageProcessingPositionFromOmniCamera();
-                        
+
             //Démarrage des interface de visualisation
             StartInterfaces();
-            //Démarrage ddu logger
-            logRecorder = new LogRecorder.LogRecorder();
+
+            //Démarrage du logging
+            if (usingLogging)
+                logRecorder = new LogRecorder.LogRecorder();
+            if (usingLogReplay)
+            {
+                logReplay = new LogReplay.LogReplay();
+                lidarProcessor = new LidarProcessor.LidarProcessor(robotId);
+            }
 
             //Liens entre modules
-
             strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
             strategyManager.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
@@ -153,13 +167,24 @@ namespace Robot
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
             //waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
-            
+
             if (usingLidar)
+            {
                 lidar_OMD60M.OnLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
+                lidar_OMD60M.OnLidarEvent += lidarProcessor.OnRawLidarDataReceived;
+            }
+
 
             //Event de recording
-            if (usingLidar)
+            if (usingLogging)
                 lidar_OMD60M.OnLidarEvent += logRecorder.OnRawLidarDataReceived;
+
+            //Event de replay
+            if (usingLogReplay)
+            {
+                logReplay.OnLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
+                logReplay.OnLidarEvent += lidarProcessor.OnRawLidarDataReceived;
+            }
 
             //Timer de stratégie
             timerStrategie = new HighFreqTimer(0.5);
@@ -171,7 +196,7 @@ namespace Robot
                 // Do whatever setup code you need here
                 // once we are done wait
                 Monitor.Wait(ExitLock);
-            }       
+            }
         }
 
         static Random rand = new Random();

@@ -47,9 +47,7 @@ namespace LogRecorder
             }
         }
         public void Log(string contents)
-        {
-            contents = DateTime.Now.ToString("MM-dd-yy - HH:mm:ss ffff") + " - " + contents; // add a timestamp
-
+        {            
             lock (logLock) // get a lock on the queue
             {
                 logQueue.Enqueue(contents);

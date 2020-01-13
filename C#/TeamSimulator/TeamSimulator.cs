@@ -114,7 +114,6 @@ namespace TeamSimulator
             //receiver3.OnDataReceivedEvent += Receiver3_OnDataReceivedEvent;
             //timerTest.Start();
 
-
             lock (ExitLock)
             {
                 // Do whatever setup code you need here

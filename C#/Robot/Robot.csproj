@@ -101,6 +101,10 @@
       <Project>{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}</Project>
       <Name>LidarOMD60M</Name>
     </ProjectReference>
+    <ProjectReference Include="..\LidarProcessor\LidarProcessor.csproj">
+      <Project>{3C4270CF-77BA-4100-BBAB-6E2802C49478}</Project>
+      <Name>LidarProcessor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LidarSimulator\LidarSimulator.csproj">
       <Project>{45A044B5-1D4F-4B6E-964B-3B2FA5E39AB2}</Project>
       <Name>LidarSimulator</Name>
@@ -108,6 +112,10 @@
     <ProjectReference Include="..\LogRecorder\LogRecorder.csproj">
       <Project>{128114E9-1A4D-4EBF-BA5C-5C4E136D3F53}</Project>
       <Name>LogRecorder</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LogReplay\LogReplay.csproj">
+      <Project>{4A227E8F-4045-4418-98A0-228C0ACC30FF}</Project>
+      <Name>LogReplay</Name>
     </ProjectReference>
     <ProjectReference Include="..\MessageDecoder\MessageDecoder.csproj">
       <Project>{4603885F-CC5E-43E5-A4AF-063030CB0A32}</Project>

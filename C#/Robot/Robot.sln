@@ -79,6 +79,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPAdapter", "..\TCPAdapter
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogRecorder", "..\LogRecorder\LogRecorder.csproj", "{128114E9-1A4D-4EBF-BA5C-5C4E136D3F53}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogReplay", "..\LogReplay\LogReplay.csproj", "{4A227E8F-4045-4418-98A0-228C0ACC30FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LidarProcessor", "..\LidarProcessor\LidarProcessor.csproj", "{3C4270CF-77BA-4100-BBAB-6E2802C49478}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -237,6 +241,14 @@ Global
 		{128114E9-1A4D-4EBF-BA5C-5C4E136D3F53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{128114E9-1A4D-4EBF-BA5C-5C4E136D3F53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{128114E9-1A4D-4EBF-BA5C-5C4E136D3F53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A227E8F-4045-4418-98A0-228C0ACC30FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A227E8F-4045-4418-98A0-228C0ACC30FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A227E8F-4045-4418-98A0-228C0ACC30FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A227E8F-4045-4418-98A0-228C0ACC30FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C4270CF-77BA-4100-BBAB-6E2802C49478}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C4270CF-77BA-4100-BBAB-6E2802C49478}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C4270CF-77BA-4100-BBAB-6E2802C49478}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C4270CF-77BA-4100-BBAB-6E2802C49478}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
