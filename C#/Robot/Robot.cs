@@ -27,14 +27,22 @@ using LidarProcessor;
 
 namespace Robot
 {
+    enum RobotMode
+    {
+        LidarAcquisition,
+        LidarReplay,
+        Standard
+    }
     class Robot
     {
+        static RobotMode robotMode = RobotMode.LidarAcquisition;
+
         static bool usingSimulatedCamera = true;
-        static bool usingLidar = true;
         static bool usingPhysicalSimulator = true;
         static bool usingXBoxController = false;
+        static bool usingLidar = true;
         static bool usingLogging = false;
-        static bool usingLogReplay = true;
+        static bool usingLogReplay = false;
 
         //static HighFreqTimer highFrequencyTimer;
         static HighFreqTimer timerStrategie;
@@ -82,6 +90,25 @@ namespace Robot
   <ProductCode>SC-WPF-SDK-PRO-SITE</ProductCode>
   <KeyCode>lwABAQEAAABZVzOfQ0zVAQEAewBDdXN0b21lcj1Vbml2ZXJzaXR5IG9mICBUb3Vsb247T3JkZXJJZD1FRFVDQVRJT05BTC1VU0UtMDEwOTtTdWJzY3JpcHRpb25WYWxpZFRvPTA0LU5vdi0yMDE5O1Byb2R1Y3RDb2RlPVNDLVdQRi1TREstUFJPLVNJVEWDf0QgB8GnCQXI6yAqNM2njjnGbUt2KsujTDzeE+k69K1XYVF1s1x1Hb/i/E3GHaU=</KeyCode>
 </LicenseContract>");
+
+            switch(robotMode)
+            {
+                case RobotMode.Standard:
+                    usingLidar = true;
+                    usingLogging = false;
+                    usingLogReplay = false;
+                    break;
+                case RobotMode.LidarAcquisition:
+                    usingLidar = true;
+                    usingLogging = true;
+                    usingLogReplay = false;
+                    break;
+                case RobotMode.LidarReplay:
+                    usingLidar = false;
+                    usingLogging = false;
+                    usingLogReplay = true;
+                    break;
+            }
 
             ethernetTeamNetworkAdapter = new EthernetTeamNetworkAdapter();
             serialPort1 = new ReliableSerialPort("COM1", 115200, Parity.None, 8, StopBits.One);

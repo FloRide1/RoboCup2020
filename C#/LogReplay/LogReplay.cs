@@ -28,9 +28,11 @@ namespace LogReplay
             replayThread.Start();
             initialDateTime = DateTime.Now;
         }
+
         private void ReplayLoop()
         {
-            sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath-X_0-Y_0-Theta_0 310cm face but.rbt");
+            //sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath-X_0-Y_0-Theta_0 310cm face but.rbt");
+            sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\testLog.rbt");
             string s = sr.ReadLine();
             var currentLog = JsonConvert.DeserializeObject<RawLidarArgsWithTimeStamp>(s);
 
@@ -44,8 +46,11 @@ namespace LogReplay
                     s = sr.ReadLine();
                     try
                     {
-                        currentLog = JsonConvert.DeserializeObject<RawLidarArgsWithTimeStamp>(s);
-                        elapsedMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
+                        if (s != null)
+                        {
+                            currentLog = JsonConvert.DeserializeObject<RawLidarArgsWithTimeStamp>(s);
+                            elapsedMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
+                        }
                     }
                     catch { }
 
