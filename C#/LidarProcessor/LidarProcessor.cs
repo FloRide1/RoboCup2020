@@ -29,15 +29,52 @@ namespace LidarProcessor
             List<double> AngleListProcessed = new List<double>();
             List<double> DistanceListProcessed = new List<double>();
 
-            for (int i = 0; i < angleList.Count; i++)
+            List<LidarDetectedObject> LidarObjectList = new List<LidarDetectedObject>();
+            LidarDetectedObject currentObject = new LidarDetectedObject();
+
+            //Segmentation en objets cohérents
+            for (int i = 1; i < angleList.Count; i++)
             {
-                if (distanceList[i] < 3)
+                if (Math.Abs(distanceList[i] - distanceList[i - 1]) < 0.3)
                 {
-                    AngleListProcessed.Add(angleList[i]);
-                    DistanceListProcessed.Add(distanceList[i]);
+                    //On reste sur le même objet
+                    currentObject.AngleList.Add(angleList[i]);
+                    currentObject.DistanceList.Add(distanceList[i]);
+                }
+                else
+                {
+                    ExtractObjectAttributes(currentObject);
+                    if(currentObject.AngleList.Count>5)
+                        LidarObjectList.Add(currentObject);
+                    currentObject = new LidarDetectedObject();
+                    currentObject.AngleList.Add(angleList[i]);
+                    currentObject.DistanceList.Add(distanceList[i]);
+                }
+            }
+
+            foreach (var obj in LidarObjectList)
+            {
+                if (obj.Largeur > 0.05 && obj.Largeur < 0.2)
+                {
+                    for (int i = 0; i < obj.AngleList.Count; i++)
+                    {
+                        AngleListProcessed.Add(obj.AngleList[i]);
+                        DistanceListProcessed.Add(obj.DistanceList[i]);
+                    }
                 }
             }
             OnLidarProcessed(robotId, AngleListProcessed, DistanceListProcessed);
+
+            //OnLidarProcessed(robotId, angleList, distanceList);
+        }
+
+        public void ExtractObjectAttributes(LidarDetectedObject obj)
+        {
+            if (obj.AngleList.Count > 0)
+            {
+                obj.DistanceMoyenne = obj.DistanceList.Average();
+                obj.Largeur = (obj.AngleList.Max() - obj.AngleList.Min()) * obj.DistanceMoyenne;
+            }
         }
 
         public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
@@ -51,4 +88,19 @@ namespace LidarProcessor
             }
         }
     }
+
+    public class LidarDetectedObject
+    {
+        public List<double> AngleList;
+        public List<double> DistanceList;
+        public double Largeur;
+        public double DistanceMoyenne;
+
+        public LidarDetectedObject()
+        {
+            AngleList = new List<double>();
+            DistanceList = new List<double>();
+        }
+    }
 }
+
