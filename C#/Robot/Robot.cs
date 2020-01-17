@@ -194,13 +194,12 @@ namespace Robot
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
             //waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
-
+            
             if (usingLidar)
             {
-                lidar_OMD60M.OnLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
                 lidar_OMD60M.OnLidarEvent += lidarProcessor.OnRawLidarDataReceived;
+                lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
             }
-
 
             //Event de recording
             if (usingLogging)
@@ -209,8 +208,8 @@ namespace Robot
             //Event de replay
             if (usingLogReplay)
             {
-                logReplay.OnLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
                 logReplay.OnLidarEvent += lidarProcessor.OnRawLidarDataReceived;
+                lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
             }
 
             //Timer de stratégie

@@ -17,14 +17,37 @@ namespace LidarProcessor
         }
         public void OnRawLidarDataReceived(object sender, RawLidarArgs e)
         {
+            //Segmentation en objets
             if (robotId == e.RobotId)
             {
-                List<PointD> listPtLidar = new List<PointD>();
-                for (int i = 0; i < e.AngleList.Count; i++)
+                ProcessLidarData(e.AngleList, e.DistanceList);
+            }
+        }
+
+        void ProcessLidarData(List<double> angleList, List<double> distanceList)
+        {
+            List<double> AngleListProcessed = new List<double>();
+            List<double> DistanceListProcessed = new List<double>();
+
+            for (int i = 0; i < angleList.Count; i++)
+            {
+                if (distanceList[i] < 3)
                 {
-                    listPtLidar.Add(new PointD(e.DistanceList[i] * Math.Cos(e.AngleList[i]),
-                                               e.DistanceList[i] * Math.Sin(e.AngleList[i])));
+                    AngleListProcessed.Add(angleList[i]);
+                    DistanceListProcessed.Add(distanceList[i]);
                 }
+            }
+            OnLidarProcessed(robotId, AngleListProcessed, DistanceListProcessed);
+        }
+
+        public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
+        public event EventHandler<RawLidarArgs> OnLidarProcessedEvent;
+        public virtual void OnLidarProcessed(int id, List<double> angleList, List<double> distanceList)
+        {
+            var handler = OnLidarProcessedEvent;
+            if (handler != null)
+            {
+                handler(this, new RawLidarArgs { RobotId = id, AngleList = angleList, DistanceList = distanceList });
             }
         }
     }
