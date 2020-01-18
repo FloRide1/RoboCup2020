@@ -307,5 +307,41 @@ namespace RobotInterface
             }
         }
 
+
+        bool isWorldMapZoomed = false;
+        double worldMapZoomFactor = 5;
+        int lastWorldMapZoomedCol = 0;
+        int lastWorldMapZoomedRow = 0;
+
+        private void worldMapDisplay_Loaded(object sender, RoutedEventArgs e)
+        {
+           
+        }
+
+        private void worldMapDisplay_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            WorldMapDisplay s = (WorldMapDisplay)sender;
+
+            int row = 0, column = 0;
+
+            if (s != null)
+            {
+                row = Grid.GetRow(s);
+                column = Grid.GetColumn(s);
+            }
+
+            if (!isWorldMapZoomed)
+            {
+                GridApplication.ColumnDefinitions[column].Width = new GridLength(GridApplication.ColumnDefinitions[column].Width.Value * worldMapZoomFactor, GridUnitType.Star);
+                GridApplication.RowDefinitions[row].Height = new GridLength(GridApplication.RowDefinitions[row].Height.Value * worldMapZoomFactor, GridUnitType.Star);
+                isWorldMapZoomed = true;
+            }
+            else
+            {
+                GridApplication.ColumnDefinitions[column].Width = new GridLength(GridApplication.ColumnDefinitions[column].Width.Value / worldMapZoomFactor, GridUnitType.Star);
+                GridApplication.RowDefinitions[row].Height = new GridLength(GridApplication.RowDefinitions[row].Height.Value / worldMapZoomFactor, GridUnitType.Star);
+                isWorldMapZoomed = false;
+            }
+        }
     }
 }
