@@ -265,7 +265,6 @@ namespace Robot
                 xBoxManette.OnMoveTirDownEvent -= robotMsgGenerator.GenerateMessageMoveTirDown;
                 xBoxManette.OnTirEvent -= robotMsgGenerator.GenerateMessageTir;
             }
-
         }
 
         static void ExitProgram()

@@ -35,7 +35,7 @@ namespace LidarProcessor
             //Segmentation en objets cohérents
             for (int i = 1; i < angleList.Count; i++)
             {
-                if (Math.Abs(distanceList[i] - distanceList[i - 1]) < 0.3)
+                if (Math.Abs(distanceList[i] - distanceList[i - 1]) < 0.02)
                 {
                     //On reste sur le même objet
                     currentObject.AngleList.Add(angleList[i]);
@@ -43,9 +43,13 @@ namespace LidarProcessor
                 }
                 else
                 {
-                    ExtractObjectAttributes(currentObject);
-                    if(currentObject.AngleList.Count>5)
-                        LidarObjectList.Add(currentObject);
+                    if ((distanceList[i] - distanceList[i - 1]) > 0.02)
+                    {
+                        //On a front montant de distance, un objet saillant se termine
+                        ExtractObjectAttributes(currentObject);
+                        if (currentObject.AngleList.Count > 5)
+                            LidarObjectList.Add(currentObject);
+                    }
                     currentObject = new LidarDetectedObject();
                     currentObject.AngleList.Add(angleList[i]);
                     currentObject.DistanceList.Add(distanceList[i]);
