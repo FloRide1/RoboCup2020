@@ -41,6 +41,21 @@ namespace LidarProcessor
                 distanceList[i] *= zoomCoeff;
             }
 
+
+            //Préfiltrage des points isolés : un pt dont la distance aux voisin est supérieur à un seuil des deux coté est considere comme isolé.
+            double seuilPtIsole = 0.03*zoomCoeff;
+            for (int i = 1; i < angleList.Count-1; i++)
+            {
+                if((Math.Abs(distanceList[i-1]-distanceList[i]) < seuilPtIsole) || (Math.Abs(distanceList[i + 1] - distanceList[i]) < seuilPtIsole))
+                {
+                    AngleListProcessed.Add(angleList[i]);
+                    DistanceListProcessed.Add(distanceList[i]);
+                }
+            }
+
+            angleList = AngleListProcessed;
+            distanceList = DistanceListProcessed;
+
             //Détection des objets saillants
             bool objetSaillantEnCours = false;
             for (int i = 1; i < angleList.Count; i++)
