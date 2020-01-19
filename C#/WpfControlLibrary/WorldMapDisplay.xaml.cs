@@ -788,7 +788,7 @@ namespace WpfControlLibrary
                     polygonToDisplay.polygon.Points.Add(new Point(location.X + pt.Distance * Math.Cos(pt.Angle), location.Y + pt.Distance * Math.Sin(pt.Angle)));
                 }
                 polygonToDisplay.borderColor = obj.displayColor;
-                polygonToDisplay.borderWidth = 4;
+                polygonToDisplay.borderWidth = (float)obj.displayWidth;
                 polygonToDisplay.backgroundColor = obj.displayColor;
                 polygonExtendedList.Add(polygonToDisplay);
             }

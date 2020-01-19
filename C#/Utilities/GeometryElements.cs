@@ -42,6 +42,7 @@ namespace Utilities
     {
         public List<PolarPoint> polarPointList;        
         public System.Drawing.Color displayColor;
+        public double displayWidth=1;
     }
 
     public class Point3D

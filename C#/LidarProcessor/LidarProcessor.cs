@@ -26,7 +26,7 @@ namespace LidarProcessor
 
         void ProcessLidarData(List<double> angleList, List<double> distanceList)
         {
-            double zoomCoeff = 2.3;
+            double zoomCoeff = 1.8;
             List<double> AngleListProcessed = new List<double>();
             List<double> DistanceListProcessed = new List<double>();
 
@@ -126,6 +126,7 @@ namespace LidarProcessor
                     {
                         currentPolarPointListExtended.polarPointList.Add(new PolarPoint(obj.DistanceList[i], obj.AngleList[i]));
                         currentPolarPointListExtended.displayColor = System.Drawing.Color.Red;
+                        currentPolarPointListExtended.displayWidth = 8;
                     }
                     objectList.Add(currentPolarPointListExtended);
                 }
@@ -140,6 +141,7 @@ namespace LidarProcessor
                     {
                         currentPolarPointListExtended.polarPointList.Add(new PolarPoint(obj.DistanceList[i], obj.AngleList[i]));
                         currentPolarPointListExtended.displayColor = System.Drawing.Color.Yellow;
+                        currentPolarPointListExtended.displayWidth = 3;
                     }
                     objectList.Add(currentPolarPointListExtended);
                 }
@@ -154,6 +156,7 @@ namespace LidarProcessor
                     {
                         currentPolarPointListExtended.polarPointList.Add(new PolarPoint(obj.DistanceList[i], obj.AngleList[i]));
                         currentPolarPointListExtended.displayColor = System.Drawing.Color.Blue;
+                        currentPolarPointListExtended.displayWidth = 6;
                     }
                     objectList.Add(currentPolarPointListExtended);
                 }

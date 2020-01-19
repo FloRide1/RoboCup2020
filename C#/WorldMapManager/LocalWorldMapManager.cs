@@ -103,19 +103,7 @@ namespace WorldMapManager
                 return;
             if (RobotId == e.RobotId)
             {
-                localWorldMap.lidarObjectList = new List<PolarPointListExtended>();
-                foreach (var polarPtListExtended in e.ObjectList)
-                {
-                    PolarPointListExtended polExt = new PolarPointListExtended();
-                    polExt.polarPointList = new List<PolarPoint>();
-
-                    foreach(var pt in polarPtListExtended.polarPointList)
-                    { 
-                        polExt.polarPointList.Add(new PolarPoint(pt.Distance, pt.Angle));
-                    }
-                    polExt.displayColor = polarPtListExtended.displayColor;
-                    localWorldMap.lidarObjectList.Add(polExt);
-                }
+                localWorldMap.lidarObjectList = e.ObjectList;
             }
         }
 
