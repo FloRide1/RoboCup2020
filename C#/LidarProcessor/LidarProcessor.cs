@@ -37,28 +37,36 @@ namespace LidarProcessor
             {
                 distanceList[i] *= 2;
             }
-            
-            //Segmentation en objets cohérents
+
+            //Détection des objets saillants
+            bool objetSaillantEnCours = false;
             for (int i = 1; i < angleList.Count; i++)
             {
-                if (Math.Abs(distanceList[i] - distanceList[i - 1]) < 0.02)
+                //On commence un objet saillant sur un front descendant de distance
+                if (distanceList[i] - distanceList[i - 1] < -0.3)
                 {
-                    //On reste sur le même objet
-                    currentObject.AngleList.Add(angleList[i]);
-                    currentObject.DistanceList.Add(distanceList[i]);
-                }
-                else
-                {
-                    if ((distanceList[i] - distanceList[i - 1]) > 0.02)
-                    {
-                        //On a front montant de distance, un objet saillant se termine
-                        ExtractObjectAttributes(currentObject);
-                        if (currentObject.AngleList.Count > 5)
-                            LidarObjectList.Add(currentObject);
-                    }
                     currentObject = new LidarDetectedObject();
                     currentObject.AngleList.Add(angleList[i]);
                     currentObject.DistanceList.Add(distanceList[i]);
+                    objetSaillantEnCours = true;
+                }
+                //On termine un objet saillant sur un front montant de distance
+                if (distanceList[i] - distanceList[i - 1] > 0.3)
+                {
+                    ExtractObjectAttributes(currentObject);
+                    objetSaillantEnCours = false;
+                    if (currentObject.AngleList.Count > 5)
+                        LidarObjectList.Add(currentObject);
+                }
+
+                //Sinon on reste sur le même objet
+                else
+                {
+                    if (objetSaillantEnCours)
+                    {
+                        currentObject.AngleList.Add(angleList[i]);
+                        currentObject.DistanceList.Add(distanceList[i]);
+                    }
                 }
             }
 
