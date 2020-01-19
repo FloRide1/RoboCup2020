@@ -26,16 +26,19 @@ namespace LidarProcessor
 
         void ProcessLidarData(List<double> angleList, List<double> distanceList)
         {
+            double zoomCoeff = 2.3;
             List<double> AngleListProcessed = new List<double>();
             List<double> DistanceListProcessed = new List<double>();
 
-            List<LidarDetectedObject> LidarObjectList = new List<LidarDetectedObject>();
+            List<LidarDetectedObject> ObjetsSaillantsList = new List<LidarDetectedObject>();
+            List<LidarDetectedObject> ObjetsFondList = new List<LidarDetectedObject>();
+            List<LidarDetectedObject> ObjetsPoteauPossible = new List<LidarDetectedObject>();
             LidarDetectedObject currentObject = new LidarDetectedObject();
 
             //A enlever une fois le debug terminé
             for (int i = 1; i < angleList.Count; i++)
             {
-                distanceList[i] *= 2;
+                distanceList[i] *= zoomCoeff;
             }
 
             //Détection des objets saillants
@@ -43,7 +46,7 @@ namespace LidarProcessor
             for (int i = 1; i < angleList.Count; i++)
             {
                 //On commence un objet saillant sur un front descendant de distance
-                if (distanceList[i] - distanceList[i - 1] < -0.3)
+                if (distanceList[i] - distanceList[i - 1] < -0.1 * zoomCoeff)
                 {
                     currentObject = new LidarDetectedObject();
                     currentObject.AngleList.Add(angleList[i]);
@@ -51,14 +54,15 @@ namespace LidarProcessor
                     objetSaillantEnCours = true;
                 }
                 //On termine un objet saillant sur un front montant de distance
-                if (distanceList[i] - distanceList[i - 1] > 0.3)
+                if (distanceList[i] - distanceList[i - 1] > 0.15 * zoomCoeff)
                 {
                     ExtractObjectAttributes(currentObject);
                     objetSaillantEnCours = false;
-                    if (currentObject.AngleList.Count > 5)
-                        LidarObjectList.Add(currentObject);
+                    if (currentObject.AngleList.Count > 20)
+                    {
+                        ObjetsSaillantsList.Add(currentObject);
+                    }
                 }
-
                 //Sinon on reste sur le même objet
                 else
                 {
@@ -70,18 +74,86 @@ namespace LidarProcessor
                 }
             }
 
-            List<PolarPointListExtended> objectList = new List<PolarPointListExtended>();
-            PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
-
-            foreach (var obj in LidarObjectList)
+            //Détection des objets saillants
+            bool objetFondEnCours = false;
+            for (int i = 1; i < angleList.Count; i++)
             {
-                currentPolarPointListExtended = new PolarPointListExtended();
+                //On commence un objet de fond sur un front montant de distance
+                if (distanceList[i] - distanceList[i - 1] > 0.1 * zoomCoeff)
+                {
+                    currentObject = new LidarDetectedObject();
+                    currentObject.AngleList.Add(angleList[i]);
+                    currentObject.DistanceList.Add(distanceList[i]);
+                    objetFondEnCours = true;
+                }
+                //On termine un objet de fond sur un front descendant de distance
+                if (distanceList[i] - distanceList[i - 1] < -0.15 * zoomCoeff)
+                {
+                    ExtractObjectAttributes(currentObject);
+                    objetFondEnCours = false;
+                    if (currentObject.AngleList.Count > 20)
+                    {
+                        ObjetsFondList.Add(currentObject);
+                    }
+                }
+                //Sinon on reste sur le même objet
+                else
+                {
+                    if (objetFondEnCours)
+                    {
+                        currentObject.AngleList.Add(angleList[i]);
+                        currentObject.DistanceList.Add(distanceList[i]);
+                    }
+                }
+            }
+
+            foreach(var obj in ObjetsSaillantsList)
+            {
+                if(Math.Abs(obj.Largeur-0.125*zoomCoeff)<0.1*zoomCoeff)
+                {
+                    ObjetsPoteauPossible.Add(obj);
+                }
+            }
+
+            List<PolarPointListExtended> objectList = new List<PolarPointListExtended>();
+            foreach (var obj in ObjetsSaillantsList)
+            {
+                PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
                 currentPolarPointListExtended.polarPointList = new List<PolarPoint>();
                 //if (obj.Largeur > 0.05 && obj.Largeur < 0.5)
                 {                    
                     for (int i = 0; i < obj.AngleList.Count; i++)
                     {
                         currentPolarPointListExtended.polarPointList.Add(new PolarPoint(obj.DistanceList[i], obj.AngleList[i]));
+                        currentPolarPointListExtended.displayColor = System.Drawing.Color.Red;
+                    }
+                    objectList.Add(currentPolarPointListExtended);
+                }
+            }
+            foreach (var obj in ObjetsPoteauPossible)
+            {
+                PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
+                currentPolarPointListExtended.polarPointList = new List<PolarPoint>();
+                //if (obj.Largeur > 0.05 && obj.Largeur < 0.5)
+                {
+                    for (int i = 0; i < obj.AngleList.Count; i++)
+                    {
+                        currentPolarPointListExtended.polarPointList.Add(new PolarPoint(obj.DistanceList[i], obj.AngleList[i]));
+                        currentPolarPointListExtended.displayColor = System.Drawing.Color.Yellow;
+                    }
+                    objectList.Add(currentPolarPointListExtended);
+                }
+            }
+            foreach (var obj in ObjetsFondList)
+            {
+                PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
+                currentPolarPointListExtended.polarPointList = new List<PolarPoint>();
+                //if (obj.Largeur > 0.05 && obj.Largeur < 0.5)
+                {
+                    for (int i = 0; i < obj.AngleList.Count; i++)
+                    {
+                        currentPolarPointListExtended.polarPointList.Add(new PolarPoint(obj.DistanceList[i], obj.AngleList[i]));
+                        currentPolarPointListExtended.displayColor = System.Drawing.Color.Blue;
                     }
                     objectList.Add(currentPolarPointListExtended);
                 }

@@ -113,7 +113,7 @@ namespace WorldMapManager
                     { 
                         polExt.polarPointList.Add(new PolarPoint(pt.Distance, pt.Angle));
                     }
-                    polExt.displayColor = Color.Blue;// polarPtListExtended.displayColor;
+                    polExt.displayColor = polarPtListExtended.displayColor;
                     localWorldMap.lidarObjectList.Add(polExt);
                 }
             }
