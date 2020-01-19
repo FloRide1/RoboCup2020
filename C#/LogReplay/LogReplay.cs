@@ -23,6 +23,7 @@ namespace LogReplay
         public LogReplay()
         {
             replayThread = new Thread(ReplayLoop);
+            replayThread.SetApartmentState(ApartmentState.STA);
             replayThread.IsBackground = true;
             replayThread.Name = "Replay Thread";
             replayThread.Start();

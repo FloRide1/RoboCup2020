@@ -132,6 +132,7 @@ namespace StrategyManager
         PointD theoreticalOptimalPosDefenseurActif = new PointD(-8, -3);
         PointD theoreticalOptimalPosAttaquantPlace = new PointD(6, 3);
         PointD theoreticalOptimalPosAttaquantAvecBalle = new PointD(6, -3);
+        PointD theoreticalOptimalPosCentre = new PointD(0, 0);
 
         double EvaluateStrategyCostFunction(PlayerRole role, PointD fieldPos)
         {
@@ -178,6 +179,11 @@ namespace StrategyManager
                         }
                         else
                             return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPosAttaquantAvecBalle, fieldPos) / 20.0);
+                    }
+                    break;
+                case PlayerRole.Centre:
+                    {
+                        return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPosCentre, fieldPos) / 20.0);
                     }
                     break;
                 default:
@@ -260,7 +266,8 @@ namespace StrategyManager
         DefenseurPlace,
         DefenseurActif,
         AttaquantAvecBalle,
-        AttaquantPlace
+        AttaquantPlace,
+        Centre,
     }
 
     

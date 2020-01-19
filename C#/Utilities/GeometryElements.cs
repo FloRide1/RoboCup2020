@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Shapes;
 
 namespace Utilities
 {
@@ -18,6 +16,33 @@ namespace Utilities
         }
     }
 
+    public class PolarPoint
+    {
+        public double Distance;
+        public double Angle;
+
+        public PolarPoint(double distance, double angle)
+        {
+            Distance = distance;
+            Angle = angle;
+        }
+    }
+
+    public class PolygonExtended
+    {
+        public Polygon polygon = new Polygon();
+        public float borderWidth = 1;
+        public System.Drawing.Color borderColor = System.Drawing.Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF);
+        public double borderOpacity = 1;
+        public double[] borderDashPattern = new double[] { 1.0 };
+        public System.Drawing.Color backgroundColor = System.Drawing.Color.FromArgb(0x66, 0xFF, 0xFF, 0xFF);
+    }
+
+    public class PolarPointListExtended
+    {
+        public List<PolarPoint> polarPointList;        
+        public System.Drawing.Color displayColor;
+    }
 
     public class Point3D
     {

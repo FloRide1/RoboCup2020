@@ -210,6 +210,7 @@ namespace Robot
             {
                 logReplay.OnLidarEvent += lidarProcessor.OnRawLidarDataReceived;
                 lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
+                lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
             }
 
             //Timer de stratégie
@@ -228,7 +229,7 @@ namespace Robot
         static Random rand = new Random();
         private static void TimerStrategie_Tick(object sender, EventArgs e)
         {
-            var role = (StrategyManager.PlayerRole)rand.Next(1, 5);
+            var role = (StrategyManager.PlayerRole)rand.Next((int)StrategyManager.PlayerRole.Centre, (int)StrategyManager.PlayerRole.Centre);
             strategyManager.SetRole(role);
             strategyManager.ProcessStrategy();
         }
@@ -281,7 +282,7 @@ namespace Robot
             {
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
                 interfaceRobot = new RobotInterface.WpfRobotInterface();
-                //Sur evenement xx              -->>        Action a effectuer
+                //Sur evenement xx        -->>        Action a effectuer
                 msgDecoder.OnMessageDecodedEvent += interfaceRobot.DisplayMessageDecoded;
                 msgDecoder.OnMessageDecodedErrorEvent += interfaceRobot.DisplayMessageDecodedError;
                 

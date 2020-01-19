@@ -49,6 +49,8 @@ namespace WpfControlLibrary
         Dictionary<int, RobotDisplay> TeamMatesDisplayDictionary = new Dictionary<int, RobotDisplay>();
         Dictionary<int, RobotDisplay> OpponentDisplayDictionary = new Dictionary<int, RobotDisplay>();
 
+        List<PolygonExtended> ObjectDisplayList = new List<PolygonExtended>();
+
         //Liste des balles à afficher
         BallDisplay Balle = new BallDisplay();
         //List<BallDisplay> ListBalles = new List<BallDisplay>();
@@ -97,9 +99,11 @@ namespace WpfControlLibrary
         {
             DrawBall();
             DrawTeam();
+            //DrawLidar();
             if (TeamMatesDisplayDictionary.Count == 1) //Cas d'un affichage de robot unique (localWorldMap)
                 DrawHeatMap(TeamMatesDisplayDictionary.First().Key);
             PolygonSeries.RedrawAll();
+            ObjectsPolygonSeries.RedrawAll();
             BallPolygon.RedrawAll();
         }
 
@@ -111,6 +115,7 @@ namespace WpfControlLibrary
             if (localWorldMap.heatMap != null)
                 UpdateHeatMap(robotId, localWorldMap.heatMap.BaseHeatMapData);
             UpdateLidarMap(robotId, localWorldMap.lidarMap);
+            UpdateLidarObjects(robotId, localWorldMap.lidarObjectList);
             UpdateBallLocation(localWorldMap.ballLocation);
         }
 
@@ -165,12 +170,10 @@ namespace WpfControlLibrary
         public void DrawTeam()
         {
             XyDataSeries<double, double> lidarPts = new XyDataSeries<double, double>();
+            ObjectsPolygonSeries.Clear();
+
             foreach (var r in TeamMatesDisplayDictionary)
-            {
-                if (TeamMatesDisplayDictionary.Count > 1)
-                {
-                    int toto = 0;
-                }
+            {               
                 //Affichage des robots
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key, TeamMatesDisplayDictionary[r.Key].GetRobotPolygon());
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Speed, TeamMatesDisplayDictionary[r.Key].GetRobotSpeedArrow());
@@ -181,6 +184,10 @@ namespace WpfControlLibrary
                 lidarPts.AcceptsUnsortedData = true;
                 var lidarData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints();
                 lidarPts.Append(lidarData.XValues, lidarData.YValues);
+
+                //Rendering des objets Lidar
+                foreach (var polygonObject in TeamMatesDisplayDictionary[r.Key].GetRobotLidarObjects())
+                    ObjectsPolygonSeries.AddOrUpdatePolygonExtended(ObjectsPolygonSeries.Count(), polygonObject);
             }
             
             foreach (var r in OpponentDisplayDictionary)
@@ -195,6 +202,16 @@ namespace WpfControlLibrary
             LidarPoints.DataSeries = lidarPts;
         }
 
+        public void DrawLidar()
+        {
+            ObjectsPolygonSeries = new PolygonRenderableSeries();
+            int i = 0;
+            foreach (var r in ObjectDisplayList)
+            {
+                //Affichage des objets détectés par le Lidar
+                PolygonSeries.AddOrUpdatePolygonExtended(i++, r);
+            }
+        }
 
         private void UpdateRobotLocation(int robotId, Location location)
         {
@@ -228,6 +245,16 @@ namespace WpfControlLibrary
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
             {
                 TeamMatesDisplayDictionary[robotId].SetLidarMap(lidarMap);
+            }
+        }
+        
+        private void UpdateLidarObjects(int robotId, List<PolarPointListExtended> lidarObjectList)
+        {
+            if (lidarObjectList == null)
+                return;
+            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
+            {
+                TeamMatesDisplayDictionary[robotId].SetLidarObjectList(lidarObjectList);
             }
         }
 
@@ -299,8 +326,8 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(-12, 8));
             p.polygon.Points.Add(new Point(-12, -8));
             p.borderWidth = fieldLineWidth;
-            p.borderColor = Color.FromArgb(0x00, 0x00, 0x00, 0x00);
-            p.backgroundColor = Color.FromArgb(0xFF, 0x22, 0x22, 0x22);
+            p.borderColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0x00, 0x00);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0xFF, 0x22, 0x22, 0x22);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.ZoneProtegee, p);
 
             p = new PolygonExtended();
@@ -310,7 +337,7 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(11, 7));
             p.polygon.Points.Add(new Point(11, -7));
             p.borderWidth = fieldLineWidth;
-            p.backgroundColor = Color.FromArgb(0xFF, 0x00, 0x66, 0x00);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0xFF, 0x00, 0x66, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.DemiTerrainDroit, p);
 
             p = new PolygonExtended();
@@ -320,7 +347,7 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(-11, 7));
             p.polygon.Points.Add(new Point(-11, -7));
             p.borderWidth = fieldLineWidth;
-            p.backgroundColor = Color.FromArgb(0xFF, 0x00, 0x66, 0x00);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0xFF, 0x00, 0x66, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.DemiTerrainGauche, p);
 
 
@@ -331,7 +358,7 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(-11.00, 1.95));
             p.polygon.Points.Add(new Point(-11.00, -1.95));
             p.borderWidth = fieldLineWidth;
-            p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.SurfaceButGauche, p);
 
             p = new PolygonExtended();
@@ -341,7 +368,7 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(11.00, 1.95));
             p.polygon.Points.Add(new Point(11.00, -1.95));
             p.borderWidth = fieldLineWidth;
-            p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.SurfaceButDroit, p);
 
             p = new PolygonExtended();
@@ -351,7 +378,7 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(11.00, 3.45));
             p.polygon.Points.Add(new Point(11.00, -3.45));
             p.borderWidth = fieldLineWidth;
-            p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.SurfaceReparationDroit, p);
 
             p = new PolygonExtended();
@@ -361,7 +388,7 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(-11.00, 3.45));
             p.polygon.Points.Add(new Point(-11.00, -3.45));
             p.borderWidth = fieldLineWidth;
-            p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.SurfaceReparationGauche, p);
 
             p = new PolygonExtended();
@@ -371,7 +398,7 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(-11.50, -1.20));
             p.polygon.Points.Add(new Point(-11.00, -1.20));
             p.borderWidth = fieldLineWidth;
-            p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.ButGauche, p);
 
             p = new PolygonExtended();
@@ -381,7 +408,7 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(11.50, -1.20));
             p.polygon.Points.Add(new Point(11.00, -1.20));
             p.borderWidth = fieldLineWidth;
-            p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.ButDroit, p);
 
 
@@ -392,8 +419,8 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(-4.00, -8.00));
             p.polygon.Points.Add(new Point(-12.00, -8.00));
             p.borderWidth = fieldLineWidth;
-            p.borderColor = Color.FromArgb(0x00, 0x00, 0x00, 0x00);
-            p.backgroundColor = Color.FromArgb(0xFF, 0x00, 0x00, 0xFF);
+            p.borderColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0x00, 0x00);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0xFF, 0x00, 0x00, 0xFF);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.ZoneTechniqueGauche, p);
 
             p = new PolygonExtended();
@@ -403,8 +430,8 @@ namespace WpfControlLibrary
             p.polygon.Points.Add(new Point(+4.00, -8.00));
             p.polygon.Points.Add(new Point(+12.00, -8.00));
             p.borderWidth = fieldLineWidth;
-            p.borderColor = Color.FromArgb(0x00, 0x00, 0x00, 0x00);
-            p.backgroundColor = Color.FromArgb(0xFF, 0x00, 0x00, 0xFF);
+            p.borderColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0x00, 0x00);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0xFF, 0x00, 0x00, 0xFF);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.ZoneTechniqueDroite, p);
 
             p = new PolygonExtended();
@@ -412,64 +439,54 @@ namespace WpfControlLibrary
             for (int i = 0; i < nbSteps + 1; i++)
                 p.polygon.Points.Add(new Point(1.0f * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 1.0f * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
-            p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.RondCentral, p);
 
             p = new PolygonExtended();
             for (int i = 0; i < (int)(nbSteps / 4) + 1; i++)
                 p.polygon.Points.Add(new Point(-11.00 + 0.75 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), -7.0 + 0.75 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
-            p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.CornerBasGauche, p);
 
             p = new PolygonExtended();
             for (int i = (int)(nbSteps / 4) + 1; i < (int)(2 * nbSteps / 4) + 1; i++)
                 p.polygon.Points.Add(new Point(11 + 0.75 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), -7 + 0.75 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
-            p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.CornerBasDroite, p);
 
             p = new PolygonExtended();
             for (int i = (int)(2 * nbSteps / 4); i < (int)(3 * nbSteps / 4) + 1; i++)
                 p.polygon.Points.Add(new Point(11 + 0.75 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 7 + 0.75 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
-            p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.CornerHautDroite, p);
 
             p = new PolygonExtended();
             for (int i = (int)(3 * nbSteps / 4) + 1; i < (int)(nbSteps) + 1; i++)
                 p.polygon.Points.Add(new Point(-11 + 0.75 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 7 + 0.75 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
-            p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.CornerHautGauche, p);
 
             p = new PolygonExtended();
             for (int i = 0; i < (int)(nbSteps) + 1; i++)
                 p.polygon.Points.Add(new Point(-7.4 + 0.075 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 0.075 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
-            p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.PtAvantSurfaceGauche, p);
 
             p = new PolygonExtended();
             for (int i = 0; i < (int)(nbSteps) + 1; i++)
                 p.polygon.Points.Add(new Point(7.4 + 0.075 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 0.075 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
-            p.backgroundColor = Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.PtAvantSurfaceDroit, p);
 
         }
     }
-
-    public class PolygonExtended
-    {
-        public Polygon polygon = new Polygon();
-        public float borderWidth = 1;
-        public Color borderColor = Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF);
-        public double borderOpacity = 1;
-        public double[] borderDashPattern = new double[] { 1.0 };
-        public Color backgroundColor = Color.FromArgb(0x66, 0xFF, 0xFF, 0xFF);
-    }
-
+    
     public class PolygonRenderableSeries : CustomRenderableSeries
     {
         Dictionary<int, PolygonExtended> polygonList = new Dictionary<int, PolygonExtended>();
@@ -485,6 +502,16 @@ namespace WpfControlLibrary
                 polygonList[id] = p;
             else
                 polygonList.Add(id, p);
+        }
+
+        public void Clear()
+        {
+            polygonList.Clear();
+        }
+
+        public int Count()
+        {
+            return polygonList.Count();
         }
 
         public void RedrawAll()
@@ -510,15 +537,18 @@ namespace WpfControlLibrary
                 {
                     Point initialPoint = GetRenderingPoint(polygon.Points[0]);
 
-
-                    using (var brush = renderContext.CreateBrush(p.Value.backgroundColor))
+                    System.Windows.Media.Color backgroundColor = System.Windows.Media.Color.FromArgb(p.Value.backgroundColor.A, p.Value.backgroundColor.R, p.Value.backgroundColor.G, p.Value.backgroundColor.B);
+                    
+                    using (var brush = renderContext.CreateBrush(backgroundColor))
                     {
                         //IEnumerable<Point> points; // define your points
                         renderContext.FillPolygon(brush, GetRenderingPoints(polygon.Points));
                     }
 
-                    //// Create a pen to draw. Make sure you dispose it!             
-                    using (var linePen = renderContext.CreatePen(p.Value.borderColor, this.AntiAliasing, p.Value.borderWidth, p.Value.borderOpacity, p.Value.borderDashPattern))
+                    //// Create a pen to draw. Make sure you dispose it! 
+                    System.Windows.Media.Color borderColor = System.Windows.Media.Color.FromArgb(p.Value.borderColor.A, p.Value.borderColor.R, p.Value.borderColor.G, p.Value.borderColor.B);
+
+                    using (var linePen = renderContext.CreatePen(borderColor, this.AntiAliasing, p.Value.borderWidth, p.Value.borderOpacity, p.Value.borderDashPattern))
                     {
                         using (var lineDrawingContext = renderContext.BeginLine(linePen, initialPoint.X, initialPoint.Y))
                         {
@@ -574,8 +604,9 @@ namespace WpfControlLibrary
         List<PointD> lidarMap;
         List<Location> opponentLocationList;
         List<Location> teamLocationList;
+        List<PolarPointListExtended> lidarObjectList;
 
-        Color displayColor;
+        System.Drawing.Color displayColor;
         int displayTransparency = 0xFF;
 
         public RobotDisplay(PolygonExtended pe, System.Drawing.Color color, double transparency)
@@ -586,7 +617,7 @@ namespace WpfControlLibrary
             shape = pe;
             lidarMap = new List<PointD>();
             displayTransparency = (int)(transparency*255);
-            displayColor = System.Windows.Media.Color.FromArgb((byte)displayTransparency, color.R, color.G, color.B);
+            displayColor = System.Drawing.Color.FromArgb((byte)displayTransparency, color.R, color.G, color.B);
         }
 
         public void SetPosition(double x, double y, double theta)
@@ -622,6 +653,10 @@ namespace WpfControlLibrary
         public void SetLidarMap(List<PointD> lidarMap)
         {
             this.lidarMap = lidarMap;
+        }
+        public void SetLidarObjectList(List<PolarPointListExtended> lidarObjectList)
+        {
+            this.lidarObjectList = lidarObjectList;
         }
 
         public void SetOpponentLocationList(List<Location> list)
@@ -677,10 +712,10 @@ namespace WpfControlLibrary
             polygonToDisplay.polygon.Points.Add(new Point(location.X + xTete - longueurTeteFleche * Math.Cos(angleTeteFleche2), location.Y + yTete - longueurTeteFleche * Math.Sin(angleTeteFleche2)));
             polygonToDisplay.polygon.Points.Add(new Point(location.X + xTete, location.Y + yTete));
             polygonToDisplay.borderWidth = 2;
-            polygonToDisplay.borderColor = Color.FromArgb(0xFF, 0xFF, 0x00, 0x00);
+            polygonToDisplay.borderColor = System.Drawing.Color.FromArgb(0xFF, 0xFF, 0x00, 0x00);
             polygonToDisplay.borderDashPattern = new double[] { 3, 3 };
             polygonToDisplay.borderOpacity = 1;
-            polygonToDisplay.backgroundColor = Color.FromArgb(0x00, 0x00, 0x00, 0x00);
+            polygonToDisplay.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0x00, 0x00);
             return polygonToDisplay;
         }
         public PolygonExtended GetRobotDestinationArrow()
@@ -699,10 +734,10 @@ namespace WpfControlLibrary
             polygonToDisplay.polygon.Points.Add(new Point(destinationLocation.X - longueurTeteFleche * Math.Cos(angleTeteFleche2), destinationLocation.Y - longueurTeteFleche * Math.Sin(angleTeteFleche2)));
             polygonToDisplay.polygon.Points.Add(new Point(destinationLocation.X, destinationLocation.Y));
             polygonToDisplay.borderWidth = 5;
-            polygonToDisplay.borderColor = Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF);
+            polygonToDisplay.borderColor = System.Drawing.Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF);
             polygonToDisplay.borderDashPattern = new double[] { 5, 5 };
             polygonToDisplay.borderOpacity = 0.4;
-            polygonToDisplay.backgroundColor = Color.FromArgb(0x00, 0x00, 0x00, 0x00);
+            polygonToDisplay.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0x00, 0x00);
             return polygonToDisplay;
         }
         public PolygonExtended GetRobotWaypointArrow()
@@ -726,26 +761,38 @@ namespace WpfControlLibrary
 
         public XyDataSeries<double, double> GetRobotLidarPoints()
         {
-
             var dataSeries = new XyDataSeries<double, double>();
             if (lidarMap == null)
                 return dataSeries;
 
             var listX = lidarMap.Select(e => e.X);
             var listY = lidarMap.Select(e => e.Y);
-
-            //int nbSteps = 1000;
-            //List<double> listX = new List<double>();
-            //List<double> listY = new List<double>();
-            //for (int i = 0; i < nbSteps + 1; i++)
-            //{
-            //    listX.Add(location.X + (4.0f + 2 * rand.Next(-50, 50) / 100.0) * Math.Cos((double)i * (2 * Math.PI / nbSteps)));
-            //    listY.Add(location.Y + (4.0f + 2 * rand.Next(-50, 50) / 100.0) * Math.Sin((double)i * (2 * Math.PI / nbSteps)));
-            //}
-            dataSeries.Clear();
+            
+            //dataSeries.Clear();
             dataSeries.AcceptsUnsortedData = true;
             dataSeries.Append(listX, listY);
             return dataSeries;
+        }
+
+        public List<PolygonExtended> GetRobotLidarObjects()
+        {
+            var polygonExtendedList = new List<PolygonExtended>();
+            if (this.lidarObjectList == null)
+                return polygonExtendedList;
+
+            foreach (var obj in this.lidarObjectList)
+            {
+                PolygonExtended polygonToDisplay = new PolygonExtended();
+                foreach (var pt in obj.polarPointList)
+                {
+                    polygonToDisplay.polygon.Points.Add(new Point(location.X + pt.Distance * Math.Cos(pt.Angle), location.Y + pt.Distance * Math.Sin(pt.Angle)));
+                }
+                polygonToDisplay.borderColor = obj.displayColor;
+                polygonToDisplay.borderWidth = 4;
+                polygonToDisplay.backgroundColor = obj.displayColor;
+                polygonExtendedList.Add(polygonToDisplay);
+            }
+            return polygonExtendedList;
         }
     }
 
@@ -753,8 +800,8 @@ namespace WpfControlLibrary
     {
         private Random rand = new Random();
         private Location location = new Location(0,0,0,0,0,0);
-        private Color backgroundColor = Color.FromArgb(0xFF, 0xFF, 0xF2, 0x00);
-        private Color borderColor = Color.FromArgb(0xFF, 0x00, 0x00, 0x00);
+        private System.Drawing.Color backgroundColor = System.Drawing.Color.FromArgb(0xFF, 0xFF, 0xF2, 0x00);
+        private System.Drawing.Color borderColor = System.Drawing.Color.FromArgb(0xFF, 0x00, 0x00, 0x00);
         private int borderWidth = 2;
 
         public BallDisplay()
@@ -830,10 +877,10 @@ namespace WpfControlLibrary
                 polygonToDisplay.polygon.Points.Add(new Point(location.X + xTete - longueurTeteFleche * Math.Cos(angleTeteFleche2), location.Y + yTete - longueurTeteFleche * Math.Sin(angleTeteFleche2)));
                 polygonToDisplay.polygon.Points.Add(new Point(location.X + xTete, location.Y + yTete));
                 polygonToDisplay.borderWidth = 2;
-                polygonToDisplay.borderColor = Color.FromArgb(0xFF, 0xFF, 0x00, 0x00);
+                polygonToDisplay.borderColor = System.Drawing.Color.FromArgb(0xFF, 0xFF, 0x00, 0x00);
                 polygonToDisplay.borderDashPattern = new double[] { 3, 3 };
                 polygonToDisplay.borderOpacity = 1;
-                polygonToDisplay.backgroundColor = Color.FromArgb(0x00, 0x00, 0x00, 0x00);
+                polygonToDisplay.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0x00, 0x00);
             }
             return polygonToDisplay;
         }

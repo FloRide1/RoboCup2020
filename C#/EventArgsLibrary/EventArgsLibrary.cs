@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utilities;
 using WorldMap;
 
 namespace EventArgsLibrary
@@ -152,5 +153,10 @@ namespace EventArgsLibrary
         public int RobotId { get; set; }
         public List<double> AngleList { get; set; }
         public List<double> DistanceList { get; set; }
+    }
+    public class PolarPointListExtendedListArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+        public List<PolarPointListExtended> ObjectList { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using EventArgsLibrary;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -93,6 +94,28 @@ namespace WorldMapManager
                                                localWorldMap.robotLocation.Y + e.DistanceList[i] * Math.Sin(e.AngleList[i])));
                 }
                 localWorldMap.lidarMap = listPtLidar;
+            }
+        }
+
+        public void OnLidarObjectsReceived(object sender, EventArgsLibrary.PolarPointListExtendedListArgs e)
+        {
+            if (localWorldMap == null || localWorldMap.robotLocation == null)
+                return;
+            if (RobotId == e.RobotId)
+            {
+                localWorldMap.lidarObjectList = new List<PolarPointListExtended>();
+                foreach (var polarPtListExtended in e.ObjectList)
+                {
+                    PolarPointListExtended polExt = new PolarPointListExtended();
+                    polExt.polarPointList = new List<PolarPoint>();
+
+                    foreach(var pt in polarPtListExtended.polarPointList)
+                    { 
+                        polExt.polarPointList.Add(new PolarPoint(pt.Distance, pt.Angle));
+                    }
+                    polExt.displayColor = Color.Blue;// polarPtListExtended.displayColor;
+                    localWorldMap.lidarObjectList.Add(polExt);
+                }
             }
         }
 

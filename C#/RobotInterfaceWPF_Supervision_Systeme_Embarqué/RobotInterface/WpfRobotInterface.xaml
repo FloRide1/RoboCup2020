@@ -85,7 +85,7 @@
                 <ColumnDefinition Width="3*"/>
                 <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
-            <ext:WorldMapDisplay x:Name="worldMapDisplay" Grid.Column="1" Grid.ColumnSpan="1" Grid.Row="3" Loaded="worldMapDisplay_Loaded" MouseDoubleClick="worldMapDisplay_MouseDoubleClick">
+            <ext:WorldMapDisplay x:Name="worldMapDisplay" Grid.Column="1" Grid.ColumnSpan="1" Grid.Row="3" MouseDoubleClick="worldMapDisplay_MouseDoubleClick">
             </ext:WorldMapDisplay>
         </Grid>
 

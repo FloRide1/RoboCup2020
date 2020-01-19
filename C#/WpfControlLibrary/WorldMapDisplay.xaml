@@ -44,6 +44,9 @@
                         </s:HeatmapColorPalette>
                     </s:FastUniformHeatmapRenderableSeries.ColorMap>
                 </s:FastUniformHeatmapRenderableSeries>
+
+                <local:PolygonRenderableSeries x:Name="ObjectsPolygonSeries" Opacity="1" >
+                </local:PolygonRenderableSeries>
             </s:SciChartSurface.RenderableSeries>
 
         </s:SciChartSurface>

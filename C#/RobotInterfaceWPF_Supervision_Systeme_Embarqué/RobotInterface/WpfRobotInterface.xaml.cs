@@ -310,14 +310,7 @@ namespace RobotInterface
 
         bool isWorldMapZoomed = false;
         double worldMapZoomFactor = 5;
-        int lastWorldMapZoomedCol = 0;
-        int lastWorldMapZoomedRow = 0;
-
-        private void worldMapDisplay_Loaded(object sender, RoutedEventArgs e)
-        {
-           
-        }
-
+        
         private void worldMapDisplay_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             WorldMapDisplay s = (WorldMapDisplay)sender;

@@ -32,6 +32,12 @@ namespace LidarProcessor
             List<LidarDetectedObject> LidarObjectList = new List<LidarDetectedObject>();
             LidarDetectedObject currentObject = new LidarDetectedObject();
 
+            //A enlever une fois le debug terminé
+            for (int i = 1; i < angleList.Count; i++)
+            {
+                distanceList[i] *= 2;
+            }
+            
             //Segmentation en objets cohérents
             for (int i = 1; i < angleList.Count; i++)
             {
@@ -56,20 +62,27 @@ namespace LidarProcessor
                 }
             }
 
+            List<PolarPointListExtended> objectList = new List<PolarPointListExtended>();
+            PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
+
             foreach (var obj in LidarObjectList)
             {
-                if (obj.Largeur > 0.05 && obj.Largeur < 0.2)
-                {
+                currentPolarPointListExtended = new PolarPointListExtended();
+                currentPolarPointListExtended.polarPointList = new List<PolarPoint>();
+                //if (obj.Largeur > 0.05 && obj.Largeur < 0.5)
+                {                    
                     for (int i = 0; i < obj.AngleList.Count; i++)
                     {
-                        AngleListProcessed.Add(obj.AngleList[i]);
-                        DistanceListProcessed.Add(obj.DistanceList[i]);
+                        currentPolarPointListExtended.polarPointList.Add(new PolarPoint(obj.DistanceList[i], obj.AngleList[i]));
                     }
+                    objectList.Add(currentPolarPointListExtended);
                 }
             }
-            OnLidarProcessed(robotId, AngleListProcessed, DistanceListProcessed);
+            //OnLidarProcessed(robotId, AngleListProcessed, DistanceListProcessed);
 
-            //OnLidarProcessed(robotId, angleList, distanceList);
+            OnLidarProcessed(robotId, angleList, distanceList);
+            OnLidarObjectProcessed(robotId, objectList);
+
         }
 
         public void ExtractObjectAttributes(LidarDetectedObject obj)
@@ -89,6 +102,17 @@ namespace LidarProcessor
             if (handler != null)
             {
                 handler(this, new RawLidarArgs { RobotId = id, AngleList = angleList, DistanceList = distanceList });
+            }
+        }
+
+        public delegate void LidarObjectProcessedEventHandler(object sender, PolarPointListExtendedListArgs e);
+        public event EventHandler<PolarPointListExtendedListArgs> OnLidarObjectProcessedEvent;
+        public virtual void OnLidarObjectProcessed(int id, List<PolarPointListExtended> objectList)
+        {
+            var handler = OnLidarObjectProcessedEvent;
+            if (handler != null)
+            {
+                handler(this, new PolarPointListExtendedListArgs { RobotId = id, ObjectList = objectList});
             }
         }
     }
