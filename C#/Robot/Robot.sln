@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29503.13
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.106
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Robot", "Robot.csproj", "{F48FF3AC-50C6-4016-8F67-F5430FED1A2C}"
 EndProject
@@ -82,6 +82,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogReplay", "..\LogReplay\LogReplay.csproj", "{4A227E8F-4045-4418-98A0-228C0ACC30FF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LidarProcessor", "..\LidarProcessor\LidarProcessor.csproj", "{3C4270CF-77BA-4100-BBAB-6E2802C49478}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alturos.Yolo", "..\Alturos.Yolo\Alturos.Yolo.csproj", "{BFDB287F-7E23-4D44-B114-DF2E05C2CF04}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alturos.Yolo.TestUI", "..\Alturos.Yolo.TestUI\Alturos.Yolo.TestUI.csproj", "{2923401A-6C84-455A-A6CC-A13A70E13D63}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -249,6 +253,14 @@ Global
 		{3C4270CF-77BA-4100-BBAB-6E2802C49478}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C4270CF-77BA-4100-BBAB-6E2802C49478}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C4270CF-77BA-4100-BBAB-6E2802C49478}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFDB287F-7E23-4D44-B114-DF2E05C2CF04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFDB287F-7E23-4D44-B114-DF2E05C2CF04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFDB287F-7E23-4D44-B114-DF2E05C2CF04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFDB287F-7E23-4D44-B114-DF2E05C2CF04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2923401A-6C84-455A-A6CC-A13A70E13D63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2923401A-6C84-455A-A6CC-A13A70E13D63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2923401A-6C84-455A-A6CC-A13A70E13D63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2923401A-6C84-455A-A6CC-A13A70E13D63}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
