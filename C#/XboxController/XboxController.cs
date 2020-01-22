@@ -117,7 +117,7 @@ namespace XBoxController
                     VthetaRampe = Vtheta;
                 }
 
-                OnSpeedConsigneToRobot(robotId, (float)VyRampe, (float)VxRampe, (float)VthetaRampe);
+                OnSpeedConsigneToRobot(robotId, (float)VxRampe, (float)VyRampe, (float)VthetaRampe);
                 //OnPriseBalleToRobot(2, (float)(Vx*33.3));
                 OnPriseBalleToRobot(5, (float)vitessePriseBalle);
                 OnPriseBalleToRobot(6, (float)-vitessePriseBalle);
