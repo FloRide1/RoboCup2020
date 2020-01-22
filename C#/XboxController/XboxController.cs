@@ -33,8 +33,8 @@ namespace XBoxController
         bool useRampe = false;
         private void TimerGamepad_Elapsed(object sender, ElapsedEventArgs e)
         {
-            double VLinMax = 0.30;
-            double VThetaMax = 0.60;
+            double VLinMax = 1.2;
+            double VThetaMax = 2.0;
             double valeurRampe = 0.6;
             double Vx;
             double Vy;
@@ -47,12 +47,12 @@ namespace XBoxController
                 if (Math.Abs((float)gamepad.LeftThumbY) < deadband)
                     Vx = 0;
                 else
-                    Vx = (float)gamepad.LeftThumbY / short.MinValue * VLinMax;
+                    Vx = -(float)gamepad.LeftThumbY / short.MinValue * VLinMax;
 
                 if (Math.Abs((float)gamepad.LeftThumbX) < deadband)
                     Vy = 0;
                 else
-                    Vy = -(float)gamepad.LeftThumbX / short.MinValue * VLinMax;
+                    Vy = (float)gamepad.LeftThumbX / short.MinValue * VLinMax;
 
                 if (Math.Abs((float)gamepad.RightThumbX) < deadband)
                     Vtheta = 0;
