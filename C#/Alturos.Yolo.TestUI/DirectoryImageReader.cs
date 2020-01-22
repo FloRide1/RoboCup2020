@@ -13,6 +13,7 @@ namespace Alturos.Yolo.TestUI
         {
             var allowedFileExtensions = new string[] { ".bmp", ".jpg", ".png" };
 
+
             var files = Directory.GetFiles(path);
             foreach (var file in files)
             {

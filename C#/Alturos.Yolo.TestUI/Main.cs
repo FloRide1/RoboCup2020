@@ -30,14 +30,18 @@ namespace Alturos.Yolo.TestUI
             this.dataGridViewResult.AutoGenerateColumns = false;
             this.richTextBoxConsole.Text += "==========STARTUP==========\n";
             this.richTextBoxConsole.Text += "--Loading \\Images directory\n";
-            var imageInfos = new DirectoryImageReader().Analyze(@".\Images");
-            if(imageInfos.Count()!=0)
-            {;
-                foreach (var o in imageInfos.ToList())
+            if (Directory.Exists(@".\Images"))
+            {
+                var imageInfos = new DirectoryImageReader().Analyze(@".\Images");
+                if (imageInfos.Count() != 0)
                 {
-                    this.richTextBoxConsole.Text += o.Name + " loaded\n";
+                    ;
+                    foreach (var o in imageInfos.ToList())
+                    {
+                        this.richTextBoxConsole.Text += o.Name + " loaded\n";
+                    }
+                    this.dataGridViewFiles.DataSource = imageInfos.ToList();
                 }
-                this.dataGridViewFiles.DataSource = imageInfos.ToList();
             }
             
 
@@ -191,7 +195,7 @@ namespace Alturos.Yolo.TestUI
 
             if (config == null)
             {
-                this.richTextBoxConsole.Text += "Cannot find Config files";
+                this.richTextBoxConsole.Invoke(new MethodInvoker(delegate () { this.richTextBoxConsole.Text += "Cannot find Config files\n"; }));
                 this.toolStripStatusLabelYoloInfo.Text = "Cannot find Config files";
                 return;
             }
