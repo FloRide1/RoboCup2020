@@ -326,6 +326,10 @@ namespace Alturos.Yolo.TestUI
                 if (imageInfos.Count() != 0)
                 {
                     List<ImageInfo> lst = (List<ImageInfo>)dataGridViewFiles.DataSource;
+                    if(lst==null)
+                    {
+                        lst = new List<ImageInfo>();
+                    }
                     foreach (var o in imageInfos.ToList())
                     {
                         this.richTextBoxConsole.Text += o.Name + " loaded\n";
