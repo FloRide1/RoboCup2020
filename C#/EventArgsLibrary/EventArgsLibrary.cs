@@ -89,7 +89,19 @@ namespace EventArgsLibrary
         public double motor6;
         public double motor7;
     }
-    
+
+    public class EncodersDataEventArgs : EventArgs
+    {
+        public uint timeStampMS;
+        public double vitesseMotor1;
+        public double vitesseMotor2;
+        public double vitesseMotor3;
+        public double vitesseMotor4;
+        public double vitesseMotor5;
+        public double vitesseMotor6;
+        public double vitesseMotor7;
+    }
+
 
     public class AccelEventArgs : EventArgs
     {

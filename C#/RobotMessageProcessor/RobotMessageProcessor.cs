@@ -26,12 +26,13 @@ namespace RobotMessageProcessor
         //Une fois processé, le message sera transformé en event sortant
         public void ProcessDecodedMessage(Int16 command, Int16 payloadLength, byte[] payload)
         {
-            switch(command)
+            byte[] tab;
+            switch (command)
             {
                 case (short)Commands.IMUData:
                     {
                         uint timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
-                        byte[] tab = payload.GetRange(4, 4);
+                        tab  = payload.GetRange(4, 4);
                         float accelX = tab.GetFloat();
                         tab = payload.GetRange(8, 4);
                         float accelY = tab.GetFloat();
@@ -54,24 +55,43 @@ namespace RobotMessageProcessor
 
                 case (short)Commands.MotorCurrents:
                     {
-                        uint time = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
-                        byte[] tab = payload.GetRange(4, 4);
-                        float motor1Current = tab.GetFloat();
-                        tab = payload.GetRange(8, 4);
-                        float motor2Current = tab.GetFloat();
-                        tab = payload.GetRange(12, 4);
-                        float motor3Current = tab.GetFloat();
-                        tab = payload.GetRange(16, 4);
-                        float motor4Current = tab.GetFloat();
-                        tab = payload.GetRange(20, 4);
-                        float motor5Current = tab.GetFloat();
-                        tab = payload.GetRange(24, 4);
-                        float motor6Current = tab.GetFloat();
-                        tab = payload.GetRange(28, 4);
-                        float motor7Current = tab.GetFloat();
+                        uint time2 = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                        byte[] tab2 = payload.GetRange(4, 4);
+                        float motor1Current = tab2.GetFloat();
+                        tab2 = payload.GetRange(8, 4);
+                        float motor2Current = tab2.GetFloat();
+                        tab2 = payload.GetRange(12, 4);
+                        float motor3Current = tab2.GetFloat();
+                        tab2 = payload.GetRange(16, 4);
+                        float motor4Current = tab2.GetFloat();
+                        tab2 = payload.GetRange(20, 4);
+                        float motor5Current = tab2.GetFloat();
+                        tab2 = payload.GetRange(24, 4);
+                        float motor6Current = tab2.GetFloat();
+                        tab2 = payload.GetRange(28, 4);
+                        float motor7Current = tab2.GetFloat();
                         //On envois l'event aux abonnés
-                        OnMotorsCurrentsFromRobot(time, motor1Current, motor2Current, motor3Current, motor4Current, motor5Current, motor6Current, motor7Current);
+                        OnMotorsCurrentsFromRobot(time2, motor1Current, motor2Current, motor3Current, motor4Current, motor5Current, motor6Current, motor7Current);
                     }
+                    break;
+                case (short)Commands.EncoderData:
+                    uint time = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                    tab = payload.GetRange(4, 4);
+                    float vitesseMotor1 = tab.GetFloat();
+                    tab = payload.GetRange(8, 4);
+                    float vitesseMotor2 = tab.GetFloat();
+                    tab = payload.GetRange(12, 4);
+                    float vitesseMotor3 = tab.GetFloat();
+                    tab = payload.GetRange(16, 4);
+                    float vitesseMotor4 = tab.GetFloat();
+                    tab = payload.GetRange(20, 4);
+                    float vitesseMotor5 = tab.GetFloat();
+                    tab = payload.GetRange(24, 4);
+                    float vitesseMotor6 = tab.GetFloat();
+                    tab = payload.GetRange(28, 4);
+                    float vitesseMotor7 = tab.GetFloat();
+                    //On envois l'event aux abonnés
+                    OnEncodersDataFromRobot(time, vitesseMotor1, vitesseMotor2, vitesseMotor3, vitesseMotor4, vitesseMotor5, vitesseMotor6, vitesseMotor7);
                     break;
                 case (short)Commands.EnableDisableMotors:
                     bool value = Convert.ToBoolean(payload[0]);
@@ -137,6 +157,27 @@ namespace RobotMessageProcessor
                                                                 motor5 = m5A,
                                                                 motor6 = m6A,
                                                                 motor7 = m7A});
+            }
+        }
+
+        public delegate void EncodersDataEventHandler(object sender, EncodersDataEventArgs e);
+        public event EventHandler<EncodersDataEventArgs> OnEncodersDataFromRobotGeneratedEvent;
+        public virtual void OnEncodersDataFromRobot(uint timeStamp, double m1, double m2, double m3,
+                                                                        double m4, double m5, double m6, double m7)
+        {
+            var handler = OnEncodersDataFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new EncodersDataEventArgs {
+                    timeStampMS = timeStamp,
+                    vitesseMotor1 = m1,
+                    vitesseMotor2 = m2,
+                    vitesseMotor3 = m3,
+                    vitesseMotor4 = m4,
+                    vitesseMotor5 = m5,
+                    vitesseMotor6 = m6,
+                    vitesseMotor7 = m7
+                });
             }
         }
 

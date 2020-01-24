@@ -129,6 +129,14 @@ namespace RobotInterface
             oscilloM4.AddPointToLine(1, e.timeStampMS / 1000.0, e.motor4);
         }
 
+        public void UpdateMotorsSpeedsOnGraph(object sender, EncodersDataEventArgs e)
+        {
+            oscilloM1.AddPointToLine(0, e.timeStampMS / 1000.0, e.vitesseMotor1);
+            oscilloM2.AddPointToLine(0, e.timeStampMS / 1000.0, e.vitesseMotor2);
+            oscilloM3.AddPointToLine(0, e.timeStampMS / 1000.0, e.vitesseMotor3);
+            oscilloM4.AddPointToLine(0, e.timeStampMS / 1000.0, e.vitesseMotor4);
+        }
+
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (WindowState == WindowState.Maximized)
