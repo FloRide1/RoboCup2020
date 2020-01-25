@@ -200,9 +200,15 @@ namespace RobotInterface
             ButtonDisableMotors.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
             {
                 if (!e.value)
+                {
                     ButtonDisableMotors.Content = "Enable Motors";
+                    motorsDisabled = true;
+                }
                 else
+                {
                     ButtonDisableMotors.Content = "Disable Motors";
+                    motorsDisabled = false;
+                }
             }));
         }
 
@@ -225,6 +231,43 @@ namespace RobotInterface
                     ButtonEnableDisableTir.Content = "Enable Tir";
                 else
                     ButtonEnableDisableTir.Content = "Disable Tir";
+            }));
+        }
+
+        //Methode appelée sur evenement (event) provenant du port Serie.
+        //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
+        public void ActualizeEnableAsservissementButton(object sender, BoolEventArgs e)
+        {
+            //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
+            //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
+            //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
+            //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
+            ButtonEnableAsservissement.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
+            {
+                if (!e.value)
+                {
+                    ButtonEnableAsservissement.Content = "Enable Asservissement";
+                    asservissementEnable = false;
+                }
+                else
+                {
+                    ButtonEnableAsservissement.Content = "Disable Asservissement";
+                    asservissementEnable = true;
+                }
+            }));
+        }
+
+        //Methode appelée sur evenement (event) provenant du port Serie.
+        //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
+        public void AppendConsole(object sender, StringEventArgs e)
+        {
+            //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
+            //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
+            //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
+            //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
+            textBoxConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
+            {
+                textBoxConsole.Text += e.value+'\n';
             }));
         }
 
@@ -291,7 +334,16 @@ namespace RobotInterface
                 handler(this, new BoolEventArgs { value = val });
             }
         }
-
+        //public delegate void EnableDisableTirEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<BoolEventArgs> OnEnableAsservissementFromInterfaceGeneratedEvent;
+        public virtual void OnEnableAsservissementFromInterface(bool val)
+        {
+            var handler = OnEnableAsservissementFromInterfaceGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = val });
+            }
+        }
         //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
         public event EventHandler<BoolEventArgs> OnEnableDisableControlManetteFromInterfaceGeneratedEvent;
         public virtual void OnEnableDisableControlManetteFromInterface(bool val)
@@ -343,6 +395,18 @@ namespace RobotInterface
                 GridApplication.RowDefinitions[row].Height = new GridLength(GridApplication.RowDefinitions[row].Height.Value / worldMapZoomFactor, GridUnitType.Star);
                 isWorldMapZoomed = false;
             }
+        }
+
+        bool asservissementEnable = false;
+        private void ButtonEnableAsservissement_Click(object sender, RoutedEventArgs e)
+        {
+            if (asservissementEnable)
+            {
+                OnEnableAsservissementFromInterface(false);
+                
+            }
+            else
+                OnEnableAsservissementFromInterface(true);
         }
     }
 }

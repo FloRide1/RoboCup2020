@@ -114,6 +114,10 @@ namespace EventArgsLibrary
     {
         public bool value { get; set; }
     }
+    public class StringEventArgs : EventArgs
+    {
+        public string value { get; set; }
+    }
     public class SpeedConsigneToMotorArgs : EventArgs
     {
         public float V { get; set; }

@@ -82,16 +82,17 @@ namespace Constants
         AddDeplacement = 425,
         SetAccelSpeed = 426,
         SetSpeedConsigne = 427,
-        AsservissementData = 428,
+        AsservissementData = 428,       //0x01AC
         SetTrajectoryState = 429,
         SetRobotVariable = 430,
-        OdometryData = 431,
+        OdometryData = 431,             //0x01AF
         GetParameter = 432,
         SetParameter = 433,
         SetMotorSpeedConsigne = 434,
-        EnableDisableMotors = 435,
-        EnableDisableTir = 436,
-        MotorCurrents= 437,
+        EnableDisableMotors = 435,      //0x01B3
+        EnableDisableTir = 436,         //0x01B4
+        MotorCurrents= 437,             //0x01B5
+        EnableAsservissement=438,       //0x01B6
         GetCamera = 443,
         TirCommand = 444,
         MoveTirUp = 445,
@@ -117,6 +118,8 @@ namespace Constants
         // Commandes haut niveau
 
         GoToXYTheta = 1000,
+
+        ErrorTextMessage=-4370,
 
 #pragma warning restore CS1591
         #endregion

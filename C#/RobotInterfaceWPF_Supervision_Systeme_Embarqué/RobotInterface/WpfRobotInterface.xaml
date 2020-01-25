@@ -72,6 +72,7 @@
                     <CheckBox Name="CheckBoxControlManette" Content="Enable Manette" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Checked="CheckBox_CheckedChanged" Unchecked="CheckBox_CheckedChanged"/>
                     <Button Name="ButtonDisableMotors" Grid.ColumnSpan="2" Content="Disable Motors" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="85" Click="ButtonDisableMotors_Click"/>
                     <Button Name="ButtonEnableDisableTir" Grid.ColumnSpan="2" Content="Enable Tir" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="1" VerticalAlignment="Top" Width="85" Click="ButtonEnableDisableTir_Click"/>
+                    <Button Name="ButtonEnableAsservissement" Grid.ColumnSpan="2" Content="Enable Asservissement" Grid.Column="1" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="0" VerticalAlignment="Top" Width="74" Click="ButtonEnableAsservissement_Click"/>
                 </Grid>
             </GroupBox>
             <GroupBox Grid.Column="1" Header="Console" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Stretch">

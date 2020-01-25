@@ -103,6 +103,16 @@ namespace RobotMessageProcessor
                     //On envois l'event aux abonnés
                     OnEnableDisableTirACKFromRobot(value);
                     break;
+                case (short)Commands.EnableAsservissement:
+                    value = Convert.ToBoolean(payload[0]);
+                    //On envois l'event aux abonnés
+                    OnEnableAsservissementACKFromRobot(value);
+                    break;
+                case (short)Commands.ErrorTextMessage:
+                    string errorMsg= Convert.ToString(payload);
+                    //On envois l'event aux abonnés
+                    OnErrorTextFromRobot(errorMsg);
+                    break;
                 default: break;
             }
         }
@@ -138,6 +148,28 @@ namespace RobotMessageProcessor
             if (handler != null)
             {
                 handler(this, new BoolEventArgs { value = isEnabled });
+            }
+        }
+
+        public delegate void EnableEnableAsservissementEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<BoolEventArgs> OnEnableAsservissementACKFromRobotGeneratedEvent;
+        public virtual void OnEnableAsservissementACKFromRobot(bool isEnabled)
+        {
+            var handler = OnEnableAsservissementACKFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = isEnabled });
+            }
+        }
+
+        public delegate void ErrorTextMessageEventHandler(object sender, StringEventArgs e);
+        public event EventHandler<StringEventArgs> OnErrorTextFromRobotGeneratedEvent;
+        public virtual void OnErrorTextFromRobot(string str)
+        {
+            var handler = OnErrorTextFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new StringEventArgs { value = str });
             }
         }
 
