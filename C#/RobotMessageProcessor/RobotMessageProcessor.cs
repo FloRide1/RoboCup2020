@@ -27,11 +27,25 @@ namespace RobotMessageProcessor
         public void ProcessDecodedMessage(Int16 command, Int16 payloadLength, byte[] payload)
         {
             byte[] tab;
+            uint timeStamp;
             switch (command)
             {
+                case (short)Commands.XYTheta_Speed:
+                    {
+                        timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                        tab = payload.GetRange(4, 4);
+                        float vX = tab.GetFloat();
+                        tab = payload.GetRange(8, 4);
+                        float vY = tab.GetFloat();
+                        tab = payload.GetRange(12, 4);
+                        float vTheta = tab.GetFloat();
+                        OnSpeedDataFromRobot(timeStamp, vX, vY, vTheta);
+
+                    }
+                    break;
                 case (short)Commands.IMUData:
                     {
-                        uint timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                        timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
                         tab  = payload.GetRange(4, 4);
                         float accelX = tab.GetFloat();
                         tab = payload.GetRange(8, 4);
@@ -109,7 +123,7 @@ namespace RobotMessageProcessor
                     OnEnableAsservissementACKFromRobot(value);
                     break;
                 case (short)Commands.ErrorTextMessage:
-                    string errorMsg= Convert.ToString(payload);
+                    string errorMsg= Encoding.UTF8.GetString(payload);
                     //On envois l'event aux abonnés
                     OnErrorTextFromRobot(errorMsg);
                     break;
@@ -209,6 +223,23 @@ namespace RobotMessageProcessor
                     vitesseMotor5 = m5,
                     vitesseMotor6 = m6,
                     vitesseMotor7 = m7
+                });
+            }
+        }
+
+        //public delegate void VxVyVThetaDataEventHandler(object sender, SpeedDataEventArgs e);
+        public event EventHandler<SpeedDataEventArgs> OnSpeedDataFromRobotGeneratedEvent;
+        public virtual void OnSpeedDataFromRobot(uint timeStamp, double vX, double vY, double vTheta)
+        {
+            var handler = OnSpeedDataFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new SpeedDataEventArgs
+                {
+                    timeStampMS = timeStamp,
+                    Vx = (float)vX,
+                    Vy = (float)vY,
+                    Vtheta = (float)vTheta
                 });
             }
         }
