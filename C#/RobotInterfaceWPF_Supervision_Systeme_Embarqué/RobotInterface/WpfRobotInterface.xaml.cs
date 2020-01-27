@@ -114,13 +114,7 @@ namespace RobotInterface
             oscilloY.AddPointToLine(2, e.timeStampMS/1000.0, e.accelY);
             currentTime = e.timeStampMS/1000.0;
         }
-        public void UpdateSpeedDataOnGraph(object sender, SpeedDataEventArgs e)
-        {
-            oscilloX.AddPointToLine(1, e.timeStampMS / 1000.0, e.Vx);
-            oscilloY.AddPointToLine(1, e.timeStampMS / 1000.0, e.Vy);
-            //oscillo.AddPointToLine(1, e.timeStampMS / 1000.0, e.Vy);
-            currentTime = e.timeStampMS / 1000.0;
-        }
+
         public void UpdateSpeedConsigneOnGraph(object sender, SpeedConsigneArgs e)
         {
             oscilloX.AddPointToLine(0, currentTime, e.Vx);
@@ -274,11 +268,6 @@ namespace RobotInterface
             textBoxConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
             {
                 textBoxConsole.Text += e.value+'\n';
-                if(textBoxConsole.Text.Length>=2000)
-                {
-                    textBoxConsole.Text = textBoxConsole.Text.Remove(0, 2000);
-                }
-                scrollViewerTextBoxConsole.ScrollToEnd();
             }));
         }
 

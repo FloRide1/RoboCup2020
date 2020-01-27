@@ -58,7 +58,7 @@
             <oscillo:WpfOscilloscope x:Name="oscilloX" Grid.Column="1" Grid.Row="0" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
             <oscillo:WpfOscilloscope x:Name="oscilloY" Grid.Column="0" Grid.Row="1" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
             <GroupBox Grid.Column="2" Header="Options" Margin="10,10,10,10" Grid.Row="1">
-                <Grid Margin="0" >
+                <Grid HorizontalAlignment="Left" Margin="0,0,0,-12" Width="195">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="1*"/>
                         <RowDefinition Height="1*"/>
@@ -76,10 +76,7 @@
                 </Grid>
             </GroupBox>
             <GroupBox Grid.Column="1" Header="Console" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Stretch">
-                <ScrollViewer Name="scrollViewerTextBoxConsole">
-                    <TextBlock Name="textBoxConsole" HorizontalAlignment="Stretch" Margin="0,0,0,0" TextWrapping="WrapWithOverflow" Text="TextBlock" VerticalAlignment="Stretch" Background="Gray" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                    ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"/>
-                </ScrollViewer>
+                <TextBlock Name="textBoxConsole" HorizontalAlignment="Stretch" Margin="0,0,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Stretch" Background="Gray"/>
             </GroupBox>
         </Grid>
 
