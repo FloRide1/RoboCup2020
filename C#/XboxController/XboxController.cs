@@ -11,7 +11,7 @@ namespace XBoxController
         Controller controller;
         Gamepad gamepad;
         public bool connected = false;
-        public int deadband = 3500;
+        public int deadband = 3000;
         public float leftTrigger, rightTrigger;
         double Vtheta;
         double VxRampe = 0;
@@ -33,8 +33,8 @@ namespace XBoxController
         bool useRampe = false;
         private void TimerGamepad_Elapsed(object sender, ElapsedEventArgs e)
         {
-            double VLinMax =0.6;
-            double VThetaMax = 1.0;
+            double VLinMax = 1.2;
+            double VThetaMax = 2.0;
             double valeurRampe = 0.6;
             double Vx;
             double Vy;
