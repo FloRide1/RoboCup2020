@@ -67,6 +67,14 @@ namespace RobotMessageGenerator
             payload[0] = Convert.ToByte(e.value);
             OnMessageToRobot((Int16)Commands.EnableDisableTir, 1, payload);
         }
+
+        public void GenerateMessageEnableAsservissement(object sender, BoolEventArgs e)
+        {
+            byte[] payload = new byte[1];
+            payload[0] = Convert.ToByte(e.value);
+            OnMessageToRobot((Int16)Commands.EnableAsservissement, 1, payload);
+        }
+
         //public void GenerateTextMessage(object sender, EventArgsLibrary.SpeedConsigneArgs e)
         //{
         //    byte[] payload = new byte[12];

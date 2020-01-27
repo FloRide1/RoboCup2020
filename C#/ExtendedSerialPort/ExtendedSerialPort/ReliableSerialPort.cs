@@ -157,6 +157,7 @@ namespace ExtendedSerialPort
                 {
                     //Quand on reçoit un message à envoyer, on le fait partir
                     Write(e.Msg, 0, e.Msg.Length);
+                    Console.WriteLine("Message sent:" + DateTime.Now.Millisecond.ToString());
                 }
                 catch
                 {
