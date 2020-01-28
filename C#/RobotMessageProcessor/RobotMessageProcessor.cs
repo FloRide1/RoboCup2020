@@ -27,11 +27,25 @@ namespace RobotMessageProcessor
         public void ProcessDecodedMessage(Int16 command, Int16 payloadLength, byte[] payload)
         {
             byte[] tab;
+            uint timeStamp;
             switch (command)
             {
+                case (short)Commands.XYTheta_Speed:
+                    {
+                        timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                        tab = payload.GetRange(4, 4);
+                        float vX = tab.GetFloat();
+                        tab = payload.GetRange(8, 4);
+                        float vY = tab.GetFloat();
+                        tab = payload.GetRange(12, 4);
+                        float vTheta = tab.GetFloat();
+                        OnSpeedDataFromRobot(timeStamp, vX, vY, vTheta);
+
+                    }
+                    break;
                 case (short)Commands.IMUData:
                     {
-                        uint timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                        timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
                         tab  = payload.GetRange(4, 4);
                         float accelX = tab.GetFloat();
                         tab = payload.GetRange(8, 4);
@@ -74,7 +88,7 @@ namespace RobotMessageProcessor
                         OnMotorsCurrentsFromRobot(time2, motor1Current, motor2Current, motor3Current, motor4Current, motor5Current, motor6Current, motor7Current);
                     }
                     break;
-                case (short)Commands.EncoderData:
+                case (short)Commands.MotorsVitesses:
                     uint time = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
                     tab = payload.GetRange(4, 4);
                     float vitesseMotor1 = tab.GetFloat();
@@ -93,6 +107,7 @@ namespace RobotMessageProcessor
                     //On envois l'event aux abonnés
                     OnEncodersDataFromRobot(time, vitesseMotor1, vitesseMotor2, vitesseMotor3, vitesseMotor4, vitesseMotor5, vitesseMotor6, vitesseMotor7);
                     break;
+
                 case (short)Commands.EnableDisableMotors:
                     bool value = Convert.ToBoolean(payload[0]);
                     //On envois l'event aux abonnés
@@ -123,8 +138,13 @@ namespace RobotMessageProcessor
                     //On envois l'event aux abonnés
                     OnEnablePositionDataACKFromRobot(value);
                     break;
+                case (short)Commands.EnableMotorSpeedConsigne:
+                    value = Convert.ToBoolean(payload[0]);
+                    //On envois l'event aux abonnés
+                    OnEnableMotorSpeedConsigneDataACKFromRobot(value);
+                    break;
                 case (short)Commands.ErrorTextMessage:
-                    string errorMsg= Convert.ToString(payload);
+                    string errorMsg = Encoding.UTF8.GetString(payload);
                     //On envois l'event aux abonnés
                     OnErrorTextFromRobot(errorMsg);
                     break;
@@ -210,6 +230,17 @@ namespace RobotMessageProcessor
             }
         }
 
+        //public delegate void EnablePositionDataEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<BoolEventArgs> OnEnableMotorSpeedConsigneDataACKFromRobotGeneratedEvent;
+        public virtual void OnEnableMotorSpeedConsigneDataACKFromRobot(bool isEnabled)
+        {
+            var handler = OnEnableMotorSpeedConsigneDataACKFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = isEnabled });
+            }
+        }
+
         public delegate void ErrorTextMessageEventHandler(object sender, StringEventArgs e);
         public event EventHandler<StringEventArgs> OnErrorTextFromRobotGeneratedEvent;
         public virtual void OnErrorTextFromRobot(string str)
@@ -218,6 +249,23 @@ namespace RobotMessageProcessor
             if (handler != null)
             {
                 handler(this, new StringEventArgs { value = str });
+            }
+        }
+
+        //public delegate void VxVyVThetaDataEventHandler(object sender, SpeedDataEventArgs e);
+        public event EventHandler<SpeedDataEventArgs> OnSpeedDataFromRobotGeneratedEvent;
+        public virtual void OnSpeedDataFromRobot(uint timeStamp, double vX, double vY, double vTheta)
+        {
+            var handler = OnSpeedDataFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new SpeedDataEventArgs
+                {
+                    timeStampMS = timeStamp,
+                    Vx = (float)vX,
+                    Vy = (float)vY,
+                    Vtheta = (float)vTheta
+                });
             }
         }
 

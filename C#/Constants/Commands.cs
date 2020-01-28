@@ -54,8 +54,7 @@ namespace Constants
 
         // Getters et Askers de variables embarquées
 
-        MotorSpeed = 400,
-        MotorSpeed_Each = 401,
+
         MotorSpeedConsigne = 402,
         MotorSpeedConsigne_Each = 403,
         Ku = 404,
@@ -73,10 +72,10 @@ namespace Constants
         Theta = 416,
         XYTheta = 417,
         IMUData = 418,
-        XYTheta_Speed = 419,
-        EncoderData = 420,
-        ConsignesData = 421,
-        SetTrajectoryData = 422,
+        XYTheta_Speed = 419,                //0x01A3
+        MotorsVitesses = 420,              //Ox01A4
+        MotorsPositions = 421,          //0x01A5
+        MotorsSpeedConsignes = 422,     //0x01A6
         TrajectoryData = 423,
         SetRobotPosition = 424,
         AddDeplacement = 425,
@@ -96,6 +95,7 @@ namespace Constants
         EnableMotorCurrent=439,         //0x01B7
         EnableEncoderRawData=440,       //0x01B8
         EnablePositionData=441,         //0x01B9
+        EnableMotorSpeedConsigne=442,   //0x01BA
         GetCamera = 443,
         TirCommand = 444,
         MoveTirUp = 445,

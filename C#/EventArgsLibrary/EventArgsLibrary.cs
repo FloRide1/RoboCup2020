@@ -62,6 +62,10 @@ namespace EventArgsLibrary
         public float Vy { get; set; }
         public float Vtheta { get; set; }
     }
+    public class SpeedDataEventArgs : SpeedConsigneArgs
+    {
+        public uint timeStampMS;
+    }
     public class TirEventArgs : EventArgs
     {
         public int RobotId { get; set; }

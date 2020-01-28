@@ -104,7 +104,13 @@ namespace RobotInterface
             //throw new NotImplementedException();
             worldMapDisplay.UpdateLocalWorldMap(e.RobotId, e.LocalWorldMap);
         }
-
+        public void UpdateSpeedDataOnGraph(object sender, SpeedDataEventArgs e)
+        {
+            oscilloX.AddPointToLine(1, e.timeStampMS / 1000.0, e.Vx);
+            oscilloY.AddPointToLine(1, e.timeStampMS / 1000.0, e.Vy);
+            //oscillo.AddPointToLine(1, e.timeStampMS / 1000.0, e.Vy);
+            currentTime = e.timeStampMS / 1000.0;
+        }
         public void ActualizeAccelDataOnGraph(object sender, AccelEventArgs e)
         {
             oscilloX.AddPointToLine(2, e.timeStampMS, e.accelX);
@@ -288,6 +294,11 @@ namespace RobotInterface
             textBoxConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
             {
                 textBoxConsole.Text += e.value+'\n';
+                if (textBoxConsole.Text.Length >= 2000)
+                {
+                    textBoxConsole.Text = textBoxConsole.Text.Remove(0, 2000);
+                }
+                scrollViewerTextBoxConsole.ScrollToEnd();
             }));
         }
 
@@ -402,6 +413,17 @@ namespace RobotInterface
         public virtual void OnEnableEncodersRawDataFromInterface(bool val)
         {
             var handler = OnEnableEncodersRawDataFromInterfaceGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = val });
+            }
+        }
+
+        //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<BoolEventArgs> OnEnableMotorsSpeedConsigneDataFromInterfaceGeneratedEvent;
+        public virtual void OnEnableMotorSpeedConsigneDataFromInterface(bool val)
+        {
+            var handler = OnEnableMotorsSpeedConsigneDataFromInterfaceGeneratedEvent;
             if (handler != null)
             {
                 handler(this, new BoolEventArgs { value = val });
@@ -571,6 +593,42 @@ namespace RobotInterface
                 if (oscilloM4.LineExist(3))
                 {
                     oscilloM4.RemoveLine(3);
+                }
+            }
+        }
+
+        private void CheckBoxEnableMotorSpeedConsigneData_Checked(object sender, RoutedEventArgs e)
+        {
+            if (CheckBoxEnableMotorSpeedConsigneData.IsChecked ?? false)
+            {
+                OnEnableMotorSpeedConsigneDataFromInterface(true);
+                oscilloM1.AddOrUpdateLine(4, 100, "PWM M1");
+                oscilloM1.ChangeLineColor(4, Colors.GreenYellow);
+                oscilloM2.AddOrUpdateLine(4, 100, "PWM M2");
+                oscilloM2.ChangeLineColor(4, Colors.GreenYellow);
+                oscilloM3.AddOrUpdateLine(4, 100, "PWM M3");
+                oscilloM3.ChangeLineColor(4, Colors.GreenYellow);
+                oscilloM4.AddOrUpdateLine(4, 100, "PWM M4");
+                oscilloM4.ChangeLineColor(4, Colors.GreenYellow);
+            }
+            else
+            {
+                OnEnableMotorSpeedConsigneDataFromInterface(false);
+                if (oscilloM1.LineExist(4))
+                {
+                    oscilloM1.RemoveLine(4);
+                }
+                if (oscilloM2.LineExist(4))
+                {
+                    oscilloM2.RemoveLine(4);
+                }
+                if (oscilloM3.LineExist(4))
+                {
+                    oscilloM3.RemoveLine(4);
+                }
+                if (oscilloM4.LineExist(4))
+                {
+                    oscilloM4.RemoveLine(4);
                 }
             }
         }

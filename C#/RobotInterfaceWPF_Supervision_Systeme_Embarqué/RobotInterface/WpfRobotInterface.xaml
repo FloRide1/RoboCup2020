@@ -85,6 +85,7 @@
                             <CheckBox Name="CheckBoxEnablePositionData" Content="EnablePositionData" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="0" VerticalAlignment="Top" Checked="CheckBoxEnablePositionData_Checked" Unchecked="CheckBoxEnablePositionData_Checked"/>
                             <CheckBox Name="CheckBoxEnableEncRawData" Content="Enable Encoder Raw Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="1" VerticalAlignment="Top" Checked="CheckBoxEnableEncRawData_Checked" Unchecked="CheckBoxEnableEncRawData_Checked"/>
                             <CheckBox Name="CheckBoxEnableMotorCurrentData" Content="Enable Motor Current Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Top" Checked="CheckBoxEnableMotorCurrentData_Checked" Unchecked="CheckBoxEnableMotorCurrentData_Checked"/>
+                            <CheckBox Name="CheckBoxEnableMotorSpeedConsigneData" Content="Enable Motor Speed Consigne Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="3" VerticalAlignment="Top" Checked="CheckBoxEnableMotorSpeedConsigneData_Checked" Unchecked="CheckBoxEnableMotorSpeedConsigneData_Checked"/>
                         </Grid>
                         </GroupBox>
                     <GroupBox Grid.Column="2" Header="PID Values" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.RowSpan="3">
