@@ -31,11 +31,12 @@ namespace Robot
     {
         LidarAcquisition,
         LidarReplay,
-        Standard
+        Standard,
+        Nolidar
     }
     class Robot
     {
-        static RobotMode robotMode = RobotMode.Standard;
+        static RobotMode robotMode = RobotMode.Nolidar;
 
         static bool usingSimulatedCamera = true;
         static bool usingPhysicalSimulator = true;
@@ -107,6 +108,11 @@ namespace Robot
                     usingLidar = false;
                     usingLogging = false;
                     usingLogReplay = true;
+                    break;
+                case RobotMode.Nolidar:
+                    usingLidar = false;
+                    usingLogging = false;
+                    usingLogReplay = false;
                     break;
             }
 

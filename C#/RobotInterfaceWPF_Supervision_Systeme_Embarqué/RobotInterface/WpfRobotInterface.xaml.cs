@@ -43,20 +43,24 @@ namespace RobotInterface
 
             oscilloM1.SetTitle("Moteur 1");
             oscilloM1.AddOrUpdateLine(0, 100, "Vitesse M1");
-            oscilloM1.AddOrUpdateLine(1, 100, "Courant M1");
-            oscilloM1.ChangeLineColor("Courant M1", Colors.Red);
+            //oscilloM1.AddOrUpdateLine(1, 100, "Courant M1");
+            //oscilloM1.AddOrUpdateLine(2, 100, "Position M1");
+            //oscilloM1.ChangeLineColor("Courant M1", Colors.Red);
             oscilloM2.SetTitle("Moteur 2");
             oscilloM2.AddOrUpdateLine(0, 100, "Vitesse M2");
-            oscilloM2.AddOrUpdateLine(1, 100, "Courant M2");
-            oscilloM2.ChangeLineColor("Courant M2", Colors.Red);
+            //oscilloM2.AddOrUpdateLine(1, 100, "Courant M2");
+            //oscilloM2.AddOrUpdateLine(2, 100, "Position M2");
+            //oscilloM2.ChangeLineColor("Courant M2", Colors.Red);
             oscilloM3.SetTitle("Moteur 3");
             oscilloM3.AddOrUpdateLine(0, 100, "Vitesse M3");
-            oscilloM3.AddOrUpdateLine(1, 100, "Courant M3");
-            oscilloM3.ChangeLineColor("Courant M3", Colors.Red);
+            //oscilloM3.AddOrUpdateLine(1, 100, "Courant M3");
+            //oscilloM3.AddOrUpdateLine(2, 100, "Position M3");
+            //oscilloM3.ChangeLineColor("Courant M3", Colors.Red);
             oscilloM4.SetTitle("Moteur 4");
             oscilloM4.AddOrUpdateLine(0, 100, "Vitesse M4");
-            oscilloM4.AddOrUpdateLine(1, 100, "Courant M4");
-            oscilloM4.ChangeLineColor("Courant M4", Colors.Red);
+            //oscilloM4.AddOrUpdateLine(1, 100, "Courant M4");
+            //oscilloM4.AddOrUpdateLine(2, 100, "Position M4");
+            //oscilloM4.ChangeLineColor("Courant M4", Colors.Red);
 
             oscilloX.SetTitle("Vx");
             oscilloX.AddOrUpdateLine(0, 100, "Vitesse X Consigne");
@@ -129,12 +133,28 @@ namespace RobotInterface
             oscilloM4.AddPointToLine(1, e.timeStampMS / 1000.0, e.motor4);
         }
 
-        public void UpdateMotorsSpeedsOnGraph(object sender, EncodersDataEventArgs e)
+        public void UpdateMotorsSpeedsOnGraph(object sender, MotorsVitesseDataEventArgs e)
         {
             oscilloM1.AddPointToLine(0, e.timeStampMS / 1000.0, e.vitesseMotor1);
             oscilloM2.AddPointToLine(0, e.timeStampMS / 1000.0, e.vitesseMotor2);
             oscilloM3.AddPointToLine(0, e.timeStampMS / 1000.0, e.vitesseMotor3);
             oscilloM4.AddPointToLine(0, e.timeStampMS / 1000.0, e.vitesseMotor4);
+        }
+
+        public void UpdateMotorsPositionOnGraph(object sender, MotorsPositionDataEventArgs e)
+        {
+            oscilloM1.AddPointToLine(2, e.timeStampMS / 1000.0, e.motor1);
+            oscilloM2.AddPointToLine(2, e.timeStampMS / 1000.0, e.motor2);
+            oscilloM3.AddPointToLine(2, e.timeStampMS / 1000.0, e.motor3);
+            oscilloM4.AddPointToLine(2, e.timeStampMS / 1000.0, e.motor4);
+        }
+
+        public void UpdateMotorsEncRawDataOnGraph(object sender, EncodersRawDataEventArgs e)
+        {
+            oscilloM1.AddPointToLine(3, e.timeStampMS / 1000.0, e.motor1);
+            oscilloM2.AddPointToLine(3, e.timeStampMS / 1000.0, e.motor2);
+            oscilloM3.AddPointToLine(3, e.timeStampMS / 1000.0, e.motor3);
+            oscilloM4.AddPointToLine(3, e.timeStampMS / 1000.0, e.motor4);
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -355,6 +375,39 @@ namespace RobotInterface
             }
         }
 
+        //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<BoolEventArgs> OnEnableMotorCurrentDataFromInterfaceGeneratedEvent;
+        public virtual void OnEnableMotorCurrentDataFromInterface(bool val)
+        {
+            var handler = OnEnableMotorCurrentDataFromInterfaceGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = val });
+            }
+        }
+
+        //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<BoolEventArgs> OnEnableEncodersDataFromInterfaceGeneratedEvent;
+        public virtual void OnEnableEncodersDataFromInterface(bool val)
+        {
+            var handler = OnEnableEncodersDataFromInterfaceGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = val });
+            }
+        }
+
+        //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<BoolEventArgs> OnEnableEncodersRawDataFromInterfaceGeneratedEvent;
+        public virtual void OnEnableEncodersRawDataFromInterface(bool val)
+        {
+            var handler = OnEnableEncodersRawDataFromInterfaceGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = val });
+            }
+        }
+
         private void CheckBox_CheckedChanged(object sender, RoutedEventArgs e)
         {
             if(CheckBoxControlManette.IsChecked ?? false)
@@ -407,6 +460,119 @@ namespace RobotInterface
             }
             else
                 OnEnableAsservissementFromInterface(true);
+        }
+
+        private void ButtonSetPID_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void CheckBoxEnableMotorCurrentData_Checked(object sender, RoutedEventArgs e)
+        {
+            if (CheckBoxEnableMotorCurrentData.IsChecked ?? false)
+            {
+                OnEnableMotorCurrentDataFromInterface(true);
+                oscilloM1.AddOrUpdateLine(1, 100, "Courant M1");
+                oscilloM1.ChangeLineColor(1, Colors.Red);
+                oscilloM2.AddOrUpdateLine(1, 100, "Courant M2");
+                oscilloM2.ChangeLineColor(1, Colors.Red);
+                oscilloM3.AddOrUpdateLine(1, 100, "Courant M3");
+                oscilloM3.ChangeLineColor(1, Colors.Red);
+                oscilloM4.AddOrUpdateLine(1, 100, "Courant M4");
+                oscilloM4.ChangeLineColor(1, Colors.Red);
+            }
+            else
+            {
+                OnEnableMotorCurrentDataFromInterface(false);
+                if (oscilloM1.LineExist(1))
+                {
+                    oscilloM1.RemoveLine(1);
+                }
+                if (oscilloM2.LineExist(1))
+                {
+                    oscilloM2.RemoveLine(1);
+                }
+                if (oscilloM3.LineExist(1))
+                {
+                    oscilloM3.RemoveLine(1);
+                }
+                if (oscilloM4.LineExist(1))
+                {
+                    oscilloM4.RemoveLine(1);
+                }
+            }
+        }
+
+        private void CheckBoxEnablePositionData_Checked(object sender, RoutedEventArgs e)
+        {
+            if(CheckBoxEnablePositionData.IsChecked ?? false)
+            {
+                OnEnableEncodersDataFromInterface(true);
+                oscilloM1.AddOrUpdateLine(2, 100, "Position M1");
+                oscilloM1.ChangeLineColor(2, Colors.Blue);
+                oscilloM2.AddOrUpdateLine(2, 100, "Position M2");
+                oscilloM2.ChangeLineColor(2, Colors.Blue);
+                oscilloM3.AddOrUpdateLine(2, 100, "Position M3");
+                oscilloM3.ChangeLineColor(2, Colors.Blue);
+                oscilloM4.AddOrUpdateLine(2, 100, "Position M4");
+                oscilloM4.ChangeLineColor(2, Colors.Blue);
+            }
+            else
+            {
+                OnEnableEncodersDataFromInterface(false);
+                if (oscilloM1.LineExist(2))
+                {
+                    oscilloM1.RemoveLine(2);
+                }
+                if (oscilloM2.LineExist(2))
+                {
+                    oscilloM2.RemoveLine(2);
+                }
+                if (oscilloM3.LineExist(2))
+                {
+                    oscilloM3.RemoveLine(2);
+                }
+                if (oscilloM4.LineExist(2))
+                {
+                    oscilloM4.RemoveLine(2);
+                }
+            }
+        }
+
+        private void CheckBoxEnableEncRawData_Checked(object sender, RoutedEventArgs e)
+        {
+            if (CheckBoxEnableEncRawData.IsChecked ?? false)
+            {
+                OnEnableEncodersRawDataFromInterface(true);
+                oscilloM1.AddOrUpdateLine(3, 100, "RAW Val M1");
+                oscilloM1.ChangeLineColor(3, Colors.GreenYellow);
+                oscilloM2.AddOrUpdateLine(3, 100, "RAW Val M2");
+                oscilloM2.ChangeLineColor(3, Colors.GreenYellow);
+                oscilloM3.AddOrUpdateLine(3, 100, "RAW Val M3");
+                oscilloM3.ChangeLineColor(3, Colors.GreenYellow);
+                oscilloM4.AddOrUpdateLine(3, 100, "RAW Val M4");
+                oscilloM4.ChangeLineColor(3, Colors.GreenYellow);
+            }
+            else
+            {
+                OnEnableEncodersRawDataFromInterface(false);
+                if (oscilloM1.LineExist(3))
+                {
+                    oscilloM1.RemoveLine(3);
+                }
+                if (oscilloM2.LineExist(3))
+                {
+                    oscilloM2.RemoveLine(3);
+                }
+                if (oscilloM3.LineExist(3))
+                {
+                    oscilloM3.RemoveLine(3);
+                }
+                if (oscilloM4.LineExist(3))
+                {
+                    oscilloM4.RemoveLine(3);
+                }
+            }
         }
     }
 }

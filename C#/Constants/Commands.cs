@@ -93,6 +93,9 @@ namespace Constants
         EnableDisableTir = 436,         //0x01B4
         MotorCurrents= 437,             //0x01B5
         EnableAsservissement=438,       //0x01B6
+        EnableMotorCurrent=439,         //0x01B7
+        EnableEncoderRawData=440,       //0x01B8
+        EnablePositionData=441,         //0x01B9
         GetCamera = 443,
         TirCommand = 444,
         MoveTirUp = 445,

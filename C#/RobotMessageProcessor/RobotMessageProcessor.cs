@@ -108,6 +108,21 @@ namespace RobotMessageProcessor
                     //On envois l'event aux abonnés
                     OnEnableAsservissementACKFromRobot(value);
                     break;
+                case (short)Commands.EnableMotorCurrent:
+                    value = Convert.ToBoolean(payload[0]);
+                    //On envois l'event aux abonnés
+                    OnEnableMotorCurrentACKFromRobot(value);
+                    break;
+                case (short)Commands.EnableEncoderRawData:
+                    value = Convert.ToBoolean(payload[0]);
+                    //On envois l'event aux abonnés
+                    OnEnableEncoderRawDataACKFromRobot(value);
+                    break;
+                case (short)Commands.EnablePositionData:
+                    value = Convert.ToBoolean(payload[0]);
+                    //On envois l'event aux abonnés
+                    OnEnablePositionDataACKFromRobot(value);
+                    break;
                 case (short)Commands.ErrorTextMessage:
                     string errorMsg= Convert.ToString(payload);
                     //On envois l'event aux abonnés
@@ -162,6 +177,39 @@ namespace RobotMessageProcessor
             }
         }
 
+        public delegate void EnableEnableMotorCurrentEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<BoolEventArgs> OnEnableMotorCurrentACKFromRobotGeneratedEvent;
+        public virtual void OnEnableMotorCurrentACKFromRobot(bool isEnabled)
+        {
+            var handler = OnEnableMotorCurrentACKFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = isEnabled });
+            }
+        }
+
+        public delegate void EnableEnableEncoderRawDataEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<BoolEventArgs> OnEnableEncoderRawDataACKFromRobotGeneratedEvent;
+        public virtual void OnEnableEncoderRawDataACKFromRobot(bool isEnabled)
+        {
+            var handler = OnEnableEncoderRawDataACKFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = isEnabled });
+            }
+        }
+
+        public delegate void EnablePositionDataEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<BoolEventArgs> OnEnablePositionDataACKFromRobotGeneratedEvent;
+        public virtual void OnEnablePositionDataACKFromRobot(bool isEnabled)
+        {
+            var handler = OnEnablePositionDataACKFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = isEnabled });
+            }
+        }
+
         public delegate void ErrorTextMessageEventHandler(object sender, StringEventArgs e);
         public event EventHandler<StringEventArgs> OnErrorTextFromRobotGeneratedEvent;
         public virtual void OnErrorTextFromRobot(string str)
@@ -192,15 +240,15 @@ namespace RobotMessageProcessor
             }
         }
 
-        public delegate void EncodersDataEventHandler(object sender, EncodersDataEventArgs e);
-        public event EventHandler<EncodersDataEventArgs> OnEncodersDataFromRobotGeneratedEvent;
+        public delegate void EncodersDataEventHandler(object sender, MotorsVitesseDataEventArgs e);
+        public event EventHandler<MotorsVitesseDataEventArgs> OnEncodersDataFromRobotGeneratedEvent;
         public virtual void OnEncodersDataFromRobot(uint timeStamp, double m1, double m2, double m3,
                                                                         double m4, double m5, double m6, double m7)
         {
             var handler = OnEncodersDataFromRobotGeneratedEvent;
             if (handler != null)
             {
-                handler(this, new EncodersDataEventArgs {
+                handler(this, new MotorsVitesseDataEventArgs {
                     timeStampMS = timeStamp,
                     vitesseMotor1 = m1,
                     vitesseMotor2 = m2,

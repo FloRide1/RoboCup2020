@@ -50,10 +50,14 @@ namespace WpfOscilloscopeControl
         public void AddOrUpdateLine(int id, int maxNumberOfPoints, string lineName)
         {
             if (lineDictionary.ContainsKey(id))
+            {
                 lineDictionary[id] = new XyDataSeries<double, double>(maxNumberOfPoints) { SeriesName = lineName };
+                //sciChart.RenderableSeries.RemoveAt(id);
+            }
             else
             {
                 lineDictionary.Add(id, new XyDataSeries<double, double>(maxNumberOfPoints) { SeriesName = lineName });
+           
                 var lineRenderableSerie = new FastLineRenderableSeries();
                 lineRenderableSerie.Name = "lineRenderableSerie"+id.ToString();
                 lineRenderableSerie.DataSeries = lineDictionary[id];
@@ -61,6 +65,27 @@ namespace WpfOscilloscopeControl
                 //Ajout de la ligne dans le scichart
                 sciChart.RenderableSeries.Add(lineRenderableSerie);
             }
+        }
+
+        public void RemoveLine(int id)
+        {
+            if (lineDictionary.ContainsKey(id))
+            {
+                
+                sciChart.RenderableSeries.Remove(sciChart.RenderableSeries.Single(x => x.DataSeries == lineDictionary[id]));
+                lineDictionary.Remove(id);
+            }
+            else
+            {
+
+            }
+        }
+
+        public bool LineExist(int id)
+        {
+            if (lineDictionary.ContainsKey(id))
+                return true;
+            return false;
         }
 
 
@@ -81,7 +106,8 @@ namespace WpfOscilloscopeControl
 
         public void ChangeLineColor(int serieID, Color color)
         {
-            sciChart.RenderableSeries.Single(x => x.DataSeries == lineDictionary[serieID]).Stroke=color;
+
+            sciChart.RenderableSeries.Single(x => x.DataSeries.SeriesName == lineDictionary[serieID].SeriesName).Stroke=color;
         }
 
         public void AddPointToLine(int lineId, double x, double y)
