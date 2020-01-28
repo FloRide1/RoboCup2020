@@ -102,6 +102,29 @@ namespace RobotMessageGenerator
             payload[0] = Convert.ToByte(e.value);
             OnMessageToRobot((Int16)Commands.EnableMotorSpeedConsigne, 1, payload);
         }
+
+        public void GenerateMessageSTOP(object sender, BoolEventArgs e)
+        {
+            byte[] payload = new byte[1];
+            payload[0] = Convert.ToByte(e.value);
+
+            OnMessageToRobot((Int16)Commands.EmergencySTOP, 1, payload);
+        }
+
+        public void GenerateMessageSetPIDValueToRobot(object sender, PIDDataArgs e)
+        {
+            byte[] payload = new byte[36];
+            payload.SetValueRange(e.P_x.GetBytes(), 0);
+            payload.SetValueRange(e.I_x.GetBytes(), 4);
+            payload.SetValueRange(e.D_x.GetBytes(), 8);
+            payload.SetValueRange(e.P_y.GetBytes(), 12);
+            payload.SetValueRange(e.I_y.GetBytes(), 16);
+            payload.SetValueRange(e.D_y.GetBytes(), 20);
+            payload.SetValueRange(e.P_theta.GetBytes(), 24);
+            payload.SetValueRange(e.I_theta.GetBytes(), 28);
+            payload.SetValueRange(e.D_theta.GetBytes(), 32);
+            OnMessageToRobot((Int16)Commands.SetPIDValues, 36, payload);
+        }
         //public void GenerateTextMessage(object sender, EventArgsLibrary.SpeedConsigneArgs e)
         //{
         //    byte[] payload = new byte[12];

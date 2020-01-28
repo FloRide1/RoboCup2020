@@ -350,7 +350,7 @@ namespace RobotInterface
                 }
             }
         }
-
+#region OUTPUT EVENT
         //OUTPUT EVENT
         public delegate void EnableDisableMotorsEventHandler(object sender, BoolEventArgs e);
         public event EnableDisableMotorsEventHandler OnEnableDisableMotorsFromInterfaceGeneratedEvent;
@@ -438,6 +438,17 @@ namespace RobotInterface
             }
         }
 
+        //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<PIDDataArgs> OnSetRobotPIDFromInterfaceGeneratedEvent;
+        public virtual void OnSetRobotPIDFromInterface(double px, double ix, double dx, double py, double iy, double dy, double ptheta, double itheta, double dtheta)
+        {
+            var handler = OnSetRobotPIDFromInterfaceGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new PIDDataArgs { P_x = px, I_x=ix, D_x=dx, P_y=py, I_y=iy, D_y=dy, P_theta=ptheta, I_theta=itheta, D_theta=dtheta });
+            }
+        }
+        #endregion
         private void CheckBox_CheckedChanged(object sender, RoutedEventArgs e)
         {
             if(CheckBoxControlManette.IsChecked ?? false)
@@ -494,6 +505,16 @@ namespace RobotInterface
 
         private void ButtonSetPID_Click(object sender, RoutedEventArgs e)
         {
+            double Px = Convert.ToDouble(textBoxPx.Text);
+            double Ix = Convert.ToDouble(textBoxIx.Text);
+            double Dx = Convert.ToDouble(textBoxDx.Text);
+            double Py = Convert.ToDouble(textBoxPy.Text);
+            double Iy = Convert.ToDouble(textBoxIy.Text);
+            double Dy = Convert.ToDouble(textBoxDy.Text);
+            double Ptheta = Convert.ToDouble(textBoxPtheta.Text);
+            double Itheta = Convert.ToDouble(textBoxItheta.Text);
+            double Dtheta = Convert.ToDouble(textBoxDtheta.Text);
+            OnSetRobotPIDFromInterface(Px,Ix, Dx, Py, Iy, Dy, Ptheta, Itheta, Dtheta);
 
         }
 

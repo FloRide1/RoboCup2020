@@ -82,12 +82,12 @@ namespace Constants
         SetAccelSpeed = 426,
         SetSpeedConsigne = 427,
         AsservissementData = 428,       //0x01AC
-        SetTrajectoryState = 429,
+        SetPIDValues = 429,             //0x01AD
         SetRobotVariable = 430,
         OdometryData = 431,             //0x01AF
         GetParameter = 432,
         SetParameter = 433,
-        SetMotorSpeedConsigne = 434,
+        SetMotorSpeedConsigne = 434,    //0x01B2
         EnableDisableMotors = 435,      //0x01B3
         EnableDisableTir = 436,         //0x01B4
         MotorCurrents= 437,             //0x01B5
@@ -122,6 +122,7 @@ namespace Constants
 
         GoToXYTheta = 1000,
 
+        EmergencySTOP=-1,
         ErrorTextMessage=-4370,
 
 #pragma warning restore CS1591

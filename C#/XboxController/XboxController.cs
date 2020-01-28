@@ -17,6 +17,7 @@ namespace XBoxController
         double VxRampe = 0;
         double VyRampe = 0;
         double VthetaRampe = 0;
+        bool stopped = false;
 
         Timer timerGamepad = new Timer(100);
 
@@ -87,6 +88,20 @@ namespace XBoxController
                 if (gamepad.Buttons.HasFlag(GamepadButtonFlags.DPadDown))
                 {
                     OnMoveTirDownToRobot();
+                }
+                if(gamepad.Buttons.HasFlag(GamepadButtonFlags.Start))
+                {
+                    if(stopped)
+                    {
+                        OnStopToRobot(false);
+                        stopped = false;
+                    }
+                    else
+                    {
+                        OnStopToRobot(true);
+                        stopped = true;
+                    }
+                    
                 }
 
 
@@ -159,6 +174,16 @@ namespace XBoxController
             if (handler != null)
             {
                 handler(this, new TirEventArgs { RobotId = id, Puissance = puissance });
+            }
+        }
+        public delegate void OnStopEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<BoolEventArgs> OnStopEvent;
+        public virtual void OnStopToRobot(bool stop)
+        {
+            var handler = OnStopEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs());
             }
         }
 

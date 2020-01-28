@@ -121,6 +121,18 @@ namespace EventArgsLibrary
         public double vitesseMotor7;
     }
 
+    public class PIDDataArgs : EventArgs
+    {
+        public double P_x;
+        public double I_x;
+        public double D_x;
+        public double P_y;
+        public double I_y;
+        public double D_y;
+        public double P_theta;
+        public double I_theta;
+        public double D_theta;
+    }
 
     public class AccelEventArgs : EventArgs
     {
