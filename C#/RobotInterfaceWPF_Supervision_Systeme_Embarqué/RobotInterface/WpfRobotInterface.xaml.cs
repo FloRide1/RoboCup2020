@@ -131,6 +131,14 @@ namespace RobotInterface
             oscilloY.AddPointToLine(0, currentTime, e.Vy);
         }
 
+        public void UpdateMotorSpeedConsigneOnGraph(object sender, MotorsVitesseDataEventArgs e)
+        {
+            oscilloM1.AddPointToLine(4, e.timeStampMS / 1000.0, e.vitesseMotor1);
+            oscilloM2.AddPointToLine(4, e.timeStampMS / 1000.0, e.vitesseMotor2);
+            oscilloM3.AddPointToLine(4, e.timeStampMS / 1000.0, e.vitesseMotor3);
+            oscilloM4.AddPointToLine(4, e.timeStampMS / 1000.0, e.vitesseMotor4);        
+        }
+
         public void UpdateMotorsCurrentsOnGraph(object sender, MotorsCurrentsEventArgs e)
         {
             oscilloM1.AddPointToLine(1, e.timeStampMS / 1000.0, e.motor1);

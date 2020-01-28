@@ -76,7 +76,7 @@ namespace Constants
         MotorsVitesses = 420,              //Ox01A4
         MotorsPositions = 421,          //0x01A5
         MotorsSpeedConsignes = 422,     //0x01A6
-        TrajectoryData = 423,
+        EncoderRawData = 423,           //0x01A7
         SetRobotPosition = 424,
         AddDeplacement = 425,
         SetAccelSpeed = 426,

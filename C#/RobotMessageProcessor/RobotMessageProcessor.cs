@@ -105,7 +105,41 @@ namespace RobotMessageProcessor
                     tab = payload.GetRange(28, 4);
                     float vitesseMotor7 = tab.GetFloat();
                     //On envois l'event aux abonnés
-                    OnEncodersDataFromRobot(time, vitesseMotor1, vitesseMotor2, vitesseMotor3, vitesseMotor4, vitesseMotor5, vitesseMotor6, vitesseMotor7);
+                    OnMotorVitesseDataFromRobot(time, vitesseMotor1, vitesseMotor2, vitesseMotor3, vitesseMotor4, vitesseMotor5, vitesseMotor6, vitesseMotor7);
+                    break;
+
+                case (short)Commands.MotorsSpeedConsignes:
+                    timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                    tab = payload.GetRange(4, 4);
+                    float consigneMotor1 = tab.GetFloat();
+                    tab = payload.GetRange(8, 4);
+                    float consigneMotor2 = tab.GetFloat();
+                    tab = payload.GetRange(12, 4);
+                    float consigneMotor3 = tab.GetFloat();
+                    tab = payload.GetRange(16, 4);
+                    float consigneMotor4 = tab.GetFloat();
+                    tab = payload.GetRange(20, 4);
+                    float consigneMotor5 = tab.GetFloat();
+                    tab = payload.GetRange(24, 4);
+                    float consigneMotor6 = tab.GetFloat();
+                    tab = payload.GetRange(28, 4);
+                    float consigneMotor7 = tab.GetFloat();
+                    //On envois l'event aux abonnés
+                    OnSpeedConsigneDataFromRobot(timeStamp, consigneMotor1, consigneMotor2, consigneMotor3, consigneMotor4, consigneMotor5, consigneMotor6, consigneMotor7);
+                    break;
+
+                case (short)Commands.EncoderRawData:
+                    timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                    uint enc1RawVal = (uint)(payload[7] | payload[6] << 8 | payload[5] << 16 | payload[4] << 24);
+                    uint enc2RawVal = (uint)(payload[11] | payload[10] << 8 | payload[9] << 16 | payload[8] << 24);
+                    uint enc3RawVal = (uint)(payload[15] | payload[14] << 8 | payload[13] << 16 | payload[12] << 24);
+                    uint enc4RawVal = (uint)(payload[19] | payload[18] << 8 | payload[17] << 16 | payload[16] << 24);
+                    uint enc5RawVal = (uint)(payload[23] | payload[22] << 8 | payload[21] << 16 | payload[20] << 24);
+                    uint enc6RawVal = (uint)(payload[27] | payload[26] << 8 | payload[25] << 16 | payload[24] << 24);
+                    uint enc7RawVal = (uint)(payload[31] | payload[30] << 8 | payload[29] << 16 | payload[28] << 24);
+
+                    //On envois l'event aux abonnés
+                    OnEncoderRawDataFromRobot(timeStamp, enc1RawVal, enc2RawVal, enc3RawVal, enc4RawVal, enc5RawVal, enc6RawVal, enc7RawVal);
                     break;
 
                 case (short)Commands.EnableDisableMotors:
@@ -288,12 +322,12 @@ namespace RobotMessageProcessor
             }
         }
 
-        public delegate void EncodersDataEventHandler(object sender, MotorsVitesseDataEventArgs e);
-        public event EventHandler<MotorsVitesseDataEventArgs> OnEncodersDataFromRobotGeneratedEvent;
-        public virtual void OnEncodersDataFromRobot(uint timeStamp, double m1, double m2, double m3,
+        public delegate void MotorVitesseDataEventHandler(object sender, MotorsVitesseDataEventArgs e);
+        public event EventHandler<MotorsVitesseDataEventArgs> OnMotorVitesseDataFromRobotGeneratedEvent;
+        public virtual void OnMotorVitesseDataFromRobot(uint timeStamp, double m1, double m2, double m3,
                                                                         double m4, double m5, double m6, double m7)
         {
-            var handler = OnEncodersDataFromRobotGeneratedEvent;
+            var handler = OnMotorVitesseDataFromRobotGeneratedEvent;
             if (handler != null)
             {
                 handler(this, new MotorsVitesseDataEventArgs {
@@ -309,6 +343,48 @@ namespace RobotMessageProcessor
             }
         }
 
+        public delegate void EncoderRawDataEventHandler(object sender, EncodersRawDataEventArgs e);
+        public event EventHandler<EncodersRawDataEventArgs> OnEncoderRawDataFromRobotGeneratedEvent;
+        public virtual void OnEncoderRawDataFromRobot(uint timeStamp, uint m1, uint m2, uint m3,
+                                                                        uint m4, uint m5, uint m6, uint m7)
+        {
+            var handler = OnEncoderRawDataFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new EncodersRawDataEventArgs
+                {
+                    timeStampMS = timeStamp,
+                    motor1 = m1,
+                    motor2 = m2,
+                    motor3 = m3,
+                    motor4 = m4,
+                    motor5 = m5,
+                    motor6 = m6,
+                    motor7 = m7
+                });
+            }
+        }
 
+        public delegate void MotorsSpeedConsigneDataEventHandler(object sender, MotorsVitesseDataEventArgs e);
+        public event EventHandler<MotorsVitesseDataEventArgs> OnSpeedConsigneDataFromRobotGeneratedEvent;
+        public virtual void OnSpeedConsigneDataFromRobot(uint timeStamp, double m1, double m2, double m3,
+                                                                        double m4, double m5, double m6, double m7)
+        {
+            var handler = OnSpeedConsigneDataFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new MotorsVitesseDataEventArgs
+                {
+                    timeStampMS = timeStamp,
+                    vitesseMotor1 = m1,
+                    vitesseMotor2 = m2,
+                    vitesseMotor3 = m3,
+                    vitesseMotor4 = m4,
+                    vitesseMotor5 = m5,
+                    vitesseMotor6 = m6,
+                    vitesseMotor7 = m7
+                });
+            }
+        }
     }
 }

@@ -37,7 +37,7 @@ namespace ExtendedSerialPort
                 //Le Thread est infini mais il sera suspendu quand le port série sera trouvé et ouvert
                 while (true)
                 {
-                    string PortNameFound = "COM1";//SearchPortName(PortType); TOTO: remettre en etat sinon moi bobo
+                    string PortNameFound = "COM15";//SearchPortName(PortType); TOTO: remettre en etat sinon moi bobo
                     if (!string.IsNullOrWhiteSpace(PortNameFound))
                     {
                         //Si on trouve un port série de type voulu
@@ -123,7 +123,7 @@ namespace ExtendedSerialPort
             Action kickoffRead = null;
             kickoffRead = (Action)(() => BaseStream.BeginRead(buffer, 0, buffer.Length, delegate (IAsyncResult ar)
             {
-                try
+                //try
                 {
                     //On récupère le buffer avec les datas dispo
                     int count = BaseStream.EndRead(ar);
@@ -132,12 +132,12 @@ namespace ExtendedSerialPort
                     //On lance un évènement OnDatReceived
                     OnDataReceived(dst);
                 }
-                catch (Exception exception)
-                {
-                    //SI le port ne répond pas
-                    Console.WriteLine("OptimizedSerialPort exception !");
-                    IsSerialPortConnected = false;
-                }
+                //catch (Exception exception)
+                //{
+                //    //SI le port ne répond pas
+                //    Console.WriteLine("OptimizedSerialPort exception !");
+                //    IsSerialPortConnected = false;
+                //}
                 if (IsSerialPortConnected)
                 {
                     //Si on est connecté, on relance l'acquisition en boucle
@@ -157,7 +157,7 @@ namespace ExtendedSerialPort
                 {
                     //Quand on reçoit un message à envoyer, on le fait partir
                     Write(e.Msg, 0, e.Msg.Length);
-                    Console.WriteLine("Message sent:" + DateTime.Now.Millisecond.ToString());
+                    //Console.WriteLine("Message sent:" + DateTime.Now.Millisecond.ToString());
                 }
                 catch
                 {

@@ -41,7 +41,7 @@ namespace WpfOscilloscopeControl
             //</ LicenseContract > ");
 
             InitializeComponent();
-            
+
             //lineRenderSeries.DataSeries = dataSeries;
             //lineRenderSeries2.DataSeries = dataSeries2;
             //sciChart.ZoomExtents();
@@ -61,10 +61,13 @@ namespace WpfOscilloscopeControl
                 var lineRenderableSerie = new FastLineRenderableSeries();
                 lineRenderableSerie.Name = "lineRenderableSerie"+id.ToString();
                 lineRenderableSerie.DataSeries = lineDictionary[id];
-                
+                lineRenderableSerie.DataSeries.AcceptsUnsortedData = true;
+
                 //Ajout de la ligne dans le scichart
                 sciChart.RenderableSeries.Add(lineRenderableSerie);
             }
+
+            
         }
 
         public void RemoveLine(int id)
@@ -112,9 +115,12 @@ namespace WpfOscilloscopeControl
 
         public void AddPointToLine(int lineId, double x, double y)
         {
-            lineDictionary[lineId].Append(x, y);
-            if (lineDictionary[lineId].Count > lineDictionary[lineId].Capacity)
-                lineDictionary[lineId].RemoveAt(0);
+            if (LineExist(lineId))
+            {
+                lineDictionary[lineId].Append(x, y);
+                if (lineDictionary[lineId].Count > lineDictionary[lineId].Capacity)
+                    lineDictionary[lineId].RemoveAt(0);
+            }
         }
 
         public void AddPointToLine(int lineId, Point point)

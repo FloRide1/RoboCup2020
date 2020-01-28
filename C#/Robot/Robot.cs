@@ -294,9 +294,13 @@ namespace Robot
                 
                 robotMsgProcessor.OnIMUDataFromRobotGeneratedEvent += interfaceRobot.UpdateImuDataOnGraph;
                 robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += interfaceRobot.UpdateMotorsCurrentsOnGraph;
+                robotMsgProcessor.OnEncoderRawDataFromRobotGeneratedEvent+= interfaceRobot.UpdateMotorsEncRawDataOnGraph;
+                
+                //robotMsgProcessor.OnEnableMotorSpeedConsigneDataACKFromRobotGeneratedEvent +=interfaceRobot.
                 robotMsgProcessor.OnEnableDisableMotorsACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableDisableMotorsButton;
                 robotMsgProcessor.OnEnableDisableTirACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableDisableTirButton;
-                robotMsgProcessor.OnEncodersDataFromRobotGeneratedEvent += interfaceRobot.UpdateMotorsSpeedsOnGraph;
+                robotMsgProcessor.OnMotorVitesseDataFromRobotGeneratedEvent += interfaceRobot.UpdateMotorsSpeedsOnGraph;
+                robotMsgProcessor.OnSpeedConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateMotorSpeedConsigneOnGraph;
                 robotMsgProcessor.OnEnableAsservissementACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableAsservissementButton;
                 robotMsgProcessor.OnErrorTextFromRobotGeneratedEvent += interfaceRobot.AppendConsole;
                 xBoxManette.OnSpeedConsigneEvent += interfaceRobot.UpdateSpeedConsigneOnGraph;
@@ -304,6 +308,9 @@ namespace Robot
                 interfaceRobot.OnEnableDisableTirFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableTir;
                 interfaceRobot.OnEnableDisableControlManetteFromInterfaceGeneratedEvent += ChangeUseOfXBoxController;
                 interfaceRobot.OnEnableAsservissementFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableAsservissement;
+                interfaceRobot.OnEnableEncodersRawDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableEncoderRawData;
+                interfaceRobot.OnEnableMotorCurrentDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableMotorCurrentData;
+                interfaceRobot.OnEnableMotorsSpeedConsigneDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableMotorSpeedConsigne;
 
                 localWorldMapManager.OnLocalWorldMapEvent+= interfaceRobot.OnLocalWorldMapEvent;
 

@@ -11,7 +11,7 @@ namespace XBoxController
         Controller controller;
         Gamepad gamepad;
         public bool connected = false;
-        public int deadband = 3000;
+        public int deadband = 5000;
         public float leftTrigger, rightTrigger;
         double Vtheta;
         double VxRampe = 0;
@@ -44,21 +44,31 @@ namespace XBoxController
             {
                 gamepad = controller.GetState().Gamepad;
 
-                if (Math.Abs((float)gamepad.LeftThumbY) < deadband)
+                if (gamepad.LeftThumbY > deadband)
+                    Vx = gamepad.LeftThumbY - deadband;
+                else if (gamepad.LeftThumbY < -deadband)
+                    Vx = gamepad.LeftThumbY + deadband;
+                else
                     Vx = 0;
-                else
-                    Vx = -(float)gamepad.LeftThumbY / short.MinValue * VLinMax;
+                Vx = Vx / short.MaxValue * VLinMax;
 
-                if (Math.Abs((float)gamepad.LeftThumbX) < deadband)
+                if (gamepad.LeftThumbX > deadband)
+                    Vy = gamepad.LeftThumbX - deadband;
+                else if (gamepad.LeftThumbX < -deadband)
+                    Vy = gamepad.LeftThumbX + deadband;
+                else
                     Vy = 0;
+                Vy = Vy / short.MaxValue * VLinMax;
+                
+                if (gamepad.RightThumbX > deadband)
+                    Vtheta = gamepad.RightThumbX - deadband;
+                else if (gamepad.RightThumbX < -deadband)
+                    Vtheta = gamepad.RightThumbX + deadband;
                 else
-                    Vy = (float)gamepad.LeftThumbX / short.MinValue * VLinMax;
-
-                if (Math.Abs((float)gamepad.RightThumbX) < deadband)
                     Vtheta = 0;
-                else
-                    Vtheta = (float)gamepad.RightThumbX / short.MinValue * VThetaMax;
+                Vtheta = Vtheta / short.MaxValue * VThetaMax;
 
+                Console.WriteLine("Gamepad Vx : " + Vx + " Vy : "+Vy +" VTheta : "+Vtheta);
                 vitessePriseBalle = (float)(gamepad.RightTrigger) / 2.55;
                 if (gamepad.Buttons.HasFlag(GamepadButtonFlags.X))
                 {
