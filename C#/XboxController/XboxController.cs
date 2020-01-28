@@ -11,7 +11,7 @@ namespace XBoxController
         Controller controller;
         Gamepad gamepad;
         public bool connected = false;
-        public int deadband = 5000;
+        public int deadband = 7000;
         public float leftTrigger, rightTrigger;
         double Vtheta;
         double VxRampe = 0;
@@ -52,18 +52,23 @@ namespace XBoxController
                     Vx = 0;
                 Vx = Vx / short.MaxValue * VLinMax;
 
-                if (gamepad.LeftThumbX > deadband)
-                    Vy = gamepad.LeftThumbX - deadband;
-                else if (gamepad.LeftThumbX < -deadband)
-                    Vy = gamepad.LeftThumbX + deadband;
+                //Inversion sur Vy pour avoir Vy positif quand on va vers la gauche.
+                double gamePadVy = -gamepad.LeftThumbX;
+                if (gamePadVy > deadband)
+                    Vy = gamePadVy - deadband;
+                else if (gamePadVy < -deadband)
+                    Vy = gamePadVy + deadband;
                 else
                     Vy = 0;
                 Vy = Vy / short.MaxValue * VLinMax;
-                
-                if (gamepad.RightThumbX > deadband)
-                    Vtheta = gamepad.RightThumbX - deadband;
-                else if (gamepad.RightThumbX < -deadband)
-                    Vtheta = gamepad.RightThumbX + deadband;
+
+
+                //Inversion sur VTHeta pour avoir VTheta positif quand on va vers la gauche.
+                double gamePadVTheta = -gamepad.RightThumbX;
+                if (gamePadVTheta > deadband)
+                    Vtheta = gamePadVTheta - deadband;
+                else if (gamePadVTheta < -deadband)
+                    Vtheta = gamePadVTheta + deadband;
                 else
                     Vtheta = 0;
                 Vtheta = Vtheta / short.MaxValue * VThetaMax;
@@ -127,7 +132,7 @@ namespace XBoxController
                     VthetaRampe = Vtheta;
                 }
 
-                OnSpeedConsigneToRobot(robotId, (float)VxRampe, (float)VyRampe, (float)VthetaRampe);
+                OnSpeedConsigneToRobot(robotId, (float)VxRampe, (float)-VyRampe, (float)VthetaRampe);
                 //OnPriseBalleToRobot(2, (float)(Vx*33.3));
                 OnPriseBalleToRobot(5, (float)vitessePriseBalle);
                 OnPriseBalleToRobot(6, (float)-vitessePriseBalle);
