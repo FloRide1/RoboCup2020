@@ -37,7 +37,7 @@ namespace ExtendedSerialPort
                 //Le Thread est infini mais il sera suspendu quand le port série sera trouvé et ouvert
                 while (true)
                 {
-                    string PortNameFound = "COM1";//SearchPortName(PortType); TOTO: remettre en etat sinon moi bobo
+                    string PortNameFound = "COM15";//SearchPortName(PortType); TOTO: remettre en etat sinon moi bobo
                     if (!string.IsNullOrWhiteSpace(PortNameFound))
                     {
                         //Si on trouve un port série de type voulu

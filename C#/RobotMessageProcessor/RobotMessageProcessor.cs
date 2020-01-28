@@ -130,13 +130,13 @@ namespace RobotMessageProcessor
 
                 case (short)Commands.EncoderRawData:
                     timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
-                    uint enc1RawVal = (uint)(payload[7] | payload[6] << 8 | payload[5] << 16 | payload[4] << 24);
-                    uint enc2RawVal = (uint)(payload[11] | payload[10] << 8 | payload[9] << 16 | payload[8] << 24);
-                    uint enc3RawVal = (uint)(payload[15] | payload[14] << 8 | payload[13] << 16 | payload[12] << 24);
-                    uint enc4RawVal = (uint)(payload[19] | payload[18] << 8 | payload[17] << 16 | payload[16] << 24);
-                    uint enc5RawVal = (uint)(payload[23] | payload[22] << 8 | payload[21] << 16 | payload[20] << 24);
-                    uint enc6RawVal = (uint)(payload[27] | payload[26] << 8 | payload[25] << 16 | payload[24] << 24);
-                    uint enc7RawVal = (uint)(payload[31] | payload[30] << 8 | payload[29] << 16 | payload[28] << 24);
+                    int enc1RawVal = (int)(payload[7] | payload[6] << 8 | payload[5] << 16 | payload[4] << 24);
+                    int enc2RawVal = (int)(payload[11] | payload[10] << 8 | payload[9] << 16 | payload[8] << 24);
+                    int enc3RawVal = (int)(payload[15] | payload[14] << 8 | payload[13] << 16 | payload[12] << 24);
+                    int enc4RawVal = (int)(payload[19] | payload[18] << 8 | payload[17] << 16 | payload[16] << 24);
+                    int enc5RawVal = (int)(payload[23] | payload[22] << 8 | payload[21] << 16 | payload[20] << 24);
+                    int enc6RawVal = (int)(payload[27] | payload[26] << 8 | payload[25] << 16 | payload[24] << 24);
+                    int enc7RawVal = (int)(payload[31] | payload[30] << 8 | payload[29] << 16 | payload[28] << 24);
 
                     //On envois l'event aux abonnés
                     OnEncoderRawDataFromRobot(timeStamp, enc1RawVal, enc2RawVal, enc3RawVal, enc4RawVal, enc5RawVal, enc6RawVal, enc7RawVal);
@@ -345,8 +345,8 @@ namespace RobotMessageProcessor
 
         public delegate void EncoderRawDataEventHandler(object sender, EncodersRawDataEventArgs e);
         public event EventHandler<EncodersRawDataEventArgs> OnEncoderRawDataFromRobotGeneratedEvent;
-        public virtual void OnEncoderRawDataFromRobot(uint timeStamp, uint m1, uint m2, uint m3,
-                                                                        uint m4, uint m5, uint m6, uint m7)
+        public virtual void OnEncoderRawDataFromRobot(uint timeStamp, int m1, int m2, int m3,
+                                                                        int m4, int m5, int m6, int m7)
         {
             var handler = OnEncoderRawDataFromRobotGeneratedEvent;
             if (handler != null)

@@ -96,13 +96,13 @@ namespace EventArgsLibrary
     public class EncodersRawDataEventArgs : EventArgs
     {
         public uint timeStampMS;
-        public uint motor1;
-        public uint motor2;
-        public uint motor3;
-        public uint motor4;
-        public uint motor5;
-        public uint motor6;
-        public uint motor7;
+        public int motor1;
+        public int motor2;
+        public int motor3;
+        public int motor4;
+        public int motor5;
+        public int motor6;
+        public int motor7;
     }
     public class MotorsPositionDataEventArgs : MotorsCurrentsEventArgs
     {
