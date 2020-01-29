@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.106
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Robot", "Robot.csproj", "{F48FF3AC-50C6-4016-8F67-F5430FED1A2C}"
 EndProject
@@ -36,8 +36,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfRobotInterface", "..\RobotInterfaceWPF_Supervision_Systeme_Embarqué\RobotInterface\WpfRobotInterface.csproj", "{1CDC0611-A2E5-42E8-A28B-BA4269343C68}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageProcessingOmniCamera", "..\ImageProcessingOmniCamera\ImageProcessingOmniCamera.csproj", "{9EAC5BB2-FA20-45A4-B8E9-97C145F38F25}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfWorldMapLibrary", "..\WpfControlLibrary\WpfWorldMapLibrary.csproj", "{89604641-927E-47FF-8DB6-91CF5C4976C1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WayPointGenerator", "..\WayPointGenerator\WayPointGenerator.csproj", "{66799E02-D6D6-40A0-9D98-B6CD718E76C7}"
 EndProject
@@ -86,6 +84,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alturos.Yolo", "..\Alturos.Yolo\Alturos.Yolo.csproj", "{BFDB287F-7E23-4D44-B114-DF2E05C2CF04}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alturos.Yolo.TestUI", "..\Alturos.Yolo.TestUI\Alturos.Yolo.TestUI.csproj", "{2923401A-6C84-455A-A6CC-A13A70E13D63}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfWorldMapDisplay", "..\WpfWorldMapDisplay\WpfWorldMapDisplay.csproj", "{89604641-927E-47FF-8DB6-91CF5C4976C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -161,10 +161,6 @@ Global
 		{9EAC5BB2-FA20-45A4-B8E9-97C145F38F25}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9EAC5BB2-FA20-45A4-B8E9-97C145F38F25}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9EAC5BB2-FA20-45A4-B8E9-97C145F38F25}.Release|Any CPU.Build.0 = Release|Any CPU
-		{89604641-927E-47FF-8DB6-91CF5C4976C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{89604641-927E-47FF-8DB6-91CF5C4976C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{89604641-927E-47FF-8DB6-91CF5C4976C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{89604641-927E-47FF-8DB6-91CF5C4976C1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{66799E02-D6D6-40A0-9D98-B6CD718E76C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{66799E02-D6D6-40A0-9D98-B6CD718E76C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66799E02-D6D6-40A0-9D98-B6CD718E76C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -261,6 +257,10 @@ Global
 		{2923401A-6C84-455A-A6CC-A13A70E13D63}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2923401A-6C84-455A-A6CC-A13A70E13D63}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2923401A-6C84-455A-A6CC-A13A70E13D63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89604641-927E-47FF-8DB6-91CF5C4976C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89604641-927E-47FF-8DB6-91CF5C4976C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89604641-927E-47FF-8DB6-91CF5C4976C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89604641-927E-47FF-8DB6-91CF5C4976C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

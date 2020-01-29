@@ -12,7 +12,7 @@ using Arction.Wpf.Charting;             // LightningChartUltimate and general ty
 using Arction.Wpf.Charting.SeriesXY;    // Series for 2D chart.
 using Constants;
 using WpfOscilloscopeControl;
-using WpfControlLibrary;
+using WpfWorldMapDisplay;
 using SciChart.Charting.Visuals;
 
 namespace RobotInterface

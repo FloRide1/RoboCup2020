@@ -28,6 +28,26 @@ namespace Utilities
         }
     }
 
+    public class Location
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Theta { get; set; }
+        public double Vx { get; set; }
+        public double Vy { get; set; }
+        public double Vtheta { get; set; }
+
+        public Location(double x, double y, double theta, double vx, double vy, double vtheta)
+        {
+            X = x;
+            Y = y;
+            Theta = theta;
+            Vx = vx;
+            Vy = vy;
+            Vtheta = vtheta;
+        }
+    }
+
     public class PolygonExtended
     {
         public Polygon polygon = new Polygon();

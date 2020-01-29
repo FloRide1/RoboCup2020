@@ -1,14 +1,10 @@
 ﻿using EventArgsLibrary;
-using PerceptionManagement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Timers;
 using Utilities;
 using WorldMap;
-using Constants;
 
 namespace WorldMapManager
 {
@@ -76,8 +72,8 @@ namespace WorldMapManager
                 //Pour l'instant on prend la position de balle vue par le robot 1 comme vérité, mais c'est à améliorer !
                 if (localWorldMapDictionary.Count > 0)
                     globalWorldMap.ballLocation = localWorldMapDictionary.First().Value.ballLocation;
-                globalWorldMap.teammateLocationList = new Dictionary<int, PerceptionManagement.Location>();
-                globalWorldMap.opponentLocationList = new List<PerceptionManagement.Location>();
+                globalWorldMap.teammateLocationList = new Dictionary<int, Location>();
+                globalWorldMap.opponentLocationList = new List<Location>();
 
                 //On place tous les robots de l'équipe dans la global map
                 foreach (var localMap in localWorldMapDictionary)
