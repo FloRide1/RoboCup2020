@@ -120,7 +120,20 @@ namespace EventArgsLibrary
         public double vitesseMotor6;
         public double vitesseMotor7;
     }
+    public class PIDDebugDataArgs : EventArgs
+    {
+        public uint timeStampMS;
+        public double xErreur;
+        public double yErreur;
+        public double thetaErreur;
+        public double xCorrection;
+        public double yCorrection;
+        public double thetaCorrection;
 
+        public double xConsigneFromRobot;
+        public double yConsigneFromRobot;
+        public double thetaConsigneFromRobot;
+    }
     public class PIDDataArgs : EventArgs
     {
         public double P_x;

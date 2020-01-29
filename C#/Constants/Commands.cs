@@ -81,7 +81,7 @@ namespace Constants
         AddDeplacement = 425,
         SetAccelSpeed = 426,
         SetSpeedConsigne = 427,
-        AsservissementData = 428,       //0x01AC
+        PIDDebugData = 428,       //0x01AC
         SetPIDValues = 429,             //0x01AD
         SetRobotVariable = 430,
         OdometryData = 431,             //0x01AF
@@ -96,6 +96,7 @@ namespace Constants
         EnableEncoderRawData=440,       //0x01B8
         EnablePositionData=441,         //0x01B9
         EnableMotorSpeedConsigne=442,   //0x01BA
+        EnablePIDDebugData=443,         //0x01BB
         GetCamera = 443,
         TirCommand = 444,
         MoveTirUp = 445,

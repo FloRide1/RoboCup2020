@@ -171,6 +171,17 @@ namespace RobotInterface
             oscilloM4.AddPointToLine(3, e.timeStampMS / 1000.0, e.motor4);
         }
 
+        public void UpdatePIDDebugDataOnGraph(object sender, PIDDebugDataArgs e)
+        {
+            oscilloX.AddPointToLine(3, e.timeStampMS / 1000.0, e.xErreur);
+            oscilloX.AddPointToLine(4, e.timeStampMS / 1000.0, e.xCorrection);
+            oscilloY.AddPointToLine(3, e.timeStampMS / 1000.0, e.yErreur);
+            oscilloY.AddPointToLine(4, e.timeStampMS / 1000.0, e.yCorrection);
+
+            oscilloX.AddPointToLine(5, e.timeStampMS / 1000.0, e.xConsigneFromRobot);
+            oscilloY.AddPointToLine(5, e.timeStampMS / 1000.0, e.yConsigneFromRobot);
+        }
+
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (WindowState == WindowState.Maximized)
@@ -316,15 +327,29 @@ namespace RobotInterface
         int lastZoomedCol = 0;
         private void ZoomOnGraph_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            WpfOscilloscope s = (WpfOscilloscope)sender;
-
             int row = 0, column = 0;
-
-            if (s != null)
+            if (sender.GetType() == typeof(WpfOscilloscope))
             {
-                row = Grid.GetRow(s);
-                column = Grid.GetColumn(s);
+                WpfOscilloscope s = (WpfOscilloscope)sender;
+                if (s != null)
+                {
+                    row = Grid.GetRow(s);
+                    column = Grid.GetColumn(s);
+                }
             }
+            else if(sender.GetType()== typeof(GroupBox))
+            {
+                GroupBox s = (GroupBox)sender;
+                if (s != null)
+                {
+                    row = Grid.GetRow(s);
+                    column = Grid.GetColumn(s);
+                }
+            }
+
+            
+
+
 
 
             if (!isZoomed)
@@ -432,6 +457,17 @@ namespace RobotInterface
         public virtual void OnEnableMotorSpeedConsigneDataFromInterface(bool val)
         {
             var handler = OnEnableMotorsSpeedConsigneDataFromInterfaceGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = val });
+            }
+        }
+
+        //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<BoolEventArgs> OnEnablePIDDebugDataFromInterfaceGeneratedEvent;
+        public virtual void OnEnablePIDDebugDataFromInterface(bool val)
+        {
+            var handler = OnEnablePIDDebugDataFromInterfaceGeneratedEvent;
             if (handler != null)
             {
                 handler(this, new BoolEventArgs { value = val });
@@ -658,6 +694,57 @@ namespace RobotInterface
                 if (oscilloM4.LineExist(4))
                 {
                     oscilloM4.RemoveLine(4);
+                }
+            }
+        }
+
+        private void CheckBoxEnablePIDDebugData_Checked(object sender, RoutedEventArgs e)
+        {
+            if (CheckBoxEnablePIDDebugData.IsChecked ?? false)
+            {
+                OnEnablePIDDebugDataFromInterface(true);
+                oscilloX.AddOrUpdateLine(3, 100, "xErreur");
+                oscilloX.ChangeLineColor(3, Colors.GreenYellow);
+                oscilloY.AddOrUpdateLine(3, 100, "yErreur");
+                oscilloY.ChangeLineColor(3, Colors.GreenYellow);
+
+                oscilloX.AddOrUpdateLine(4, 100, "xCorrection %");
+                oscilloX.ChangeLineColor(4, Colors.ForestGreen);
+                oscilloY.AddOrUpdateLine(4, 100, "yCorrection %");
+                oscilloY.ChangeLineColor(4, Colors.ForestGreen);
+
+                oscilloX.AddOrUpdateLine(5, 100, "xConsigne robot");
+                oscilloX.ChangeLineColor(5, Colors.Yellow);
+                oscilloY.AddOrUpdateLine(5, 100, "xConsigne robot");
+                oscilloY.ChangeLineColor(5, Colors.Yellow);
+            }
+            else
+            {
+                OnEnablePIDDebugDataFromInterface(false);
+                if (oscilloX.LineExist(3))
+                {
+                    oscilloX.RemoveLine(3);
+                }
+                if (oscilloX.LineExist(3))
+                {
+                    oscilloX.RemoveLine(3);
+                }
+                if (oscilloY.LineExist(4))
+                {
+                    oscilloY.RemoveLine(4);
+                }
+                if (oscilloY.LineExist(4))
+                {
+                    oscilloY.RemoveLine(4);
+                }
+
+                if (oscilloX.LineExist(5))
+                {
+                    oscilloX.RemoveLine(5);
+                }
+                if (oscilloY.LineExist(5))
+                {
+                    oscilloY.RemoveLine(5);
                 }
             }
         }

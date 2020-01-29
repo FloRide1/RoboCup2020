@@ -141,6 +141,30 @@ namespace RobotMessageProcessor
                     //On envois l'event aux abonnés
                     OnEncoderRawDataFromRobot(timeStamp, enc1RawVal, enc2RawVal, enc3RawVal, enc4RawVal, enc5RawVal, enc6RawVal, enc7RawVal);
                     break;
+                case (short)Commands.PIDDebugData:
+                    timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                    tab = payload.GetRange(4, 4);
+                    float xError = tab.GetFloat();
+                    tab = payload.GetRange(8, 4);
+                    float yError = tab.GetFloat();
+                    tab = payload.GetRange(12, 4);
+                    float thetaError = tab.GetFloat();
+                    tab = payload.GetRange(16, 4);
+                    float xCorrection = tab.GetFloat();
+                    tab = payload.GetRange(20, 4);
+                    float yCorrection = tab.GetFloat();
+                    tab = payload.GetRange(24, 4);
+                    float thetaCorrection = tab.GetFloat();
+
+                    tab = payload.GetRange(28, 4);
+                    float xconsigne = tab.GetFloat();
+                    tab = payload.GetRange(32, 4);
+                    float yConsigne = tab.GetFloat();
+                    tab = payload.GetRange(36, 4);
+                    float thetaConsigne = tab.GetFloat();
+                    //On envois l'event aux abonnés
+                    OnPIDDebugDataFromRobot(timeStamp, xError, yError, thetaError, xCorrection, yCorrection, thetaCorrection, xconsigne,yConsigne,thetaConsigne);
+                    break;
 
                 case (short)Commands.EnableDisableMotors:
                     bool value = Convert.ToBoolean(payload[0]);
@@ -383,6 +407,30 @@ namespace RobotMessageProcessor
                     vitesseMotor5 = m5,
                     vitesseMotor6 = m6,
                     vitesseMotor7 = m7
+                });
+            }
+        }
+
+        public delegate void PIDDebugDataEventHandler(object sender, PIDDebugDataArgs e);
+        public event EventHandler<PIDDebugDataArgs> OnPIDDebugDataFromRobotGeneratedEvent;
+        public virtual void OnPIDDebugDataFromRobot(uint timeStamp, double xError, double yError, double thetaError,
+                                                                        double xCorrection, double yCorrection, double thetaCorrection, double xConsigneRobot, double yConsigneRobot, double thetaConsigneRobot)
+        {
+            var handler = OnPIDDebugDataFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new PIDDebugDataArgs
+                {
+                    timeStampMS = timeStamp,
+                    xErreur = xError,
+                    yErreur = yError,
+                    thetaErreur = thetaError,
+                    xCorrection = xCorrection,
+                    yCorrection = yCorrection,
+                    thetaCorrection = thetaCorrection,
+                    xConsigneFromRobot=xConsigneRobot,
+                    yConsigneFromRobot=yConsigneRobot,
+                    thetaConsigneFromRobot=thetaConsigneRobot
                 });
             }
         }
