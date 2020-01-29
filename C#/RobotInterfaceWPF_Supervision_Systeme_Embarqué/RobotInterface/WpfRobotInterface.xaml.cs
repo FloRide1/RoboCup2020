@@ -74,6 +74,13 @@ namespace RobotInterface
             oscilloY.AddOrUpdateLine(2, 100, "Accel Y");
             oscilloY.ChangeLineColor("Vitesse Y", Colors.Red);
             oscilloY.ChangeLineColor("Vitesse Y Consigne", Colors.Blue);
+
+            oscilloTheta.SetTitle("Vtheta");
+            oscilloTheta.AddOrUpdateLine(0, 100, "Vitesse Theta Consigne");
+            oscilloTheta.AddOrUpdateLine(1, 100, "Vitesse Theta");
+            oscilloTheta.AddOrUpdateLine(2, 100, "Gyr Z");
+            oscilloTheta.ChangeLineColor(1, Colors.Red);
+            oscilloTheta.ChangeLineColor(0, Colors.Blue);
         }
 
         int nbMsgSent = 0;
@@ -122,6 +129,7 @@ namespace RobotInterface
         {
             oscilloX.AddPointToLine(2, e.timeStampMS/1000.0, e.accelX);
             oscilloY.AddPointToLine(2, e.timeStampMS/1000.0, e.accelY);
+            oscilloTheta.AddPointToLine(2, e.timeStampMS / 1000.0, e.gyrZ);
             currentTime = e.timeStampMS/1000.0;
         }
 
@@ -129,6 +137,7 @@ namespace RobotInterface
         {
             oscilloX.AddPointToLine(0, currentTime, e.Vx);
             oscilloY.AddPointToLine(0, currentTime, e.Vy);
+            oscilloTheta.AddPointToLine(0, currentTime, e.Vtheta);
         }
 
         public void UpdateMotorSpeedConsigneOnGraph(object sender, MotorsVitesseDataEventArgs e)
@@ -175,11 +184,16 @@ namespace RobotInterface
         {
             oscilloX.AddPointToLine(3, e.timeStampMS / 1000.0, e.xErreur);
             oscilloX.AddPointToLine(4, e.timeStampMS / 1000.0, e.xCorrection);
+
             oscilloY.AddPointToLine(3, e.timeStampMS / 1000.0, e.yErreur);
             oscilloY.AddPointToLine(4, e.timeStampMS / 1000.0, e.yCorrection);
 
+            oscilloTheta.AddPointToLine(3, e.timeStampMS / 1000.0, e.thetaErreur);
+            oscilloTheta.AddPointToLine(4, e.timeStampMS / 1000.0, e.thetaCorrection);
+
             oscilloX.AddPointToLine(5, e.timeStampMS / 1000.0, e.xConsigneFromRobot);
             oscilloY.AddPointToLine(5, e.timeStampMS / 1000.0, e.yConsigneFromRobot);
+            oscilloTheta.AddPointToLine(5, e.timeStampMS / 1000.0, e.thetaConsigneFromRobot);
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -707,16 +721,22 @@ namespace RobotInterface
                 oscilloX.ChangeLineColor(3, Colors.GreenYellow);
                 oscilloY.AddOrUpdateLine(3, 100, "yErreur");
                 oscilloY.ChangeLineColor(3, Colors.GreenYellow);
+                oscilloTheta.AddOrUpdateLine(3, 100, "thetaErreur");
+                oscilloTheta.ChangeLineColor(3, Colors.GreenYellow);
 
                 oscilloX.AddOrUpdateLine(4, 100, "xCorrection %");
                 oscilloX.ChangeLineColor(4, Colors.ForestGreen);
                 oscilloY.AddOrUpdateLine(4, 100, "yCorrection %");
                 oscilloY.ChangeLineColor(4, Colors.ForestGreen);
+                oscilloTheta.AddOrUpdateLine(4, 100, "thetaCorrection %");
+                oscilloTheta.ChangeLineColor(4, Colors.ForestGreen);
 
                 oscilloX.AddOrUpdateLine(5, 100, "xConsigne robot");
                 oscilloX.ChangeLineColor(5, Colors.Yellow);
                 oscilloY.AddOrUpdateLine(5, 100, "xConsigne robot");
                 oscilloY.ChangeLineColor(5, Colors.Yellow);
+                oscilloTheta.AddOrUpdateLine(5, 100, "thetaConsigne robot");
+                oscilloTheta.ChangeLineColor(5, Colors.Yellow);
             }
             else
             {
@@ -725,26 +745,39 @@ namespace RobotInterface
                 {
                     oscilloX.RemoveLine(3);
                 }
-                if (oscilloX.LineExist(3))
+                if (oscilloX.LineExist(4))
                 {
-                    oscilloX.RemoveLine(3);
+                    oscilloX.RemoveLine(4);
                 }
-                if (oscilloY.LineExist(4))
-                {
-                    oscilloY.RemoveLine(4);
-                }
-                if (oscilloY.LineExist(4))
-                {
-                    oscilloY.RemoveLine(4);
-                }
-
                 if (oscilloX.LineExist(5))
                 {
                     oscilloX.RemoveLine(5);
                 }
+
+                if (oscilloY.LineExist(3))
+                {
+                    oscilloY.RemoveLine(3);
+                }
+                if (oscilloY.LineExist(4))
+                {
+                    oscilloY.RemoveLine(4);
+                }
                 if (oscilloY.LineExist(5))
                 {
                     oscilloY.RemoveLine(5);
+                }
+
+                if (oscilloTheta.LineExist(3))
+                {
+                    oscilloTheta.RemoveLine(3);
+                }
+                if (oscilloTheta.LineExist(4))
+                {
+                    oscilloTheta.RemoveLine(4);
+                }
+                if (oscilloTheta.LineExist(5))
+                {
+                    oscilloTheta.RemoveLine(5);
                 }
             }
         }
