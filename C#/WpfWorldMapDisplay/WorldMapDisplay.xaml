@@ -8,7 +8,7 @@
              d:DesignHeight="2000" d:DesignWidth="2600"
              xmlns:s="http://schemas.abtsoftware.co.uk/scichart" >
     <Grid>
-        <s:SciChartSurface x:Name="sciChart" Padding="0" BorderThickness="0">
+         <s:SciChartSurface x:Name="sciChart" Padding="0" BorderThickness="0">
 
             <!--  Create a X Axis  -->
             <s:SciChartSurface.XAxis>

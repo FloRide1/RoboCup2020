@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:s="http://schemas.abtsoftware.co.uk/scichart" 
-        xmlns:ext="clr-namespace:WpfControlLibrary;assembly=WpfControlLibrary"
+        xmlns:ext="clr-namespace:WpfWorldMapDisplay;assembly=WpfWorldMapDisplay"
         xmlns:local="clr-namespace:TeamInterface"
         xmlns:lcu="http://schemas.arction.com/charting/ultimate/" xmlns:lcub="http://schemas.arction.com/bindablecharting/ultimate/" x:Class="TeamInterface.WpfTeamInterface"
         mc:Ignorable="d"

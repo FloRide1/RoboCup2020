@@ -20,7 +20,7 @@ namespace ImageProcessingOmniCamera
 
         public ImageProcessingPositionFromOmniCamera()
         {
-            TerrainTheoriqueVertical = GenerateImageTerrain();
+            //TerrainTheoriqueVertical = GenerateImageTerrain();
 
         }
 
@@ -289,86 +289,86 @@ namespace ImageProcessingOmniCamera
             long ComputeTime = watch.ElapsedMilliseconds;
         }
 
-        Mat GenerateImageTerrain()
-        {
-            //Tracé du terrain
-            List<Segment> listSegmentsTerrainRefTerrain = new List<Segment>();
-            listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-7, 11), new Point3D(7, 11)));
-            listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-7, -11), new Point3D(7, -11)));
-            listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-7, 11), new Point3D(-7, -11)));
-            listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(7, -11), new Point3D(7, 11)));
+        //Mat GenerateImageTerrain()
+        //{
+        //    //Tracé du terrain
+        //    List<Segment> listSegmentsTerrainRefTerrain = new List<Segment>();
+        //    listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-7, 11), new Point3D(7, 11)));
+        //    listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-7, -11), new Point3D(7, -11)));
+        //    listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-7, 11), new Point3D(-7, -11)));
+        //    listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(7, -11), new Point3D(7, 11)));
 
-            listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(1.95, 11), new Point3D(1.95, 10.25)));
-            listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-1.95, 11), new Point3D(-1.95, 10.25)));
-            listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(1.95, -11), new Point3D(1.95, -10.25)));
-            listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-1.95, -11), new Point3D(-1.95, -10.25)));
-            listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-1.95, -10.25), new Point3D(1.95, -10.25)));
-            listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-1.95, 10.25), new Point3D(1.95, 10.25)));
+        //    listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(1.95, 11), new Point3D(1.95, 10.25)));
+        //    listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-1.95, 11), new Point3D(-1.95, 10.25)));
+        //    listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(1.95, -11), new Point3D(1.95, -10.25)));
+        //    listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-1.95, -11), new Point3D(-1.95, -10.25)));
+        //    listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-1.95, -10.25), new Point3D(1.95, -10.25)));
+        //    listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-1.95, 10.25), new Point3D(1.95, 10.25)));
 
-            listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(3.45, 11), new Point3D(3.45, 8.75)));
-            listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-3.45, 11), new Point3D(-3.45, 8.75)));
-            listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(3.45, -11), new Point3D(3.45, -8.75)));
-            listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-3.45, -11), new Point3D(-3.45, -8.75)));
-            listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-3.45, -8.75), new Point3D(3.45, -8.75)));
-            listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-3.45, 8.75), new Point3D(3.45, 8.75)));
+        //    listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(3.45, 11), new Point3D(3.45, 8.75)));
+        //    listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-3.45, 11), new Point3D(-3.45, 8.75)));
+        //    listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(3.45, -11), new Point3D(3.45, -8.75)));
+        //    listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-3.45, -11), new Point3D(-3.45, -8.75)));
+        //    listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-3.45, -8.75), new Point3D(3.45, -8.75)));
+        //    listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-3.45, 8.75), new Point3D(3.45, 8.75)));
 
-            listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-7, 0), new Point3D(7, 0)));
+        //    listSegmentsTerrainRefTerrain.Add(new Segment(new Point3D(-7, 0), new Point3D(7, 0)));
 
-            double widthTerrainInMeter = 14;
-            double heightTerrainInMeter = 22;
-            double margin = 10;
-            double largeurLigne = 0.20;
+        //    double widthTerrainInMeter = 14;
+        //    double heightTerrainInMeter = 22;
+        //    double margin = 10;
+        //    double largeurLigne = 0.20;
 
-            int widthTerrain = (int)(scaleTerrain * widthTerrainInMeter);
-            int heightTerrain = (int)(scaleTerrain * heightTerrainInMeter);
+        //    int widthTerrain = (int)(scaleTerrain * widthTerrainInMeter);
+        //    int heightTerrain = (int)(scaleTerrain * heightTerrainInMeter);
 
-            int width = (int)(scaleTerrain * (widthTerrainInMeter + 2 * margin));
-            int height = (int)(scaleTerrain * (heightTerrainInMeter + 2 * margin));
+        //    int width = (int)(scaleTerrain * (widthTerrainInMeter + 2 * margin));
+        //    int height = (int)(scaleTerrain * (heightTerrainInMeter + 2 * margin));
 
-            Mat ImageTerrainTheorique = new Mat(height, width, DepthType.Cv8U, 3);
+        //    Mat ImageTerrainTheorique = new Mat(height, width, DepthType.Cv8U, 3);
 
-            //Fond noir
-            CvInvoke.Rectangle(ImageTerrainTheorique, new System.Drawing.Rectangle(0, 0, width, height), new Bgr(Color.Red).MCvScalar, -1);
-            //Terrain
-            CvInvoke.Rectangle(ImageTerrainTheorique, new System.Drawing.Rectangle((int)(scaleTerrain * margin), (int)(scaleTerrain * margin), widthTerrain, heightTerrain), new Bgr(Color.Green).MCvScalar, -1);
-            //Cercle central
-            CvInvoke.Circle(ImageTerrainTheorique, new Point(width / 2, height / 2), (int)(scaleTerrain * 2), new Bgr(Color.White).MCvScalar, (int)(scaleTerrain * largeurLigne));
+        //    //Fond noir
+        //    CvInvoke.Rectangle(ImageTerrainTheorique, new System.Drawing.Rectangle(0, 0, width, height), new Bgr(Color.Red).MCvScalar, -1);
+        //    //Terrain
+        //    CvInvoke.Rectangle(ImageTerrainTheorique, new System.Drawing.Rectangle((int)(scaleTerrain * margin), (int)(scaleTerrain * margin), widthTerrain, heightTerrain), new Bgr(Color.Green).MCvScalar, -1);
+        //    //Cercle central
+        //    CvInvoke.Circle(ImageTerrainTheorique, new Point(width / 2, height / 2), (int)(scaleTerrain * 2), new Bgr(Color.White).MCvScalar, (int)(scaleTerrain * largeurLigne));
 
-            //Segments du terrain
-            foreach (var seg in listSegmentsTerrainRefTerrain)
-            {
-                CvInvoke.Line(ImageTerrainTheorique, ChangeCoordTerrainToImage(seg.A, width / 2, height / 2), ChangeCoordTerrainToImage(seg.B, width / 2, height / 2), new Bgr(Color.White).MCvScalar, (int)(scaleTerrain * largeurLigne));
-            }
+        //    //Segments du terrain
+        //    foreach (var seg in listSegmentsTerrainRefTerrain)
+        //    {
+        //        CvInvoke.Line(ImageTerrainTheorique, ChangeCoordTerrainToImage(seg.A, width / 2, height / 2), ChangeCoordTerrainToImage(seg.B, width / 2, height / 2), new Bgr(Color.White).MCvScalar, (int)(scaleTerrain * largeurLigne));
+        //    }
 
-            //Corners
-            CvInvoke.Circle(ImageTerrainTheorique, new Point((width + widthTerrain) / 2, (height + heightTerrain) / 2), (int)(0.75 * scaleTerrain), new Bgr(Color.White).MCvScalar, (int)(scaleTerrain * largeurLigne));
-            CvInvoke.Circle(ImageTerrainTheorique, new Point((width - widthTerrain) / 2, (height + heightTerrain) / 2), (int)(0.75 * scaleTerrain), new Bgr(Color.White).MCvScalar, (int)(scaleTerrain * largeurLigne));
-            CvInvoke.Circle(ImageTerrainTheorique, new Point((width - widthTerrain) / 2, (height - heightTerrain) / 2), (int)(0.75 * scaleTerrain), new Bgr(Color.White).MCvScalar, (int)(scaleTerrain * largeurLigne));
-            CvInvoke.Circle(ImageTerrainTheorique, new Point((width + widthTerrain) / 2, (height - heightTerrain) / 2), (int)(0.75 * scaleTerrain), new Bgr(Color.White).MCvScalar, (int)(scaleTerrain * largeurLigne));
+        //    //Corners
+        //    CvInvoke.Circle(ImageTerrainTheorique, new Point((width + widthTerrain) / 2, (height + heightTerrain) / 2), (int)(0.75 * scaleTerrain), new Bgr(Color.White).MCvScalar, (int)(scaleTerrain * largeurLigne));
+        //    CvInvoke.Circle(ImageTerrainTheorique, new Point((width - widthTerrain) / 2, (height + heightTerrain) / 2), (int)(0.75 * scaleTerrain), new Bgr(Color.White).MCvScalar, (int)(scaleTerrain * largeurLigne));
+        //    CvInvoke.Circle(ImageTerrainTheorique, new Point((width - widthTerrain) / 2, (height - heightTerrain) / 2), (int)(0.75 * scaleTerrain), new Bgr(Color.White).MCvScalar, (int)(scaleTerrain * largeurLigne));
+        //    CvInvoke.Circle(ImageTerrainTheorique, new Point((width + widthTerrain) / 2, (height - heightTerrain) / 2), (int)(0.75 * scaleTerrain), new Bgr(Color.White).MCvScalar, (int)(scaleTerrain * largeurLigne));
 
-            List<Segment> listGreenMaskTerrainRefTerrain = new List<Segment>();
-            double shift = 0.5;
-            listGreenMaskTerrainRefTerrain.Add(new Segment(new Point3D(-7, 11 + (shift + largeurLigne / 2.0)), new Point3D(7, 11 + (shift + largeurLigne / 2))));
-            listGreenMaskTerrainRefTerrain.Add(new Segment(new Point3D(-7, -11 - (shift + largeurLigne / 2.0)), new Point3D(7, -11 - (shift + largeurLigne / 2))));
-            listGreenMaskTerrainRefTerrain.Add(new Segment(new Point3D(-7 - (shift + largeurLigne / 2.0), 11), new Point3D(-7 - (shift + largeurLigne / 2.0), -11)));
-            listGreenMaskTerrainRefTerrain.Add(new Segment(new Point3D(7 + (shift + largeurLigne / 2.0), -11), new Point3D(7 + (shift + largeurLigne / 2.0), 11)));
+        //    List<Segment> listGreenMaskTerrainRefTerrain = new List<Segment>();
+        //    double shift = 0.5;
+        //    listGreenMaskTerrainRefTerrain.Add(new Segment(new Point3D(-7, 11 + (shift + largeurLigne / 2.0)), new Point3D(7, 11 + (shift + largeurLigne / 2))));
+        //    listGreenMaskTerrainRefTerrain.Add(new Segment(new Point3D(-7, -11 - (shift + largeurLigne / 2.0)), new Point3D(7, -11 - (shift + largeurLigne / 2))));
+        //    listGreenMaskTerrainRefTerrain.Add(new Segment(new Point3D(-7 - (shift + largeurLigne / 2.0), 11), new Point3D(-7 - (shift + largeurLigne / 2.0), -11)));
+        //    listGreenMaskTerrainRefTerrain.Add(new Segment(new Point3D(7 + (shift + largeurLigne / 2.0), -11), new Point3D(7 + (shift + largeurLigne / 2.0), 11)));
 
-            foreach (var seg in listGreenMaskTerrainRefTerrain)
-            {
-                CvInvoke.Line(ImageTerrainTheorique, ChangeCoordTerrainToImage(seg.A, width / 2, height / 2), ChangeCoordTerrainToImage(seg.B, width / 2, height / 2), new Bgr(Color.Green).MCvScalar, (int)(scaleTerrain * 2 * shift));
-            }
+        //    foreach (var seg in listGreenMaskTerrainRefTerrain)
+        //    {
+        //        CvInvoke.Line(ImageTerrainTheorique, ChangeCoordTerrainToImage(seg.A, width / 2, height / 2), ChangeCoordTerrainToImage(seg.B, width / 2, height / 2), new Bgr(Color.Green).MCvScalar, (int)(scaleTerrain * 2 * shift));
+        //    }
 
-            //CvInvoke.Rectangle(ImageTerrainTheorique, new System.Drawing.Rectangle(0, 0, width, height), new Bgr(Color.Green).MCvScalar, -1);
-            //CvInvoke.Rectangle(ImageTerrainTheorique, new System.Drawing.Rectangle(0, 0, width, height), new Bgr(Color.Green).MCvScalar, -1);
-            //CvInvoke.Rectangle(ImageTerrainTheorique, new System.Drawing.Rectangle(0, 0, width, height), new Bgr(Color.Green).MCvScalar, -1);
+        //    //CvInvoke.Rectangle(ImageTerrainTheorique, new System.Drawing.Rectangle(0, 0, width, height), new Bgr(Color.Green).MCvScalar, -1);
+        //    //CvInvoke.Rectangle(ImageTerrainTheorique, new System.Drawing.Rectangle(0, 0, width, height), new Bgr(Color.Green).MCvScalar, -1);
+        //    //CvInvoke.Rectangle(ImageTerrainTheorique, new System.Drawing.Rectangle(0, 0, width, height), new Bgr(Color.Green).MCvScalar, -1);
 
 
-            return ImageTerrainTheorique;
-        }
-        Point ChangeCoordTerrainToImage(Point3D pt, double offsetX, double offsetY)
-        {
-            return new Point((int)(pt.X * scaleTerrain + offsetX), (int)(pt.Y * scaleTerrain + offsetY));
-        }
+        //    return ImageTerrainTheorique;
+        //}
+        //Point ChangeCoordTerrainToImage(Point3D pt, double offsetX, double offsetY)
+        //{
+        //    return new Point((int)(pt.X * scaleTerrain + offsetX), (int)(pt.Y * scaleTerrain + offsetY));
+        //}
 
         //************************************************************************ Events de sortie *****************************************************************************//
         // Event position dans l'image calculée

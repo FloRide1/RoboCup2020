@@ -2,7 +2,6 @@
 using SciChart.Charting.Visuals;
 using WayPointGenerator;
 using System.Collections.Generic;
-using RobotInterface;
 using TeamInterface;
 using WorldMapManager;
 using System.Threading;
@@ -260,9 +259,7 @@ namespace TeamSimulator
                 Monitor.Pulse(ExitLock);
             }
         }
-
-
-        static WpfRobotInterface Console1;
+        
         static WpfTeamInterface TeamConsole;
 
         static void StartInterfaces()

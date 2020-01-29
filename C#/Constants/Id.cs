@@ -53,6 +53,5 @@ namespace Constants
         CornerHautGauche=16,
         PtAvantSurfaceGauche=17,
         PtAvantSurfaceDroit=18,
-
     }
 }
