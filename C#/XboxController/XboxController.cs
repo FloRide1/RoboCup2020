@@ -34,8 +34,8 @@ namespace XBoxController
         bool useRampe = false;
         private void TimerGamepad_Elapsed(object sender, ElapsedEventArgs e)
         {
-            double VLinMax = 1.2;
-            double VThetaMax = 10.0;
+            double VLinMax = 10.2;   //1.2 ~= 0.3m/s
+            double VThetaMax = 12.50;
             double valeurRampe = 0.6;
             double Vx;
             double Vy;
