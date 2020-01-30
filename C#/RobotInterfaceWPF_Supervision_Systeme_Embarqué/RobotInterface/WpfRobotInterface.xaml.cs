@@ -14,6 +14,10 @@ using Constants;
 using WpfOscilloscopeControl;
 using WpfWorldMapDisplay;
 using SciChart.Charting.Visuals;
+using System.Globalization;
+using System.Threading;
+using System.Windows.Markup;
+using System.Windows.Input;
 
 namespace RobotInterface
 {
@@ -26,6 +30,31 @@ namespace RobotInterface
 
         public WpfRobotInterface()
         {
+            //Among other settings, this code may be used
+            CultureInfo ci = CultureInfo.CurrentUICulture;
+
+            try
+            {
+                //Override the default culture with something from app settings
+                ci = new CultureInfo("Fr");
+            }
+            catch { }
+            Thread.CurrentThread.CurrentCulture = ci;
+            Thread.CurrentThread.CurrentUICulture = ci;
+
+            //Here is the important part for databinding default converters
+            FrameworkElement.LanguageProperty.OverrideMetadata(
+                    typeof(FrameworkElement),
+                    new FrameworkPropertyMetadata(
+                        XmlLanguage.GetLanguage(ci.IetfLanguageTag)));
+
+            //Among other code
+            if (CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator != ".")
+            {
+                //Handler attach - will not be done if not needed
+                PreviewKeyDown += new KeyEventHandler(MainWindow_PreviewKeyDown);
+            }
+
             //SciChartSurface.SetRuntimeLicenseKey("fE00fIihccLO3oQbIBBZdrLh0ZWhRPxTSTGVMBVK51242lHVH3psTy6uZRTxKdk4UX2uSivlbh3c/m0SdZlgNHiMFONKSqo68Xtrcb8vjczLU9Usun6b7BtUIX5+Y3UfVsm+iN2Jg4Fc6l2/f5n0Sz4yG8204RdBexeifufMIkbd5LZBrfOPThBPC5iYnTS4W06S52QMCPjjQN0zALKG+0MmjBdQqeMidbmtCku6WVs6EVGJac/YNHi/jWHYC7XlVmWUf5KqivDvtKrQQLqtO88n1lHPz/aD/T0Bkw4bDlYcFy3GsYvinieGvLIGQsAIm45dA+/+WIoR9foMcfWVMMh2LtiKpbT3idmABMrsTn3/zzdrsiFfCbg6KmTBA55N9UWNxvKUQ+nhwoLxOmvznC6FszXSmrwR8qFUdbVUA58HzPfLVa6Ge40GwLIuCHBFQrd5uwzhh2JQKmkn2zWD3an92O66EsLptUT655MBXlXx9xoOd6iiUkdyfF2KHZsD18c=");
             InitializeComponent();
             
@@ -83,6 +112,26 @@ namespace RobotInterface
             oscilloTheta.ChangeLineColor(0, Colors.Blue);
         }
 
+        void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Decimal)
+            {
+                e.Handled = true;
+
+                if (CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.Length > 0)
+                {
+                    Keyboard.FocusedElement.RaiseEvent(
+                        new TextCompositionEventArgs(
+                            InputManager.Current.PrimaryKeyboardDevice,
+                            new TextComposition(InputManager.Current,
+                                Keyboard.FocusedElement,
+                                CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)
+                            )
+                        { RoutedEvent = TextCompositionManager.TextInputEvent });
+                }
+            }
+        }
+
         int nbMsgSent = 0;
 
         int nbMsgReceived = 0;
@@ -110,6 +159,17 @@ namespace RobotInterface
         {
             //throw new NotImplementedException();
             worldMapDisplay.UpdateLocalWorldMap(e.RobotId, e.LocalWorldMap);
+        }
+
+        public void ResetInterfaceState()
+        {
+            oscilloX.ResetGraph();
+            oscilloY.ResetGraph();
+            oscilloTheta.ResetGraph();
+            oscilloM1.ResetGraph();
+            oscilloM2.ResetGraph();
+            oscilloM3.ResetGraph();
+            oscilloM4.ResetGraph();
         }
         public void UpdateSpeedDataOnGraph(object sender, SpeedDataEventArgs e)
         {
@@ -245,6 +305,7 @@ namespace RobotInterface
                 motorsDisabled = false;
                 OnEnableDisableMotorsFromInterface(true);
             }
+            ResetInterfaceState();
         }
         
         //Methode appelée sur evenement (event) provenant du port Serie.

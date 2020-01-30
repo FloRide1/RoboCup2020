@@ -54,7 +54,7 @@ namespace Constants
 
         // Getters et Askers de variables embarquées
 
-
+        WelcomeMessage=400,             
         MotorSpeedConsigne = 402,
         MotorSpeedConsigne_Each = 403,
         Ku = 404,
@@ -71,7 +71,7 @@ namespace Constants
         Y = 415,
         Theta = 416,
         XYTheta = 417,
-        IMUData = 418,
+        IMUData = 418,                  //0x01A2
         XYTheta_Speed = 419,                //0x01A3
         MotorsVitesses = 420,              //Ox01A4
         MotorsPositions = 421,          //0x01A5

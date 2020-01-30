@@ -84,6 +84,19 @@ namespace WpfOscilloscopeControl
             }
         }
 
+        public void ResetGraph()
+        {
+            foreach(var serie in sciChart.RenderableSeries)
+            {
+                serie.DataSeries.Clear();
+            }
+        }
+        public void ResetLine(int id)
+        {
+
+            if (lineDictionary.ContainsKey(id))
+                sciChart.RenderableSeries.Single(x => x.DataSeries.SeriesName == lineDictionary[id].SeriesName).DataSeries.Clear();
+        }
         public bool LineExist(int id)
         {
             if (lineDictionary.ContainsKey(id))

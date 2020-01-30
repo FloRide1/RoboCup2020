@@ -30,6 +30,12 @@ namespace RobotMessageProcessor
             uint timeStamp;
             switch (command)
             {
+                case (short)Commands.WelcomeMessage:
+                    {
+                        OnWelcomeMessageFromRobot();
+                    }
+                    break;
+
                 case (short)Commands.XYTheta_Speed:
                     {
                         timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
@@ -209,6 +215,18 @@ namespace RobotMessageProcessor
                 default: break;
             }
         }
+
+        //public delegate void VxVyVThetaDataEventHandler(object sender, SpeedDataEventArgs e);
+        public event EventHandler<EventArgs> OnWelcomeMessageFromRobotGeneratedEvent;
+        public virtual void OnWelcomeMessageFromRobot()
+        {
+            var handler = OnWelcomeMessageFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
+            }
+        }
+
 
         //Output events
         public delegate void IMUDataEventHandler(object sender, IMUDataEventArgs e);
