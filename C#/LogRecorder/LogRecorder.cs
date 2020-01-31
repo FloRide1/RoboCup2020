@@ -57,8 +57,7 @@ namespace LogRecorder
         public void OnRawLidarDataReceived(object sender, RawLidarArgs e)
         {
             RawLidarArgsWithTimeStamp data = new RawLidarArgsWithTimeStamp();
-            data.AngleList = e.AngleList;
-            data.DistanceList = e.DistanceList;
+            data.PtList = e.PtList;
             data.RobotId = e.RobotId;
             data.InstantInMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
             string json = JsonConvert.SerializeObject(data);

@@ -71,6 +71,10 @@
       <Project>{54D19BA4-AC57-4A0E-BF19-42A567F28108}</Project>
       <Name>TCPClient</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Utilities\Utilities.csproj">
+      <Project>{8E7D0DA4-9A13-4B18-A90E-0243BBCCE40A}</Project>
+      <Name>Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

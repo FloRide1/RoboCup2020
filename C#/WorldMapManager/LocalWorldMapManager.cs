@@ -88,10 +88,10 @@ namespace WorldMapManager
             if (RobotId == e.RobotId)
             {
                 List<PointD> listPtLidar = new List<PointD>();
-                for (int i=0; i< e.AngleList.Count; i++)
+                for (int i=0; i< e.PtList.Count; i++)
                 {
-                    listPtLidar.Add(new PointD(localWorldMap.robotLocation.X + e.DistanceList[i] * Math.Cos(e.AngleList[i]),
-                                               localWorldMap.robotLocation.Y + e.DistanceList[i] * Math.Sin(e.AngleList[i])));
+                    listPtLidar.Add(new PointD(localWorldMap.robotLocation.X + e.PtList[i].Distance * Math.Cos(e.PtList[i].Angle),
+                                               localWorldMap.robotLocation.Y + e.PtList[i].Distance * Math.Sin(e.PtList[i].Angle)));
                 }
                 localWorldMap.lidarMap = listPtLidar;
             }

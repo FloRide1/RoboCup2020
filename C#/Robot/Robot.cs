@@ -36,7 +36,7 @@ namespace Robot
     }
     class Robot
     {
-        static RobotMode robotMode = RobotMode.Nolidar;
+        static RobotMode robotMode = RobotMode.LidarAcquisition;
 
         static bool usingSimulatedCamera = true;
         static bool usingPhysicalSimulator = true;

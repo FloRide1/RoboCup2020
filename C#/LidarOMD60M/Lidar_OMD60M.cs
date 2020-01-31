@@ -17,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TCPAdapter;
 using TCPClient;
+using Utilities;
 using Timer = System.Timers.Timer;
 
 namespace LidarOMD60M
@@ -263,8 +264,7 @@ namespace LidarOMD60M
         //    Console.WriteLine(content);
         //}
 
-        List<double> distance = new List<double>();
-        List<double> angle = new List<double>();
+        List<PolarPoint> ptList = new List<PolarPoint>();
         List<double> RSSI = new List<double>();
                            
         /**************************************************** Fonctions d'analyse **************************************************************/
@@ -307,9 +307,8 @@ namespace LidarOMD60M
 
                     if (packet_number == 1)
                     {
-                        OnLidar((int)TeamId.Team1, angle, distance);
-                        distance = new List<double>();
-                        angle = new List<double>();
+                        OnLidar((int)TeamId.Team1, ptList);
+                        ptList = new List<PolarPoint>();
                         RSSI = new List<double>();
                     }
 
@@ -401,16 +400,14 @@ namespace LidarOMD60M
                             dist += (UInt32)(buffer[pos++] << 8);
                             dist += (UInt32)(buffer[pos++] << 16);
                             dist += (UInt32)(buffer[pos++] << 24);
-                            distance.Add(dist / 1000.0);
-                            angle.Add((first_angle + index * angular_increment) / 10000.0 * Math.PI / 180.0);
+                            ptList.Add(new PolarPoint(dist / 1000.0, (first_angle + index * angular_increment) / 10000.0 * Math.PI / 180.0));
                         }
                     }
                 }
             }
             catch
             {
-                distance = new List<double>();
-                angle = new List<double>();
+                ptList = new List<PolarPoint>();
                 RSSI = new List<double>();
             }
         }
@@ -511,12 +508,12 @@ namespace LidarOMD60M
 
         public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<RawLidarArgs> OnLidarEvent;
-        public virtual void OnLidar(int id, List<double> angleList, List<double> distanceList)
+        public virtual void OnLidar(int id, List<PolarPoint> ptList)
         {
             var handler = OnLidarEvent;
             if (handler != null)
             {
-                handler(this, new RawLidarArgs { RobotId = id, AngleList = angleList, DistanceList = distanceList });
+                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList});
             }
         }
     }

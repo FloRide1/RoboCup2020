@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utilities;
 
 namespace LidarSimulator
 {
@@ -36,25 +37,25 @@ namespace LidarSimulator
         {
             List<double> angleList = new List<double>();
             List<double> distanceList = new List<double>();
+            List<PolarPoint> ptList = new List<PolarPoint>();
 
             for (double angle = 0; angle < Math.PI*2; angle+=resolution)
             {
-                angleList.Add(angle);
-                distanceList.Add(4.0f + 2 * rand.Next(-50, 50) / 100.0);
+                ptList.Add(new PolarPoint(angle, 4.0f + 2 * rand.Next(-50, 50) / 100.0));
             }
 
-            OnSimulatedLidar(robotId, angleList, distanceList);
+            OnSimulatedLidar(robotId, ptList);
         }
 
 
         public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<RawLidarArgs> OnSimulatedLidarEvent;
-        public virtual void OnSimulatedLidar(int id, List<double> angleList, List<double> distanceList)
+        public virtual void OnSimulatedLidar(int id, List<PolarPoint> ptList)
         {
             var handler = OnSimulatedLidarEvent;
             if (handler != null)
             {
-                handler(this, new RawLidarArgs { RobotId = id, AngleList = angleList, DistanceList = distanceList});
+                handler(this, new RawLidarArgs { RobotId = id,  PtList = ptList});
             }
         }
     }

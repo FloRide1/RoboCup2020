@@ -56,6 +56,10 @@
       <Project>{128114E9-1A4D-4EBF-BA5C-5C4E136D3F53}</Project>
       <Name>LogRecorder</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Utilities\Utilities.csproj">
+      <Project>{8E7D0DA4-9A13-4B18-A90E-0243BBCCE40A}</Project>
+      <Name>Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

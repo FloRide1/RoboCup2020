@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Utilities;
 
 namespace LogReplay
 {
@@ -43,7 +44,7 @@ namespace LogReplay
                 while(elapsedMs >= currentLog.InstantInMs)
                 {
                     //On génère un évènement et on va chercher le log suivant
-                    OnLidar(currentLog.RobotId, currentLog.AngleList, currentLog.DistanceList);
+                    OnLidar(currentLog.RobotId, currentLog.PtList);
                     s = sr.ReadLine();
                     try
                     {
@@ -71,12 +72,12 @@ namespace LogReplay
 
         public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<RawLidarArgs> OnLidarEvent;
-        public virtual void OnLidar(int id, List<double> angleList, List<double> distanceList)
+        public virtual void OnLidar(int id, List<PolarPoint> ptList)
         {
             var handler = OnLidarEvent;
             if (handler != null)
             {
-                handler(this, new RawLidarArgs { RobotId = id, AngleList = angleList, DistanceList = distanceList });
+                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList});
             }
         }
     }
