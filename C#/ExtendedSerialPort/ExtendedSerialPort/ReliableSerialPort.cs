@@ -12,11 +12,11 @@ namespace ExtendedSerialPort
 
         private Thread connectionThread;
         private bool IsSerialPortConnected = false;
-        private String PortType;
+        private String PortName;
 
-        public ReliableSerialPort(string portType, int baudRate, Parity parity, int dataBits, StopBits stopBits)
+        public ReliableSerialPort(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits)
         {
-            PortType = portType;
+            PortName = portName;
             BaudRate = baudRate;
             DataBits = dataBits;
             Parity = parity;
@@ -37,11 +37,11 @@ namespace ExtendedSerialPort
                 //Le Thread est infini mais il sera suspendu quand le port série sera trouvé et ouvert
                 while (true)
                 {
-                    string PortNameFound = "COM15";//SearchPortName(PortType); TOTO: remettre en etat sinon moi bobo
+                    string PortNameFound = PortName;//SearchPortName(PortType); 
                     if (!string.IsNullOrWhiteSpace(PortNameFound))
                     {
                         //Si on trouve un port série de type voulu
-                        PortName = PortNameFound;
+                        base.PortName = PortNameFound;
                         try
                         {
                             base.Open();

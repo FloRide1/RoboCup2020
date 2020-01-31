@@ -26,7 +26,7 @@ namespace LidarProcessor
 
         void ProcessLidarData(List<PolarPoint> ptList)
         {
-            double zoomCoeff = 1.8;
+            double zoomCoeff = 1.0;
 
             //List<PolarPoint> PtListProcessed = new List<PolarPoint>();
 

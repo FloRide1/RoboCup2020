@@ -33,8 +33,8 @@ namespace LogReplay
 
         private void ReplayLoop()
         {
-            sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath-X_0-Y_0-Theta_0 310cm face but.rbt");
-            //sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\testLog.rbt");
+            //sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath_Static_Passage.rbt");
+            sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath_Mvt1.rbt");
             string s = sr.ReadLine();
             var currentLog = JsonConvert.DeserializeObject<RawLidarArgsWithTimeStamp>(s);
 
