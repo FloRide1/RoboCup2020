@@ -52,8 +52,9 @@ namespace LidarOMD60M
             LidarSetApplicationBitmapMode();
             LidarSetImage(0);
             //LidarSetBarSetText("RCT forever !", "GOOAAL !", "Passe la balle !", "Tire tout de suite !");
-            LidarSetRotationFrequency(50);
-            
+            LidarSetRotationFrequency(25);
+            LidarSetScanResolution(10080);
+
             //On récupère le handle de connection TCP/IP
             LidarTCPInit();
 
@@ -153,11 +154,18 @@ namespace LidarOMD60M
 
         async Task LidarSetRotationFrequency(int freq)
         {
-            // On démarre le scan sur le Lidar : cf. page 35 de la doc R2000 Ehternet Protocol
+            // On démarre le scan sur le Lidar : cf. page 20 de la doc R2000 Ehternet Protocol
             string request = @"http://" + LidarIpAddress + "/cmd/set_parameter?scan_frequency=" + freq.ToString();
             var content = await HttpClient.GetStringAsync(request);
             Console.WriteLine(content);
         }
+        async Task LidarSetScanResolution(int nbPtTour)
+        {
+            // On règle le nb de pts par tour du Lidar : cf. page 21 de la doc R2000 Ehternet Protocol
+            string request = @"http://" + LidarIpAddress + "/cmd/set_parameter?samples_per_scan=" + nbPtTour.ToString();
+            var content = await HttpClient.GetStringAsync(request);
+            Console.WriteLine(content);
+        }        
 
         async Task LidarSetBarGraphDistance()
         {
