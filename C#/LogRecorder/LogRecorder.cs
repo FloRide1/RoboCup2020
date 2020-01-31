@@ -30,7 +30,7 @@ namespace LogRecorder
 
         private void LogLoop()
         {
-            string currentFileName = "logFilePath_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + ".log";
+            string currentFileName = "logFilePath_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + ".rbt";
             sw = new StreamWriter(currentFileName, true);
             sw.AutoFlush = true;
             while (true)
@@ -49,7 +49,9 @@ namespace LogRecorder
                     {
                         //On split le fichier
                         sw.Close();
-                        currentFileName = "logFilePath_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + ".log";
+                        //Remise à zéro du temps courant
+                        initialDateTime = DateTime.Now;
+                        currentFileName = "logFilePath_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + ".rbt";
                         sw = new StreamWriter(currentFileName, true);
                     }
                 }
