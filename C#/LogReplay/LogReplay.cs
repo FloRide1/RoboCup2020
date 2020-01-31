@@ -34,7 +34,7 @@ namespace LogReplay
         private void ReplayLoop()
         {
             //sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath_Static_Passage.rbt");
-            sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath_Mvt1.rbt");
+            sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath-Mvt1.rbt");
             string s = sr.ReadLine();
             var currentLog = JsonConvert.DeserializeObject<RawLidarArgsWithTimeStamp>(s);
 
@@ -44,6 +44,7 @@ namespace LogReplay
                 while(elapsedMs >= currentLog.InstantInMs)
                 {
                     //On génère un évènement et on va chercher le log suivant
+                    //Console.WriteLine(currentLog.PtList.Count);
                     OnLidar(currentLog.RobotId, currentLog.PtList);
                     s = sr.ReadLine();
                     try

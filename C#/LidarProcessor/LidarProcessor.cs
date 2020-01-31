@@ -1,4 +1,5 @@
 ﻿using EventArgsLibrary;
+using MathNet.Numerics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,9 +25,11 @@ namespace LidarProcessor
             }
         }
 
+        Random rand = new Random();
+
         void ProcessLidarData(List<PolarPoint> ptList)
         {
-            double zoomCoeff = 1.0;
+            double zoomCoeff = 1.5;
 
             //List<PolarPoint> PtListProcessed = new List<PolarPoint>();
 
@@ -66,8 +69,9 @@ namespace LidarProcessor
                 //if (obj.Largeur > 0.05 && obj.Largeur < 0.5)
                 {
                     currentPolarPointListExtended.polarPointList = obj.PtList;
-                    currentPolarPointListExtended.displayColor = System.Drawing.Color.Red;
-                    currentPolarPointListExtended.displayWidth = 8;
+                    int variation = rand.Next(0, 255);
+                    currentPolarPointListExtended.displayColor = System.Drawing.Color.FromArgb(0xFF, 0xFF, 0,0);
+                    currentPolarPointListExtended.displayWidth = 2;
                     objectList.Add(currentPolarPointListExtended);
                 }
             }
@@ -79,7 +83,7 @@ namespace LidarProcessor
                 {
                     currentPolarPointListExtended.polarPointList = obj.PtList;
                     currentPolarPointListExtended.displayColor = System.Drawing.Color.Yellow;
-                    currentPolarPointListExtended.displayWidth = 3;
+                    currentPolarPointListExtended.displayWidth = 1;
                     objectList.Add(currentPolarPointListExtended);
                 }
             }
@@ -91,7 +95,7 @@ namespace LidarProcessor
                 {
                     currentPolarPointListExtended.polarPointList = obj.PtList;
                     currentPolarPointListExtended.displayColor = System.Drawing.Color.Blue;
-                    currentPolarPointListExtended.displayWidth = 6;
+                    currentPolarPointListExtended.displayWidth = 1;
                     objectList.Add(currentPolarPointListExtended);
                 }
             }
@@ -116,6 +120,8 @@ namespace LidarProcessor
             return ptListFiltered;
         }
 
+        double seuilResiduLine = 0.03;
+
         private List<LidarDetectedObject> DetectionObjetsFond(List<PolarPoint> ptList, double zoomCoeff)
         {
             //Détection des objets de fond
@@ -126,20 +132,25 @@ namespace LidarProcessor
             for (int i = 1; i < ptList.Count; i++)
             {
                 //On commence un objet de fond sur un front montant de distance
-                if (ptList[i].Distance - ptList[i - 1].Distance > 0.1 * zoomCoeff)
+                if (ptList[i].Distance - ptList[i - 1].Distance > 0.06 * zoomCoeff)
                 {
                     currentObject = new LidarDetectedObject();
                     currentObject.PtList.Add(ptList[i]);
                     objetFondEnCours = true;
                 }
                 //On termine un objet de fond sur un front descendant de distance
-                if (ptList[i].Distance - ptList[i - 1].Distance < -0.15 * zoomCoeff && objetFondEnCours)
+                else if (ptList[i].Distance - ptList[i - 1].Distance < -0.12 * zoomCoeff && objetFondEnCours)
                 {
                     objetFondEnCours = false;
                     if (currentObject.PtList.Count > 20)
                     {
                         currentObject.ExtractObjectAttributes();
-                        ObjetsFondList.Add(currentObject);
+                        //Console.WriteLine("Résidu fond : " + currentObject.ResiduLineModel);
+                        //if (currentObject.ResiduLineModel < seuilResiduLine*2)
+                        {
+
+                        }
+                            ObjetsFondList.Add(currentObject);
                     }
                 }
                 //Sinon on reste sur le même objet
@@ -172,13 +183,14 @@ namespace LidarProcessor
                     objetSaillantEnCours = true;
                 }
                 //On termine un objet saillant sur un front montant de distance
-                if ((ptList[i].Distance - ptList[i - 1].Distance > 0.15 * zoomCoeff) && objetSaillantEnCours)
+                else if ((ptList[i].Distance - ptList[i - 1].Distance > 0.15 * zoomCoeff) && objetSaillantEnCours)
                 {
                     objetSaillantEnCours = false;
                     if (currentObject.PtList.Count > 20)
                     {
                         currentObject.ExtractObjectAttributes();
-                        ObjetsSaillantsList.Add(currentObject);
+                        if(currentObject.ResiduLineModel< seuilResiduLine)
+                            ObjetsSaillantsList.Add(currentObject);
                     }
                 }
                 //Sinon on reste sur le même objet
@@ -224,6 +236,9 @@ namespace LidarProcessor
         public List<double> YList;
         public double Largeur;
         public double DistanceMoyenne;
+        public double ResiduLineModel;
+
+
 
 
         public LidarDetectedObject()
@@ -234,11 +249,16 @@ namespace LidarProcessor
         {
             if (PtList.Count > 0)
             {
-                //DistanceMoyenne = DistanceList.Average();
-                //Largeur = (AngleList.Max() - AngleList.Min()) * DistanceMoyenne;
+                DistanceMoyenne = PtList.Average(r => r.Distance);
+                Largeur = (PtList.Max(r => r.Angle) - PtList.Min(r => r.Angle)) * DistanceMoyenne;
+                XList = PtList.Select(r => r.Distance * Math.Cos(r.Angle)).ToList();
+                YList = PtList.Select(r => r.Distance * Math.Sin(r.Angle)).ToList();
+                var coeff = Fit.Line(XList.ToArray(), YList.ToArray());
+                double a = coeff.Item1;
+                double b = coeff.Item2;
+                var YListFitted = XList.Select(r => a + r * b);
+                ResiduLineModel = GoodnessOfFit.PopulationStandardError(YListFitted, YList);
             }
-
-
         }
     }
 }
