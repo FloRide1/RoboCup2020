@@ -240,7 +240,7 @@ namespace Robot
         static Random rand = new Random();
         private static void TimerStrategie_Tick(object sender, EventArgs e)
         {
-            var role = (StrategyManager.PlayerRole)rand.Next((int)StrategyManager.PlayerRole.Centre, (int)StrategyManager.PlayerRole.Centre);
+            var role = (StrategyManager.PlayerRole)rand.Next((int)0, (int)StrategyManager.PlayerRole.Centre);
             strategyManager.SetRole(role);
             strategyManager.ProcessStrategy();
         }
