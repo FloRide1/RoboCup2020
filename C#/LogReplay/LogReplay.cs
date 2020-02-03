@@ -1,6 +1,7 @@
 ﻿using EventArgsLibrary;
 using LogRecorder;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -36,22 +37,24 @@ namespace LogReplay
             //sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath_Static_Passage.rbt");
             sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath-Mvt1.rbt");
             string s = sr.ReadLine();
-            var currentLog = JsonConvert.DeserializeObject<RawLidarArgsWithTimeStamp>(s);
 
+            var currentLidarLog = JsonConvert.DeserializeObject<RawLidarArgsWithTimeStamp>(s);
+            var currentIMULog= JsonConvert.DeserializeObject<IMUDataEventArgs>(s);
+            var currentSpeedDataLog = JsonConvert.DeserializeObject<SpeedDataEventArgs>(s);
             while (true)
             {
                 double elapsedMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
-                while(elapsedMs >= currentLog.InstantInMs)
+                while(elapsedMs >= currentLidarLog.InstantInMs)
                 {
                     //On génère un évènement et on va chercher le log suivant
                     //Console.WriteLine(currentLog.PtList.Count);
-                    OnLidar(currentLog.RobotId, currentLog.PtList);
+                    OnLidar(currentLidarLog.RobotId, currentLidarLog.PtList);
                     s = sr.ReadLine();
                     try
                     {
                         if (s != null)
                         {
-                            currentLog = JsonConvert.DeserializeObject<RawLidarArgsWithTimeStamp>(s);
+                            currentLidarLog = JsonConvert.DeserializeObject<RawLidarArgsWithTimeStamp>(s);
                             elapsedMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
                         }
                     }
@@ -79,6 +82,28 @@ namespace LogReplay
             if (handler != null)
             {
                 handler(this, new RawLidarArgs { RobotId = id, PtList = ptList});
+            }
+        }
+
+        //public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
+        public event EventHandler<IMUDataEventArgs> OnIMUEvent;
+        public virtual void OnIMU(int id, IMUDataEventArgs dat)
+        {
+            var handler = OnIMUEvent;
+            if (handler != null)
+            {
+                handler(this, new IMUDataEventArgs { accelX = dat.accelX, accelY = dat.accelY, accelZ = dat.accelZ, gyrX = dat.gyrX, gyrY = dat.gyrY, gyrZ = dat.gyrZ,timeStampMS=dat.timeStampMS});
+            }
+        }
+
+        //public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
+        public event EventHandler<SpeedDataEventArgs> OnSpeedDataEvent;
+        public virtual void OnSpeedData(int id, SpeedDataEventArgs dat)
+        {
+            var handler = OnSpeedDataEvent;
+            if (handler != null)
+            {
+                handler(this, new SpeedDataEventArgs { Vx = dat.Vx, Vy = dat.Vy, Vtheta = dat.Vtheta, RobotId = dat.RobotId, timeStampMS=dat.timeStampMS});
             }
         }
     }

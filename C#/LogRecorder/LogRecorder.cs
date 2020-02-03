@@ -73,6 +73,18 @@ namespace LogRecorder
             string json = JsonConvert.SerializeObject(data);
             Log(json);
         }
+
+        public void OnIMUDataReceived(object sender, IMUDataEventArgs e)
+        {
+            string json = JsonConvert.SerializeObject(e);
+            Log(json);
+        }
+
+        public void OnSpeedDataReceived(object sender, SpeedDataEventArgs e)
+        {
+            string json = JsonConvert.SerializeObject(e);
+            Log(json);
+        }
     }
     public class RawLidarArgsWithTimeStamp : RawLidarArgs
     {
