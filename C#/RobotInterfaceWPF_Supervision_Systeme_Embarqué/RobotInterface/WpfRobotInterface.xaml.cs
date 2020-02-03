@@ -175,7 +175,7 @@ namespace RobotInterface
         {
             oscilloX.AddPointToLine(1, e.timeStampMS / 1000.0, e.Vx);
             oscilloY.AddPointToLine(1, e.timeStampMS / 1000.0, e.Vy);
-            //oscillo.AddPointToLine(1, e.timeStampMS / 1000.0, e.Vy);
+            oscilloTheta.AddPointToLine(1, e.timeStampMS / 1000.0, e.Vtheta);
             currentTime = e.timeStampMS / 1000.0;
         }
         public void ActualizeAccelDataOnGraph(object sender, AccelEventArgs e)
