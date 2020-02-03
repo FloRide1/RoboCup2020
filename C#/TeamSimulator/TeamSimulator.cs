@@ -101,17 +101,16 @@ namespace TeamSimulator
             timerTest = new System.Timers.Timer(100);
             timerTest.Elapsed += TimerTest_Elapsed;
 
-            //udpServer = new UDPMulticastServer();
-            //sender1 = new UDPMulticastSender();
-            //sender2 = new UDPMulticastSender();
-            //UDPMulticastReceiver receiver1 = new UDPMulticastReceiver(0);
-            //UDPMulticastReceiver receiver2 = new UDPMulticastReceiver(0);
-            //UDPMulticastReceiver receiver3 = new UDPMulticastReceiver(0);
+            sender1 = new UDPMulticastSender();
+            sender2 = new UDPMulticastSender();
+            UDPMulticastReceiver receiver1 = new UDPMulticastReceiver(0);
+            UDPMulticastReceiver receiver2 = new UDPMulticastReceiver(0);
+            UDPMulticastReceiver receiver3 = new UDPMulticastReceiver(0);
 
-            //receiver1.OnDataReceivedEvent += Receiver1_OnDataReceivedEvent;
-            //receiver2.OnDataReceivedEvent += Receiver2_OnDataReceivedEvent;
-            //receiver3.OnDataReceivedEvent += Receiver3_OnDataReceivedEvent;
-            //timerTest.Start();
+            receiver1.OnDataReceivedEvent += Receiver1_OnDataReceivedEvent;
+            receiver2.OnDataReceivedEvent += Receiver2_OnDataReceivedEvent;
+            receiver3.OnDataReceivedEvent += Receiver3_OnDataReceivedEvent;
+            timerTest.Start();
 
             lock (ExitLock)
             {
