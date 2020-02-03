@@ -36,7 +36,7 @@ namespace Robot
     }
     class Robot
     {
-        static RobotMode robotMode = RobotMode.LidarAcquisition;
+        static RobotMode robotMode = RobotMode.LidarReplay;
 
         static bool usingSimulatedCamera = true;
         static bool usingPhysicalSimulator = true;
@@ -219,6 +219,7 @@ namespace Robot
             if (usingLogReplay)
             {
                 logReplay.OnLidarEvent += lidarProcessor.OnRawLidarDataReceived;
+                    
                 lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
                 lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
             }
@@ -323,6 +324,7 @@ namespace Robot
                 interfaceRobot.OnEnablePIDDebugDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnablePIDDebugData;
 
                 localWorldMapManager.OnLocalWorldMapEvent+= interfaceRobot.OnLocalWorldMapEvent;
+                logReplay.OnIMUEvent += interfaceRobot.UpdateImuDataOnGraph;
 
                 interfaceRobot.ShowDialog();
             });

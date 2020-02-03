@@ -35,7 +35,8 @@ namespace LogReplay
         private void ReplayLoop()
         {
             //sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath_Static_Passage.rbt");
-            sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath-Mvt1.rbt");
+            //sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath-Mvt1.rbt");
+            sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath_2020-02-03_15-47-29.rbt");
             string s = sr.ReadLine();
 
             var currentLidarLog = JsonConvert.DeserializeObject<RawLidarArgsWithTimeStamp>(s);
@@ -44,17 +45,23 @@ namespace LogReplay
             while (true)
             {
                 double elapsedMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
-                while(elapsedMs >= currentLidarLog.InstantInMs)
+                //currentIMULog = JsonConvert.DeserializeObject<IMUDataEventArgs>(s);
+                currentSpeedDataLog = JsonConvert.DeserializeObject<SpeedDataEventArgs>(s);
+                //OnIMU(currentIMULog);
+                OnSpeedData(currentSpeedDataLog);
+                while (elapsedMs >= currentLidarLog.InstantInMs)
                 {
                     //On génère un évènement et on va chercher le log suivant
                     //Console.WriteLine(currentLog.PtList.Count);
-                    OnLidar(currentLidarLog.RobotId, currentLidarLog.PtList);
+                   // OnLidar(currentLidarLog.RobotId, currentLidarLog.PtList);
+
                     s = sr.ReadLine();
                     try
                     {
                         if (s != null)
                         {
                             currentLidarLog = JsonConvert.DeserializeObject<RawLidarArgsWithTimeStamp>(s);
+
                             elapsedMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
                         }
                     }
@@ -87,7 +94,7 @@ namespace LogReplay
 
         //public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<IMUDataEventArgs> OnIMUEvent;
-        public virtual void OnIMU(int id, IMUDataEventArgs dat)
+        public virtual void OnIMU(IMUDataEventArgs dat)
         {
             var handler = OnIMUEvent;
             if (handler != null)
@@ -98,7 +105,7 @@ namespace LogReplay
 
         //public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<SpeedDataEventArgs> OnSpeedDataEvent;
-        public virtual void OnSpeedData(int id, SpeedDataEventArgs dat)
+        public virtual void OnSpeedData( SpeedDataEventArgs dat)
         {
             var handler = OnSpeedDataEvent;
             if (handler != null)
