@@ -64,7 +64,7 @@ namespace EventArgsLibrary
     }
     public class SpeedDataEventArgs : SpeedConsigneArgs
     {
-        public uint timeStampMS;
+        public uint EmbeddedTimeStampInMs;
     }
     public class TirEventArgs : EventArgs
     {
@@ -74,13 +74,16 @@ namespace EventArgsLibrary
 
     public class IMUDataEventArgs : EventArgs
     {
-        public uint timeStampMS;
+        public uint EmbeddedTimeStampInMs;
         public double accelX;
         public double accelY;
         public double accelZ;
         public double gyrX;
         public double gyrY;
         public double gyrZ;
+        public double magX;
+        public double magY;
+        public double magZ;
     }
     public class MotorsCurrentsEventArgs : EventArgs
     {

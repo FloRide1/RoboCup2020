@@ -67,29 +67,61 @@ namespace LogRecorder
 
         public void OnRawLidarDataReceived(object sender, RawLidarArgs e)
         {
-            RawLidarArgsWithTimeStamp data = new RawLidarArgsWithTimeStamp();
+            RawLidarArgsLog data = new RawLidarArgsLog();
             data.PtList = e.PtList;
             data.RobotId = e.RobotId;
             data.InstantInMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
-            //On serialize l'objet sur une ligne (pas d'indentation), et on y inclut le nom de l'objet
             string json = JsonConvert.SerializeObject(data);
             Log(json);
         }
 
         public void OnIMUDataReceived(object sender, IMUDataEventArgs e)
         {
-            string json = JsonConvert.SerializeObject(e, Formatting.None, new JsonSerializerSettings {  TypeNameHandling=TypeNameHandling.Objects } );
+            IMUDataEventArgsLog data = new IMUDataEventArgsLog();
+            data.accelX = e.accelX;
+            data.accelY = e.accelY;
+            data.accelZ = e.accelZ;
+            data.gyrX = e.gyrX;
+            data.gyrY = e.gyrY;
+            data.gyrZ = e.gyrZ;
+            data.magX = e.magX;
+            data.magY = e.magY;
+            data.magZ = e.magZ;
+            data.EmbeddedTimeStampInMs = e.EmbeddedTimeStampInMs;
+            data.InstantInMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
+            string json = JsonConvert.SerializeObject(data);
             Log(json);
         }
 
         public void OnSpeedDataReceived(object sender, SpeedDataEventArgs e)
         {
-            string json = JsonConvert.SerializeObject(e);
+            SpeedDataEventArgsLog data = new SpeedDataEventArgsLog();
+            data.Vx = e.Vx;
+            data.Vy = e.Vy;
+            data.Vtheta = e.Vtheta;
+            data.RobotId = e.RobotId;
+            data.EmbeddedTimeStampInMs = e.EmbeddedTimeStampInMs;
+            data.InstantInMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
+            string json = JsonConvert.SerializeObject(data);
             Log(json);
         }
     }
-    public class RawLidarArgsWithTimeStamp : RawLidarArgs
+
+    public class RawLidarArgsLog : RawLidarArgs
     {
+        public string Type = "RawLidar";
+        public double InstantInMs;
+    }
+
+    public class SpeedDataEventArgsLog : SpeedDataEventArgs
+    {
+        public string Type = "SpeedFromOdometry";
+        public double InstantInMs;
+    }
+
+    public class IMUDataEventArgsLog : IMUDataEventArgs
+    {
+        public string Type = "ImuData";
         public double InstantInMs;
     }
 }

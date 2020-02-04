@@ -236,7 +236,7 @@ namespace RobotMessageProcessor
             var handler = OnIMUDataFromRobotGeneratedEvent;
             if (handler != null)
             {
-                handler(this, new IMUDataEventArgs { timeStampMS = timeStamp, accelX = accelxyz.X, accelY = accelxyz.Y, accelZ= accelxyz.Z , gyrX=gyroxyz.X, gyrY=gyroxyz.Y, gyrZ=gyroxyz.Z });
+                handler(this, new IMUDataEventArgs { EmbeddedTimeStampInMs = timeStamp, accelX = accelxyz.X, accelY = accelxyz.Y, accelZ= accelxyz.Z , gyrX=gyroxyz.X, gyrY=gyroxyz.Y, gyrZ=gyroxyz.Z });
             }
         }
 
@@ -337,7 +337,7 @@ namespace RobotMessageProcessor
             {
                 handler(this, new SpeedDataEventArgs
                 {
-                    timeStampMS = timeStamp,
+                    EmbeddedTimeStampInMs = timeStamp,
                     Vx = (float)vX,
                     Vy = (float)vY,
                     Vtheta = (float)vTheta

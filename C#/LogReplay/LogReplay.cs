@@ -21,6 +21,7 @@ namespace LogReplay
         public string logLock = "";
 
         DateTime initialDateTime;
+        double? LogDateTimeOffsetInMs = null;
 
         public LogReplay()
         {
@@ -38,64 +39,49 @@ namespace LogReplay
             //sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath-Mvt1.rbt");
             //sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath_2020-02-03_15-47-29.rbt");
             sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\test.rbt");
-            string s = sr.ReadLine();
+            //string s = sr.ReadLine();
+
             using (JsonTextReader txtRdr = new JsonTextReader(sr))
             {
-                txtRdr.SupportMultipleContent = true;
-                var serializer = new JsonSerializer();
+                txtRdr.SupportMultipleContent = true;                
+
                 while (txtRdr.Read())
                 {
                     if (txtRdr.TokenType == JsonToken.StartObject)
                     {
-                        SpeedDataEventArgs speed=serializer.Deserialize<SpeedDataEventArgs>(txtRdr);
+                        //SpeedDataEventArgs speed=serializer.Deserialize<SpeedDataEventArgs>(txtRdr);
                         // Load each object from the stream and do something with it
-                        //JObject obj = JObject.Load(txtRdr);
-                        //Type type = obj.GetType();
+                        JObject obj = JObject.Load(txtRdr);
+                        string objType = (string)obj["Type"];
+                        double newReplayInstant = (double)obj["InstantInMs"];
+                        if(LogDateTimeOffsetInMs==null)
+                            LogDateTimeOffsetInMs = newReplayInstant;
 
-
-                    }
-                }
-            }
-            var currentLidarLog = JsonConvert.DeserializeObject<RawLidarArgsWithTimeStamp>(s);
-            //var currentIMULog= JsonConvert.DeserializeObject<IMUDataEventArgs>(s, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Objects, NullValueHandling = NullValueHandling.Ignore });
-            //var currentSpeedDataLog = JsonConvert.DeserializeObject<SpeedDataEventArgs>(s, new JsonSerializerSettings {  TypeNameHandling = TypeNameHandling.Objects, NullValueHandling= NullValueHandling.Ignore});
-            while (true)
-            {
-                double elapsedMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
-                double timeOffset = currentLidarLog.InstantInMs;
-                //currentIMULog = JsonConvert.DeserializeObject<IMUDataEventArgs>(s);
-                //currentSpeedDataLog = JsonConvert.DeserializeObject<SpeedDataEventArgs>(s);
-                //OnIMU(currentIMULog);
-                //OnSpeedData(currentSpeedDataLog);
-                while (elapsedMs +timeOffset>= currentLidarLog.InstantInMs)
-                {
-                    //On génère un évènement et on va chercher le log suivant
-                    //Console.WriteLine(currentLog.PtList.Count);
-                    OnLidar(currentLidarLog.RobotId, currentLidarLog.PtList);
-
-                    s = sr.ReadLine();
-                    try
-                    {
-                        if (s != null)
+                        while (DateTime.Now.Subtract(initialDateTime).TotalMilliseconds + LogDateTimeOffsetInMs < newReplayInstant)
                         {
-                            currentLidarLog = JsonConvert.DeserializeObject<RawLidarArgsWithTimeStamp>(s);
-
-                            elapsedMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
+                            Thread.Sleep(10); //On bloque
+                        }
+                        
+                        switch(objType)
+                        {
+                            case "RawLidar":
+                                var currentLidarLog = obj.ToObject<RawLidarArgsLog>(); 
+                                OnLidar(currentLidarLog.RobotId, currentLidarLog.PtList);
+                                break;
+                            case "SpeedFromOdometry":
+                                var robotSpeedData = obj.ToObject<SpeedDataEventArgsLog>();
+                                OnSpeedData(robotSpeedData);
+                                break;
+                            case "ImuData":
+                                var ImuData = obj.ToObject<IMUDataEventArgsLog>();
+                                OnIMU(ImuData);
+                                break;
+                            default:
+                                Console.WriteLine("Log Replay : wrong type");
+                                break;
                         }
                     }
-                    catch { }
-
                 }
-                //while (logQueue.Count > 0)
-                //{
-                //    string s = "";
-                //    lock (logLock) // get a lock on the queue
-                //    {
-                //        s = logQueue.Dequeue();
-                //    }
-                //    sw.WriteLine(s);
-                //}
-                Thread.Sleep(50);
             }
         }
 
@@ -117,7 +103,7 @@ namespace LogReplay
             var handler = OnIMUEvent;
             if (handler != null)
             {
-                handler(this, new IMUDataEventArgs { accelX = dat.accelX, accelY = dat.accelY, accelZ = dat.accelZ, gyrX = dat.gyrX, gyrY = dat.gyrY, gyrZ = dat.gyrZ,timeStampMS=dat.timeStampMS});
+                handler(this, new IMUDataEventArgs { accelX = dat.accelX, accelY = dat.accelY, accelZ = dat.accelZ, gyrX = dat.gyrX, gyrY = dat.gyrY, gyrZ = dat.gyrZ,EmbeddedTimeStampInMs=dat.EmbeddedTimeStampInMs});
             }
         }
 
@@ -128,7 +114,7 @@ namespace LogReplay
             var handler = OnSpeedDataEvent;
             if (handler != null)
             {
-                handler(this, new SpeedDataEventArgs { Vx = dat.Vx, Vy = dat.Vy, Vtheta = dat.Vtheta, RobotId = dat.RobotId, timeStampMS=dat.timeStampMS});
+                handler(this, new SpeedDataEventArgs { Vx = dat.Vx, Vy = dat.Vy, Vtheta = dat.Vtheta, RobotId = dat.RobotId, EmbeddedTimeStampInMs=dat.EmbeddedTimeStampInMs});
             }
         }
     }

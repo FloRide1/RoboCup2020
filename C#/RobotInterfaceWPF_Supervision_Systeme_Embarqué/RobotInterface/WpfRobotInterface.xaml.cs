@@ -173,10 +173,10 @@ namespace RobotInterface
         }
         public void UpdateSpeedDataOnGraph(object sender, SpeedDataEventArgs e)
         {
-            oscilloX.AddPointToLine(1, e.timeStampMS / 1000.0, e.Vx);
-            oscilloY.AddPointToLine(1, e.timeStampMS / 1000.0, e.Vy);
-            oscilloTheta.AddPointToLine(1, e.timeStampMS / 1000.0, e.Vtheta);
-            currentTime = e.timeStampMS / 1000.0;
+            oscilloX.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vx);
+            oscilloY.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vy);
+            oscilloTheta.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vtheta);
+            currentTime = e.EmbeddedTimeStampInMs / 1000.0;
         }
         public void ActualizeAccelDataOnGraph(object sender, AccelEventArgs e)
         {
@@ -187,10 +187,10 @@ namespace RobotInterface
 
         public void UpdateImuDataOnGraph(object sender, IMUDataEventArgs e)
         {
-            oscilloX.AddPointToLine(2, e.timeStampMS/1000.0, e.accelX);
-            oscilloY.AddPointToLine(2, e.timeStampMS/1000.0, e.accelY);
-            oscilloTheta.AddPointToLine(2, e.timeStampMS / 1000.0, e.gyrZ);
-            currentTime = e.timeStampMS/1000.0;
+            oscilloX.AddPointToLine(2, e.EmbeddedTimeStampInMs/1000.0, e.accelX);
+            oscilloY.AddPointToLine(2, e.EmbeddedTimeStampInMs/1000.0, e.accelY);
+            oscilloTheta.AddPointToLine(2, e.EmbeddedTimeStampInMs / 1000.0, e.gyrZ);
+            currentTime = e.EmbeddedTimeStampInMs/1000.0;
         }
 
         public void UpdateSpeedConsigneOnGraph(object sender, SpeedConsigneArgs e)

@@ -44,6 +44,7 @@ namespace Robot
         static bool usingLidar = true;
         static bool usingLogging = false;
         static bool usingLogReplay = false;
+        static bool usingRobotInterface = true;
 
         //static HighFreqTimer highFrequencyTimer;
         static HighFreqTimer timerStrategie;
@@ -138,7 +139,7 @@ namespace Robot
             lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             perceptionSimulator = new PerceptionSimulator(robotId);
 
-            if (usingLidar)
+            if (usingLidar || usingLogReplay)
             {
                 lidar_OMD60M = new Lidar_OMD60M(robotId);
                 lidarProcessor = new LidarProcessor.LidarProcessor(robotId);
@@ -154,15 +155,25 @@ namespace Robot
             imageProcessingPositionFromOmniCamera = new ImageProcessingPositionFromOmniCamera();
 
             //Démarrage des interface de visualisation
-            StartInterfaces();
+            if(usingRobotInterface)
+                StartInterfaces();
 
-            //Démarrage du logging
+            //Démarrage du logger si besoin
             if (usingLogging)
                 logRecorder = new LogRecorder.LogRecorder();
+
+            //Démarrage du log replay si l'interface est utilisée et existe ou si elle n'est pas utilisée, sinon on bloque
             if (usingLogReplay)
             {
-                logReplay = new LogReplay.LogReplay();
-                lidarProcessor = new LidarProcessor.LidarProcessor(robotId);
+                if (!usingRobotInterface)
+                {
+                    logReplay = new LogReplay.LogReplay();
+                }
+                else
+                {
+                    while (interfaceRobot == null) ;
+                    logReplay = new LogReplay.LogReplay();
+                }
             }
 
             //Liens entre modules
@@ -324,9 +335,14 @@ namespace Robot
                 interfaceRobot.OnEnablePIDDebugDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnablePIDDebugData;
 
                 localWorldMapManager.OnLocalWorldMapEvent+= interfaceRobot.OnLocalWorldMapEvent;
-                logReplay.OnIMUEvent += interfaceRobot.UpdateImuDataOnGraph;
+                if (usingLogReplay)
+                {
+                    logReplay.OnIMUEvent += interfaceRobot.UpdateImuDataOnGraph;
+                    logReplay.OnSpeedDataEvent += interfaceRobot.UpdateSpeedDataOnGraph;
+                }
 
                 interfaceRobot.ShowDialog();
+
             });
             t1.SetApartmentState(ApartmentState.STA);
             t1.Start();
