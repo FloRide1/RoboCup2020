@@ -17,7 +17,7 @@ namespace LogRecorder
         private StreamWriter sw;
         private Queue<string> logQueue = new Queue<string>();
         public string logLock = "";
-
+        JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
         DateTime initialDateTime;
 
         public LogRecorder()
@@ -71,13 +71,14 @@ namespace LogRecorder
             data.PtList = e.PtList;
             data.RobotId = e.RobotId;
             data.InstantInMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
+            //On serialize l'objet sur une ligne (pas d'indentation), et on y inclut le nom de l'objet
             string json = JsonConvert.SerializeObject(data);
             Log(json);
         }
 
         public void OnIMUDataReceived(object sender, IMUDataEventArgs e)
         {
-            string json = JsonConvert.SerializeObject(e);
+            string json = JsonConvert.SerializeObject(e, Formatting.None, new JsonSerializerSettings {  TypeNameHandling=TypeNameHandling.Objects } );
             Log(json);
         }
 

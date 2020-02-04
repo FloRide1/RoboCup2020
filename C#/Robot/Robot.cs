@@ -169,7 +169,7 @@ namespace Robot
             strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
             strategyManager.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
-            if (!usingXBoxController)
+            if (!usingXBoxController )
             {
                 trajectoryPlanner.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
                 robotPilot.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
@@ -240,7 +240,7 @@ namespace Robot
         static Random rand = new Random();
         private static void TimerStrategie_Tick(object sender, EventArgs e)
         {
-            var role = (StrategyManager.PlayerRole)rand.Next((int)0, (int)StrategyManager.PlayerRole.Centre);
+            var role = (StrategyManager.PlayerRole)rand.Next((int)(int)StrategyManager.PlayerRole.Centre, (int)StrategyManager.PlayerRole.Centre);
             strategyManager.SetRole(role);
             strategyManager.ProcessStrategy();
         }

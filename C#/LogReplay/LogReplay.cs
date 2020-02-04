@@ -36,24 +36,42 @@ namespace LogReplay
         {
             //sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath_Static_Passage.rbt");
             //sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath-Mvt1.rbt");
-            sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath_2020-02-03_15-47-29.rbt");
+            //sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath_2020-02-03_15-47-29.rbt");
+            sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\test.rbt");
             string s = sr.ReadLine();
+            using (JsonTextReader txtRdr = new JsonTextReader(sr))
+            {
+                txtRdr.SupportMultipleContent = true;
+                var serializer = new JsonSerializer();
+                while (txtRdr.Read())
+                {
+                    if (txtRdr.TokenType == JsonToken.StartObject)
+                    {
+                        SpeedDataEventArgs speed=serializer.Deserialize<SpeedDataEventArgs>(txtRdr);
+                        // Load each object from the stream and do something with it
+                        //JObject obj = JObject.Load(txtRdr);
+                        //Type type = obj.GetType();
 
+
+                    }
+                }
+            }
             var currentLidarLog = JsonConvert.DeserializeObject<RawLidarArgsWithTimeStamp>(s);
-            var currentIMULog= JsonConvert.DeserializeObject<IMUDataEventArgs>(s);
-            var currentSpeedDataLog = JsonConvert.DeserializeObject<SpeedDataEventArgs>(s);
+            //var currentIMULog= JsonConvert.DeserializeObject<IMUDataEventArgs>(s, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Objects, NullValueHandling = NullValueHandling.Ignore });
+            //var currentSpeedDataLog = JsonConvert.DeserializeObject<SpeedDataEventArgs>(s, new JsonSerializerSettings {  TypeNameHandling = TypeNameHandling.Objects, NullValueHandling= NullValueHandling.Ignore});
             while (true)
             {
                 double elapsedMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
+                double timeOffset = currentLidarLog.InstantInMs;
                 //currentIMULog = JsonConvert.DeserializeObject<IMUDataEventArgs>(s);
-                currentSpeedDataLog = JsonConvert.DeserializeObject<SpeedDataEventArgs>(s);
+                //currentSpeedDataLog = JsonConvert.DeserializeObject<SpeedDataEventArgs>(s);
                 //OnIMU(currentIMULog);
-                OnSpeedData(currentSpeedDataLog);
-                while (elapsedMs >= currentLidarLog.InstantInMs)
+                //OnSpeedData(currentSpeedDataLog);
+                while (elapsedMs +timeOffset>= currentLidarLog.InstantInMs)
                 {
                     //On génère un évènement et on va chercher le log suivant
                     //Console.WriteLine(currentLog.PtList.Count);
-                   // OnLidar(currentLidarLog.RobotId, currentLidarLog.PtList);
+                    OnLidar(currentLidarLog.RobotId, currentLidarLog.PtList);
 
                     s = sr.ReadLine();
                     try
