@@ -24,9 +24,37 @@ using EventArgsLibrary;
 using LogRecorder;
 using LogReplay;
 using LidarProcessor;
+using System.Runtime.InteropServices;
+
+
 
 namespace Robot
 {
+
+    //public static extern bool SetConsoleCtrlHandler(HandlerRoutine Handler, bool Add);
+    //// A delegate type to be used as the handler routine
+    //// for SetConsoleCtrlHandler.
+    //public delegate bool HandlerRoutine(CtrlTypes CtrlType);
+
+    //// An enumerated type for the control messages
+    //// sent to the handler routine.
+    //public enum CtrlTypes
+    //{
+    //    CTRL_C_EVENT = 0,
+    //    CTRL_BREAK_EVENT,
+    //    CTRL_CLOSE_EVENT,
+    //    CTRL_LOGOFF_EVENT = 5,
+    //    CTRL_SHUTDOWN_EVENT
+    //}
+
+    //private static bool ConsoleCtrlCheck(CtrlTypes ctrlType)
+    //{
+    //    // Put your own handler here
+    //    return true;
+    //}
+
+    //SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
+
     enum RobotMode
     {
         LidarAcquisition,
@@ -36,7 +64,39 @@ namespace Robot
     }
     class Robot
     {
-        static RobotMode robotMode = RobotMode.LidarReplay;
+        #region Gestion Arret Console (Do not Modify)
+        // Declare the SetConsoleCtrlHandler function 
+        // as external and receiving a delegate.
+        [DllImport("Kernel32")]
+        public static extern bool SetConsoleCtrlHandler(HandlerRoutine Handler, bool Add);
+
+        // A delegate type to be used as the handler routine
+        // for SetConsoleCtrlHandler.
+        public delegate bool HandlerRoutine(CtrlTypes CtrlType);
+
+        // An enumerated type for the control messages
+        // sent to the handler routine.
+        public enum CtrlTypes
+        {
+            CTRL_C_EVENT = 0,
+            CTRL_BREAK_EVENT,
+            CTRL_CLOSE_EVENT,
+            CTRL_LOGOFF_EVENT = 5,
+            CTRL_SHUTDOWN_EVENT
+        }
+
+        private static bool ConsoleCtrlCheck(CtrlTypes ctrlType)
+        {
+            // Put your own handler here
+            if (omniCamera != null)
+                omniCamera.DestroyCamera();
+            t1.Abort();
+            t2.Abort();
+            return true;
+        }
+        #endregion
+
+        static RobotMode robotMode = RobotMode.LidarAcquisition;
 
         static bool usingSimulatedCamera = true;
         static bool usingPhysicalSimulator = true;
@@ -44,7 +104,11 @@ namespace Robot
         static bool usingLidar = true;
         static bool usingLogging = false;
         static bool usingLogReplay = false;
+        static bool usingImageExtractor = true;     //Utilisé pour extraire des images du flux camera et les enregistrer en tant que JPG
+
+
         static bool usingRobotInterface = true;
+        static bool usingCameraInterface = true;
 
         //static HighFreqTimer highFrequencyTimer;
         static HighFreqTimer timerStrategie;
@@ -83,6 +147,8 @@ namespace Robot
 
         static void Main(string[] args)
         {
+            SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
+
             SciChartSurface.SetRuntimeLicenseKey(@"<LicenseContract>
   <Customer>University of  Toulon</Customer>
   <OrderId>EDUCATIONAL-USE-0109</OrderId>
@@ -147,16 +213,19 @@ namespace Robot
 
             xBoxManette = new XBoxController.XBoxController(robotId);
 
-            if (!usingSimulatedCamera)
+            //if (!usingSimulatedCamera)
                 omniCamera = new BaslerCameraAdapter();
-            else
-                omniCameraSimulator = new SimulatedCamera.SimulatedCamera();
+            //else
+            //    omniCameraSimulator = new SimulatedCamera.SimulatedCamera();
 
             imageProcessingPositionFromOmniCamera = new ImageProcessingPositionFromOmniCamera();
 
+
             //Démarrage des interface de visualisation
-            if(usingRobotInterface)
-                StartInterfaces();
+            if (usingRobotInterface)
+                StartRobotInterface();
+            if (usingCameraInterface)
+                StartCameraInterface();
 
             //Démarrage du logger si besoin
             if (usingLogging)
@@ -165,15 +234,9 @@ namespace Robot
             //Démarrage du log replay si l'interface est utilisée et existe ou si elle n'est pas utilisée, sinon on bloque
             if (usingLogReplay)
             {
-                if (!usingRobotInterface)
-                {
-                    logReplay = new LogReplay.LogReplay();
-                }
-                else
-                {
-                    while (interfaceRobot == null) ;
-                    logReplay = new LogReplay.LogReplay();
-                }
+
+                logReplay = new LogReplay.LogReplay();
+               
             }
 
             //Liens entre modules
@@ -248,6 +311,7 @@ namespace Robot
             }
         }
 
+
         static Random rand = new Random();
         private static void TimerStrategie_Tick(object sender, EventArgs e)
         {
@@ -300,21 +364,37 @@ namespace Robot
             }
         }
 
-        static void StartInterfaces()
+        static Thread t1;
+        static void StartRobotInterface()
         {
-            Thread t1 = new Thread(() =>
+            t1 = new Thread(() =>
             {
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
                 interfaceRobot = new RobotInterface.WpfRobotInterface();
-                //Sur evenement xx        -->>        Action a effectuer
-                msgDecoder.OnMessageDecodedEvent += interfaceRobot.DisplayMessageDecoded;
-                msgDecoder.OnMessageDecodedErrorEvent += interfaceRobot.DisplayMessageDecodedError;
+
+                interfaceRobot.Loaded += RegisterRobotInterfaceEvents;
                 
+
+                interfaceRobot.ShowDialog();
+
+            });
+            t1.SetApartmentState(ApartmentState.STA);
+            t1.Start();
+        }
+
+        static void RegisterRobotInterfaceEvents(object sender, EventArgs e)
+        {
+            //Sur evenement xx        -->>        Action a effectuer
+            msgDecoder.OnMessageDecodedEvent += interfaceRobot.DisplayMessageDecoded;
+            msgDecoder.OnMessageDecodedErrorEvent += interfaceRobot.DisplayMessageDecodedError;
+
+            if (!usingLogReplay)
+            {
                 robotMsgProcessor.OnIMUDataFromRobotGeneratedEvent += interfaceRobot.UpdateImuDataOnGraph;
                 robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += interfaceRobot.UpdateMotorsCurrentsOnGraph;
-                robotMsgProcessor.OnEncoderRawDataFromRobotGeneratedEvent+= interfaceRobot.UpdateMotorsEncRawDataOnGraph;
-                
-                
+                robotMsgProcessor.OnEncoderRawDataFromRobotGeneratedEvent += interfaceRobot.UpdateMotorsEncRawDataOnGraph;
+
+
                 robotMsgProcessor.OnEnableDisableMotorsACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableDisableMotorsButton;
                 robotMsgProcessor.OnEnableDisableTirACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableDisableTirButton;
                 robotMsgProcessor.OnMotorVitesseDataFromRobotGeneratedEvent += interfaceRobot.UpdateMotorsSpeedsOnGraph;
@@ -323,59 +403,76 @@ namespace Robot
                 robotMsgProcessor.OnSpeedDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedDataOnGraph;
                 robotMsgProcessor.OnPIDDebugDataFromRobotGeneratedEvent += interfaceRobot.UpdatePIDDebugDataOnGraph;
                 robotMsgProcessor.OnErrorTextFromRobotGeneratedEvent += interfaceRobot.AppendConsole;
-                xBoxManette.OnSpeedConsigneEvent += interfaceRobot.UpdateSpeedConsigneOnGraph;
-                interfaceRobot.OnEnableDisableMotorsFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableMotors;
-                interfaceRobot.OnEnableDisableTirFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableTir;
-                interfaceRobot.OnEnableDisableControlManetteFromInterfaceGeneratedEvent += ChangeUseOfXBoxController;
-                interfaceRobot.OnEnableAsservissementFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableAsservissement;
-                interfaceRobot.OnEnableEncodersRawDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableEncoderRawData;
-                interfaceRobot.OnEnableMotorCurrentDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableMotorCurrentData;
-                interfaceRobot.OnEnableMotorsSpeedConsigneDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableMotorSpeedConsigne;
-                interfaceRobot.OnSetRobotPIDFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageSetPIDValueToRobot;
-                interfaceRobot.OnEnablePIDDebugDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnablePIDDebugData;
+            }
+            xBoxManette.OnSpeedConsigneEvent += interfaceRobot.UpdateSpeedConsigneOnGraph;
+            interfaceRobot.OnEnableDisableMotorsFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableMotors;
+            interfaceRobot.OnEnableDisableTirFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableTir;
+            interfaceRobot.OnEnableDisableControlManetteFromInterfaceGeneratedEvent += ChangeUseOfXBoxController;
+            interfaceRobot.OnEnableAsservissementFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableAsservissement;
+            interfaceRobot.OnEnableEncodersRawDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableEncoderRawData;
+            interfaceRobot.OnEnableMotorCurrentDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableMotorCurrentData;
+            interfaceRobot.OnEnableMotorsSpeedConsigneDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableMotorSpeedConsigne;
+            interfaceRobot.OnSetRobotPIDFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageSetPIDValueToRobot;
+            interfaceRobot.OnEnablePIDDebugDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnablePIDDebugData;
 
-                localWorldMapManager.OnLocalWorldMapEvent+= interfaceRobot.OnLocalWorldMapEvent;
-                if (usingLogReplay)
-                {
-                    logReplay.OnIMUEvent += interfaceRobot.UpdateImuDataOnGraph;
-                    logReplay.OnSpeedDataEvent += interfaceRobot.UpdateSpeedDataOnGraph;
-                }
-
-                interfaceRobot.ShowDialog();
-
-            });
-            t1.SetApartmentState(ApartmentState.STA);
-            t1.Start();
-
-            //Thread t2 = new Thread(() =>
-            //{
-            //    //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
-                
-            //    ConsoleCamera = new RobotMonitor.WpfCameraMonitor();
-            //    if (!simulatedCamera)
-            //    {
-            //        omniCamera.CameraInit();
-            //        //omniCamera.CameraImageEvent += ConsoleCamera.CameraImageEventCB;
-            //        omniCamera.OpenCvMatImageEvent += ConsoleCamera.DisplayOpenCvMatImage;
-            //    }
-            //    else
-            //    {
-            //        //omniCameraSimulator.Start();
-            //        //omniCameraSimulator.CameraImageEvent += ConsoleCamera.CameraImageEventCB;
-            //        omniCameraSimulator.OnOpenCvMatImageReadyEvent += ConsoleCamera.DisplayOpenCvMatImage;
-            //        omniCameraSimulator.OnOpenCvMatImageReadyEvent += imageProcessingPositionFromOmniCamera.ProcessOpenCvMatImage;
-            //        imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;                    
-            //    }
-            //    ConsoleCamera.ShowDialog();
-
-            //    //Inutile mais debug pour l'instant
-            //    refBoxAdapter.OnRefereeBoxReceivedCommandEvent += ConsoleCamera.DisplayRefBoxCommand;
-            //    msgDecoder.OnMessageDecodedEvent += ConsoleCamera.DisplayMessageDecoded;
-            //});
-            //t2.SetApartmentState(ApartmentState.STA);
-
-            //t2.Start();
+            localWorldMapManager.OnLocalWorldMapEvent += interfaceRobot.OnLocalWorldMapEvent;
+            if (usingLogReplay)
+            {
+                logReplay.OnIMUEvent += interfaceRobot.UpdateImuDataOnGraph;
+                logReplay.OnSpeedDataEvent += interfaceRobot.UpdateSpeedDataOnGraph;
+            }
         }
+
+
+
+        static Thread t2;
+        static void StartCameraInterface()
+        {
+            t2 = new Thread(() =>
+            {
+                //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
+
+                ConsoleCamera = new RobotMonitor.WpfCameraMonitor();
+                //if (!simulatedCamera)
+                {
+                    omniCamera.CameraInit();
+                    //omniCamera.CameraImageEvent += ConsoleCamera.CameraImageEventCB;
+
+
+                }
+                ConsoleCamera.Loaded += RegisterCameraInterfaceEvents;
+                //else
+                //{
+                //    //omniCameraSimulator.Start();
+                //    //omniCameraSimulator.CameraImageEvent += ConsoleCamera.CameraImageEventCB;
+                //    omniCameraSimulator.OnOpenCvMatImageReadyEvent += ConsoleCamera.DisplayOpenCvMatImage;
+                //    omniCameraSimulator.OnOpenCvMatImageReadyEvent += imageProcessingPositionFromOmniCamera.ProcessOpenCvMatImage;
+                //    imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;
+                //}
+                ConsoleCamera.ShowDialog();
+
+                //Inutile mais debug pour l'instant
+                refBoxAdapter.OnRefereeBoxReceivedCommandEvent += ConsoleCamera.DisplayRefBoxCommand;
+                msgDecoder.OnMessageDecodedEvent += ConsoleCamera.DisplayMessageDecoded;
+            });
+            t2.SetApartmentState(ApartmentState.STA);
+            t2.Start();
+        }
+
+        static void RegisterCameraInterfaceEvents(object sender, EventArgs e)
+        {
+            if (usingLogging)
+            {
+                omniCamera.OpenCvMatImageEvent += ConsoleCamera.DisplayOpenCvMatImage;
+                omniCamera.OpenCvMatImageEvent += logRecorder.OnOpenCVMatImageReceived;
+            }
+
+            if (usingLogReplay)
+            {
+                logReplay.OnCameraImageEvent += ConsoleCamera.DisplayOpenCvMatImage;
+            }
+        }
+
 
         private static void RefBoxAdapter_DataReceivedEvent(object sender, EventArgsLibrary.DataReceivedArgs e)
         {

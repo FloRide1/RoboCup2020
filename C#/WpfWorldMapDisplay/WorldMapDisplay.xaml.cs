@@ -755,12 +755,16 @@ namespace WpfWorldMapDisplay
             if (lidarMap == null)
                 return dataSeries;
 
-            var listX = lidarMap.Select(e => e.X);
-            var listY = lidarMap.Select(e => e.Y);
-            
-            //dataSeries.Clear();
-            dataSeries.AcceptsUnsortedData = true;
-            dataSeries.Append(listX, listY);
+
+            lock (lidarMap)
+            {
+                var listX = lidarMap.Select(e => e.X);
+                var listY = lidarMap.Select(e => e.Y);
+
+                //dataSeries.Clear();
+                dataSeries.AcceptsUnsortedData = true;
+                dataSeries.Append(listX, listY);
+            }
             return dataSeries;
         }
 

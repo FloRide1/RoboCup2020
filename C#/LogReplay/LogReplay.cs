@@ -38,7 +38,7 @@ namespace LogReplay
             //sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath_Static_Passage.rbt");
             //sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath-Mvt1.rbt");
             //sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath_2020-02-03_15-47-29.rbt");
-            sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\test.rbt");
+            sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath_2020-02-04_15-07-01.rbt");
             //string s = sr.ReadLine();
 
             using (JsonTextReader txtRdr = new JsonTextReader(sr))
@@ -75,6 +75,10 @@ namespace LogReplay
                             case "ImuData":
                                 var ImuData = obj.ToObject<IMUDataEventArgsLog>();
                                 OnIMU(ImuData);
+                                break;
+                            case "CameraOmni":
+                                var cameraImage = obj.ToObject<OpenCvMatImageArgsLog>();
+                                OnCameraImage(cameraImage);
                                 break;
                             default:
                                 Console.WriteLine("Log Replay : wrong type");
@@ -115,6 +119,17 @@ namespace LogReplay
             if (handler != null)
             {
                 handler(this, new SpeedDataEventArgs { Vx = dat.Vx, Vy = dat.Vy, Vtheta = dat.Vtheta, RobotId = dat.RobotId, EmbeddedTimeStampInMs=dat.EmbeddedTimeStampInMs});
+            }
+        }
+
+        //public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
+        public event EventHandler<OpenCvMatImageArgsLog> OnCameraImageEvent;
+        public virtual void OnCameraImage(OpenCvMatImageArgsLog dat)
+        {
+            var handler = OnCameraImageEvent;
+            if (handler != null)
+            {
+                handler(this, new OpenCvMatImageArgsLog { Mat=dat.Mat, Descriptor=dat.Descriptor });
             }
         }
     }

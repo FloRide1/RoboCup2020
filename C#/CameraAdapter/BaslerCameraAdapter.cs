@@ -24,7 +24,7 @@ namespace CameraAdapter
             // Ask the camera finder for a list of camera devices.
             List<ICameraInfo> allCameras = CameraFinder.Enumerate();
 
-            camera = new Camera();
+            camera = new Camera("40032798");
 
             if (camera != null)
             {
@@ -35,9 +35,16 @@ namespace CameraAdapter
                 camera.StreamGrabber.GrabStarted += StreamGrabber_GrabStarted;
                 camera.StreamGrabber.ImageGrabbed += StreamGrabber_ImageGrabbed;
                 camera.StreamGrabber.GrabStopped += StreamGrabber_GrabStopped;
+
                 camera.Open();
-                camera.Parameters[PLCamera.GevSCPSPacketSize].SetValue(8192);   //Réglage du packet Size à 8192
-                camera.Parameters[PLCamera.GevSCPD].SetValue(10000);             //Réglage de l'inter packet delay à 10000
+                    
+
+                camera.Parameters[PLCamera.GevSCPSPacketSize].SetValue(8192);       //Réglage du packet Size à 8192
+                camera.Parameters[PLCamera.GevSCPD].SetValue(10000);                //Réglage de l'inter packet delay à 10000
+                camera.Parameters[PLCamera.ExposureTimeAbs].SetValue(25000);        //Réglage du temps d'exposition à 40Hz - 25.000 us
+                camera.Parameters[PLCamera.AcquisitionFrameRateAbs].SetValue(40);   //Réglage du framerate en fps
+                camera.Parameters[PLCamera.LightSourceSelector].SetValue(PLCamera.LightSourceSelector.Daylight6500K);
+
             }
                 //SetValue(PLCamera.AcquisitionMode.Continuous);
             KeepShot();
