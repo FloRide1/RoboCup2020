@@ -87,6 +87,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alturos.Yolo.TestUI", "..\A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfWorldMapDisplay", "..\WpfWorldMapDisplay\WpfWorldMapDisplay.csproj", "{89604641-927E-47FF-8DB6-91CF5C4976C1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageSaver", "..\ImageSaver\ImageSaver.csproj", "{257176D4-22D8-4EA5-BA41-AB36D4AD2BA9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -261,6 +263,10 @@ Global
 		{89604641-927E-47FF-8DB6-91CF5C4976C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89604641-927E-47FF-8DB6-91CF5C4976C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89604641-927E-47FF-8DB6-91CF5C4976C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{257176D4-22D8-4EA5-BA41-AB36D4AD2BA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{257176D4-22D8-4EA5-BA41-AB36D4AD2BA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{257176D4-22D8-4EA5-BA41-AB36D4AD2BA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{257176D4-22D8-4EA5-BA41-AB36D4AD2BA9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

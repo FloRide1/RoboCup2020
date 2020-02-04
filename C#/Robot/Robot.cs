@@ -24,8 +24,8 @@ using EventArgsLibrary;
 using LogRecorder;
 using LogReplay;
 using LidarProcessor;
+using ImageSaver;
 using System.Runtime.InteropServices;
-
 
 
 namespace Robot
@@ -112,7 +112,7 @@ namespace Robot
 
         //static HighFreqTimer highFrequencyTimer;
         static HighFreqTimer timerStrategie;
-
+        static ImageSaver.ImageSaver imgSaver;
         static ReliableSerialPort serialPort1;
         static RefereeBoxAdapter.RefereeBoxAdapter refBoxAdapter;
         static EthernetTeamNetworkAdapter ethernetTeamNetworkAdapter;
@@ -205,6 +205,7 @@ namespace Robot
             lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             perceptionSimulator = new PerceptionSimulator(robotId);
 
+            
             if (usingLidar || usingLogReplay)
             {
                 lidar_OMD60M = new Lidar_OMD60M(robotId);
@@ -219,7 +220,11 @@ namespace Robot
             //    omniCameraSimulator = new SimulatedCamera.SimulatedCamera();
 
             imageProcessingPositionFromOmniCamera = new ImageProcessingPositionFromOmniCamera();
-
+            if (usingImageExtractor)
+            {
+                imgSaver = new ImageSaver.ImageSaver();
+                omniCamera.OpenCvMatImageEvent += imgSaver.OnSaveCVMatImage;
+            }
 
             //Démarrage des interface de visualisation
             if (usingRobotInterface)
@@ -234,9 +239,7 @@ namespace Robot
             //Démarrage du log replay si l'interface est utilisée et existe ou si elle n'est pas utilisée, sinon on bloque
             if (usingLogReplay)
             {
-
                 logReplay = new LogReplay.LogReplay();
-               
             }
 
             //Liens entre modules
