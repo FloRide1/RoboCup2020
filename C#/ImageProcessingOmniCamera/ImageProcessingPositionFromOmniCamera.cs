@@ -20,35 +20,56 @@ namespace ImageProcessingOmniCamera
 
         public ImageProcessingPositionFromOmniCamera()
         {
-            //TerrainTheoriqueVertical = GenerateImageTerrain();
 
         }
 
-        //Event de réception d'imae depuis un flux
-        //Bitmap lastImage;
-        //public void CameraImageEventCB(object sender, EventArgsLibrary.CameraImageArgs e)
-        //{
-        //    lastImage = e.ImageBmp;
-        //}
-                
+        public Mat FishEyeToPanorama(Mat m)
+        {
+            int originalWidth = m.Cols;
+            int originalHeight = m.Rows;
+
+            double scaleCoeff = 0.2;
+
+            int height = (int)(originalHeight / 2 * scaleCoeff);
+            int width = (int)(originalHeight * Math.PI * scaleCoeff);
+            Mat panorama = new Mat(height, width, m.Depth, m.NumberOfChannels);
+            for(int i = 0; i< width; i++)
+            {
+                for(int j= 0; j< height; j++)
+                {
+                    //int xPos = (int)(originalHeight / 2 + originalHeight / 2 * Math.Cos(i / scaleCoeff / 2 * Math.PI));
+                    //int yPos = (int)(originalWidth / 2 + originalHeight / 2 * Math.Sin(i / scaleCoeff / 2 * Math.PI));
+                    //int b = (int)m.Data[xPos, yPos, 0];
+                    //int g = m.Data[xPos, yPos, 0];
+                    //int r = m.Data[xPos, yPos, 0];
+                    //panorama.Data[i, j] = color;
+                }
+            }
+            return panorama;
+        }
+
+
         public void ProcessOpenCvMatImage(object sender, EventArgsLibrary.OpenCvMatImageArgs e)
         {
             Mat initialMat = e.Mat;
             OnOpenCvMatImageProcessedReady(initialMat, "ImageFromCameraViaProcessing");
-            
-            //Découpage de l'image
-            int RawMatCroppedSize = 300;
-            int cropOffsetX = 0;
-            int cropOffsetY = 0;
-            Range rgX = new Range(initialMat.Width / 2 - RawMatCroppedSize / 2 + cropOffsetX, initialMat.Width / 2 + RawMatCroppedSize / 2 + cropOffsetX);
-            Range rgY = new Range(initialMat.Height / 2 - RawMatCroppedSize / 2 + cropOffsetY, initialMat.Height / 2 + RawMatCroppedSize / 2 + cropOffsetY);
-            Mat RawMatCropped = new Mat(initialMat, rgY, rgX);
 
-            //Conversion en HSV
-            Mat HsvMatCropped = new Mat();
-            CvInvoke.CvtColor(RawMatCropped, HsvMatCropped, ColorConversion.Bgr2Hsv);
-            OnOpenCvMatImageProcessedReady(HsvMatCropped, "ImageDebug3");
-            OnOpenCvMatImageProcessedReady(TerrainTheoriqueVertical, "ImageDebug4");
+            var panoramaImage = FishEyeToPanorama(e.Mat);
+            OnOpenCvMatImageProcessedReady(panoramaImage, "ImageDebug3");
+
+            ////Découpage de l'image
+            //int RawMatCroppedSize = 300;
+            //int cropOffsetX = 0;
+            //int cropOffsetY = 0;
+            //Range rgX = new Range(initialMat.Width / 2 - RawMatCroppedSize / 2 + cropOffsetX, initialMat.Width / 2 + RawMatCroppedSize / 2 + cropOffsetX);
+            //Range rgY = new Range(initialMat.Height / 2 - RawMatCroppedSize / 2 + cropOffsetY, initialMat.Height / 2 + RawMatCroppedSize / 2 + cropOffsetY);
+            //Mat RawMatCropped = new Mat(initialMat, rgY, rgX);
+
+            ////Conversion en HSV
+            //Mat HsvMatCropped = new Mat();
+            //CvInvoke.CvtColor(RawMatCropped, HsvMatCropped, ColorConversion.Bgr2Hsv);
+            //OnOpenCvMatImageProcessedReady(HsvMatCropped, "ImageDebug3");
+            //OnOpenCvMatImageProcessedReady(TerrainTheoriqueVertical, "ImageDebug4");
         }
 
         private void CalculatePositioning(Mat RawMat, out Mat RawMatCropped, out Mat OtherZonesInGreen, out Mat TerrainFilledGreenRotated, out Mat TerrainTheoriqueDisplay, out double coefficientCorrelation)

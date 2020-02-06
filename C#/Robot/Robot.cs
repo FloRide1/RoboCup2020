@@ -57,8 +57,8 @@ namespace Robot
 
     enum RobotMode
     {
-        LidarAcquisition,
-        LidarReplay,
+        Acquisition,
+        Replay,
         Standard,
         Nolidar
     }
@@ -96,12 +96,13 @@ namespace Robot
         }
         #endregion
 
-        static RobotMode robotMode = RobotMode.LidarAcquisition;
+        static RobotMode robotMode = RobotMode.Replay;
 
         static bool usingSimulatedCamera = true;
         static bool usingPhysicalSimulator = true;
         static bool usingXBoxController = false;
         static bool usingLidar = true;
+        static bool usingCamera = true;
         static bool usingLogging = false;
         static bool usingLogReplay = false;
         static bool usingImageExtractor = true;     //Utilisé pour extraire des images du flux camera et les enregistrer en tant que JPG
@@ -163,21 +164,25 @@ namespace Robot
             {
                 case RobotMode.Standard:
                     usingLidar = true;
+                    usingCamera = true;
                     usingLogging = false;
                     usingLogReplay = false;
                     break;
-                case RobotMode.LidarAcquisition:
+                case RobotMode.Acquisition:
                     usingLidar = true;
+                    usingCamera = true;
                     usingLogging = true;
                     usingLogReplay = false;
                     break;
-                case RobotMode.LidarReplay:
+                case RobotMode.Replay:
                     usingLidar = false;
+                    usingCamera = false;
                     usingLogging = false;
                     usingLogReplay = true;
                     break;
                 case RobotMode.Nolidar:
                     usingLidar = false;
+                    usingCamera = true;
                     usingLogging = false;
                     usingLogReplay = false;
                     break;
@@ -214,17 +219,24 @@ namespace Robot
 
             xBoxManette = new XBoxController.XBoxController(robotId);
 
-            //if (!usingSimulatedCamera)
+            imageProcessingPositionFromOmniCamera = new ImageProcessingPositionFromOmniCamera();
+            if (usingCamera)
+            {
                 omniCamera = new BaslerCameraAdapter();
+                omniCamera.CameraInit();     
+                omniCamera.OpenCvMatImageEvent += imageProcessingPositionFromOmniCamera.ProcessOpenCvMatImage;           
+            }
+
+
             //else
             //    omniCameraSimulator = new SimulatedCamera.SimulatedCamera();
 
-            imageProcessingPositionFromOmniCamera = new ImageProcessingPositionFromOmniCamera();
-            if (usingImageExtractor)
+            if (usingImageExtractor && usingCamera)
             {
                 imgSaver = new ImageSaver.ImageSaver();
                 omniCamera.OpenCvMatImageEvent += imgSaver.OnSaveCVMatImage;
             }
+            
 
             //Démarrage des interface de visualisation
             if (usingRobotInterface)
@@ -238,9 +250,7 @@ namespace Robot
 
             //Démarrage du log replay si l'interface est utilisée et existe ou si elle n'est pas utilisée, sinon on bloque
             if (usingLogReplay)
-            {
                 logReplay = new LogReplay.LogReplay();
-            }
 
             //Liens entre modules
             strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
@@ -284,19 +294,20 @@ namespace Robot
                 lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
             }
 
-            //Event de recording
+            //Events de recording
             if (usingLogging)
             {
                 lidar_OMD60M.OnLidarEvent += logRecorder.OnRawLidarDataReceived;
                 robotMsgProcessor.OnIMUDataFromRobotGeneratedEvent += logRecorder.OnIMUDataReceived;
                 robotMsgProcessor.OnSpeedDataFromRobotGeneratedEvent += logRecorder.OnSpeedDataReceived;
+                omniCamera.OpenCvMatImageEvent += logRecorder.OnOpenCVMatImageReceived;
             }
 
-            //Event de replay
+            //Events de replay
             if (usingLogReplay)
             {
                 logReplay.OnLidarEvent += lidarProcessor.OnRawLidarDataReceived;
-                    
+                logReplay.OnCameraImageEvent += imageProcessingPositionFromOmniCamera.ProcessOpenCvMatImage;
                 lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
                 lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
             }
@@ -374,10 +385,7 @@ namespace Robot
             {
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
                 interfaceRobot = new RobotInterface.WpfRobotInterface();
-
                 interfaceRobot.Loaded += RegisterRobotInterfaceEvents;
-                
-
                 interfaceRobot.ShowDialog();
 
             });
@@ -436,27 +444,12 @@ namespace Robot
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
 
                 ConsoleCamera = new RobotMonitor.WpfCameraMonitor();
-                //if (!simulatedCamera)
-                {
-                    omniCamera.CameraInit();
-                    //omniCamera.CameraImageEvent += ConsoleCamera.CameraImageEventCB;
-
-
-                }
                 ConsoleCamera.Loaded += RegisterCameraInterfaceEvents;
-                //else
-                //{
-                //    //omniCameraSimulator.Start();
-                //    //omniCameraSimulator.CameraImageEvent += ConsoleCamera.CameraImageEventCB;
-                //    omniCameraSimulator.OnOpenCvMatImageReadyEvent += ConsoleCamera.DisplayOpenCvMatImage;
-                //    omniCameraSimulator.OnOpenCvMatImageReadyEvent += imageProcessingPositionFromOmniCamera.ProcessOpenCvMatImage;
-                //    imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;
-                //}
                 ConsoleCamera.ShowDialog();
 
                 //Inutile mais debug pour l'instant
                 refBoxAdapter.OnRefereeBoxReceivedCommandEvent += ConsoleCamera.DisplayRefBoxCommand;
-                msgDecoder.OnMessageDecodedEvent += ConsoleCamera.DisplayMessageDecoded;
+                
             });
             t2.SetApartmentState(ApartmentState.STA);
             t2.Start();
@@ -465,15 +458,12 @@ namespace Robot
         static void RegisterCameraInterfaceEvents(object sender, EventArgs e)
         {
             if (usingLogging)
-            {
                 omniCamera.OpenCvMatImageEvent += ConsoleCamera.DisplayOpenCvMatImage;
-                omniCamera.OpenCvMatImageEvent += logRecorder.OnOpenCVMatImageReceived;
-            }
-
-            if (usingLogReplay)
-            {
+            
+            if(usingLogReplay)
                 logReplay.OnCameraImageEvent += ConsoleCamera.DisplayOpenCvMatImage;
-            }
+
+            imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;
         }
 
 
