@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Utilities;
@@ -23,36 +24,45 @@ namespace ImageProcessingOmniCamera
 
         }
 
-        public Mat FishEyeToPanorama(Mat m)
+        public Mat FishEyeToPanorama(Mat originalMat)
         {
-            int originalWidth = m.Cols;
-            int originalHeight = m.Rows;
+            Image<Bgr, Byte> originalImg = originalMat.ToImage<Bgr, Byte>();
+            int originalWidth = originalImg.Cols;
+            int originalHeight = originalImg.Rows;
+            byte[,,] data = (byte[,,])originalImg.Data;
 
             double scaleCoeff = 0.2;
+            //Mat panorama = new Mat(height, width, originalImg.Depth, originalImg.NumberOfChannels);
 
-            int height = (int)(originalHeight / 2 * scaleCoeff);
-            int width = (int)(originalHeight * Math.PI * scaleCoeff);
-            Mat panorama = new Mat(height, width, m.Depth, m.NumberOfChannels);
-            for(int i = 0; i< width; i++)
+            int RayonCercle = (int)(originalHeight / 2);
+            int heightPanorama = RayonCercle*2;// * scaleCoeff);
+            int widthPanorama = (int)(RayonCercle * 2* Math.PI);// * scaleCoeff);
+            byte[,,] panoramaData = new byte[heightPanorama, widthPanorama, 3];
+
+            for (int i = 0; i< widthPanorama; i++)
             {
-                for(int j= 0; j< height; j++)
+                for(int j= 0; j< heightPanorama; j++)
                 {
-                    //int xPos = (int)(originalHeight / 2 + originalHeight / 2 * Math.Cos(i / scaleCoeff / 2 * Math.PI));
-                    //int yPos = (int)(originalWidth / 2 + originalHeight / 2 * Math.Sin(i / scaleCoeff / 2 * Math.PI));
-                    //int b = (int)m.Data[xPos, yPos, 0];
-                    //int g = m.Data[xPos, yPos, 0];
-                    //int r = m.Data[xPos, yPos, 0];
-                    //panorama.Data[i, j] = color;
+                    int xPos = (int)(originalHeight / 2 + (heightPanorama - 1 - j) * Math.Cos((double)i /RayonCercle + Math.PI));
+                    int yPos = (int)(originalWidth / 2 + (heightPanorama - 1 - j) * Math.Sin((double)i / RayonCercle + Math.PI));
+                    if (xPos < originalHeight && xPos > 0 && yPos < originalWidth && yPos > 0)
+                    {
+                        panoramaData[j, i, 0] = data[xPos, yPos, 0];
+                        panoramaData[j, i, 1] = data[xPos, yPos, 1];
+                        panoramaData[j, i, 2] = data[xPos, yPos, 2];
+                    }
                 }
             }
-            return panorama;
+
+            Image<Bgr, Byte> im = new Image<Bgr, Byte>(panoramaData);
+            return im.Mat;
         }
 
 
         public void ProcessOpenCvMatImage(object sender, EventArgsLibrary.OpenCvMatImageArgs e)
         {
             Mat initialMat = e.Mat;
-            OnOpenCvMatImageProcessedReady(initialMat, "ImageFromCameraViaProcessing");
+            //OnOpenCvMatImageProcessedReady(initialMat, "ImageFromCameraViaProcessing");
 
             var panoramaImage = FishEyeToPanorama(e.Mat);
             OnOpenCvMatImageProcessedReady(panoramaImage, "ImageDebug3");
