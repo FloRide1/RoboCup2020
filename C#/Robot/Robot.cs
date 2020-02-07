@@ -27,7 +27,7 @@ using LidarProcessor;
 using ImageSaver;
 using WpfReplayNavigator;
 using System.Runtime.InteropServices;
-
+using PositionEstimator;
 
 namespace Robot
 {
@@ -126,6 +126,7 @@ namespace Robot
         static BaslerCameraAdapter omniCamera;
         static SimulatedCamera.SimulatedCamera omniCameraSimulator;
         static ImageProcessingPositionFromOmniCamera imageProcessingPositionFromOmniCamera;
+        static AbsolutePositionEstimator absolutePositionEstimator;
         static PhysicalSimulator.PhysicalSimulator physicalSimulator;
         static TrajectoryPlanner trajectoryPlanner;
         static WaypointGenerator waypointGenerator;
@@ -221,17 +222,19 @@ namespace Robot
 
             xBoxManette = new XBoxController.XBoxController(robotId);
 
-            imageProcessingPositionFromOmniCamera = new ImageProcessingPositionFromOmniCamera();
+            if (usingCamera || usingLogReplay)
+            {
+                imageProcessingPositionFromOmniCamera = new ImageProcessingPositionFromOmniCamera();
+                absolutePositionEstimator = new AbsolutePositionEstimator();
+            }
+
             if (usingCamera)
             {
                 omniCamera = new BaslerCameraAdapter();
                 omniCamera.CameraInit();     
-                omniCamera.OpenCvMatImageEvent += imageProcessingPositionFromOmniCamera.ProcessOpenCvMatImage;           
+                //omniCamera.OpenCvMatImageEvent += imageProcessingPositionFromOmniCamera.ProcessOpenCvMatImage;
+                omniCamera.OpenCvMatImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
             }
-
-
-            //else
-            //    omniCameraSimulator = new SimulatedCamera.SimulatedCamera();
 
             if (usingImageExtractor && usingCamera)
             {
@@ -295,6 +298,7 @@ namespace Robot
             if (usingLidar)
             {
                 lidar_OMD60M.OnLidarEvent += lidarProcessor.OnRawLidarDataReceived;
+                lidar_OMD60M.OnLidarEvent += absolutePositionEstimator.OnRawLidarDataReceived; 
                 lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
             }
 
@@ -311,7 +315,8 @@ namespace Robot
             if (usingLogReplay)
             {
                 logReplay.OnLidarEvent += lidarProcessor.OnRawLidarDataReceived;
-                logReplay.OnCameraImageEvent += imageProcessingPositionFromOmniCamera.ProcessOpenCvMatImage;
+                //logReplay.OnCameraImageEvent += imageProcessingPositionFromOmniCamera.ProcessOpenCvMatImage;
+                logReplay.OnCameraImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
                 lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
                 lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
             }
@@ -482,7 +487,8 @@ namespace Robot
             if(usingLogReplay)
                 logReplay.OnCameraImageEvent += ConsoleCamera.DisplayOpenCvMatImage;
 
-            imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;
+            //imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;
+            absolutePositionEstimator.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;
         }
 
         static void RegisterReplayInterfaceEvents(object sender, EventArgs e)

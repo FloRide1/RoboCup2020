@@ -447,9 +447,7 @@ namespace ImageProcessingOmniCamera
 
         //************************************************************************ Events de sortie *****************************************************************************//
         // Event position dans l'image calculée
-        public delegate void PositionEventHandler(object sender, PositionArgs e);
         public event EventHandler<PositionArgs> PositionEvent;
-
         public virtual void OnPositionCalculatedEvent(float x, float y, float angle, float reliability)
         {
             var handler = PositionEvent;
@@ -460,7 +458,6 @@ namespace ImageProcessingOmniCamera
         }
 
         // Event image postprocessée
-        public delegate void OpenCvMatImageEventHandler(object sender, OpenCvMatImageArgs e);
         public event EventHandler<OpenCvMatImageArgs> OnOpenCvMatImageProcessedEvent;
 
         public virtual void OnOpenCvMatImageProcessedReady(Mat mat, string descriptor)

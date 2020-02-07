@@ -137,6 +137,10 @@
       <Project>{4CF48B4E-AB93-479E-B79C-F9101F24B7BA}</Project>
       <Name>PhysicalSimulator</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PositionEstimator\PositionEstimator.csproj">
+      <Project>{d668c327-67c7-41bb-b949-311a239b514c}</Project>
+      <Name>PositionEstimator</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RefereeBoxAdapter\RefereeBoxAdapter.csproj">
       <Project>{A8C04138-90DC-42F9-AB39-E71125B805B9}</Project>
       <Name>RefereeBoxAdapter</Name>
