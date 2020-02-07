@@ -105,5 +105,11 @@
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ui_prev.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ui_next.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

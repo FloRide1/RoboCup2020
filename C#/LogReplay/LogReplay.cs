@@ -22,24 +22,47 @@ namespace LogReplay
         private Queue<string> replayQueue = new Queue<string>();
         public string logLock = "";
 
+        
+        string folderPath= @"C:\Github\RoboCup2020\C#\_Logs\";
+        string fileName= "logFilePath_2020-02-04_20-30-38.rbt";
+        string filePath = "";
+        List<string> filesNamesList = new List<string>();
+        int fileIndexInList = 0;
+
         DateTime initialDateTime;
         double? LogDateTimeOffsetInMs = null;
 
         bool loopReplayFile = false;
+        bool RepeatReplayFile = false;
         public LogReplay()
         {
+            filePath = folderPath + fileName;
+            filesNamesList = Directory.GetFiles(folderPath).ToList();
+            if (filesNamesList.Contains(filePath))
+            {
+                fileIndexInList = filesNamesList.IndexOf(filePath);
+            }
+
             replayThread = new Thread(ReplayLoop);
             replayThread.SetApartmentState(ApartmentState.STA);
             replayThread.IsBackground = true;
             replayThread.Name = "Replay Thread";
             replayThread.Start();
             initialDateTime = DateTime.Now;
+
+            
         }
 
         public void LoopReplayChanged(object sender, BoolEventArgs args)
         {
             loopReplayFile = args.value;
         }
+
+        public void RepeatReplayChanged(object sender, BoolEventArgs args)
+        {
+            RepeatReplayFile = args.value;
+        }
+
         public void PauseReplay(object sender, EventArgs arg)
         {
             _pauseEvent.Reset();          //Pause the Thread
@@ -59,6 +82,7 @@ namespace LogReplay
             }
         }
 
+
         public void StopReplay(object sender, EventArgs arg)
         {
             // Signal the shutdown event
@@ -69,7 +93,28 @@ namespace LogReplay
 
             // Wait for the thread to exit
             replayThread.Join();
+            
         }
+
+        public void PreviousReplay(object sender, EventArgs arg)
+        {
+            if (fileIndexInList - 1 >0)
+            {
+                fileIndexInList--;
+                filePath = filesNamesList[fileIndexInList];
+            }
+        }
+
+        public void NextReplay(object sender, EventArgs arg)
+        {
+            if(fileIndexInList+1<filesNamesList.Count)
+            {
+                fileIndexInList++;
+                filePath = filesNamesList[fileIndexInList];
+            }
+        }
+
+
 
         private void ReplayLoop()
         {
@@ -81,10 +126,9 @@ namespace LogReplay
                 _pauseEvent.WaitOne(Timeout.Infinite);
 
                 //if (_shutdownEvent.WaitOne(0))
-                  //  break;
-
-                sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath_2020-02-04_20-30-38.rbt");
-                //string s = sr.ReadLine();
+                //  break;
+                sr = new StreamReader(filePath);
+                OnFileNameChange(filePath);
 
                 using (JsonTextReader txtRdr = new JsonTextReader(sr))
                 {
@@ -132,10 +176,41 @@ namespace LogReplay
                             }
                         }
                     }
-                    if(!loopReplayFile)
+
+                    if(RepeatReplayFile)
                     {
-                        //StopReplay(this, null);
-                        _pauseEvent.Reset();          //Pause the Thread
+                        if (loopReplayFile)
+                        {
+                            if (fileIndexInList + 1 < filesNamesList.Count)
+                            {
+                                fileIndexInList++;
+                                filePath = filesNamesList[fileIndexInList];
+                            }
+                            else
+                            {
+                                fileIndexInList = 0;
+                                filePath = filesNamesList[fileIndexInList];
+                            }
+                        }
+                        else
+                        {
+                            
+                        }
+                    }
+                    else
+                    {
+                        if (loopReplayFile)
+                        {
+                            if (fileIndexInList + 1 < filesNamesList.Count)
+                            {
+                                fileIndexInList++;
+                                filePath = filesNamesList[fileIndexInList];
+                            }
+                        }
+                        else
+                        {
+                            _pauseEvent.Reset();          //Pause the Thread
+                        }
                     }
                 }
             }
@@ -183,6 +258,17 @@ namespace LogReplay
             {
                 handler(this, new OpenCvMatImageArgsLog { Mat=dat.Mat, Descriptor= "ImageFromCamera"});
                 }
+        }
+
+        //public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
+        public event EventHandler<StringEventArgs> OnUpdateFileNameEvent;
+        public virtual void OnFileNameChange(string name)
+        {
+            var handler = OnUpdateFileNameEvent;
+            if (handler != null)
+            {
+                handler(this, new StringEventArgs { value=name});
+            }
         }
     }
 }

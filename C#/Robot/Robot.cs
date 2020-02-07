@@ -212,10 +212,10 @@ namespace Robot
             lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             perceptionSimulator = new PerceptionSimulator(robotId);
 
-            
+            if(usingLidar)
+                lidar_OMD60M = new Lidar_OMD60M(robotId);
             if (usingLidar || usingLogReplay)
             {
-                lidar_OMD60M = new Lidar_OMD60M(robotId);
                 lidarProcessor = new LidarProcessor.LidarProcessor(robotId);
             }
 
@@ -493,6 +493,10 @@ namespace Robot
                 replayNavigator.OnPauseEvent += logReplay.PauseReplay;
                 replayNavigator.OnPlayEvent += logReplay.StartReplay;
                 replayNavigator.OnLoopEvent += logReplay.LoopReplayChanged;
+                logReplay.OnUpdateFileNameEvent += replayNavigator.UpdateFileName;
+                replayNavigator.OnNextEvent += logReplay.NextReplay;
+                replayNavigator.OnPrevEvent += logReplay.PreviousReplay;
+                replayNavigator.OnRepeatEvent += logReplay.RepeatReplayChanged;
             }
 
             imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;

@@ -5,32 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfReplayNavigator"
         mc:Ignorable="d"
-        Title="ReplayNavigator" Height="130" Width="400">
+        Title="ReplayNavigator" Height="200" Width="400">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
+        <StackPanel HorizontalAlignment="Center" Width="385" Orientation="Horizontal" Grid.Row="0" Background="Black" >
+            <!-- Left button. -->
+            <Image Source="Images\ui_prev.jpg" MouseDown="OnMouseDownPrev" Margin="5" Width="30" Height="30"/>
+            <!-- Play button. -->
+            <Image Source="Images\ui_play.jpg" MouseDown="OnMouseDownPlay" Margin="5" Width="30" Height="30"/>
+            <!-- Pause button. -->
+            <Image Source="Images\ui_pause.jpg" MouseDown="OnMouseDownPause" Margin="5" Width="30" Height="30"/>
+            <!-- Stop button. -->
+            <Image Source="Images\ui_stop.jpg" MouseDown="OnMouseDownStop" Margin="5" Width="30" Height="30" />
+            <!-- Next button. -->
+            <Image Source="Images\ui_next.jpg" MouseDown="OnMouseDownNext" Margin="5" Width="30" Height="30" />
 
-
-            <!-- To interactively stop, pause, and play the media, the LoadedBehavior 
-           property of the MediaElement must be set to "Manual". -->
-            <!--<MediaElement Source="media\numbers.wmv" Name="myMediaElement" 
-                Width="450" Height="250" LoadedBehavior="Manual" UnloadedBehavior="Stop" Stretch="Fill" 
-                MediaOpened="Element_MediaOpened" MediaEnded="Element_MediaEnded"/>-->
-
-            <StackPanel HorizontalAlignment="Center" Width="385" Orientation="Horizontal" Grid.Row="0" Background="Black" >
-
-                <!-- Play button. -->
-                <Image Source="Images\ui_play.jpg" MouseDown="OnMouseDownPlay" Margin="5" Width="30" Height="30"/>
-
-                <!-- Pause button. -->
-                <Image Source="Images\ui_pause.jpg" MouseDown="OnMouseDownPause" Margin="5" Width="30" Height="30"/>
-
-                <!-- Stop button. -->
-                <Image Source="Images\ui_stop.jpg" MouseDown="OnMouseDownStop" Margin="5" Width="30" Height="30" />
-
-            </StackPanel>
+            <Button Content="Load Folder" Width="75" Margin="0,0,0,0" HorizontalAlignment="Right"/>
+        </StackPanel>
         <StackPanel HorizontalAlignment="Center" Width="385" Orientation="Horizontal" Grid.Row="1" Background="Black" >
             <!-- Speed slider. This slider allows you to change the speed of the media playback. -->
             <TextBlock Foreground="White" Margin="5"  VerticalAlignment="Center">Speed</TextBlock>
@@ -40,9 +35,11 @@
             <!-- Seek to slider. Ths slider allows you to jump to different parts of the media playback. -->
             <TextBlock Foreground="White" Margin="5"  VerticalAlignment="Center">Seek To</TextBlock>
             <Slider Name="timelineSlider" Margin="5" VerticalAlignment="Center" ValueChanged="SeekToPosition" Width="70"/>
-
             <CheckBox Name="checkBoxLoop" Foreground="White" Content="Loop" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,0,0" Grid.Row="1" Checked="CheckBox_CheckedChanged" Unchecked="CheckBox_CheckedChanged" />
+            <CheckBox Name="checkBoxRepeat" Foreground="White" Content="Repeat" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,0,0" Grid.Row="1" Checked="CheckBoxRepeat_CheckedChanged" Unchecked="CheckBoxRepeat_CheckedChanged" />
         </StackPanel>
-        
+        <StackPanel HorizontalAlignment="Center" Width="385" Orientation="Vertical" Grid.Row="2" Background="Black" >
+            <TextBlock Name="textBlockFileName" TextWrapping="Wrap" Foreground="White" Margin="5,12,5,0"  VerticalAlignment="Center" Height="50">Current read file:</TextBlock>
+        </StackPanel>
     </Grid>
 </Window>
