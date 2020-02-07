@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29613.14
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.106
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Robot", "Robot.csproj", "{F48FF3AC-50C6-4016-8F67-F5430FED1A2C}"
 EndProject
@@ -88,6 +88,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfWorldMapDisplay", "..\WpfWorldMapDisplay\WpfWorldMapDisplay.csproj", "{89604641-927E-47FF-8DB6-91CF5C4976C1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageSaver", "..\ImageSaver\ImageSaver.csproj", "{257176D4-22D8-4EA5-BA41-AB36D4AD2BA9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfReplayNavigator", "..\WpfReplayNavigator\WpfReplayNavigator.csproj", "{32A52236-C210-40A2-829E-ACB4BB3A1B43}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -267,6 +269,10 @@ Global
 		{257176D4-22D8-4EA5-BA41-AB36D4AD2BA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{257176D4-22D8-4EA5-BA41-AB36D4AD2BA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{257176D4-22D8-4EA5-BA41-AB36D4AD2BA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32A52236-C210-40A2-829E-ACB4BB3A1B43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32A52236-C210-40A2-829E-ACB4BB3A1B43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32A52236-C210-40A2-829E-ACB4BB3A1B43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32A52236-C210-40A2-829E-ACB4BB3A1B43}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

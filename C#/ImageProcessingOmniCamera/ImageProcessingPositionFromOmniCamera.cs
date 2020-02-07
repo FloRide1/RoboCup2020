@@ -109,7 +109,7 @@ namespace ImageProcessingOmniCamera
             //OnOpenCvMatImageProcessedReady(initialMat, "ImageFromCameraViaProcessing");
 
             var panoramaImage = FishEyeToPanorama2(e.Mat);
-            OnOpenCvMatImageProcessedReady(panoramaImage, "ImageDebug3");
+            OnOpenCvMatImageProcessedReady(panoramaImage, "ImageFromCameraViaProcessing");
 
             ////Découpage de l'image
             //int RawMatCroppedSize = 300;

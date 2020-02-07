@@ -152,8 +152,8 @@ namespace CameraAdapter
             var handler = OpenCvMatImageEvent;
             if (handler != null)
             {
-                handler(this, new OpenCvMatImageArgs { Mat = mat });
-            }
+                handler(this, new OpenCvMatImageArgs { Mat = mat , Descriptor= "ImageFromCamera"});
+                }
         }
     }
 }

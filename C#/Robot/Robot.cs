@@ -25,6 +25,7 @@ using LogRecorder;
 using LogReplay;
 using LidarProcessor;
 using ImageSaver;
+using WpfReplayNavigator;
 using System.Runtime.InteropServices;
 
 
@@ -142,6 +143,7 @@ namespace Robot
         static WpfCameraMonitor ConsoleCamera;
         static LogRecorder.LogRecorder logRecorder;
         static LogReplay.LogReplay logReplay;
+        static ReplayNavigator replayNavigator;
 
 
         [STAThread] //à ajouter au projet initial
@@ -243,6 +245,8 @@ namespace Robot
                 StartRobotInterface();
             if (usingCameraInterface)
                 StartCameraInterface();
+            if (usingLogReplay)
+                StartReplayNavigatorInterface();
 
             //Démarrage du logger si besoin
             if (usingLogging)
@@ -454,6 +458,21 @@ namespace Robot
             t2.SetApartmentState(ApartmentState.STA);
             t2.Start();
         }
+        static Thread t3;
+        static void StartReplayNavigatorInterface()
+        {
+            t3 = new Thread(() =>
+            {
+                //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
+
+                replayNavigator = new ReplayNavigator();
+                replayNavigator.Loaded += RegisterReplayInterfaceEvents;
+                replayNavigator.ShowDialog();
+
+            });
+            t3.SetApartmentState(ApartmentState.STA);
+            t3.Start();
+        }
 
         static void RegisterCameraInterfaceEvents(object sender, EventArgs e)
         {
@@ -466,6 +485,18 @@ namespace Robot
             imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;
         }
 
+        static void RegisterReplayInterfaceEvents(object sender, EventArgs e)
+        {
+
+            if (usingLogReplay)
+            {
+                replayNavigator.OnPauseEvent += logReplay.PauseReplay;
+                replayNavigator.OnPlayEvent += logReplay.StartReplay;
+                replayNavigator.OnLoopEvent += logReplay.LoopReplayChanged;
+            }
+
+            imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;
+        }
 
         private static void RefBoxAdapter_DataReceivedEvent(object sender, EventArgsLibrary.DataReceivedArgs e)
         {

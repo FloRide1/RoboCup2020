@@ -181,6 +181,10 @@
       <Project>{01E89552-13A5-4A24-80B2-9246700F72FD}</Project>
       <Name>WorldMapManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WpfReplayNavigator\WpfReplayNavigator.csproj">
+      <Project>{32a52236-c210-40a2-829e-acb4bb3a1b43}</Project>
+      <Name>WpfReplayNavigator</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WpfRobotMonitor\WpfCameraMonitor.csproj">
       <Project>{ba7276f6-9386-42cb-894a-04095e5f75b9}</Project>
       <Name>WpfCameraMonitor</Name>
