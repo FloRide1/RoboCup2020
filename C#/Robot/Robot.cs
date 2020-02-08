@@ -503,6 +503,8 @@ namespace Robot
                 replayNavigator.OnNextEvent += logReplay.NextReplay;
                 replayNavigator.OnPrevEvent += logReplay.PreviousReplay;
                 replayNavigator.OnRepeatEvent += logReplay.RepeatReplayChanged;
+                replayNavigator.OnOpenFileEvent += logReplay.OpenReplayFile;
+                replayNavigator.OnOpenFolderEvent += logReplay.OpenReplayFolder;
             }
 
             imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;

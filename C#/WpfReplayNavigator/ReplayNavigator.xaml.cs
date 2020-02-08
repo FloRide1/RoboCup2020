@@ -1,4 +1,5 @@
 ﻿using EventArgsLibrary;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -141,6 +143,25 @@ namespace WpfReplayNavigator
             }
         }
 
+        public event EventHandler<StringEventArgs> OnOpenFileEvent;
+        public virtual void OnOpenFile(string filepath)
+        {
+            var handler = OnOpenFileEvent;
+            if (handler != null)
+            {
+                handler(this, new StringEventArgs() { value = filepath });
+            }
+        }
+        public event EventHandler<StringEventArgs> OnOpenFolderEvent;
+        public virtual void OnOpenFolder(string folderpath)
+        {
+            var handler = OnOpenFolderEvent;
+            if (handler != null)
+            {
+                handler(this, new StringEventArgs() { value = folderpath });
+            }
+        }
+
         private void CheckBox_CheckedChanged(object sender, RoutedEventArgs e)
         {
             if ((bool)checkBoxLoop.IsChecked)
@@ -155,6 +176,27 @@ namespace WpfReplayNavigator
                 OnRepeat(true);
             else
                 OnRepeat(false);
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog dial = new Microsoft.Win32.OpenFileDialog();
+            dial.Filter = "robot files (*.rbt)|*.rbt";
+            var result = dial.ShowDialog();
+            if (result ?? false && !string.IsNullOrWhiteSpace(dial.FileName))
+            {
+                OnOpenFile(dial.FileName);
+            }
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            DialogResult result = dialog.ShowDialog();
+            if (result== System.Windows.Forms.DialogResult.OK  && !string.IsNullOrWhiteSpace(dialog.SelectedPath))
+            {
+                OnOpenFolder(dialog.SelectedPath);
+            }
         }
     }
 }

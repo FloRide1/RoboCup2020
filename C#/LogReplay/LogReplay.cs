@@ -114,6 +114,38 @@ namespace LogReplay
             }
         }
 
+        public void OpenReplayFile(object sender,StringEventArgs e)
+        {
+            filePath = e.value;
+            filesNamesList.Clear();
+        }
+
+        public void OpenReplayFolder(object sender, StringEventArgs e)
+        {
+            filesNamesList.Clear();
+            if(Directory.Exists(e.value))
+            {
+                var lst=Directory.GetFiles(e.value).ToList();
+                foreach (string str in lst)
+                {
+                    if (str.Contains(".rbt"))
+                    {
+                        filesNamesList.Add(str);
+                    }
+                }
+            }
+           
+
+            if(filesNamesList.Count>0)
+            {
+                filePath = filesNamesList[0];
+            }
+            else
+            {
+
+                filePath = folderPath + fileName;
+            }
+        }
 
 
         private void ReplayLoop()
@@ -189,7 +221,8 @@ namespace LogReplay
                             else
                             {
                                 fileIndexInList = 0;
-                                filePath = filesNamesList[fileIndexInList];
+                                if(filesNamesList.Count>0)
+                                    filePath = filesNamesList[fileIndexInList];
                             }
                         }
                         else
@@ -215,6 +248,8 @@ namespace LogReplay
                 }
             }
         }
+
+       
 
         public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<RawLidarArgs> OnLidarEvent;
