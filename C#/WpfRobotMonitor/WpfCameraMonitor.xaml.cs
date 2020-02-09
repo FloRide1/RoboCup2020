@@ -40,6 +40,24 @@ namespace RobotMonitor
             nbMsgReceivedErrors += 1;
         }
 
+        //Methode appelée sur evenement (event) provenant du port Serie.
+        //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
+        public void DisplayMessageInConsole(object sender, StringEventArgs e)
+        {
+            //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
+            //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
+            //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
+            //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
+            //Utilisation ici d'une methode anonyme
+            textBoxDebug.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
+            {
+
+                    textBoxDebug.Text += e.value;
+
+            }));
+        }
+
+
         Queue<string> RefBoxEventQueue = new Queue<string>();
         public void DisplayRefBoxCommand(object sender, EventArgsLibrary.StringArgs e)
         {
@@ -63,14 +81,14 @@ namespace RobotMonitor
                 case "ImageFromCamera":
                     Image1 = BitmapToImageSource(image);
                     break;
-                case "ImageFromCameraViaProcessing":
-                    Image2 = BitmapToImageSource(image);
-                    break;
                 case "ImageDebug2":
                     Image2 = BitmapToImageSource(image);
                     break;
                 case "ImageDebug3":
                     Image3 = BitmapToImageSource(image);
+                    break;
+                case "ImageDebug4":
+                    Image4 = BitmapToImageSource(image);
                     break;
                 default:
                     Image4 = BitmapToImageSource(image);

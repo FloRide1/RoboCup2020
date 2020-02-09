@@ -28,6 +28,7 @@ using ImageSaver;
 using WpfReplayNavigator;
 using System.Runtime.InteropServices;
 using PositionEstimator;
+using YoloObjectDetector;
 
 namespace Robot
 {
@@ -91,6 +92,8 @@ namespace Robot
             // Put your own handler here
             if (omniCamera != null)
                 omniCamera.DestroyCamera();
+            if(yoloDetector!=null)
+                yoloDetector.Dispose();
             t1.Abort();
             t2.Abort();
             return true;
@@ -107,6 +110,7 @@ namespace Robot
         static bool usingLogging = false;
         static bool usingLogReplay = false;
         static bool usingImageExtractor = true;     //Utilisé pour extraire des images du flux camera et les enregistrer en tant que JPG
+        static bool usingYolo = true;               //Permet de ne pas utiliser Yolo
 
 
         static bool usingRobotInterface = true;
@@ -137,6 +141,7 @@ namespace Robot
         static Lidar_OMD60M lidar_OMD60M;
         static LidarProcessor.LidarProcessor lidarProcessor;
         static XBoxController.XBoxController xBoxManette;
+        static YoloObjectDetector.YoloObjectDetector yoloDetector;
 
         static object ExitLock = new object();
 
@@ -212,8 +217,11 @@ namespace Robot
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId);
             lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             perceptionSimulator = new PerceptionSimulator(robotId);
+            
 
-            if(usingLidar)
+            if(usingYolo)
+                yoloDetector = new YoloObjectDetector.YoloObjectDetector();
+            if (usingLidar)
                 lidar_OMD60M = new Lidar_OMD60M(robotId);
             if (usingLidar || usingLogReplay)
             {
@@ -483,17 +491,24 @@ namespace Robot
         {
             if (usingLogging)
                 omniCamera.OpenCvMatImageEvent += ConsoleCamera.DisplayOpenCvMatImage;
-            
-            if(usingLogReplay)
-                logReplay.OnCameraImageEvent += ConsoleCamera.DisplayOpenCvMatImage;
 
-            //imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;
+            if (usingLogReplay)
+            {
+                logReplay.OnCameraImageEvent += ConsoleCamera.DisplayOpenCvMatImage;
+                
+            }
             absolutePositionEstimator.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;
+            if (usingYolo)
+            {
+                yoloDetector.OnYoloImageProcessedAndLabelledEvent += ConsoleCamera.DisplayOpenCvMatImage;       //Event d'image processée et labelisée
+                absolutePositionEstimator.OnOpenCvMatImageProcessedEvent += yoloDetector.DetectAndLabel;        //On envoie l'image dewrapé dans le detecteur Yolo, et on effectu la detection avec les poids UTLN
+                yoloDetector.OnYoloImageProcessedAndLabelled_LabelEvent += ConsoleCamera.DisplayMessageInConsole;
+            }
+           
         }
 
         static void RegisterReplayInterfaceEvents(object sender, EventArgs e)
         {
-
             if (usingLogReplay)
             {
                 replayNavigator.OnPauseEvent += logReplay.PauseReplay;
@@ -515,4 +530,5 @@ namespace Robot
             throw new NotImplementedException();
         }
     }
+
 }

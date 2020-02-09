@@ -45,7 +45,9 @@
 
 
         <GroupBox x:Name="ConsoleDebug" Header="Console" Margin="0" Background="#FFDDDDDD" BorderBrush="Black" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="5">
-            <TextBox x:Name="textBoxDebug" Margin="0"  TextWrapping="Wrap" Background="{x:Null}" BorderBrush="{x:Null}" IsReadOnly="True" AcceptsReturn="True"/>
+            <ScrollViewer Name="scrollViewerDebugOption">
+                <TextBox x:Name="textBoxDebug" Margin="0"  TextWrapping="WrapWithOverflow" Background="{x:Null}" BorderBrush="{x:Null}" IsReadOnly="True" AcceptsReturn="True"/>
+            </ScrollViewer>
         </GroupBox>
     </Grid>
 </Window>

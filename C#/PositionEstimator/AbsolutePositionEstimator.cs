@@ -30,20 +30,20 @@ namespace PositionEstimator
             var sw = new Stopwatch();
             sw.Start();
 
-            panoramaImage = FishEyeToPanorama2(e.Mat);
-            OnOpenCvMatImageProcessedReady(panoramaImage, "ImageFromCameraViaProcessing");
-            sw.Stop();
-            Console.WriteLine("FishEyeToPano:" + sw.ElapsedMilliseconds);
-            sw.Reset();
-            sw.Start();
-            panoramaImage = FishEyeToPanorama(e.Mat);
-            OnOpenCvMatImageProcessedReady(panoramaImage, "ImageDebug3");
-            sw.Stop();
-            Console.WriteLine("FishEyeToPano2:" + sw.ElapsedMilliseconds);
-            sw.Reset();
-            sw.Start();
+            //panoramaImage = FishEyeToPanorama2(e.Mat);
+            //OnOpenCvMatImageProcessedReady(panoramaImage, "ImageFromCameraViaProcessing");
+            //sw.Stop();
+            //Console.WriteLine("FishEyeToPano:" + sw.ElapsedMilliseconds);
+            //sw.Reset();
+            //sw.Start();
+            //panoramaImage = FishEyeToPanorama(e.Mat);
+            //OnOpenCvMatImageProcessedReady(panoramaImage, "ImageDebug3");
+            //sw.Stop();
+            //Console.WriteLine("FishEyeToPano2:" + sw.ElapsedMilliseconds);
+            //sw.Reset();
+            //sw.Start();
             panoramaImage = FishEyeToPanorama3(e.Mat);              //Methode optimisée. A voir si on peux faire mieux avec les bons API EMGU
-            OnOpenCvMatImageProcessedReady(panoramaImage, "ImageDebug4");
+            OnOpenCvMatImageProcessedReady(panoramaImage, "ImageDebug2");
             sw.Stop();
             Console.WriteLine("FishEyeToPano3:" + sw.ElapsedMilliseconds);
             if (LidarPtList!=null)
@@ -167,6 +167,7 @@ namespace PositionEstimator
             });
 
             Image<Bgr, Byte> im = new Image<Bgr, Byte>(panoramaData);
+            im=im.Flip(FlipType.Horizontal);
             return im.Mat;
         }
 
