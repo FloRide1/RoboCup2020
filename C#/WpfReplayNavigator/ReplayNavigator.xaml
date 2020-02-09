@@ -31,7 +31,7 @@
             <!-- Speed slider. This slider allows you to change the speed of the media playback. -->
             <TextBlock Foreground="White" Margin="5"  VerticalAlignment="Center">Speed</TextBlock>
             <Slider Name="speedRatioSlider" VerticalAlignment="Center" ValueChanged="ChangeReplaySpeedRatio" 
-       Value="1" Width="70" />
+       Value="1" Width="70" Minimum="0.1" Maximum="2"/>
 
             <!-- Seek to slider. Ths slider allows you to jump to different parts of the media playback. -->
             <TextBlock Foreground="White" Margin="5"  VerticalAlignment="Center">Seek To</TextBlock>

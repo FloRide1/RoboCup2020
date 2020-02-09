@@ -21,7 +21,10 @@ namespace EventArgsLibrary
     {
         public string Value { get; set; }
     }
-
+    public class DoubleArgs : EventArgs
+    {
+        public double Value { get; set; }
+    }
     public class CameraImageArgs : EventArgs
     {
         public Bitmap ImageBmp { get; set; }

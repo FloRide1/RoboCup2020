@@ -110,11 +110,12 @@ namespace Robot
         static bool usingLogging = false;
         static bool usingLogReplay = false;
         static bool usingImageExtractor = true;     //Utilisé pour extraire des images du flux camera et les enregistrer en tant que JPG
-        static bool usingYolo = true;               //Permet de ne pas utiliser Yolo
+        static bool usingYolo = false;               //Permet de ne pas utiliser Yolo
 
 
         static bool usingRobotInterface = true;
         static bool usingCameraInterface = true;
+        static bool usingReplayNavigator = true;
 
         //static HighFreqTimer highFrequencyTimer;
         static HighFreqTimer timerStrategie;
@@ -217,10 +218,8 @@ namespace Robot
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId);
             lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             perceptionSimulator = new PerceptionSimulator(robotId);
-            
 
-            if(usingYolo)
-                yoloDetector = new YoloObjectDetector.YoloObjectDetector();
+
             if (usingLidar)
                 lidar_OMD60M = new Lidar_OMD60M(robotId);
             if (usingLidar || usingLogReplay)
@@ -240,7 +239,6 @@ namespace Robot
             {
                 omniCamera = new BaslerCameraAdapter();
                 omniCamera.CameraInit();     
-                //omniCamera.OpenCvMatImageEvent += imageProcessingPositionFromOmniCamera.ProcessOpenCvMatImage;
                 omniCamera.OpenCvMatImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
             }
 
@@ -249,7 +247,12 @@ namespace Robot
                 imgSaver = new ImageSaver.ImageSaver();
                 omniCamera.OpenCvMatImageEvent += imgSaver.OnSaveCVMatImage;
             }
-            
+
+            if (usingYolo)
+            {
+                yoloDetector = new YoloObjectDetector.YoloObjectDetector(false);            //Instancie un detecteur avec un Wrappeur Yolo utilisant le GPU
+                
+            }
 
             //Démarrage des interface de visualisation
             if (usingRobotInterface)
@@ -520,6 +523,7 @@ namespace Robot
                 replayNavigator.OnRepeatEvent += logReplay.RepeatReplayChanged;
                 replayNavigator.OnOpenFileEvent += logReplay.OpenReplayFile;
                 replayNavigator.OnOpenFolderEvent += logReplay.OpenReplayFolder;
+                replayNavigator.OnSpeedChangeEvent += logReplay.ReplaySpeedChanged;
             }
 
             imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;

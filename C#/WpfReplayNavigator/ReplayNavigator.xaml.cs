@@ -47,7 +47,7 @@ namespace WpfReplayNavigator
 
         private void ChangeReplaySpeedRatio(object sender, EventArgs args)
         {
-
+            OnSpeedChange(speedRatioSlider.Value);
         }
 
         private void SeekToPosition(object sender, EventArgs args)
@@ -79,6 +79,25 @@ namespace WpfReplayNavigator
 
 
         //Output Events
+        public event EventHandler<EventArgs> OnSeekEvent;
+        public virtual void OnSeek()
+        {
+            var handler = OnSeekEvent;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
+            }
+        }
+
+        public event EventHandler<DoubleArgs> OnSpeedChangeEvent;
+        public virtual void OnSpeedChange( double val)
+        {
+            var handler = OnSpeedChangeEvent;
+            if (handler != null)
+            {
+                handler(this, new DoubleArgs() { Value = val });
+            }
+        }
         //public delegate void SimulatedLidarEventHandler(object sender, EventArgs e);
         public event EventHandler<EventArgs> OnPauseEvent;
         public virtual void OnPause()

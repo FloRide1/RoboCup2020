@@ -22,15 +22,28 @@ namespace YoloObjectDetector
         YoloWrapper wrap = null;
         string defaultConfigurationPath = "..\\..\\..\\..\\_YoloConfiguration\\MSLRobotBallonButDetection\\";//
         string yoloCFGFileName = "yolov3-MSLRobotBallonButDetection.cfg";
-        string yoloWeightsFileName = "yolov3-MSLRobotBallonButDetection_final2.weights";
+        string yoloWeightsFileName = "yolov3-MSLRobotBallonButDetection_final.weights";
         string yoloNamesFileName = "MSLRobotBallonButDetection.names";
-        public YoloObjectDetector()
+        public YoloObjectDetector(bool ignoreGPU)
         {
             try
             {
+                if (this.wrap != null)
+                {
+                    this.wrap.Dispose();
+                }
+
                 string[] files = Directory.GetFiles(defaultConfigurationPath);
                 yoloConfig = new YoloConfiguration(defaultConfigurationPath+yoloCFGFileName, defaultConfigurationPath+yoloWeightsFileName,defaultConfigurationPath+ yoloNamesFileName);
-                wrap = new YoloWrapper(yoloConfig);
+                wrap = new YoloWrapper(yoloConfig,ignoreGPU);       //By default GPU 0 is used if used
+
+                var detectionSystemDetail = string.Empty;
+                if (!string.IsNullOrEmpty(this.wrap.EnvironmentReport.GraphicDeviceName))
+                {
+                    detectionSystemDetail = $"({this.wrap.EnvironmentReport.GraphicDeviceName})";
+                }
+                Console.WriteLine(detectionSystemDetail);
+
             }
             catch
             {
@@ -47,12 +60,15 @@ namespace YoloObjectDetector
         public void DetectAndLabel(object sender, EventArgsLibrary.OpenCvMatImageArgs e)
         {
             e.Descriptor = "ImageDebug3";
+            var sw = new Stopwatch();
+            sw.Start();
             YoloMatItemInfo yoloInfo = DetectAndLabelAngGetItem(e.Mat);
+            sw.Stop();
             OnYoloImageProcessedAndLabelledReady(yoloInfo.mat, e.Descriptor);
             string str="";
             foreach(YoloItem item in yoloInfo.items)
             {
-                str += "Object: " + item.Type + " Conf: " + item.Confidence.ToString("F2") + " Pos: X: " + item.X + " Y: " + item.Y + " Width: " + item.Width + " Heigth: " + item.Height+"\n";
+                str += "Object: " + item.Type + " Conf: " + item.Confidence.ToString("F2") + " Pos: X: " + item.X + " Y: " + item.Y + " Width: " + item.Width + " Heigth: " +item.Height+ " Process Time:" + sw.ElapsedMilliseconds+"ms\n";
             }
             OnYoloImageProcessedAndLabelled_LabelReady(str);
         }

@@ -21,9 +21,9 @@ namespace LogReplay
         private StreamReader sr;
         private Queue<string> replayQueue = new Queue<string>();
         public string logLock = "";
-
+        private bool filePathChanged = false;
         
-        string folderPath= @"C:\Github\RoboCup2020\C#\_Logs\";
+        string folderPath= @"C:\Github\RoboCup2020\C#\_Logs\";              //Emplacement du dossier logs (par defaut)
         string fileName= "logFilePath_2020-02-04_20-30-38.rbt";
         string filePath = "";
         List<string> filesNamesList = new List<string>();
@@ -31,6 +31,7 @@ namespace LogReplay
 
         DateTime initialDateTime;
         double? LogDateTimeOffsetInMs = null;
+        double speedFactor = 1.0;
 
         bool loopReplayFile = false;
         bool RepeatReplayFile = false;
@@ -49,8 +50,11 @@ namespace LogReplay
             replayThread.Name = "Replay Thread";
             replayThread.Start();
             initialDateTime = DateTime.Now;
+        }
 
-            
+        public void ReplaySpeedChanged(object sender, DoubleArgs args)
+        {
+            speedFactor = args.Value;
         }
 
         public void LoopReplayChanged(object sender, BoolEventArgs args)
@@ -98,9 +102,15 @@ namespace LogReplay
 
         public void PreviousReplay(object sender, EventArgs arg)
         {
-            if (fileIndexInList - 1 >0)
+            filePathChanged = true;
+            if (fileIndexInList >0)
             {
                 fileIndexInList--;
+                filePath = filesNamesList[fileIndexInList];
+            }
+            else
+            {
+                fileIndexInList = filesNamesList.Count - 1;
                 filePath = filesNamesList[fileIndexInList];
             }
         }
@@ -110,6 +120,12 @@ namespace LogReplay
             if(fileIndexInList+1<filesNamesList.Count)
             {
                 fileIndexInList++;
+                filePathChanged = true;
+                filePath = filesNamesList[fileIndexInList];
+            }
+            else
+            {
+                fileIndexInList = 0;
                 filePath = filesNamesList[fileIndexInList];
             }
         }
@@ -150,9 +166,6 @@ namespace LogReplay
 
         private void ReplayLoop()
         {
-            //sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath_Static_Passage.rbt");
-            //sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath-Mvt1.rbt");
-            //sr = new StreamReader(@"C:\Github\RoboCup2020\C#\_Logs\logFilePath_2020-02-03_15-47-29.rbt");
             while (true)
             {
                 _pauseEvent.WaitOne(Timeout.Infinite);
@@ -179,7 +192,8 @@ namespace LogReplay
                             if (LogDateTimeOffsetInMs == null)
                                 LogDateTimeOffsetInMs = newReplayInstant;
 
-                            while (DateTime.Now.Subtract(initialDateTime).TotalMilliseconds + LogDateTimeOffsetInMs < newReplayInstant)
+                            //Tant que l'on a pas un nouvel echantillon, on attends
+                            while (DateTime.Now.Subtract(initialDateTime).TotalMilliseconds + LogDateTimeOffsetInMs < ((newReplayInstant) * (1/speedFactor) ))
                             {
                                 Thread.Sleep(10); //On bloque
                             }
@@ -207,6 +221,11 @@ namespace LogReplay
                                     break;
                             }
                         }
+
+                        if(filePathChanged)
+                        {
+                            break;
+                        }
                     }
 
                     if(RepeatReplayFile)
@@ -232,7 +251,7 @@ namespace LogReplay
                     }
                     else
                     {
-                        if (loopReplayFile)
+                        if (loopReplayFile && !filePathChanged)
                         {
                             if (fileIndexInList + 1 < filesNamesList.Count)
                             {
@@ -242,10 +261,19 @@ namespace LogReplay
                         }
                         else
                         {
-                            _pauseEvent.Reset();          //Pause the Thread
+                            if (filePathChanged)
+                            {
+                                filePathChanged = false;
+                            }
+                            else
+                            {
+                                _pauseEvent.Reset();          //Pause the Thread
+                            }
                         }
                     }
                 }
+                sr.Close();
+                sr.Dispose();
             }
         }
 
