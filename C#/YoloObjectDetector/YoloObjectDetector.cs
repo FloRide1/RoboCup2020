@@ -22,11 +22,11 @@ namespace YoloObjectDetector
         YoloWrapper wrap = null;
         string defaultConfigurationPath = "..\\..\\..\\..\\_YoloConfiguration\\MSLRobotBallonButDetection\\";//
         string yoloCFGFileName = "yolov3-MSLRobotBallonButDetection.cfg";
-        string yoloWeightsFileName = "yolov3-MSLRobotBallonButDetection_final.weights";
+        string yoloWeightsFileName = "yolov3-MSLRobotBallonButDetection_final2.weights";
         string yoloNamesFileName = "MSLRobotBallonButDetection.names";
         public YoloObjectDetector(bool ignoreGPU)
         {
-            try
+           // try
             {
                 if (this.wrap != null)
                 {
@@ -45,9 +45,9 @@ namespace YoloObjectDetector
                 Console.WriteLine(detectionSystemDetail);
 
             }
-            catch
+            //catch
             {
-                throw new Exception("Couldn't open yolo");
+               // throw new Exception("Couldn't open yolo");
             }
            
 

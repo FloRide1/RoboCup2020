@@ -204,7 +204,16 @@ namespace Alturos.Yolo
             var envirormentVariables = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
             if (envirormentVariables.Contains("CUDA_PATH"))
             {
-                report.CudaExists = true;
+                if (!File.Exists(Path.Combine(Environment.SystemDirectory, "NVCUDA.DLL")))
+                {
+                    //throw new DllNotFoundException("NVCUDA.DLL wasn't found in the windows system directory, " +"is CUDA and your Nvidia graphics driver correctly installed?");
+                    report.CudaExists = false;
+                }
+                else
+                {
+                    report.CudaExists = true;
+                }
+                
             }
             if (envirormentVariables.Contains("CUDA_PATH_V10_1"))
             {

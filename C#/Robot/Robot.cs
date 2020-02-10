@@ -110,7 +110,7 @@ namespace Robot
         static bool usingLogging = false;
         static bool usingLogReplay = false;
         static bool usingImageExtractor = true;     //Utilisé pour extraire des images du flux camera et les enregistrer en tant que JPG
-        static bool usingYolo = false;               //Permet de ne pas utiliser Yolo
+        static bool usingYolo = true;               //Permet de ne pas utiliser Yolo
 
 
         static bool usingRobotInterface = true;
@@ -250,7 +250,7 @@ namespace Robot
 
             if (usingYolo)
             {
-                yoloDetector = new YoloObjectDetector.YoloObjectDetector(false);            //Instancie un detecteur avec un Wrappeur Yolo utilisant le GPU
+                yoloDetector = new YoloObjectDetector.YoloObjectDetector(true);            //Instancie un detecteur avec un Wrappeur Yolo utilisant le GPU
                 
             }
 
