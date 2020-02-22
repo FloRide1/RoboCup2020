@@ -59,7 +59,7 @@ namespace MessageEncoder
             OnMessageEncoded(message);
         }
 
-        public delegate void MessageEncodedEventHandler(object sender, MessageEncodedArgs e);
+        //public delegate void MessageEncodedEventHandler(object sender, MessageEncodedArgs e);
         public event EventHandler<MessageEncodedArgs> OnMessageEncodedEvent;
         public virtual void OnMessageEncoded( byte[] msg)
         {

@@ -269,7 +269,7 @@ namespace Robot
             //Démarrage du log replay si l'interface est utilisée et existe ou si elle n'est pas utilisée, sinon on bloque
             if (usingLogReplay)
                 logReplay = new LogReplay.LogReplay();
-
+             
             //Liens entre modules
             strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
             strategyManager.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;

@@ -38,7 +38,7 @@ namespace TeamSimulator
 
         static System.Timers.Timer timerTest;
         static UDPMulticastSender sender1;
-        static UDPMulticastSender sender2;
+        //static UDPMulticastSender sender2;
 
         static object ExitLock = new object();
 
@@ -102,14 +102,14 @@ namespace TeamSimulator
             timerTest.Elapsed += TimerTest_Elapsed;
 
             sender1 = new UDPMulticastSender();
-            sender2 = new UDPMulticastSender();
+            //sender2 = new UDPMulticastSender();
             UDPMulticastReceiver receiver1 = new UDPMulticastReceiver(0);
-            UDPMulticastReceiver receiver2 = new UDPMulticastReceiver(0);
-            UDPMulticastReceiver receiver3 = new UDPMulticastReceiver(0);
+            //UDPMulticastReceiver receiver2 = new UDPMulticastReceiver(0);
+            //UDPMulticastReceiver receiver3 = new UDPMulticastReceiver(0);
 
             receiver1.OnDataReceivedEvent += Receiver1_OnDataReceivedEvent;
-            receiver2.OnDataReceivedEvent += Receiver2_OnDataReceivedEvent;
-            receiver3.OnDataReceivedEvent += Receiver3_OnDataReceivedEvent;
+            //receiver2.OnDataReceivedEvent += Receiver2_OnDataReceivedEvent;
+            //receiver3.OnDataReceivedEvent += Receiver3_OnDataReceivedEvent;
             timerTest.Start();
 
             lock (ExitLock)
@@ -125,15 +125,15 @@ namespace TeamSimulator
             Console.WriteLine("Received on UDP Receiver 1 : " + Encoding.ASCII.GetString(e.Data));
         }
 
-        private static void Receiver2_OnDataReceivedEvent(object sender, EventArgsLibrary.DataReceivedArgs e)
-        {
-            Console.WriteLine("Received on UDP Receiver 2 : " + Encoding.ASCII.GetString(e.Data));
-        }
+        //private static void Receiver2_OnDataReceivedEvent(object sender, EventArgsLibrary.DataReceivedArgs e)
+        //{
+        //    Console.WriteLine("Received on UDP Receiver 2 : " + Encoding.ASCII.GetString(e.Data));
+        //}
 
-        private static void Receiver3_OnDataReceivedEvent(object sender, EventArgsLibrary.DataReceivedArgs e)
-        {
-            Console.WriteLine("Received on UDP Receiver 3 : " + Encoding.ASCII.GetString(e.Data));
-        }
+        //private static void Receiver3_OnDataReceivedEvent(object sender, EventArgsLibrary.DataReceivedArgs e)
+        //{
+        //    Console.WriteLine("Received on UDP Receiver 3 : " + Encoding.ASCII.GetString(e.Data));
+        //}
 
         static int index = 0;
         private static void TimerTest_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -141,7 +141,7 @@ namespace TeamSimulator
             string msg = "Toto " + index.ToString();
             index++;
             sender1.Send(Encoding.ASCII.GetBytes(msg + " X"));
-            sender2.Send(Encoding.ASCII.GetBytes(msg + "  X"));
+            //sender2.Send(Encoding.ASCII.GetBytes(msg + "  X"));
         }
 
         static Random randomGenerator = new Random();
