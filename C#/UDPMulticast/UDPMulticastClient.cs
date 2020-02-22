@@ -24,14 +24,11 @@ namespace UDPMulticast
         {
             s = new Socket(AddressFamily.InterNetwork,
                 SocketType.Dgram, ProtocolType.Udp);
-            IPAddress ip = IPAddress.Parse(localInterfaceAddress);
+            IPAddress ip = IPAddress.Parse(multicastRctIpAddress);
 
-            MulticastOption mcastOption = new MulticastOption(
-                            IPAddress.Parse(multicastRctIpAddress),
-                            IPAddress.Parse(localInterfaceAddress));
-
-            s.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, mcastOption);
-            s.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, 2);
+            MulticastOption mcastOption = new MulticastOption(IPAddress.Parse(multicastRctIpAddress));
+            s.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, mcastOption); 
+            s.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, 50);
             IPEndPoint ipep = new IPEndPoint(ip, endPointPort);
             s.Connect(ipep);
         }
