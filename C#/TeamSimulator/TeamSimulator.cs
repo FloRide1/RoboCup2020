@@ -98,7 +98,7 @@ namespace TeamSimulator
             timerStrategie.Start();
 
             //Tests à supprimer plus tard
-            timerTest = new System.Timers.Timer(100);
+            timerTest = new System.Timers.Timer(1000);
             timerTest.Elapsed += TimerTest_Elapsed;
 
             sender1 = new UDPMulticastSender();
