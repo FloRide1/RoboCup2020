@@ -122,7 +122,7 @@ namespace TeamSimulator
 
         private static void Receiver1_OnDataReceivedEvent(object sender, EventArgsLibrary.DataReceivedArgs e)
         {
-            //Console.WriteLine("Received on UDP Receiver 1 : " + Encoding.ASCII.GetString(e.Data));
+            Console.WriteLine("Received on UDP Receiver 1 : " + Encoding.ASCII.GetString(e.Data));
         }
 
         //private static void Receiver2_OnDataReceivedEvent(object sender, EventArgsLibrary.DataReceivedArgs e)
