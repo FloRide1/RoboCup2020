@@ -34,7 +34,7 @@ namespace TeamSimulator
         static List<PerceptionSimulator> perceptionSimulatorList;
 
         static RefereeBoxAdapter.RefereeBoxAdapter refBoxAdapter;
-        static RefereeBoxAdapter.RefereeBoxAdapter refBoxAdapter2;
+        //static RefereeBoxAdapter.RefereeBoxAdapter refBoxAdapter2;
 
         static System.Timers.Timer timerTest;
         static UDPMulticastSender sender1;
@@ -90,7 +90,7 @@ namespace TeamSimulator
             StartInterfaces();
 
             refBoxAdapter = new RefereeBoxAdapter.RefereeBoxAdapter();
-            refBoxAdapter2 = new RefereeBoxAdapter.RefereeBoxAdapter();
+            //refBoxAdapter2 = new RefereeBoxAdapter.RefereeBoxAdapter();
 
             //Timer de stratégie
             timerStrategie = new System.Timers.Timer(20000);

@@ -51,7 +51,7 @@ namespace TCPAdapter
             else
             {
                 //On regarde si la connexion est toujours active
-                connectionManagementTimer.Interval = 200;
+                connectionManagementTimer.Interval = 5000;
                 if (!IsConnected())
                 {
                     Console.WriteLine(name + " : Connection lost");
