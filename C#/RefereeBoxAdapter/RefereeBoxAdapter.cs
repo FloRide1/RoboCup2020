@@ -19,7 +19,9 @@ namespace RefereeBoxAdapter
 
         public RefereeBoxAdapter()
         {
-            tcpAdapter = new TCPAdapter.TCPAdapter("127.0.0.1", 28097, "Referee Box Adapter");
+            //tcpAdapter = new TCPAdapter.TCPAdapter("127.0.0.1", 28097, "Referee Box Adapter");
+            tcpAdapter = new TCPAdapter.TCPAdapter("192.168.0.101", 28097, "Referee Box Adapter");
+            //tcpAdapter = new TCPAdapter.TCPAdapter("172.16.1.2", 28097, "Referee Box Adapter");
             tcpAdapter.OnDataReceivedEvent += TcpAdapter_OnDataReceivedEvent;
         }
 
