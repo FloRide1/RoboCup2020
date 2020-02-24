@@ -32,10 +32,14 @@ namespace UDPMulticast
             IPEndPoint ipep = new IPEndPoint(ip, endPointPort);
             s.Connect(ipep);
         }
-
         public void Send(byte[] buffer)
         {
             s.Send(buffer, buffer.Length, SocketFlags.None);
+        }
+
+        public void OnMulticastSendReceived(object sender, DataReceivedArgs e)
+        {
+            Send(e.Data);
         }
     }
 

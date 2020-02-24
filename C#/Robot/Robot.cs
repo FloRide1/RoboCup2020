@@ -468,7 +468,7 @@ namespace Robot
                 ConsoleCamera.ShowDialog();
 
                 //Inutile mais debug pour l'instant
-                refBoxAdapter.OnRefereeBoxReceivedCommandEvent += ConsoleCamera.DisplayRefBoxCommand;
+                refBoxAdapter.OnRefereeBoxCommandEvent += ConsoleCamera.DisplayRefBoxCommand;
                 
             });
             t2.SetApartmentState(ApartmentState.STA);

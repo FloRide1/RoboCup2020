@@ -28,15 +28,14 @@ namespace RefereeBoxAdapter
             //On deserialize le message JSON en provenance de la Referee Box
             string s = Encoding.ASCII.GetString(e.Data);
             var json = JsonConvert.DeserializeObject<RefBoxMessage>(s);
-            OnRefereeBoxReceivedCommand(s);
+            OnRefereeBoxReceivedCommand(json.command);
         }
 
         //Output events
-        public delegate void StringEventHandler(object sender, StringArgs e);
-        public event EventHandler<StringArgs> OnRefereeBoxReceivedCommandEvent;
+        public event EventHandler<StringArgs> OnRefereeBoxCommandEvent;
         public virtual void OnRefereeBoxReceivedCommand(string data)
         {
-            var handler = OnRefereeBoxReceivedCommandEvent;
+            var handler = OnRefereeBoxCommandEvent;
             if (handler != null)
             {
                 handler(this, new StringArgs { Value = data });
