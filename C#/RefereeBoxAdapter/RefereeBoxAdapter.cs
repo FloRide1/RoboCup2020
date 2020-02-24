@@ -10,6 +10,8 @@ using System.Threading;
 using TCPAdapter;
 using Newtonsoft.Json;
 using System.Text;
+using Newtonsoft.Json.Converters;
+using System.Globalization;
 
 namespace RefereeBoxAdapter
 {
@@ -49,4 +51,5 @@ namespace RefereeBoxAdapter
         public string targetTeam { get; set; }
         public int robotID { get; set; }
     }
+
 }

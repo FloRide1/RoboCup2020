@@ -1,0 +1,4 @@
+https://msl.robocup.org/history/2019-logging-database
+https://msl.robocup.org/history/2018-logging-database
+https://msl.robocup.org/history/2017-logging-database
+https://msl.robocup.org/history/2016-logging-database
