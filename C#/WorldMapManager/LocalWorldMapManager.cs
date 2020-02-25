@@ -1,4 +1,5 @@
 ﻿using EventArgsLibrary;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -12,15 +13,13 @@ namespace WorldMapManager
 {
     public class LocalWorldMapManager
     {
-        int RobotId = 0;
-        int TeamId = 0;
         LocalWorldMap localWorldMap;
 
         public LocalWorldMapManager(int robotId, int teamId)
         {
-            RobotId = robotId;
-            TeamId = teamId;
             localWorldMap = new LocalWorldMap();
+            localWorldMap.RobotId = robotId;
+            localWorldMap.TeamId = teamId;
         }
 
         //public void OnPhysicalPositionReceived(object sender, EventArgsLibrary.LocationArgs e)
@@ -34,11 +33,12 @@ namespace WorldMapManager
         //    }
         //}
 
+        DecimalJsonConverter decimalJsonConverter = new DecimalJsonConverter();
         public void OnPerceptionReceived(object sender, EventArgsLibrary.PerceptionArgs e)
         {
             if (localWorldMap == null)
                 return;
-            if (RobotId == e.RobotId)
+            if (localWorldMap.RobotId == e.RobotId)
             {
                 localWorldMap.robotLocation = e.Perception.robotLocation;
                 localWorldMap.obstaclesLocationList = e.Perception.obstaclesLocationList;
@@ -46,8 +46,12 @@ namespace WorldMapManager
                 //localWorldMap.obstacleLocationList = e.Perception.obstacleLocationList;
                 localWorldMap.ballLocation = e.Perception.ballLocation;
 
-                if (localWorldMap.robotLocation !=null)
-                    OnLocalWorldMap(localWorldMap);
+                if (localWorldMap.robotLocation != null)
+                {
+                    string json = JsonConvert.SerializeObject(localWorldMap, decimalJsonConverter);
+                    OnMulticastSendLocalWorldMapCommand(json.GetBytes());
+                    //OnLocalWorldMap(localWorldMap);
+                }
             }
         }
 
@@ -55,7 +59,7 @@ namespace WorldMapManager
         {
             if (localWorldMap == null)
                 return;
-            if (RobotId == e.RobotId)
+            if (localWorldMap.RobotId == e.RobotId)
             {
                 localWorldMap.waypointLocation = e.Location;
             }
@@ -65,7 +69,7 @@ namespace WorldMapManager
         {
             if (localWorldMap == null)
                 return;
-            if (RobotId == e.RobotId)
+            if (localWorldMap.RobotId == e.RobotId)
             {
                 localWorldMap.destinationLocation = e.Location;
             }
@@ -75,7 +79,7 @@ namespace WorldMapManager
         {
             if (localWorldMap == null)
                 return;
-            if (RobotId == e.RobotId)
+            if (localWorldMap.RobotId == e.RobotId)
             {
                 localWorldMap.heatMap = e.HeatMap;
             }
@@ -85,7 +89,7 @@ namespace WorldMapManager
         {
             if (localWorldMap == null || localWorldMap.robotLocation == null)
                 return;
-            if (RobotId == e.RobotId)
+            if (localWorldMap.RobotId == e.RobotId)
             {
                 List<PointD> listPtLidar = new List<PointD>();
                 for (int i=0; i< e.PtList.Count; i++)
@@ -101,20 +105,20 @@ namespace WorldMapManager
         {
             if (localWorldMap == null || localWorldMap.robotLocation == null)
                 return;
-            if (RobotId == e.RobotId)
+            if (localWorldMap.RobotId == e.RobotId)
             {
                 localWorldMap.lidarObjectList = e.ObjectList;
             }
         }
 
-        public delegate void LocalWorldMapEventHandler(object sender, LocalWorldMapArgs e);
-        public event EventHandler<LocalWorldMapArgs> OnLocalWorldMapEvent;
-        public virtual void OnLocalWorldMap(LocalWorldMap localWorldMap)
+        //Output events
+        public event EventHandler<DataReceivedArgs> OnMulticastSendLocalWorldMapEvent;
+        public virtual void OnMulticastSendLocalWorldMapCommand(byte[] data)
         {
-            var handler = OnLocalWorldMapEvent;
+            var handler = OnMulticastSendLocalWorldMapEvent;
             if (handler != null)
             {
-                handler(this, new LocalWorldMapArgs { RobotId = this.RobotId, TeamId = this.TeamId, LocalWorldMap = this.localWorldMap });
+                handler(this, new DataReceivedArgs { Data = data });
             }
         }
     }

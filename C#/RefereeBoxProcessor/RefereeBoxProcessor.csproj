@@ -46,7 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventArgsLibrary\EventArgsLibrary.csproj">
-      <Project>{9c46a7c0-4675-41be-b282-e6f0825ad73e}</Project>
+      <Project>{9C46A7C0-4675-41BE-B282-E6F0825AD73E}</Project>
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
   </ItemGroup>

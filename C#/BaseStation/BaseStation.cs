@@ -57,12 +57,12 @@ namespace BaseStation
 
             refBoxAdapter = new RefereeBoxAdapter.RefereeBoxAdapter();
             refereeBoxProcessor = new RefereeBoxProcessor.RefereeBoxProcessor();
-            MultiCastTeamSender = new UDPMulticastSender();
+            MultiCastTeamSender = new UDPMulticastSender(0);
             UDPMulticastReceiver receiver1 = new UDPMulticastReceiver(0);
             localWorldMapManagerList = new List<LocalWorldMapManager>();
 
             refBoxAdapter.OnRefereeBoxCommandEvent += refereeBoxProcessor.OnRefereeBoxCommandReceived;
-            refereeBoxProcessor.OnMulticastSendEvent += MultiCastTeamSender.OnMulticastSendReceived;
+            refereeBoxProcessor.OnMulticastSendEvent += MultiCastTeamSender.OnMulticastMessageToSendReceived;
             //refBoxAdapter2 = new RefereeBoxAdapter.RefereeBoxAdapter();
 
             //Timer de stratégie
@@ -109,9 +109,9 @@ namespace BaseStation
         static int index = 0;
         private static void TimerTest_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            string msg = "Toto " + index.ToString();
-            index++;
-            MultiCastTeamSender.Send(Encoding.ASCII.GetBytes(msg + " X"));
+            //string msg = "Toto " + index.ToString();
+            //index++;
+            //MultiCastTeamSender.Send(Encoding.ASCII.GetBytes(msg + " X"));
             //sender2.Send(Encoding.ASCII.GetBytes(msg + "  X"));
         }
 

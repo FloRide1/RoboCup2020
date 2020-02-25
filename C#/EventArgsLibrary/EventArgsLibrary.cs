@@ -205,8 +205,8 @@ namespace EventArgsLibrary
 
     public class LocalWorldMapArgs : EventArgs
     {
-        public int RobotId { get; set; }
-        public int TeamId { get; set; }
+        //public int RobotId { get; set; }
+        //public int TeamId { get; set; }
         public LocalWorldMap LocalWorldMap { get; set; }
     }
 

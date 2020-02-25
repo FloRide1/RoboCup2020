@@ -11,7 +11,7 @@ namespace RefereeBoxProcessor
     {
         public void OnRefereeBoxCommandReceived(object sender, StringArgs e)
         {
-            OnMulticastSendCommand(Encoding.ASCII.GetBytes(e.Value));
+            //OnMulticastSendCommand(Encoding.ASCII.GetBytes(e.Value));
         }
 
         //Output events

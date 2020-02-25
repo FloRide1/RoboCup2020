@@ -83,10 +83,6 @@
       <Project>{856F8DFD-84D3-4FF6-889F-22517ADDADCF}</Project>
       <Name>CameraAdapter</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EthernetTeamNetwork\EthernetTeamNetwork.csproj">
-      <Project>{5B37C95C-DEFB-4B49-88C9-8692D14916C7}</Project>
-      <Name>EthernetTeamNetwork</Name>
-    </ProjectReference>
     <ProjectReference Include="..\EventArgsLibrary\EventArgsLibrary.csproj">
       <Project>{9c46a7c0-4675-41be-b282-e6f0825ad73e}</Project>
       <Name>EventArgsLibrary</Name>

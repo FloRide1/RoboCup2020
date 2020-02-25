@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace WorldMap
 {
 
-    public partial class WorldStateMessage
+    public class WorldStateMessage
     {
         [JsonProperty("type")]
         public string Type { get; set; }
@@ -22,25 +22,26 @@ namespace WorldMap
         public string Intention { get; set; }
 
         [JsonProperty("robots")]
-        public Robot[] Robots { get; set; }
+        public List<Robot> Robots { get; set; }
 
         [JsonProperty("balls")]
-        public Ball[] Balls { get; set; }
+        public List<Ball> Balls { get; set; }
 
         [JsonProperty("obstacles")]
-        public Obstacle[] Obstacles { get; set; }
+        public List<Obstacle> Obstacles { get; set; }
 
         [JsonProperty("ageMs")]
         public long AgeMs { get; set; }
+        public static WorldStateMessage FromJson(string json) => JsonConvert.DeserializeObject<WorldStateMessage>(json, Converter.Settings);
     }
 
     public partial class Ball
     {
         [JsonProperty("position")]
-        public double?[] Position { get; set; }
+        public List<double?> Position { get; set; }
 
         [JsonProperty("velocity")]
-        public long?[] Velocity { get; set; }
+        public List<double?> Velocity { get; set; }
 
         [JsonProperty("confidence")]
         public double Confidence { get; set; }
@@ -49,10 +50,10 @@ namespace WorldMap
     public partial class Obstacle
     {
         [JsonProperty("position")]
-        public double[] Position { get; set; }
+        public List<double> Position { get; set; }
 
         [JsonProperty("velocity")]
-        public long[] Velocity { get; set; }
+        public List<double> Velocity { get; set; }
 
         [JsonProperty("radius")]
         public double Radius { get; set; }
@@ -67,13 +68,13 @@ namespace WorldMap
         public long Id { get; set; }
 
         [JsonProperty("pose")]
-        public double[] Pose { get; set; }
+        public List<double> Pose { get; set; }
 
         [JsonProperty("targetPose")]
-        public double[] TargetPose { get; set; }
+        public List<double> TargetPose { get; set; }
 
         [JsonProperty("velocity")]
-        public double[] Velocity { get; set; }
+        public List<double> Velocity { get; set; }
 
         [JsonProperty("intention")]
         public string Intention { get; set; }
@@ -83,11 +84,6 @@ namespace WorldMap
 
         [JsonProperty("ballEngaged")]
         public long BallEngaged { get; set; }
-    }
-
-    public partial class WorldStateMessage
-    {
-        public static WorldStateMessage FromJson(string json) => JsonConvert.DeserializeObject<WorldStateMessage>(json, Converter.Settings);
     }
 
     public static class Serialize

@@ -1,7 +1,9 @@
 ﻿using EventArgsLibrary;
+using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -9,24 +11,28 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
-
+using Utilities;
 
 namespace UDPMulticast
 {
     public class UDPMulticastSender
     {
-        private string multicastRctIpAddress = "224.16.32.79";
+        int Id;
+        //private string multicastIpAddress = "224.16.32.79";
+        private string multicastIpAddress;
         private string localInterfaceAddress = "127.0.0.1";
         private int endPointPort = 4567;
         Socket s;
 
-        public UDPMulticastSender()
+        public UDPMulticastSender(int id, string ipAddress)
         {
+            multicastIpAddress = ipAddress;
+            Id = id;
             s = new Socket(AddressFamily.InterNetwork,
                 SocketType.Dgram, ProtocolType.Udp);
-            IPAddress ip = IPAddress.Parse(multicastRctIpAddress);
+            IPAddress ip = IPAddress.Parse(this.multicastIpAddress);
 
-            MulticastOption mcastOption = new MulticastOption(IPAddress.Parse(multicastRctIpAddress));
+            MulticastOption mcastOption = new MulticastOption(IPAddress.Parse(this.multicastIpAddress));
             s.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, mcastOption); 
             s.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, 50);
             IPEndPoint ipep = new IPEndPoint(ip, endPointPort);
@@ -35,30 +41,42 @@ namespace UDPMulticast
         public void Send(byte[] buffer)
         {
             s.Send(buffer, buffer.Length, SocketFlags.None);
+            //Console.WriteLine("Multicast Nb of bytes sent : " + buffer.Length);
         }
-
-        public void OnMulticastSendReceived(object sender, DataReceivedArgs e)
+        
+        public void OnMulticastMessageToSendReceived(object sender, DataReceivedArgs e)
         {
+            //Console.WriteLine(string.Format("\nUncompressed bytes: {0}", e.Data.Length));
+            ////byte[] compressedbyteData = Zip.CompressBytes(e.Data);
+            //byte[] compressedData = Zip.ZipText(Encoding.UTF8.GetString(e.Data));
+            //Console.WriteLine(string.Format("Compressed bytes: {0}", compressedData.Length));
+            //string uncompressedTextData = Zip.UnzipText(compressedData);
+            //Console.WriteLine(string.Format("Decompressed bytes: {0}", uncompressedTextData.Length));
+            ////Send(compressedData);
             Send(e.Data);
         }
     }
 
     public class UDPMulticastReceiver
     {
-        private string multicastRctIpAddress = "224.16.32.79";
+        int Id;
+        //private string multicastIpAddress = "224.16.32.79";
+        private string multicastIpAddress;
         private int endPointPort = 4567;
         Socket s;
         StateObject so2 = new StateObject();
 
-        public UDPMulticastReceiver(int offset)
+        public UDPMulticastReceiver(int id, string ipAddress)
         {
+            multicastIpAddress = ipAddress;
+            Id = id;
             s = new Socket(AddressFamily.InterNetwork,
                 SocketType.Dgram, ProtocolType.Udp);
-            IPEndPoint ipep = new IPEndPoint(IPAddress.Any, endPointPort + offset);
+            IPEndPoint ipep = new IPEndPoint(IPAddress.Any, endPointPort);
 
             s.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             s.Bind(ipep);
-            IPAddress ip = IPAddress.Parse(multicastRctIpAddress);
+            IPAddress ip = IPAddress.Parse(multicastIpAddress);
             s.SetSocketOption(SocketOptionLevel.IP,
                 SocketOptionName.AddMembership,
                     new MulticastOption(ip, IPAddress.Any));
@@ -101,7 +119,6 @@ namespace UDPMulticast
             s.Send(buffer, buffer.Length, SocketFlags.None);
         }
 
-        public delegate void DataReceivedEventHandler(object sender, DataReceivedArgs e);
         public event EventHandler<DataReceivedArgs> OnDataReceivedEvent;
         public virtual void OnDataReceived(byte[] data)
         {
@@ -116,7 +133,7 @@ namespace UDPMulticast
     public class StateObject
     {
         public Socket workSocket = null;
-        public const int BUFFER_SIZE = 1024;
+        public const int BUFFER_SIZE = 32768;
         public byte[] buffer = new byte[BUFFER_SIZE];
         //public StringBuilder sb = new StringBuilder();
     }

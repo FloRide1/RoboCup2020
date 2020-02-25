@@ -97,8 +97,9 @@ namespace WpfWorldMapDisplay
             BallPolygon.RedrawAll();
         }
 
-        public void UpdateLocalWorldMap(int robotId, LocalWorldMap localWorldMap)
+        public void UpdateLocalWorldMap(LocalWorldMap localWorldMap)
         {
+            int robotId = localWorldMap.RobotId;
             UpdateRobotLocation(robotId, localWorldMap.robotLocation);
             UpdateRobotDestination(robotId, localWorldMap.destinationLocation);
             UpdateRobotWaypoint(robotId, localWorldMap.waypointLocation);

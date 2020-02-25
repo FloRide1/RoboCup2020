@@ -34,25 +34,26 @@ namespace TeamInterface
 
         public void OnLocalWorldMapReceived(object sender, LocalWorldMapArgs e)
         {
-            switch(e.RobotId)
+
+            switch(e.LocalWorldMap.RobotId)
             {
                 case (int)TeamId.Team1+ (int)RobotId.Robot1:
-                    localWorldMapDisplay1.UpdateLocalWorldMap(e.RobotId, e.LocalWorldMap);
+                    localWorldMapDisplay1.UpdateLocalWorldMap(e.LocalWorldMap);
                     break;
                 case (int)TeamId.Team1 + (int)RobotId.Robot2:
-                    localWorldMapDisplay2.UpdateLocalWorldMap(e.RobotId, e.LocalWorldMap);
+                    localWorldMapDisplay2.UpdateLocalWorldMap(e.LocalWorldMap);
                     break;
                 case (int)TeamId.Team1 + (int)RobotId.Robot3:
-                    localWorldMapDisplay3.UpdateLocalWorldMap(e.RobotId, e.LocalWorldMap);
+                    localWorldMapDisplay3.UpdateLocalWorldMap(e.LocalWorldMap);
                     break;
                 case (int)TeamId.Team1 + (int)RobotId.Robot4:
-                    localWorldMapDisplay4.UpdateLocalWorldMap(e.RobotId, e.LocalWorldMap);
+                    localWorldMapDisplay4.UpdateLocalWorldMap(e.LocalWorldMap);
                     break;
                 case (int)TeamId.Team1 + (int)RobotId.Robot5:
-                    localWorldMapDisplay5.UpdateLocalWorldMap(e.RobotId, e.LocalWorldMap);
+                    localWorldMapDisplay5.UpdateLocalWorldMap(e.LocalWorldMap);
                     break;
                 case (int)TeamId.Team1 + (int)RobotId.Robot6:
-                    localWorldMapDisplay6.UpdateLocalWorldMap(e.RobotId, e.LocalWorldMap);
+                    localWorldMapDisplay6.UpdateLocalWorldMap(e.LocalWorldMap);
                     break;
             }
         }

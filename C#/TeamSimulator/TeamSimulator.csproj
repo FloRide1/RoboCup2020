@@ -106,10 +106,6 @@
       <Project>{0540b497-b2ce-40a1-84b5-3109ce2f3146}</Project>
       <Name>Constants</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EthernetTeamNetwork\EthernetTeamNetwork.csproj">
-      <Project>{5b37c95c-defb-4b49-88c9-8692d14916c7}</Project>
-      <Name>EthernetTeamNetwork</Name>
-    </ProjectReference>
     <ProjectReference Include="..\EventArgsLibrary\EventArgsLibrary.csproj">
       <Project>{9c46a7c0-4675-41be-b282-e6f0825ad73e}</Project>
       <Name>EventArgsLibrary</Name>
@@ -161,6 +157,10 @@
     <ProjectReference Include="..\TrajectoryGenerator\TrajectoryGenerator.csproj">
       <Project>{bb381252-44cf-4962-984b-abd697dcc9fb}</Project>
       <Name>TrajectoryGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UdpMulticastInterpreter\UdpMulticastInterpreter.csproj">
+      <Project>{2E2E2FF7-D7A1-4AF7-956E-0951B18B7FF5}</Project>
+      <Name>UdpMulticastInterpreter</Name>
     </ProjectReference>
     <ProjectReference Include="..\UDPMulticast\UDPMulticast.csproj">
       <Project>{6DA72C33-AC0E-4174-AA47-5A12453F5900}</Project>

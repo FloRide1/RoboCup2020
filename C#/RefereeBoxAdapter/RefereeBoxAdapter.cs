@@ -29,27 +29,31 @@ namespace RefereeBoxAdapter
         {
             //On deserialize le message JSON en provenance de la Referee Box
             string s = Encoding.ASCII.GetString(e.Data);
-            var json = JsonConvert.DeserializeObject<RefBoxMessage>(s);
-            OnRefereeBoxReceivedCommand(json.command);
+            var refBoxCommand = JsonConvert.DeserializeObject<RefBoxMessage>(s);
+            OnRefereeBoxReceivedCommand(refBoxCommand);
         }
 
         //Output events
-        public event EventHandler<StringArgs> OnRefereeBoxCommandEvent;
-        public virtual void OnRefereeBoxReceivedCommand(string data)
+        public event EventHandler<RefBoxMessageArgs> OnRefereeBoxCommandEvent;
+        public virtual void OnRefereeBoxReceivedCommand(RefBoxMessage msg)
         {
             var handler = OnRefereeBoxCommandEvent;
             if (handler != null)
             {
-                handler(this, new StringArgs { Value = data });
+                handler(this, new RefBoxMessageArgs { refBoxMsg = msg});
             }
         }
     }
 
-    public class RefBoxMessage
+    public class RefBoxMessage 
     {
         public string command { get; set; }
         public string targetTeam { get; set; }
         public int robotID { get; set; }
     }
 
+    public class RefBoxMessageArgs : EventArgs
+    {
+        public RefBoxMessage refBoxMsg { get; set; }
+    }
 }

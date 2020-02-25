@@ -1,4 +1,6 @@
 ﻿using EventArgsLibrary;
+using Newtonsoft.Json;
+using RefereeBoxAdapter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +13,7 @@ namespace WorldMapManager
     public class GlobalWorldMapManager
     {
         int TeamId;
+        string TeamIpAddress = "";
         double freqRafraichissementWorldMap = 30;
 
         Dictionary<int, LocalWorldMap> localWorldMapDictionary = new Dictionary<int, LocalWorldMap>();
@@ -18,10 +21,14 @@ namespace WorldMapManager
         GlobalWorldMap globalWorldMap = new GlobalWorldMap();
         Timer globalWorldMapSendTimer;
 
+        GameState currentGameState = GameState.STOPPED;
+        StoppedGameAction currentStoppedGameAction = StoppedGameAction.NONE;
+        
 
-        public GlobalWorldMapManager(int teamId)
+        public GlobalWorldMapManager(int teamId, string ipAddress)
         {
             TeamId = teamId;
+            TeamIpAddress = ipAddress;
             globalWorldMapSendTimer = new Timer(1000/freqRafraichissementWorldMap);
             globalWorldMapSendTimer.Elapsed += GlobalWorldMapSendTimer_Elapsed;
             globalWorldMapSendTimer.Start();
@@ -34,11 +41,118 @@ namespace WorldMapManager
 
         public void OnLocalWorldMapReceived(object sender, EventArgsLibrary.LocalWorldMapArgs e)
         {
-            AddOrUpdateLocalWorldMap(e.RobotId, e.TeamId, e.LocalWorldMap);
+            AddOrUpdateLocalWorldMap(e.LocalWorldMap);
         }
 
-        private void AddOrUpdateLocalWorldMap(int robotId, int teamId, LocalWorldMap localWorldMap)
+        public void OnRefereeBoxCommandReceived(object sender, RefBoxMessageArgs e)
         {
+            var command = e.refBoxMsg.command;
+            var robotId = e.refBoxMsg.robotID;
+            var targetTeam = e.refBoxMsg.targetTeam;
+
+            switch (command)
+            {
+                case "START":
+                    currentGameState = GameState.PLAYING;
+                    currentStoppedGameAction = StoppedGameAction.NONE;
+                    break;
+                case "STOP":
+                    currentGameState = GameState.STOPPED;
+                    break;
+                case "DROP_BALL":
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    currentStoppedGameAction = StoppedGameAction.DROPBALL;
+                    break;
+                case "HALF_TIME":
+                    break;
+                case "END_GAME":
+                    break;
+                case "GAME_OVER":
+                    break;
+                case "PARK":
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    currentStoppedGameAction = StoppedGameAction.PARK;
+                    break;
+                case "FIRST_HALF":
+                    break;
+                case "SECOND_HALF":
+                    break;
+                case "FIRST_HALF_OVER_TIME":
+                    break;
+                case "RESET":
+                    break;
+                case "WELCOME":
+                    break;
+                case "KICKOFF":
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.KICKOFF;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.KICKOFF_OPPONENT;
+                    break;
+                case "FREEKICK":
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.FREEKICK;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.FREEKICK_OPPONENT;
+                    break;
+                case "GOALKICK":
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.GOALKICK;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.GOALKICK_OPPONENT;
+                    break;
+                case "THROWIN":
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.THROWIN;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.THROWIN_OPPONENT;
+                    break;
+                case "CORNER":
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.CORNER;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.CORNER_OPPONENT;
+                    break;
+                case "PENALTY":
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.PENALTY;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.PENALTY_OPPONENT;
+                    break;
+                case "GOAL":
+                    break;
+                case "SUBGOAL":
+                    break;
+                case "REPAIR":
+                    break;
+                case "YELLOW_CARD":
+                    break;
+                case "DOUBLE_YELLOW":
+                    break;
+                case "RED_CARD":
+                    break;
+                case "SUBSTITUTION":
+                    break;
+                case "IS_ALIVE":
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.KICKOFF;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.KICKOFF_OPPONENT;
+                    break;
+            }
+        }
+
+        private void AddOrUpdateLocalWorldMap(LocalWorldMap localWorldMap)
+        {
+            int robotId = localWorldMap.RobotId;
+            int teamId = localWorldMap.TeamId;
             lock (localWorldMapDictionary)
             {
                 if (localWorldMapDictionary.ContainsKey(robotId))
@@ -48,6 +162,7 @@ namespace WorldMapManager
             }
         }
 
+        DecimalJsonConverter decimalJsonConverter = new DecimalJsonConverter();
         private void MergeLocalWorldMaps()
         {
             //Fusion des World Map locales pour construire la world map globale
@@ -143,17 +258,28 @@ namespace WorldMapManager
                     }
                 }
             }
-            OnGlobalWorldMap(globalWorldMap);
+
+            //On ajoute les informations de stratégie utilisant les commandes de la referee box
+            globalWorldMap.gameState = currentGameState;
+            globalWorldMap.stoppedGameAction = currentStoppedGameAction;
+
+            string json = JsonConvert.SerializeObject(globalWorldMap, decimalJsonConverter);
+            OnMulticastSendGlobalWorldMap(json.GetBytes());
         }
 
-        public delegate void GlobalWorldMapEventHandler(object sender, GlobalWorldMapArgs e);
-        public event EventHandler<GlobalWorldMapArgs> OnGlobalWorldMapEvent;
-        public virtual void OnGlobalWorldMap(GlobalWorldMap globalWorldMap)
+        void DefineRolesAndGameState()
         {
-            var handler = OnGlobalWorldMapEvent;
+            
+        }
+        
+        //Output events
+        public event EventHandler<DataReceivedArgs> OnMulticastSendGlobalWorldMapEvent;
+        public virtual void OnMulticastSendGlobalWorldMap(byte[] data)
+        {
+            var handler = OnMulticastSendGlobalWorldMapEvent;
             if (handler != null)
             {
-                handler(this, new GlobalWorldMapArgs {GlobalWorldMap = globalWorldMap});
+                handler(this, new DataReceivedArgs { Data = data });
             }
         }
     }
