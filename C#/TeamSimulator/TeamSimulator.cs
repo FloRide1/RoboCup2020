@@ -73,7 +73,7 @@ namespace TeamSimulator
             globalWorldMapManagerTeam2 = new GlobalWorldMapManager((int)TeamId.Team2);
 
             BaseStationUdpMulticastSender = new UDPMulticastSender();
-            UDPMulticastReceiver receiver1 = new UDPMulticastReceiver(0);
+            BaseStationUdpMulticastReceiver = new UDPMulticastReceiver(0);
 
             for (int i = 0; i < nbPlayersTeam1; i++)
             {
@@ -139,7 +139,7 @@ namespace TeamSimulator
         {
             string msg = "Toto " + index.ToString();
             index++;
-            sender1.Send(Encoding.ASCII.GetBytes(msg + " X"));
+            BaseStationUdpMulticastSender.Send(Encoding.ASCII.GetBytes(msg + " X"));
             //sender2.Send(Encoding.ASCII.GetBytes(msg + "  X"));
         }
 
