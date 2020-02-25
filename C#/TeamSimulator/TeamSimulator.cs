@@ -13,6 +13,7 @@ using UDPMulticast;
 using System.Text;
 using TCPAdapter;
 using RefereeBoxAdapter;
+using RefereeBoxProcessor;
 
 namespace TeamSimulator
 {
@@ -34,11 +35,11 @@ namespace TeamSimulator
         static List<PerceptionSimulator> perceptionSimulatorList;
 
         static RefereeBoxAdapter.RefereeBoxAdapter refBoxAdapter;
-        //static RefereeBoxAdapter.RefereeBoxAdapter refBoxAdapter2;
+        static RefereeBoxProcessor.RefereeBoxProcessor refereeBoxProcessor;
 
         static System.Timers.Timer timerTest;
-        static UDPMulticastSender sender1;
-        //static UDPMulticastSender sender2;
+        static UDPMulticastSender BaseStationUdpMulticastSender;
+        static UDPMulticastReceiver BaseStationUdpMulticastReceiver;
 
         static object ExitLock = new object();
 
@@ -70,7 +71,10 @@ namespace TeamSimulator
             physicalSimulator = new PhysicalSimulator.PhysicalSimulator();
             globalWorldMapManagerTeam1 = new GlobalWorldMapManager((int)TeamId.Team1);
             globalWorldMapManagerTeam2 = new GlobalWorldMapManager((int)TeamId.Team2);
-            
+
+            BaseStationUdpMulticastSender = new UDPMulticastSender();
+            UDPMulticastReceiver receiver1 = new UDPMulticastReceiver(0);
+
             for (int i = 0; i < nbPlayersTeam1; i++)
             {
                 //ethernetTeamNetworkAdapter = new EthernetTeamNetworkAdapter();
@@ -90,6 +94,10 @@ namespace TeamSimulator
             StartInterfaces();
 
             refBoxAdapter = new RefereeBoxAdapter.RefereeBoxAdapter();
+            refereeBoxProcessor = new RefereeBoxProcessor.RefereeBoxProcessor();
+            refBoxAdapter.OnRefereeBoxCommandEvent += refereeBoxProcessor.OnRefereeBoxCommandReceived;
+            refereeBoxProcessor.OnMulticastSendEvent += BaseStationUdpMulticastSender.OnMulticastSendReceived;
+            BaseStationUdpMulticastReceiver.OnDataReceivedEvent += Receiver1_OnDataReceivedEvent;
             //refBoxAdapter2 = new RefereeBoxAdapter.RefereeBoxAdapter();
 
             //Timer de stratégie
@@ -101,15 +109,6 @@ namespace TeamSimulator
             timerTest = new System.Timers.Timer(1000);
             timerTest.Elapsed += TimerTest_Elapsed;
 
-            sender1 = new UDPMulticastSender();
-            //sender2 = new UDPMulticastSender();
-            UDPMulticastReceiver receiver1 = new UDPMulticastReceiver(0);
-            //UDPMulticastReceiver receiver2 = new UDPMulticastReceiver(0);
-            //UDPMulticastReceiver receiver3 = new UDPMulticastReceiver(0);
-
-            receiver1.OnDataReceivedEvent += Receiver1_OnDataReceivedEvent;
-            //receiver2.OnDataReceivedEvent += Receiver2_OnDataReceivedEvent;
-            //receiver3.OnDataReceivedEvent += Receiver3_OnDataReceivedEvent;
             timerTest.Start();
 
             lock (ExitLock)
