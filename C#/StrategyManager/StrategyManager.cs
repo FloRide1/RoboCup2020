@@ -18,23 +18,122 @@ namespace StrategyManager
         int robotId = 0;
         
         GlobalWorldMap globalWorldMap = new GlobalWorldMap();
-
-        bool AttackOnRight = true;
-        
+                
         PlayerRole robotRole = PlayerRole.Stop;
-        double heatMapBaseCellSize = 0.01;
+        PointD robotDestination = new PointD(0, 0);
 
         public StrategyManager(int id)
         {
             robotId = id;
-            heatMap = new Heatmap(22.0, 14.0, 22.0/Math.Pow(2,8), 2);
-
+            heatMap = new Heatmap(22.0, 14.0, 22.0/Math.Pow(2,8), 2); //Init HeatMap
         }
 
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
         {
             globalWorldMap = e.GlobalWorldMap;
+            SetRobotDestination(robotRole);
             ProcessStrategy();
+        }
+
+        void SetRobotDestination(PlayerRole role)
+        {
+            switch (globalWorldMap.gameState)
+            {
+                case GameState.STOPPED:
+                    if(globalWorldMap.teammateLocationList.ContainsKey(robotId))
+                        robotDestination = new PointD(globalWorldMap.teammateLocationList[robotId].X, globalWorldMap.teammateLocationList[robotId].Y);
+                    break;
+                case GameState.STOPPED_GAME_POSITIONING:
+                    switch(globalWorldMap.stoppedGameAction)
+                    {
+                        case StoppedGameAction.KICKOFF:        
+                            switch(robotId)
+                            {
+                                case 10:
+                                    robotDestination = new PointD(10, 0);
+                                    break;
+                                case 11:
+                                    robotDestination = new PointD(-1, 2);
+                                    break;
+                                case 12:
+                                    robotDestination = new PointD(1, -2);
+                                    break;
+                                case 13:
+                                    robotDestination = new PointD(6, -3);
+                                    break;
+                                case 14:
+                                    robotDestination = new PointD(6, 3);
+                                    break;
+                            }
+                            break;
+                        case StoppedGameAction.KICKOFF_OPPONENT:
+                            switch (robotId)
+                            {
+                                case 10:
+                                    robotDestination = new PointD(10, 0);
+                                    break;
+                                case 11:
+                                    robotDestination = new PointD(1, 3);
+                                    break;
+                                case 12:
+                                    robotDestination = new PointD(1, -3);
+                                    break;
+                                case 13:
+                                    robotDestination = new PointD(6, -3);
+                                    break;
+                                case 14:
+                                    robotDestination = new PointD(6, 3);
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+                case GameState.PLAYING:
+                    //C'est ici qu'il faut calculer les fonctions de cout pour chacun des roles.
+                    switch (role)
+                    {
+                        case PlayerRole.Stop:
+                            robotDestination = new PointD(-8, 3);
+                            break;
+                        case PlayerRole.Gardien:
+                            robotDestination = new PointD(-10.5, 0);
+                            break;
+                        case PlayerRole.DefenseurPlace:
+                            robotDestination = new PointD(-8, 3);
+                            break;
+                        case PlayerRole.DefenseurActif:
+                            robotDestination = new PointD(-8, -3);
+                            break;
+                        case PlayerRole.AttaquantPlace:
+                            robotDestination = new PointD(6, -3);
+                            break;
+                        case PlayerRole.AttaquantAvecBalle:
+                            if (globalWorldMap.ballLocation != null)
+                                robotDestination = new PointD(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y);
+                            else
+                                robotDestination = new PointD(6, 0);
+                            //{
+                            //    if (globalWorldMap.ballLocation != null)
+                            //    {
+                            //        var ptInterception = GetInterceptionLocation(new Location(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y, 0, globalWorldMap.ballLocation.Vx, globalWorldMap.ballLocation.Vy, 0), new Location(fieldPos.X, fieldPos.Y, 0, 0, 0, 0), 3);
+
+                            //        if (ptInterception != null)
+                            //            robotDestination = ptInterception;
+                            //        else
+                            //            robotDestination = new PointD(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y);
+                            //    }
+                            //    else
+                            //        robotDestination = new PointD(6, -3);
+                            //}
+                            break;
+                        case PlayerRole.Centre:
+                            robotDestination = new PointD(0, 0);
+                            break;
+                        default:
+                            break;
+                    }
+                    break;            
+            }            
         }
 
         Heatmap heatMap;
@@ -46,15 +145,15 @@ namespace StrategyManager
                         
             //Génération de la HeatMap
             heatMap.ReInitHeatMapData();
+
             int[] nbComputationsList = new int[heatMap.nbIterations];
 
             //On construit le heatMap en mode multi-résolution :
             //On commence par une heatmap très peu précise, puis on construit une heat map de taille réduite plus précise autour du point chaud,
             //Puis on construit une heatmap très précise au cm autour du point chaud.
             double optimizedAreaSize;
-
             PointD OptimalPosition = new PointD(0, 0);
-            PointD OptimalPosInBaseHeatMapCoordinates = heatMap.GetBaseHeatMapPosFromFieldCoordinates(0, 0); 
+            PointD OptimalPosInBaseHeatMapCoordinates = heatMap.GetBaseHeatMapPosFromFieldCoordinates(0, 0);
 
             for (int n=0; n<heatMap.nbIterations; n++)
             {
@@ -82,7 +181,7 @@ namespace StrategyManager
                         //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
                         //double value = Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, heatMap.GetFieldPosFromSubSampledHeatMapCoordinates(x, y)) / 20.0);
                         var heatMapPos = heatMap.GetFieldPosFromSubSampledHeatMapCoordinates(x, y, n);
-                        double value = EvaluateStrategyCostFunction(robotRole, heatMapPos);
+                        double value = EvaluateStrategyCostFunction(robotDestination, heatMapPos);
                         //heatMap.SubSampledHeatMapData1[y, x] = value;
                         int yBase = (int)(y * subSamplingRate);
                         int xBase = (int)(x * subSamplingRate);
@@ -112,8 +211,7 @@ namespace StrategyManager
             }
             //OptimalPosition = heatMap.GetMaxPositionInBaseHeatMap();
             OptimalPosition = heatMap.GetFieldPosFromBaseHeatMapCoordinates(OptimalPosInBaseHeatMapCoordinates.X, OptimalPosInBaseHeatMapCoordinates.Y);
-
-
+            
             OnHeatMap(robotId, heatMap);
             SetDestination(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, 0, 0, 0, 0));
 
@@ -126,70 +224,12 @@ namespace StrategyManager
             //Console.WriteLine("Temps de calcul de la heatMap de stratégie : " + sw.Elapsed.TotalMilliseconds.ToString("N4")+" ms"); // Affichage de la mesure
         }
 
-
-        PointD theoreticalOptimalPosGardien = new PointD(-10.5, 0);
-        PointD theoreticalOptimalPosDefenseurPlace = new PointD(-8, 3);
-        PointD theoreticalOptimalPosDefenseurActif = new PointD(-8, -3);
-        PointD theoreticalOptimalPosAttaquantPlace = new PointD(6, 3);
-        PointD theoreticalOptimalPosAttaquantAvecBalle = new PointD(6, -3);
-        PointD theoreticalOptimalPosCentre = new PointD(0, 0);
-
-        double EvaluateStrategyCostFunction(PlayerRole role, PointD fieldPos)
+        double EvaluateStrategyCostFunction(PointD destination, PointD fieldPos)
         {
-            //C'est ici qu'il faut calculer les fonctions de cout pour chacun des roles.
-            switch (role)
-            {
-                case PlayerRole.Stop:
-                    {
-                        PointD theoreticalOptimalPos = new PointD(-8, 3);
-                        return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, fieldPos) / 20.0);
-                    }
-                    break;
-                case PlayerRole.Gardien:
-                    {
-                        return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPosGardien, fieldPos) / 20.0);
-                    }
-                    break;
-                case PlayerRole.DefenseurPlace:
-                    {
-                        return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPosDefenseurPlace, fieldPos) / 20.0);
-                    }
-                    break;
-                case PlayerRole.DefenseurActif:
-                    {
-                        return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPosDefenseurActif, fieldPos) / 20.0);
-                    }
-                    break;
-                case PlayerRole.AttaquantPlace:
-                    {
-                        return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPosAttaquantPlace, fieldPos) / 20.0);
-                    }
-                    break;
-                case PlayerRole.AttaquantAvecBalle:
-                    {
-                        if (globalWorldMap.ballLocation != null)
-                        {
-                            var ptInterception = GetInterceptionLocation(new Location(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y, 0, globalWorldMap.ballLocation.Vx, globalWorldMap.ballLocation.Vy, 0), new Location(fieldPos.X, fieldPos.Y, 0, 0, 0, 0), 3);
-                            //return Math.Max(0, 1 - Toolbox.Distance(new PointD(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y), fieldPos) / 20.0);
-                            
-                            if(ptInterception  != null) 
-                                return Math.Max(0, 1 - Toolbox.Distance(ptInterception, fieldPos) / 20.0);
-                            else
-                                return Math.Max(0, 1 - Toolbox.Distance(new PointD(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y), fieldPos) / 20.0);
-                        }
-                        else
-                            return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPosAttaquantAvecBalle, fieldPos) / 20.0);
-                    }
-                    break;
-                case PlayerRole.Centre:
-                    {
-                        return Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPosCentre, fieldPos) / 20.0);
-                    }
-                    break;
-                default:
-                    return 0;
-            }
+            return Math.Max(0, 1 - Toolbox.Distance(destination, fieldPos) / 20.0);
         }
+
+        
 
         public PointD GetInterceptionLocation(Location target, Location hunter, double huntingSpeed)
         {

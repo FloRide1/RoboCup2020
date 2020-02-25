@@ -50,7 +50,8 @@ namespace WorldMapManager
                 {
                     string json = JsonConvert.SerializeObject(localWorldMap, decimalJsonConverter);
                     OnMulticastSendLocalWorldMapCommand(json.GetBytes());
-                    //OnLocalWorldMap(localWorldMap);
+
+                    OnLocalWorldMap(localWorldMap); //For debug only !!!
                 }
             }
         }
@@ -119,6 +120,17 @@ namespace WorldMapManager
             if (handler != null)
             {
                 handler(this, new DataReceivedArgs { Data = data });
+            }
+        }
+
+        //Output event for debug only
+        public event EventHandler<LocalWorldMapArgs> OnLocalWorldMapEvent;
+        public virtual void OnLocalWorldMap(LocalWorldMap map)
+        {
+            var handler = OnLocalWorldMapEvent;
+            if (handler != null)
+            {
+                handler(this, new LocalWorldMapArgs {  LocalWorldMap = map });
             }
         }
     }

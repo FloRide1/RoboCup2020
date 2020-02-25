@@ -272,7 +272,8 @@ namespace TeamSimulator
 
                 for (int i = 0; i < nbPlayersTeam1; i++)
                 {
-                    robotUdpMulticastInterpreterList[i].OnLocalWorldMapEvent += TeamConsole.OnLocalWorldMapReceived;
+                    localWorldMapManagerList[i].OnLocalWorldMapEvent += TeamConsole.OnLocalWorldMapReceived; //-> version simulation
+                    //robotUdpMulticastInterpreterList[i].OnLocalWorldMapEvent += TeamConsole.OnLocalWorldMapReceived; //->version base station
                 }
                 BaseStationUdpMulticastInterpreterTeam1.OnGlobalWorldMapEvent += TeamConsole.OnGlobalWorldMapReceived;
                 BaseStationUdpMulticastInterpreterTeam2.OnGlobalWorldMapEvent += TeamConsole.OnGlobalWorldMapReceived;
