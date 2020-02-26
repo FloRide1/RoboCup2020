@@ -264,6 +264,7 @@ namespace WorldMapManager
             globalWorldMap.stoppedGameAction = currentStoppedGameAction;
 
             string json = JsonConvert.SerializeObject(globalWorldMap, decimalJsonConverter);
+            OnGlobalWorldMap(globalWorldMap);
             OnMulticastSendGlobalWorldMap(json.GetBytes());
         }
 
@@ -280,6 +281,16 @@ namespace WorldMapManager
             if (handler != null)
             {
                 handler(this, new DataReceivedArgs { Data = data });
+            }
+        }
+
+        public event EventHandler<GlobalWorldMapArgs> OnGlobalWorldMapEvent;
+        public virtual void OnGlobalWorldMap(GlobalWorldMap map)
+        {
+            var handler = OnGlobalWorldMapEvent;
+            if (handler != null)
+            {
+                handler(this, new GlobalWorldMapArgs { GlobalWorldMap = map });
             }
         }
     }

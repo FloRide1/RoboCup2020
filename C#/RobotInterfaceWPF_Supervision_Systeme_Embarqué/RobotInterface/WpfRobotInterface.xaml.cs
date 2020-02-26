@@ -7,9 +7,6 @@ using System.Configuration;
 using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Media;
-
-using Arction.Wpf.Charting;             // LightningChartUltimate and general types.
-using Arction.Wpf.Charting.SeriesXY;    // Series for 2D chart.
 using Constants;
 using WpfOscilloscopeControl;
 using WpfWorldMapDisplay;
@@ -158,7 +155,7 @@ namespace RobotInterface
         public void OnLocalWorldMapEvent(object sender, EventArgsLibrary.LocalWorldMapArgs e)
         {
             //throw new NotImplementedException();
-            worldMapDisplay.UpdateLocalWorldMap(e.RobotId, e.LocalWorldMap);
+            worldMapDisplay.UpdateLocalWorldMap(e.LocalWorldMap);
         }
 
         public void ResetInterfaceState()

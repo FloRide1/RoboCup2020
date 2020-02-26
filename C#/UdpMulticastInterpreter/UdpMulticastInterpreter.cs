@@ -29,20 +29,26 @@ namespace UdpMulticastInterpreter
                 //Console.WriteLine(string.Format("Received bytes: {0}", compressedData.Length));
                 //string uncompressedTextData = "";// Zip.UnzipText(compressedData);
                 //                                 //Console.WriteLine(string.Format("Decompressed bytes: {0}", uncompressedTextData.Length));
-
-                JObject obj = JObject.Parse(Encoding.Default.GetString(e.Data));
-                switch ((string)obj["Type"])
+                try
                 {
-                    case "LocalWorldMap":
-                        LocalWorldMap lwm = obj.ToObject<LocalWorldMap>();
-                        OnLocalWorldMap(lwm);
-                        break;
-                    case "GlobalWorldMap":
-                        GlobalWorldMap gwm = obj.ToObject<GlobalWorldMap>();
-                        OnGlobalWorldMap(gwm);
-                        break;
-                    default:
-                        break;
+                    JObject obj = JObject.Parse(Encoding.Default.GetString(e.Data));
+                    switch ((string)obj["Type"])
+                    {
+                        case "LocalWorldMap":
+                            LocalWorldMap lwm = obj.ToObject<LocalWorldMap>();
+                            OnLocalWorldMap(lwm);
+                            break;
+                        case "GlobalWorldMap":
+                            GlobalWorldMap gwm = obj.ToObject<GlobalWorldMap>();
+                            OnGlobalWorldMap(gwm);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine("Exception Message non décodable en json : UdpMulticastInterpreter");
                 }
             }
 

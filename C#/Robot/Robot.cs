@@ -1,7 +1,6 @@
 ﻿using AdvancedTimers;
 using CameraAdapter;
 using Constants;
-using EthernetTeamNetwork;
 using ExtendedSerialPort;
 using ImageProcessingOmniCamera;
 using LidarOMD60M;
@@ -122,7 +121,6 @@ namespace Robot
         static ImageSaver.ImageSaver imgSaver;
         static ReliableSerialPort serialPort1;
         static RefereeBoxAdapter.RefereeBoxAdapter refBoxAdapter;
-        static EthernetTeamNetworkAdapter ethernetTeamNetworkAdapter;
         static MsgDecoder msgDecoder;
         static MsgEncoder msgEncoder;
         static RobotMsgGenerator robotMsgGenerator;
@@ -197,7 +195,6 @@ namespace Robot
                     break;
             }
 
-            ethernetTeamNetworkAdapter = new EthernetTeamNetworkAdapter();
             serialPort1 = new ReliableSerialPort("COM1", 115200, Parity.None, 8, StopBits.One);
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
@@ -462,14 +459,9 @@ namespace Robot
             t2 = new Thread(() =>
             {
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
-
                 ConsoleCamera = new RobotMonitor.WpfCameraMonitor();
                 ConsoleCamera.Loaded += RegisterCameraInterfaceEvents;
-                ConsoleCamera.ShowDialog();
-
-                //Inutile mais debug pour l'instant
-                refBoxAdapter.OnRefereeBoxCommandEvent += ConsoleCamera.DisplayRefBoxCommand;
-                
+                ConsoleCamera.ShowDialog();                
             });
             t2.SetApartmentState(ApartmentState.STA);
             t2.Start();

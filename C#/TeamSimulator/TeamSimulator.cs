@@ -13,7 +13,6 @@ using UDPMulticast;
 using System.Text;
 using TCPAdapter;
 using RefereeBoxAdapter;
-using RefereeBoxProcessor;
 using UdpMulticastInterpreter;
 
 namespace TeamSimulator
@@ -39,7 +38,6 @@ namespace TeamSimulator
         static List<UDPMulticastInterpreter> robotUdpMulticastInterpreterList;
 
         static RefereeBoxAdapter.RefereeBoxAdapter refBoxAdapter;
-        static RefereeBoxProcessor.RefereeBoxProcessor refereeBoxProcessor;
 
         static UDPMulticastSender BaseStationUdpMulticastSenderTeam1;
         static UDPMulticastSender BaseStationUdpMulticastSenderTeam2;
@@ -272,11 +270,14 @@ namespace TeamSimulator
 
                 for (int i = 0; i < nbPlayersTeam1; i++)
                 {
-                    localWorldMapManagerList[i].OnLocalWorldMapEvent += TeamConsole.OnLocalWorldMapReceived; //-> version simulation
-                    //robotUdpMulticastInterpreterList[i].OnLocalWorldMapEvent += TeamConsole.OnLocalWorldMapReceived; //->version base station
+                    localWorldMapManagerList[i].OnLocalWorldMapEvent += TeamConsole.OnLocalWorldMapReceived; //-> version simulation                    
                 }
-                BaseStationUdpMulticastInterpreterTeam1.OnGlobalWorldMapEvent += TeamConsole.OnGlobalWorldMapReceived;
-                BaseStationUdpMulticastInterpreterTeam2.OnGlobalWorldMapEvent += TeamConsole.OnGlobalWorldMapReceived;
+                BaseStationUdpMulticastInterpreterTeam1.OnLocalWorldMapEvent += TeamConsole.OnLocalWorldMapReceived; //->version base station
+                BaseStationUdpMulticastInterpreterTeam2.OnLocalWorldMapEvent += TeamConsole.OnLocalWorldMapReceived; //->version base station
+                globalWorldMapManagerTeam1.OnGlobalWorldMapEvent += TeamConsole.OnGlobalWorldMapReceived;
+                globalWorldMapManagerTeam2.OnGlobalWorldMapEvent += TeamConsole.OnGlobalWorldMapReceived;
+
+
                 TeamConsole.ShowDialog();
             });
             t1.SetApartmentState(ApartmentState.STA);

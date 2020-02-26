@@ -60,39 +60,6 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Arction.DirectX, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
-      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.DirectX.dll</HintPath>
-    </Reference>
-    <Reference Include="Arction.DirectXFiles, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
-      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.DirectXFiles.dll</HintPath>
-    </Reference>
-    <Reference Include="Arction.DirectXInit, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
-      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.DirectXInit.dll</HintPath>
-    </Reference>
-    <Reference Include="Arction.Licensing, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
-      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.Licensing.dll</HintPath>
-    </Reference>
-    <Reference Include="Arction.RenderingDefinitions, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
-      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.RenderingDefinitions.dll</HintPath>
-    </Reference>
-    <Reference Include="Arction.RenderingEngine, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
-      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.RenderingEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="Arction.RenderingEngine11, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
-      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.RenderingEngine11.dll</HintPath>
-    </Reference>
-    <Reference Include="Arction.RenderingEngine9, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
-      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.RenderingEngine9.dll</HintPath>
-    </Reference>
-    <Reference Include="Arction.Wpf.BindableCharting.LightningChartUltimate, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
-      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.Wpf.BindableCharting.LightningChartUltimate.dll</HintPath>
-    </Reference>
-    <Reference Include="Arction.Wpf.Charting.LightningChartUltimate, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
-      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.Wpf.Charting.LightningChartUltimate.dll</HintPath>
-    </Reference>
-    <Reference Include="Arction.Wpf.SemibindableCharting.LightningChartUltimate, Version=8.4.3.4001, Culture=neutral, PublicKeyToken=6484d7bb14b95dd3, processorArchitecture=MSIL">
-      <HintPath>..\..\Robot\packages\LightningChartUltimateWPF8.8.4.3.1\lib\net40-client\Arction.Wpf.SemibindableCharting.LightningChartUltimate.dll</HintPath>
-    </Reference>
     <Reference Include="SciChart.Charting, Version=5.4.0.12119, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL">
       <HintPath>..\..\Robot\packages\SciChart.5.4.0.12119\lib\net47\SciChart.Charting.dll</HintPath>
     </Reference>
