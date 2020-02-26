@@ -224,4 +224,10 @@ namespace EventArgsLibrary
         public int RobotId { get; set; }
         public List<PolarPointListExtended> ObjectList { get; set; }
     }
+
+    public class BitmapImageArgs : EventArgs
+    {
+        public Bitmap Bitmap { get; set; }
+        public string Descriptor { get; set; }
+    }
 }

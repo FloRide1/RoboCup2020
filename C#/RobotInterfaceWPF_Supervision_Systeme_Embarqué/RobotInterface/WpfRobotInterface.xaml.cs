@@ -151,7 +151,7 @@ namespace RobotInterface
             //oscilloX.AddPointToLine(0, currentTime, value);
             //textBoxReception.Text = "Nb Message Sent : " + nbMsgSent + " Nb Message Received : " + nbMsgReceived + " Nb Message Received Errors : " + nbMsgReceivedErrors;
         }
-
+                
         public void OnLocalWorldMapEvent(object sender, EventArgsLibrary.LocalWorldMapArgs e)
         {
             //throw new NotImplementedException();

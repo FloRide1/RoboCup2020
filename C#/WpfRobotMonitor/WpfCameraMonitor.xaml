@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:RobotMonitor"
         mc:Ignorable="d"
         Title="Camera Monitor" Height="600" Width="800">
-    <Grid>
+    <Grid x:Name="GridAffichageCamera">
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition/>
@@ -24,22 +24,22 @@
             <ColumnDefinition Width="30"/>
         </Grid.ColumnDefinitions>
 
-        <GroupBox x:Name="ImageDebug1" Header="ImageDebug1" Margin="0" BorderBrush="Black" Foreground="Black" Background="#FFDDDDDD" Grid.Column="1" Grid.Row="1">
+        <GroupBox x:Name="ImageDebug1" Header="ImageDebug1" Margin="0" BorderBrush="Black" Foreground="Black" Background="#FFDDDDDD" Grid.Column="1" Grid.Row="1" MouseDoubleClick="ImageDebug1_MouseDoubleClick">
             <Image x:Name="imageCamera1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         </GroupBox>
 
 
-        <GroupBox x:Name="ImageDebug2" Header="ImageDebug2" Margin="0" BorderBrush="Black" Foreground="Black" Background="#FFDDDDDD" Grid.Column="3" Grid.Row="1">
+        <GroupBox x:Name="ImageDebug2" Header="ImageDebug2" Margin="0" BorderBrush="Black" Foreground="Black" Background="#FFDDDDDD" Grid.Column="3" Grid.Row="1" MouseDoubleClick="ImageDebug1_MouseDoubleClick">
             <Image x:Name="imageCamera2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         </GroupBox>
 
 
-        <GroupBox x:Name="ImageDebug3" Header="ImageDebug3" Margin="0" BorderBrush="Black" Foreground="Black" Background="#FFDDDDDD" Grid.Column="1" Grid.Row="3">
+        <GroupBox x:Name="ImageDebug3" Header="ImageDebug3" Margin="0" BorderBrush="Black" Foreground="Black" Background="#FFDDDDDD" Grid.Column="1" Grid.Row="3" MouseDoubleClick="ImageDebug1_MouseDoubleClick">
             <Image x:Name="imageCamera3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         </GroupBox>
 
 
-        <GroupBox x:Name="ImageDebug4" Header="ImageDebug4" Margin="0" BorderBrush="Black" Foreground="Black" Background="#FFDDDDDD" Grid.Column="3" Grid.Row="3">
+        <GroupBox x:Name="ImageDebug4" Header="ImageDebug4" Margin="0" BorderBrush="Black" Foreground="Black" Background="#FFDDDDDD" Grid.Column="3" Grid.Row="3" MouseDoubleClick="ImageDebug1_MouseDoubleClick">
             <Image x:Name="imageCamera4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         </GroupBox>
 

@@ -61,7 +61,8 @@ namespace Robot
         Acquisition,
         Replay,
         Standard,
-        Nolidar
+        Nolidar,
+        NoCamera
     }
     class Robot
     {
@@ -193,6 +194,12 @@ namespace Robot
                     usingLogging = false;
                     usingLogReplay = false;
                     break;
+                case RobotMode.NoCamera:
+                    usingLidar = true;
+                    usingCamera = false;
+                    usingLogging = false;
+                    usingLogReplay = false;
+                    break;
             }
 
             serialPort1 = new ReliableSerialPort("COM1", 115200, Parity.None, 8, StopBits.One);
@@ -235,14 +242,15 @@ namespace Robot
             if (usingCamera)
             {
                 omniCamera = new BaslerCameraAdapter();
-                omniCamera.CameraInit();     
-                omniCamera.OpenCvMatImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
+                omniCamera.CameraInit();
+                //omniCamera.OpenCvMatImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
+                omniCamera.BitmapImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
             }
 
             if (usingImageExtractor && usingCamera)
             {
                 imgSaver = new ImageSaver.ImageSaver();
-                omniCamera.OpenCvMatImageEvent += imgSaver.OnSaveCVMatImage;
+                //omniCamera.OpenCvMatImageEvent += imgSaver.OnSaveCVMatImage;
             }
 
             if (usingYolo)
@@ -305,18 +313,19 @@ namespace Robot
             
             if (usingLidar)
             {
-                lidar_OMD60M.OnLidarEvent += lidarProcessor.OnRawLidarDataReceived;
-                lidar_OMD60M.OnLidarEvent += absolutePositionEstimator.OnRawLidarDataReceived; 
-                lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
+                //lidar_OMD60M.OnLidarDecodedFrameEvent += lidarProcessor.OnRawLidarDataReceived;
+                //lidar_OMD60M.OnLidarDecodedFrameEvent += absolutePositionEstimator.OnRawLidarDataReceived;
+                lidar_OMD60M.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
+                //lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
             }
 
             //Events de recording
             if (usingLogging)
             {
-                lidar_OMD60M.OnLidarEvent += logRecorder.OnRawLidarDataReceived;
+                lidar_OMD60M.OnLidarDecodedFrameEvent += logRecorder.OnRawLidarDataReceived;
                 robotMsgProcessor.OnIMUDataFromRobotGeneratedEvent += logRecorder.OnIMUDataReceived;
                 robotMsgProcessor.OnSpeedDataFromRobotGeneratedEvent += logRecorder.OnSpeedDataReceived;
-                omniCamera.OpenCvMatImageEvent += logRecorder.OnOpenCVMatImageReceived;
+                //omniCamera.OpenCvMatImageEvent += logRecorder.OnOpenCVMatImageReceived;
             }
 
             //Events de replay
@@ -324,7 +333,7 @@ namespace Robot
             {
                 logReplay.OnLidarEvent += lidarProcessor.OnRawLidarDataReceived;
                 //logReplay.OnCameraImageEvent += imageProcessingPositionFromOmniCamera.ProcessOpenCvMatImage;
-                logReplay.OnCameraImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
+                //logReplay.OnCameraImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
                 lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
                 lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
             }
@@ -484,22 +493,23 @@ namespace Robot
 
         static void RegisterCameraInterfaceEvents(object sender, EventArgs e)
         {
-            if (usingLogging)
-                omniCamera.OpenCvMatImageEvent += ConsoleCamera.DisplayOpenCvMatImage;
+            if (usingCamera || usingLogging)
+                omniCamera.BitmapImageEvent += ConsoleCamera.DisplayBitmapImage;
+            //omniCamera.OpenCvMatImageEvent += ConsoleCamera.DisplayOpenCvMatImage;
 
             if (usingLogReplay)
             {
-                logReplay.OnCameraImageEvent += ConsoleCamera.DisplayOpenCvMatImage;
-                
+                //logReplay.OnCameraImageEvent += ConsoleCamera.DisplayOpenCvMatImage;                
             }
-            absolutePositionEstimator.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;
+            
+            absolutePositionEstimator.OnBitmapImageProcessedEvent += ConsoleCamera.DisplayBitmapImage;
             if (usingYolo)
             {
-                yoloDetector.OnYoloImageProcessedAndLabelledEvent += ConsoleCamera.DisplayOpenCvMatImage;       //Event d'image processée et labelisée
-                absolutePositionEstimator.OnOpenCvMatImageProcessedEvent += yoloDetector.DetectAndLabel;        //On envoie l'image dewrapé dans le detecteur Yolo, et on effectu la detection avec les poids UTLN
-                yoloDetector.OnYoloImageProcessedAndLabelled_LabelEvent += ConsoleCamera.DisplayMessageInConsole;
+                //absolutePositionEstimator.OnBitmapImageProcessedEvent += yoloDetector.DetectAndLabel;        //On envoie l'image dewrappée dans le detecteur Yolo, et on effectue la detection avec les poids UTLN
+                //yoloDetector.OnYoloBitmapImageProcessedAndLabelledEvent += ConsoleCamera.DisplayBitmapImage;       //Event d'image processée et labelisée
+                yoloDetector.OnYoloImageProcessedAndLabelled_LabelEvent += ConsoleCamera.DisplayMessageInConsole;       //Permet d'afficher du txt dans la console camera
             }
-           
+
         }
 
         static void RegisterReplayInterfaceEvents(object sender, EventArgs e)
@@ -518,7 +528,7 @@ namespace Robot
                 replayNavigator.OnSpeedChangeEvent += logReplay.ReplaySpeedChanged;
             }
 
-            imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;
+            //imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;
         }
 
         private static void RefBoxAdapter_DataReceivedEvent(object sender, EventArgsLibrary.DataReceivedArgs e)

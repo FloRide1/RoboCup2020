@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
@@ -37,6 +38,8 @@ namespace LidarOMD60M
 
         Timer watchDogFeedTimer;
         Timer LidarDisplayTimer;
+
+        int nbDataLidar = 0;
         public Lidar_OMD60M(int id)
         {
             robotId = id;
@@ -46,7 +49,7 @@ namespace LidarOMD60M
             watchDogFeedTimer = new Timer(2000);
             watchDogFeedTimer.Elapsed += WatchDogFeedTimer_Elapsed;
             LidarDisplayTimer = new Timer(80);
-            LidarDisplayTimer.Elapsed += LidarDisplayTimer_Elapsed;
+            //LidarDisplayTimer.Elapsed += LidarDisplayTimer_Elapsed;
 
             //On configure les options du LIDAR
             LidarSetApplicationBitmapMode();
@@ -71,6 +74,8 @@ namespace LidarOMD60M
 
             //On démarre le scan
             LidarStartTCPScan();
+
+            swLidar.Start();
         }
 
         private void TcpLidarAdapter_OnDataReceivedEvent(object sender, DataReceivedArgs e)
@@ -114,11 +119,11 @@ namespace LidarOMD60M
             {
                 result[0] = info["handle"].ToString();
                 result[1] = info["port"].ToString();
-                Console.WriteLine(content);
+                //Console.WriteLine(content);
             }
             else
             {
-                Console.WriteLine(content);
+                //Console.WriteLine(content);
             }
             return result;
         }
@@ -128,7 +133,7 @@ namespace LidarOMD60M
             // On démarre le scan sur le Lidar : cf. page 35 de la doc R2000 Ehternet Protocol
             string request = @"http://" + LidarIpAddress + "/cmd/start_scanoutput?handle=" + TCPHandle;
             var content = await HttpClient.GetStringAsync(request);
-            Console.WriteLine(content);
+            //Console.WriteLine(content);
         }
 
         async Task LidarStopTCPScan()
@@ -136,7 +141,7 @@ namespace LidarOMD60M
             // On démarre le scan sur le Lidar : cf. page 35 de la doc R2000 Ehternet Protocol
             string request = @"http://" + LidarIpAddress + "/cmd/stop_scanoutput?handle=" + TCPHandle;
             var content = await HttpClient.GetStringAsync(request);
-            Console.WriteLine(content);
+            //Console.WriteLine(content);
         }
 
         async Task LidarFeedWatchdogTCP()
@@ -144,7 +149,7 @@ namespace LidarOMD60M
             // On lance un feedwatchdog
             string request = @"http://" + LidarIpAddress + "/cmd/feed_watchdog?handle=" + TCPHandle;
             var content = await HttpClient.GetStringAsync(request);
-            Console.WriteLine(content);
+            //Console.WriteLine(content);
         }
 
         async Task LidarSetRotationFrequency(int freq)
@@ -152,21 +157,21 @@ namespace LidarOMD60M
             // On démarre le scan sur le Lidar : cf. page 20 de la doc R2000 Ehternet Protocol
             string request = @"http://" + LidarIpAddress + "/cmd/set_parameter?scan_frequency=" + freq.ToString();
             var content = await HttpClient.GetStringAsync(request);
-            Console.WriteLine(content);
+            //Console.WriteLine(content);
         }
         async Task LidarSetScanResolution(int nbPtTour)
         {
             // On règle le nb de pts par tour du Lidar : cf. page 21 de la doc R2000 Ehternet Protocol
             string request = @"http://" + LidarIpAddress + "/cmd/set_parameter?samples_per_scan=" + nbPtTour.ToString();
             var content = await HttpClient.GetStringAsync(request);
-            Console.WriteLine(content);
+            //Console.WriteLine(content);
         }        
 
         async Task LidarSetBarGraphDistance()
         {
             string request = @"http://" + LidarIpAddress + "/cmd/set_parameter?hmi_display_mode=bargraph_distance";
             var content = await HttpClient.GetStringAsync(request);
-            Console.WriteLine(content);
+            //Console.WriteLine(content);
         }
 
         async Task LidarSetBarSetText(string text1, string text2, string text3, string text4)
@@ -181,14 +186,14 @@ namespace LidarOMD60M
             content = await HttpClient.GetStringAsync(request);
             request = @"http://" + LidarIpAddress + "/cmd/set_parameter?hmi_application_text_2=" + text4;
             content = await HttpClient.GetStringAsync(request);
-            Console.WriteLine(content);
+            //Console.WriteLine(content);
         }
 
         async Task LidarSetApplicationBitmapMode()
         {
             string request = @"http://" + LidarIpAddress + "/cmd/set_parameter?hmi_display_mode=application_bitmap";
             var content = await HttpClient.GetStringAsync(request);
-            Console.WriteLine(content);
+            //Console.WriteLine(content);
         }
 
         async Task LidarSetImage(int horizontalShift)
@@ -269,9 +274,12 @@ namespace LidarOMD60M
 
         List<PolarPoint> ptList = new List<PolarPoint>();
         List<double> RSSI = new List<double>();
+        Stopwatch sw = new Stopwatch();
 
         /**************************************************** Fonctions d'analyse **************************************************************/
         byte[] complementOfPreceedingBuffer = new byte[0];
+
+        Stopwatch swLidar = new Stopwatch();
         private void DecodeLidarScanData(byte[] arrivingBuffer, int bufferSize)
         {         
             int pos = 0;
@@ -319,7 +327,14 @@ namespace LidarOMD60M
 
                     if (packet_number == 1)
                     {
-                        OnLidar((int)TeamId.Team1, ptList);
+                        sw.Restart();
+                        //OnLidarDecodedFrame((int)TeamId.Team1, ptList); //TODO on creuse le bug de lag
+                        sw.Stop();
+                        if(ptList[ptList.Count / 2].Distance>2)
+                            Console.WriteLine("Distance en face : " + ptList[ptList.Count/2].Distance + "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+                        else
+                            Console.WriteLine("Distance en face : " + ptList[ptList.Count / 2].Distance);
+                        //Console.WriteLine(nbDataLidar++ + "Temps event lancé par lidar : " + sw.Elapsed.TotalMilliseconds+ " instant : "+ swLidar.Elapsed.TotalMilliseconds);
                         ptList = new List<PolarPoint>();
                         RSSI = new List<double>();
                     }
@@ -432,7 +447,7 @@ namespace LidarOMD60M
             //TODO : basé sur le fait que la bonne adresse est la première...
             IPAddress localIp = null;
             //Get Local IP Address
-            Console.WriteLine(Dns.GetHostName());
+            //Console.WriteLine(Dns.GetHostName());
             IPAddress[] localIPs = Dns.GetHostAddresses(Dns.GetHostName());
             foreach (IPAddress addr in localIPs)
             {
@@ -522,10 +537,10 @@ namespace LidarOMD60M
 
 
         public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
-        public event EventHandler<RawLidarArgs> OnLidarEvent;
-        public virtual void OnLidar(int id, List<PolarPoint> ptList)
+        public event EventHandler<RawLidarArgs> OnLidarDecodedFrameEvent;
+        public virtual void OnLidarDecodedFrame(int id, List<PolarPoint> ptList)
         {
-            var handler = OnLidarEvent;
+            var handler = OnLidarDecodedFrameEvent;
             if (handler != null)
             {
                 handler(this, new RawLidarArgs { RobotId = id, PtList = ptList});

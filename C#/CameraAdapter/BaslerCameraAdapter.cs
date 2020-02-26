@@ -24,7 +24,7 @@ namespace CameraAdapter
             // Ask the camera finder for a list of camera devices.
             List<ICameraInfo> allCameras = CameraFinder.Enumerate();
 
-            camera = new Camera("40032798");
+            camera = new Camera("22427616");
 
             if (camera != null)
             {
@@ -36,14 +36,22 @@ namespace CameraAdapter
                 camera.StreamGrabber.ImageGrabbed += StreamGrabber_ImageGrabbed;
                 camera.StreamGrabber.GrabStopped += StreamGrabber_GrabStopped;
 
-                camera.Open();
-                    
+                camera.Open();                    
 
                 camera.Parameters[PLCamera.GevSCPSPacketSize].SetValue(8192);       //Réglage du packet Size à 8192
                 camera.Parameters[PLCamera.GevSCPD].SetValue(10000);                //Réglage de l'inter packet delay à 10000
                 camera.Parameters[PLCamera.ExposureTimeAbs].SetValue(25000);        //Réglage du temps d'exposition à 40Hz - 25.000 us
                 camera.Parameters[PLCamera.AcquisitionFrameRateAbs].SetValue(40);   //Réglage du framerate en fps
-                camera.Parameters[PLCamera.GevHeartbeatTimeout].SetValue(2000);   //Réglage du framerate en fps
+                camera.Parameters[PLCamera.GevHeartbeatTimeout].SetValue(5000);     //Réglage du heart beat (timout)
+                camera.Parameters[PLCamera.Width].SetValue(860);
+                camera.Parameters[PLCamera.Height].SetValue(860);
+                camera.Parameters[PLCamera.CenterX].SetValue(true);
+                //camera.Parameters[PLCamera.OffsetX].SetValue(540);
+                camera.Parameters[PLCamera.CenterY].SetValue(true);
+                //camera.Parameters[PLCamera.OffsetY].SetValue(148);
+                camera.Parameters[PLCamera.ReverseX].SetValue(true);
+                camera.Parameters[PLCamera.ReverseY].SetValue(true);
+
                 camera.Parameters[PLCamera.LightSourceSelector].SetValue(PLCamera.LightSourceSelector.Daylight6500K);
 
             }
@@ -61,13 +69,14 @@ namespace CameraAdapter
             {
                 if (GrabOver)
                 {
-                    var handler = OpenCvMatImageEvent;
+                    var handler = BitmapImageEvent;
                     if (handler != null)
                     {
                         Bitmap bitmap = GrabResult2Bmp(grabResult);
-                        Image<Bgr, Byte> imageCV = new Image<Bgr, byte>(bitmap); //Image Class from Emgu.CV
-                        Mat mat = imageCV.Mat;
-                        OnOpenCvMatImageReceived(mat);
+                        OnBitmapImageReceived(bitmap);
+                        //Image<Bgr, Byte> imageCV = new Image<Bgr, byte>(bitmap); //Image Class from Emgu.CV
+                        //Mat mat = imageCV.Mat;
+                        //OnOpenCvMatImageReceived(mat);
                     }
                 }
             }
@@ -145,16 +154,26 @@ namespace CameraAdapter
         //}
 
 
-        public delegate void OpenCvMatImageEventHandler(object sender, CameraImageArgs e);
-        public event EventHandler<OpenCvMatImageArgs> OpenCvMatImageEvent;
+        //public delegate void OpenCvMatImageEventHandler(object sender, CameraImageArgs e);
+        //public event EventHandler<OpenCvMatImageArgs> OpenCvMatImageEvent;
 
-        public virtual void OnOpenCvMatImageReceived(Mat mat)
+        //public virtual void OnOpenCvMatImageReceived(Mat mat)
+        //{
+        //    var handler = OpenCvMatImageEvent;
+        //    if (handler != null)
+        //    {
+        //        handler(this, new OpenCvMatImageArgs { Mat = mat, Descriptor = "ImageFromCamera" });
+        //    }
+        //}
+
+        public event EventHandler<BitmapImageArgs> BitmapImageEvent;
+        public virtual void OnBitmapImageReceived(Bitmap bmp)
         {
-            var handler = OpenCvMatImageEvent;
+            var handler = BitmapImageEvent;
             if (handler != null)
             {
-                handler(this, new OpenCvMatImageArgs { Mat = mat , Descriptor= "ImageFromCamera"});
-                }
+                handler(this, new BitmapImageArgs { Bitmap = bmp, Descriptor = "ImageFromCamera" });
+            }
         }
     }
 }

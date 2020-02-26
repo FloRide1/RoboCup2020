@@ -1,11 +1,15 @@
 ﻿using EventArgsLibrary;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -16,15 +20,9 @@ namespace RobotMonitor
     /// </summary>
     public partial class WpfCameraMonitor : Window
     {
-        DispatcherTimer timerAffichage;
         public WpfCameraMonitor()
         {
             InitializeComponent();
-
-            timerAffichage = new DispatcherTimer();
-            timerAffichage.Interval = new TimeSpan(0, 0, 0, 0, 50);
-            timerAffichage.Tick += TimerAffichage_Tick;
-            timerAffichage.Start();
         }
         int nbMsgSent = 0;
 
@@ -52,120 +50,110 @@ namespace RobotMonitor
             textBoxDebug.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
             {
 
-                    textBoxDebug.Text += e.value;
+                textBoxDebug.Text += e.value;
                 if (textBoxDebug.Text.Length > 2000)
-                    textBoxDebug.Text=textBoxDebug.Text.Remove(0, 200);
+                    textBoxDebug.Text = textBoxDebug.Text.Remove(0, 200);
 
             }));
         }
 
-
-        Queue<string> RefBoxEventQueue = new Queue<string>();
-        public void DisplayRefBoxCommand(object sender, EventArgsLibrary.StringArgs e)
+        Stopwatch sw = new Stopwatch();
+        public void DisplayBitmapImage(object sender, EventArgsLibrary.BitmapImageArgs e)
         {
-            lock (RefBoxEventQueue)
-            {
-                RefBoxEventQueue.Enqueue(e.Value);
-            }
-        }
-
-        BitmapImage Image1;
-        BitmapImage Image2;
-        BitmapImage Image3;
-        BitmapImage Image4;
-        public void DisplayOpenCvMatImage(object sender, EventArgsLibrary.OpenCvMatImageArgs e)
-        {
-            var image = e.Mat.Bitmap;
             string descriptor = e.Descriptor;
-
-            switch(descriptor)
+            switch (descriptor)
             {
                 case "ImageFromCamera":
-                    Image1 = BitmapToImageSource(image);
+                    sw.Restart();
+                    Dispatcher.Invoke(new Action(delegate ()
+                    {
+                        imageCamera1.Source = ImageSourceFromBitmap(e.Bitmap);
+                    }));
+                    sw.Stop();
+                    //Console.WriteLine("BitmapToImageSource: " + sw.ElapsedMilliseconds);
                     break;
                 case "ImageDebug2":
-                    Image2 = BitmapToImageSource(image);
+                    Dispatcher.Invoke(new Action(delegate ()
+                    {
+                        imageCamera2.Source = ImageSourceFromBitmap(e.Bitmap);
+                    }));
                     break;
                 case "ImageDebug3":
-                    Image3 = BitmapToImageSource(image);
+                    //imageCamera3.Source = ImageSourceFromBitmap(image);
                     break;
                 case "ImageDebug4":
-                    Image4 = BitmapToImageSource(image);
+                    //imageCamera4.Source = ImageSourceFromBitmap(image);
                     break;
                 default:
-                    Image4 = BitmapToImageSource(image);
+                    //imageCamera4.Source = ImageSourceFromBitmap(image);
                     break;
             }
 
         }
-
-        private BitmapImage BitmapToImageSource(Bitmap sourceImage)
+        
+        //If you get 'dllimport unknown'-, then add 'using System.Runtime.InteropServices;'
+        [DllImport("gdi32.dll", EntryPoint = "DeleteObject")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool DeleteObject([In] IntPtr hObject);
+        public ImageSource ImageSourceFromBitmap(Bitmap bmp)
         {
-            var copyImage = CopyImage(sourceImage);
-            MemoryStream memory = new MemoryStream();
-            copyImage.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
-            memory.Seek(0, SeekOrigin.Begin);
-
-            BitmapImage bitmapimage = new BitmapImage();
-            bitmapimage.BeginInit();
-            bitmapimage.StreamSource = memory;
-            bitmapimage.EndInit();
-
-            bitmapimage.Freeze();
-            return bitmapimage;
+            var handle = bmp.GetHbitmap();
+            try
+            {
+                return Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            }
+            finally { DeleteObject(handle); }
         }
+        
 
-        private Bitmap CopyImage(Bitmap sourceImage)
+        double zoomFactor = 5;
+        bool isZoomed = false;
+        int lastZoomedRow = 0;
+        int lastZoomedCol = 0;
+        private void ImageDebug1_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            var targetImage = new Bitmap(sourceImage.Width, sourceImage.Height,
-                  sourceImage.PixelFormat);
-            var sourceData = sourceImage.LockBits(
-              new Rectangle(0, 0, sourceImage.Width, sourceImage.Height),
-              ImageLockMode.ReadOnly, sourceImage.PixelFormat);
-            var targetData = targetImage.LockBits(
-              new Rectangle(0, 0, sourceImage.Width, sourceImage.Height),
-              ImageLockMode.WriteOnly, targetImage.PixelFormat);
-            CopyMemory(targetData.Scan0, sourceData.Scan0,
-              (uint)sourceData.Stride * (uint)sourceData.Height);
-            sourceImage.UnlockBits(sourceData);
-            targetImage.UnlockBits(targetData);
-            //targetImage.Palette = sourceImage.Palette;
-            return targetImage;
-        }
-
-
-        [DllImport("Kernel32.dll", EntryPoint = "CopyMemory")]
-        private extern static void CopyMemory(IntPtr dest, IntPtr src, uint length);
-
-
-        private void TimerAffichage_Tick(object sender, EventArgs e)
-        {
-            //textBoxDebug.Text = "Nb Message Sent : " + nbMsgSent + " Nb Message Received : " + nbMsgReceived + " Nb Message Received Errors : " + nbMsgReceivedErrors;
-            lock(RefBoxEventQueue)
+            int row = 0, column = 0;
+            if (sender.GetType() == typeof(GroupBox))
             {
-                for(int i=0; i< RefBoxEventQueue.Count; i++)
-                    textBoxDebug.Text += RefBoxEventQueue.Dequeue()+" ";
+                GroupBox s = (GroupBox)sender;
+                if (s != null)
+                {
+                    row = Grid.GetRow(s);
+                    column = Grid.GetColumn(s);
+                }
+            }
+            else if (sender.GetType() == typeof(GroupBox))
+            {
+                GroupBox s = (GroupBox)sender;
+                if (s != null)
+                {
+                    row = Grid.GetRow(s);
+                    column = Grid.GetColumn(s);
+                }
             }
 
-            if (Image1 != null)
+
+            if (!isZoomed)
             {
-                imageCamera1.Source = Image1;
-                Image1 = null;
+                GridAffichageCamera.ColumnDefinitions[column].Width = new GridLength(GridAffichageCamera.ColumnDefinitions[column].Width.Value * zoomFactor, GridUnitType.Star);
+                GridAffichageCamera.RowDefinitions[row].Height = new GridLength(GridAffichageCamera.RowDefinitions[row].Height.Value * zoomFactor, GridUnitType.Star);
+                lastZoomedCol = column;
+                lastZoomedRow = row;
+                isZoomed = true;
             }
-            if (Image2 != null)
+            else
             {
-                imageCamera2.Source = Image2;
-                Image2 = null;
-            }
-            if (Image3 != null)
-            {
-                imageCamera3.Source = Image3;
-                Image3 = null;
-            }
-            if (Image4 != null)
-            {
-                imageCamera4.Source = Image4;
-                Image4 = null;
+                GridAffichageCamera.ColumnDefinitions[lastZoomedCol].Width = new GridLength(GridAffichageCamera.ColumnDefinitions[lastZoomedCol].Width.Value / zoomFactor, GridUnitType.Star);
+                GridAffichageCamera.RowDefinitions[lastZoomedRow].Height = new GridLength(GridAffichageCamera.RowDefinitions[lastZoomedRow].Height.Value / zoomFactor, GridUnitType.Star);
+                isZoomed = false;
+                if (lastZoomedRow != row || lastZoomedCol != column)
+                {
+                    GridAffichageCamera.ColumnDefinitions[column].Width = new GridLength(GridAffichageCamera.ColumnDefinitions[column].Width.Value * zoomFactor, GridUnitType.Star);
+                    GridAffichageCamera.RowDefinitions[row].Height = new GridLength(GridAffichageCamera.RowDefinitions[row].Height.Value * zoomFactor, GridUnitType.Star);
+                    lastZoomedCol = column;
+                    lastZoomedRow = row;
+                    isZoomed = true;
+                }
             }
         }
     }

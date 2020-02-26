@@ -45,7 +45,7 @@ namespace PositionEstimator
             panoramaImage = FishEyeToPanorama3(e.Mat);              //Methode optimisée. A voir si on peux faire mieux avec les bons API EMGU
             OnOpenCvMatImageProcessedReady(panoramaImage, "ImageDebug2");
             sw.Stop();
-            Console.WriteLine("FishEyeToPano3:" + sw.ElapsedMilliseconds);
+            //Console.WriteLine("FishEyeToPano3:" + sw.ElapsedMilliseconds);
             if (LidarPtList!=null)
             {
                 //Recherche des blobs saillants
@@ -67,43 +67,79 @@ namespace PositionEstimator
             //OnOpenCvMatImageProcessedReady(HsvMatCropped, "ImageDebug3");
             //OnOpenCvMatImageProcessedReady(TerrainTheoriqueVertical, "ImageDebug4");
         }
-
-        public  Mat FishEyeToPanorama(Mat originalMat)
+        public void AbsolutePositionEvaluation(object sender, BitmapImageArgs e)
         {
-            Image<Bgr, Byte> originalImg = originalMat.ToImage<Bgr, Byte>();
-            int originalWidth = originalImg.Cols;
-            int originalHeight = originalImg.Rows;
-            byte[,,] data = (byte[,,])originalImg.Data;
+            //OnOpenCvMatImageProcessedReady(initialMat, "ImageFromCameraViaProcessing");
+            Image<Bgr, Byte> imageCV = new Image<Bgr, byte>(e.Bitmap); //Image Class from Emgu.CV
+            Mat sourceImage = imageCV.Mat;
+            Mat panoramaImage;
+            var sw = new Stopwatch();
+            sw.Start();
 
-            double scaleCoeff = 0.2;
-            //Mat panorama = new Mat(height, width, originalImg.Depth, originalImg.NumberOfChannels);
+            //panoramaImage = FishEyeToPanorama2(e.Mat);
+            //OnOpenCvMatImageProcessedReady(panoramaImage, "ImageFromCameraViaProcessing");
+            //sw.Stop();
+            //Console.WriteLine("FishEyeToPano:" + sw.ElapsedMilliseconds);
+            //sw.Reset();
+            //sw.Start();
+            //panoramaImage = FishEyeToPanorama(e.Mat);
+            //OnOpenCvMatImageProcessedReady(panoramaImage, "ImageDebug3");
+            //sw.Stop();
+            //Console.WriteLine("FishEyeToPano2:" + sw.ElapsedMilliseconds);
+            //sw.Reset();
+            //sw.Start();
 
-            int RayonCercle = (int)(originalHeight / 2);
-            int heightPanorama = RayonCercle * 2;// * scaleCoeff);
-            int widthPanorama = (int)(RayonCercle * 2 * Math.PI);// * scaleCoeff);
-            byte[,,] panoramaData = new byte[heightPanorama, widthPanorama, 3];
 
+            //panoramaImage = FishEyeToPanorama3(sourceImage);              //Methode optimisée. A voir si on peux faire mieux avec les bons API EMGU
 
-            for (int i = 0; i < widthPanorama; i++)
+            //OnBitmapImageProcessedReady(panoramaImage.Bitmap, "ImageDebug2");
+            //OnOpenCvMatImageProcessedReady(panoramaImage, "ImageDebug2");
+            sw.Stop();
+            //Console.WriteLine("FishEyeToPano3:" + sw.ElapsedMilliseconds);
+            if (LidarPtList != null)
             {
-                double cosR = Math.Cos((double)i / RayonCercle + Math.PI);
-                double sinR = Math.Sin((double)i / RayonCercle + Math.PI);
-                for (int j = 0; j < heightPanorama; j++)
-                {
-                    int xPos = (int)(originalHeight / 2 + (heightPanorama - 1 - j) * cosR/*Math.Cos((double)i /RayonCercle + Math.PI)*/);
-                    int yPos = (int)(originalWidth / 2 + (heightPanorama - 1 - j) * sinR/*Math.Sin((double)i / RayonCercle + Math.PI)*/);
-                    if (xPos < originalHeight && xPos > 0 && yPos < originalWidth && yPos > 0)
-                    {
-                        panoramaData[j, i, 0] = data[xPos, yPos, 0];
-                        panoramaData[j, i, 1] = data[xPos, yPos, 1];
-                        panoramaData[j, i, 2] = data[xPos, yPos, 2];
-                    }
-                }
-            }
+                //Recherche des blobs saillants
 
-            Image<Bgr, Byte> im = new Image<Bgr, Byte>(panoramaData);
-            return im.Mat;
+                //Tri des blobs saillants par couleur et par taille et par distance 
+            }
         }
+
+        //public  Mat FishEyeToPanorama(Mat originalMat)
+        //{
+        //    Image<Bgr, Byte> originalImg = originalMat.ToImage<Bgr, Byte>();
+        //    int originalWidth = originalImg.Cols;
+        //    int originalHeight = originalImg.Rows;
+        //    byte[,,] data = (byte[,,])originalImg.Data;
+
+        //    double scaleCoeff = 0.2;
+        //    //Mat panorama = new Mat(height, width, originalImg.Depth, originalImg.NumberOfChannels);
+
+        //    int RayonCercle = (int)(originalHeight / 2);
+        //    int heightPanorama = RayonCercle * 2;// * scaleCoeff);
+        //    int widthPanorama = (int)(RayonCercle * 2 * Math.PI);// * scaleCoeff);
+        //    byte[,,] panoramaData = new byte[heightPanorama, widthPanorama, 3];
+
+
+        //    for (int i = 0; i < widthPanorama; i++)
+        //    {
+        //        double cosR = Math.Cos((double)i / RayonCercle + Math.PI);
+        //        double sinR = Math.Sin((double)i / RayonCercle + Math.PI);
+        //        for (int j = 0; j < heightPanorama; j++)
+        //        {
+        //            int xPos = (int)(originalHeight / 2 + (heightPanorama - 1 - j) * cosR/*Math.Cos((double)i /RayonCercle + Math.PI)*/);
+        //            int yPos = (int)(originalWidth / 2 + (heightPanorama - 1 - j) * sinR/*Math.Sin((double)i / RayonCercle + Math.PI)*/);
+        //            if (xPos < originalHeight && xPos > 0 && yPos < originalWidth && yPos > 0)
+        //            {
+        //                panoramaData[j, i, 0] = data[xPos, yPos, 0];
+        //                panoramaData[j, i, 1] = data[xPos, yPos, 1];
+        //                panoramaData[j, i, 2] = data[xPos, yPos, 2];
+        //            }
+        //        }
+        //    }
+
+        //    Image<Bgr, Byte> im = new Image<Bgr, Byte>(panoramaData);
+        //    return im.Mat;
+        //}
 
         public Mat FishEyeToPanorama2(Mat originalMat)
         {
@@ -212,6 +248,17 @@ namespace PositionEstimator
             if (handler != null)
             {
                 handler(this, new OpenCvMatImageArgs { Mat = mat, Descriptor = descriptor });
+            }
+        }
+
+        public event EventHandler<BitmapImageArgs> OnBitmapImageProcessedEvent;
+        public virtual void OnBitmapImageProcessedReady(Bitmap image, string descriptor)
+        {
+
+            var handler = OnBitmapImageProcessedEvent;
+            if (handler != null)
+            {
+                handler(this, new BitmapImageArgs { Bitmap = image, Descriptor = descriptor });
             }
         }
     }
