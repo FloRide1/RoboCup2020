@@ -112,7 +112,7 @@ namespace TCPAdapter
 
             // Assign the callback.
             callback = ar => {
-                try
+                //try
                 {
                     // Call EndRead.
                     int bytesRead = clientStream.EndRead(ar);
@@ -129,11 +129,11 @@ namespace TCPAdapter
                     // Read again.  This callback will be called again.
                     clientStream.BeginRead(buffer, offset, buffer.Length, callback, null);
                 }
-                catch
-                {
-                    isConnected = false;
-                    return;
-                }
+                //catch
+                //{
+                //    isConnected = false;
+                //    return;
+                //}
             };
 
             // Trigger the initial read.

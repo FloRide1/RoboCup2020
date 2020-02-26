@@ -87,11 +87,6 @@ namespace LidarOMD60M
             LidarSetImage(horizontalShift);
         }
 
-        private void TcpLidarClient_OnDataReceived(byte[] data, int bytesRead)
-        {
-            DecodeLidarScanData(data, bytesRead);
-        }
-
         private void WatchDogFeedTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             LidarFeedWatchdogTCP();
@@ -274,19 +269,25 @@ namespace LidarOMD60M
 
         List<PolarPoint> ptList = new List<PolarPoint>();
         List<double> RSSI = new List<double>();
-                           
+
         /**************************************************** Fonctions d'analyse **************************************************************/
-        private void DecodeLidarScanData(byte[] buffer, int bufferSize)
+        byte[] complementOfPreceedingBuffer = new byte[0];
+        private void DecodeLidarScanData(byte[] arrivingBuffer, int bufferSize)
         {         
             int pos = 0;
 
-            try
+            //On construit le buffer à décoder comme la fin du précédent non décodée + le buffer arrivant
+            byte[] buffer = new byte[bufferSize + complementOfPreceedingBuffer.Length];
+            complementOfPreceedingBuffer.CopyTo(buffer,0);
+            arrivingBuffer.CopyTo(buffer, complementOfPreceedingBuffer.Length);
+
+            //try
             {
 
-                // TODO : A blinder si les packets sont trop petits +++++++++++++++++++++++++++++++++++++++66666666666666
-
-                while (pos < bufferSize)
+                // TODO : A blinder si les packets sont trop petits 
+                while (pos+1404 <= bufferSize)
                 {
+                    //On a encore au moins un packet complet à décoder, on peut y aller
                     //On stocke la position initiale pour pouvoir la restaurer au moment de la lecture des datas
                     int initPos = pos;
 
@@ -302,7 +303,7 @@ namespace LidarOMD60M
                     packet_size += (UInt32)(buffer[pos++] << 8);
                     packet_size += (UInt32)(buffer[pos++] << 16);
                     packet_size += (UInt32)(buffer[pos++] << 24);
-
+                    
                     UInt16 header_size = buffer[pos++];
                     header_size += (UInt16)(buffer[pos++] << 8);
 
@@ -312,6 +313,9 @@ namespace LidarOMD60M
                     UInt16 packet_number = buffer[pos++];
                     packet_number += (UInt16)(buffer[pos++] << 8);
                     //Console.WriteLine("Packet Number : " + packet_number);
+
+
+                    //Console.WriteLine("Paquet Lidar - Taille : " + packet_size + " - Taille Header : " + header_size + " - Scan Number : " + scan_number + " - Numero de paquet : " + packet_number + " - Pos : " + pos + " - Buffer Size : " + bufferSize);
 
                     if (packet_number == 1)
                     {
@@ -412,12 +416,15 @@ namespace LidarOMD60M
                         }
                     }
                 }
+                //On a plus un packet complet à décoder
+                complementOfPreceedingBuffer = new byte[buffer.Length - pos];
+                Buffer.BlockCopy(buffer, pos, complementOfPreceedingBuffer, 0, complementOfPreceedingBuffer.Length); //On copie les octets non processés dans le buffer d'attente
             }
-            catch
-            {
-                ptList = new List<PolarPoint>();
-                RSSI = new List<double>();
-            }
+            //catch
+            //{
+            //    ptList = new List<PolarPoint>();
+            //    RSSI = new List<double>();
+            //}
         }
 
         IPAddress GetComputerIp()

@@ -43,6 +43,7 @@ namespace CameraAdapter
                 camera.Parameters[PLCamera.GevSCPD].SetValue(10000);                //Réglage de l'inter packet delay à 10000
                 camera.Parameters[PLCamera.ExposureTimeAbs].SetValue(25000);        //Réglage du temps d'exposition à 40Hz - 25.000 us
                 camera.Parameters[PLCamera.AcquisitionFrameRateAbs].SetValue(40);   //Réglage du framerate en fps
+                camera.Parameters[PLCamera.GevHeartbeatTimeout].SetValue(2000);   //Réglage du framerate en fps
                 camera.Parameters[PLCamera.LightSourceSelector].SetValue(PLCamera.LightSourceSelector.Daylight6500K);
 
             }
