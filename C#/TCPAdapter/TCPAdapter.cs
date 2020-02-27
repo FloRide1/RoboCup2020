@@ -65,6 +65,7 @@ namespace TCPAdapter
         private void Connect()
         {
             tcpClient = new System.Net.Sockets.TcpClient(ipAddress, port);
+            tcpClient.NoDelay = true;
             //Si tout se passe bien, on récupère le flux de données.
             clientStream = tcpClient.GetStream();
             //On lance les acquisitions

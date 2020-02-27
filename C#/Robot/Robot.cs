@@ -114,14 +114,13 @@ namespace Robot
 
 
         static bool usingRobotInterface = true;
-        static bool usingCameraInterface = true;
+        static bool usingCameraInterface = false;
         static bool usingReplayNavigator = true;
 
         //static HighFreqTimer highFrequencyTimer;
         static HighFreqTimer timerStrategie;
         static ImageSaver.ImageSaver imgSaver;
         static ReliableSerialPort serialPort1;
-        static RefereeBoxAdapter.RefereeBoxAdapter refBoxAdapter;
         static MsgDecoder msgDecoder;
         static MsgEncoder msgEncoder;
         static RobotMsgGenerator robotMsgGenerator;
@@ -138,7 +137,8 @@ namespace Robot
         static LidarSimulator.LidarSimulator lidarSimulator;
         static StrategyManager.StrategyManager strategyManager;
         static PerceptionSimulator perceptionSimulator;
-        static Lidar_OMD60M lidar_OMD60M;
+        static Lidar_OMD60M_UDP lidar_OMD60M_UDP;
+        static Lidar_OMD60M_TCP lidar_OMD60M_TCP;
         static LidarProcessor.LidarProcessor lidarProcessor;
         static XBoxController.XBoxController xBoxManette;
         static YoloObjectDetector.YoloObjectDetector yoloDetector;
@@ -172,7 +172,7 @@ namespace Robot
             {
                 case RobotMode.Standard:
                     usingLidar = true;
-                    usingCamera = true;
+                    usingCamera = false;
                     usingLogging = false;
                     usingLogReplay = false;
                     break;
@@ -215,7 +215,6 @@ namespace Robot
             physicalSimulator.RegisterRobot(robotId, 0, 0);
 
             robotPilot = new RobotPilot.RobotPilot(robotId);
-            refBoxAdapter = new RefereeBoxAdapter.RefereeBoxAdapter();
             trajectoryPlanner = new TrajectoryPlanner(robotId);
             waypointGenerator = new WaypointGenerator(robotId);
             strategyManager = new StrategyManager.StrategyManager(robotId);
@@ -225,7 +224,11 @@ namespace Robot
 
 
             if (usingLidar)
-                lidar_OMD60M = new Lidar_OMD60M(robotId);
+            {
+                //lidar_OMD60M_UDP = new Lidar_OMD60M_UDP(robotId);
+                lidar_OMD60M_TCP = new Lidar_OMD60M_TCP(robotId);
+            }
+
             if (usingLidar || usingLogReplay)
             {
                 lidarProcessor = new LidarProcessor.LidarProcessor(robotId);
@@ -315,14 +318,16 @@ namespace Robot
             {
                 //lidar_OMD60M.OnLidarDecodedFrameEvent += lidarProcessor.OnRawLidarDataReceived;
                 //lidar_OMD60M.OnLidarDecodedFrameEvent += absolutePositionEstimator.OnRawLidarDataReceived;
-                lidar_OMD60M.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
+                //lidar_OMD60M_UDP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
+                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
                 //lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
             }
 
             //Events de recording
             if (usingLogging)
             {
-                lidar_OMD60M.OnLidarDecodedFrameEvent += logRecorder.OnRawLidarDataReceived;
+                lidar_OMD60M_UDP.OnLidarDecodedFrameEvent += logRecorder.OnRawLidarDataReceived;
+                //lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += logRecorder.OnRawLidarDataReceived;
                 robotMsgProcessor.OnIMUDataFromRobotGeneratedEvent += logRecorder.OnIMUDataReceived;
                 robotMsgProcessor.OnSpeedDataFromRobotGeneratedEvent += logRecorder.OnSpeedDataReceived;
                 //omniCamera.OpenCvMatImageEvent += logRecorder.OnOpenCVMatImageReceived;

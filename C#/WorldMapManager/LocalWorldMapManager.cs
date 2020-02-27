@@ -89,26 +89,25 @@ namespace WorldMapManager
         int i = 0;
         public void OnRawLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
         {
-            //if (i++ % 2 == 0)
-            //{
-                if (localWorldMap == null || localWorldMap.robotLocation == null)
-                    return;
-                if (localWorldMap.RobotId == e.RobotId)
+            if (localWorldMap == null || localWorldMap.robotLocation == null)
+                return;
+            if (localWorldMap.RobotId == e.RobotId && e.PtList.Count!=0)
+            {
+                List<PointD> listPtLidar = new List<PointD>();
+
+                try
                 {
-                    List<PointD> listPtLidar = new List<PointD>();
-
-                    listPtLidar = e.PtList.Select(
-                    pt => new PointD(localWorldMap.robotLocation.X + pt.Distance * Math.Cos(pt.Angle),
-                                     localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle))).ToList();
-
-                    //for (int i = 0; i < e.PtList.Count; i++)
-                    //{
-                    //    listPtLidar.Add(new PointD(localWorldMap.robotLocation.X + e.PtList[i].Distance * Math.Cos(e.PtList[i].Angle),
-                    //                               localWorldMap.robotLocation.Y + e.PtList[i].Distance * Math.Sin(e.PtList[i].Angle)));
-                    //}
-                    localWorldMap.lidarMap = listPtLidar;
+                    //for (int i = 0; i < 500; i++)
+                    {
+                        listPtLidar = e.PtList.Select(
+                        pt => new PointD(localWorldMap.robotLocation.X + pt.Distance * Math.Cos(pt.Angle),
+                                         localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle))).ToList();
+                    }
                 }
-            //}
+                catch { };
+
+                localWorldMap.lidarMap = listPtLidar;
+            }
         }
 
         public void OnLidarObjectsReceived(object sender, EventArgsLibrary.PolarPointListExtendedListArgs e)

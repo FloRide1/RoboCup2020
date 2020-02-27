@@ -65,7 +65,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Lidar_OMD60M.cs" />
+    <Compile Include="Lidar_OMD60M_UDP.cs" />
+    <Compile Include="Lidar_OMD60M_TCP.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -88,6 +89,10 @@
     <ProjectReference Include="..\TCPClient\TCPClient.csproj">
       <Project>{54D19BA4-AC57-4A0E-BF19-42A567F28108}</Project>
       <Name>TCPClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UDPAdapter\UDPAdapter.csproj">
+      <Project>{75E25C11-47B1-410E-A6CC-E37A74F7D0F9}</Project>
+      <Name>UDPAdapter</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8E7D0DA4-9A13-4B18-A90E-0243BBCCE40A}</Project>
