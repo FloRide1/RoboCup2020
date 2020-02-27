@@ -74,6 +74,20 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Reactive, Version=4.3.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>packages\System.Reactive.4.3.2\lib\net46\System.Reactive.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Threading.Tasks.Extensions.4.5.3\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -182,6 +196,14 @@
     <ProjectReference Include="..\SimulatedCamera\SimulatedCamera.csproj">
       <Project>{57F578BF-38FA-4A86-844A-EECAFACC2412}</Project>
       <Name>SimulatedCamera</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Staudt.Engineering.LidaRx.Drivers.R2000\Staudt.Engineering.LidaRx.Drivers.R2000.csproj">
+      <Project>{D27503B0-7171-44C0-9E73-EA6CF83A55E9}</Project>
+      <Name>Staudt.Engineering.LidaRx.Drivers.R2000</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Staudt.Engineering.LidaRx\Staudt.Engineering.LidaRx.csproj">
+      <Project>{A4C17E50-0AE0-469B-B0DF-39F6AC733319}</Project>
+      <Name>Staudt.Engineering.LidaRx</Name>
     </ProjectReference>
     <ProjectReference Include="..\StrategyManager\StrategyManager.csproj">
       <Project>{f2d3fb95-f97a-4049-bca4-71854fd4faf3}</Project>

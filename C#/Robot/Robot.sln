@@ -99,6 +99,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UdpMulticastInterpreter", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDPAdapter", "..\UDPAdapter\UDPAdapter.csproj", "{75E25C11-47B1-410E-A6CC-E37A74F7D0F9}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Staudt.Engineering.LidaRx", "..\Staudt.Engineering.LidaRx\Staudt.Engineering.LidaRx.csproj", "{A4C17E50-0AE0-469B-B0DF-39F6AC733319}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Staudt.Engineering.LidaRx.Drivers.R2000", "..\Staudt.Engineering.LidaRx.Drivers.R2000\Staudt.Engineering.LidaRx.Drivers.R2000.csproj", "{D27503B0-7171-44C0-9E73-EA6CF83A55E9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -491,6 +495,22 @@ Global
 		{75E25C11-47B1-410E-A6CC-E37A74F7D0F9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{75E25C11-47B1-410E-A6CC-E37A74F7D0F9}.Release|x64.ActiveCfg = Release|Any CPU
 		{75E25C11-47B1-410E-A6CC-E37A74F7D0F9}.Release|x64.Build.0 = Release|Any CPU
+		{A4C17E50-0AE0-469B-B0DF-39F6AC733319}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4C17E50-0AE0-469B-B0DF-39F6AC733319}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4C17E50-0AE0-469B-B0DF-39F6AC733319}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A4C17E50-0AE0-469B-B0DF-39F6AC733319}.Debug|x64.Build.0 = Debug|Any CPU
+		{A4C17E50-0AE0-469B-B0DF-39F6AC733319}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4C17E50-0AE0-469B-B0DF-39F6AC733319}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4C17E50-0AE0-469B-B0DF-39F6AC733319}.Release|x64.ActiveCfg = Release|Any CPU
+		{A4C17E50-0AE0-469B-B0DF-39F6AC733319}.Release|x64.Build.0 = Release|Any CPU
+		{D27503B0-7171-44C0-9E73-EA6CF83A55E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D27503B0-7171-44C0-9E73-EA6CF83A55E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D27503B0-7171-44C0-9E73-EA6CF83A55E9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D27503B0-7171-44C0-9E73-EA6CF83A55E9}.Debug|x64.Build.0 = Debug|Any CPU
+		{D27503B0-7171-44C0-9E73-EA6CF83A55E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D27503B0-7171-44C0-9E73-EA6CF83A55E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D27503B0-7171-44C0-9E73-EA6CF83A55E9}.Release|x64.ActiveCfg = Release|Any CPU
+		{D27503B0-7171-44C0-9E73-EA6CF83A55E9}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

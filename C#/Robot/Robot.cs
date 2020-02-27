@@ -28,6 +28,10 @@ using WpfReplayNavigator;
 using System.Runtime.InteropServices;
 using PositionEstimator;
 using YoloObjectDetector;
+using Staudt.Engineering.LidaRx.Drivers.R2000;
+using System.Net;
+using Staudt.Engineering.LidaRx;
+using System.Linq;
 
 namespace Robot
 {
@@ -154,9 +158,46 @@ namespace Robot
 
         [STAThread] //à ajouter au projet initial
 
+        LidarStatusEvent methodeStatus()
+        {
+            LidarStatusEvent ev=null;
+
+            return ev;
+        }
         static void Main(string[] args)
         {
-            SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
+            using (var r2000 = new R2000Scanner(IPAddress.Parse("169.254.235.44"), R2000ConnectionType.TCPConnection))
+            {
+                r2000.Connect();
+                //r2000.SetSamplingRate(R2000SamplingRate._8kHz);
+                r2000.SetScanFrequency(20);
+                r2000.SetSamplingRate(R2000SamplingRate._12kHz);
+
+                
+                r2000.OnlyStatusEvents().Subscribe(ev =>
+                {
+                    var oldColor = Console.ForegroundColor;
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.WriteLine($"Event: {ev.Level.ToString()} / {ev.Message}");
+                    Console.ForegroundColor = oldColor;
+                });
+
+
+                r2000.OnlyLidarPoints()
+                    .BufferByScan()
+                    .Subscribe(x =>
+                    {
+                        //Console.WriteLine($"Scans per second: {x.Count}");
+                        Console.WriteLine($"Got {x.Count} points for scan {x.Scan} / Min {x.Points.Min(pt => pt.Azimuth)} :: Max {x.Points.Max(pt => pt.Azimuth)}");
+
+                    });
+
+
+                r2000.StartScan();
+                while (true) ;
+            }
+
+                SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
 
             SciChartSurface.SetRuntimeLicenseKey(@"<LicenseContract>
   <Customer>University of  Toulon</Customer>
@@ -226,7 +267,7 @@ namespace Robot
             if (usingLidar)
             {
                 //lidar_OMD60M_UDP = new Lidar_OMD60M_UDP(robotId);
-                lidar_OMD60M_TCP = new Lidar_OMD60M_TCP(robotId);
+                //lidar_OMD60M_TCP = new Lidar_OMD60M_TCP();
             }
 
             if (usingLidar || usingLogReplay)
@@ -319,7 +360,7 @@ namespace Robot
                 //lidar_OMD60M.OnLidarDecodedFrameEvent += lidarProcessor.OnRawLidarDataReceived;
                 //lidar_OMD60M.OnLidarDecodedFrameEvent += absolutePositionEstimator.OnRawLidarDataReceived;
                 //lidar_OMD60M_UDP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
-                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
+                //lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
                 //lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
             }
 
