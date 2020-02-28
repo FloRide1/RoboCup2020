@@ -40,9 +40,9 @@ namespace YoloObjectDetector
             else if(useTiny)
             {
                 defaultConfigurationPath = "..\\..\\..\\..\\_YoloConfiguration\\TinyYolo\\";//
-                yoloCFGFileName = "yolov2-tiny-voc.cfg";
-                yoloWeightsFileName = "yolov2-tiny-voc.weights";
-                yoloNamesFileName = "voc.names";
+                yoloCFGFileName = "yolov3-tiny.cfg";
+                yoloWeightsFileName = "yolov3-tiny.weights";
+                yoloNamesFileName = "coco.names";
             }
             // try
             {
