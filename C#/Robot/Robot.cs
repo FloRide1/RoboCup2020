@@ -114,7 +114,7 @@ namespace Robot
         static bool usingLogging = false;
         static bool usingLogReplay = false;
         static bool usingImageExtractor = true;     //Utilisé pour extraire des images du flux camera et les enregistrer en tant que JPG
-        static bool usingYolo = false;               //Permet de ne pas utiliser Yolo
+        static bool usingYolo = true;               //Permet de ne pas utiliser Yolo
 
 
         static bool usingRobotInterface = true;
@@ -232,6 +232,10 @@ namespace Robot
             lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             perceptionSimulator = new PerceptionSimulator(robotId);
 
+            if (usingYolo)
+            {
+                yoloDetector = new YoloObjectDetector.YoloObjectDetector(false);            //Instancie un detecteur avec un Wrappeur Yolo utilisant le GPU
+            }
 
             if (usingLidar)
             {
@@ -255,19 +259,16 @@ namespace Robot
             {
                 omniCamera = new BaslerCameraAdapter();
                 omniCamera.CameraInit();
-                omniCamera.BitmapImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
+                omniCamera.BitmapPanoramaImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
             }
 
             if (usingImageExtractor && usingCamera)
             {
                 imgSaver = new ImageSaver.ImageSaver();
+                omniCamera.BitmapPanoramaImageEvent += imgSaver.OnSaveBitmapImage;
             }
 
-            if (usingYolo)
-            {
-                yoloDetector = new YoloObjectDetector.YoloObjectDetector(true);            //Instancie un detecteur avec un Wrappeur Yolo utilisant le GPU
-                
-            }
+           
 
             //Démarrage des interface de visualisation
             if (usingRobotInterface)
@@ -506,20 +507,22 @@ namespace Robot
         static void RegisterCameraInterfaceEvents(object sender, EventArgs e)
         {
             if (usingCamera || usingLogging)
+            {
                 //omniCamera.BitmapImageEvent += ConsoleCamera.DisplayBitmapImage;
-            //omniCamera.OpenCvMatImageEvent += ConsoleCamera.DisplayOpenCvMatImage;
+                //absolutePositionEstimator.OnBitmapImageProcessedEvent += ConsoleCamera.DisplayBitmapImage;
+                //omniCamera.BitmapPanoramaImageEvent += ConsoleCamera.DisplayBitmapImage;
+            }
 
             if (usingLogReplay)
             {
                 //logReplay.OnCameraImageEvent += ConsoleCamera.DisplayOpenCvMatImage;                
             }
             
-            absolutePositionEstimator.OnBitmapImageProcessedEvent += ConsoleCamera.DisplayBitmapImage;
             if (usingYolo)
             {
-                //absolutePositionEstimator.OnBitmapImageProcessedEvent += yoloDetector.DetectAndLabel;        //On envoie l'image dewrappée dans le detecteur Yolo, et on effectue la detection avec les poids UTLN
-                //yoloDetector.OnYoloBitmapImageProcessedAndLabelledEvent += ConsoleCamera.DisplayBitmapImage;       //Event d'image processée et labelisée
-                yoloDetector.OnYoloImageProcessedAndLabelled_LabelEvent += ConsoleCamera.DisplayMessageInConsole;       //Permet d'afficher du txt dans la console camera
+                omniCamera.BitmapPanoramaImageEvent += yoloDetector.SetNewYoloImageToProcess;        //On envoie l'image dewrappée dans le detecteur Yolo, et on effectue la detection avec les poids UTLN
+                yoloDetector.OnYoloBitmapImageProcessedAndLabelledEvent += ConsoleCamera.DisplayBitmapImage;       //Event d'image processée et labelisée
+                //yoloDetector.OnYoloImageProcessedAndLabelled_LabelEvent += ConsoleCamera.DisplayMessageInConsole;       //Permet d'afficher du txt dans la console camera
             }
 
         }

@@ -4,8 +4,10 @@ using Emgu.CV.Structure;
 using EventArgsLibrary;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Threading.Tasks;
 
 namespace CameraAdapter
 {
@@ -66,6 +68,8 @@ namespace CameraAdapter
         {
             GrabOver = true;
         }
+
+        Stopwatch sw = new Stopwatch();
         private void StreamGrabber_ImageGrabbed(object sender, ImageGrabbedEventArgs e)
         {
             IGrabResult grabResult = e.GrabResult;
@@ -73,15 +77,20 @@ namespace CameraAdapter
             {
                 if (GrabOver)
                 {
-                    var handler = BitmapImageEvent;
-                    if (handler != null)
-                    {
-                        Bitmap bitmap = GrabResult2Bmp(grabResult);
-                        OnBitmapImageReceived(bitmap);
-                        //Image<Bgr, Byte> imageCV = new Image<Bgr, byte>(bitmap); //Image Class from Emgu.CV
-                        //Mat mat = imageCV.Mat;
-                        //OnOpenCvMatImageReceived(mat);
-                    }
+                    Bitmap bitmap = GrabResult2Bmp(grabResult);
+                    OnBitmapFishEyeImageReceived(bitmap);
+
+                        //Conversion en panorama
+                    sw.Restart();
+                    Bitmap BitmapPanoramaImage = FishEyeToPanorama(bitmap);
+                    sw.Stop();
+                    Console.WriteLine("FishEyeToPano3:" + sw.ElapsedMilliseconds);
+                    
+                    OnBitmapPanoramaImageReceived(BitmapPanoramaImage);
+                    //OnBitmapImageReceived(bitmap);
+                    //Image<Bgr, Byte> imageCV = new Image<Bgr, byte>(bitmap); //Image Class from Emgu.CV
+                    //Mat mat = imageCV.Mat;
+                    //OnOpenCvMatImageReceived(mat);                
                 }
             }
         }
@@ -144,6 +153,107 @@ namespace CameraAdapter
             }
         }
 
+        public Bitmap FishEyeToPanorama(Bitmap originalImage)
+        {
+            //DOc fonction de manipulation des bitmap en natif
+            //https://stackoverflow.com/questions/1563038/fast-work-with-bitmaps-in-c-sharp
+            //Perf à peu près identiques à celles de OpenCV, mais sans avoir besoind e faire les conversions au départ.
+
+            double panoramaGlobalScale = 0.75;
+            double panoramaYScale = 1.85;
+
+            //byte[,,] data = (byte[,,])originalImage.;
+            int originalWidth = originalImage.Width;
+            int originalHeight = originalImage.Height;
+            byte bytesPerPixel = 3;
+
+            //On suppose qu'on a la bonne taille de cercle de départ
+            int RayonCercle = (int)(originalImage.Height / 2);
+
+            int unprocessedRadius = 100;
+            int heightPanorama = (int)((RayonCercle/*-unprocessedRadius*/) * panoramaGlobalScale * panoramaYScale);
+            int widthPanorama = (int)(RayonCercle * 2 * Math.PI * panoramaGlobalScale);
+            int bottomMargin = (int)(unprocessedRadius * panoramaGlobalScale * panoramaYScale);
+            int heightPanoramaCropped = heightPanorama - bottomMargin;
+
+            BitmapData bmpDataOriginal = originalImage.LockBits(new Rectangle(0, 0, originalImage.Width, originalImage.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            byte[] originalData = new byte[originalHeight * originalWidth * bytesPerPixel];
+            System.Runtime.InteropServices.Marshal.Copy(bmpDataOriginal.Scan0, originalData, 0, originalHeight * originalWidth * bytesPerPixel);
+
+            //Creation de la Bitmap Panorama
+            Bitmap bmpPanorama = new Bitmap(widthPanorama, heightPanoramaCropped);
+            BitmapData bmpDataPanorama = bmpPanorama.LockBits(new Rectangle(0, 0, widthPanorama, heightPanoramaCropped), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+
+            int sizePanorama = heightPanoramaCropped * widthPanorama * bytesPerPixel;
+            byte[] panoramaData = new byte[sizePanorama];
+
+            //On calcule la lookup table des sinus et cosinus au premier passage uniquement (ou si la taille change)
+            if (initSize != widthPanorama)
+            {
+                PrepareLUTCoSi((int)(widthPanorama), RayonCercle, panoramaGlobalScale);
+            }
+
+            //Parallelisation des boucles en utilisant une expression lambda
+            Parallel.For(0, widthPanorama, (x) =>
+            //for(int x=0; x< widthPanorama; x++)
+            {
+                for (int j = 0; j < heightPanorama - bottomMargin; j++)
+                {
+                    int y = heightPanorama - j - 1;
+                    if (y > bottomMargin)
+                    {
+                        int xPos = (int)(originalHeight / 2 + (y / panoramaGlobalScale / panoramaYScale) * cosRTab[x]);
+                        int yPos = (int)(originalWidth / 2 + (y / panoramaGlobalScale / panoramaYScale) * sinRTab[x]);
+                        if (xPos < originalHeight && xPos > 0 && yPos < originalWidth && yPos > 0)
+                        {
+                            if (x == widthPanorama - 1)
+                                ;
+                            int panoramaDataPos = (int)(x * 3 + (j) * bmpDataPanorama.Stride);
+                            int originalDataPos = (int)(xPos * 3 + yPos * bmpDataOriginal.Stride);
+                            if (panoramaDataPos < panoramaData.Length - 3)
+                            {
+                                panoramaData[panoramaDataPos] = originalData[originalDataPos];        //Methode d'acces la plus rapide apres l'acces par pointeur
+                                panoramaData[panoramaDataPos + 1] = originalData[originalDataPos + 1];
+                                panoramaData[panoramaDataPos + 2] = originalData[originalDataPos + 2];
+                            }
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                }
+            });
+
+            // This override copies the data back into the location specified 
+            System.Runtime.InteropServices.Marshal.Copy(panoramaData, 0, bmpDataPanorama.Scan0, sizePanorama);
+
+            bmpPanorama.UnlockBits(bmpDataPanorama);
+            originalImage.UnlockBits(bmpDataOriginal);
+            return bmpPanorama;
+        }
+
+        float[] cosRTab = null;
+        float[] sinRTab = null;
+        int initSize = 0;
+        void PrepareLUTCoSi(int length, int rayon, double scale)
+        {
+            initSize = length;
+            if (cosRTab == null)
+            {
+                cosRTab = new float[length];
+            }
+            if (sinRTab == null)
+            {
+                sinRTab = new float[length];
+            }
+            for (int i = 0; i < length; i++)
+            {
+                cosRTab[i] = (float)Math.Cos((float)i / scale / rayon + Math.PI / 2);
+                sinRTab[i] = (float)Math.Sin((float)i / scale / rayon + Math.PI / 2);
+            }
+        }
+
         //Output events
         //public delegate void CameraImageEventHandler(object sender, CameraImageArgs e);
         //public event EventHandler<CameraImageArgs> CameraImageEvent;
@@ -170,13 +280,23 @@ namespace CameraAdapter
         //    }
         //}
 
-        public event EventHandler<BitmapImageArgs> BitmapImageEvent;
-        public virtual void OnBitmapImageReceived(Bitmap bmp)
+        public event EventHandler<BitmapImageArgs> BitmapFishEyeImageEvent;
+        public virtual void OnBitmapFishEyeImageReceived(Bitmap bmp)
         {
-            var handler = BitmapImageEvent;
+            var handler = BitmapFishEyeImageEvent;
             if (handler != null)
             {
-                handler(this, new BitmapImageArgs { Bitmap = bmp, Descriptor = "ImageFromCamera" });
+                handler(this, new BitmapImageArgs { Bitmap = bmp, Descriptor = "FishEyeImageFromCamera" });
+            }
+        }
+
+        public event EventHandler<BitmapImageArgs> BitmapPanoramaImageEvent;
+        public virtual void OnBitmapPanoramaImageReceived(Bitmap bmp)
+        {
+            var handler = BitmapPanoramaImageEvent;
+            if (handler != null)
+            {
+                handler(this, new BitmapImageArgs { Bitmap = bmp, Descriptor = "PanoramaImageFromCamera" });
             }
         }
     }

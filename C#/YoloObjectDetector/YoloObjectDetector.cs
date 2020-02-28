@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Alturos;
 using Alturos.Yolo;
@@ -22,7 +23,7 @@ namespace YoloObjectDetector
         YoloWrapper wrap = null;
         string defaultConfigurationPath = "..\\..\\..\\..\\_YoloConfiguration\\MSLRobotBallonButDetection\\";//
         string yoloCFGFileName = "yolov3-MSLRobotBallonButDetection.cfg";
-        string yoloWeightsFileName = "yolov3-MSLRobotBallonButDetection_final2.weights";
+        string yoloWeightsFileName = "yolov3-MSLRobotBallonButDetection_final.weights";
         string yoloNamesFileName = "MSLRobotBallonButDetection.names";
         public YoloObjectDetector(bool ignoreGPU)
         {
@@ -49,28 +50,50 @@ namespace YoloObjectDetector
             {
                // throw new Exception("Couldn't open yolo");
             }
-           
 
+
+            new Thread(DetectAndLabel).Start();
 
         }
         public void Dispose()
         {
             wrap?.Dispose();
         }
-        public void DetectAndLabel(object sender, EventArgsLibrary.OpenCvMatImageArgs e)
+
+        bool newImageAvailable = true;
+        Bitmap currentImage;
+        string currentImageDescriptor;
+        public void SetNewYoloImageToProcess(object sender, EventArgsLibrary.BitmapImageArgs e)
         {
-            e.Descriptor = "ImageDebug3";
-            var sw = new Stopwatch();
-            sw.Start();
-            YoloMatItemInfo yoloInfo = DetectAndLabelAngGetItem(e.Mat);
-            sw.Stop();
-            OnYoloImageProcessedAndLabelledReady(yoloInfo.mat, e.Descriptor);
-            string str="";
-            foreach(YoloItem item in yoloInfo.items)
+            currentImage = e.Bitmap;
+            currentImageDescriptor = e.Descriptor;
+        }
+        public void DetectAndLabel()
+        {
+            while (true)
             {
-                str += "Object: " + item.Type + " Conf: " + item.Confidence.ToString("F2") + " Pos: X: " + item.X + " Y: " + item.Y + " Width: " + item.Width + " Heigth: " +item.Height+ " Process Time:" + sw.ElapsedMilliseconds+"ms\n";
+                if (newImageAvailable && currentImage!= null)
+                {
+                    currentImageDescriptor = "ImageDebug3";
+                    var sw = new Stopwatch();
+                    sw.Start();
+                    YoloItemListInfo yoloOutput = DetectAndLabelAngGetItem(currentImage);
+                    sw.Stop();
+                    Console.WriteLine("Temps de calcul Yolo : " + sw.Elapsed.TotalMilliseconds);
+
+                    //sortie items uniquement
+                    OnYoloItemList(yoloOutput); 
+
+                    //sortie bitmap et items entourés
+                    YoloBitmapItemInfo yoloBitmapInfo = new YoloBitmapItemInfo(DrawBorder2Image(currentImage, yoloOutput.items), yoloOutput.items);
+                    OnYoloImageProcessedAndLabelledReady(yoloBitmapInfo.bmp, currentImageDescriptor); 
+
+                }
+                else
+                {
+                    Thread.Sleep(5);
+                }
             }
-            OnYoloImageProcessedAndLabelled_LabelReady(str);
         }
         //convert image to bytearray
         public byte[] imgToByteArray(Image img)
@@ -121,6 +144,36 @@ namespace YoloObjectDetector
             }
             sw.Stop();
             return new YoloMatItemInfo(DrawBorder2Image(mat, items),items);
+        }
+
+        private YoloItemListInfo DetectAndLabelAngGetItem(Bitmap bmp)
+        {
+
+            if (this.wrap == null)
+            {
+                return null;
+            }
+
+            var memoryTransfer = true;
+
+            //var imageInfo = this.GetCurrentImage();
+            //var imageData = File.ReadAllBytes(imageInfo.Path);
+
+            var sw = new Stopwatch();
+            sw.Start();
+            List<YoloItem> items = null;
+            if (memoryTransfer)
+            {
+
+                byte[] byteArray = BitmapDataFromBitmap(bmp, ImageFormat.Bmp);
+                items = this.wrap.Detect(byteArray).ToList();
+            }
+            else
+            {
+                //items = this.wrap.Detect(imageInfo.Path).ToList();
+            }
+            sw.Stop();
+            return new YoloItemListInfo(items);
         }
 
         private Mat DetectAndLabel(Mat mat)
@@ -190,20 +243,53 @@ namespace YoloObjectDetector
             return im.Mat;
         }
 
+        private Bitmap DrawBorder2Image(Bitmap bmp, List<YoloItem> items, YoloItem selectedItem = null)
+        {
+            //Load the image(probably from your stream)
+            Image<Bgr, Byte> im = null;
+            using (var canvas = Graphics.FromImage(bmp))
+            {
+                // Modify the image using g here... 
+                // Create a brush with an alpha value and use the g.FillRectangle function
+                foreach (var item in items)
+                {
+                    var x = item.X;
+                    var y = item.Y;
+                    var width = item.Width;
+                    var height = item.Height;
+
+                    using (var overlayBrush = new SolidBrush(Color.FromArgb(150, 255, 255, 102)))
+                    using (var pen = this.GetBrush(item.Confidence, bmp.Width))
+                    {
+                        //if (item.Equals(selectedItem))
+                        //{
+                        //    canvas.FillRectangle(overlayBrush, x, y, width, height);
+                        //}
+
+                        canvas.DrawRectangle(pen, x, y, width, height);
+                        canvas.Flush();
+                    }
+                }
+               // im = new Image<Bgr, Byte>(bmp);
+            }
+
+            return bmp;
+        }
+
         private Pen GetBrush(double confidence, int width)
         {
-            var size = width / 100;
+            var size = width / 100; //100
 
             if (confidence > 0.5)
             {
-                return new Pen(Brushes.GreenYellow, size);
+                return new Pen(Brushes.Red, size);
             }
             else if (confidence > 0.2 && confidence <= 0.5)
             {
-                return new Pen(Brushes.Orange, size);
+                return new Pen(Brushes.Red, size);
             }
 
-            return new Pen(Brushes.DarkRed, size);
+            return new Pen(Brushes.Transparent, size);
         }
 
         public event EventHandler<OpenCvMatImageArgs> OnYoloImageProcessedAndLabelledEvent;
@@ -216,15 +302,26 @@ namespace YoloObjectDetector
             }
         }
 
-        public event EventHandler<StringEventArgs> OnYoloImageProcessedAndLabelled_LabelEvent;
-        public virtual void OnYoloImageProcessedAndLabelled_LabelReady( string str)
+        public event EventHandler<BitmapImageArgs> OnYoloBitmapImageProcessedAndLabelledEvent;
+        public virtual void OnYoloImageProcessedAndLabelledReady(Bitmap bmp, string descriptor)
         {
-            var handler = OnYoloImageProcessedAndLabelled_LabelEvent;
+            var handler = OnYoloBitmapImageProcessedAndLabelledEvent;
             if (handler != null)
             {
-                handler(this, new StringEventArgs {  value=str});
+                handler(this, new BitmapImageArgs {  Bitmap=bmp, Descriptor = descriptor });
             }
         }
+
+        public event EventHandler<YoloItemListInfoArgs> OnYoloItemListEvent;
+        public virtual void OnYoloItemList(YoloItemListInfo yoloInfo)
+        {
+            var handler = OnYoloItemListEvent;
+            if (handler != null)
+            {
+                handler(this, new YoloItemListInfoArgs {  YoloResult = yoloInfo});
+            }
+        }
+
     }
     public class YoloMatItemInfo
     {
@@ -241,5 +338,35 @@ namespace YoloObjectDetector
             mat = inMat;
             items = lst;
         }
+    }
+    public class YoloBitmapItemInfo
+    {
+        public Bitmap bmp;
+        public List<YoloItem> items;
+
+        //public YoloBitmapItemInfo()
+        //{
+        //    bmp = new Bitmap(,;
+        //    items = new List<YoloItem>();
+        //}
+        public YoloBitmapItemInfo(Bitmap inBmp, List<YoloItem> lst)
+        {
+            bmp = inBmp;
+            items = lst;
+        }
+    }
+    public class YoloItemListInfo
+    {
+        public List<YoloItem> items;
+
+        public YoloItemListInfo(List<YoloItem> lst)
+        {
+            items = lst;
+        }
+    }
+    
+    public class YoloItemListInfoArgs : EventArgs
+    {
+        public YoloItemListInfo YoloResult { get; set; }
     }
 }

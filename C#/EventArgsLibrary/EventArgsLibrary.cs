@@ -231,4 +231,5 @@ namespace EventArgsLibrary
         public Bitmap Bitmap { get; set; }
         public string Descriptor { get; set; }
     }
+
 }

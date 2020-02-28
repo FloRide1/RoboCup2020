@@ -63,7 +63,7 @@ namespace RobotMonitor
             string descriptor = e.Descriptor;
             switch (descriptor)
             {
-                case "ImageFromCamera":
+                case "PanoramaImageFromCamera":
                     sw.Restart();
                     Dispatcher.Invoke(new Action(delegate ()
                     {
@@ -79,7 +79,10 @@ namespace RobotMonitor
                     }));
                     break;
                 case "ImageDebug3":
-                    //imageCamera3.Source = ImageSourceFromBitmap(image);
+                    Dispatcher.Invoke(new Action(delegate ()
+                    {
+                        imageCamera3.Source = ImageSourceFromBitmap(e.Bitmap);
+                    }));
                     break;
                 case "ImageDebug4":
                     //imageCamera4.Source = ImageSourceFromBitmap(image);
