@@ -167,7 +167,7 @@ namespace PositionEstimator
             //On test si on a initialisé le tableau des sinus/cosinus a la bonne taille
             if (initSize != widthPanorama)
             {
-                PrepareLUTCoSi(widthPanorama, RayonCercle);
+                PrepareLUTCoSi(widthPanorama, RayonCercle, 1.0);
             }
 
             //Parallelisation des boucles en utilisant une expression lambda
@@ -193,7 +193,11 @@ namespace PositionEstimator
 
         public Bitmap FishEyeToPanorama3(Bitmap originalImage)
         {
+            //DOc fonction de manipulation des bitmap en natif
             //https://stackoverflow.com/questions/1563038/fast-work-with-bitmaps-in-c-sharp
+            //Perf à peu près identiques à celles de OpenCV, mais sans avoir besoind e faire les conversions au départ.
+
+            double panoramaScale = 0.5;
 
             //byte[,,] data = (byte[,,])originalImage.;
             int originalWidth = originalImage.Width;  
@@ -202,55 +206,59 @@ namespace PositionEstimator
 
             //On suppose qu'on a la bonne taille de cercle de départ
             int RayonCercle = (int)(originalImage.Height / 2);
-            int heightPanorama = RayonCercle;
-            int widthPanorama = (int)(RayonCercle * 2 * Math.PI);
+
+            int unprocessedRadius = 100;
+            int heightPanorama = (int)((RayonCercle/*-unprocessedRadius*/)* panoramaScale);
+            int widthPanorama = (int)(RayonCercle * 2 * Math.PI* panoramaScale);            
+            int bottomMargin = (int)(unprocessedRadius * panoramaScale);
+            int heightPanoramaCropped = heightPanorama - bottomMargin;
 
             BitmapData bmpDataOriginal = originalImage.LockBits(new Rectangle(0, 0, originalImage.Width, originalImage.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
             byte[] originalData = new byte[originalHeight * originalWidth * bytesPerPixel];
             System.Runtime.InteropServices.Marshal.Copy(bmpDataOriginal.Scan0, originalData, 0, originalHeight * originalWidth * bytesPerPixel);
 
             //Creation de la Bitmap Panorama
-            Bitmap bmpPanorama = new Bitmap(widthPanorama, heightPanorama);
-            BitmapData bmpDataPanorama = bmpPanorama.LockBits(new Rectangle(0, 0, widthPanorama, heightPanorama), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            Bitmap bmpPanorama = new Bitmap(widthPanorama, heightPanoramaCropped);
+            BitmapData bmpDataPanorama = bmpPanorama.LockBits(new Rectangle(0, 0, widthPanorama, heightPanoramaCropped), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
 
-            int sizePanorama = heightPanorama * widthPanorama * bytesPerPixel;
+            int sizePanorama = heightPanoramaCropped * widthPanorama * bytesPerPixel;
             byte[] panoramaData = new byte[sizePanorama];
                        
             //On calcule la lookup table des sinus et cosinus au premier passage uniquement (ou si la taille change)
             if (initSize != widthPanorama)
             {
-                PrepareLUTCoSi(widthPanorama, RayonCercle);
+                PrepareLUTCoSi((int)(widthPanorama), RayonCercle, panoramaScale);
             }
 
             //Parallelisation des boucles en utilisant une expression lambda
             Parallel.For(0, widthPanorama, (x) =>
             //for(int x=0; x< widthPanorama; x++)
             {
-                for (int y = 0; y < heightPanorama; y++)
+                for (int j = 0; j < heightPanorama - bottomMargin; j++)
                 {
-                    int xPos = (int)(originalHeight / 2 + (heightPanorama - 1 - y) * cosRTab[x]);
-                    int yPos = (int)(originalWidth / 2 + (heightPanorama - 1 - y) * sinRTab[x]);
-                    if (xPos < originalHeight && xPos > 0 && yPos < originalWidth && yPos > 0)
+                    int y = heightPanorama - j - 1;
+                    if (y > bottomMargin)
                     {
-                        int panoramaDataPos = x * 3 + y * bmpDataPanorama.Stride;
-                        int originalDataPos = xPos * 3 + yPos * bmpDataOriginal.Stride;
-                        if (panoramaDataPos < panoramaData.Length - 3)
+                        int xPos = (int)(originalHeight / 2 + (y / panoramaScale) * cosRTab[x]);
+                        int yPos = (int)(originalWidth / 2 + (y / panoramaScale) * sinRTab[x]);
+                        if (xPos < originalHeight && xPos > 0 && yPos < originalWidth && yPos > 0)
                         {
-                            panoramaData[panoramaDataPos] = originalData[originalDataPos];        //Methode d'acces la plus rapide apres l'acces par pointeur
-                            panoramaData[panoramaDataPos + 1] = originalData[originalDataPos + 1];
-                            panoramaData[panoramaDataPos + 2] = originalData[originalDataPos + 2];
+                            if (x == widthPanorama - 1)
+                                ;
+                            int panoramaDataPos = (int)(x * 3 + (j ) * bmpDataPanorama.Stride);
+                            int originalDataPos = (int)(xPos * 3 + yPos * bmpDataOriginal.Stride);
+                            if (panoramaDataPos < panoramaData.Length - 3)
+                            {
+                                panoramaData[panoramaDataPos] = originalData[originalDataPos];        //Methode d'acces la plus rapide apres l'acces par pointeur
+                                panoramaData[panoramaDataPos + 1] = originalData[originalDataPos + 1];
+                                panoramaData[panoramaDataPos + 2] = originalData[originalDataPos + 2];
+                            }
+                        }
+                        else
+                        {
+
                         }
                     }
-                    else
-                    {
-
-                    }
-                    //if (y<heightPanorama/2)
-                    //{
-                    //    panoramaData[(x * 3 + y * bmpDataPanorama.Stride) ] = 255;
-                    //    panoramaData[(x * 3 + y * bmpDataPanorama.Stride) + 1] = 0;
-                    //    panoramaData[(x * 3 + y * bmpDataPanorama.Stride) + 2] = 0;
-                    //}
                 }
             });
 
@@ -265,7 +273,7 @@ namespace PositionEstimator
         float[] cosRTab = null;
         float[] sinRTab = null;
         int initSize = 0;
-        void PrepareLUTCoSi(int length, int rayon)
+        void PrepareLUTCoSi(int length, int rayon, double scale)
         {
             initSize = length;
             if(cosRTab == null)
@@ -278,8 +286,8 @@ namespace PositionEstimator
             }
             for(int i=0;i<length;i++)
             {
-                cosRTab[i] = (float)Math.Cos((float)i / rayon + Math.PI/2);
-                sinRTab[i] = (float)Math.Sin((float)i / rayon + Math.PI/2);
+                cosRTab[i] = (float)Math.Cos((float)i/scale / rayon + Math.PI/2);
+                sinRTab[i] = (float)Math.Sin((float)i/scale / rayon + Math.PI/2);
             }
         }
 

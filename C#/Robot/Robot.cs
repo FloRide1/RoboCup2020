@@ -506,7 +506,7 @@ namespace Robot
         static void RegisterCameraInterfaceEvents(object sender, EventArgs e)
         {
             if (usingCamera || usingLogging)
-                omniCamera.BitmapImageEvent += ConsoleCamera.DisplayBitmapImage;
+                //omniCamera.BitmapImageEvent += ConsoleCamera.DisplayBitmapImage;
             //omniCamera.OpenCvMatImageEvent += ConsoleCamera.DisplayOpenCvMatImage;
 
             if (usingLogReplay)
