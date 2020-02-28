@@ -42,7 +42,7 @@ namespace CameraAdapter
 
                 camera.Parameters[PLCamera.GevSCPSPacketSize].SetValue(8192);       //Réglage du packet Size à 8192
                 camera.Parameters[PLCamera.GevSCPD].SetValue(10000);                //Réglage de l'inter packet delay à 10000
-                camera.Parameters[PLCamera.AcquisitionFrameRateAbs].SetValue(50);   //Réglage du framerate en fps
+                camera.Parameters[PLCamera.AcquisitionFrameRateAbs].SetValue(30);   //Réglage du framerate en fps
                 camera.Parameters[PLCamera.GevHeartbeatTimeout].SetValue(5000);     //Réglage du heart beat (timout)
                 camera.Parameters[PLCamera.Width].SetValue(860);
                 camera.Parameters[PLCamera.Height].SetValue(860);

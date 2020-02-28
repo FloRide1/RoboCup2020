@@ -259,7 +259,7 @@ namespace Robot
             {
                 omniCamera = new BaslerCameraAdapter();
                 omniCamera.CameraInit();
-                omniCamera.BitmapPanoramaImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
+                //omniCamera.BitmapPanoramaImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
             }
 
             if (usingImageExtractor && usingCamera)

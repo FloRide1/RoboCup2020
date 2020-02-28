@@ -21,13 +21,30 @@ namespace YoloObjectDetector
     {
         YoloConfiguration yoloConfig = null;
         YoloWrapper wrap = null;
+        bool useYoloV3 = true;
+        bool useTiny = false;
         string defaultConfigurationPath = "..\\..\\..\\..\\_YoloConfiguration\\MSLRobotBallonButDetection\\";//
         string yoloCFGFileName = "yolov3-MSLRobotBallonButDetection.cfg";
         string yoloWeightsFileName = "yolov3-MSLRobotBallonButDetection_final.weights";
         string yoloNamesFileName = "MSLRobotBallonButDetection.names";
+        
         public YoloObjectDetector(bool ignoreGPU)
         {
-           // try
+            if (useYoloV3)
+            {
+                defaultConfigurationPath = "..\\..\\..\\..\\_YoloConfiguration\\MSLRobotBallonButDetection\\";//
+                yoloCFGFileName = "yolov3-MSLRobotBallonButDetection.cfg";
+                yoloWeightsFileName = "yolov3-MSLRobotBallonButDetection_final.weights";
+                yoloNamesFileName = "MSLRobotBallonButDetection.names";
+            }
+            else if(useTiny)
+            {
+                defaultConfigurationPath = "..\\..\\..\\..\\_YoloConfiguration\\TinyYolo\\";//
+                yoloCFGFileName = "yolov2-tiny-voc.cfg";
+                yoloWeightsFileName = "yolov2-tiny-voc.weights";
+                yoloNamesFileName = "voc.names";
+            }
+            // try
             {
                 if (this.wrap != null)
                 {
@@ -74,7 +91,6 @@ namespace YoloObjectDetector
             {
                 if (newImageAvailable && currentImage!= null)
                 {
-                    currentImageDescriptor = "ImageDebug3";
                     var sw = new Stopwatch();
                     sw.Start();
                     YoloItemListInfo yoloOutput = DetectAndLabelAngGetItem(currentImage);
@@ -86,6 +102,7 @@ namespace YoloObjectDetector
 
                     //sortie bitmap et items entourés
                     YoloBitmapItemInfo yoloBitmapInfo = new YoloBitmapItemInfo(DrawBorder2Image(currentImage, yoloOutput.items), yoloOutput.items);
+                    currentImageDescriptor = "ImageDebug3";
                     OnYoloImageProcessedAndLabelledReady(yoloBitmapInfo.bmp, currentImageDescriptor); 
 
                 }
@@ -278,7 +295,7 @@ namespace YoloObjectDetector
 
         private Pen GetBrush(double confidence, int width)
         {
-            var size = width / 100; //100
+            var size = width / 300; //100
 
             if (confidence > 0.5)
             {
