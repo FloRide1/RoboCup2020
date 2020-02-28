@@ -40,8 +40,7 @@ namespace CameraAdapter
 
                 camera.Parameters[PLCamera.GevSCPSPacketSize].SetValue(8192);       //Réglage du packet Size à 8192
                 camera.Parameters[PLCamera.GevSCPD].SetValue(10000);                //Réglage de l'inter packet delay à 10000
-                camera.Parameters[PLCamera.ExposureTimeAbs].SetValue(25000);        //Réglage du temps d'exposition à 40Hz - 25.000 us
-                camera.Parameters[PLCamera.AcquisitionFrameRateAbs].SetValue(40);   //Réglage du framerate en fps
+                camera.Parameters[PLCamera.AcquisitionFrameRateAbs].SetValue(50);   //Réglage du framerate en fps
                 camera.Parameters[PLCamera.GevHeartbeatTimeout].SetValue(5000);     //Réglage du heart beat (timout)
                 camera.Parameters[PLCamera.Width].SetValue(860);
                 camera.Parameters[PLCamera.Height].SetValue(860);
@@ -51,6 +50,11 @@ namespace CameraAdapter
                 //camera.Parameters[PLCamera.OffsetY].SetValue(148);
                 camera.Parameters[PLCamera.ReverseX].SetValue(true);
                 camera.Parameters[PLCamera.ReverseY].SetValue(true);
+
+                //Parametre d'acquisition image
+                camera.Parameters[PLCamera.ExposureTimeAbs].SetValue(1000);        //Réglage du temps d'exposition à 40Hz - 25.000 us
+                camera.Parameters[PLCamera.GainRaw].SetValue(300);
+
 
                 camera.Parameters[PLCamera.LightSourceSelector].SetValue(PLCamera.LightSourceSelector.Daylight6500K);
 

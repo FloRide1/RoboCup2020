@@ -27,15 +27,26 @@ namespace LidarOMD60M
 {
     public class Lidar_OMD60M_TCP
     {
-        R2000Scanner r2000; 
+        R2000Scanner r2000;
+
+        List<PolarPoint> lastLidarPtList = new List<PolarPoint>();
+        int lastScanNumber;
+        bool newLidarDataAvailable = false;
 
         public Lidar_OMD60M_TCP()
+        {
+            new Thread(LidarStartAndAcquire).Start();
+            new Thread(LidarSendEvent).Start();
+        }
+
+
+        private void LidarStartAndAcquire()
         {
             using (r2000 = new R2000Scanner(IPAddress.Parse("169.254.235.44"), R2000ConnectionType.TCPConnection))
             {
                 r2000.Connect();
                 r2000.SetSamplingRate(R2000SamplingRate._8kHz);
-                r2000.SetScanFrequency(50);
+                r2000.SetScanFrequency(20);
                 r2000.SetSamplingRate(R2000SamplingRate._252kHz);
 
                 r2000.OnlyStatusEvents().Subscribe(ev =>
@@ -51,13 +62,40 @@ namespace LidarOMD60M
                     .BufferByScan()
                     .Subscribe(x =>
                     {
-                    //Console.WriteLine($"Scans per second: {x.Count}");
-                    Console.WriteLine($"Got {x.Count} points for scan {x.Scan} / Min {x.Points.Min(pt => pt.Azimuth)} :: Max {x.Points.Max(pt => pt.Azimuth)}");
-
+                        //Console.WriteLine($"Scans per second: {x.Count}");
+                        lastLidarPtList = new List<PolarPoint>(x.Points.Select(pt => new PolarPoint(pt.Distance/1000, Utilities.Toolbox.DegToRad(pt.Azimuth))));
+                        lastScanNumber = (int)x.Scan;
+                        newLidarDataAvailable = true;
+                        //Console.WriteLine($"Got {x.Count} points for scan {x.Scan} / Min {x.Points.Min(pt => pt.Azimuth)} :: Max {x.Points.Max(pt => pt.Azimuth)}");
                     });
 
 
                 r2000.StartScan();
+
+                while (true)
+                {
+                    Thread.Sleep(5);
+                }
+            }
+        }
+
+        private void LidarSendEvent()
+        {
+            while (true)
+            {
+                if (newLidarDataAvailable)
+                {
+                    //lock(lastLidarPtList)
+                    {
+                        OnLidarDecodedFrame((int)TeamId.Team1, lastLidarPtList, lastScanNumber); //TODO on creuse le bug de lag
+                        //Console.WriteLine(lastScanNumber + " Envoi de la trame lidar sur event");
+                        newLidarDataAvailable = false;
+                    }
+                }
+                else
+                {
+                    Thread.Sleep(5);
+                }
             }
         }
 

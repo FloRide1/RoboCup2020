@@ -118,7 +118,7 @@ namespace Robot
 
 
         static bool usingRobotInterface = true;
-        static bool usingCameraInterface = false;
+        static bool usingCameraInterface = true;
         static bool usingReplayNavigator = true;
 
         //static HighFreqTimer highFrequencyTimer;
@@ -166,38 +166,7 @@ namespace Robot
         }
         static void Main(string[] args)
         {
-            using (var r2000 = new R2000Scanner(IPAddress.Parse("169.254.235.44"), R2000ConnectionType.TCPConnection))
-            {
-                r2000.Connect();
-                //r2000.SetSamplingRate(R2000SamplingRate._8kHz);
-                r2000.SetScanFrequency(20);
-                r2000.SetSamplingRate(R2000SamplingRate._12kHz);
-
-                
-                r2000.OnlyStatusEvents().Subscribe(ev =>
-                {
-                    var oldColor = Console.ForegroundColor;
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.WriteLine($"Event: {ev.Level.ToString()} / {ev.Message}");
-                    Console.ForegroundColor = oldColor;
-                });
-
-
-                r2000.OnlyLidarPoints()
-                    .BufferByScan()
-                    .Subscribe(x =>
-                    {
-                        //Console.WriteLine($"Scans per second: {x.Count}");
-                        Console.WriteLine($"Got {x.Count} points for scan {x.Scan} / Min {x.Points.Min(pt => pt.Azimuth)} :: Max {x.Points.Max(pt => pt.Azimuth)}");
-
-                    });
-
-
-                r2000.StartScan();
-                while (true) ;
-            }
-
-                SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
+            SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
 
             SciChartSurface.SetRuntimeLicenseKey(@"<LicenseContract>
   <Customer>University of  Toulon</Customer>
@@ -213,7 +182,7 @@ namespace Robot
             {
                 case RobotMode.Standard:
                     usingLidar = true;
-                    usingCamera = false;
+                    usingCamera = true;
                     usingLogging = false;
                     usingLogReplay = false;
                     break;
@@ -266,8 +235,7 @@ namespace Robot
 
             if (usingLidar)
             {
-                //lidar_OMD60M_UDP = new Lidar_OMD60M_UDP(robotId);
-                //lidar_OMD60M_TCP = new Lidar_OMD60M_TCP();
+                lidar_OMD60M_TCP = new Lidar_OMD60M_TCP();
             }
 
             if (usingLidar || usingLogReplay)
@@ -287,14 +255,12 @@ namespace Robot
             {
                 omniCamera = new BaslerCameraAdapter();
                 omniCamera.CameraInit();
-                //omniCamera.OpenCvMatImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
                 omniCamera.BitmapImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
             }
 
             if (usingImageExtractor && usingCamera)
             {
                 imgSaver = new ImageSaver.ImageSaver();
-                //omniCamera.OpenCvMatImageEvent += imgSaver.OnSaveCVMatImage;
             }
 
             if (usingYolo)
@@ -360,7 +326,7 @@ namespace Robot
                 //lidar_OMD60M.OnLidarDecodedFrameEvent += lidarProcessor.OnRawLidarDataReceived;
                 //lidar_OMD60M.OnLidarDecodedFrameEvent += absolutePositionEstimator.OnRawLidarDataReceived;
                 //lidar_OMD60M_UDP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
-                //lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
+                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
                 //lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
             }
 
