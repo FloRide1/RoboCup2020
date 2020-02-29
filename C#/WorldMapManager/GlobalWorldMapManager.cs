@@ -188,6 +188,8 @@ namespace WorldMapManager
                 if (localWorldMapDictionary.Count > 0)
                     globalWorldMap.ballLocation = localWorldMapDictionary.First().Value.ballLocation;
                 globalWorldMap.teammateLocationList = new Dictionary<int, Location>();
+                globalWorldMap.teammateDestinationLocationList = new Dictionary<int, Location>();
+                globalWorldMap.teammateWayPointList = new Dictionary<int, Location>();
                 globalWorldMap.opponentLocationList = new List<Location>();
 
                 //On place tous les robots de l'équipe dans la global map
@@ -195,6 +197,10 @@ namespace WorldMapManager
                 {
                     //On ajoute la position des robots de l'équipe dans la WorldMap
                     globalWorldMap.teammateLocationList.Add(localMap.Key, localMap.Value.robotLocation);
+                    //On ajoute la destination des robots de l'équipe dans la WorldMap
+                    globalWorldMap.teammateDestinationLocationList.Add(localMap.Key, localMap.Value.destinationLocation);
+                    //On ajoute le waypoint courant des robots de l'équipe dans la WorldMap
+                    globalWorldMap.teammateWayPointList.Add(localMap.Key, localMap.Value.waypointLocation);
                 }
 
                 //On établit une liste des emplacements d'adversaires potentiels afin de les fusionner si possible
@@ -249,12 +255,16 @@ namespace WorldMapManager
                 }
 
                 //On valide les adversaires potentiels si ils ont été perçus plus d'une fois par les robots
-                for(int i=0; i< AdversairesPotentielsList.Count; i++)
+
+                lock (globalWorldMap.opponentLocationList)
                 {
-                    if (AdversairesPotentielsMatchOccurenceList[i] >= 2)
+                    for (int i = 0; i < AdversairesPotentielsList.Count; i++)
                     {
-                        var opponentLocation = AdversairesPotentielsList[i];
-                        globalWorldMap.opponentLocationList.Add(opponentLocation);
+                        if (AdversairesPotentielsMatchOccurenceList[i] >= 2)
+                        {
+                            var opponentLocation = AdversairesPotentielsList[i];
+                            globalWorldMap.opponentLocationList.Add(opponentLocation);
+                        }
                     }
                 }
             }

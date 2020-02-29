@@ -20,6 +20,7 @@ namespace WorldMap
         public Location ballLocation { get; set; }
         public Dictionary<int, Location> teammateLocationList { get; set; }
         public Dictionary<int, Location> teammateDestinationLocationList { get; set; }
+        public Dictionary<int, Location> teammateWayPointList { get; set; }
         public List<Location> opponentLocationList { get; set; }
         public List<Location> obstacleLocationList { get; set; }
 

@@ -18,6 +18,8 @@ namespace TeamInterface
         string TeamIpAddress = "224.16.32.79";
         string OpponentTeamIpAddress = "224.16.32.63";
 
+        DispatcherTimer timerAffichage;
+
         public WpfTeamInterface()
         {
             InitializeComponent();
@@ -35,11 +37,27 @@ namespace TeamInterface
                 globalWorldMapDisplayTeam2.InitTeamMate((int)TeamId.Team2 + i);
                 globalWorldMapDisplayTeam2.InitOpponent((int)TeamId.Team1 + i);
             }
+
+            timerAffichage = new DispatcherTimer();
+            timerAffichage.Interval = new TimeSpan(0, 0, 0, 0, 50);
+            timerAffichage.Tick += TimerAffichage_Tick; ;
+            timerAffichage.Start();
+        }
+
+        private void TimerAffichage_Tick(object sender, EventArgs e)
+        {
+            globalWorldMapDisplayTeam1.UpdateWorldMapDisplay();
+            globalWorldMapDisplayTeam2.UpdateWorldMapDisplay();
+            localWorldMapDisplay1.UpdateWorldMapDisplay();
+            localWorldMapDisplay2.UpdateWorldMapDisplay();
+            localWorldMapDisplay3.UpdateWorldMapDisplay();
+            localWorldMapDisplay4.UpdateWorldMapDisplay();
+            localWorldMapDisplay5.UpdateWorldMapDisplay();
+            localWorldMapDisplay6.UpdateWorldMapDisplay();
         }
 
         public void OnLocalWorldMapReceived(object sender, LocalWorldMapArgs e)
         {
-
             switch(e.LocalWorldMap.RobotId)
             {
                 case (int)TeamId.Team1+ (int)RobotId.Robot1:

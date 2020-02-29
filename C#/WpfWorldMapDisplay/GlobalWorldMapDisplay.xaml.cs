@@ -44,10 +44,10 @@ namespace WpfWorldMapDisplay
             InitializeComponent();
 
             //Timer de simulation
-            timerAffichage = new DispatcherTimer();
-            timerAffichage.Interval = new TimeSpan(0, 0, 0, 0, 100);
-            timerAffichage.Tick += TimerAffichage_Tick;
-            timerAffichage.Start();
+            //timerAffichage = new DispatcherTimer();
+            //timerAffichage.Interval = new TimeSpan(0, 0, 0, 0, 50);
+            //timerAffichage.Tick += TimerAffichage_Tick;
+            //timerAffichage.Start();
             InitSoccerField();
         }
 
@@ -79,7 +79,12 @@ namespace WpfWorldMapDisplay
             OpponentDisplayDictionary.Add(robotId, rd);
         }
 
-        private void TimerAffichage_Tick(object sender, EventArgs e)
+        //private void TimerAffichage_Tick(object sender, EventArgs e)
+        //{
+        //    UpdateWorldMapDisplay();
+        //}
+
+        public void UpdateWorldMapDisplay()
         {
             DrawBall();
             DrawTeam();
@@ -87,7 +92,7 @@ namespace WpfWorldMapDisplay
             ObjectsPolygonSeries.RedrawAll();
             BallPolygon.RedrawAll();
         }
-        
+
         public void UpdateGlobalWorldMap(GlobalWorldMap globalWorldMap)
         {
             lock (globalWorldMap.teammateLocationList)
@@ -97,6 +102,23 @@ namespace WpfWorldMapDisplay
                     UpdateRobotLocation(robotLoc.Key, robotLoc.Value);
                 }
             }
+
+            lock (globalWorldMap.teammateDestinationLocationList)
+            {
+                foreach (var robotDest in globalWorldMap.teammateDestinationLocationList)
+                {
+                    UpdateRobotDestination(robotDest.Key, robotDest.Value);
+                }
+            }
+
+            lock (globalWorldMap.teammateWayPointList)
+            {
+                foreach (var robotWayPointt in globalWorldMap.teammateWayPointList)
+                {
+                    UpdateRobotWaypoint(robotWayPointt.Key, robotWayPointt.Value);
+                }
+            }
+
             lock (globalWorldMap.opponentLocationList)
             {
                 int i = 0;

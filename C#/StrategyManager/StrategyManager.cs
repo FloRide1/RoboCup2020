@@ -10,6 +10,8 @@ using WorldMap;
 using HeatMap;
 using System.Diagnostics;
 using PerceptionManagement;
+using System.Timers;
+using Constants;
 
 namespace StrategyManager
 {
@@ -21,21 +23,79 @@ namespace StrategyManager
                 
         PlayerRole robotRole = PlayerRole.Stop;
         PointD robotDestination = new PointD(0, 0);
+        
+        Timer timerStrategy;
+
 
         public StrategyManager(int id)
         {
             robotId = id;
             //heatMap = new Heatmap(22.0, 14.0, 22.0/Math.Pow(2,8), 2); //Init HeatMap
             heatMap = new Heatmap(22.0, 14.0, 22.0 / Math.Pow(2, 8), 2); //Init HeatMap
+
+            timerStrategy = new Timer();
+            timerStrategy.Interval = 50;
+            timerStrategy.Elapsed += TimerStrategy_Elapsed;
+            timerStrategy.Start();
+        }
+
+        private void TimerStrategy_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            ProcessStrategy();
         }
 
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
         {
+            //Chaque joueur détermine sa stratégie
             globalWorldMap = e.GlobalWorldMap;
+            SetRobotRole();
+
             SetRobotDestination(robotRole);
-            ProcessStrategy();
         }
 
+        void SetRobotRole()
+        {
+            //On détermine les distances des joueurs à la balle
+            Dictionary<int, double> DictDistancePlayerBall = new Dictionary<int, double>();
+            var ballLocation = globalWorldMap.ballLocation;
+            foreach (var player in globalWorldMap.teammateLocationList)
+            {
+                //On exclut le gardien
+                if (player.Key != (int)TeamId.Team1 + (int)RobotId.Robot1 && player.Key != (int)TeamId.Team2 + (int)RobotId.Robot1)
+                {
+                    DictDistancePlayerBall.Add(player.Key, Toolbox.Distance(new PointD(player.Value.X, player.Value.Y), new PointD(ballLocation.X, ballLocation.Y)));
+                }
+            }
+
+            var OrderedDictDistancePlayerBall = DictDistancePlayerBall.OrderBy(p => p.Value);
+            for (int i = 0; i < OrderedDictDistancePlayerBall.Count(); i++)
+            {
+                if (OrderedDictDistancePlayerBall.ElementAt(i).Key == robotId)
+                {
+                    switch (i)
+                    {
+                        case 0:
+                            robotRole = PlayerRole.AttaquantAvecBalle;
+                            break;
+                        case 1:
+                            robotRole = PlayerRole.AttaquantPlace;
+                            break;
+                        case 2:
+                            robotRole = PlayerRole.Centre;
+                            break;
+                        default:
+                            robotRole = PlayerRole.Centre;
+                            break;
+                    }
+                }                
+            }
+
+            if (robotId == (int)TeamId.Team1 + (int)RobotId.Robot1 || robotId == (int)TeamId.Team2 + (int)RobotId.Robot1)
+            {
+                //Cas du gardien
+                robotRole = PlayerRole.Gardien;
+            }
+        }
         void SetRobotDestination(PlayerRole role)
         {
             switch (globalWorldMap.gameState)
@@ -43,51 +103,6 @@ namespace StrategyManager
                 case GameState.STOPPED:
                     if(globalWorldMap.teammateLocationList.ContainsKey(robotId))
                         robotDestination = new PointD(globalWorldMap.teammateLocationList[robotId].X, globalWorldMap.teammateLocationList[robotId].Y);
-                    break;
-                case GameState.STOPPED_GAME_POSITIONING:
-                    switch(globalWorldMap.stoppedGameAction)
-                    {
-                        case StoppedGameAction.KICKOFF:        
-                            switch(robotId)
-                            {
-                                case 10:
-                                    robotDestination = new PointD(10, 0);
-                                    break;
-                                case 11:
-                                    robotDestination = new PointD(-1, 2);
-                                    break;
-                                case 12:
-                                    robotDestination = new PointD(1, -2);
-                                    break;
-                                case 13:
-                                    robotDestination = new PointD(6, -3);
-                                    break;
-                                case 14:
-                                    robotDestination = new PointD(6, 3);
-                                    break;
-                            }
-                            break;
-                        case StoppedGameAction.KICKOFF_OPPONENT:
-                            switch (robotId)
-                            {
-                                case 10:
-                                    robotDestination = new PointD(10, 0);
-                                    break;
-                                case 11:
-                                    robotDestination = new PointD(1, 3);
-                                    break;
-                                case 12:
-                                    robotDestination = new PointD(1, -3);
-                                    break;
-                                case 13:
-                                    robotDestination = new PointD(6, -3);
-                                    break;
-                                case 14:
-                                    robotDestination = new PointD(6, 3);
-                                    break;
-                            }
-                            break;
-                    }
                     break;
                 case GameState.PLAYING:
                     //C'est ici qu'il faut calculer les fonctions de cout pour chacun des roles.
@@ -109,23 +124,23 @@ namespace StrategyManager
                             robotDestination = new PointD(6, -3);
                             break;
                         case PlayerRole.AttaquantAvecBalle:
-                            if (globalWorldMap.ballLocation != null)
-                                robotDestination = new PointD(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y);
-                            else
-                                robotDestination = new PointD(6, 0);
-                            //{
-                            //    if (globalWorldMap.ballLocation != null)
-                            //    {
-                            //        var ptInterception = GetInterceptionLocation(new Location(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y, 0, globalWorldMap.ballLocation.Vx, globalWorldMap.ballLocation.Vy, 0), new Location(fieldPos.X, fieldPos.Y, 0, 0, 0, 0), 3);
+                            //if (globalWorldMap.ballLocation != null)
+                            //    robotDestination = new PointD(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y);
+                            //else
+                            //    robotDestination = new PointD(6, 0);
+                            {
+                                if (globalWorldMap.ballLocation != null)
+                                {
+                                    var ptInterception = GetInterceptionLocation(new Location(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y, 0, globalWorldMap.ballLocation.Vx, globalWorldMap.ballLocation.Vy, 0), new Location(globalWorldMap.teammateLocationList[robotId].X, globalWorldMap.teammateLocationList[robotId].Y, 0, 0, 0, 0), 3);
 
-                            //        if (ptInterception != null)
-                            //            robotDestination = ptInterception;
-                            //        else
-                            //            robotDestination = new PointD(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y);
-                            //    }
-                            //    else
-                            //        robotDestination = new PointD(6, -3);
-                            //}
+                                    if (ptInterception != null)
+                                        robotDestination = ptInterception;
+                                    else
+                                        robotDestination = new PointD(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y);
+                                }
+                                else
+                                    robotDestination = new PointD(6, -3);
+                            }
                             break;
                         case PlayerRole.Centre:
                             robotDestination = new PointD(0, 0);
@@ -133,7 +148,82 @@ namespace StrategyManager
                         default:
                             break;
                     }
-                    break;            
+                    break;
+                case GameState.STOPPED_GAME_POSITIONING:
+                    switch(globalWorldMap.stoppedGameAction)
+                    {
+                        case StoppedGameAction.KICKOFF:        
+                            switch(robotId)
+                            {
+                                case (int)TeamId.Team1 + (int)RobotId.Robot1:
+                                    robotDestination = new PointD(10, 0);
+                                    break;
+                                case (int)TeamId.Team1 + (int)RobotId.Robot2:
+                                    robotDestination = new PointD(-1, 2);
+                                    break;
+                                case (int)TeamId.Team1 + (int)RobotId.Robot3:
+                                    robotDestination = new PointD(1, -2);
+                                    break;
+                                case (int)TeamId.Team1 + (int)RobotId.Robot4:
+                                    robotDestination = new PointD(6, -3);
+                                    break;
+                                case (int)TeamId.Team1 + (int)RobotId.Robot5:
+                                    robotDestination = new PointD(6, 3);
+                                    break;
+                                case (int)TeamId.Team2 + (int)RobotId.Robot1:
+                                    robotDestination = new PointD(-10, 0);
+                                    break;
+                                case (int)TeamId.Team2 + (int)RobotId.Robot2:
+                                    robotDestination = new PointD(1, 2);
+                                    break;
+                                case (int)TeamId.Team2 + (int)RobotId.Robot3:
+                                    robotDestination = new PointD(-1, -2);
+                                    break;
+                                case (int)TeamId.Team2 + (int)RobotId.Robot4:
+                                    robotDestination = new PointD(-6, -3);
+                                    break;
+                                case (int)TeamId.Team2 + (int)RobotId.Robot5:
+                                    robotDestination = new PointD(-6, 3);
+                                    break;
+                            }
+                            break;
+                        case StoppedGameAction.KICKOFF_OPPONENT:
+                            switch (robotId)
+                            {
+                                case (int)TeamId.Team1 + (int)RobotId.Robot1:
+                                    robotDestination = new PointD(10, 0);
+                                    break;
+                                case (int)TeamId.Team1 + (int)RobotId.Robot2:
+                                    robotDestination = new PointD(1, 2);
+                                    break;
+                                case (int)TeamId.Team1 + (int)RobotId.Robot3:
+                                    robotDestination = new PointD(1, -2);
+                                    break;
+                                case (int)TeamId.Team1 + (int)RobotId.Robot4:
+                                    robotDestination = new PointD(6, -3);
+                                    break;
+                                case (int)TeamId.Team1 + (int)RobotId.Robot5:
+                                    robotDestination = new PointD(6, 3);
+                                    break;
+                                case (int)TeamId.Team2 + (int)RobotId.Robot1:
+                                    robotDestination = new PointD(-10, 0);
+                                    break;
+                                case (int)TeamId.Team2 + (int)RobotId.Robot2:
+                                    robotDestination = new PointD(-1, 2);
+                                    break;
+                                case (int)TeamId.Team2 + (int)RobotId.Robot3:
+                                    robotDestination = new PointD(-1, -2);
+                                    break;
+                                case (int)TeamId.Team2 + (int)RobotId.Robot4:
+                                    robotDestination = new PointD(-6, -3);
+                                    break;
+                                case (int)TeamId.Team2 + (int)RobotId.Robot5:
+                                    robotDestination = new PointD(-6, 3);
+                                    break;
+                            }
+                            break;
+                    }
+                    break;                
             }            
         }
 

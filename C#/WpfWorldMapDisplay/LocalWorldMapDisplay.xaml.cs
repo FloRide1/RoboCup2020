@@ -49,10 +49,10 @@ namespace WpfWorldMapDisplay
             InitializeComponent();
 
             //Timer de simulation
-            timerAffichage = new DispatcherTimer();
-            timerAffichage.Interval = new TimeSpan(0, 0, 0, 0, 100);
-            timerAffichage.Tick += TimerAffichage_Tick;
-            timerAffichage.Start();
+            //timerAffichage = new DispatcherTimer();
+            //timerAffichage.Interval = new TimeSpan(0, 0, 0, 0, 100);
+            //timerAffichage.Tick += TimerAffichage_Tick;
+            //timerAffichage.Start();
             InitSoccerField();
         }
 
@@ -84,7 +84,12 @@ namespace WpfWorldMapDisplay
             OpponentDisplayDictionary.Add(robotId, rd);
         }
 
-        private void TimerAffichage_Tick(object sender, EventArgs e)
+        //private void TimerAffichage_Tick(object sender, EventArgs e)
+        //{
+        //    UpdateWorldMapDisplay();
+        //}
+
+        public void UpdateWorldMapDisplay()
         {
             DrawBall();
             DrawTeam();

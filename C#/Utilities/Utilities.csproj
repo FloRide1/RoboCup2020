@@ -75,7 +75,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Enums.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="GeometryElements.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
