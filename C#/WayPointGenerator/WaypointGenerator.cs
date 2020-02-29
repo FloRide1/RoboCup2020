@@ -40,6 +40,7 @@ namespace WayPointGenerator
             //timerWayPointGeneration.Elapsed += TimerWayPointGeneration_Elapsed;
             //timerWayPointGeneration.Start();
 
+            //waypointHeatMap = new Heatmap(22.0, 14.0, 22.0 / Math.Pow(2, 8), 2);
             waypointHeatMap = new Heatmap(22.0, 14.0, 22.0 / Math.Pow(2, 8), 2);
         }
 
@@ -111,14 +112,16 @@ namespace WayPointGenerator
                 int maxXpos = 0;
                 int maxYpos = 0;
 
-                for (double y = minY; y < maxY; y += 1)
+                Parallel.For((int)minY, (int)maxY, (y) =>
+                //for (double y = minY; y < maxY; y += 1)
                 {
-                    for (double x = minX; x < maxX; x += 1)
+                    Parallel.For((int)minX, (int)maxX, (x) =>
+                    //for (double x = minX; x < maxX; x += 1)
                     {
                         //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
                         //double value = Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, heatMap.GetFieldPosFromSubSampledHeatMapCoordinates(x, y)) / 20.0);
                         var heatMapPos = waypointHeatMap.GetFieldPosFromSubSampledHeatMapCoordinates(x, y, n);
-                        double pen = CalculPenalisation(heatMapPos); 
+                        double pen = CalculPenalisation(heatMapPos);
                         //double value = EvaluateStrategyCostFunction(robotRole, heatMapPos);
                         //heatMap.SubSampledHeatMapData1[y, x] = value;
                         int yBase = (int)(y * subSamplingRate);
@@ -143,8 +146,8 @@ namespace WayPointGenerator
                                     waypointHeatMap.BaseHeatMapData[yBase + i, xBase + j] = value;
                             }
                         }
-                    }
-                }
+                    });
+                });
                 //OptimalPosInBaseHeatMapCoordinates = heatMap.GetMaxPositionInBaseHeatMapCoordinates();
                 OptimalPosInBaseHeatMapCoordinates = new PointD(maxXpos, maxYpos);
             }

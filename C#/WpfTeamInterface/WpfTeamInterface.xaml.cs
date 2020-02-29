@@ -111,11 +111,51 @@ namespace TeamInterface
         bool isZoomed = false;
         int lastZoomedRow = 0;
         int lastZoomedCol = 0;
-        private void WorldMapDisplay_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void GlobalWorldMapDisplay_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            WorldMapDisplay s = (WorldMapDisplay)sender;
+            //GlobalWorldMapDisplay s = (GlobalWorldMapDisplay)sender;
 
-            int row=0, column=0;
+            //int row=0, column=0;
+
+            //if (s != null)
+            //{
+            //    row = Grid.GetRow(s);
+            //    column = Grid.GetColumn(s);
+            //}
+
+
+            //if (!isZoomed)
+            //{
+            //    BaseGrid.ColumnDefinitions[column].Width = new GridLength(BaseGrid.ColumnDefinitions[column].Width.Value * zoomFactor, GridUnitType.Star);
+            //    BaseGrid.RowDefinitions[row].Height = new GridLength(BaseGrid.RowDefinitions[row].Height.Value * zoomFactor, GridUnitType.Star);
+            //    localWorldMapDisplay2.IsExtended = true;
+            //    lastZoomedCol = column;
+            //    lastZoomedRow = row;
+            //    isZoomed = true;
+            //}
+            //else
+            //{
+            //    BaseGrid.ColumnDefinitions[lastZoomedCol].Width = new GridLength(BaseGrid.ColumnDefinitions[lastZoomedCol].Width.Value / zoomFactor, GridUnitType.Star);
+            //    BaseGrid.RowDefinitions[lastZoomedRow].Height = new GridLength(BaseGrid.RowDefinitions[lastZoomedRow].Height.Value / zoomFactor, GridUnitType.Star);
+            //    localWorldMapDisplay2.IsExtended = false;
+            //    isZoomed = false;
+            //    if(lastZoomedRow!=row || lastZoomedCol!=column)
+            //    {
+            //        BaseGrid.ColumnDefinitions[column].Width = new GridLength(BaseGrid.ColumnDefinitions[column].Width.Value * zoomFactor, GridUnitType.Star);
+            //        BaseGrid.RowDefinitions[row].Height = new GridLength(BaseGrid.RowDefinitions[row].Height.Value * zoomFactor, GridUnitType.Star);
+            //        localWorldMapDisplay2.IsExtended = true;
+            //        lastZoomedCol = column;
+            //        lastZoomedRow = row;
+            //        isZoomed = true;
+            //    }
+            //}
+        }
+
+        private void LocalWorldMapDisplay_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            LocalWorldMapDisplay s = (LocalWorldMapDisplay)sender;
+
+            int row = 0, column = 0;
 
             if (s != null)
             {
@@ -139,7 +179,7 @@ namespace TeamInterface
                 BaseGrid.RowDefinitions[lastZoomedRow].Height = new GridLength(BaseGrid.RowDefinitions[lastZoomedRow].Height.Value / zoomFactor, GridUnitType.Star);
                 localWorldMapDisplay2.IsExtended = false;
                 isZoomed = false;
-                if(lastZoomedRow!=row || lastZoomedCol!=column)
+                if (lastZoomedRow != row || lastZoomedCol != column)
                 {
                     BaseGrid.ColumnDefinitions[column].Width = new GridLength(BaseGrid.ColumnDefinitions[column].Width.Value * zoomFactor, GridUnitType.Star);
                     BaseGrid.RowDefinitions[row].Height = new GridLength(BaseGrid.RowDefinitions[row].Height.Value * zoomFactor, GridUnitType.Star);

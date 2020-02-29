@@ -85,8 +85,14 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="WorldMapDisplay.xaml.cs">
-      <DependentUpon>WorldMapDisplay.xaml</DependentUpon>
+    <Compile Include="BallDisplay.cs" />
+    <Compile Include="PolygonRenderableSeries.cs" />
+    <Compile Include="RobotDisplay.cs" />
+    <Compile Include="GlobalWorldMapDisplay.xaml.cs">
+      <DependentUpon>GlobalWorldMapDisplay.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LocalWorldMapDisplay.xaml.cs">
+      <DependentUpon>LocalWorldMapDisplay.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -112,7 +118,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="WorldMapDisplay.xaml">
+    <Page Include="GlobalWorldMapDisplay.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="LocalWorldMapDisplay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -39,10 +39,10 @@
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
-            <ext:WorldMapDisplay x:Name="globalWorldMapDisplayTeam1" Grid.Column="0" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
-            </ext:WorldMapDisplay>
-            <ext:WorldMapDisplay x:Name="globalWorldMapDisplayTeam2" Grid.Column="1" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
-            </ext:WorldMapDisplay>
+            <ext:GlobalWorldMapDisplay x:Name="globalWorldMapDisplayTeam1" Grid.Column="0" MouseDoubleClick="GlobalWorldMapDisplay_MouseDoubleClick">
+            </ext:GlobalWorldMapDisplay>
+            <ext:GlobalWorldMapDisplay x:Name="globalWorldMapDisplayTeam2" Grid.Column="1" MouseDoubleClick="GlobalWorldMapDisplay_MouseDoubleClick">
+            </ext:GlobalWorldMapDisplay>
         </Grid>
         <GroupBox x:Name="groupBox" Header="Reception" Margin="0" Background="#FFDDDDDD" BorderBrush="Black" Grid.Column="5" Grid.Row="7">
             <TextBox x:Name="textBoxReception" Grid.Column="3" Margin="0" Grid.Row="1" TextWrapping="Wrap" Background="{x:Null}" BorderBrush="{x:Null}" IsReadOnly="True" AcceptsReturn="True"/>
@@ -54,18 +54,18 @@
         <Button x:Name="buttonTest" Content="Test" Grid.Column="3" HorizontalAlignment="Center"  Grid.Row="3" Width="100"/>-->
 
         <!--  Create the chart surface  -->
-        <ext:WorldMapDisplay x:Name="localWorldMapDisplay1" Grid.Column="1" Grid.Row="3" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
-        </ext:WorldMapDisplay>
-        <ext:WorldMapDisplay x:Name="localWorldMapDisplay2" Grid.Column="3" Grid.Row="3" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
-        </ext:WorldMapDisplay>
-        <ext:WorldMapDisplay x:Name="localWorldMapDisplay3" Grid.Column="5" Grid.Row="3" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
-        </ext:WorldMapDisplay>
-        <ext:WorldMapDisplay x:Name="localWorldMapDisplay5" Grid.Column="1" Grid.Row="5" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
-        </ext:WorldMapDisplay>
-        <ext:WorldMapDisplay x:Name="localWorldMapDisplay4" Grid.Column="3" Grid.Row="5" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
-        </ext:WorldMapDisplay>
-        <ext:WorldMapDisplay x:Name="localWorldMapDisplay6" Grid.Column="5" Grid.Row="5" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
-        </ext:WorldMapDisplay>
+        <ext:LocalWorldMapDisplay x:Name="localWorldMapDisplay1" Grid.Column="1" Grid.Row="3" MouseDoubleClick="LocalWorldMapDisplay_MouseDoubleClick">
+        </ext:LocalWorldMapDisplay>
+        <ext:LocalWorldMapDisplay x:Name="localWorldMapDisplay2" Grid.Column="3" Grid.Row="3" MouseDoubleClick="LocalWorldMapDisplay_MouseDoubleClick">
+        </ext:LocalWorldMapDisplay>
+        <ext:LocalWorldMapDisplay x:Name="localWorldMapDisplay3" Grid.Column="5" Grid.Row="3" MouseDoubleClick="LocalWorldMapDisplay_MouseDoubleClick">
+        </ext:LocalWorldMapDisplay>
+        <ext:LocalWorldMapDisplay x:Name="localWorldMapDisplay5" Grid.Column="1" Grid.Row="5" MouseDoubleClick="LocalWorldMapDisplay_MouseDoubleClick">
+        </ext:LocalWorldMapDisplay>
+        <ext:LocalWorldMapDisplay x:Name="localWorldMapDisplay4" Grid.Column="3" Grid.Row="5" MouseDoubleClick="LocalWorldMapDisplay_MouseDoubleClick">
+        </ext:LocalWorldMapDisplay>
+        <ext:LocalWorldMapDisplay x:Name="localWorldMapDisplay6" Grid.Column="5" Grid.Row="5" MouseDoubleClick="LocalWorldMapDisplay_MouseDoubleClick">
+        </ext:LocalWorldMapDisplay>
 
         <StackPanel  Grid.Column="7" Grid.RowSpan="10">
             <Button x:Name="Button_Start" HorizontalAlignment="Stretch" Height="30" Margin="4" Content="Start" Click="Button_Start_Click" />

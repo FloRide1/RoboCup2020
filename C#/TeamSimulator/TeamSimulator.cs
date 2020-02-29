@@ -68,7 +68,7 @@ namespace TeamSimulator
             robotPilotList = new List<RobotPilot.RobotPilot>();
             trajectoryPlannerList = new List<TrajectoryPlanner>();
             waypointGeneratorList = new List<WaypointGenerator>();
-            lidarSimulatorList = new List<LidarSimulator.LidarSimulator>();
+            //lidarSimulatorList = new List<LidarSimulator.LidarSimulator>();
             strategyManagerDictionary = new Dictionary<int, StrategyManager.StrategyManager>();
             localWorldMapManagerList = new List<LocalWorldMapManager>();
             perceptionSimulatorList = new List<PerceptionSimulator>();
@@ -144,7 +144,7 @@ namespace TeamSimulator
             var trajectoryPlanner = new TrajectoryPlanner(robotId);
             var robotPilot = new RobotPilot.RobotPilot(robotId);
             var localWorldMapManager = new LocalWorldMapManager(robotId, TeamNumber);
-            var lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
+            //var lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             var perceptionSimulator = new PerceptionSimulator(robotId);
             UDPMulticastSender robotUdpMulticastSender = null;
             UDPMulticastReceiver robotUdpMulticastReceiver = null;
@@ -176,7 +176,7 @@ namespace TeamSimulator
             physicalSimulator.OnPhysicalBallPositionEvent += perceptionSimulator.OnPhysicalBallPositionReceived;
 
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
-            lidarSimulator.OnSimulatedLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
+            //lidarSimulator.OnSimulatedLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             //strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
@@ -196,7 +196,7 @@ namespace TeamSimulator
             trajectoryPlannerList.Add(trajectoryPlanner);
             robotPilotList.Add(robotPilot);
             localWorldMapManagerList.Add(localWorldMapManager);
-            lidarSimulatorList.Add(lidarSimulator);
+            //lidarSimulatorList.Add(lidarSimulator);
             perceptionSimulatorList.Add(perceptionSimulator);
             robotUdpMulticastReceiverList.Add(robotUdpMulticastReceiver);
             robotUdpMulticastSenderList.Add(robotUdpMulticastSender);
