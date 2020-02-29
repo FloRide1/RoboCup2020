@@ -11,7 +11,7 @@
         Title="Team Interface" Closing="Window_Closing" SourceInitialized="Window_SourceInitialized"  
         xmlns:p="clr-namespace:TeamInterface.Properties"  
     >
-    
+
     <Grid x:Name="BaseGrid" Background="#222222">
         <Grid.RowDefinitions>
             <RowDefinition Height="5"/>
@@ -31,7 +31,8 @@
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="30"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="80"/>
         </Grid.ColumnDefinitions>
         <Grid x:Name="TeamDisplayGrid" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5">
             <Grid.ColumnDefinitions>
@@ -51,7 +52,7 @@
         </GroupBox>
         <!--<Button x:Name="buttonEnvoyer" Content="Envoyer" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="3" Width="100"/>
         <Button x:Name="buttonTest" Content="Test" Grid.Column="3" HorizontalAlignment="Center"  Grid.Row="3" Width="100"/>-->
-        
+
         <!--  Create the chart surface  -->
         <ext:WorldMapDisplay x:Name="localWorldMapDisplay1" Grid.Column="1" Grid.Row="3" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
         </ext:WorldMapDisplay>
@@ -65,5 +66,18 @@
         </ext:WorldMapDisplay>
         <ext:WorldMapDisplay x:Name="localWorldMapDisplay6" Grid.Column="5" Grid.Row="5" MouseDoubleClick="WorldMapDisplay_MouseDoubleClick">
         </ext:WorldMapDisplay>
+
+        <StackPanel  Grid.Column="7" Grid.RowSpan="10">
+            <Button x:Name="Button_Start" HorizontalAlignment="Stretch" Height="30" Margin="4" Content="Start" Click="Button_Start_Click" />
+            <Button x:Name="Button_Stop" HorizontalAlignment="Stretch" Height="30" Margin="4" Content="Stop" Click="Button_Stop_Click" />
+            <Button x:Name="Button_ThrowInT1" HorizontalAlignment="Stretch" Height="30" Margin="4" Content="Throw In T1" Click="Button_ThrowInT1_Click" />
+            <Button x:Name="Button_ThrowInT2" HorizontalAlignment="Right" Height="30" Margin="0,4,4,4" Content="Throw In T2" Width="72" Click="Button_ThrowInT2_Click" />
+            <Button x:Name="Button_GoalKcikT1" HorizontalAlignment="Stretch" Height="30" Margin="4" Content="Goal Kick T1" Click="Button_GoalKcikT1_Click" />
+            <Button x:Name="Button_GoalKickT2" HorizontalAlignment="Stretch" Height="30" Margin="4" Content="Goal Kick T2" Click="Button_GoalKickT2_Click" />
+            <Button x:Name="Button_CornerT1" HorizontalAlignment="Stretch" Height="30" Margin="4" Content="Corner T1" Click="Button_CornerT1_Click" />
+            <Button x:Name="Button_CornerT2" HorizontalAlignment="Stretch" Height="30" Margin="4" Content="Corner T2" Click="Button_CornerT2_Click" />
+            <Button x:Name="Button_KickOffT1" HorizontalAlignment="Stretch" Height="30" Margin="4" Content="Kick Off T1" Click="Button_KickOffT1_Click" />
+            <Button x:Name="Button_KickOffT2" HorizontalAlignment="Stretch" Height="30" Margin="4" Content="Kick Off T2" Click="Button_KickOffT2_Click" />
+        </StackPanel>
     </Grid>
 </Window>

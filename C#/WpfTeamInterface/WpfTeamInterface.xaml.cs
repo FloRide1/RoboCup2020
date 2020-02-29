@@ -1,9 +1,11 @@
 ﻿using Constants;
 using EventArgsLibrary;
+using RefereeBoxAdapter;
 using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using Utilities;
 using WpfWorldMapDisplay;
 
 namespace TeamInterface
@@ -13,6 +15,9 @@ namespace TeamInterface
     /// </summary>
     public partial class WpfTeamInterface : Window
     {
+        string TeamIpAddress = "224.16.32.79";
+        string OpponentTeamIpAddress = "224.16.32.63";
+
         public WpfTeamInterface()
         {
             InitializeComponent();
@@ -144,6 +149,107 @@ namespace TeamInterface
                     isZoomed = true;
                 }
             }
+        }
+
+        //Output events
+        public event EventHandler<RefBoxMessageArgs> OnRefereeBoxCommandEvent;
+        public virtual void OnRefereeBoxReceivedCommand(RefBoxMessage msg)
+        {
+            var handler = OnRefereeBoxCommandEvent;
+            if (handler != null)
+            {
+                handler(this, new RefBoxMessageArgs { refBoxMsg = msg });
+            }
+        }
+        private void Button_Start_Click(object sender, RoutedEventArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.START;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+
+        private void Button_Stop_Click(object sender, RoutedEventArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.STOP;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+
+        private void Button_ThrowInT1_Click(object sender, RoutedEventArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.THROWIN;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+
+        private void Button_ThrowInT2_Click(object sender, RoutedEventArgs e)
+        {
+
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.THROWIN;
+            msg.targetTeam = OpponentTeamIpAddress;
+            msg.robotID = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+
+        private void Button_GoalKcikT1_Click(object sender, RoutedEventArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.GOALKICK;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+
+        private void Button_GoalKickT2_Click(object sender, RoutedEventArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.GOALKICK;
+            msg.targetTeam = OpponentTeamIpAddress;
+            msg.robotID = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+
+        private void Button_CornerT1_Click(object sender, RoutedEventArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.CORNER;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+
+        private void Button_CornerT2_Click(object sender, RoutedEventArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.CORNER;
+            msg.targetTeam = OpponentTeamIpAddress;
+            msg.robotID = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+
+        private void Button_KickOffT1_Click(object sender, RoutedEventArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.KICKOFF;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+
+        private void Button_KickOffT2_Click(object sender, RoutedEventArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.KICKOFF;
+            msg.targetTeam = OpponentTeamIpAddress;
+            msg.robotID = 0;
+            OnRefereeBoxReceivedCommand(msg);
         }
     }
 }

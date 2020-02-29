@@ -143,6 +143,14 @@
       <Project>{9c46a7c0-4675-41be-b282-e6f0825ad73e}</Project>
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\RefereeBoxAdapter\RefereeBoxAdapter.csproj">
+      <Project>{A8C04138-90DC-42F9-AB39-E71125B805B9}</Project>
+      <Name>RefereeBoxAdapter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Utilities\Utilities.csproj">
+      <Project>{8E7D0DA4-9A13-4B18-A90E-0243BBCCE40A}</Project>
+      <Name>Utilities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WorldMap\WorldMap.csproj">
       <Project>{B2D0126F-8C82-4EAA-87E5-67415F589098}</Project>
       <Name>WorldMap</Name>

@@ -52,94 +52,94 @@ namespace WorldMapManager
 
             switch (command)
             {
-                case "START":
+                case RefBoxCommand.START:
                     currentGameState = GameState.PLAYING;
                     currentStoppedGameAction = StoppedGameAction.NONE;
                     break;
-                case "STOP":
+                case RefBoxCommand.STOP:
                     currentGameState = GameState.STOPPED;
                     break;
-                case "DROP_BALL":
+                case RefBoxCommand.DROP_BALL:
                     currentGameState = GameState.STOPPED_GAME_POSITIONING;
                     currentStoppedGameAction = StoppedGameAction.DROPBALL;
                     break;
-                case "HALF_TIME":
+                case RefBoxCommand.HALF_TIME:
                     break;
-                case "END_GAME":
+                case RefBoxCommand.END_GAME:
                     break;
-                case "GAME_OVER":
+                case RefBoxCommand.GAME_OVER:
                     break;
-                case "PARK":
+                case RefBoxCommand.PARK:
                     currentGameState = GameState.STOPPED_GAME_POSITIONING;
                     currentStoppedGameAction = StoppedGameAction.PARK;
                     break;
-                case "FIRST_HALF":
+                case RefBoxCommand.FIRST_HALF:
                     break;
-                case "SECOND_HALF":
+                case RefBoxCommand.SECOND_HALF:
                     break;
-                case "FIRST_HALF_OVER_TIME":
+                case RefBoxCommand.FIRST_HALF_OVER_TIME:
                     break;
-                case "RESET":
+                case RefBoxCommand.RESET:
                     break;
-                case "WELCOME":
+                case RefBoxCommand.WELCOME:
                     break;
-                case "KICKOFF":
+                case RefBoxCommand.KICKOFF:
                     currentGameState = GameState.STOPPED_GAME_POSITIONING;
                     if (targetTeam == TeamIpAddress)
                         currentStoppedGameAction = StoppedGameAction.KICKOFF;
                     else
                         currentStoppedGameAction = StoppedGameAction.KICKOFF_OPPONENT;
                     break;
-                case "FREEKICK":
+                case RefBoxCommand.FREEKICK:
                     currentGameState = GameState.STOPPED_GAME_POSITIONING;
                     if (targetTeam == TeamIpAddress)
                         currentStoppedGameAction = StoppedGameAction.FREEKICK;
                     else
                         currentStoppedGameAction = StoppedGameAction.FREEKICK_OPPONENT;
                     break;
-                case "GOALKICK":
+                case RefBoxCommand.GOALKICK:
                     currentGameState = GameState.STOPPED_GAME_POSITIONING;
                     if (targetTeam == TeamIpAddress)
                         currentStoppedGameAction = StoppedGameAction.GOALKICK;
                     else
                         currentStoppedGameAction = StoppedGameAction.GOALKICK_OPPONENT;
                     break;
-                case "THROWIN":
+                case RefBoxCommand.THROWIN:
                     currentGameState = GameState.STOPPED_GAME_POSITIONING;
                     if (targetTeam == TeamIpAddress)
                         currentStoppedGameAction = StoppedGameAction.THROWIN;
                     else
                         currentStoppedGameAction = StoppedGameAction.THROWIN_OPPONENT;
                     break;
-                case "CORNER":
+                case RefBoxCommand.CORNER:
                     currentGameState = GameState.STOPPED_GAME_POSITIONING;
                     if (targetTeam == TeamIpAddress)
                         currentStoppedGameAction = StoppedGameAction.CORNER;
                     else
                         currentStoppedGameAction = StoppedGameAction.CORNER_OPPONENT;
                     break;
-                case "PENALTY":
+                case RefBoxCommand.PENALTY:
                     currentGameState = GameState.STOPPED_GAME_POSITIONING;
                     if (targetTeam == TeamIpAddress)
                         currentStoppedGameAction = StoppedGameAction.PENALTY;
                     else
                         currentStoppedGameAction = StoppedGameAction.PENALTY_OPPONENT;
                     break;
-                case "GOAL":
+                case RefBoxCommand.GOAL:
                     break;
-                case "SUBGOAL":
+                case RefBoxCommand.SUBGOAL:
                     break;
-                case "REPAIR":
+                case RefBoxCommand.REPAIR:
                     break;
-                case "YELLOW_CARD":
+                case RefBoxCommand.YELLOW_CARD:
                     break;
-                case "DOUBLE_YELLOW":
+                case RefBoxCommand.DOUBLE_YELLOW:
                     break;
-                case "RED_CARD":
+                case RefBoxCommand.RED_CARD:
                     break;
-                case "SUBSTITUTION":
+                case RefBoxCommand.SUBSTITUTION:
                     break;
-                case "IS_ALIVE":
+                case RefBoxCommand.IS_ALIVE:
                     currentGameState = GameState.STOPPED_GAME_POSITIONING;
                     if (targetTeam == TeamIpAddress)
                         currentStoppedGameAction = StoppedGameAction.KICKOFF;

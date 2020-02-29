@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using System.Text;
 using Newtonsoft.Json.Converters;
 using System.Globalization;
+using Utilities;
 
 namespace RefereeBoxAdapter
 {
@@ -20,6 +21,11 @@ namespace RefereeBoxAdapter
         TCPAdapter.TCPAdapter tcpAdapter;
 
         public RefereeBoxAdapter()
+        {
+            new Thread(StartRefBoxAdapter).Start();
+        }
+
+        private void StartRefBoxAdapter()
         {
             tcpAdapter = new TCPAdapter.TCPAdapter("172.16.1.2", 28097, "Referee Box Adapter");
             tcpAdapter.OnDataReceivedEvent += TcpAdapter_OnDataReceivedEvent;
@@ -47,7 +53,7 @@ namespace RefereeBoxAdapter
 
     public class RefBoxMessage 
     {
-        public string command { get; set; }
+        public RefBoxCommand command { get; set; }
         public string targetTeam { get; set; }
         public int robotID { get; set; }
     }
