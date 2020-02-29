@@ -139,7 +139,7 @@ namespace TeamSimulator
         private static void CreatePlayer(int TeamNumber, int RobotNumber)
         {   
             int robotId = TeamNumber + RobotNumber;
-            var strategyManager = new StrategyManager.StrategyManager(robotId);
+            var strategyManager = new StrategyManager.StrategyManager(robotId, TeamNumber);
             var waypointGenerator = new WaypointGenerator(robotId);
             var trajectoryPlanner = new TrajectoryPlanner(robotId);
             var robotPilot = new RobotPilot.RobotPilot(robotId);

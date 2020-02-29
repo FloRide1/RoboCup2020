@@ -18,6 +18,7 @@ namespace StrategyManager
     public class StrategyManager
     {
         int robotId = 0;
+        int teamId = 0;
         
         GlobalWorldMap globalWorldMap = new GlobalWorldMap();
                 
@@ -27,9 +28,10 @@ namespace StrategyManager
         Timer timerStrategy;
 
 
-        public StrategyManager(int id)
+        public StrategyManager(int robotId, int teamId)
         {
-            robotId = id;
+            this.teamId = teamId;
+            this.robotId = robotId;
             //heatMap = new Heatmap(22.0, 14.0, 22.0/Math.Pow(2,8), 2); //Init HeatMap
             heatMap = new Heatmap(22.0, 14.0, 22.0 / Math.Pow(2, 8), 2); //Init HeatMap
 
@@ -61,7 +63,7 @@ namespace StrategyManager
             foreach (var player in globalWorldMap.teammateLocationList)
             {
                 //On exclut le gardien
-                if (player.Key != (int)TeamId.Team1 + (int)RobotId.Robot1 && player.Key != (int)TeamId.Team2 + (int)RobotId.Robot1)
+                if (player.Key != (int)TeamId.Team1 + (int)Constants.RobotId.Robot1 && player.Key != (int)TeamId.Team2 + (int)Constants.RobotId.Robot1)
                 {
                     DictDistancePlayerBall.Add(player.Key, Toolbox.Distance(new PointD(player.Value.X, player.Value.Y), new PointD(ballLocation.X, ballLocation.Y)));
                 }
@@ -90,7 +92,7 @@ namespace StrategyManager
                 }                
             }
 
-            if (robotId == (int)TeamId.Team1 + (int)RobotId.Robot1 || robotId == (int)TeamId.Team2 + (int)RobotId.Robot1)
+            if (robotId == (int)TeamId.Team1 + (int)Constants.RobotId.Robot1 || robotId == (int)TeamId.Team2 + (int)Constants.RobotId.Robot1)
             {
                 //Cas du gardien
                 robotRole = PlayerRole.Gardien;
@@ -112,7 +114,10 @@ namespace StrategyManager
                             robotDestination = new PointD(-8, 3);
                             break;
                         case PlayerRole.Gardien:
-                            robotDestination = new PointD(-10.5, 0);
+                            if(teamId == (int)TeamId.Team1)
+                                robotDestination = new PointD(10.5, 0);
+                            else
+                                robotDestination = new PointD(-10.5, 0);
                             break;
                         case PlayerRole.DefenseurPlace:
                             robotDestination = new PointD(-8, 3);
@@ -155,34 +160,34 @@ namespace StrategyManager
                         case StoppedGameAction.KICKOFF:        
                             switch(robotId)
                             {
-                                case (int)TeamId.Team1 + (int)RobotId.Robot1:
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
                                     robotDestination = new PointD(10, 0);
                                     break;
-                                case (int)TeamId.Team1 + (int)RobotId.Robot2:
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot2:
                                     robotDestination = new PointD(-1, 2);
                                     break;
-                                case (int)TeamId.Team1 + (int)RobotId.Robot3:
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot3:
                                     robotDestination = new PointD(1, -2);
                                     break;
-                                case (int)TeamId.Team1 + (int)RobotId.Robot4:
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot4:
                                     robotDestination = new PointD(6, -3);
                                     break;
-                                case (int)TeamId.Team1 + (int)RobotId.Robot5:
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot5:
                                     robotDestination = new PointD(6, 3);
                                     break;
-                                case (int)TeamId.Team2 + (int)RobotId.Robot1:
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot1:
                                     robotDestination = new PointD(-10, 0);
                                     break;
-                                case (int)TeamId.Team2 + (int)RobotId.Robot2:
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot2:
                                     robotDestination = new PointD(1, 2);
                                     break;
-                                case (int)TeamId.Team2 + (int)RobotId.Robot3:
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot3:
                                     robotDestination = new PointD(-1, -2);
                                     break;
-                                case (int)TeamId.Team2 + (int)RobotId.Robot4:
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot4:
                                     robotDestination = new PointD(-6, -3);
                                     break;
-                                case (int)TeamId.Team2 + (int)RobotId.Robot5:
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot5:
                                     robotDestination = new PointD(-6, 3);
                                     break;
                             }
@@ -190,34 +195,34 @@ namespace StrategyManager
                         case StoppedGameAction.KICKOFF_OPPONENT:
                             switch (robotId)
                             {
-                                case (int)TeamId.Team1 + (int)RobotId.Robot1:
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
                                     robotDestination = new PointD(10, 0);
                                     break;
-                                case (int)TeamId.Team1 + (int)RobotId.Robot2:
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot2:
                                     robotDestination = new PointD(1, 2);
                                     break;
-                                case (int)TeamId.Team1 + (int)RobotId.Robot3:
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot3:
                                     robotDestination = new PointD(1, -2);
                                     break;
-                                case (int)TeamId.Team1 + (int)RobotId.Robot4:
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot4:
                                     robotDestination = new PointD(6, -3);
                                     break;
-                                case (int)TeamId.Team1 + (int)RobotId.Robot5:
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot5:
                                     robotDestination = new PointD(6, 3);
                                     break;
-                                case (int)TeamId.Team2 + (int)RobotId.Robot1:
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot1:
                                     robotDestination = new PointD(-10, 0);
                                     break;
-                                case (int)TeamId.Team2 + (int)RobotId.Robot2:
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot2:
                                     robotDestination = new PointD(-1, 2);
                                     break;
-                                case (int)TeamId.Team2 + (int)RobotId.Robot3:
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot3:
                                     robotDestination = new PointD(-1, -2);
                                     break;
-                                case (int)TeamId.Team2 + (int)RobotId.Robot4:
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot4:
                                     robotDestination = new PointD(-6, -3);
                                     break;
-                                case (int)TeamId.Team2 + (int)RobotId.Robot5:
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot5:
                                     robotDestination = new PointD(-6, 3);
                                     break;
                             }

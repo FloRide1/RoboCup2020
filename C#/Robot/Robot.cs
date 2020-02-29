@@ -227,7 +227,7 @@ namespace Robot
             robotPilot = new RobotPilot.RobotPilot(robotId);
             trajectoryPlanner = new TrajectoryPlanner(robotId);
             waypointGenerator = new WaypointGenerator(robotId);
-            strategyManager = new StrategyManager.StrategyManager(robotId);
+            strategyManager = new StrategyManager.StrategyManager(robotId, teamId);
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId);
             lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             perceptionSimulator = new PerceptionSimulator(robotId);
