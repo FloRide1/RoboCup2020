@@ -21,7 +21,7 @@ namespace WorldMapManager
         GlobalWorldMap globalWorldMap = new GlobalWorldMap();
         Timer globalWorldMapSendTimer;
 
-        GameState currentGameState = GameState.STOPPED;
+        GameState currentGameState = GameState.PLAYING;
         StoppedGameAction currentStoppedGameAction = StoppedGameAction.NONE;
         
 

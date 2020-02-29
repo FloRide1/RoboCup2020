@@ -160,7 +160,7 @@ namespace WpfWorldMapDisplay
 
         public void DrawTeam()
         {
-            //XyDataSeries<double, double> lidarPts = new XyDataSeries<double, double>();
+            XyDataSeries<double, double> lidarPts = new XyDataSeries<double, double>();
             ObjectsPolygonSeries.Clear();
 
             foreach (var r in TeamMatesDisplayDictionary)
@@ -171,10 +171,10 @@ namespace WpfWorldMapDisplay
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Destination, TeamMatesDisplayDictionary[r.Key].GetRobotDestinationArrow());
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.WayPoint, TeamMatesDisplayDictionary[r.Key].GetRobotWaypointArrow());
 
-                ////Rendering des points Lidar
-                //lidarPts.AcceptsUnsortedData = true;
-                //var lidarData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints();
-                //lidarPts.Append(lidarData.XValues, lidarData.YValues);
+                //Rendering des points Lidar
+                lidarPts.AcceptsUnsortedData = true;
+                var lidarData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints();
+                lidarPts.Append(lidarData.XValues, lidarData.YValues);
 
                 //Rendering des objets Lidar
                 foreach (var polygonObject in TeamMatesDisplayDictionary[r.Key].GetRobotLidarObjects())
@@ -190,7 +190,7 @@ namespace WpfWorldMapDisplay
                 //PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.WayPoint, TeamMatesDictionary[r.Key].GetRobotWaypointArrow());
             }
             //Affichage des points lidar
-            //LidarPoints.DataSeries = lidarPts;
+            LidarPoints.DataSeries = lidarPts;
         }
 
         public void DrawLidar()
@@ -245,10 +245,10 @@ namespace WpfWorldMapDisplay
             {
                 TeamMatesDisplayDictionary[robotId].SetLidarMap(lidarMap);
             }
-            Dispatcher.Invoke(new Action(delegate ()
-            {
-                DrawLidar();
-            }));
+            //Dispatcher.Invoke(new Action(delegate ()
+            //{
+            //    DrawLidar();
+            //}));
         }
         
         private void UpdateLidarObjects(int robotId, List<PolarPointListExtended> lidarObjectList)
