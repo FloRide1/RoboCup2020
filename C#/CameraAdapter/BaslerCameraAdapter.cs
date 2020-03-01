@@ -38,32 +38,37 @@ namespace CameraAdapter
                 camera.StreamGrabber.ImageGrabbed += StreamGrabber_ImageGrabbed;
                 camera.StreamGrabber.GrabStopped += StreamGrabber_GrabStopped;
 
-                camera.Open();                    
+                camera.Open();
 
-                camera.Parameters[PLCamera.GevSCPSPacketSize].SetValue(8192);       //Réglage du packet Size à 8192
-                camera.Parameters[PLCamera.GevSCPD].SetValue(10000);                //Réglage de l'inter packet delay à 10000
-                camera.Parameters[PLCamera.AcquisitionFrameRateAbs].SetValue(30);   //Réglage du framerate en fps
-                camera.Parameters[PLCamera.GevHeartbeatTimeout].SetValue(5000);     //Réglage du heart beat (timout)
-                camera.Parameters[PLCamera.Width].SetValue(860);
-                camera.Parameters[PLCamera.Height].SetValue(860);
-                camera.Parameters[PLCamera.CenterX].SetValue(true);
-                //camera.Parameters[PLCamera.OffsetX].SetValue(540);
-                camera.Parameters[PLCamera.CenterY].SetValue(true);
-                //camera.Parameters[PLCamera.OffsetY].SetValue(148);
-                camera.Parameters[PLCamera.ReverseX].SetValue(true);
-                camera.Parameters[PLCamera.ReverseY].SetValue(true);
-
-                //Parametre d'acquisition image
-                camera.Parameters[PLCamera.ExposureTimeAbs].SetValue(1000);        //Réglage du temps d'exposition à 40Hz - 25.000 us
-                camera.Parameters[PLCamera.GainRaw].SetValue(300);
-
-
-                camera.Parameters[PLCamera.LightSourceSelector].SetValue(PLCamera.LightSourceSelector.Daylight6500K);
+                SetUpCamera(900, 180, 400);
 
             }
-                //SetValue(PLCamera.AcquisitionMode.Continuous);
+            //SetValue(PLCamera.AcquisitionMode.Continuous);
             KeepShot();
         }
+
+        private void SetUpCamera(int size, int offsetX, int offsetY)
+        {
+            camera.Parameters[PLCamera.GevSCPSPacketSize].SetValue(8192);       //Réglage du packet Size à 8192
+            camera.Parameters[PLCamera.GevSCPD].SetValue(10000);                //Réglage de l'inter packet delay à 10000
+            camera.Parameters[PLCamera.AcquisitionFrameRateAbs].SetValue(30);   //Réglage du framerate en fps
+            camera.Parameters[PLCamera.GevHeartbeatTimeout].SetValue(5000);     //Réglage du heart beat (timout)
+            camera.Parameters[PLCamera.Width].SetValue(size);
+            camera.Parameters[PLCamera.Height].SetValue(size);
+            camera.Parameters[PLCamera.CenterX].SetValue(false);
+            camera.Parameters[PLCamera.OffsetX].SetValue(offsetX);
+            camera.Parameters[PLCamera.CenterY].SetValue(false);
+            camera.Parameters[PLCamera.OffsetY].SetValue(offsetY);
+            camera.Parameters[PLCamera.ReverseX].SetValue(true);
+            camera.Parameters[PLCamera.ReverseY].SetValue(true);
+
+            //Parametre d'acquisition image
+            camera.Parameters[PLCamera.ExposureTimeAbs].SetValue(1000);        //Réglage du temps d'exposition à 40Hz - 25.000 us
+            camera.Parameters[PLCamera.GainRaw].SetValue(300);
+            
+            camera.Parameters[PLCamera.LightSourceSelector].SetValue(PLCamera.LightSourceSelector.Daylight6500K);
+        }
+
         private void StreamGrabber_GrabStarted(object sender, EventArgs e)
         {
             GrabOver = true;
@@ -80,7 +85,7 @@ namespace CameraAdapter
                     Bitmap bitmap = GrabResult2Bmp(grabResult);
                     OnBitmapFishEyeImageReceived(bitmap);
 
-                        //Conversion en panorama
+                    //Conversion en panorama
                     sw.Restart();
                     Bitmap BitmapPanoramaImage = FishEyeToPanorama(bitmap);
                     sw.Stop();
