@@ -575,7 +575,7 @@ namespace RobotInterface
         
         private void worldMapDisplay_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            WorldMapDisplay s = (WorldMapDisplay)sender;
+            LocalWorldMapDisplay s = (LocalWorldMapDisplay)sender;
 
             int row = 0, column = 0;
 
