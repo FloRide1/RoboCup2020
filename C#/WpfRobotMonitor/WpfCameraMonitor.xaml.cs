@@ -63,11 +63,17 @@ namespace RobotMonitor
             string descriptor = e.Descriptor;
             switch (descriptor)
             {
+                case "FishEyeImageFromCamera":
+                    Dispatcher.Invoke(new Action(delegate ()
+                    {
+                        imageCamera1.Source = ImageSourceFromBitmap(e.Bitmap);
+                    }));
+                    break;
                 case "PanoramaImageFromCamera":
                     sw.Restart();
                     Dispatcher.Invoke(new Action(delegate ()
                     {
-                        imageCamera1.Source = ImageSourceFromBitmap(e.Bitmap);
+                        imageCamera2.Source = ImageSourceFromBitmap(e.Bitmap);
                     }));
                     sw.Stop();
                     //Console.WriteLine("BitmapToImageSource: " + sw.ElapsedMilliseconds);
@@ -88,7 +94,7 @@ namespace RobotMonitor
                     //imageCamera4.Source = ImageSourceFromBitmap(image);
                     break;
                 default:
-                    //imageCamera4.Source = ImageSourceFromBitmap(image);
+                    imageCamera4.Source = ImageSourceFromBitmap(e.Bitmap);
                     break;
             }
 

@@ -114,7 +114,7 @@ namespace Robot
         static bool usingLogging = false;
         static bool usingLogReplay = false;
         static bool usingImageExtractor = true;     //Utilisé pour extraire des images du flux camera et les enregistrer en tant que JPG
-        static bool usingYolo = true;               //Permet de ne pas utiliser Yolo
+        static bool usingYolo = false;               //Permet de ne pas utiliser Yolo
 
 
         static bool usingRobotInterface = true;
@@ -483,7 +483,7 @@ namespace Robot
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
                 ConsoleCamera = new RobotMonitor.WpfCameraMonitor();
                 ConsoleCamera.Loaded += RegisterCameraInterfaceEvents;
-                ConsoleCamera.ShowDialog();                
+                ConsoleCamera.ShowDialog();
             });
             t2.SetApartmentState(ApartmentState.STA);
             t2.Start();
@@ -508,9 +508,9 @@ namespace Robot
         {
             if (usingCamera || usingLogging)
             {
-                //omniCamera.BitmapImageEvent += ConsoleCamera.DisplayBitmapImage;
-                //absolutePositionEstimator.OnBitmapImageProcessedEvent += ConsoleCamera.DisplayBitmapImage;
-                //omniCamera.BitmapPanoramaImageEvent += ConsoleCamera.DisplayBitmapImage;
+                omniCamera.BitmapFishEyeImageEvent += ConsoleCamera.DisplayBitmapImage;
+                ////absolutePositionEstimator.OnBitmapImageProcessedEvent += ConsoleCamera.DisplayBitmapImage;
+                omniCamera.BitmapPanoramaImageEvent += ConsoleCamera.DisplayBitmapImage;
             }
 
             if (usingLogReplay)

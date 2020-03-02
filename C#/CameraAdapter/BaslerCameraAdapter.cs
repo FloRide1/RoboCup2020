@@ -1,12 +1,16 @@
 ﻿using Basler.Pylon;
 using Emgu.CV;
+using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
+using Emgu.CV.Util;
 using EventArgsLibrary;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace CameraAdapter
@@ -40,7 +44,7 @@ namespace CameraAdapter
 
                 camera.Open();
 
-                SetUpCamera(900, 180, 400);
+                SetUpCamera(1080, 420, 60);
 
             }
             //SetValue(PLCamera.AcquisitionMode.Continuous);
@@ -75,29 +79,98 @@ namespace CameraAdapter
         }
 
         Stopwatch sw = new Stopwatch();
+
+        bool firstImage = true;
         private void StreamGrabber_ImageGrabbed(object sender, ImageGrabbedEventArgs e)
         {
-            IGrabResult grabResult = e.GrabResult;
-            if (grabResult.IsValid)
+            try
             {
-                if (GrabOver)
+                IGrabResult grabResult = e.GrabResult;
+                if (grabResult.IsValid)
                 {
-                    Bitmap bitmap = GrabResult2Bmp(grabResult);
-                    OnBitmapFishEyeImageReceived(bitmap);
+                    if (GrabOver)
+                    {
+                        Bitmap bitmap = GrabResult2Bmp(grabResult);
 
-                    //Conversion en panorama
-                    sw.Restart();
-                    Bitmap BitmapPanoramaImage = FishEyeToPanorama(bitmap);
-                    sw.Stop();
-                    Console.WriteLine("FishEyeToPano3:" + sw.ElapsedMilliseconds);
-                    
-                    OnBitmapPanoramaImageReceived(BitmapPanoramaImage);
-                    //OnBitmapImageReceived(bitmap);
-                    //Image<Bgr, Byte> imageCV = new Image<Bgr, byte>(bitmap); //Image Class from Emgu.CV
-                    //Mat mat = imageCV.Mat;
-                    //OnOpenCvMatImageReceived(mat);                
+                        if (firstImage)
+                        {
+                            CircleF circleFocus;
+                            bitmap = DetectCercleObjectifFishEye(bitmap, 100, out circleFocus);
+                            firstImage = false;
+                            //SetUpCamera((int)circleFocus.Radius * 2, (int)((circleFocus.Center.X - 1080 / 2)), (int)((circleFocus.Center.Y - 1080 / 2)));
+                        }
+
+                        OnBitmapFishEyeImageReceived(bitmap);
+
+                        //Conversion en panorama
+                        sw.Restart();
+                        Bitmap BitmapPanoramaImage = FishEyeToPanorama(bitmap);
+                        sw.Stop();
+                        Console.WriteLine("FishEyeToPano3:" + sw.ElapsedMilliseconds);
+
+                        OnBitmapPanoramaImageReceived(BitmapPanoramaImage);
+                        //OnBitmapImageReceived(bitmap);
+                        //Image<Bgr, Byte> imageCV = new Image<Bgr, byte>(bitmap); //Image Class from Emgu.CV
+                        //Mat mat = imageCV.Mat;
+                        //OnOpenCvMatImageReceived(mat);                
+                    }
                 }
             }
+            catch(Exception exc)
+            {
+                Console.WriteLine(exc);
+            }
+        }
+
+        
+        private Bitmap DetectCercleObjectifFishEye(Bitmap bitmap, int seuilGris, out CircleF circle)
+        {
+            Mat imgOriginal = null;
+            circle = new CircleF();
+            try
+            {
+                Image<Bgr, Byte> imageCV = new Image<Bgr, byte>(bitmap); //Image Class from Emgu.CV
+                imgOriginal = imageCV.Mat; //This is your Image converted to Mat
+                Mat imgGray = new Mat();
+                CvInvoke.CvtColor(imgOriginal, imgGray, ColorConversion.Bgr2Gray);
+                Mat imgGray2 = new Mat();
+                Mat imgBW = new Mat();
+                CvInvoke.PyrDown(imgGray, imgGray2);
+                CvInvoke.PyrUp(imgGray2, imgGray);
+                CvInvoke.Threshold(imgGray, imgBW, 100, 150, ThresholdType.Otsu);
+
+                //
+
+                VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint();
+                Mat hierarchy = new Mat();
+
+                CvInvoke.FindContours(imgBW, contours, hierarchy, RetrType.Tree, ChainApproxMethod.ChainApproxTc89L1);
+
+                CvInvoke.DrawContours(imgOriginal, contours, -1, new MCvScalar(0, 0, 255), 2);
+
+                List<PointF> listPoints = new List<PointF>();
+
+                int border = 2;
+                for (int i = 0; i < contours.Size; i++)
+                {
+                    var c = contours[i];
+                    for(int j = 0; j<c.Size; j++)
+                    {
+                        if(c[j].X> border && c[j].X < imgOriginal.Width- border && c[j].Y > border && c[j].Y < imgOriginal.Height - border)
+                        listPoints.Add(c[j]);
+                    }
+                }
+                               
+                circle = CvInvoke.MinEnclosingCircle(listPoints.ToArray());
+
+                CvInvoke.Circle(imgOriginal, new Point((int)circle.Center.X, (int)circle.Center.Y), (int)circle.Radius, new MCvScalar(0, 0, 255), 3);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            return imgOriginal.Bitmap;
         }
 
         private void StreamGrabber_GrabStopped(object sender, GrabStopEventArgs e)
