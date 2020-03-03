@@ -508,9 +508,13 @@ namespace Robot
         {
             if (usingCamera || usingLogging)
             {
-                omniCamera.BitmapFishEyeImageEvent += ConsoleCamera.DisplayBitmapImage;
+                //omniCamera.BitmapFishEyeImageEvent += ConsoleCamera.DisplayBitmapImage;
                 ////absolutePositionEstimator.OnBitmapImageProcessedEvent += ConsoleCamera.DisplayBitmapImage;
                 omniCamera.BitmapPanoramaImageEvent += ConsoleCamera.DisplayBitmapImage;
+                ConsoleCamera.CalibrateCameraEvent += omniCamera.CalibrateFishEye;
+                ConsoleCamera.ResetCalibrationCameraEvent += omniCamera.ResetFishEyeCalibration;
+                ConsoleCamera.StartCameraEvent += omniCamera.StartAcquisition;
+                ConsoleCamera.StopCameraEvent += omniCamera.StopAcquisition;
             }
 
             if (usingLogReplay)

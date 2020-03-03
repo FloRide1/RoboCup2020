@@ -165,5 +165,101 @@ namespace RobotMonitor
                 }
             }
         }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (WindowState == WindowState.Maximized)
+            {
+                // Use the RestoreBounds as the current values will be 0, 0 and the size of the screen
+                Properties.Settings.Default.Top = RestoreBounds.Top;
+                Properties.Settings.Default.Left = RestoreBounds.Left;
+                Properties.Settings.Default.Height = RestoreBounds.Height;
+                Properties.Settings.Default.Width = RestoreBounds.Width;
+                Properties.Settings.Default.Maximized = true;
+            }
+            else
+            {
+                Properties.Settings.Default.Top = this.Top;
+                Properties.Settings.Default.Left = this.Left;
+                Properties.Settings.Default.Height = this.Height;
+                Properties.Settings.Default.Width = this.Width;
+                Properties.Settings.Default.Maximized = false;
+            }
+
+            Properties.Settings.Default.Save();
+            Properties.Settings.Default.Reload();
+        }
+
+        private void Window_SourceInitialized(object sender, EventArgs e)
+        {
+            this.Top = Properties.Settings.Default.Top;
+            this.Left = Properties.Settings.Default.Left;
+            this.Height = Properties.Settings.Default.Height;
+            this.Width = Properties.Settings.Default.Width;
+            if (Properties.Settings.Default.Maximized)
+            {
+                WindowState = WindowState.Maximized;
+            }
+        }
+
+        private void Calibrate_Button_Click(object sender, RoutedEventArgs e)
+        {
+            OnCalibrateCameraEventReceived();
+        }
+
+        private void Reset_Calibration_Button_Click(object sender, RoutedEventArgs e)
+        {
+            OnResetCalibrationCameraEventReceived();
+        }
+        public void Stop_Camera_Button_Click(object sender, RoutedEventArgs e)
+        {
+            OnStopCameraEventReceived();
+        }
+
+        public void Start_Camera_Button_Click(object sender, RoutedEventArgs e)
+        {
+            OnStartCameraEventReceived();
+        }
+
+        public event EventHandler<EventArgs> CalibrateCameraEvent;
+        public virtual void OnCalibrateCameraEventReceived()
+        {
+            var handler = CalibrateCameraEvent;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
+            }
+        }
+
+        public event EventHandler<EventArgs> ResetCalibrationCameraEvent;
+        public virtual void OnResetCalibrationCameraEventReceived()
+        {
+            var handler = ResetCalibrationCameraEvent;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
+            }
+        }
+
+        public event EventHandler<EventArgs> StartCameraEvent;
+        public virtual void OnStartCameraEventReceived()
+        {
+            var handler = StartCameraEvent;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
+            }
+        }
+
+        public event EventHandler<EventArgs> StopCameraEvent;
+        public virtual void OnStopCameraEventReceived()
+        {
+            var handler = StopCameraEvent;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
+            }
+        }
+
     }
 }

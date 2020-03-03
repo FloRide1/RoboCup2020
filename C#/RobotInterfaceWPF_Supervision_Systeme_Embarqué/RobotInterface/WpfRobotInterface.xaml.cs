@@ -156,6 +156,10 @@ namespace RobotInterface
         {
             //throw new NotImplementedException();
             worldMapDisplay.UpdateLocalWorldMap(e.LocalWorldMap);
+            Dispatcher.Invoke(new Action(delegate ()
+            {
+                worldMapDisplay.UpdateWorldMapDisplay();
+            }));
         }
 
         public void ResetInterfaceState()

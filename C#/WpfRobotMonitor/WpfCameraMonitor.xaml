@@ -5,23 +5,25 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RobotMonitor"
         mc:Ignorable="d"
-        Title="Camera Monitor" Height="600" Width="800">
+        Title="Camera Monitor" Height="600" Width="800" Closing="Window_Closing" SourceInitialized="Window_SourceInitialized">
     <Grid x:Name="GridAffichageCamera">
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="10"/>
             <RowDefinition/>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="10"/>
             <RowDefinition/>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="10"/>
             <RowDefinition Height="0.5*"/>
+            <RowDefinition Height="10"/>
             <RowDefinition Height="30"/>
+            <RowDefinition Height="10"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="30"/>
+            <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="30"/>
+            <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="30"/>
+            <ColumnDefinition Width="10"/>
         </Grid.ColumnDefinitions>
 
         <GroupBox x:Name="ImageDebug1" Header="ImageDebug1" Margin="0" BorderBrush="Black" Foreground="Black" Background="#FFDDDDDD" Grid.Column="1" Grid.Row="1" MouseDoubleClick="ImageDebug1_MouseDoubleClick">
@@ -49,5 +51,11 @@
                 <TextBox x:Name="textBoxDebug" Margin="0"  TextWrapping="WrapWithOverflow" Background="{x:Null}" BorderBrush="{x:Null}" IsReadOnly="True" AcceptsReturn="True"/>
             </ScrollViewer>
         </GroupBox>
-    </Grid>
+        <StackPanel Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" Orientation="Horizontal">
+            <Button Content="Calibration FishEye" Margin="0,0,20,0" Width="110" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Click="Calibrate_Button_Click" />
+            <Button Content="Reset Calibration" Margin="0,0,20,0" Grid.Row="7" Width="110" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Click="Reset_Calibration_Button_Click" />
+            <Button Content="Start Camera" Margin="0,0,20,0" Grid.Row="7" Width="110" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Click="Start_Camera_Button_Click" />
+            <Button Content="Stop Camera" Margin="0,0,20,0" Grid.Row="7" Width="110" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Click="Stop_Camera_Button_Click" />
+        </StackPanel>
+        </Grid>
 </Window>

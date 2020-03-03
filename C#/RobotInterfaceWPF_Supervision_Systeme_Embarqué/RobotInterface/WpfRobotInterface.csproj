@@ -101,6 +101,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Settings.cs" />
     <Compile Include="WpfRobotInterface.xaml.cs">
       <DependentUpon>WpfRobotInterface.xaml</DependentUpon>
       <SubType>Code</SubType>
