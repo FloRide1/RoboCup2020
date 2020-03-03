@@ -341,7 +341,7 @@ namespace CameraAdapter
                 //https://stackoverflow.com/questions/1563038/fast-work-with-bitmaps-in-c-sharp
                 //Perf à peu près identiques à celles de OpenCV, mais sans avoir besoind e faire les conversions au départ.
 
-                double panoramaGlobalScale = 0.35;
+                double panoramaGlobalScale = 0.75;
                 double panoramaYScale = 1.85;
 
                 //byte[,,] data = (byte[,,])originalImage.;

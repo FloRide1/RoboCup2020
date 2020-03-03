@@ -5,17 +5,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using Utilities;
 
 namespace RobotMessageProcessor
 {
     public class RobotMsgProcessor
     {
+        Timer tmrComptageMessage;
         public RobotMsgProcessor()
         {
-
+            tmrComptageMessage = new Timer(1000);
+            tmrComptageMessage.Elapsed += TmrComptageMessage_Elapsed;
+            tmrComptageMessage.Start();
         }
 
+
+        int nbMessageIMUReceived = 0;
+        int nbMessageSpeedReceived = 0;
+        private void TmrComptageMessage_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            OnMessageCounter(nbMessageIMUReceived, nbMessageSpeedReceived);
+            nbMessageIMUReceived = 0;
+            nbMessageSpeedReceived = 0;
+        }
 
         //Input CallBack        
         public void ProcessRobotDecodedMessage(object sender, MessageDecodedArgs e)
@@ -38,6 +51,7 @@ namespace RobotMessageProcessor
 
                 case (short)Commands.XYTheta_Speed:
                     {
+                        nbMessageSpeedReceived++;
                         timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
                         tab = payload.GetRange(4, 4);
                         float vX = tab.GetFloat();
@@ -51,6 +65,7 @@ namespace RobotMessageProcessor
                     break;
                 case (short)Commands.IMUData:
                     {
+                        nbMessageIMUReceived++;
                         timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
                         tab  = payload.GetRange(4, 4);
                         float accelX = tab.GetFloat();
@@ -216,7 +231,6 @@ namespace RobotMessageProcessor
             }
         }
 
-        //public delegate void VxVyVThetaDataEventHandler(object sender, SpeedDataEventArgs e);
         public event EventHandler<EventArgs> OnWelcomeMessageFromRobotGeneratedEvent;
         public virtual void OnWelcomeMessageFromRobot()
         {
@@ -229,7 +243,6 @@ namespace RobotMessageProcessor
 
 
         //Output events
-        public delegate void IMUDataEventHandler(object sender, IMUDataEventArgs e);
         public event EventHandler<IMUDataEventArgs> OnIMUDataFromRobotGeneratedEvent;
         public virtual void OnIMUDataFromRobot(uint timeStamp, Point3D accelxyz, Point3D gyroxyz)
         {
@@ -240,7 +253,6 @@ namespace RobotMessageProcessor
             }
         }
 
-        public delegate void EnableDisableMotorsEventHandler(object sender, BoolEventArgs e);
         public event EventHandler<BoolEventArgs> OnEnableDisableMotorsACKFromRobotGeneratedEvent;
         public virtual void OnEnableDisableMotorsACKFromRobot(bool isEnabled)
         {
@@ -251,7 +263,6 @@ namespace RobotMessageProcessor
             }
         }
 
-        public delegate void EnableDisableTirEventHandler(object sender, BoolEventArgs e);
         public event EventHandler<BoolEventArgs> OnEnableDisableTirACKFromRobotGeneratedEvent;
         public virtual void OnEnableDisableTirACKFromRobot(bool isEnabled)
         {
@@ -262,7 +273,6 @@ namespace RobotMessageProcessor
             }
         }
 
-        public delegate void EnableEnableAsservissementEventHandler(object sender, BoolEventArgs e);
         public event EventHandler<BoolEventArgs> OnEnableAsservissementACKFromRobotGeneratedEvent;
         public virtual void OnEnableAsservissementACKFromRobot(bool isEnabled)
         {
@@ -273,7 +283,6 @@ namespace RobotMessageProcessor
             }
         }
 
-        public delegate void EnableEnableMotorCurrentEventHandler(object sender, BoolEventArgs e);
         public event EventHandler<BoolEventArgs> OnEnableMotorCurrentACKFromRobotGeneratedEvent;
         public virtual void OnEnableMotorCurrentACKFromRobot(bool isEnabled)
         {
@@ -284,7 +293,6 @@ namespace RobotMessageProcessor
             }
         }
 
-        public delegate void EnableEnableEncoderRawDataEventHandler(object sender, BoolEventArgs e);
         public event EventHandler<BoolEventArgs> OnEnableEncoderRawDataACKFromRobotGeneratedEvent;
         public virtual void OnEnableEncoderRawDataACKFromRobot(bool isEnabled)
         {
@@ -295,7 +303,6 @@ namespace RobotMessageProcessor
             }
         }
 
-        public delegate void EnablePositionDataEventHandler(object sender, BoolEventArgs e);
         public event EventHandler<BoolEventArgs> OnEnablePositionDataACKFromRobotGeneratedEvent;
         public virtual void OnEnablePositionDataACKFromRobot(bool isEnabled)
         {
@@ -306,7 +313,6 @@ namespace RobotMessageProcessor
             }
         }
 
-        //public delegate void EnablePositionDataEventHandler(object sender, BoolEventArgs e);
         public event EventHandler<BoolEventArgs> OnEnableMotorSpeedConsigneDataACKFromRobotGeneratedEvent;
         public virtual void OnEnableMotorSpeedConsigneDataACKFromRobot(bool isEnabled)
         {
@@ -317,7 +323,6 @@ namespace RobotMessageProcessor
             }
         }
 
-        public delegate void ErrorTextMessageEventHandler(object sender, StringEventArgs e);
         public event EventHandler<StringEventArgs> OnErrorTextFromRobotGeneratedEvent;
         public virtual void OnErrorTextFromRobot(string str)
         {
@@ -328,7 +333,6 @@ namespace RobotMessageProcessor
             }
         }
 
-        //public delegate void VxVyVThetaDataEventHandler(object sender, SpeedDataEventArgs e);
         public event EventHandler<SpeedDataEventArgs> OnSpeedDataFromRobotGeneratedEvent;
         public virtual void OnSpeedDataFromRobot(uint timeStamp, double vX, double vY, double vTheta)
         {
@@ -345,7 +349,6 @@ namespace RobotMessageProcessor
             }
         }
 
-        public delegate void MotorsCurrentsEventHandler(object sender, MotorsCurrentsEventArgs e);
         public event EventHandler<MotorsCurrentsEventArgs> OnMotorsCurrentsFromRobotGeneratedEvent;
         public virtual void OnMotorsCurrentsFromRobot(uint timeStamp, double m1A, double m2A, double m3A,
                                                                         double m4A, double m5A, double m6A, double m7A)
@@ -364,7 +367,6 @@ namespace RobotMessageProcessor
             }
         }
 
-        public delegate void MotorVitesseDataEventHandler(object sender, MotorsVitesseDataEventArgs e);
         public event EventHandler<MotorsVitesseDataEventArgs> OnMotorVitesseDataFromRobotGeneratedEvent;
         public virtual void OnMotorVitesseDataFromRobot(uint timeStamp, double m1, double m2, double m3,
                                                                         double m4, double m5, double m6, double m7)
@@ -385,7 +387,6 @@ namespace RobotMessageProcessor
             }
         }
 
-        public delegate void EncoderRawDataEventHandler(object sender, EncodersRawDataEventArgs e);
         public event EventHandler<EncodersRawDataEventArgs> OnEncoderRawDataFromRobotGeneratedEvent;
         public virtual void OnEncoderRawDataFromRobot(uint timeStamp, int m1, int m2, int m3,
                                                                         int m4, int m5, int m6, int m7)
@@ -407,7 +408,6 @@ namespace RobotMessageProcessor
             }
         }
 
-        public delegate void MotorsSpeedConsigneDataEventHandler(object sender, MotorsVitesseDataEventArgs e);
         public event EventHandler<MotorsVitesseDataEventArgs> OnSpeedConsigneDataFromRobotGeneratedEvent;
         public virtual void OnSpeedConsigneDataFromRobot(uint timeStamp, double m1, double m2, double m3,
                                                                         double m4, double m5, double m6, double m7)
@@ -429,7 +429,6 @@ namespace RobotMessageProcessor
             }
         }
 
-        public delegate void PIDDebugDataEventHandler(object sender, PIDDebugDataArgs e);
         public event EventHandler<PIDDebugDataArgs> OnPIDDebugDataFromRobotGeneratedEvent;
         public virtual void OnPIDDebugDataFromRobot(uint timeStamp, double xError, double yError, double thetaError,
                                                                         double xCorrection, double yCorrection, double thetaCorrection, double xConsigneRobot, double yConsigneRobot, double thetaConsigneRobot)
@@ -450,6 +449,16 @@ namespace RobotMessageProcessor
                     yConsigneFromRobot=yConsigneRobot,
                     thetaConsigneFromRobot=thetaConsigneRobot
                 });
+            }
+        }
+        
+        public event EventHandler<MsgCounterArgs> OnMessageCounterEvent;
+        public virtual void OnMessageCounter(int nbMessageFromImu, int nbMessageFromOdometry)
+        {
+            var handler = OnMessageCounterEvent;
+            if (handler != null)
+            {
+                handler(this, new MsgCounterArgs { nbMessageIMU = nbMessageFromImu, nbMessageOdometry = nbMessageFromOdometry });
             }
         }
     }

@@ -308,7 +308,8 @@ namespace RobotInterface
             }
             ResetInterfaceState();
         }
-        
+       
+
         //Methode appelée sur evenement (event) provenant du port Serie.
         //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
         public void ActualizeEnableDisableMotorsButton(object sender, BoolEventArgs e)
@@ -394,6 +395,16 @@ namespace RobotInterface
                     textBoxConsole.Text = textBoxConsole.Text.Remove(0, 2000);
                 }
                 scrollViewerTextBoxConsole.ScrollToEnd();
+            }));
+        }
+
+
+        public void MessageCounterReceived(object sender, MsgCounterArgs e)
+        {
+            Dispatcher.Invoke(new Action(delegate ()
+            {
+                LabelNbSpeedOdometryDataPerSec.Content = "Nb odometry data / sec : " + e.nbMessageOdometry;
+                LabelNbIMUDataPerSec.Content = "Nb IMU data / sec : " + e.nbMessageIMU;
             }));
         }
 
@@ -842,6 +853,11 @@ namespace RobotInterface
                     oscilloTheta.RemoveLine(5);
                 }
             }
+        }
+
+        private void ButtonCalibrateGyro_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

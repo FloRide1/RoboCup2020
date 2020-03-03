@@ -46,8 +46,8 @@
             <oscillo:WpfOscilloscope x:Name="oscilloX" Grid.Column="1" Grid.Row="0" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
             <oscillo:WpfOscilloscope x:Name="oscilloY" Grid.Column="0" Grid.Row="1" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
             <oscillo:WpfOscilloscope x:Name="oscilloTheta" Grid.Column="1" Grid.Row="1" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
-            <GroupBox Grid.Column="2" Header="Options" Margin="10,10,10,10" Grid.Row="1"  MouseDoubleClick="ZoomOnGraph_MouseDoubleClick">
-                <Grid Background="#FF636363">
+            <GroupBox Grid.Column="2" Header="Options" Margin="10,10,10,10" Grid.Row="1"  MouseDoubleClick="ZoomOnGraph_MouseDoubleClick" Background="#FF636363">
+                <Grid >
                     <Grid.RowDefinitions>
                         <RowDefinition Height="1*"/>
                         <RowDefinition Height="1*"/>
@@ -58,10 +58,16 @@
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
-                    <CheckBox Name="CheckBoxControlManette" Content="Enable Manette" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Checked="CheckBox_CheckedChanged" Unchecked="CheckBox_CheckedChanged"/>
-                    <Button Name="ButtonDisableMotors" Grid.ColumnSpan="2" Content="Disable Motors" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="85" Click="ButtonDisableMotors_Click"/>
-                    <Button Name="ButtonEnableDisableTir" Grid.ColumnSpan="2" Content="Enable Tir" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="1" VerticalAlignment="Top" Width="85" Click="ButtonEnableDisableTir_Click"/>
-                    <Button Name="ButtonEnableAsservissement" Grid.ColumnSpan="2" Content="Enable Asservissement" Grid.Column="1" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="0" VerticalAlignment="Top" Click="ButtonEnableAsservissement_Click"/>
+
+                    <StackPanel Name="ButtonsStackPanelColumn1" Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Orientation="Vertical">
+                        <Button Name="ButtonDisableMotors" Content="Disable Motors" HorizontalAlignment="Center" Margin="10,0,10,5" VerticalAlignment="Top" Width="85" Height="20" Click="ButtonDisableMotors_Click"/>
+                        <Button Name="ButtonCalibrateGyro" Content="Calibrate Gyro" HorizontalAlignment="Center" Margin="10,0,10,5" VerticalAlignment="Top" Width="85" Height="20" Click="ButtonCalibrateGyro_Click"/>
+                        <Button Name="ButtonEnableDisableTir" Content="Enable Tir" HorizontalAlignment="Center"  Margin="10,0,10,5" VerticalAlignment="Top" Width="85" Height="20" Click="ButtonEnableDisableTir_Click"/>
+                        <CheckBox Name="CheckBoxControlManette" Content="Enable Manette" HorizontalAlignment="Center"  Margin="10,0,10,5" VerticalAlignment="Top" Checked="CheckBox_CheckedChanged" Unchecked="CheckBox_CheckedChanged"/>
+                    </StackPanel>
+                    <StackPanel Name="ButtonsStackPanelColumn2" Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Orientation="Vertical">
+                        <Button Name="ButtonEnableAsservissement" Content="Enable Asservissement"  HorizontalAlignment="Center" Margin="10,0,10,5" VerticalAlignment="Top" Width="85" Height="20" Click="ButtonEnableAsservissement_Click"/>               
+                    </StackPanel>
                     
                     <GroupBox Grid.ColumnSpan="1" Grid.Column="1" Header="debug data" HorizontalAlignment="Stretch"  Margin="0,0,0,-0" Grid.Row="1" Grid.RowSpan="2" VerticalAlignment="Stretch">
                         <ScrollViewer Name="scrollViewerDebugOption">
@@ -132,11 +138,24 @@
                     
                 </Grid>
             </GroupBox>
-            <GroupBox Grid.Column="1" Header="Console" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Stretch">
-                <ScrollViewer Name="scrollViewerTextBoxConsole">
-                    <TextBlock Name="textBoxConsole" HorizontalAlignment="Stretch" Margin="0,0,0,0" TextWrapping="WrapWithOverflow" Text="TextBlock" VerticalAlignment="Stretch" Background="Gray" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                    ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"/>
-                </ScrollViewer>
+                        
+            <GroupBox Grid.Column="1" Header="Console" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Stretch" Background="White">
+                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <Label x:Name="LabelNbIMUDataPerSec" Content="Nb IMU data / sec : "></Label>
+                        <Label x:Name="LabelNbSpeedOdometryDataPerSec" Content="Nb odometry data / sec : "></Label>
+                        <Label x:Name="LabelNbLidarProcessedDataPerSec" Content="Nb Lidar data / sec : "></Label>
+                    </StackPanel>
+                    <ScrollViewer Name="scrollViewerTextBoxConsole" Grid.Column="1">
+                        <TextBlock Name="textBoxConsole" HorizontalAlignment="Stretch" Margin="0,0,0,0" TextWrapping="WrapWithOverflow" Text="TextBlock" VerticalAlignment="Stretch" Background="Gray" 
+                                   ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"/>
+                    </ScrollViewer>
+                </Grid>
+                
             </GroupBox>
         </Grid>
 

@@ -231,5 +231,10 @@ namespace EventArgsLibrary
         public Bitmap Bitmap { get; set; }
         public string Descriptor { get; set; }
     }
+    public class MsgCounterArgs : EventArgs
+    {
+        public int nbMessageIMU { get; set; }
+        public int nbMessageOdometry { get; set; }
+    }
 
 }

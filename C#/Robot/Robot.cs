@@ -114,7 +114,7 @@ namespace Robot
         static bool usingLogging = false;
         static bool usingLogReplay = false;
         static bool usingImageExtractor = true;     //Utilisé pour extraire des images du flux camera et les enregistrer en tant que JPG
-        static bool usingYolo = false;               //Permet de ne pas utiliser Yolo
+        static bool usingYolo = true;               //Permet de ne pas utiliser Yolo
 
 
         static bool usingRobotInterface = true;
@@ -453,6 +453,8 @@ namespace Robot
                 robotMsgProcessor.OnSpeedDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedDataOnGraph;
                 robotMsgProcessor.OnPIDDebugDataFromRobotGeneratedEvent += interfaceRobot.UpdatePIDDebugDataOnGraph;
                 robotMsgProcessor.OnErrorTextFromRobotGeneratedEvent += interfaceRobot.AppendConsole;
+
+                robotMsgProcessor.OnMessageCounterEvent += interfaceRobot.MessageCounterReceived;
             }
             xBoxManette.OnSpeedConsigneEvent += interfaceRobot.UpdateSpeedConsigneOnGraph;
             interfaceRobot.OnEnableDisableMotorsFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableMotors;
@@ -465,6 +467,7 @@ namespace Robot
             interfaceRobot.OnSetRobotPIDFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageSetPIDValueToRobot;
             interfaceRobot.OnEnablePIDDebugDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnablePIDDebugData;
 
+
             localWorldMapManager.OnLocalWorldMapEvent += interfaceRobot.OnLocalWorldMapEvent;
             if (usingLogReplay)
             {
@@ -472,7 +475,6 @@ namespace Robot
                 logReplay.OnSpeedDataEvent += interfaceRobot.UpdateSpeedDataOnGraph;
             }
         }
-
 
 
         static Thread t2;
@@ -510,7 +512,7 @@ namespace Robot
             {
                 //omniCamera.BitmapFishEyeImageEvent += ConsoleCamera.DisplayBitmapImage;
                 ////absolutePositionEstimator.OnBitmapImageProcessedEvent += ConsoleCamera.DisplayBitmapImage;
-                omniCamera.BitmapPanoramaImageEvent += ConsoleCamera.DisplayBitmapImage;
+                //omniCamera.BitmapPanoramaImageEvent += ConsoleCamera.DisplayBitmapImage;
                 ConsoleCamera.CalibrateCameraEvent += omniCamera.CalibrateFishEye;
                 ConsoleCamera.ResetCalibrationCameraEvent += omniCamera.ResetFishEyeCalibration;
                 ConsoleCamera.StartCameraEvent += omniCamera.StartAcquisition;
