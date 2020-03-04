@@ -81,9 +81,9 @@ namespace EventArgsLibrary
         public double accelX;
         public double accelY;
         public double accelZ;
-        public double gyrX;
-        public double gyrY;
-        public double gyrZ;
+        public double gyroX;
+        public double gyroY;
+        public double gyroZ;
         public double magX;
         public double magY;
         public double magZ;

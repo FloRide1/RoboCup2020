@@ -133,6 +133,10 @@
       <Project>{257176D4-22D8-4EA5-BA41-AB36D4AD2BA9}</Project>
       <Name>ImageSaver</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ImuProcessor\ImuProcessor.csproj">
+      <Project>{C6636D02-C51F-4EDB-8089-94D4C0E51A32}</Project>
+      <Name>ImuProcessor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LidarOMD60M\LidarOMD60M.csproj">
       <Project>{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}</Project>
       <Name>LidarOMD60M</Name>

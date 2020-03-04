@@ -75,15 +75,15 @@ namespace LogRecorder
             Log(json);
         }
 
-        public void OnIMUDataReceived(object sender, IMUDataEventArgs e)
+        public void OnIMURawDataReceived(object sender, IMUDataEventArgs e)
         {
             IMUDataEventArgsLog data = new IMUDataEventArgsLog();
             data.accelX = e.accelX;
             data.accelY = e.accelY;
             data.accelZ = e.accelZ;
-            data.gyrX = e.gyrX;
-            data.gyrY = e.gyrY;
-            data.gyrZ = e.gyrZ;
+            data.gyroX = e.gyroX;
+            data.gyroY = e.gyroY;
+            data.gyroZ = e.gyroZ;
             data.magX = e.magX;
             data.magY = e.magY;
             data.magZ = e.magZ;

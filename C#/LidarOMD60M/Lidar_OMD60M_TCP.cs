@@ -35,11 +35,16 @@ namespace LidarOMD60M
 
         public Lidar_OMD60M_TCP()
         {
-            new Thread(LidarStartAndAcquire).Start();
-            new Thread(LidarSendEvent).Start();
+            var threadStartLidar = new Thread(LidarStartAndAcquire);
+            threadStartLidar.SetApartmentState(ApartmentState.STA);
+            threadStartLidar.Start();
+            var threadSendEventLidar = new Thread(LidarSendEvent);
+            threadSendEventLidar.SetApartmentState(ApartmentState.STA);
+            threadSendEventLidar.Start();
+
         }
 
-
+        double angleIncrement;
         private void LidarStartAndAcquire()
         {
             using (r2000 = new R2000Scanner(IPAddress.Parse("169.254.235.44"), R2000ConnectionType.TCPConnection))
@@ -48,6 +53,8 @@ namespace LidarOMD60M
                 r2000.SetSamplingRate(R2000SamplingRate._8kHz);
                 r2000.SetScanFrequency(20);
                 r2000.SetSamplingRate(R2000SamplingRate._252kHz);
+
+                angleIncrement = 2 * Math.PI/((double)R2000SamplingRate._252kHz / 20);
 
                 r2000.OnlyStatusEvents().Subscribe(ev =>
                 {
@@ -62,7 +69,13 @@ namespace LidarOMD60M
                     .BufferByScan()
                     .Subscribe(x =>
                     {
-                        //Console.WriteLine($"Scans per second: {x.Count}");
+                        //lastLidarPtList = new List<PolarPoint>();
+
+                        //lastLidarPtList.Add(new PolarPoint(x.Points[0].Distance / 1000, Utilities.Toolbox.DegToRad(x.Points[0].Azimuth)));
+                        //for (int i=1; i< x.Points.Count; i++ )
+                        //{
+                        //    if()
+                        //}
                         lastLidarPtList = new List<PolarPoint>(x.Points.Select(pt => new PolarPoint(pt.Distance/1000, Utilities.Toolbox.DegToRad(pt.Azimuth))));
                         lastScanNumber = (int)x.Scan;
                         newLidarDataAvailable = true;

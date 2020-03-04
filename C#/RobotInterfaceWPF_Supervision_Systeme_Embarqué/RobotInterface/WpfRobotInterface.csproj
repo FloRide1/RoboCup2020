@@ -167,6 +167,10 @@
       <Project>{4012f5af-50e3-40bd-abf0-4afe3f30d5e3}</Project>
       <Name>RobotPilot</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Utilities\Utilities.csproj">
+      <Project>{8E7D0DA4-9A13-4B18-A90E-0243BBCCE40A}</Project>
+      <Name>Utilities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\WorldMap\WorldMap.csproj">
       <Project>{B2D0126F-8C82-4EAA-87E5-67415F589098}</Project>
       <Name>WorldMap</Name>

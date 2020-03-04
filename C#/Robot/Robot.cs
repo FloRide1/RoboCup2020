@@ -32,6 +32,7 @@ using Staudt.Engineering.LidaRx.Drivers.R2000;
 using System.Net;
 using Staudt.Engineering.LidaRx;
 using System.Linq;
+using ImuProcessor;
 
 namespace Robot
 {
@@ -114,7 +115,7 @@ namespace Robot
         static bool usingLogging = false;
         static bool usingLogReplay = false;
         static bool usingImageExtractor = true;     //Utilisé pour extraire des images du flux camera et les enregistrer en tant que JPG
-        static bool usingYolo = true;               //Permet de ne pas utiliser Yolo
+        static bool usingYolo = false;               //Permet de ne pas utiliser Yolo
 
 
         static bool usingRobotInterface = true;
@@ -139,6 +140,7 @@ namespace Robot
         static WaypointGenerator waypointGenerator;
         static LocalWorldMapManager localWorldMapManager;
         static LidarSimulator.LidarSimulator lidarSimulator;
+        static ImuProcessor.ImuProcessor imuProcessor;
         static StrategyManager.StrategyManager strategyManager;
         static PerceptionSimulator perceptionSimulator;
         static Lidar_OMD60M_UDP lidar_OMD60M_UDP;
@@ -231,6 +233,7 @@ namespace Robot
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId);
             lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             perceptionSimulator = new PerceptionSimulator(robotId);
+            imuProcessor = new ImuProcessor.ImuProcessor(robotId);
 
             if (usingYolo)
             {
@@ -310,6 +313,8 @@ namespace Robot
             serialPort1.OnDataReceivedEvent += msgDecoder.DecodeMsgReceived;
             msgDecoder.OnMessageDecodedEvent += robotMsgProcessor.ProcessRobotDecodedMessage;
 
+            robotMsgProcessor.OnIMURawDataFromRobotGeneratedEvent += imuProcessor.OnIMURawDataReceived;
+
             physicalSimulator.OnPhysicalRobotPositionEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicalObjectListLocationReceived;
             physicalSimulator.OnPhysicalRobotPositionEvent += perceptionSimulator.OnPhysicalRobotPositionReceived;
@@ -324,11 +329,10 @@ namespace Robot
             
             if (usingLidar)
             {
-                //lidar_OMD60M.OnLidarDecodedFrameEvent += lidarProcessor.OnRawLidarDataReceived;
+                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += lidarProcessor.OnRawLidarDataReceived;
                 //lidar_OMD60M.OnLidarDecodedFrameEvent += absolutePositionEstimator.OnRawLidarDataReceived;
-                //lidar_OMD60M_UDP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
                 lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
-                //lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
+                lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
             }
 
             //Events de recording
@@ -336,7 +340,7 @@ namespace Robot
             {
                 lidar_OMD60M_UDP.OnLidarDecodedFrameEvent += logRecorder.OnRawLidarDataReceived;
                 //lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += logRecorder.OnRawLidarDataReceived;
-                robotMsgProcessor.OnIMUDataFromRobotGeneratedEvent += logRecorder.OnIMUDataReceived;
+                imuProcessor.OnIMUProcessedDataGeneratedEvent += logRecorder.OnIMURawDataReceived;
                 robotMsgProcessor.OnSpeedDataFromRobotGeneratedEvent += logRecorder.OnSpeedDataReceived;
                 //omniCamera.OpenCvMatImageEvent += logRecorder.OnOpenCVMatImageReceived;
             }
@@ -438,9 +442,13 @@ namespace Robot
             msgDecoder.OnMessageDecodedEvent += interfaceRobot.DisplayMessageDecoded;
             msgDecoder.OnMessageDecodedErrorEvent += interfaceRobot.DisplayMessageDecodedError;
 
+            //lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += interfaceRobot.OnRawLidarDataReceived;
+            lidarProcessor.OnLidarProcessedEvent += interfaceRobot.OnRawLidarDataReceived;
+            //lidarProcessor.OnLidarObjectProcessedEvent +=  
+
             if (!usingLogReplay)
             {
-                robotMsgProcessor.OnIMUDataFromRobotGeneratedEvent += interfaceRobot.UpdateImuDataOnGraph;
+                imuProcessor.OnIMUProcessedDataGeneratedEvent += interfaceRobot.UpdateImuDataOnGraph;
                 robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += interfaceRobot.UpdateMotorsCurrentsOnGraph;
                 robotMsgProcessor.OnEncoderRawDataFromRobotGeneratedEvent += interfaceRobot.UpdateMotorsEncRawDataOnGraph;
 
@@ -466,7 +474,7 @@ namespace Robot
             interfaceRobot.OnEnableMotorsSpeedConsigneDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableMotorSpeedConsigne;
             interfaceRobot.OnSetRobotPIDFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageSetPIDValueToRobot;
             interfaceRobot.OnEnablePIDDebugDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnablePIDDebugData;
-
+            interfaceRobot.OnCalibrateGyroFromInterfaceGeneratedEvent += imuProcessor.OnCalibrateGyroFromInterfaceGeneratedEvent;
 
             localWorldMapManager.OnLocalWorldMapEvent += interfaceRobot.OnLocalWorldMapEvent;
             if (usingLogReplay)
@@ -512,7 +520,7 @@ namespace Robot
             {
                 //omniCamera.BitmapFishEyeImageEvent += ConsoleCamera.DisplayBitmapImage;
                 ////absolutePositionEstimator.OnBitmapImageProcessedEvent += ConsoleCamera.DisplayBitmapImage;
-                //omniCamera.BitmapPanoramaImageEvent += ConsoleCamera.DisplayBitmapImage;
+                omniCamera.BitmapPanoramaImageEvent += ConsoleCamera.DisplayBitmapImage;
                 ConsoleCamera.CalibrateCameraEvent += omniCamera.CalibrateFishEye;
                 ConsoleCamera.ResetCalibrationCameraEvent += omniCamera.ResetFishEyeCalibration;
                 ConsoleCamera.StartCameraEvent += omniCamera.StartAcquisition;

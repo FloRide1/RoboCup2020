@@ -22,14 +22,45 @@ namespace LidarProcessor
             if (robotId == e.RobotId)
             {
                 ProcessLidarData(e.PtList);
+                EvaluateSpeed(e.PtList);
             }
         }
 
         Random rand = new Random();
 
+        RollingList<List<PolarPoint>> LidarPtsListList = new RollingList<List<PolarPoint>>(2);
+        //List<PolarPoint> ptListT_1 = new List<PolarPoint>();
+        void EvaluateSpeed(List<PolarPoint> ptList)
+        {
+            List<PolarPoint> ptListProcessed = new List<PolarPoint>();
+            LidarPtsListList.Add(ptList);
+
+            if (LidarPtsListList.Count >= 2)
+            {
+                var LidarListT_1 = LidarPtsListList[0];
+
+                if (LidarListT_1.Count == ptList.Count)
+                {
+                    for (int i = 0; i < ptList.Count; i++)
+                    {
+                        double diff = Math.Abs(ptList[i].Distance - LidarListT_1[i].Distance);
+                        if (diff < 0.2)
+                        {
+                            ptListProcessed.Add(new PolarPoint(diff, ptList[i].Angle));
+                        }
+                    }
+                }
+                else
+                {
+                    ;
+                }
+            }
+            //OnLidarProcessed(robotId, ptList);
+        }
+
         void ProcessLidarData(List<PolarPoint> ptList)
         {
-            double zoomCoeff = 1.5;
+            double zoomCoeff = 1.0;
 
             //List<PolarPoint> PtListProcessed = new List<PolarPoint>();
 
@@ -38,11 +69,11 @@ namespace LidarProcessor
             List<LidarDetectedObject> ObjetsPoteauPossible = new List<LidarDetectedObject>();
             LidarDetectedObject currentObject = new LidarDetectedObject();
 
-            //A enlever une fois le debug terminé
-            for (int i = 1; i < ptList.Count; i++)
-            {
-                ptList[i].Distance *= zoomCoeff;
-            }
+            ////A enlever une fois le debug terminé
+            //for (int i = 1; i < ptList.Count; i++)
+            //{
+            //    ptList[i].Distance *= zoomCoeff;
+            //}
 
             //Opérations de traitement du signal LIDAR
             ptList = PrefiltragePointsIsoles(ptList, zoomCoeff);   

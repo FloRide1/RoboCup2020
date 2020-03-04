@@ -17,7 +17,7 @@
             <RowDefinition Height="5"/>
             <RowDefinition Height="3*"/>
             <RowDefinition Height="5"/>
-            <RowDefinition Height="2*"/>
+            <RowDefinition Height="3*"/>
             <RowDefinition Height="5"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -165,8 +165,12 @@
                 <ColumnDefinition Width="3*"/>
                 <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
-            <ext:LocalWorldMapDisplay x:Name="worldMapDisplay" Grid.Column="1" Grid.ColumnSpan="1" Grid.Row="3" MouseDoubleClick="worldMapDisplay_MouseDoubleClick">
-            </ext:LocalWorldMapDisplay>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="180"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+                    <oscillo:WpfOscilloscope x:Name="oscilloLidar" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>      
+                    <ext:LocalWorldMapDisplay x:Name="worldMapDisplay" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" MouseDoubleClick="worldMapDisplay_MouseDoubleClick"></ext:LocalWorldMapDisplay>
         </Grid>
 
 

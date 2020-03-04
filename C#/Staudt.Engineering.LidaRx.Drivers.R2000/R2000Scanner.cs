@@ -90,6 +90,7 @@ namespace Staudt.Engineering.LidaRx.Drivers.R2000
             var latestNativeScanCounter = 0;
 
             // publish the points
+            ScanFramePoint lastValidPoint = new ScanFramePoint();
             this.dataStreamConnector.Subscribe<ScanFramePoint>(pt =>
             {
                 // we don't use the native R2000 scan counter at it wraps around quite quickly
@@ -100,11 +101,17 @@ namespace Staudt.Engineering.LidaRx.Drivers.R2000
                     base.ScanCounter++;
                 }
 
-                // don't publish invalid packets
+                //// don't publish invalid packets
                 if (!pt.Valid)
-                    return;
+                {
+                    pt = lastValidPoint;
+                }
+                else
+                    lastValidPoint = pt;
+                //    return;
 
-                var carthCoordinate = base.TransfromScannerToSystemCoordinates(pt.Angle, pt.Distance);
+                //var carthCoordinate = base.TransfromScannerToSystemCoordinates(pt.Angle, pt.Distance);
+                System.Numerics.Vector3 carthCoordinate = new System.Numerics.Vector3(0);
 
                 var point = new LidarPoint(
                     carthCoordinate, 

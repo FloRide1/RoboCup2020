@@ -103,6 +103,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Staudt.Engineering.LidaRx",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Staudt.Engineering.LidaRx.Drivers.R2000", "..\Staudt.Engineering.LidaRx.Drivers.R2000\Staudt.Engineering.LidaRx.Drivers.R2000.csproj", "{D27503B0-7171-44C0-9E73-EA6CF83A55E9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImuProcessor", "..\ImuProcessor\ImuProcessor.csproj", "{C6636D02-C51F-4EDB-8089-94D4C0E51A32}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -511,6 +513,14 @@ Global
 		{D27503B0-7171-44C0-9E73-EA6CF83A55E9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D27503B0-7171-44C0-9E73-EA6CF83A55E9}.Release|x64.ActiveCfg = Release|Any CPU
 		{D27503B0-7171-44C0-9E73-EA6CF83A55E9}.Release|x64.Build.0 = Release|Any CPU
+		{C6636D02-C51F-4EDB-8089-94D4C0E51A32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6636D02-C51F-4EDB-8089-94D4C0E51A32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6636D02-C51F-4EDB-8089-94D4C0E51A32}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C6636D02-C51F-4EDB-8089-94D4C0E51A32}.Debug|x64.Build.0 = Debug|Any CPU
+		{C6636D02-C51F-4EDB-8089-94D4C0E51A32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6636D02-C51F-4EDB-8089-94D4C0E51A32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6636D02-C51F-4EDB-8089-94D4C0E51A32}.Release|x64.ActiveCfg = Release|Any CPU
+		{C6636D02-C51F-4EDB-8089-94D4C0E51A32}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

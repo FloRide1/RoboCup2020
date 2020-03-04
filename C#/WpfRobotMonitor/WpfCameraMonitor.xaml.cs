@@ -49,11 +49,9 @@ namespace RobotMonitor
             //Utilisation ici d'une methode anonyme
             textBoxDebug.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
             {
-
                 textBoxDebug.Text += e.value;
                 if (textBoxDebug.Text.Length > 2000)
                     textBoxDebug.Text = textBoxDebug.Text.Remove(0, 200);
-
             }));
         }
 

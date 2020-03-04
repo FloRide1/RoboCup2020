@@ -243,13 +243,13 @@ namespace RobotMessageProcessor
 
 
         //Output events
-        public event EventHandler<IMUDataEventArgs> OnIMUDataFromRobotGeneratedEvent;
+        public event EventHandler<IMUDataEventArgs> OnIMURawDataFromRobotGeneratedEvent;
         public virtual void OnIMUDataFromRobot(uint timeStamp, Point3D accelxyz, Point3D gyroxyz)
         {
-            var handler = OnIMUDataFromRobotGeneratedEvent;
+            var handler = OnIMURawDataFromRobotGeneratedEvent;
             if (handler != null)
             {
-                handler(this, new IMUDataEventArgs { EmbeddedTimeStampInMs = timeStamp, accelX = accelxyz.X, accelY = accelxyz.Y, accelZ= accelxyz.Z , gyrX=gyroxyz.X, gyrY=gyroxyz.Y, gyrZ=gyroxyz.Z });
+                handler(this, new IMUDataEventArgs { EmbeddedTimeStampInMs = timeStamp, accelX = accelxyz.X, accelY = accelxyz.Y, accelZ= accelxyz.Z , gyroX=gyroxyz.X, gyroY=gyroxyz.Y, gyroZ=gyroxyz.Z });
             }
         }
 

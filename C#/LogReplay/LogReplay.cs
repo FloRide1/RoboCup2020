@@ -297,7 +297,7 @@ namespace LogReplay
             var handler = OnIMUEvent;
             if (handler != null)
             {
-                handler(this, new IMUDataEventArgs { accelX = dat.accelX, accelY = dat.accelY, accelZ = dat.accelZ, gyrX = dat.gyrX, gyrY = dat.gyrY, gyrZ = dat.gyrZ,EmbeddedTimeStampInMs=dat.EmbeddedTimeStampInMs});
+                handler(this, new IMUDataEventArgs { accelX = dat.accelX, accelY = dat.accelY, accelZ = dat.accelZ, gyroX = dat.gyroX, gyroY = dat.gyroY, gyroZ = dat.gyroZ,EmbeddedTimeStampInMs=dat.EmbeddedTimeStampInMs});
             }
         }
 

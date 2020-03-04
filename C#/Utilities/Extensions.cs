@@ -131,4 +131,42 @@ namespace Utilities
                 d.Add(key, value);
         }
     }
+
+    public class RollingList<T> : List<T>
+    {
+        private readonly LinkedList<T> _list = new LinkedList<T>();
+
+        public RollingList(int maximumCount)
+        {
+            if (maximumCount <= 0)
+                throw new ArgumentException(null, nameof(maximumCount));
+
+            MaximumCount = maximumCount;
+        }
+
+        public int MaximumCount { get; }
+        new public int Count => _list.Count;
+
+        new public void Add(T value)
+        {
+            if (_list.Count == MaximumCount)
+            {
+                _list.RemoveFirst();
+            }
+            _list.AddLast(value);
+        }
+
+        new public T this[int index]
+        {
+            get
+            {
+                if (index < 0 || index >= Count)
+                    throw new ArgumentOutOfRangeException();
+
+                return _list.Skip(index).First();
+            }
+        }
+
+        new public IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
+    }
 }

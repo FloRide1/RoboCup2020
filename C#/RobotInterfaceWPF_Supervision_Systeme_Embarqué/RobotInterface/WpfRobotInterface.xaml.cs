@@ -15,6 +15,7 @@ using System.Globalization;
 using System.Threading;
 using System.Windows.Markup;
 using System.Windows.Input;
+using System.Linq;
 
 namespace RobotInterface
 {
@@ -107,6 +108,10 @@ namespace RobotInterface
             oscilloTheta.AddOrUpdateLine(2, 100, "Gyr Z");
             oscilloTheta.ChangeLineColor(1, Colors.Red);
             oscilloTheta.ChangeLineColor(0, Colors.Blue);
+            
+            oscilloLidar.AddOrUpdateLine(0, 20000, "Lidar");
+            oscilloLidar.ChangeLineColor(0, Colors.SeaGreen);
+            //oscilloLidar.DrawOnlyPoints(0);
         }
 
         void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -162,6 +167,13 @@ namespace RobotInterface
             }));
         }
 
+        public void OnRawLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
+        {
+            List<Point> ptList = new List<Point>();
+            ptList = e.PtList.Select(p => new Point(p.Angle, p.Distance)).ToList();
+            oscilloLidar.UpdatePointListOfLine(0, ptList);
+        }
+
         public void ResetInterfaceState()
         {
             oscilloX.ResetGraph();
@@ -190,7 +202,7 @@ namespace RobotInterface
         {
             oscilloX.AddPointToLine(2, e.EmbeddedTimeStampInMs/1000.0, e.accelX);
             oscilloY.AddPointToLine(2, e.EmbeddedTimeStampInMs/1000.0, e.accelY);
-            oscilloTheta.AddPointToLine(2, e.EmbeddedTimeStampInMs / 1000.0, e.gyrZ);
+            oscilloTheta.AddPointToLine(2, e.EmbeddedTimeStampInMs / 1000.0, e.gyroZ);
             currentTime = e.EmbeddedTimeStampInMs/1000.0;
         }
 
@@ -571,6 +583,18 @@ namespace RobotInterface
                 handler(this, new PIDDataArgs { P_x = px, I_x=ix, D_x=dx, P_y=py, I_y=iy, D_y=dy, P_theta=ptheta, I_theta=itheta, D_theta=dtheta });
             }
         }
+
+
+        //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<EventArgs> OnCalibrateGyroFromInterfaceGeneratedEvent;
+        public virtual void OnCalibrateGyroFromInterface()
+        {
+            var handler = OnCalibrateGyroFromInterfaceGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
+            }
+        }
         #endregion
         private void CheckBox_CheckedChanged(object sender, RoutedEventArgs e)
         {
@@ -857,7 +881,7 @@ namespace RobotInterface
 
         private void ButtonCalibrateGyro_Click(object sender, RoutedEventArgs e)
         {
-
+            OnCalibrateGyroFromInterface();
         }
     }
 }
