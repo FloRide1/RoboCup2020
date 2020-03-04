@@ -15,6 +15,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using Utilities;
 
 namespace CameraAdapter
 {
@@ -28,6 +29,8 @@ namespace CameraAdapter
 
         bool GrabOver = false;
         System.Configuration.Configuration configFile;
+
+        List<PolarPoint> lidarPts = new List<PolarPoint>();
 
         public void CameraInit()
         {
@@ -422,6 +425,118 @@ namespace CameraAdapter
             else
             { 
                 return null; 
+            }
+            //catch (Exception exc)
+            //{
+            //    throw new IndexOutOfRangeException(exc.ToString());
+            //}
+        }
+
+        public Bitmap FishEyeToPanoramaLidar(Bitmap originalImage)
+        {
+            if (!IsProcessingPanorama)
+            //try
+            {
+                IsProcessingPanorama = true;
+                //DOc fonction de manipulation des bitmap en natif
+                //https://stackoverflow.com/questions/1563038/fast-work-with-bitmaps-in-c-sharp
+                //Perf à peu près identiques à celles de OpenCV, mais sans avoir besoind e faire les conversions au départ.
+
+                double panoramaGlobalScale = 0.35;
+                double panoramaYScale = 1.85;
+
+                //byte[,,] data = (byte[,,])originalImage.;
+                int originalWidth = originalImage.Width;
+                int originalHeight = originalImage.Height;
+                byte bytesPerPixel = 3;
+                byte bytesPerPixelData = 4;
+
+                //On suppose qu'on a la bonne taille de cercle de départ
+                int RayonCercle = (int)(originalImage.Height / 2);
+
+                int unprocessedRadius = 100;
+                int heightPanorama = (int)((RayonCercle/*-unprocessedRadius*/) * panoramaGlobalScale * panoramaYScale);
+                int widthPanorama = (int)(RayonCercle * 2 * Math.PI * panoramaGlobalScale);
+                int bottomMargin = (int)(unprocessedRadius * panoramaGlobalScale * panoramaYScale);
+                int heightPanoramaCropped = heightPanorama - bottomMargin;
+
+                BitmapData bmpDataOriginal = originalImage.LockBits(new Rectangle(0, 0, originalImage.Width, originalImage.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+                byte[] originalData = new byte[originalHeight * originalWidth * bytesPerPixel];
+                System.Runtime.InteropServices.Marshal.Copy(bmpDataOriginal.Scan0, originalData, 0, originalHeight * originalWidth * bytesPerPixel);
+
+                //Creation de la Bitmap Panorama
+                Bitmap bmpPanorama = new Bitmap(widthPanorama, heightPanoramaCropped);
+                BitmapData bmpDataPanorama = bmpPanorama.LockBits(new Rectangle(0, 0, widthPanorama, heightPanoramaCropped), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+
+                int sizePanorama = heightPanoramaCropped * widthPanorama * bytesPerPixelData;
+                byte[] panoramaData = new byte[sizePanorama];
+
+                //On calcule la lookup table des sinus et cosinus au premier passage uniquement (ou si la taille change)
+                if (initSize != widthPanorama)
+                {
+                    PrepareLUTCoSi((int)(widthPanorama), RayonCercle, panoramaGlobalScale);
+                }
+
+                //Parallelisation des boucles en utilisant une expression lambda
+                Parallel.For(0, widthPanorama, (x) =>
+                //for(int x=0; x< widthPanorama; x++)
+                {
+                    //Parallel.For(0, heightPanorama, (j) =>
+                    for (int j = 0; j < heightPanorama - bottomMargin; j++)
+                    {
+                        int y = heightPanorama - j - 1;
+                        if (y > bottomMargin)
+                        {
+                            int xPos = (int)(originalHeight / 2 + (y / panoramaGlobalScale / panoramaYScale) * cosRTab[x]);
+                            int yPos = (int)(originalWidth / 2 + (y / panoramaGlobalScale / panoramaYScale) * sinRTab[x]);
+                            if (xPos < originalHeight && xPos > 0 && yPos < originalWidth && yPos > 0)
+                            {
+                                if (x == widthPanorama - 1)
+                                    ;
+                                int panoramaDataPos = (int)(x * 4 + (j) * bmpDataPanorama.Stride);
+                                int originalDataPos = (int)(xPos * 3 + yPos * bmpDataOriginal.Stride);
+                                //trace une ligne d'horizon
+                                if (y == (heightPanorama / 2 + bottomMargin))
+                                {
+                                    originalData[originalDataPos] = 255;
+                                    originalData[originalDataPos + 1] = 255;
+                                    originalData[originalDataPos + 2] = 255;
+                                }
+                                if (panoramaDataPos < panoramaData.Length - 4)
+                                {
+                                    if (originalDataPos < originalData.Length)
+                                    {
+                                        panoramaData[panoramaDataPos] = originalData[originalDataPos];        //Methode d'acces la plus rapide apres l'acces par pointeur
+                                        panoramaData[panoramaDataPos + 1] = originalData[originalDataPos + 1];
+                                        panoramaData[panoramaDataPos + 2] = originalData[originalDataPos + 2];
+                                        int indexLidar = (int)((double)(widthPanorama - 1 - x) / widthPanorama * lidarPts.Count());
+                                        if (indexLidar + lidarPts.Count() / 2 > +lidarPts.Count())
+                                            indexLidar -= lidarPts.Count() / 2;
+                                        else
+                                            indexLidar += lidarPts.Count() / 2;
+                                        panoramaData[panoramaDataPos + 3] = (byte)(255 - Math.Min(255, lidarPts[indexLidar].Distance * 50));
+                                    }
+                                }
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                    }
+                });
+
+                // This override copies the data back into the location specified 
+                System.Runtime.InteropServices.Marshal.Copy(panoramaData, 0, bmpDataPanorama.Scan0, sizePanorama);
+
+                bmpPanorama.UnlockBits(bmpDataPanorama);
+                originalImage.UnlockBits(bmpDataOriginal);
+                IsProcessingPanorama = false;
+                return bmpPanorama;
+            }
+            else
+            {
+                return null;
             }
             //catch (Exception exc)
             //{
