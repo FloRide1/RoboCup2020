@@ -42,8 +42,6 @@ namespace WorldMapManager
             {
                 localWorldMap.robotLocation = e.Perception.robotLocation;
                 localWorldMap.obstaclesLocationList = e.Perception.obstaclesLocationList;
-                //localWorldMap.opponentLocationList = e.Perception.opponentLocationList;
-                //localWorldMap.obstacleLocationList = e.Perception.obstacleLocationList;
                 localWorldMap.ballLocation = e.Perception.ballLocation;
 
                 if (localWorldMap.robotLocation != null)
@@ -63,6 +61,16 @@ namespace WorldMapManager
             if (localWorldMap.RobotId == e.RobotId)
             {
                 localWorldMap.waypointLocation = e.Location;
+            }
+        }
+
+        public void OnGhostLocationReceived(object sender, EventArgsLibrary.LocationArgs e)
+        {
+            if (localWorldMap == null)
+                return;
+            if (localWorldMap.RobotId == e.RobotId)
+            {
+                localWorldMap.robotGhostLocation = e.Location;
             }
         }
 

@@ -37,12 +37,10 @@ namespace WpfWorldMapDisplay
         //Liste des robots à afficher
         Dictionary<int, RobotDisplay> TeamMatesDisplayDictionary = new Dictionary<int, RobotDisplay>();
         Dictionary<int, RobotDisplay> OpponentDisplayDictionary = new Dictionary<int, RobotDisplay>();
-
         List<PolygonExtended> ObjectDisplayList = new List<PolygonExtended>();
 
         //Liste des balles à afficher
         BallDisplay Balle = new BallDisplay();
-        //List<BallDisplay> ListBalles = new List<BallDisplay>();
 
         public LocalWorldMapDisplay()
         {
@@ -66,7 +64,7 @@ namespace WpfWorldMapDisplay
             robotShape.polygon.Points.Add(new Point(-0.25, 0.25));
             robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
             RobotDisplay rd = new RobotDisplay(robotShape, System.Drawing.Color.Red, 1);
-            rd.SetPosition(0, 0, 0);
+            rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
             TeamMatesDisplayDictionary.Add(robotId, rd);
         }
 
@@ -80,7 +78,7 @@ namespace WpfWorldMapDisplay
             robotShape.polygon.Points.Add(new Point(-0.25, 0.25));
             robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
             RobotDisplay rd = new RobotDisplay(robotShape, System.Drawing.Color.Blue, 1);
-            rd.SetPosition(0, 0, 0);
+            rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
             OpponentDisplayDictionary.Add(robotId, rd);
         }
 
@@ -105,6 +103,7 @@ namespace WpfWorldMapDisplay
         {
             int robotId = localWorldMap.RobotId;
             UpdateRobotLocation(robotId, localWorldMap.robotLocation);
+            UpdateRobotGhostLocation(robotId, localWorldMap.robotGhostLocation);
             UpdateRobotDestination(robotId, localWorldMap.destinationLocation);
             UpdateRobotWaypoint(robotId, localWorldMap.waypointLocation);
             if (localWorldMap.heatMap != null)
@@ -114,29 +113,29 @@ namespace WpfWorldMapDisplay
             UpdateBallLocation(localWorldMap.ballLocation);
         }
 
-        public void UpdateGlobalWorldMap(GlobalWorldMap globalWorldMap)
-        {
-            lock (globalWorldMap.teammateLocationList)
-            {
-                foreach (var robotLoc in globalWorldMap.teammateLocationList)
-                {
-                    UpdateRobotLocation(robotLoc.Key, robotLoc.Value);
-                }
-            }
-            lock (globalWorldMap.opponentLocationList)
-            {
-                int i = 0;
-                foreach (var opponentLocation in globalWorldMap.opponentLocationList)
-                {
-                    if (globalWorldMap.TeamId == (int)TeamId.Team1)
-                        UpdateOpponentsLocation((int)TeamId.Team2 + i, opponentLocation);
-                    else if (globalWorldMap.TeamId == (int)TeamId.Team2)
-                        UpdateOpponentsLocation((int)TeamId.Team1 + i, opponentLocation);
-                    i++;
-                }
-            }
-            UpdateBallLocation(globalWorldMap.ballLocation);
-        }
+        //public void UpdateGlobalWorldMap(GlobalWorldMap globalWorldMap)
+        //{
+        //    lock (globalWorldMap.teammateLocationList)
+        //    {
+        //        foreach (var robotLoc in globalWorldMap.teammateLocationList)
+        //        {
+        //            UpdateRobotLocation(robotLoc.Key, robotLoc.Value);
+        //        }
+        //    }
+        //    lock (globalWorldMap.opponentLocationList)
+        //    {
+        //        int i = 0;
+        //        foreach (var opponentLocation in globalWorldMap.opponentLocationList)
+        //        {
+        //            if (globalWorldMap.TeamId == (int)TeamId.Team1)
+        //                UpdateOpponentsLocation((int)TeamId.Team2 + i, opponentLocation);
+        //            else if (globalWorldMap.TeamId == (int)TeamId.Team2)
+        //                UpdateOpponentsLocation((int)TeamId.Team1 + i, opponentLocation);
+        //            i++;
+        //        }
+        //    }
+        //    UpdateBallLocation(globalWorldMap.ballLocation);
+        //}
 
         private void DrawHeatMap(int robotId)
         {
@@ -168,9 +167,10 @@ namespace WpfWorldMapDisplay
             ObjectsPolygonSeries.Clear();
 
             foreach (var r in TeamMatesDisplayDictionary)
-            {               
+            {
                 //Affichage des robots
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key, TeamMatesDisplayDictionary[r.Key].GetRobotPolygon());
+                PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Ghost, TeamMatesDisplayDictionary[r.Key].GetRobotGhostPolygon());
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Speed, TeamMatesDisplayDictionary[r.Key].GetRobotSpeedArrow());
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Destination, TeamMatesDisplayDictionary[r.Key].GetRobotDestinationArrow());
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.WayPoint, TeamMatesDisplayDictionary[r.Key].GetRobotWaypointArrow());
@@ -222,12 +222,27 @@ namespace WpfWorldMapDisplay
                 return;
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
             {
-                TeamMatesDisplayDictionary[robotId].SetPosition(location.X, location.Y, location.Theta);
-                TeamMatesDisplayDictionary[robotId].SetSpeed(location.Vx, location.Vy, location.Vtheta);
+                TeamMatesDisplayDictionary[robotId].SetLocation(location);
+                //TeamMatesDisplayDictionary[robotId].SetPosition(location.X, location.Y, location.Theta);
+                //TeamMatesDisplayDictionary[robotId].SetSpeed(location.Vx, location.Vy, location.Vtheta);
             }
             else
             {
                 Console.WriteLine("UpdateRobotLocation : Robot non trouvé");
+            }
+        }
+
+        private void UpdateRobotGhostLocation(int robotId, Location location)
+        {
+            if (location == null)
+                return;
+            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
+            {
+                TeamMatesDisplayDictionary[robotId].SetGhostLocation(location);
+            }
+            else
+            {
+                Console.WriteLine("UpdateRobotGhostLocation : Robot non trouvé");
             }
         }
 
@@ -296,8 +311,7 @@ namespace WpfWorldMapDisplay
                 return;
             if (OpponentDisplayDictionary.ContainsKey(robotId))
             {
-                OpponentDisplayDictionary[robotId].SetPosition(location.X, location.Y, location.Theta);
-                OpponentDisplayDictionary[robotId].SetSpeed(location.Vx, location.Vy, location.Vtheta);
+                OpponentDisplayDictionary[robotId].SetLocation(location);
             }
             else
             {

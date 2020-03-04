@@ -61,7 +61,7 @@ namespace WpfWorldMapDisplay
             robotShape.polygon.Points.Add(new Point(-0.25, 0.25));
             robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
             RobotDisplay rd = new RobotDisplay(robotShape, System.Drawing.Color.Red, 1);
-            rd.SetPosition(0, 0, 0);
+            rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
             TeamMatesDisplayDictionary.Add(robotId, rd);
         }
 
@@ -75,7 +75,7 @@ namespace WpfWorldMapDisplay
             robotShape.polygon.Points.Add(new Point(-0.25, 0.25));
             robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
             RobotDisplay rd = new RobotDisplay(robotShape, System.Drawing.Color.Blue, 1);
-            rd.SetPosition(0, 0, 0);
+            rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
             OpponentDisplayDictionary.Add(robotId, rd);
         }
 
@@ -182,8 +182,7 @@ namespace WpfWorldMapDisplay
                 return;
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
             {
-                TeamMatesDisplayDictionary[robotId].SetPosition(location.X, location.Y, location.Theta);
-                TeamMatesDisplayDictionary[robotId].SetSpeed(location.Vx, location.Vy, location.Vtheta);
+                TeamMatesDisplayDictionary[robotId].SetLocation(location);
             }
             else
             {
@@ -222,8 +221,7 @@ namespace WpfWorldMapDisplay
                 return;
             if (OpponentDisplayDictionary.ContainsKey(robotId))
             {
-                OpponentDisplayDictionary[robotId].SetPosition(location.X, location.Y, location.Theta);
-                OpponentDisplayDictionary[robotId].SetSpeed(location.Vx, location.Vy, location.Vtheta);
+                OpponentDisplayDictionary[robotId].SetLocation(location);
             }
             else
             {

@@ -9,10 +9,12 @@ namespace WpfWorldMapDisplay
 {
     public class RobotDisplay
     {
-        private PolygonExtended shape;
+        private PolygonExtended robotShape;
+        private PolygonExtended ghostShape;
         private Random rand = new Random();
 
-        private Location location;
+        private Location robotLocation;
+        private Location ghostLocation;
         private Location destinationLocation;
         private Location waypointLocation;
         public double[,] heatMap;
@@ -24,28 +26,35 @@ namespace WpfWorldMapDisplay
         System.Drawing.Color displayColor;
         int displayTransparency = 0xFF;
 
-        public RobotDisplay(PolygonExtended pe, System.Drawing.Color color, double transparency)
+        public RobotDisplay(PolygonExtended rbtShape, System.Drawing.Color color, double transparency)
         {
-            location = new Location(0, 0, 0, 0, 0, 0);
+            robotLocation = new Location(0, 0, 0, 0, 0, 0);
             destinationLocation = new Location(0, 0, 0, 0, 0, 0);
             waypointLocation = new Location(0, 0, 0, 0, 0, 0);
-            shape = pe;
+            ghostLocation = new Location(0, 0, 0, 0, 0, 0);
+            robotShape = rbtShape;
+
+            //TODO à définir en dehors
+            ghostShape = new PolygonExtended();
+            ghostShape.polygon.Points.Add(new Point(-0.25, -0.25));
+            ghostShape.polygon.Points.Add(new Point(0.25, -0.25));
+            ghostShape.polygon.Points.Add(new Point(0.5, 0));
+            ghostShape.polygon.Points.Add(new Point(0.25, 0.25));
+            ghostShape.polygon.Points.Add(new Point(-0.25, 0.25));
+            ghostShape.polygon.Points.Add(new Point(-0.25, -0.25));
+
             lidarMap = new List<PointD>();
             displayTransparency = (int)(transparency * 255);
             displayColor = System.Drawing.Color.FromArgb((byte)displayTransparency, color.R, color.G, color.B);
         }
 
-        public void SetPosition(double x, double y, double theta)
+        public void SetLocation(Location loc)
         {
-            location.X = x;
-            location.Y = y;
-            location.Theta = theta;
+            robotLocation = loc;
         }
-        public void SetSpeed(double vx, double vy, double vTheta)
+        public void SetGhostLocation(Location loc)
         {
-            location.Vx = vx;
-            location.Vy = vy;
-            location.Vtheta = vTheta;
+            ghostLocation = loc;
         }
         public void SetDestination(double x, double y, double theta)
         {
@@ -73,59 +82,57 @@ namespace WpfWorldMapDisplay
         {
             this.lidarObjectList = lidarObjectList;
         }
-
-        public void SetOpponentLocationList(List<Location> list)
-        {
-            this.opponentLocationList = list;
-        }
-
-        public void SetTeamLocationList(List<Location> list)
-        {
-            this.teamLocationList = list;
-        }
-        public void SetPositionAndSpeed(double x, double y, double theta, double vx, double vy, double vTheta)
-        {
-            location.X = x;
-            location.Y = y;
-            location.Theta = theta;
-            location.Vx = vx;
-            location.Vy = vy;
-            location.Vtheta = vTheta;
-        }
-
+        
         public PolygonExtended GetRobotPolygon()
         {
             PolygonExtended polygonToDisplay = new PolygonExtended();
-            foreach (var pt in shape.polygon.Points)
+            foreach (var pt in robotShape.polygon.Points)
             {
-                Point polyPt = new Point(pt.X * Math.Cos(location.Theta) - pt.Y * Math.Sin(location.Theta), pt.X * Math.Sin(location.Theta) + pt.Y * Math.Cos(location.Theta));
-                polyPt.X += location.X;
-                polyPt.Y += location.Y;
+                Point polyPt = new Point(pt.X * Math.Cos(robotLocation.Theta) - pt.Y * Math.Sin(robotLocation.Theta), pt.X * Math.Sin(robotLocation.Theta) + pt.Y * Math.Cos(robotLocation.Theta));
+                polyPt.X += robotLocation.X;
+                polyPt.Y += robotLocation.Y;
                 polygonToDisplay.polygon.Points.Add(polyPt);
                 polygonToDisplay.backgroundColor = displayColor;// shape.backgroundColor;
-                polygonToDisplay.borderColor = shape.borderColor;
-                polygonToDisplay.borderWidth = shape.borderWidth;
+                polygonToDisplay.borderColor = robotShape.borderColor;
+                polygonToDisplay.borderWidth = robotShape.borderWidth;
             }
             return polygonToDisplay;
         }
+        
+        public PolygonExtended GetRobotGhostPolygon()
+        {
+            PolygonExtended polygonToDisplay = new PolygonExtended();
+            foreach (var pt in ghostShape.polygon.Points)
+            {
+                Point polyPt = new Point(pt.X * Math.Cos(ghostLocation.Theta) - pt.Y * Math.Sin(ghostLocation.Theta), pt.X * Math.Sin(ghostLocation.Theta) + pt.Y * Math.Cos(ghostLocation.Theta));
+                polyPt.X += ghostLocation.X;
+                polyPt.Y += ghostLocation.Y;
+                polygonToDisplay.polygon.Points.Add(polyPt);
+                polygonToDisplay.backgroundColor = displayColor;// shape.backgroundColor;
+                polygonToDisplay.borderColor = robotShape.borderColor;
+                polygonToDisplay.borderWidth = robotShape.borderWidth;
+            }
+            return polygonToDisplay;
+        }
+
         public PolygonExtended GetRobotSpeedArrow()
         {
             PolygonExtended polygonToDisplay = new PolygonExtended();
             double angleTeteFleche = Math.PI / 6;
             double longueurTeteFleche = 0.30;
-            double LongueurFleche = Math.Sqrt(location.Vx * location.Vx + location.Vy * location.Vy);
-            double headingAngle = Math.Atan2(location.Vy, location.Vx) + location.Theta;
+            double LongueurFleche = Math.Sqrt(robotLocation.Vx * robotLocation.Vx + robotLocation.Vy * robotLocation.Vy);
+            double headingAngle = Math.Atan2(robotLocation.Vy, robotLocation.Vx) + robotLocation.Theta;
             double xTete = LongueurFleche * Math.Cos(headingAngle);
             double yTete = LongueurFleche * Math.Sin(headingAngle);
 
-            polygonToDisplay.polygon.Points.Add(new Point(location.X, location.Y));
-            polygonToDisplay.polygon.Points.Add(new Point(location.X + xTete, location.Y + yTete));
+            polygonToDisplay.polygon.Points.Add(new Point(robotLocation.X, robotLocation.Y));
+            polygonToDisplay.polygon.Points.Add(new Point(robotLocation.X + xTete, robotLocation.Y + yTete));
             double angleTeteFleche1 = headingAngle + angleTeteFleche;
             double angleTeteFleche2 = headingAngle - angleTeteFleche;
-            polygonToDisplay.polygon.Points.Add(new Point(location.X + xTete - longueurTeteFleche * Math.Cos(angleTeteFleche1), location.Y + yTete - longueurTeteFleche * Math.Sin(angleTeteFleche1)));
-            polygonToDisplay.polygon.Points.Add(new Point(location.X + xTete, location.Y + yTete));
-            polygonToDisplay.polygon.Points.Add(new Point(location.X + xTete - longueurTeteFleche * Math.Cos(angleTeteFleche2), location.Y + yTete - longueurTeteFleche * Math.Sin(angleTeteFleche2)));
-            polygonToDisplay.polygon.Points.Add(new Point(location.X + xTete, location.Y + yTete));
+            polygonToDisplay.polygon.Points.Add(new Point(robotLocation.X + xTete - longueurTeteFleche * Math.Cos(angleTeteFleche1), robotLocation.Y + yTete - longueurTeteFleche * Math.Sin(angleTeteFleche1)));
+            polygonToDisplay.polygon.Points.Add(new Point(robotLocation.X + xTete, robotLocation.Y + yTete));
+            polygonToDisplay.polygon.Points.Add(new Point(robotLocation.X + xTete - longueurTeteFleche * Math.Cos(angleTeteFleche2), robotLocation.Y + yTete - longueurTeteFleche * Math.Sin(angleTeteFleche2)));
+            polygonToDisplay.polygon.Points.Add(new Point(robotLocation.X + xTete, robotLocation.Y + yTete));
             polygonToDisplay.borderWidth = 2;
             polygonToDisplay.borderColor = System.Drawing.Color.FromArgb(0xFF, 0xFF, 0x00, 0x00);
             polygonToDisplay.borderDashPattern = new double[] { 3, 3 };
@@ -138,9 +145,9 @@ namespace WpfWorldMapDisplay
             PolygonExtended polygonToDisplay = new PolygonExtended();
             double angleTeteFleche = Math.PI / 6;
             double longueurTeteFleche = 0.30;
-            double headingAngle = Math.Atan2(destinationLocation.Y - location.Y, destinationLocation.X - location.X);
+            double headingAngle = Math.Atan2(destinationLocation.Y - robotLocation.Y, destinationLocation.X - robotLocation.X);
 
-            polygonToDisplay.polygon.Points.Add(new Point(location.X, location.Y));
+            polygonToDisplay.polygon.Points.Add(new Point(robotLocation.X, robotLocation.Y));
             polygonToDisplay.polygon.Points.Add(new Point(destinationLocation.X, destinationLocation.Y));
             double angleTeteFleche1 = headingAngle + angleTeteFleche;
             double angleTeteFleche2 = headingAngle - angleTeteFleche;
@@ -160,9 +167,9 @@ namespace WpfWorldMapDisplay
             PolygonExtended polygonToDisplay = new PolygonExtended();
             double angleTeteFleche = Math.PI / 6;
             double longueurTeteFleche = 0.30;
-            double headingAngle = Math.Atan2(waypointLocation.Y - location.Y, waypointLocation.X - location.X);
+            double headingAngle = Math.Atan2(waypointLocation.Y - robotLocation.Y, waypointLocation.X - robotLocation.X);
 
-            polygonToDisplay.polygon.Points.Add(new Point(location.X, location.Y));
+            polygonToDisplay.polygon.Points.Add(new Point(robotLocation.X, robotLocation.Y));
             polygonToDisplay.polygon.Points.Add(new Point(waypointLocation.X, waypointLocation.Y));
             double angleTeteFleche1 = headingAngle + angleTeteFleche;
             double angleTeteFleche2 = headingAngle - angleTeteFleche;
@@ -206,7 +213,7 @@ namespace WpfWorldMapDisplay
                 PolygonExtended polygonToDisplay = new PolygonExtended();
                 foreach (var pt in obj.polarPointList)
                 {
-                    polygonToDisplay.polygon.Points.Add(new Point(location.X + pt.Distance * Math.Cos(pt.Angle), location.Y + pt.Distance * Math.Sin(pt.Angle)));
+                    polygonToDisplay.polygon.Points.Add(new Point(robotLocation.X + pt.Distance * Math.Cos(pt.Angle), robotLocation.Y + pt.Distance * Math.Sin(pt.Angle)));
                 }
                 polygonToDisplay.borderColor = obj.displayColor;
                 polygonToDisplay.borderWidth = (float)obj.displayWidth;

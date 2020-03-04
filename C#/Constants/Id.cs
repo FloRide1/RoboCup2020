@@ -31,6 +31,7 @@ namespace Constants
         Speed = 100,
         Destination = 200,
         WayPoint = 300,
+        Ghost = 300,
     }
 
     public enum Terrain

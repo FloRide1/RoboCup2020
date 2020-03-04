@@ -39,24 +39,6 @@ namespace PerceptionManagement
                     isRobot = true;
                 }
 
-                //    //On regarde dans la liste des robots de l'équipe construite par le globalWorldMapManager de l'équipe
-                //    foreach (var r in globalWorldMap.robotLocationDictionary)
-                //    {
-                //        if (r.Value != null)
-                //        {
-                //            var robotOfOurTeam = r.Value;
-                //            //On regarde si la distance entre l'objet considéré et la position des robots de l'équipe est suffisament petite pour que ce soient les même.
-                //            if (Toolbox.Distance(obj.X, obj.Y, robotOfOurTeam.X, robotOfOurTeam.Y) < 0.4)
-                //            {
-                //                if (robotId != r.Key && !robotPerception.teamLocationList.ContainsKey(r.Key)) //On vérifie que le robot ne s'ajoute pas lui même
-                //                    robotPerception.teamLocationList.Add(r.Key, new Location(robotOfOurTeam.X, robotOfOurTeam.Y, robotOfOurTeam.Theta, robotOfOurTeam.Vx, robotOfOurTeam.Vy, robotOfOurTeam.Vtheta));
-                                
-                //                isRobot = true;
-                //            }
-                //        }
-                //    }
-                //}
-
                 if (!isRobot)
                 {
                     robotPerception.obstaclesLocationList.Add(new Location(obj.X, obj.Y, obj.Theta, obj.Vx, obj.Vy, obj.Vtheta));
