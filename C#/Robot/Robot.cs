@@ -105,7 +105,7 @@ namespace Robot
         }
         #endregion
 
-        static RobotMode robotMode = RobotMode.Standard;
+        static RobotMode robotMode = RobotMode.Acquisition;
 
         static bool usingSimulatedCamera = true;
         static bool usingPhysicalSimulator = true;
@@ -338,8 +338,9 @@ namespace Robot
             //Events de recording
             if (usingLogging)
             {
-                lidar_OMD60M_UDP.OnLidarDecodedFrameEvent += logRecorder.OnRawLidarDataReceived;
-                //lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += logRecorder.OnRawLidarDataReceived;
+                //lidar_OMD60M_UDP.OnLidarDecodedFrameEvent += logRecorder.OnRawLidarDataReceived;
+                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += logRecorder.OnRawLidarDataReceived;
+                omniCamera.BitmapFishEyeImageEvent += logRecorder.OnBitmapImageReceived;
                 imuProcessor.OnIMUProcessedDataGeneratedEvent += logRecorder.OnIMURawDataReceived;
                 robotMsgProcessor.OnSpeedDataFromRobotGeneratedEvent += logRecorder.OnSpeedDataReceived;
                 //omniCamera.OpenCvMatImageEvent += logRecorder.OnOpenCVMatImageReceived;
@@ -518,7 +519,7 @@ namespace Robot
         {
             if (usingCamera || usingLogging)
             {
-                //omniCamera.BitmapFishEyeImageEvent += ConsoleCamera.DisplayBitmapImage;
+                omniCamera.BitmapFishEyeImageEvent += ConsoleCamera.DisplayBitmapImage;
                 ////absolutePositionEstimator.OnBitmapImageProcessedEvent += ConsoleCamera.DisplayBitmapImage;
                 omniCamera.BitmapPanoramaImageEvent += ConsoleCamera.DisplayBitmapImage;
                 ConsoleCamera.CalibrateCameraEvent += omniCamera.CalibrateFishEye;

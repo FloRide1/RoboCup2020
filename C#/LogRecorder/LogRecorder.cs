@@ -2,6 +2,8 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -115,6 +117,31 @@ namespace LogRecorder
             string json = JsonConvert.SerializeObject(data);
             Log(json);
         }
+        public void OnBitmapImageReceived(object sender, BitmapImageArgs e)
+        {
+            BitmapDataPanoramaArgsLog data = new BitmapDataPanoramaArgsLog();
+
+            Bitmap originalImage = e.Bitmap;
+            BitmapData bmpDataOriginal = originalImage.LockBits(new Rectangle(0, 0, originalImage.Width, originalImage.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            
+            int bytesPerPixel = 0;
+            if (bmpDataOriginal.PixelFormat == PixelFormat.Format24bppRgb)
+                bytesPerPixel = 3; //TODO modif si canal alpha
+            else if (bmpDataOriginal.PixelFormat == PixelFormat.Format32bppArgb)
+                bytesPerPixel = 4; //TODO modif si canal alpha
+            else
+                Console.WriteLine("Pb de log dans Log Recorder : PixelFormat anormal");
+            byte[] bmpData = new byte[bmpDataOriginal.Width * bmpDataOriginal.Height * bytesPerPixel];
+            System.Runtime.InteropServices.Marshal.Copy(bmpDataOriginal.Scan0, bmpData, 0, bmpDataOriginal.Width * bmpDataOriginal.Height * bytesPerPixel);
+            originalImage.UnlockBits(bmpDataOriginal);
+
+            data.Descriptor = e.Descriptor;
+            data.BitmapData = bmpDataOriginal;
+            data.Data = bmpData;
+            data.InstantInMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
+            string json = JsonConvert.SerializeObject(data);
+            Log(json);
+        }
     }
 
     public class RawLidarArgsLog : RawLidarArgs
@@ -138,5 +165,18 @@ namespace LogRecorder
     {
         public string Type = "CameraOmni";
         public double InstantInMs;
+    }
+    public class BitmapPanoramaArgsLog : BitmapImageArgs
+    {
+        public string Type = "BitmapPanorama";
+        public double InstantInMs;
+    }
+    public class BitmapDataPanoramaArgsLog : EventArgs
+    {
+        public string Type = "BitmapDataPanorama";
+        public double InstantInMs { get; set; }     
+        public string Descriptor { get; set; }
+        public BitmapData BitmapData { get; set; }
+        public byte[] Data { get; set; }
     }
 }
