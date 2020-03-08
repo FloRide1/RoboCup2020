@@ -12,17 +12,7 @@ namespace RobotPilot
         {
             RobotId = robotId;
         }
-
-        public void SendSpeedConsigneToRobot()
-        {
-            OnSpeedConsigneToRobot(RobotId, (float)0.5, (float)0.2, (float)0.02);
-        }
-
-        public void SendSpeedConsigneToMotor()
-        {
-            OnSpeedConsigneToMotor((float)0.1, MotorControlName.MotorLeft);
-        }
-
+        
         Random rand = new Random();
         public void SendPositionFromKalmanFilter()
         {

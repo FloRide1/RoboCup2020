@@ -39,7 +39,7 @@ namespace WpfWorldMapDisplay
 
         public void RedrawAll()
         {
-            //Attention : Permet de déclencher l'update : workaround pas classe du tout
+            //TODO Attention : Permet de déclencher l'update : workaround pas classe du tout
             lineData.Clear();
             lineData.Append(1, 1);
             DataSeries = lineData;
@@ -52,6 +52,11 @@ namespace WpfWorldMapDisplay
             // Create a line drawing context. Make sure you dispose it!
             // NOTE: You can create mutliple line drawing contexts to draw segments if you want
             //       You can also call renderContext.DrawLine() and renderContext.DrawLines(), but the lineDrawingContext is higher performance
+            CustomDraw(renderContext);
+        }
+
+        private void CustomDraw(IRenderContext2D renderContext)
+        {
             foreach (var p in polygonList)
             {
                 Polygon polygon = p.Value.polygon;
@@ -85,6 +90,7 @@ namespace WpfWorldMapDisplay
                 }
             }
         }
+
         private Point GetRenderingPoint(Point pt)
         {
             // Get the coordinateCalculators. See 'Converting Pixel Coordinates to Data Coordinates' documentation for coordinate transforms

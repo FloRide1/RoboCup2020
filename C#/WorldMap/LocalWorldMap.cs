@@ -19,6 +19,7 @@ namespace WorldMap
         public StoppedGameAction stoppedGameAction = StoppedGameAction.NONE;
         public Location ballLocation { get; set; }
         public Dictionary<int, Location> teammateLocationList { get; set; }
+        public Dictionary<int, Location> teammateGhostLocationList { get; set; }
         public Dictionary<int, Location> teammateDestinationLocationList { get; set; }
         public Dictionary<int, Location> teammateWayPointList { get; set; }
         public List<Location> opponentLocationList { get; set; }

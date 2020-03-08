@@ -21,7 +21,7 @@ namespace WorldMapManager
         GlobalWorldMap globalWorldMap = new GlobalWorldMap();
         Timer globalWorldMapSendTimer;
 
-        GameState currentGameState = GameState.PLAYING;
+        GameState currentGameState = GameState.STOPPED;
         StoppedGameAction currentStoppedGameAction = StoppedGameAction.NONE;
         
 
@@ -147,6 +147,7 @@ namespace WorldMapManager
                         currentStoppedGameAction = StoppedGameAction.KICKOFF_OPPONENT;
                     break;
             }
+
         }
 
         private void AddOrUpdateLocalWorldMap(LocalWorldMap localWorldMap)
@@ -188,6 +189,7 @@ namespace WorldMapManager
                 if (localWorldMapDictionary.Count > 0)
                     globalWorldMap.ballLocation = localWorldMapDictionary.First().Value.ballLocation;
                 globalWorldMap.teammateLocationList = new Dictionary<int, Location>();
+                globalWorldMap.teammateGhostLocationList = new Dictionary<int, Location>();
                 globalWorldMap.teammateDestinationLocationList = new Dictionary<int, Location>();
                 globalWorldMap.teammateWayPointList = new Dictionary<int, Location>();
                 globalWorldMap.opponentLocationList = new List<Location>();
@@ -197,6 +199,8 @@ namespace WorldMapManager
                 {
                     //On ajoute la position des robots de l'équipe dans la WorldMap
                     globalWorldMap.teammateLocationList.Add(localMap.Key, localMap.Value.robotLocation);
+                    //On ajoute le ghost (position théorique) des robots de l'équipe dans la WorldMap
+                    globalWorldMap.teammateGhostLocationList.Add(localMap.Key, localMap.Value.robotGhostLocation);
                     //On ajoute la destination des robots de l'équipe dans la WorldMap
                     globalWorldMap.teammateDestinationLocationList.Add(localMap.Key, localMap.Value.destinationLocation);
                     //On ajoute le waypoint courant des robots de l'équipe dans la WorldMap

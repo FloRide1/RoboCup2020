@@ -105,7 +105,7 @@ namespace Robot
         }
         #endregion
 
-        static RobotMode robotMode = RobotMode.Acquisition;
+        static RobotMode robotMode = RobotMode.Standard;
 
         static bool usingSimulatedCamera = true;
         static bool usingPhysicalSimulator = true;

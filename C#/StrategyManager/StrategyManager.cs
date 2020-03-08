@@ -20,8 +20,8 @@ namespace StrategyManager
         int robotId = 0;
         int teamId = 0;
         
-        GlobalWorldMap globalWorldMap = new GlobalWorldMap();
-                
+        GlobalWorldMap globalWorldMap = new GlobalWorldMap(); 
+        
         PlayerRole robotRole = PlayerRole.Stop;
         PointD robotDestination = new PointD(0, 0);
         
@@ -39,6 +39,8 @@ namespace StrategyManager
             timerStrategy.Interval = 50;
             timerStrategy.Elapsed += TimerStrategy_Elapsed;
             timerStrategy.Start();
+
+            OnGameStateChanged(robotId, globalWorldMap.gameState);
         }
 
         private void TimerStrategy_Elapsed(object sender, ElapsedEventArgs e)
@@ -48,10 +50,21 @@ namespace StrategyManager
 
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
         {
-            //Chaque joueur détermine sa stratégie
-            globalWorldMap = e.GlobalWorldMap;
-            SetRobotRole();
+            //On récupère le gameState avant arrivée de la nouvelle worldMap
+            GameState gameState_1 = globalWorldMap.gameState;
 
+            //On écupère la nouvelle worldMap
+            globalWorldMap = e.GlobalWorldMap;
+
+            //On regarde si le gamestate a changé
+            if (globalWorldMap.gameState != gameState_1)
+            {
+                //Le gameState a changé, on envoie un event
+                OnGameStateChanged(robotId, globalWorldMap.gameState);
+            }
+            
+            //Le joueur détermine sa stratégie
+            SetRobotRole();
             SetRobotDestination(robotRole);
         }
 
@@ -393,6 +406,16 @@ namespace StrategyManager
             if (handler != null)
             {
                 handler(this, new HeatMapArgs { RobotId = id, HeatMap = heatMap });
+            }
+        }
+
+        public event EventHandler<GameStateArgs> OnGameStateChangedEvent;
+        public virtual void OnGameStateChanged(int robotId, GameState state)
+        {
+            var handler = OnGameStateChangedEvent;
+            if (handler != null)
+            {
+                handler(this, new GameStateArgs { RobotId = robotId, gameState = state });
             }
         }
     }

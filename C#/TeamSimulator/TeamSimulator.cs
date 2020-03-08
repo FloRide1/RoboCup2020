@@ -26,12 +26,10 @@ namespace TeamSimulator
         static GlobalWorldMapManager globalWorldMapManagerTeam1;
         static GlobalWorldMapManager globalWorldMapManagerTeam2;
 
-        static List<RobotPilot.RobotPilot> robotPilotList;
         static List<TrajectoryPlanner> trajectoryPlannerList;
         static List<WaypointGenerator> waypointGeneratorList;
         static Dictionary<int, StrategyManager.StrategyManager> strategyManagerDictionary;
         static List<LocalWorldMapManager> localWorldMapManagerList;
-        static List<LidarSimulator.LidarSimulator> lidarSimulatorList;
         static List<PerceptionSimulator> perceptionSimulatorList;
         static List<UDPMulticastSender> robotUdpMulticastSenderList;
         static List<UDPMulticastReceiver> robotUdpMulticastReceiverList;
@@ -65,10 +63,8 @@ namespace TeamSimulator
             <KeyCode>lwAAAQEAAACS9FAFUqnVAXkAQ3VzdG9tZXI9VW5pdmVyc2l0ZSBEZSBUb3Vsb247T3JkZXJJZD1FRFVDQVRJT05BTC1VU0UtMDEyODtTdWJzY3JpcHRpb25WYWxpZFRvPTE3LUZlYi0yMDIwO1Byb2R1Y3RDb2RlPVNDLVdQRi0yRC1QUk8tU0lURYcbnXYui4rna7TqbkEmUz1V7oD1EwrO3FhU179M9GNhkL/nkD/SUjwJ/46hJZ31CQ==</KeyCode>
             </LicenseContract>");
 
-            robotPilotList = new List<RobotPilot.RobotPilot>();
             trajectoryPlannerList = new List<TrajectoryPlanner>();
             waypointGeneratorList = new List<WaypointGenerator>();
-            //lidarSimulatorList = new List<LidarSimulator.LidarSimulator>();
             strategyManagerDictionary = new Dictionary<int, StrategyManager.StrategyManager>();
             localWorldMapManagerList = new List<LocalWorldMapManager>();
             perceptionSimulatorList = new List<PerceptionSimulator>();
@@ -137,12 +133,11 @@ namespace TeamSimulator
         
         static Random randomGenerator = new Random();
         private static void CreatePlayer(int TeamNumber, int RobotNumber)
-        {   
+        {
             int robotId = TeamNumber + RobotNumber;
             var strategyManager = new StrategyManager.StrategyManager(robotId, TeamNumber);
             var waypointGenerator = new WaypointGenerator(robotId);
             var trajectoryPlanner = new TrajectoryPlanner(robotId);
-            var robotPilot = new RobotPilot.RobotPilot(robotId);
             var localWorldMapManager = new LocalWorldMapManager(robotId, TeamNumber);
             //var lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             var perceptionSimulator = new PerceptionSimulator(robotId);
@@ -156,7 +151,7 @@ namespace TeamSimulator
                 robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, "224.16.32.79");
                 robotUdpMulticastInterpreter = new UDPMulticastInterpreter(robotId);
             }
-            else if(TeamNumber == (int)TeamId.Team2)
+            else if (TeamNumber == (int)TeamId.Team2)
             {
                 robotUdpMulticastSender = new UDPMulticastSender(robotId, "224.16.32.63");
                 robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, "224.16.32.63");
@@ -166,8 +161,8 @@ namespace TeamSimulator
             //Liens entre modules
             strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
             strategyManager.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
+            strategyManager.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
-
             trajectoryPlanner.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
 
             physicalSimulator.OnPhysicalRobotPositionEvent += trajectoryPlanner.OnPhysicalPositionReceived;
@@ -175,13 +170,13 @@ namespace TeamSimulator
             physicalSimulator.OnPhysicalRobotPositionEvent += perceptionSimulator.OnPhysicalRobotPositionReceived;
             physicalSimulator.OnPhysicalBallPositionEvent += perceptionSimulator.OnPhysicalBallPositionReceived;
 
+            //Update des données de la localWorldMap
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
-            //lidarSimulator.OnSimulatedLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
-            //strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
             waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
-            
+            trajectoryPlanner.OnGhostLocationEvent += localWorldMapManager.OnGhostLocationReceived;
+
             //Event de Réception de data Multicast sur sur le robot
             robotUdpMulticastReceiver.OnDataReceivedEvent += robotUdpMulticastInterpreter.OnMulticastDataReceived;
             //Event d'interprétation d'une globalWorldMap à sa réception dans le robot
@@ -189,12 +184,11 @@ namespace TeamSimulator
             robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
             robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
             //Event de Transmission des Local World Map du robot vers le multicast
-            localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;                
-            
+            localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
+
             strategyManagerDictionary.Add(robotId, strategyManager);
             waypointGeneratorList.Add(waypointGenerator);
             trajectoryPlannerList.Add(trajectoryPlanner);
-            robotPilotList.Add(robotPilot);
             localWorldMapManagerList.Add(localWorldMapManager);
             //lidarSimulatorList.Add(lidarSimulator);
             perceptionSimulatorList.Add(perceptionSimulator);
@@ -202,10 +196,22 @@ namespace TeamSimulator
             robotUdpMulticastSenderList.Add(robotUdpMulticastSender);
             robotUdpMulticastInterpreterList.Add(robotUdpMulticastInterpreter);
 
-            physicalSimulator.RegisterRobot(robotId, randomGenerator.Next(-10,10), randomGenerator.Next(-6, 6));
+            double xInit, yInit, thetaInit;
+            if (TeamNumber == (int)TeamId.Team1)
+            {
+                xInit = 2 * RobotNumber + 2;
+                yInit = -7;
+                thetaInit = Math.PI/4;
+            }
+            else
+            {
+                xInit = - (2 * RobotNumber + 2);
+                yInit = -7;
+                thetaInit = 0;
+            }
+            physicalSimulator.RegisterRobot(robotId, xInit, yInit);
+            trajectoryPlanner.InitRobotPosition(xInit, yInit, thetaInit);
         }
-
-        
 
         private static void TimerStrategie_Tick(object sender, EventArgs e)
         {

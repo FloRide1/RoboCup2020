@@ -23,10 +23,10 @@ namespace WpfWorldMapDisplay
         List<Location> teamLocationList;
         List<PolarPointListExtended> lidarObjectList;
 
-        System.Drawing.Color displayColor;
+        //System.Drawing.Color displayColor;
         int displayTransparency = 0xFF;
 
-        public RobotDisplay(PolygonExtended rbtShape, System.Drawing.Color color, double transparency)
+        public RobotDisplay(PolygonExtended rbtShape)
         {
             robotLocation = new Location(0, 0, 0, 0, 0, 0);
             destinationLocation = new Location(0, 0, 0, 0, 0, 0);
@@ -36,16 +36,19 @@ namespace WpfWorldMapDisplay
 
             //TODO à définir en dehors
             ghostShape = new PolygonExtended();
-            ghostShape.polygon.Points.Add(new Point(-0.25, -0.25));
-            ghostShape.polygon.Points.Add(new Point(0.25, -0.25));
-            ghostShape.polygon.Points.Add(new Point(0.5, 0));
-            ghostShape.polygon.Points.Add(new Point(0.25, 0.25));
-            ghostShape.polygon.Points.Add(new Point(-0.25, 0.25));
-            ghostShape.polygon.Points.Add(new Point(-0.25, -0.25));
+            ghostShape.polygon.Points.Add(new Point(-0.35, -0.35));
+            ghostShape.polygon.Points.Add(new Point(0.35, -0.35));
+            ghostShape.polygon.Points.Add(new Point(0.7, 0));
+            ghostShape.polygon.Points.Add(new Point(0.35, 0.35));
+            ghostShape.polygon.Points.Add(new Point(-0.35, 0.35));
+            ghostShape.polygon.Points.Add(new Point(-0.35, -0.35));
+            ghostShape.backgroundColor = System.Drawing.Color.FromArgb(20, 0, 255, 0);
+            ghostShape.borderColor = System.Drawing.Color.Black;
+
 
             lidarMap = new List<PointD>();
-            displayTransparency = (int)(transparency * 255);
-            displayColor = System.Drawing.Color.FromArgb((byte)displayTransparency, color.R, color.G, color.B);
+            //displayTransparency = (int)(transparency * 255);
+            //displayColor = System.Drawing.Color.FromArgb((byte)displayTransparency, color.R, color.G, color.B);
         }
 
         public void SetLocation(Location loc)
@@ -92,7 +95,7 @@ namespace WpfWorldMapDisplay
                 polyPt.X += robotLocation.X;
                 polyPt.Y += robotLocation.Y;
                 polygonToDisplay.polygon.Points.Add(polyPt);
-                polygonToDisplay.backgroundColor = displayColor;// shape.backgroundColor;
+                polygonToDisplay.backgroundColor = robotShape.backgroundColor;
                 polygonToDisplay.borderColor = robotShape.borderColor;
                 polygonToDisplay.borderWidth = robotShape.borderWidth;
             }
@@ -108,9 +111,9 @@ namespace WpfWorldMapDisplay
                 polyPt.X += ghostLocation.X;
                 polyPt.Y += ghostLocation.Y;
                 polygonToDisplay.polygon.Points.Add(polyPt);
-                polygonToDisplay.backgroundColor = displayColor;// shape.backgroundColor;
-                polygonToDisplay.borderColor = robotShape.borderColor;
-                polygonToDisplay.borderWidth = robotShape.borderWidth;
+                polygonToDisplay.backgroundColor = ghostShape.backgroundColor;
+                polygonToDisplay.borderColor = ghostShape.borderColor;
+                polygonToDisplay.borderWidth = ghostShape.borderWidth;
             }
             return polygonToDisplay;
         }

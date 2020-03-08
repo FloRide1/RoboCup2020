@@ -27,6 +27,10 @@
             <s:SciChartSurface.RenderableSeries>
                 <local:PolygonRenderableSeries x:Name="PolygonSeries" Opacity="0.5" >
                 </local:PolygonRenderableSeries>
+                <local:PolygonRenderableSeries x:Name="RobotShapesSeries" Opacity="0.5" >
+                </local:PolygonRenderableSeries>
+                <local:PolygonRenderableSeries x:Name="RobotGhostSeries" Opacity="0.5" >
+                </local:PolygonRenderableSeries>
                 <local:PolygonRenderableSeries x:Name="BallPolygon" Opacity="1" >
                 </local:PolygonRenderableSeries>
                 <s:XyScatterRenderableSeries x:Name="LidarPoints" Opacity="0.5">

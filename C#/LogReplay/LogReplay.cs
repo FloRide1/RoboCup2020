@@ -24,7 +24,7 @@ namespace LogReplay
         private bool filePathChanged = false;
         
         string folderPath= @"C:\Github\RoboCup2020\C#\_Logs\";              //Emplacement du dossier logs (par defaut)
-        string fileName= "logFilePath_2020-02-04_20-30-38.rbt";
+        string fileName= "logFilePath_2020-03-05_17-47-11.rbt";
         string filePath = "";
         List<string> filesNamesList = new List<string>();
         int fileIndexInList = 0;
@@ -216,6 +216,10 @@ namespace LogReplay
                                     var cameraImage = obj.ToObject<OpenCvMatImageArgsLog>();
                                     OnCameraImage(cameraImage);
                                     break;
+                                case "BitmapDataPanorama":
+                                    var BitmapData = obj.ToObject<BitmapDataPanoramaArgsLog>();
+                                    OnBitmapDataPanorama(BitmapData);
+                                    break;
                                 default:
                                     Console.WriteLine("Log Replay : wrong type");
                                     break;
@@ -279,7 +283,6 @@ namespace LogReplay
 
        
 
-        public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<RawLidarArgs> OnLidarEvent;
         public virtual void OnLidar(int id, List<PolarPoint> ptList)
         {
@@ -290,7 +293,6 @@ namespace LogReplay
             }
         }
 
-        //public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<IMUDataEventArgs> OnIMUEvent;
         public virtual void OnIMU(IMUDataEventArgs dat)
         {
@@ -301,7 +303,6 @@ namespace LogReplay
             }
         }
 
-        //public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<SpeedDataEventArgs> OnSpeedDataEvent;
         public virtual void OnSpeedData( SpeedDataEventArgs dat)
         {
@@ -312,18 +313,26 @@ namespace LogReplay
             }
         }
 
-        //public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<OpenCvMatImageArgsLog> OnCameraImageEvent;
         public virtual void OnCameraImage(OpenCvMatImageArgsLog dat)
         {
             var handler = OnCameraImageEvent;
             if (handler != null)
             {
-                handler(this, new OpenCvMatImageArgsLog { Mat=dat.Mat, Descriptor= "ImageFromCamera"});
-                }
+                handler(this, new OpenCvMatImageArgsLog { Mat = dat.Mat, Descriptor = "ImageFromCamera" });
+            }
         }
 
-        //public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
+        public event EventHandler<BitmapDataPanoramaArgsLog> OnBitmapDataEvent;
+        public virtual void OnBitmapDataPanorama(BitmapDataPanoramaArgsLog dat)
+        {
+            var handler = OnBitmapDataEvent;
+            if (handler != null)
+            {
+                handler(this, new BitmapDataPanoramaArgsLog { Descriptor = "BitmapFromCamera", BitmapData = dat.BitmapData, Data = dat.Data, InstantInMs = dat.InstantInMs });
+            }
+        }
+
         public event EventHandler<StringEventArgs> OnUpdateFileNameEvent;
         public virtual void OnFileNameChange(string name)
         {

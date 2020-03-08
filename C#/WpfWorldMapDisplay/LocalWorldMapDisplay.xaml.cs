@@ -57,35 +57,18 @@ namespace WpfWorldMapDisplay
         public void InitTeamMate(int robotId)
         {
             PolygonExtended robotShape = new PolygonExtended();
-            robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
-            robotShape.polygon.Points.Add(new Point(0.25, -0.25));
-            robotShape.polygon.Points.Add(new Point(0.2, 0));
-            robotShape.polygon.Points.Add(new Point(0.25, 0.25));
-            robotShape.polygon.Points.Add(new Point(-0.25, 0.25));
-            robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
-            RobotDisplay rd = new RobotDisplay(robotShape, System.Drawing.Color.Red, 1);
+            robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
+            robotShape.polygon.Points.Add(new System.Windows.Point(0.25, -0.25));
+            robotShape.polygon.Points.Add(new System.Windows.Point(0.2, 0));
+            robotShape.polygon.Points.Add(new System.Windows.Point(0.25, 0.25));
+            robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, 0.25));
+            robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
+            robotShape.borderColor = System.Drawing.Color.Blue;
+            robotShape.backgroundColor = System.Drawing.Color.Red;
+            RobotDisplay rd = new RobotDisplay(robotShape);
             rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
             TeamMatesDisplayDictionary.Add(robotId, rd);
         }
-
-        public void InitOpponent(int robotId)
-        {
-            PolygonExtended robotShape = new PolygonExtended();
-            robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
-            robotShape.polygon.Points.Add(new Point(0.25, -0.25));
-            robotShape.polygon.Points.Add(new Point(0.2, 0));
-            robotShape.polygon.Points.Add(new Point(0.25, 0.25));
-            robotShape.polygon.Points.Add(new Point(-0.25, 0.25));
-            robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
-            RobotDisplay rd = new RobotDisplay(robotShape, System.Drawing.Color.Blue, 1);
-            rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
-            OpponentDisplayDictionary.Add(robotId, rd);
-        }
-
-        //private void TimerAffichage_Tick(object sender, EventArgs e)
-        //{
-        //    UpdateWorldMapDisplay();
-        //}
 
         public void UpdateWorldMapDisplay()
         {
@@ -112,31 +95,7 @@ namespace WpfWorldMapDisplay
             UpdateLidarObjects(robotId, localWorldMap.lidarObjectList);
             UpdateBallLocation(localWorldMap.ballLocation);
         }
-
-        //public void UpdateGlobalWorldMap(GlobalWorldMap globalWorldMap)
-        //{
-        //    lock (globalWorldMap.teammateLocationList)
-        //    {
-        //        foreach (var robotLoc in globalWorldMap.teammateLocationList)
-        //        {
-        //            UpdateRobotLocation(robotLoc.Key, robotLoc.Value);
-        //        }
-        //    }
-        //    lock (globalWorldMap.opponentLocationList)
-        //    {
-        //        int i = 0;
-        //        foreach (var opponentLocation in globalWorldMap.opponentLocationList)
-        //        {
-        //            if (globalWorldMap.TeamId == (int)TeamId.Team1)
-        //                UpdateOpponentsLocation((int)TeamId.Team2 + i, opponentLocation);
-        //            else if (globalWorldMap.TeamId == (int)TeamId.Team2)
-        //                UpdateOpponentsLocation((int)TeamId.Team1 + i, opponentLocation);
-        //            i++;
-        //        }
-        //    }
-        //    UpdateBallLocation(globalWorldMap.ballLocation);
-        //}
-
+        
         private void DrawHeatMap(int robotId)
         {
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
@@ -169,11 +128,12 @@ namespace WpfWorldMapDisplay
             foreach (var r in TeamMatesDisplayDictionary)
             {
                 //Affichage des robots
-                PolygonSeries.AddOrUpdatePolygonExtended(r.Key, TeamMatesDisplayDictionary[r.Key].GetRobotPolygon());
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Ghost, TeamMatesDisplayDictionary[r.Key].GetRobotGhostPolygon());
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Speed, TeamMatesDisplayDictionary[r.Key].GetRobotSpeedArrow());
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Destination, TeamMatesDisplayDictionary[r.Key].GetRobotDestinationArrow());
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.WayPoint, TeamMatesDisplayDictionary[r.Key].GetRobotWaypointArrow());
+                //On trace le robot en dernier pour l'avoir en couche de dessus
+                PolygonSeries.AddOrUpdatePolygonExtended(r.Key, TeamMatesDisplayDictionary[r.Key].GetRobotPolygon());
 
                 //Rendering des points Lidar
                 lidarPts.AcceptsUnsortedData = true;

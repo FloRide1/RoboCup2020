@@ -3,6 +3,7 @@ using SciChart.Charting.Model.DataSeries;
 using SciChart.Charting.Model.DataSeries.Heatmap2DArrayDataSeries;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,7 +19,6 @@ namespace WpfWorldMapDisplay
     /// </summary>
     public partial class GlobalWorldMapDisplay : UserControl
     {
-
         Random random = new Random();
         DispatcherTimer timerAffichage;
 
@@ -54,13 +54,15 @@ namespace WpfWorldMapDisplay
         public void InitTeamMate(int robotId)
         {
             PolygonExtended robotShape = new PolygonExtended();
-            robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
-            robotShape.polygon.Points.Add(new Point(0.25, -0.25));
-            robotShape.polygon.Points.Add(new Point(0.2, 0));
-            robotShape.polygon.Points.Add(new Point(0.25, 0.25));
-            robotShape.polygon.Points.Add(new Point(-0.25, 0.25));
-            robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
-            RobotDisplay rd = new RobotDisplay(robotShape, System.Drawing.Color.Red, 1);
+            robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
+            robotShape.polygon.Points.Add(new System.Windows.Point(0.25, -0.25));
+            robotShape.polygon.Points.Add(new System.Windows.Point(0.2, 0));
+            robotShape.polygon.Points.Add(new System.Windows.Point(0.25, 0.25));
+            robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, 0.25));
+            robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
+            robotShape.borderColor = Color.Black;
+            robotShape.backgroundColor = Color.FromArgb(255, 0, 0, 200);
+            RobotDisplay rd = new RobotDisplay(robotShape);
             rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
             TeamMatesDisplayDictionary.Add(robotId, rd);
         }
@@ -68,13 +70,15 @@ namespace WpfWorldMapDisplay
         public void InitOpponent(int robotId)
         {
             PolygonExtended robotShape = new PolygonExtended();
-            robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
-            robotShape.polygon.Points.Add(new Point(0.25, -0.25));
-            robotShape.polygon.Points.Add(new Point(0.2, 0));
-            robotShape.polygon.Points.Add(new Point(0.25, 0.25));
-            robotShape.polygon.Points.Add(new Point(-0.25, 0.25));
-            robotShape.polygon.Points.Add(new Point(-0.25, -0.25));
-            RobotDisplay rd = new RobotDisplay(robotShape, System.Drawing.Color.Blue, 1);
+            robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
+            robotShape.polygon.Points.Add(new System.Windows.Point(0.25, -0.25));
+            robotShape.polygon.Points.Add(new System.Windows.Point(0.2, 0));
+            robotShape.polygon.Points.Add(new System.Windows.Point(0.25, 0.25));
+            robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, 0.25));
+            robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
+            robotShape.borderColor = Color.Black;
+            robotShape.backgroundColor = Color.FromArgb(255, 200, 0, 0);
+            RobotDisplay rd = new RobotDisplay(robotShape);
             rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
             OpponentDisplayDictionary.Add(robotId, rd);
         }
@@ -89,6 +93,8 @@ namespace WpfWorldMapDisplay
             DrawBall();
             DrawTeam();
             PolygonSeries.RedrawAll();
+            RobotGhostSeries.RedrawAll();
+            RobotShapesSeries.RedrawAll();
             ObjectsPolygonSeries.RedrawAll();
             BallPolygon.RedrawAll();
         }
@@ -100,6 +106,14 @@ namespace WpfWorldMapDisplay
                 foreach (var robotLoc in globalWorldMap.teammateLocationList)
                 {
                     UpdateRobotLocation(robotLoc.Key, robotLoc.Value);
+                }
+            }
+
+            lock (globalWorldMap.teammateGhostLocationList)
+            {
+                foreach (var robotGhostLoc in globalWorldMap.teammateGhostLocationList)
+                {
+                    UpdateRobotGhostLocation(robotGhostLoc.Key, robotGhostLoc.Value);
                 }
             }
 
@@ -147,33 +161,25 @@ namespace WpfWorldMapDisplay
             ObjectsPolygonSeries.Clear();
 
             foreach (var r in TeamMatesDisplayDictionary)
-            {               
+            {
                 //Affichage des robots
-                PolygonSeries.AddOrUpdatePolygonExtended(r.Key, TeamMatesDisplayDictionary[r.Key].GetRobotPolygon());
+                RobotGhostSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Ghost, TeamMatesDisplayDictionary[r.Key].GetRobotGhostPolygon());
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Speed, TeamMatesDisplayDictionary[r.Key].GetRobotSpeedArrow());
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Destination, TeamMatesDisplayDictionary[r.Key].GetRobotDestinationArrow());
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.WayPoint, TeamMatesDisplayDictionary[r.Key].GetRobotWaypointArrow());
-
-                ////Rendering des points Lidar
-                //lidarPts.AcceptsUnsortedData = true;
-                //var lidarData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints();
-                //lidarPts.Append(lidarData.XValues, lidarData.YValues);
-
-                //Rendering des objets Lidar
-                foreach (var polygonObject in TeamMatesDisplayDictionary[r.Key].GetRobotLidarObjects())
-                    ObjectsPolygonSeries.AddOrUpdatePolygonExtended(ObjectsPolygonSeries.Count(), polygonObject);
+                //On trace le robot en dernier pour l'avoir en couche de dessus
+                RobotShapesSeries.AddOrUpdatePolygonExtended(r.Key, TeamMatesDisplayDictionary[r.Key].GetRobotPolygon());
+                
+                ////Rendering des objets Lidar
+                //foreach (var polygonObject in TeamMatesDisplayDictionary[r.Key].GetRobotLidarObjects())
+                //    ObjectsPolygonSeries.AddOrUpdatePolygonExtended(ObjectsPolygonSeries.Count(), polygonObject);
             }
             
             foreach (var r in OpponentDisplayDictionary)
             {
-                //Affichage des robots
+                //Affichage des robots adverses
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key, OpponentDisplayDictionary[r.Key].GetRobotPolygon());
-                //PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Speed, OpponentDisplayDictionary[r.Key].GetRobotSpeedArrow());
-                //PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Destination, TeamMatesDictionary[r.Key].GetRobotDestinationArrow());
-                //PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.WayPoint, TeamMatesDictionary[r.Key].GetRobotWaypointArrow());
             }
-            //Affichage des points lidar
-            //LidarPoints.DataSeries = lidarPts;
         }
         
         private void UpdateRobotLocation(int robotId, Location location)
@@ -189,7 +195,21 @@ namespace WpfWorldMapDisplay
                 Console.WriteLine("UpdateRobotLocation : Robot non trouvé");
             }
         }
-        
+
+        private void UpdateRobotGhostLocation(int robotId, Location location)
+        {
+            if (location == null)
+                return;
+            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
+            {
+                TeamMatesDisplayDictionary[robotId].SetGhostLocation(location);
+            }
+            else
+            {
+                Console.WriteLine("UpdateRobotGhostLocation : Robot non trouvé");
+            }
+        }
+
         public void UpdateBallLocation(Location ballLocation)
         {
             Balle.SetLocation(ballLocation);
@@ -234,115 +254,115 @@ namespace WpfWorldMapDisplay
         {
             int fieldLineWidth = 2;
             PolygonExtended p = new PolygonExtended();
-            p.polygon.Points.Add(new Point(-12, -8));
-            p.polygon.Points.Add(new Point(12, -8));
-            p.polygon.Points.Add(new Point(12, 8));
-            p.polygon.Points.Add(new Point(-12, 8));
-            p.polygon.Points.Add(new Point(-12, -8));
+            p.polygon.Points.Add(new System.Windows.Point(-12, -8));
+            p.polygon.Points.Add(new System.Windows.Point(12, -8));
+            p.polygon.Points.Add(new System.Windows.Point(12, 8));
+            p.polygon.Points.Add(new System.Windows.Point(-12, 8));
+            p.polygon.Points.Add(new System.Windows.Point(-12, -8));
             p.borderWidth = fieldLineWidth;
             p.borderColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0x00, 0x00);
             p.backgroundColor = System.Drawing.Color.FromArgb(0xFF, 0x22, 0x22, 0x22);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.ZoneProtegee, p);
 
             p = new PolygonExtended();
-            p.polygon.Points.Add(new Point(11, -7));
-            p.polygon.Points.Add(new Point(0, -7));
-            p.polygon.Points.Add(new Point(0, 7));
-            p.polygon.Points.Add(new Point(11, 7));
-            p.polygon.Points.Add(new Point(11, -7));
+            p.polygon.Points.Add(new System.Windows.Point(11, -7));
+            p.polygon.Points.Add(new System.Windows.Point(0, -7));
+            p.polygon.Points.Add(new System.Windows.Point(0, 7));
+            p.polygon.Points.Add(new System.Windows.Point(11, 7));
+            p.polygon.Points.Add(new System.Windows.Point(11, -7));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = System.Drawing.Color.FromArgb(0xFF, 0x00, 0x66, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.DemiTerrainDroit, p);
 
             p = new PolygonExtended();
-            p.polygon.Points.Add(new Point(-11, -7));
-            p.polygon.Points.Add(new Point(0, -7));
-            p.polygon.Points.Add(new Point(0, 7));
-            p.polygon.Points.Add(new Point(-11, 7));
-            p.polygon.Points.Add(new Point(-11, -7));
+            p.polygon.Points.Add(new System.Windows.Point(-11, -7));
+            p.polygon.Points.Add(new System.Windows.Point(0, -7));
+            p.polygon.Points.Add(new System.Windows.Point(0, 7));
+            p.polygon.Points.Add(new System.Windows.Point(-11, 7));
+            p.polygon.Points.Add(new System.Windows.Point(-11, -7));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = System.Drawing.Color.FromArgb(0xFF, 0x00, 0x66, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.DemiTerrainGauche, p);
 
 
             p = new PolygonExtended();
-            p.polygon.Points.Add(new Point(-11, -1.95));
-            p.polygon.Points.Add(new Point(-10.25, -1.95));
-            p.polygon.Points.Add(new Point(-10.25, 1.95));
-            p.polygon.Points.Add(new Point(-11.00, 1.95));
-            p.polygon.Points.Add(new Point(-11.00, -1.95));
+            p.polygon.Points.Add(new System.Windows.Point(-11, -1.95));
+            p.polygon.Points.Add(new System.Windows.Point(-10.25, -1.95));
+            p.polygon.Points.Add(new System.Windows.Point(-10.25, 1.95));
+            p.polygon.Points.Add(new System.Windows.Point(-11.00, 1.95));
+            p.polygon.Points.Add(new System.Windows.Point(-11.00, -1.95));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.SurfaceButGauche, p);
 
             p = new PolygonExtended();
-            p.polygon.Points.Add(new Point(11.00, -1.95));
-            p.polygon.Points.Add(new Point(10.25, -1.95));
-            p.polygon.Points.Add(new Point(10.25, 1.95));
-            p.polygon.Points.Add(new Point(11.00, 1.95));
-            p.polygon.Points.Add(new Point(11.00, -1.95));
+            p.polygon.Points.Add(new System.Windows.Point(11.00, -1.95));
+            p.polygon.Points.Add(new System.Windows.Point(10.25, -1.95));
+            p.polygon.Points.Add(new System.Windows.Point(10.25, 1.95));
+            p.polygon.Points.Add(new System.Windows.Point(11.00, 1.95));
+            p.polygon.Points.Add(new System.Windows.Point(11.00, -1.95));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.SurfaceButDroit, p);
 
             p = new PolygonExtended();
-            p.polygon.Points.Add(new Point(11.00, -3.45));
-            p.polygon.Points.Add(new Point(8.75, -3.45));
-            p.polygon.Points.Add(new Point(8.75, 3.45));
-            p.polygon.Points.Add(new Point(11.00, 3.45));
-            p.polygon.Points.Add(new Point(11.00, -3.45));
+            p.polygon.Points.Add(new System.Windows.Point(11.00, -3.45));
+            p.polygon.Points.Add(new System.Windows.Point(8.75, -3.45));
+            p.polygon.Points.Add(new System.Windows.Point(8.75, 3.45));
+            p.polygon.Points.Add(new System.Windows.Point(11.00, 3.45));
+            p.polygon.Points.Add(new System.Windows.Point(11.00, -3.45));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.SurfaceReparationDroit, p);
 
             p = new PolygonExtended();
-            p.polygon.Points.Add(new Point(-11.00, -3.45));
-            p.polygon.Points.Add(new Point(-8.75, -3.45));
-            p.polygon.Points.Add(new Point(-8.75, 3.45));
-            p.polygon.Points.Add(new Point(-11.00, 3.45));
-            p.polygon.Points.Add(new Point(-11.00, -3.45));
+            p.polygon.Points.Add(new System.Windows.Point(-11.00, -3.45));
+            p.polygon.Points.Add(new System.Windows.Point(-8.75, -3.45));
+            p.polygon.Points.Add(new System.Windows.Point(-8.75, 3.45));
+            p.polygon.Points.Add(new System.Windows.Point(-11.00, 3.45));
+            p.polygon.Points.Add(new System.Windows.Point(-11.00, -3.45));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.SurfaceReparationGauche, p);
 
             p = new PolygonExtended();
-            p.polygon.Points.Add(new Point(-11.00, -1.20));
-            p.polygon.Points.Add(new Point(-11.00, 1.20));
-            p.polygon.Points.Add(new Point(-11.50, 1.20));
-            p.polygon.Points.Add(new Point(-11.50, -1.20));
-            p.polygon.Points.Add(new Point(-11.00, -1.20));
+            p.polygon.Points.Add(new System.Windows.Point(-11.00, -1.20));
+            p.polygon.Points.Add(new System.Windows.Point(-11.00, 1.20));
+            p.polygon.Points.Add(new System.Windows.Point(-11.50, 1.20));
+            p.polygon.Points.Add(new System.Windows.Point(-11.50, -1.20));
+            p.polygon.Points.Add(new System.Windows.Point(-11.00, -1.20));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.ButGauche, p);
 
             p = new PolygonExtended();
-            p.polygon.Points.Add(new Point(11.00, -1.20));
-            p.polygon.Points.Add(new Point(11.00, 1.20));
-            p.polygon.Points.Add(new Point(11.50, 1.20));
-            p.polygon.Points.Add(new Point(11.50, -1.20));
-            p.polygon.Points.Add(new Point(11.00, -1.20));
+            p.polygon.Points.Add(new System.Windows.Point(11.00, -1.20));
+            p.polygon.Points.Add(new System.Windows.Point(11.00, 1.20));
+            p.polygon.Points.Add(new System.Windows.Point(11.50, 1.20));
+            p.polygon.Points.Add(new System.Windows.Point(11.50, -1.20));
+            p.polygon.Points.Add(new System.Windows.Point(11.00, -1.20));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.ButDroit, p);
 
 
             p = new PolygonExtended();
-            p.polygon.Points.Add(new Point(-12.00, -8.00));
-            p.polygon.Points.Add(new Point(-12.00, -9.00));
-            p.polygon.Points.Add(new Point(-4.00, -9.00));
-            p.polygon.Points.Add(new Point(-4.00, -8.00));
-            p.polygon.Points.Add(new Point(-12.00, -8.00));
+            p.polygon.Points.Add(new System.Windows.Point(-12.00, -8.00));
+            p.polygon.Points.Add(new System.Windows.Point(-12.00, -9.00));
+            p.polygon.Points.Add(new System.Windows.Point(-4.00, -9.00));
+            p.polygon.Points.Add(new System.Windows.Point(-4.00, -8.00));
+            p.polygon.Points.Add(new System.Windows.Point(-12.00, -8.00));
             p.borderWidth = fieldLineWidth;
             p.borderColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0x00, 0x00);
             p.backgroundColor = System.Drawing.Color.FromArgb(0xFF, 0x00, 0x00, 0xFF);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.ZoneTechniqueGauche, p);
 
             p = new PolygonExtended();
-            p.polygon.Points.Add(new Point(+12.00, -8.00));
-            p.polygon.Points.Add(new Point(+12.00, -9.00));
-            p.polygon.Points.Add(new Point(+4.00, -9.00));
-            p.polygon.Points.Add(new Point(+4.00, -8.00));
-            p.polygon.Points.Add(new Point(+12.00, -8.00));
+            p.polygon.Points.Add(new System.Windows.Point(+12.00, -8.00));
+            p.polygon.Points.Add(new System.Windows.Point(+12.00, -9.00));
+            p.polygon.Points.Add(new System.Windows.Point(+4.00, -9.00));
+            p.polygon.Points.Add(new System.Windows.Point(+4.00, -8.00));
+            p.polygon.Points.Add(new System.Windows.Point(+12.00, -8.00));
             p.borderWidth = fieldLineWidth;
             p.borderColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0x00, 0x00);
             p.backgroundColor = System.Drawing.Color.FromArgb(0xFF, 0x00, 0x00, 0xFF);
@@ -351,49 +371,49 @@ namespace WpfWorldMapDisplay
             p = new PolygonExtended();
             int nbSteps = 30;
             for (int i = 0; i < nbSteps + 1; i++)
-                p.polygon.Points.Add(new Point(1.0f * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 1.0f * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
+                p.polygon.Points.Add(new System.Windows.Point(1.0f * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 1.0f * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.RondCentral, p);
 
             p = new PolygonExtended();
             for (int i = 0; i < (int)(nbSteps / 4) + 1; i++)
-                p.polygon.Points.Add(new Point(-11.00 + 0.75 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), -7.0 + 0.75 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
+                p.polygon.Points.Add(new System.Windows.Point(-11.00 + 0.75 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), -7.0 + 0.75 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.CornerBasGauche, p);
 
             p = new PolygonExtended();
             for (int i = (int)(nbSteps / 4) + 1; i < (int)(2 * nbSteps / 4) + 1; i++)
-                p.polygon.Points.Add(new Point(11 + 0.75 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), -7 + 0.75 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
+                p.polygon.Points.Add(new System.Windows.Point(11 + 0.75 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), -7 + 0.75 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.CornerBasDroite, p);
 
             p = new PolygonExtended();
             for (int i = (int)(2 * nbSteps / 4); i < (int)(3 * nbSteps / 4) + 1; i++)
-                p.polygon.Points.Add(new Point(11 + 0.75 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 7 + 0.75 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
+                p.polygon.Points.Add(new System.Windows.Point(11 + 0.75 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 7 + 0.75 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.CornerHautDroite, p);
 
             p = new PolygonExtended();
             for (int i = (int)(3 * nbSteps / 4) + 1; i < (int)(nbSteps) + 1; i++)
-                p.polygon.Points.Add(new Point(-11 + 0.75 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 7 + 0.75 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
+                p.polygon.Points.Add(new System.Windows.Point(-11 + 0.75 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 7 + 0.75 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.CornerHautGauche, p);
 
             p = new PolygonExtended();
             for (int i = 0; i < (int)(nbSteps) + 1; i++)
-                p.polygon.Points.Add(new Point(-7.4 + 0.075 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 0.075 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
+                p.polygon.Points.Add(new System.Windows.Point(-7.4 + 0.075 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 0.075 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.PtAvantSurfaceGauche, p);
 
             p = new PolygonExtended();
             for (int i = 0; i < (int)(nbSteps) + 1; i++)
-                p.polygon.Points.Add(new Point(7.4 + 0.075 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 0.075 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
+                p.polygon.Points.Add(new System.Windows.Point(7.4 + 0.075 * Math.Cos((double)i * (2 * Math.PI / nbSteps)), 0.075 * Math.Sin((double)i * (2 * Math.PI / nbSteps))));
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.PtAvantSurfaceDroit, p);

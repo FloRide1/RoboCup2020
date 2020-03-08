@@ -236,5 +236,10 @@ namespace EventArgsLibrary
         public int nbMessageIMU { get; set; }
         public int nbMessageOdometry { get; set; }
     }
+    public class GameStateArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+        public GameState gameState { get; set; }
+    }
 
 }

@@ -15,12 +15,21 @@ namespace PhysicalSimulator
         double fSampling = 50;
 
         HighFreqTimer highFrequencyTimer;
+                
+        FiltreOrdre1 filterLowPassVx = new FiltreOrdre1();
+        FiltreOrdre1 filterLowPassVy = new FiltreOrdre1();
+        FiltreOrdre1 filterLowPassVTheta = new FiltreOrdre1();
 
         public PhysicalSimulator()
         {
+            filterLowPassVx.LowPassFilterInit(fSampling, 10);
+            filterLowPassVy.LowPassFilterInit(fSampling, 10);
+            filterLowPassVTheta.LowPassFilterInit(fSampling, 10);
+
             highFrequencyTimer = new HighFreqTimer(fSampling);
             highFrequencyTimer.Tick += HighFrequencyTimer_Tick;
             highFrequencyTimer.Start();
+
         }
 
         public void RegisterRobot(int id, double xpos, double yPos)
@@ -152,9 +161,13 @@ namespace PhysicalSimulator
         {
             if (robotList.ContainsKey(e.RobotId))
             {
-                robotList[e.RobotId].Vx = e.Vx;
-                robotList[e.RobotId].Vy = e.Vy;
-                robotList[e.RobotId].Vtheta = e.Vtheta;
+                robotList[e.RobotId].Vx = filterLowPassVx.Filter(e.Vx);
+                robotList[e.RobotId].Vy = filterLowPassVy.Filter(e.Vy);
+                robotList[e.RobotId].Vtheta = filterLowPassVTheta.Filter(e.Vtheta);
+
+                //robotList[e.RobotId].Vx = e.Vx;
+                //robotList[e.RobotId].Vy = e.Vy;
+                //robotList[e.RobotId].Vtheta = e.Vtheta;
             }
         }
 

@@ -65,6 +65,7 @@ namespace WayPointGenerator
                 CalculateOptimalWayPoint();
             }
         }
+        
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
         {
             globalWorldMap = e.GlobalWorldMap;
