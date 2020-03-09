@@ -210,7 +210,7 @@ namespace StrategyManager
                             switch (robotId)
                             {
                                 case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
-                                    robotDestination = new PointD(1, 0);
+                                    robotDestination = new PointD(0, 1);
                                     break;
                             }
                             break;
@@ -219,7 +219,7 @@ namespace StrategyManager
                             switch (robotId)
                             {
                                 case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
-                                    robotDestination = new PointD(0, 1);
+                                    robotDestination = new PointD(1, 0);
                                     break;
                             }
                             break;

@@ -17,7 +17,7 @@ namespace TrajectoryGenerator
 
         GameState currentGameState = GameState.STOPPED;
 
-        double FreqEch = 30;
+        double FreqEch = 30.0;
 
         double accelAngulaireMax = 4; //en rad.s-2
         double accelLineaireMax = 2; //en m.s-2
@@ -175,6 +175,11 @@ namespace TrajectoryGenerator
 
         //}
 
+        double capVitesseRefTerrain = 0;
+        double vitesseRotationCapVitesse = 0;
+        double accelRotationCapVitesseMax = 2;
+        double vitesseRotationCapVitesseMax = 2;
+
         void CalculateGhostPosition()
         {
             if (wayPointLocation == null)
@@ -186,13 +191,13 @@ namespace TrajectoryGenerator
 
             //Calcul du cap vitesse du Robot dans les référentiel terrain et robot
             //Attention, le cap vitesse est différent de l'orientation du robot (ghostLocation.Theta) !
-            double CapVitesseRobotRefTerrain;
-            if (ghostLocation.Vx != 0)
-                CapVitesseRobotRefTerrain = Math.Atan2(ghostLocation.Vy, ghostLocation.Vx);
-            else
-                CapVitesseRobotRefTerrain = Math.Atan2(ghostLocation.Vy, 0.0001);
+            //double CapVitesseRobotRefTerrain;
+            //if (ghostLocation.Vx != 0)
+            //    CapVitesseRobotRefTerrain = Math.Atan2(ghostLocation.Vy, ghostLocation.Vx);
+            //else
+            //    CapVitesseRobotRefTerrain = Math.Atan2(ghostLocation.Vy, 0.0001);
 
-            double CapVitesseRobotRefRobot = CapVitesseRobotRefTerrain - ghostLocation.Theta;
+            //double CapVitesseRobotRefRobot = CapVitesseRobotRefTerrain - ghostLocation.Theta;
 
             //Calcul du cap du Waypoint dans les référentiel terrain et robot
             double CapWayPointRefTerrain;
@@ -201,88 +206,66 @@ namespace TrajectoryGenerator
             else
                 CapWayPointRefTerrain = Math.Atan2(wayPointLocation.Y - ghostLocation.Y, 0.0001);
 
-            double CapWayPointRefRobot = CapWayPointRefTerrain - ghostLocation.Theta;
-            CapWayPointRefRobot = Toolbox.ModuloByAngle(CapVitesseRobotRefRobot, CapWayPointRefRobot);
+            //double CapWayPointRefRobot = CapWayPointRefTerrain - ghostLocation.Theta;
+            CapWayPointRefTerrain = Toolbox.ModuloByAngle(capVitesseRefTerrain, CapWayPointRefTerrain);
 
             //Calcul de l'éart de cap
-            double ecartCap = CapWayPointRefRobot - CapVitesseRobotRefRobot;
-
+            double ecartCap = CapWayPointRefTerrain - capVitesseRefTerrain;
+            
             //Calcul de la distance au WayPoint
             double distanceWayPoint = Math.Sqrt(Math.Pow(wayPointLocation.Y - ghostLocation.Y, 2) + Math.Pow(wayPointLocation.X - ghostLocation.X, 2));
+            if (distanceWayPoint < 0.05)
+                distanceWayPoint = 0;
 
             //Calcul de la vitesse linéaire du robot
             double vitesseLineaireRobot = Math.Sqrt(Math.Pow(ghostLocation.Vx, 2) + Math.Pow(ghostLocation.Vy, 2));
 
+            //Calacul de la distance de freinage 
+            double distanceFreinageLineaire = Math.Pow(vitesseLineaireRobot, 2) / (2 * accelLineaireMax);
+            
+
             /* Fin du calcul des variéables intermédiaires */
 
             // Si le robot a un cap vitesse à peu près aligné sur son Waypoint ou une vitesse presque nulle 
-            // et que la distance au Waypoint est supérieure à la distance de freinage : on accélère
+            // et que la distance au Waypoint est supérieure à la distance de freinage : on accélère en linéaire
             // sinon on freine
-
             double nouvelleVitesseLineaire;
-            if (Math.Abs(CapWayPointRefRobot)<0.4 || vitesseLineaireRobot< 0.2)
+            if (/*(Math.Abs(ecartCap) <0.4 || vitesseLineaireRobot< 0.2) &&*/ distanceWayPoint>distanceFreinageLineaire)
                 nouvelleVitesseLineaire = Math.Min(vitesseLineaireMax, vitesseLineaireRobot + accelLineaireMax / FreqEch); //On accélère
             else
-                nouvelleVitesseLineaire = Math.Min(vitesseLineaireMax, vitesseLineaireRobot + accelLineaireMax / FreqEch); //On accélère
+                nouvelleVitesseLineaire = Math.Min(0, vitesseLineaireRobot - accelLineaireMax / FreqEch); //On freine
 
-
-
-
-            //Vitesse souhaitée au passage du WayPoint (permet de définir des Waypoint terminaux avec arrêt ou transistoires)
-            double vitesseLineaireWaypointSouhaitee = Math.Sqrt(Math.Pow(wayPointLocation.Vx, 2) + Math.Pow(wayPointLocation.Vy, 2));
-
-            //Calcul de la vitesse maximum permettant de passer le WayPoint à la vitesse voulue
-            double vitesseMaxParRapportAuWaypoint = Math.Sqrt(Math.Pow(vitesseLineaireWaypointSouhaitee, 2) + 2 * accelLineaireMax * distanceWayPoint);
-            vitesseMaxParRapportAuWaypoint = Math.Min(vitesseMaxParRapportAuWaypoint, vitesseLineaireMax); //Limitation à VMax
-
-            //Calcul de la vitesse lineaire cible en prenant en compte l'ecart de cap pour éviter des rayons de courbure trop grands
-            double vitesseLineaireCible = vitesseMaxParRapportAuWaypoint * Math.Cos(ecartCap);
-            ////Si le wayPoint est derrière le robot, on a normalement une vitesse linéaire cible nulle
-            ////    mais pour permettre que le robot tourne, on met un minimum de vitesse dans ce cas
-            //if (Math.Cos(ecartCap) < 0)
-            //    vitesseLineaireCible = 0.2;
-
-            //Calcul de la nouvelle vitesse lineaire en rampes sur la consigne vitesse lineaire cible (prise en compte du freinage ou de l'acceleration)
-            
-            if (vitesseLineaireCible >= vitesseLineaireRobot)
-                nouvelleVitesseLineaire = Math.Min(vitesseLineaireCible, vitesseLineaireRobot + accelLineaireMax / FreqEch);
-            else
-                nouvelleVitesseLineaire = Math.Max(vitesseLineaireCible, vitesseLineaireRobot - accelLineaireMax / FreqEch);
-
-            //Si la vitesse Obtenue est faible et que l'on est très proche du WayPoint, on la réduit à 0 pour éviter les micro-mouvements
-            if (nouvelleVitesseLineaire <= 0.2 && distanceWayPoint < 0.02)
-                nouvelleVitesseLineaire = 0;
-
-            //Calcul du nouveau Cap Robot : si la vitesse est faible, le nouveau cap est la direction du waypoint, sinon on tourne progressivement.
-            double KpAng = 1.0;
-            double nouveauCapVitesseRobotRefRobot;
-            if (nouvelleVitesseLineaire <= 0.2)
-                nouveauCapVitesseRobotRefRobot = CapWayPointRefRobot; // wayPointLocation.Theta + ghostLocation.Theta;
+            //Si le robot a un écart de cap vitesse supérieur à l'angle de freinage en rotation de cap vitesse, on accélère la rotation, sinon on freine
+            double angleArretRotationCapVitesse = Math.Pow(vitesseRotationCapVitesse, 2) / (2 * accelRotationCapVitesseMax);
+            if (ecartCap > 0)
+            {
+                if (ecartCap > angleArretRotationCapVitesse)
+                    vitesseRotationCapVitesse = Math.Min(vitesseRotationCapVitesseMax, vitesseRotationCapVitesse + accelRotationCapVitesseMax / FreqEch); //on accélère
+                else
+                    vitesseRotationCapVitesse = Math.Max(0, vitesseRotationCapVitesse - accelRotationCapVitesseMax / FreqEch); //On freine
+            }
             else
             {
-                double capCible = CapWayPointRefRobot;// wayPointLocation.Theta + ghostLocation.Theta;
-                //capCible = Toolbox.ModuloByAngle(CapVitesseRobotRefTerrain, capCible);
-                vitesseAngulaireMax = 1.0;
-                if (capCible >= CapVitesseRobotRefTerrain)
-                    CapVitesseRobotRefTerrain = Math.Min(capCible, CapVitesseRobotRefTerrain + vitesseAngulaireMax / FreqEch);
+                if (ecartCap < -angleArretRotationCapVitesse)
+                    vitesseRotationCapVitesse = Math.Max(-vitesseRotationCapVitesseMax, vitesseRotationCapVitesse - accelRotationCapVitesseMax / FreqEch); //On accélère en négatif
                 else
-                    CapVitesseRobotRefTerrain = Math.Max(capCible, CapVitesseRobotRefTerrain - vitesseAngulaireMax / FreqEch);
-                nouveauCapVitesseRobotRefRobot = CapVitesseRobotRefTerrain + KpAng * ecartCap / FreqEch;
+                    vitesseRotationCapVitesse = Math.Min(0, vitesseRotationCapVitesse + accelRotationCapVitesseMax / FreqEch); //On freine en négatif
             }
+            capVitesseRefTerrain += vitesseRotationCapVitesse / FreqEch;
+            
 
-
-            //On traite à présent l'orientation angulaire du robot pour l'aligner sur l'angle demandé
-            //wayPointLocation.Theta = Toolbox.ModuloByAngle(ghostLocation.Theta, wayPointLocation.Theta);
-            //double ecartOrientationRobot = CapWayPointRefRobot - ghostLocation.Theta;
-            //double nouvelleVitesseAngulaire = 100.0 * CapWayPointRefRobot / FreqEch;
+            ////On traite à présent l'orientation angulaire du robot pour l'aligner sur l'angle demandé
+            ////wayPointLocation.Theta = Toolbox.ModuloByAngle(ghostLocation.Theta, wayPointLocation.Theta);
+            ////double ecartOrientationRobot = CapWayPointRefRobot - ghostLocation.Theta;
+            ////double nouvelleVitesseAngulaire = 100.0 * CapWayPointRefRobot / FreqEch;
 
 
 
             if (currentGameState != GameState.STOPPED)
             {
                 //On génère les vitesses dans le référentiel du robot.
-                ghostLocation.Vx = nouvelleVitesseLineaire * Math.Cos(ghostLocation.Theta - nouveauCapVitesseRobotRefRobot);
-                ghostLocation.Vy = nouvelleVitesseLineaire * -Math.Sin(ghostLocation.Theta - nouveauCapVitesseRobotRefRobot);
+                ghostLocation.Vx = nouvelleVitesseLineaire * Math.Cos(capVitesseRefTerrain);
+                ghostLocation.Vy = nouvelleVitesseLineaire * Math.Sin(/*ghostLocation.Theta - */capVitesseRefTerrain);
                 ghostLocation.Vtheta = 0.2;
 
                 //Nouvelle orientation du robot
@@ -290,7 +273,7 @@ namespace TrajectoryGenerator
 
                 ghostLocation.X += ghostLocation.Vx / FreqEch;
                 ghostLocation.Y += ghostLocation.Vy / FreqEch;
-                ghostLocation.Theta += ghostLocation.Vtheta / FreqEch;
+                //ghostLocation.Theta += ghostLocation.Vtheta / FreqEch;
                 //ghostLocation.Theta = Toolbox.ModuloByAngle(nouveauCapRobot, ghostLocation.Theta);
             }
             else
