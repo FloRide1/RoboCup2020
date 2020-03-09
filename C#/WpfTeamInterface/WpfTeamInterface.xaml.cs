@@ -309,5 +309,50 @@ namespace TeamInterface
             msg.robotID = 0;
             OnRefereeBoxReceivedCommand(msg);
         }
+
+        private void Button_0_0_Click(object sender, RoutedEventArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.GOTO_0_0;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+
+        private void Button_0_1_Click(object sender, RoutedEventArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.GOTO_0_1;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+
+        private void Button_1_0_Click(object sender, RoutedEventArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.GOTO_1_0;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+
+        private void Button_0_m1_Click(object sender, RoutedEventArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.GOTO_0_M1;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+
+        private void Button_m1_0_Click(object sender, RoutedEventArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.GOTO_M1_0;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
     }
 }

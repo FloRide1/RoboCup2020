@@ -309,15 +309,15 @@ namespace YoloObjectDetector
             return new Pen(Brushes.Transparent, size);
         }
 
-        public event EventHandler<OpenCvMatImageArgs> OnYoloImageProcessedAndLabelledEvent;
-        public virtual void OnYoloImageProcessedAndLabelledReady(Mat mat, string descriptor)
-        {
-            var handler = OnYoloImageProcessedAndLabelledEvent;
-            if (handler != null)
-            {
-                handler(this, new OpenCvMatImageArgs { Mat = mat, Descriptor = descriptor });
-            }
-        }
+        //public event EventHandler<OpenCvMatImageArgs> OnYoloImageProcessedAndLabelledEvent;
+        //public virtual void OnYoloImageProcessedAndLabelledReady(Mat mat, string descriptor)
+        //{
+        //    var handler = OnYoloImageProcessedAndLabelledEvent;
+        //    if (handler != null)
+        //    {
+        //        handler(this, new OpenCvMatImageArgs { Mat = mat, Descriptor = descriptor });
+        //    }
+        //}
 
         public event EventHandler<BitmapImageArgs> OnYoloBitmapImageProcessedAndLabelledEvent;
         public virtual void OnYoloImageProcessedAndLabelledReady(Bitmap bmp, string descriptor)

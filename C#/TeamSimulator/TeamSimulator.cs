@@ -46,8 +46,8 @@ namespace TeamSimulator
 
         static object ExitLock = new object();
 
-        static int nbPlayersTeam1 = 5;
-        static int nbPlayersTeam2 = 5;
+        static int nbPlayersTeam1 = 1;
+        static int nbPlayersTeam2 = 1;
 
         [STAThread] //à ajouter au projet initial
 

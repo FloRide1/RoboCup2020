@@ -35,10 +35,8 @@ namespace CameraAdapter
         public void CameraInit()
         {
             // Ask the camera finder for a list of camera devices.
-            List<ICameraInfo> allCameras = CameraFinder.Enumerate();
-            
+            List<ICameraInfo> allCameras = CameraFinder.Enumerate();            
             camera = new Camera("22427616");
-
 
             if (camera != null)
             {

@@ -146,8 +146,42 @@ namespace WorldMapManager
                     else
                         currentStoppedGameAction = StoppedGameAction.KICKOFF_OPPONENT;
                     break;
+                case RefBoxCommand.GOTO_0_0:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.GOTO_0_0;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.GOTO_0_0_OPPONENT;
+                    break;
+                case RefBoxCommand.GOTO_0_1:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.GOTO_0_1;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.GOTO_0_1_OPPONENT;
+                    break;
+                case RefBoxCommand.GOTO_1_0:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.GOTO_1_0;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.GOTO_1_0_OPPONENT;
+                    break;
+                case RefBoxCommand.GOTO_0_M1:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.GOTO_0_M1;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.GOTO_0_M1_OPPONENT;
+                    break;
+                case RefBoxCommand.GOTO_M1_0:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.GOTO_M1_0;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.GOTO_M1_0_OPPONENT;
+                    break;
             }
-
         }
 
         private void AddOrUpdateLocalWorldMap(LocalWorldMap localWorldMap)

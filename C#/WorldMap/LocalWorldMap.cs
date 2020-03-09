@@ -123,5 +123,15 @@ namespace WorldMap
         PENALTY_OPPONENT,
         PARK,
         DROPBALL,
+        GOTO_0_1,
+        GOTO_0_1_OPPONENT,
+        GOTO_1_0,
+        GOTO_1_0_OPPONENT,
+        GOTO_0_M1,
+        GOTO_0_M1_OPPONENT,
+        GOTO_M1_0,
+        GOTO_M1_0_OPPONENT,
+        GOTO_0_0,
+        GOTO_0_0_OPPONENT,
     }
 }

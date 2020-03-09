@@ -34,5 +34,13 @@ namespace Utilities
         RED_CARD,
         SUBSTITUTION,
         IS_ALIVE,
+
+
+        //Added commands for debug
+        GOTO_0_0,
+        GOTO_0_1,
+        GOTO_1_0,
+        GOTO_0_M1,
+        GOTO_M1_0,
     }
 }

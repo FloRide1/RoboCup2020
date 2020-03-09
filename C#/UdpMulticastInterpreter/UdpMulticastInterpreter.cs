@@ -29,9 +29,10 @@ namespace UdpMulticastInterpreter
                 //Console.WriteLine(string.Format("Received bytes: {0}", compressedData.Length));
                 //string uncompressedTextData = "";// Zip.UnzipText(compressedData);
                 //                                 //Console.WriteLine(string.Format("Decompressed bytes: {0}", uncompressedTextData.Length));
+                
+                JObject obj = JObject.Parse(Encoding.Default.GetString(e.Data));
                 try
                 {
-                    JObject obj = JObject.Parse(Encoding.Default.GetString(e.Data));
                     switch ((string)obj["Type"])
                     {
                         case "LocalWorldMap":

@@ -79,5 +79,13 @@
             <Button x:Name="Button_KickOffT1" HorizontalAlignment="Stretch" Height="30" Margin="4" Content="Kick Off T1" Click="Button_KickOffT1_Click" />
             <Button x:Name="Button_KickOffT2" HorizontalAlignment="Stretch" Height="30" Margin="4" Content="Kick Off T2" Click="Button_KickOffT2_Click" />
         </StackPanel>
+
+        <StackPanel  Grid.Column="7" Grid.RowSpan="10" VerticalAlignment="Bottom">
+            <Button x:Name="Button_0_0" HorizontalAlignment="Stretch" Height="30" Margin="4" Content="Go to (0,0)" Click="Button_0_0_Click"/>
+            <Button x:Name="Button_0_1" HorizontalAlignment="Stretch" Height="30" Margin="4" Content="Go to (0,1)" Click="Button_0_1_Click"/>
+            <Button x:Name="Button_1_0" HorizontalAlignment="Stretch" Height="30" Margin="4" Content="Go to (1,0)" Click="Button_1_0_Click"/>
+            <Button x:Name="Button_0_m1" HorizontalAlignment="Stretch" Height="30" Margin="4" Content="Go to (0,-1)" Click="Button_0_m1_Click"/>
+            <Button x:Name="Button_m1_0" HorizontalAlignment="Stretch" Height="30" Margin="4" Content="Go to (-1,0)" Click="Button_m1_0_Click"/>
+        </StackPanel>
     </Grid>
 </Window>

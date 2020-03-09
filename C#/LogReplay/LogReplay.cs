@@ -212,10 +212,10 @@ namespace LogReplay
                                     var ImuData = obj.ToObject<IMUDataEventArgsLog>();
                                     OnIMU(ImuData);
                                     break;
-                                case "CameraOmni":
-                                    var cameraImage = obj.ToObject<OpenCvMatImageArgsLog>();
-                                    OnCameraImage(cameraImage);
-                                    break;
+                                //case "CameraOmni":
+                                //    var cameraImage = obj.ToObject<OpenCvMatImageArgsLog>();
+                                //    OnCameraImage(cameraImage);
+                                //    break;
                                 case "BitmapDataPanorama":
                                     var BitmapData = obj.ToObject<BitmapDataPanoramaArgsLog>();
                                     OnBitmapDataPanorama(BitmapData);
@@ -313,15 +313,15 @@ namespace LogReplay
             }
         }
 
-        public event EventHandler<OpenCvMatImageArgsLog> OnCameraImageEvent;
-        public virtual void OnCameraImage(OpenCvMatImageArgsLog dat)
-        {
-            var handler = OnCameraImageEvent;
-            if (handler != null)
-            {
-                handler(this, new OpenCvMatImageArgsLog { Mat = dat.Mat, Descriptor = "ImageFromCamera" });
-            }
-        }
+        //public event EventHandler<OpenCvMatImageArgsLog> OnCameraImageEvent;
+        //public virtual void OnCameraImage(OpenCvMatImageArgsLog dat)
+        //{
+        //    var handler = OnCameraImageEvent;
+        //    if (handler != null)
+        //    {
+        //        handler(this, new OpenCvMatImageArgsLog { Mat = dat.Mat, Descriptor = "ImageFromCamera" });
+        //    }
+        //}
 
         public event EventHandler<BitmapDataPanoramaArgsLog> OnBitmapDataEvent;
         public virtual void OnBitmapDataPanorama(BitmapDataPanoramaArgsLog dat)

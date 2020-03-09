@@ -205,6 +205,52 @@ namespace StrategyManager
                                     break;
                             }
                             break;
+
+                        case StoppedGameAction.GOTO_0_1:
+                            switch (robotId)
+                            {
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
+                                    robotDestination = new PointD(1, 0);
+                                    break;
+                            }
+                            break;
+
+                        case StoppedGameAction.GOTO_1_0:
+                            switch (robotId)
+                            {
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
+                                    robotDestination = new PointD(0, 1);
+                                    break;
+                            }
+                            break;
+
+                        case StoppedGameAction.GOTO_0_M1:
+                            switch (robotId)
+                            {
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
+                                    robotDestination = new PointD(0, -1);
+                                    break;
+                            }
+                            break;
+
+                        case StoppedGameAction.GOTO_M1_0:
+                            switch (robotId)
+                            {
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
+                                    robotDestination = new PointD(-1, 0);
+                                    break;
+                            }
+                            break;
+
+                        case StoppedGameAction.GOTO_0_0:
+                            switch (robotId)
+                            {
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
+                                    robotDestination = new PointD(0, 0);
+                                    break;
+                            }
+                            break;
+
                         case StoppedGameAction.KICKOFF_OPPONENT:
                             switch (robotId)
                             {

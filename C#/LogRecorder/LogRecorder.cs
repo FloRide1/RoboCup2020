@@ -108,15 +108,16 @@ namespace LogRecorder
             Log(json);
         }
 
-        public void OnOpenCVMatImageReceived(object sender, OpenCvMatImageArgs e)
-        {
-            OpenCvMatImageArgsLog data = new OpenCvMatImageArgsLog();
-            data.Mat = e.Mat;
-            data.Descriptor = e.Descriptor;
-            data.InstantInMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
-            string json = JsonConvert.SerializeObject(data);
-            Log(json);
-        }
+        //public void OnOpenCVMatImageReceived(object sender, OpenCvMatImageArgs e)
+        //{
+        //    OpenCvMatImageArgsLog data = new OpenCvMatImageArgsLog();
+        //    data.Mat = e.Mat;
+        //    data.Descriptor = e.Descriptor;
+        //    data.InstantInMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
+        //    string json = JsonConvert.SerializeObject(data);
+        //    Log(json);
+        //}
+
         public void OnBitmapImageReceived(object sender, BitmapImageArgs e)
         {
             BitmapDataPanoramaArgsLog data = new BitmapDataPanoramaArgsLog();

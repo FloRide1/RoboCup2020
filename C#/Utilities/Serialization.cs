@@ -35,7 +35,7 @@ namespace Utilities
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             if (value is double)
-                writer.WriteRawValue(((double)value).ToString("N4", CultureInfo.InvariantCulture.NumberFormat));
+                writer.WriteRawValue(((double)value).ToString("F4", CultureInfo.InvariantCulture.NumberFormat));
             else
                 writer.WriteRawValue(JsonConvert.ToString(value));        
         }
