@@ -46,8 +46,8 @@ namespace TeamSimulator
 
         static object ExitLock = new object();
 
-        static int nbPlayersTeam1 = 5;
-        static int nbPlayersTeam2 = 5;
+        static int nbPlayersTeam1 = 1;
+        static int nbPlayersTeam2 = 0;
 
         [STAThread] //à ajouter au projet initial
 
@@ -201,7 +201,7 @@ namespace TeamSimulator
             {
                 xInit = 2 * RobotNumber + 2;
                 yInit = -7;
-                thetaInit = Math.PI/4;
+                thetaInit = Math.PI/2;
             }
             else
             {

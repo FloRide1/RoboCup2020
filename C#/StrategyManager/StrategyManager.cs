@@ -24,6 +24,7 @@ namespace StrategyManager
         
         PlayerRole robotRole = PlayerRole.Stop;
         PointD robotDestination = new PointD(0, 0);
+        double robotOrientation = 0;
         
         Timer timerStrategy;
 
@@ -211,6 +212,7 @@ namespace StrategyManager
                             {
                                 case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
                                     robotDestination = new PointD(0, 1);
+                                    robotOrientation = Math.PI / 2;
                                     break;
                             }
                             break;
@@ -220,6 +222,7 @@ namespace StrategyManager
                             {
                                 case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
                                     robotDestination = new PointD(1, 0);
+                                    robotOrientation = 0;
                                     break;
                             }
                             break;
@@ -228,7 +231,8 @@ namespace StrategyManager
                             switch (robotId)
                             {
                                 case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
-                                    robotDestination = new PointD(0, -1);
+                                    robotDestination = new PointD(0, -1); 
+                                    robotOrientation = Math.PI;
                                     break;
                             }
                             break;
@@ -238,6 +242,7 @@ namespace StrategyManager
                             {
                                 case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
                                     robotDestination = new PointD(-1, 0);
+                                    robotOrientation = 3 * Math.PI / 2;
                                     break;
                             }
                             break;
@@ -247,6 +252,7 @@ namespace StrategyManager
                             {
                                 case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
                                     robotDestination = new PointD(0, 0);
+                                    robotOrientation = 0;
                                     break;
                             }
                             break;
@@ -370,7 +376,7 @@ namespace StrategyManager
             OptimalPosition = heatMap.GetFieldPosFromBaseHeatMapCoordinates(OptimalPosInBaseHeatMapCoordinates.X, OptimalPosInBaseHeatMapCoordinates.Y);
             
             OnHeatMap(robotId, heatMap);
-            SetDestination(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, 0, 0, 0, 0));
+            SetDestination(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, (float)robotOrientation, 0, 0, 0));
 
             //heatMap.Dispose();
             sw.Stop(); // Fin de la mesure

@@ -158,9 +158,9 @@ namespace WayPointGenerator
 
             //var OptimalPosition = destinationLocation;
 
-            OnHeatMap(robotId, waypointHeatMap);            
-            if(OptimalPosition != null)
-                SetNextWayPoint(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, 0, 0, 0, 0));
+            OnHeatMap(robotId, waypointHeatMap);
+            if (OptimalPosition != null && destinationLocation != null)
+                SetNextWayPoint(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, (float)destinationLocation.Theta, 0, 0, 0));
 
             sw.Stop(); // Fin de la mesure
             //for (int n = 0; n < nbComputationsList.Length; n++)
