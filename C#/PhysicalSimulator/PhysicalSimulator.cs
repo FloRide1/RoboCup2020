@@ -119,7 +119,7 @@ namespace PhysicalSimulator
 
                     //Emission d'un event de position physique 
                     Location loc = new Location(robot.Value.X, robot.Value.Y, robot.Value.Theta, robot.Value.Vx, robot.Value.Vy, robot.Value.Vtheta);
-                    OnPhysicalRobotPosition(robot.Key, loc);
+                    OnPhysicalRobotLocation(robot.Key, loc);
                 }
 
                 //Gestion des collisions balle-murs
@@ -157,7 +157,7 @@ namespace PhysicalSimulator
             }
         }
 
-        public void SetRobotSpeed(object sender, SpeedConsigneArgs e)
+        public void SetRobotSpeed(object sender, SpeedArgs e)
         {
             if (robotList.ContainsKey(e.RobotId))
             {
@@ -172,18 +172,16 @@ namespace PhysicalSimulator
         }
 
         //Output events
-        public delegate void PhysicalRobotPositionEventHandler(object sender, LocationArgs e);
-        public event EventHandler<LocationArgs> OnPhysicalRobotPositionEvent;
-        public virtual void OnPhysicalRobotPosition(int id, Location location)
+        public event EventHandler<LocationArgs> OnPhysicalRobotLocationEvent;
+        public virtual void OnPhysicalRobotLocation(int id, Location location)
         {
-            var handler = OnPhysicalRobotPositionEvent;
+            var handler = OnPhysicalRobotLocationEvent;
             if (handler != null)
             {
                 handler(this, new LocationArgs { RobotId = id, Location = location });
             }
         }
 
-        public delegate void PhysicalBallPositionEventHandler(object sender, LocationArgs e);
         public event EventHandler<LocationArgs> OnPhysicalBallPositionEvent;
         public virtual void OnPhysicalBallPosition(Location location)
         {

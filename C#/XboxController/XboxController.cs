@@ -147,22 +147,22 @@ namespace XBoxController
                     VthetaRampe = Vtheta;
                 }
 
-                OnSpeedConsigneToRobot(robotId, (float)VxRampe, (float)VyRampe, (float)VthetaRampe);
+                OnSpeedConsigneToRobot(robotId, VxRampe, VyRampe, VthetaRampe);
                 //OnPriseBalleToRobot(2, (float)(Vx*33.3));
-                OnPriseBalleToRobot(5, (float)vitessePriseBalle);
-                OnPriseBalleToRobot(6, (float)-vitessePriseBalle);
+                OnPriseBalleToRobot(5, vitessePriseBalle);
+                OnPriseBalleToRobot(6, -vitessePriseBalle);
             }
         }
 
         //Events générés en sortie
-        public delegate void SpeedConsigneEventHandler(object sender, SpeedConsigneArgs e);
-        public event EventHandler<SpeedConsigneArgs> OnSpeedConsigneEvent;
-        public virtual void OnSpeedConsigneToRobot(int id, float vx, float vy, float vtheta)
+        public delegate void SpeedConsigneEventHandler(object sender, SpeedArgs e);
+        public event EventHandler<SpeedArgs> OnSpeedConsigneEvent;
+        public virtual void OnSpeedConsigneToRobot(int id, double vx, double vy, double vtheta)
         {
             var handler = OnSpeedConsigneEvent;
             if (handler != null)
             {
-                handler(this, new SpeedConsigneArgs { RobotId = id, Vx = vx, Vy = vy, Vtheta = vtheta });
+                handler(this, new SpeedArgs { RobotId = id, Vx = vx, Vy = vy, Vtheta = vtheta });
             }
         }
 
@@ -211,7 +211,7 @@ namespace XBoxController
 
         public delegate void OnPriseBalleEventHandler(object sender, SpeedConsigneToMotorArgs e);
         public event EventHandler<SpeedConsigneToMotorArgs> OnPriseBalleEvent;
-        public virtual void OnPriseBalleToRobot(byte motorNumber, float vitesse)
+        public virtual void OnPriseBalleToRobot(byte motorNumber, double vitesse)
         {
             var handler = OnPriseBalleEvent;
             if (handler != null)

@@ -58,14 +58,19 @@ namespace EventArgsLibrary
         public Int16 MsgPayloadLength { get; set; }
         public byte[] MsgPayload { get; set; }
     }
-    public class SpeedConsigneArgs : EventArgs
+    public class SpeedArgs : EventArgs
     {
         public int RobotId { get; set; }
-        public float Vx { get; set; }
-        public float Vy { get; set; }
-        public float Vtheta { get; set; }
+        public double Vx { get; set; }
+        public double Vy { get; set; }
+        public double Vtheta { get; set; }
     }
-    public class SpeedDataEventArgs : SpeedConsigneArgs
+    public class GyroArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+        public double Vtheta { get; set; }
+    }
+    public class SpeedDataEventArgs : SpeedArgs
     {
         public uint EmbeddedTimeStampInMs;
     }
@@ -164,22 +169,27 @@ namespace EventArgsLibrary
     {
         public bool value { get; set; }
     }
+    public class CollisionEventArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+        public Location RobotRealPosition { get; set; }
+    }
     public class StringEventArgs : EventArgs
     {
         public string value { get; set; }
     }
     public class SpeedConsigneToMotorArgs : EventArgs
     {
-        public float V { get; set; }
+        public double V { get; set; }
         public byte MotorNumber { get; set; }
     }
     public class PositionArgs : EventArgs
     {
-        public string Name { get; set; }
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Angle { get; set; }
-        public float Reliability { get; set; }
+        public int RobotId { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Theta { get; set; }
+        //public double Reliability { get; set; }
     }
 
     public class LocationArgs : EventArgs

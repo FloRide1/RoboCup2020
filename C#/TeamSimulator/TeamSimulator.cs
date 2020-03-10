@@ -14,13 +14,13 @@ using System.Text;
 using TCPAdapter;
 using RefereeBoxAdapter;
 using UdpMulticastInterpreter;
+using SensorSimulator;
+using KalmanPositioning;
 
 namespace TeamSimulator
 {
     static class TeamSimulator
     {
-        //static bool usingPhysicalSimulator = true;
-
         static System.Timers.Timer timerStrategie;
         static PhysicalSimulator.PhysicalSimulator physicalSimulator;
         static GlobalWorldMapManager globalWorldMapManagerTeam1;
@@ -138,6 +138,8 @@ namespace TeamSimulator
             var strategyManager = new StrategyManager.StrategyManager(robotId, TeamNumber);
             var waypointGenerator = new WaypointGenerator(robotId);
             var trajectoryPlanner = new TrajectoryPlanner(robotId);
+            var sensorSimulator = new SensorSimulator.SensorSimulator(robotId);
+            var kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
             var localWorldMapManager = new LocalWorldMapManager(robotId, TeamNumber);
             //var lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             var perceptionSimulator = new PerceptionSimulator(robotId);
@@ -164,10 +166,18 @@ namespace TeamSimulator
             strategyManager.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
             trajectoryPlanner.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
+            trajectoryPlanner.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
 
-            physicalSimulator.OnPhysicalRobotPositionEvent += trajectoryPlanner.OnPhysicalPositionReceived;
+            //physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived; //replacé par les 5 lignes suivantes
+            physicalSimulator.OnPhysicalRobotLocationEvent += sensorSimulator.OnPhysicalRobotPositionReceived;
+            sensorSimulator.OnCamLidarSimulatedRobotPositionEvent += kalmanPositioning.OnCamLidarSimulatedRobotPositionReceived;
+            sensorSimulator.OnGyroSimulatedRobotSpeedEvent += kalmanPositioning.OnGyroSimulatedRobotSpeedReceived;
+            sensorSimulator.OnOdometrySimulatedRobotSpeedEvent += kalmanPositioning.OnOdometrySimulatedRobotSpeedReceived;
+            kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
+
+            //physicalSimulator.OnPhysicalRobotLocationEvent += perceptionSimulator.OnPhysicalRobotPositionReceived;
+            kalmanPositioning.OnKalmanLocationEvent += perceptionSimulator.OnPhysicalRobotPositionReceived;
             physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicalObjectListLocationReceived;
-            physicalSimulator.OnPhysicalRobotPositionEvent += perceptionSimulator.OnPhysicalRobotPositionReceived;
             physicalSimulator.OnPhysicalBallPositionEvent += perceptionSimulator.OnPhysicalBallPositionReceived;
 
             //Update des données de la localWorldMap
@@ -212,6 +222,7 @@ namespace TeamSimulator
             physicalSimulator.RegisterRobot(robotId, xInit, yInit);
             trajectoryPlanner.InitRobotPosition(xInit, yInit, thetaInit);
         }
+
 
         private static void TimerStrategie_Tick(object sender, EventArgs e)
         {

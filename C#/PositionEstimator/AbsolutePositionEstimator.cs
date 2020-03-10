@@ -36,7 +36,7 @@ namespace PositionEstimator
             var handler = PositionEvent;
             if (handler != null)
             {
-                handler(this, new PositionArgs { X = x, Y = y, Angle = angle, Reliability = reliability });
+                handler(this, new PositionArgs { X = x, Y = y, Theta = angle, Reliability = reliability });
             }
         }
 

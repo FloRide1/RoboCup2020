@@ -59,7 +59,6 @@ namespace TrajectoryGenerator
                 currentLocation = e.Location;
                 CalculateGhostPosition();
                 PIDPosition();
-                //CalculateSpeedOrders();
             }
         }
 
@@ -242,19 +241,37 @@ namespace TrajectoryGenerator
 
             double vxRefRobot = PID_X.CalculatePIDoutput(erreurXRefRobot);
             double vyRefRobot = PID_Y.CalculatePIDoutput(erreurYRefRobot);
-            double vtheta = PID_Theta.CalculatePIDoutput(erreurTheta);            
-
+            double vtheta = PID_Theta.CalculatePIDoutput(erreurTheta);       
+            
             OnSpeedConsigneToRobot(robotId, (float)vxRefRobot, (float)vyRefRobot, (float)vtheta);
+
+            //On regarde si la position du robot est éloignée de la position du ghost
+            if (Math.Sqrt(Math.Pow(erreurXRefTerrain, 2) + Math.Pow(erreurYRefTerrain, 2)) > 0.5)
+            {
+                OnCollision(robotId, currentLocation);
+                ghostLocation = currentLocation;
+                InitPositionPID();
+            }
         }
         
         //Output events
-        public event EventHandler<SpeedConsigneArgs> OnSpeedConsigneEvent;
+        public event EventHandler<SpeedArgs> OnSpeedConsigneEvent;
         public virtual void OnSpeedConsigneToRobot(int id, float vx, float vy, float vtheta)
         {
             var handler = OnSpeedConsigneEvent;
             if (handler != null)
             {
-                handler(this, new SpeedConsigneArgs { RobotId = id, Vx = vx, Vy = vy, Vtheta = vtheta });
+                handler(this, new SpeedArgs { RobotId = id, Vx = vx, Vy = vy, Vtheta = vtheta });
+            }
+        }
+
+        public event EventHandler<CollisionEventArgs> OnCollisionEvent;
+        public virtual void OnCollision(int id, Location robotLocation)
+        {
+            var handler = OnCollisionEvent;
+            if (handler != null)
+            {
+                handler(this, new CollisionEventArgs { RobotId = id, RobotRealPosition = robotLocation });
             }
         }
 

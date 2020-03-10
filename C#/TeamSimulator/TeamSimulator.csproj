@@ -114,6 +114,10 @@
       <Project>{ecc907ed-f9b2-457f-901e-720987934e47}</Project>
       <Name>AdvancedTimers</Name>
     </ProjectReference>
+    <ProjectReference Include="..\KalmanPositioning\KalmanPositioning.csproj">
+      <Project>{825389C5-BF86-419E-8914-FC5A325D4A0B}</Project>
+      <Name>KalmanPositioning</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LidarSimulator\LidarSimulator.csproj">
       <Project>{45A044B5-1D4F-4B6E-964B-3B2FA5E39AB2}</Project>
       <Name>LidarSimulator</Name>
@@ -141,6 +145,10 @@
     <ProjectReference Include="..\RobotPilot\RobotPilot.csproj">
       <Project>{4012f5af-50e3-40bd-abf0-4afe3f30d5e3}</Project>
       <Name>RobotPilot</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SensorSimulator\SensorSimulator.csproj">
+      <Project>{BACF7A03-7D22-4C97-83FA-B37561B9EC73}</Project>
+      <Name>SensorSimulator</Name>
     </ProjectReference>
     <ProjectReference Include="..\StrategyManager\StrategyManager.csproj">
       <Project>{f2d3fb95-f97a-4049-bca4-71854fd4faf3}</Project>

@@ -206,7 +206,7 @@ namespace RobotInterface
             currentTime = e.EmbeddedTimeStampInMs/1000.0;
         }
 
-        public void UpdateSpeedConsigneOnGraph(object sender, SpeedConsigneArgs e)
+        public void UpdateSpeedConsigneOnGraph(object sender, SpeedArgs e)
         {
             oscilloX.AddPointToLine(0, currentTime, e.Vx);
             oscilloY.AddPointToLine(0, currentTime, e.Vy);

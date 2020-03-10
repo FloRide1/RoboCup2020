@@ -21,14 +21,14 @@ namespace RobotPilot
         }
 
         //Events générés en sortie
-        public delegate void SpeedConsigneEventHandler(object sender, SpeedConsigneArgs e);
-        public event EventHandler<SpeedConsigneArgs> OnSpeedConsigneEvent;
+        public delegate void SpeedConsigneEventHandler(object sender, SpeedArgs e);
+        public event EventHandler<SpeedArgs> OnSpeedConsigneEvent;
         public virtual void OnSpeedConsigneToRobot(int id, float vx, float vy, float vtheta)
         {
             var handler = OnSpeedConsigneEvent;
             if (handler != null)
             {
-                handler(this, new SpeedConsigneArgs {RobotId=id, Vx = vx, Vy = vy, Vtheta = vtheta });
+                handler(this, new SpeedArgs {RobotId=id, Vx = vx, Vy = vy, Vtheta = vtheta });
             }
         }
 

@@ -12,36 +12,26 @@ namespace RobotMessageGenerator
     public class RobotMsgGenerator
     {
         //Input events
-        public void GenerateMessageSetSpeedConsigneToRobot(object sender, SpeedConsigneArgs e)
+        public void GenerateMessageSetSpeedConsigneToRobot(object sender, SpeedArgs e)
         {
             byte[] payload = new byte[12];
-            //Int32 Vx = (Int32)(e.Vx*1000);
-            //Int32 Vy = (Int32)(e.Vy * 1000);
-            //Int32 Vtheta = (Int32)(e.Vtheta * 1000);
-
-            //payload.SetValueRange(Vx.GetBytes(), 0);
-            //payload.SetValueRange(Vy.GetBytes(), 4);
-            //payload.SetValueRange(Vtheta.GetBytes(), 8);
-
-
-            payload.SetValueRange((e.Vx).GetBytes(), 0);
-            payload.SetValueRange((e.Vy).GetBytes(), 4);
-            payload.SetValueRange((e.Vtheta).GetBytes(), 8);
-
+            payload.SetValueRange(((float)e.Vx).GetBytes(), 0);
+            payload.SetValueRange(((float)e.Vy).GetBytes(), 4);
+            payload.SetValueRange(((float)e.Vtheta).GetBytes(), 8);
             OnMessageToRobot((Int16)Commands.SetSpeedConsigne, 12, payload);
         }
 
         public void GenerateMessageSetSpeedConsigneToMotor(object sender, SpeedConsigneToMotorArgs e)
         {
             byte[] payload = new byte[5];
-            payload.SetValueRange(e.V.GetBytes(), 0);
+            payload.SetValueRange(((float)e.V).GetBytes(), 0);
             payload[4] = (byte)e.MotorNumber;
             OnMessageToRobot((Int16)Commands.SetMotorSpeedConsigne, 5, payload);
         }
         public void GenerateMessageTir(object sender, TirEventArgs e)
         {
             byte[] payload = new byte[4];
-            payload.SetValueRange(e.Puissance.GetBytes(), 0);
+            payload.SetValueRange(((float)e.Puissance).GetBytes(), 0);
             OnMessageToRobot((Int16)Commands.TirCommand, 4, payload);
         }
         public void GenerateMessageMoveTirUp(object sender, EventArgs e)
