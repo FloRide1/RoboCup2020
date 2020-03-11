@@ -39,7 +39,7 @@ namespace PhysicalSimulator
                 robotList.Add(id, new PhysicalRobotSimulator(xpos, yPos));
             }
         }
-
+        
         private void HighFrequencyTimer_Tick(object sender, EventArgs e)
         {
 
@@ -159,17 +159,29 @@ namespace PhysicalSimulator
 
         public void SetRobotSpeed(object sender, SpeedArgs e)
         {
-            //Attention, les vitesse proviennent de l'odométrie et sont donc dans le référentiel robot
+            //Attention, les vitesses proviennent de l'odométrie et sont donc dans le référentiel robot
             if (robotList.ContainsKey(e.RobotId))
             {
                 robotList[e.RobotId].VxRefRobot = filterLowPassVx.Filter(e.Vx);
                 robotList[e.RobotId].VyRefRobot = filterLowPassVy.Filter(e.Vy);
                 robotList[e.RobotId].Vtheta = filterLowPassVTheta.Filter(e.Vtheta);
-
-                //robotList[e.RobotId].Vx = e.Vx;
-                //robotList[e.RobotId].Vy = e.Vy;
-                //robotList[e.RobotId].Vtheta = e.Vtheta;
             }
+        }
+
+        public void SetRobotPosition(int id, double x, double y, double theta)
+        {
+            //Attention, les positions sont dans le référentiel terrain
+            if (robotList.ContainsKey(id))
+            {
+                robotList[id].X = x;
+                robotList[id].Y = y;
+                robotList[id].Theta = theta;
+            }
+        }
+
+        public void OnCollisionReceived(object sender, EventArgsLibrary.CollisionEventArgs e)
+        {
+            SetRobotPosition(e.RobotId, e.RobotRealPosition.X, e.RobotRealPosition.Y, e.RobotRealPosition.Theta);
         }
 
         //Output events

@@ -18,23 +18,30 @@ namespace SensorSimulator
             robotId = id;
         }
 
+        Random rand = new Random();
+
+        int imgSubSamplingCounter = 0;
         //Input events
         public void OnPhysicalRobotPositionReceived(object sender, LocationArgs e)
         {
+            imgSubSamplingCounter++;
             //On calcule la perception simulée de position d'après le retour du simulateur physique directement
             //On réel on utilisera la triangulation lidar et la caméra
             if (robotId == e.RobotId)
             {
                 //On construit les datas simulées en ajoutant du bruit et des dérives
-                double xCamLidarSimu = e.Location.X;
-                double yCamLidarSimu = e.Location.Y; 
-                double thetaCamLidarSimu = e.Location.Theta;
+                double xCamLidarSimu = e.Location.X + (rand.NextDouble() - 0.5) * 0.5;
+                double yCamLidarSimu = e.Location.Y + (rand.NextDouble() - 0.5) * 0.5;
+                double thetaCamLidarSimu = e.Location.Theta + (rand.NextDouble() - 0.5) * 1;
                 double vxOdoSimu = e.Location.Vx;
                 double vyOdoSimu = e.Location.Vy;
                 double vthetaOdoSimu = e.Location.Vtheta;
                 double vthetaGyroSimu = e.Location.Vtheta;
-
-                OnCamLidarSimulatedRobotPosition(robotId, xCamLidarSimu, yCamLidarSimu, thetaCamLidarSimu);
+                
+                if (imgSubSamplingCounter % 100 == 0)
+                {
+                    OnCamLidarSimulatedRobotPosition(robotId, xCamLidarSimu, yCamLidarSimu, thetaCamLidarSimu);
+                }
                 OnOdometrySimulatedRobotSpeed(robotId, vxOdoSimu, vyOdoSimu, vthetaOdoSimu);
                 OnGyroSimulatedRobotSpeed(robotId, vthetaGyroSimu);
             }

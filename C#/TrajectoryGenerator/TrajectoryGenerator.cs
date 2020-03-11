@@ -41,9 +41,14 @@ namespace TrajectoryGenerator
 
         public void InitRobotPosition(double x, double y, double theta)
         {
+            Location old_currectLocation = currentLocation;
             currentLocation = new Location(x, y, theta, 0, 0, 0);
             wayPointLocation = new Location(x, y, theta, 0, 0, 0);
             ghostLocation = new Location(x, y, theta, 0, 0, 0);
+            if(old_currectLocation == null)
+                OnCollision(robotId, currentLocation);
+            else if (Toolbox.Distance(new PointD(old_currectLocation.X, old_currectLocation.Y), new PointD(currentLocation.X, currentLocation.Y)) > 0.5)
+                OnCollision(robotId, currentLocation);
         }
         
         //Input Events

@@ -106,6 +106,7 @@ namespace KalmanPositioning
 
         public void InitFilter(double x, double vx, double ax, double y, double vy, double ay, double theta, double vtheta, double atheta)
         {
+            //Initi des variables internes du filtre
             Vector<double> xInit = Vector<double>.Build.DenseOfArray(new double[] { x, vx, ax, y, vy, ay, theta, vtheta, atheta });
 
             Matrix<double> pInit = Matrix<double>.Build.DenseDiagonal(MatrixQ.RowCount, MatrixQ.RowCount, 0.1);
@@ -121,6 +122,12 @@ namespace KalmanPositioning
             xEst = xInit;
             pPred = pInit;
             pEst = pInit;
+
+            // Init des positions stockées localement pour que le filtre itère 
+            // correctement si ces variables ne sont pas mises à jour
+            currentGpsXRefTerrain = x;
+            currentGpsYRefTerrain = y;
+            currentGpsTheta = theta;
         }
 
         public void IterateFilter(double GPS_X, double GPS_Y, double GPS_Theta, double Odo_VX, double Odo_VY, double Odo_Theta, double Gyro_Theta)
@@ -153,10 +160,8 @@ namespace KalmanPositioning
         }
 
         public Vector<double> GetEstimation() => xEst;
-
-
+        
         //Input events
-
         public void OnCollisionReceived(object sender, EventArgsLibrary.CollisionEventArgs e)
         {
             InitFilter(e.RobotRealPosition.X, e.RobotRealPosition.Vx, 0,

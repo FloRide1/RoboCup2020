@@ -166,7 +166,14 @@ namespace TeamSimulator
             strategyManager.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
             trajectoryPlanner.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
+
+            //Gestion des events liés à une détection de collision soft
             trajectoryPlanner.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
+            trajectoryPlanner.OnCollisionEvent += physicalSimulator.OnCollisionReceived;
+            
+            //trajectoryPlanner.InitRobotPosition(xInit, yInit, thetaInit);
+            //physicalSimulator.SetRobotPosition(robotId, xInit, yInit, thetaInit);
+            //kalmanPositioning.InitFilter(xInit, 0, 0, yInit, 0, 0, thetaInit, 0, 0);
 
             ////physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived; //replacé par les 5 lignes suivantes
             physicalSimulator.OnPhysicalRobotLocationEvent += sensorSimulator.OnPhysicalRobotPositionReceived;
