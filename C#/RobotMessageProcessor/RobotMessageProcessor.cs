@@ -20,7 +20,6 @@ namespace RobotMessageProcessor
             tmrComptageMessage.Start();
         }
 
-
         int nbMessageIMUReceived = 0;
         int nbMessageSpeedReceived = 0;
         private void TmrComptageMessage_Elapsed(object sender, ElapsedEventArgs e)

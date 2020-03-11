@@ -21,11 +21,13 @@ namespace KalmanPositioning
         private readonly Matrix<double> MatrixQ;
         private readonly Matrix<double> MatrixR;
 
-        double currentGpsX = 0;
-        double currentGpsY = 0;
-        double currentGpsTheta = 0; 
-        double currentOdoVx = 0;
-        double currentOdoVy = 0;
+        double currentGpsXRefTerrain = 0;
+        double currentGpsYRefTerrain = 0;
+        double currentGpsTheta = 0;
+        double currentOdoVxRefRobot = 0;
+        double currentOdoVyRefRobot = 0;
+        double currentOdoVxRefTerrain = 0;
+        double currentOdoVyRefTerrain = 0;
         double currentOdoVtheta = 0;
         double currentGyroVtheta = 0;
 
@@ -163,20 +165,23 @@ namespace KalmanPositioning
         }
 
         public void OnOdometrySimulatedRobotSpeedReceived(object sender, SpeedArgs e)
-        {                        
-            currentOdoVx = e.Vx;
-            currentOdoVy = e.Vy;
+        {
+            currentOdoVxRefRobot = e.Vx;
+            currentOdoVyRefRobot = e.Vy;
+
+            currentOdoVxRefTerrain = currentOdoVxRefRobot * Math.Cos(currentGpsTheta) - currentOdoVyRefRobot * Math.Sin(currentGpsTheta);
+            currentOdoVyRefTerrain = currentOdoVxRefRobot * Math.Sin(currentGpsTheta) + currentOdoVyRefRobot * Math.Cos(currentGpsTheta);
             currentOdoVtheta = e.Vtheta;
             
             //double VxRefTerrain = currentOdoVx * Math.Cos(-kalmanLocationRefTerrain.Theta) - currentOdoVy * Math.Sin(-kalmanLocationRefTerrain.Theta);
             //double VyRefRobot = currentOdoVx * Math.Sin(-kalmanLocationRefTerrain.Theta) + currentOdoVy * Math.Cos(-kalmanLocationRefTerrain.Theta);
             
             //On extrapole les valeurs de position Gps en utilisant les vitesses mesurées
-            currentGpsX += currentOdoVx / fEch;
-            currentGpsY += currentOdoVy / fEch;
+            currentGpsXRefTerrain += currentOdoVxRefTerrain / fEch;
+            currentGpsYRefTerrain += currentOdoVyRefTerrain / fEch;
             currentGpsTheta += currentOdoVtheta / fEch;
 
-            IterateFilter(currentGpsX, currentGpsY, currentGpsTheta, currentOdoVx, currentOdoVy, currentOdoVtheta, currentGyroVtheta);
+            IterateFilter(currentGpsXRefTerrain, currentGpsYRefTerrain, currentGpsTheta, currentOdoVxRefTerrain, currentOdoVyRefTerrain, currentOdoVtheta, currentGyroVtheta);
 
             //IterateFilter(1, 0, 0, 0, 0, 0, 0);
 
@@ -194,7 +199,14 @@ namespace KalmanPositioning
             kalmanLocationRefTerrain.Vtheta = output[7];
             double AthetaKalman = output[8];
 
-            OnKalmanLocation(robotId, kalmanLocationRefTerrain);
+            //Attention la location a renvoyer est dans le ref terrain pour les positions et dans le ref robot pour les vitesses
+            double kalmanLocationRefRobotVx = kalmanLocationRefTerrain.Vx * Math.Cos(-kalmanLocationRefTerrain.Theta) - kalmanLocationRefTerrain.Vy * Math.Sin(-kalmanLocationRefTerrain.Theta);
+            double kalmanLocationRefRobotVy = kalmanLocationRefTerrain.Vx * Math.Sin(-kalmanLocationRefTerrain.Theta) + kalmanLocationRefTerrain.Vy * Math.Cos(-kalmanLocationRefTerrain.Theta);
+
+            Location kalmanOutputLocation = new Location(kalmanLocationRefTerrain.X, kalmanLocationRefTerrain.Y, kalmanLocationRefTerrain.Theta,
+                                                        kalmanLocationRefRobotVx, kalmanLocationRefRobotVy, kalmanLocationRefTerrain.Vtheta);
+
+            OnKalmanLocation(robotId, kalmanOutputLocation);
         }
 
         public void OnGyroSimulatedRobotSpeedReceived(object sender, GyroArgs e)
@@ -204,8 +216,8 @@ namespace KalmanPositioning
 
         public void OnCamLidarSimulatedRobotPositionReceived(object sender, PositionArgs e)
         {
-            currentGpsX = e.X;
-            currentGpsY = e.Y;
+            currentGpsXRefTerrain = e.X;
+            currentGpsYRefTerrain = e.Y;
             currentGpsTheta = e.Theta;
         }
 

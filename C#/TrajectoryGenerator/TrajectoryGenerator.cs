@@ -235,12 +235,17 @@ namespace TrajectoryGenerator
             double vyRefRobot = PID_Y.CalculatePIDoutput(erreurYRefRobot);
             double vtheta = PID_Theta.CalculatePIDoutput(erreurTheta);       
             
-            OnSpeedConsigneToRobot(robotId, (float)vxRefRobot, (float)vyRefRobot, (float)vtheta);
-
-            //On regarde si la position du robot est éloignée de la position du ghost
-            if (Math.Sqrt(Math.Pow(erreurXRefTerrain, 2) + Math.Pow(erreurYRefTerrain, 2)) > 0.5)
+            //On regarde si la position du robot est proche de la position du ghost
+            if (Math.Sqrt(Math.Pow(erreurXRefTerrain, 2) + Math.Pow(erreurYRefTerrain, 2)) < 0.5)
             {
+                //Si c'est le cas, le robot n'a pas rencontré de problème, on envoie les vitesses consigne.
+                OnSpeedConsigneToRobot(robotId, (float)vxRefRobot, (float)vyRefRobot, (float)vtheta);
+            }
+            else
+            {
+                //Sinon, le robot a rencontré un obstacle ou eu un problème, on arrête le robot et on réinitialise les correcteurs et la ghostLocation
                 OnCollision(robotId, currentLocation);
+                OnSpeedConsigneToRobot(robotId, 0, 0, 0);
                 ghostLocation = currentLocation;
                 InitPositionPID();
             }

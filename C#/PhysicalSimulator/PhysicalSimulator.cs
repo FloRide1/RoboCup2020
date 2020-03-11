@@ -49,8 +49,8 @@ namespace PhysicalSimulator
                 //On calcule les nouvelles positions théoriques de tous les robots si il n'y a pas collision
                 foreach (var robot in robotList)
                 {
-                    robot.Value.newXWithoutCollision = robot.Value.X + (robot.Value.Vx * Math.Cos(robot.Value.Theta) - robot.Value.Vy * Math.Sin(robot.Value.Theta)) / fSampling;
-                    robot.Value.newYWithoutCollision = robot.Value.Y + (robot.Value.Vx * Math.Sin(robot.Value.Theta) + robot.Value.Vy * Math.Cos(robot.Value.Theta)) / fSampling;
+                    robot.Value.newXWithoutCollision = robot.Value.X + (robot.Value.VxRefRobot * Math.Cos(robot.Value.Theta) - robot.Value.VyRefRobot * Math.Sin(robot.Value.Theta)) / fSampling;
+                    robot.Value.newYWithoutCollision = robot.Value.Y + (robot.Value.VxRefRobot * Math.Sin(robot.Value.Theta) + robot.Value.VyRefRobot * Math.Cos(robot.Value.Theta)) / fSampling;
                     robot.Value.newThetaWithoutCollision = robot.Value.Theta + robot.Value.Vtheta / fSampling;
                 }
 
@@ -104,21 +104,21 @@ namespace PhysicalSimulator
                     }
                     else
                     {
-                        robot.Value.Vx = 0;
-                        robot.Value.Vy = 0;
+                        robot.Value.VxRefRobot = 0;
+                        robot.Value.VyRefRobot = 0;
                         robot.Value.Vtheta = 0;
                     }
 
                     if(collisionRobotBalle)
                     {
-                        ballSimulated.Vx = 1.5 * robot.Value.Vx;
-                        ballSimulated.Vy = 1.5 * robot.Value.Vy;
+                        ballSimulated.Vx = 1.5 * robot.Value.VxRefRobot;
+                        ballSimulated.Vy = 1.5 * robot.Value.VyRefRobot;
                         ballSimulated.newXWithoutCollision = ballSimulated.X + (ballSimulated.Vx * Math.Cos(ballSimulated.Theta) - ballSimulated.Vy * Math.Sin(ballSimulated.Theta)) / fSampling;
                         ballSimulated.newYWithoutCollision = ballSimulated.Y + (ballSimulated.Vx * Math.Sin(ballSimulated.Theta) + ballSimulated.Vy * Math.Cos(ballSimulated.Theta)) / fSampling;
                     }
 
                     //Emission d'un event de position physique 
-                    Location loc = new Location(robot.Value.X, robot.Value.Y, robot.Value.Theta, robot.Value.Vx, robot.Value.Vy, robot.Value.Vtheta);
+                    Location loc = new Location(robot.Value.X, robot.Value.Y, robot.Value.Theta, robot.Value.VxRefRobot, robot.Value.VyRefRobot, robot.Value.Vtheta);
                     OnPhysicalRobotLocation(robot.Key, loc);
                 }
 
@@ -151,7 +151,7 @@ namespace PhysicalSimulator
                 List<Location> objectsLocationList = new List<Location>();
                 foreach (var robot in robotList)
                 {
-                    objectsLocationList.Add(new Location(robot.Value.X, robot.Value.Y, robot.Value.Theta, robot.Value.Vx, robot.Value.Vy, robot.Value.Vtheta));
+                    objectsLocationList.Add(new Location(robot.Value.X, robot.Value.Y, robot.Value.Theta, robot.Value.VxRefRobot, robot.Value.VyRefRobot, robot.Value.Vtheta));
                 }
                 OnPhysicicalObjectListLocation(objectsLocationList);
             }
@@ -159,10 +159,11 @@ namespace PhysicalSimulator
 
         public void SetRobotSpeed(object sender, SpeedArgs e)
         {
+            //Attention, les vitesse proviennent de l'odométrie et sont donc dans le référentiel robot
             if (robotList.ContainsKey(e.RobotId))
             {
-                robotList[e.RobotId].Vx = filterLowPassVx.Filter(e.Vx);
-                robotList[e.RobotId].Vy = filterLowPassVy.Filter(e.Vy);
+                robotList[e.RobotId].VxRefRobot = filterLowPassVx.Filter(e.Vx);
+                robotList[e.RobotId].VyRefRobot = filterLowPassVy.Filter(e.Vy);
                 robotList[e.RobotId].Vtheta = filterLowPassVTheta.Filter(e.Vtheta);
 
                 //robotList[e.RobotId].Vx = e.Vx;
@@ -215,8 +216,8 @@ namespace PhysicalSimulator
         public double newYWithoutCollision;
         public double newThetaWithoutCollision;
 
-        public double Vx;
-        public double Vy;
+        public double VxRefRobot;
+        public double VyRefRobot;
         public double Vtheta;
 
         public PhysicalRobotSimulator(double xPos, double yPos)
