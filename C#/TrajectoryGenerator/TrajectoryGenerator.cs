@@ -187,11 +187,6 @@ namespace TrajectoryGenerator
                 else
                     nouvelleVitesseRotationOrientationRobot = Math.Min(0, ghostLocation.Vtheta + accelRotationOrientationRobotMax / FreqEch); //On freine en négatif
             }
-            ////On traite à présent l'orientation angulaire du robot pour l'aligner sur l'angle demandé
-            ////wayPointLocation.Theta = Toolbox.ModuloByAngle(ghostLocation.Theta, wayPointLocation.Theta);
-            ////double ecartOrientationRobot = CapWayPointRefRobot - ghostLocation.Theta;
-            ////double nouvelleVitesseAngulaire = 100.0 * CapWayPointRefRobot / FreqEch;
-
 
             /************************ Gestion des ordres d'arrêt global des robots *******************************/
             if (currentGameState != GameState.STOPPED)
@@ -202,12 +197,9 @@ namespace TrajectoryGenerator
                 ghostLocation.Vtheta = nouvelleVitesseRotationOrientationRobot;
 
                 //Nouvelle orientation du robot
-                //ghostLocation.Vtheta = 50* (wayPointLocation.Theta - ghostLocation.Theta)/FreqEch;
-
                 ghostLocation.X += ghostLocation.Vx / FreqEch;
                 ghostLocation.Y += ghostLocation.Vy / FreqEch;
                 ghostLocation.Theta += ghostLocation.Vtheta / FreqEch;
-                //ghostLocation.Theta = Toolbox.ModuloByAngle(nouveauCapRobot, ghostLocation.Theta);
             }
             else
             {
