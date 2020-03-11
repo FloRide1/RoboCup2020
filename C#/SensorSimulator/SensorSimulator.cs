@@ -30,15 +30,21 @@ namespace SensorSimulator
             if (robotId == e.RobotId)
             {
                 //On construit les datas simulées en ajoutant du bruit et des dérives
-                double xCamLidarSimu = e.Location.X + (rand.NextDouble() - 0.5) * 0.5;
-                double yCamLidarSimu = e.Location.Y + (rand.NextDouble() - 0.5) * 0.5;
-                double thetaCamLidarSimu = e.Location.Theta + (rand.NextDouble() - 0.5) * 1;
-                double vxOdoSimu = e.Location.Vx;
-                double vyOdoSimu = e.Location.Vy;
-                double vthetaOdoSimu = e.Location.Vtheta;
-                double vthetaGyroSimu = e.Location.Vtheta;
+                double erreurPositionCamLidarMax = 0;// 0.5; //en metre
+                double erreurAngleCamLidarMax = 0;// 0.2; //en radian
+                double erreurVitesseLineaireOdoMax = 0;// 0.1;
+                double erreurVitesseAngulaireOdoMax = 0;// 0.1;
+                double erreurVitesseAngulaireGyroMax = 0; // 0.05;
+
+                double xCamLidarSimu = e.Location.X + (rand.NextDouble() - 0.5) * 2* erreurPositionCamLidarMax;
+                double yCamLidarSimu = e.Location.Y + (rand.NextDouble() - 0.5) * 2* erreurPositionCamLidarMax;
+                double thetaCamLidarSimu = e.Location.Theta + (rand.NextDouble() - 0.5) * erreurAngleCamLidarMax;
+                double vxOdoSimu = e.Location.Vx + (rand.NextDouble() - 0.5) * 2 * erreurVitesseLineaireOdoMax;
+                double vyOdoSimu = e.Location.Vy + (rand.NextDouble() - 0.5) * 2 * erreurVitesseLineaireOdoMax;
+                double vthetaOdoSimu = e.Location.Vtheta + (rand.NextDouble() - 0.5) * 2 * erreurVitesseAngulaireOdoMax;
+                double vthetaGyroSimu = e.Location.Vtheta + (rand.NextDouble() - 0.5) * 2 * erreurVitesseAngulaireGyroMax; 
                 
-                if (imgSubSamplingCounter % 100 == 0)
+                if (imgSubSamplingCounter % 5 == 0)
                 {
                     OnCamLidarSimulatedRobotPosition(robotId, xCamLidarSimu, yCamLidarSimu, thetaCamLidarSimu);
                 }
