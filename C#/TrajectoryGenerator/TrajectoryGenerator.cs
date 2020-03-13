@@ -36,6 +36,7 @@ namespace TrajectoryGenerator
         public TrajectoryPlanner(int id)
         {
             robotId = id;
+            InitRobotPosition(0, 0, 0);
             InitPositionPID();
         }
 
@@ -227,32 +228,35 @@ namespace TrajectoryGenerator
 
         void PIDPosition()
         {
-            double erreurXRefTerrain = ghostLocation.X - currentLocation.X;
-            double erreurYRefTerrain = ghostLocation.Y - currentLocation.Y;
-            currentLocation.Theta = Toolbox.ModuloByAngle(ghostLocation.Theta, currentLocation.Theta);
-            double erreurTheta = ghostLocation.Theta - currentLocation.Theta;
-
-            //Changement de repère car les asservissements se font dans le référentiel du robot
-            double erreurXRefRobot = erreurXRefTerrain * Math.Cos(currentLocation.Theta) + erreurYRefTerrain * Math.Sin(currentLocation.Theta);
-            double erreurYRefRobot = -erreurXRefTerrain * Math.Sin(currentLocation.Theta) + erreurYRefTerrain * Math.Cos(currentLocation.Theta);
-
-            double vxRefRobot = PID_X.CalculatePIDoutput(erreurXRefRobot);
-            double vyRefRobot = PID_Y.CalculatePIDoutput(erreurYRefRobot);
-            double vtheta = PID_Theta.CalculatePIDoutput(erreurTheta);       
-            
-            //On regarde si la position du robot est proche de la position du ghost
-            if (Math.Sqrt(Math.Pow(erreurXRefTerrain, 2) + Math.Pow(erreurYRefTerrain, 2)) < 0.5)
+            if (ghostLocation != null)
             {
-                //Si c'est le cas, le robot n'a pas rencontré de problème, on envoie les vitesses consigne.
-                OnSpeedConsigneToRobot(robotId, (float)vxRefRobot, (float)vyRefRobot, (float)vtheta);
-            }
-            else
-            {
-                //Sinon, le robot a rencontré un obstacle ou eu un problème, on arrête le robot et on réinitialise les correcteurs et la ghostLocation
-                OnCollision(robotId, currentLocation);
-                OnSpeedConsigneToRobot(robotId, 0, 0, 0);
-                ghostLocation = currentLocation;
-                InitPositionPID();
+                double erreurXRefTerrain = ghostLocation.X - currentLocation.X;
+                double erreurYRefTerrain = ghostLocation.Y - currentLocation.Y;
+                currentLocation.Theta = Toolbox.ModuloByAngle(ghostLocation.Theta, currentLocation.Theta);
+                double erreurTheta = ghostLocation.Theta - currentLocation.Theta;
+
+                //Changement de repère car les asservissements se font dans le référentiel du robot
+                double erreurXRefRobot = erreurXRefTerrain * Math.Cos(currentLocation.Theta) + erreurYRefTerrain * Math.Sin(currentLocation.Theta);
+                double erreurYRefRobot = -erreurXRefTerrain * Math.Sin(currentLocation.Theta) + erreurYRefTerrain * Math.Cos(currentLocation.Theta);
+
+                double vxRefRobot = PID_X.CalculatePIDoutput(erreurXRefRobot);
+                double vyRefRobot = PID_Y.CalculatePIDoutput(erreurYRefRobot);
+                double vtheta = PID_Theta.CalculatePIDoutput(erreurTheta);
+
+                //On regarde si la position du robot est proche de la position du ghost
+                if (Math.Sqrt(Math.Pow(erreurXRefTerrain, 2) + Math.Pow(erreurYRefTerrain, 2)) < 0.5)
+                {
+                    //Si c'est le cas, le robot n'a pas rencontré de problème, on envoie les vitesses consigne.
+                    OnSpeedConsigneToRobot(robotId, (float)vxRefRobot, (float)vyRefRobot, (float)vtheta);
+                }
+                else
+                {
+                    //Sinon, le robot a rencontré un obstacle ou eu un problème, on arrête le robot et on réinitialise les correcteurs et la ghostLocation
+                    OnCollision(robotId, currentLocation);
+                    OnSpeedConsigneToRobot(robotId, 0, 0, 0);
+                    ghostLocation = currentLocation;
+                    InitPositionPID();
+                }
             }
         }
         

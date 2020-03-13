@@ -40,6 +40,8 @@ namespace CameraAdapter
 
             if (camera != null)
             {
+                configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+
                 // Print the model name of the camera. 
                 Console.WriteLine("Using camera {0}.", camera.CameraInfo[CameraInfoKey.ModelName]);
                 camera.CameraOpened += Basler.Pylon.Configuration.AcquireContinuous;
@@ -47,8 +49,6 @@ namespace CameraAdapter
                 camera.StreamGrabber.GrabStarted += StreamGrabber_GrabStarted;
                 camera.StreamGrabber.ImageGrabbed += StreamGrabber_ImageGrabbed;
                 camera.StreamGrabber.GrabStopped += StreamGrabber_GrabStopped;
-
-                configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
                 camera.Open();
                 SetUpCamera();

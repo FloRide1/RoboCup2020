@@ -33,6 +33,7 @@ using System.Net;
 using Staudt.Engineering.LidaRx;
 using System.Linq;
 using ImuProcessor;
+using KalmanPositioning;
 
 namespace Robot
 {
@@ -132,18 +133,20 @@ namespace Robot
         static RobotMsgProcessor robotMsgProcessor;
         static RobotPilot.RobotPilot robotPilot;
         static BaslerCameraAdapter omniCamera;
-        static SimulatedCamera.SimulatedCamera omniCameraSimulator;
+        //static SimulatedCamera.SimulatedCamera omniCameraSimulator;
         static ImageProcessingPositionFromOmniCamera imageProcessingPositionFromOmniCamera;
         static AbsolutePositionEstimator absolutePositionEstimator;
-        static PhysicalSimulator.PhysicalSimulator physicalSimulator;
-        static TrajectoryPlanner trajectoryPlanner;
+        //static PhysicalSimulator.PhysicalSimulator physicalSimulator;
         static WaypointGenerator waypointGenerator;
+        static TrajectoryPlanner trajectoryPlanner;
+        static KalmanPositioning.KalmanPositioning kalmanPositioning;
+
         static LocalWorldMapManager localWorldMapManager;
-        static LidarSimulator.LidarSimulator lidarSimulator;
+        //static LidarSimulator.LidarSimulator lidarSimulator;
         static ImuProcessor.ImuProcessor imuProcessor;
         static StrategyManager.StrategyManager strategyManager;
         static PerceptionSimulator perceptionSimulator;
-        static Lidar_OMD60M_UDP lidar_OMD60M_UDP;
+        //static Lidar_OMD60M_UDP lidar_OMD60M_UDP;
         static Lidar_OMD60M_TCP lidar_OMD60M_TCP;
         static LidarProcessor.LidarProcessor lidarProcessor;
         static XBoxController.XBoxController xBoxManette;
@@ -220,18 +223,20 @@ namespace Robot
             robotMsgGenerator = new RobotMsgGenerator();
             robotMsgProcessor = new RobotMsgProcessor();
 
-            physicalSimulator = new PhysicalSimulator.PhysicalSimulator();
+            //physicalSimulator = new PhysicalSimulator.PhysicalSimulator();
 
             int robotId = (int)TeamId.Team1 + (int)RobotId.Robot1;
             int teamId = (int)TeamId.Team1;
-            physicalSimulator.RegisterRobot(robotId, 0, 0);
+            //physicalSimulator.RegisterRobot(robotId, 0, 0);
 
             robotPilot = new RobotPilot.RobotPilot(robotId);
-            trajectoryPlanner = new TrajectoryPlanner(robotId);
-            waypointGenerator = new WaypointGenerator(robotId);
             strategyManager = new StrategyManager.StrategyManager(robotId, teamId);
+            waypointGenerator = new WaypointGenerator(robotId);
+            trajectoryPlanner = new TrajectoryPlanner(robotId);
+            kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
+
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId);
-            lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
+            //lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             perceptionSimulator = new PerceptionSimulator(robotId);
             imuProcessor = new ImuProcessor.ImuProcessor(robotId);
 
@@ -293,39 +298,34 @@ namespace Robot
             strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
             strategyManager.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
-            if (!usingXBoxController )
-            {
-                trajectoryPlanner.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
-                robotPilot.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
-            }
-            else
-            {
-                //Sur evenement xx              -->>        Action a effectuer
-                xBoxManette.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
-                xBoxManette.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
-                xBoxManette.OnPriseBalleEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
-                xBoxManette.OnMoveTirUpEvent += robotMsgGenerator.GenerateMessageMoveTirUp;
-                xBoxManette.OnMoveTirDownEvent += robotMsgGenerator.GenerateMessageMoveTirDown;
-                xBoxManette.OnTirEvent += robotMsgGenerator.GenerateMessageTir;
-            }
+
+            //L'envoi des commandes dépend du fait qu'on soit en mode manette ou pas. 
+            //Il faut donc enregistrer les évènement ou pas en fonction de l'activation
+            //C'est fait plus bas dans le code avec la fonction que l'on appelle
+            ConfigControlEvents(useXBoxController: true);
+            
             robotMsgGenerator.OnMessageToRobotGeneratedEvent += msgEncoder.EncodeMessageToRobot;
             msgEncoder.OnMessageEncodedEvent += serialPort1.SendMessage;
             serialPort1.OnDataReceivedEvent += msgDecoder.DecodeMsgReceived;
             msgDecoder.OnMessageDecodedEvent += robotMsgProcessor.ProcessRobotDecodedMessage;
-
             robotMsgProcessor.OnIMURawDataFromRobotGeneratedEvent += imuProcessor.OnIMURawDataReceived;
 
-            physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
-            physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicalObjectListLocationReceived;
-            physicalSimulator.OnPhysicalRobotLocationEvent += perceptionSimulator.OnPhysicalRobotPositionReceived;
-            physicalSimulator.OnPhysicalBallPositionEvent += perceptionSimulator.OnPhysicalBallPositionReceived;
+            robotMsgProcessor.OnSpeedDataFromRobotGeneratedEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
+            imuProcessor.OnGyroSimulatedRobotSpeedEvent += kalmanPositioning.OnGyroRobotSpeedReceived;
+
+            kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
+            kalmanPositioning.OnKalmanLocationEvent += perceptionSimulator.OnPhysicalRobotPositionReceived;
+            
+            
+            //physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
+            //physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicalObjectListLocationReceived;
+            //physicalSimulator.OnPhysicalRobotLocationEvent += perceptionSimulator.OnPhysicalRobotPositionReceived;
+            //physicalSimulator.OnPhysicalBallPositionEvent += perceptionSimulator.OnPhysicalBallPositionReceived;
 
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
-            //lidarSimulator.OnSimulatedLidarEvent += localWorldMapManager.OnRawLidarDataReceived;
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
-            //waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
             
             if (usingLidar)
             {
@@ -390,27 +390,40 @@ namespace Robot
         //}
         static void ChangeUseOfXBoxController(object sender, BoolEventArgs e)
         {
-            if (e.value)
+            ConfigControlEvents(e.value);
+        }
+
+        private static void ConfigControlEvents(bool useXBoxController)
+        {
+            usingXBoxController = useXBoxController;
+            if (usingXBoxController)
             {
-                usingXBoxController = e.value;
-                xBoxManette.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
+                //xBoxManette.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
                 xBoxManette.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
                 xBoxManette.OnPriseBalleEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
                 xBoxManette.OnMoveTirUpEvent += robotMsgGenerator.GenerateMessageMoveTirUp;
                 xBoxManette.OnMoveTirDownEvent += robotMsgGenerator.GenerateMessageMoveTirDown;
                 xBoxManette.OnTirEvent += robotMsgGenerator.GenerateMessageTir;
                 xBoxManette.OnStopEvent += robotMsgGenerator.GenerateMessageSTOP;
+
+                trajectoryPlanner.OnSpeedConsigneEvent -= robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
+                //Gestion des events liés à une détection de collision soft
+                trajectoryPlanner.OnCollisionEvent -= kalmanPositioning.OnCollisionReceived;
             }
             else
             {
                 //On se desabonne aux evenements suivants:
-                xBoxManette.OnSpeedConsigneEvent -= physicalSimulator.SetRobotSpeed;
+                //xBoxManette.OnSpeedConsigneEvent -= physicalSimulator.SetRobotSpeed;
                 xBoxManette.OnSpeedConsigneEvent -= robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
                 xBoxManette.OnPriseBalleEvent -= robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
                 xBoxManette.OnMoveTirUpEvent -= robotMsgGenerator.GenerateMessageMoveTirUp;
                 xBoxManette.OnMoveTirDownEvent -= robotMsgGenerator.GenerateMessageMoveTirDown;
                 xBoxManette.OnTirEvent -= robotMsgGenerator.GenerateMessageTir;
                 xBoxManette.OnStopEvent -= robotMsgGenerator.GenerateMessageSTOP;
+
+                trajectoryPlanner.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
+                //Gestion des events liés à une détection de collision soft
+                trajectoryPlanner.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
             }
         }
 

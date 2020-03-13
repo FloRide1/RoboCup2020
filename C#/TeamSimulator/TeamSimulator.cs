@@ -26,9 +26,11 @@ namespace TeamSimulator
         static GlobalWorldMapManager globalWorldMapManagerTeam1;
         static GlobalWorldMapManager globalWorldMapManagerTeam2;
 
-        static List<TrajectoryPlanner> trajectoryPlannerList;
-        static List<WaypointGenerator> waypointGeneratorList;
         static Dictionary<int, StrategyManager.StrategyManager> strategyManagerDictionary;
+        static List<WaypointGenerator> waypointGeneratorList;
+        static List<TrajectoryPlanner> trajectoryPlannerList;
+        static List<SensorSimulator.SensorSimulator> sensorSimulatorList;
+        static List<KalmanPositioning.KalmanPositioning> kalmanPositioningList;
         static List<LocalWorldMapManager> localWorldMapManagerList;
         static List<PerceptionSimulator> perceptionSimulatorList;
         static List<UDPMulticastSender> robotUdpMulticastSenderList;
@@ -63,8 +65,10 @@ namespace TeamSimulator
             <KeyCode>lwAAAQEAAACS9FAFUqnVAXkAQ3VzdG9tZXI9VW5pdmVyc2l0ZSBEZSBUb3Vsb247T3JkZXJJZD1FRFVDQVRJT05BTC1VU0UtMDEyODtTdWJzY3JpcHRpb25WYWxpZFRvPTE3LUZlYi0yMDIwO1Byb2R1Y3RDb2RlPVNDLVdQRi0yRC1QUk8tU0lURYcbnXYui4rna7TqbkEmUz1V7oD1EwrO3FhU179M9GNhkL/nkD/SUjwJ/46hJZ31CQ==</KeyCode>
             </LicenseContract>");
 
-            trajectoryPlannerList = new List<TrajectoryPlanner>();
             waypointGeneratorList = new List<WaypointGenerator>();
+            trajectoryPlannerList = new List<TrajectoryPlanner>();
+            sensorSimulatorList = new List<SensorSimulator.SensorSimulator>();
+            kalmanPositioningList = new List<KalmanPositioning.KalmanPositioning>();
             strategyManagerDictionary = new Dictionary<int, StrategyManager.StrategyManager>();
             localWorldMapManagerList = new List<LocalWorldMapManager>();
             perceptionSimulatorList = new List<PerceptionSimulator>();
@@ -178,8 +182,8 @@ namespace TeamSimulator
             ////physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived; //replacé par les 5 lignes suivantes
             physicalSimulator.OnPhysicalRobotLocationEvent += sensorSimulator.OnPhysicalRobotPositionReceived;
             sensorSimulator.OnCamLidarSimulatedRobotPositionEvent += kalmanPositioning.OnCamLidarSimulatedRobotPositionReceived;
-            sensorSimulator.OnGyroSimulatedRobotSpeedEvent += kalmanPositioning.OnGyroSimulatedRobotSpeedReceived;
-            sensorSimulator.OnOdometrySimulatedRobotSpeedEvent += kalmanPositioning.OnOdometrySimulatedRobotSpeedReceived;
+            sensorSimulator.OnGyroSimulatedRobotSpeedEvent += kalmanPositioning.OnGyroRobotSpeedReceived;
+            sensorSimulator.OnOdometrySimulatedRobotSpeedEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
             
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             //physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived; //ajout
@@ -210,6 +214,8 @@ namespace TeamSimulator
             strategyManagerDictionary.Add(robotId, strategyManager);
             waypointGeneratorList.Add(waypointGenerator);
             trajectoryPlannerList.Add(trajectoryPlanner);
+            sensorSimulatorList.Add(sensorSimulator);
+            kalmanPositioningList.Add(kalmanPositioning);
             localWorldMapManagerList.Add(localWorldMapManager);
             //lidarSimulatorList.Add(lidarSimulator);
             perceptionSimulatorList.Add(perceptionSimulator);

@@ -161,7 +161,7 @@ namespace RobotInterface
         {
             //throw new NotImplementedException();
             worldMapDisplay.UpdateLocalWorldMap(e.LocalWorldMap);
-            Dispatcher.Invoke(new Action(delegate ()
+            Dispatcher.BeginInvoke(new Action(delegate ()
             {
                 worldMapDisplay.UpdateWorldMapDisplay();
             }));
@@ -413,7 +413,7 @@ namespace RobotInterface
 
         public void MessageCounterReceived(object sender, MsgCounterArgs e)
         {
-            Dispatcher.Invoke(new Action(delegate ()
+            Dispatcher.BeginInvoke(new Action(delegate ()
             {
                 LabelNbSpeedOdometryDataPerSec.Content = "Nb odometry data / sec : " + e.nbMessageOdometry;
                 LabelNbIMUDataPerSec.Content = "Nb IMU data / sec : " + e.nbMessageIMU;

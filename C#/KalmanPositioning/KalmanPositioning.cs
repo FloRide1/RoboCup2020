@@ -169,7 +169,7 @@ namespace KalmanPositioning
                 e.RobotRealPosition.Theta, e.RobotRealPosition.Vtheta, 0);
         }
 
-        public void OnOdometrySimulatedRobotSpeedReceived(object sender, SpeedArgs e)
+        public void OnOdometryRobotSpeedReceived(object sender, SpeedArgs e)
         {
             currentOdoVxRefRobot = e.Vx;
             currentOdoVyRefRobot = e.Vy;
@@ -214,7 +214,7 @@ namespace KalmanPositioning
             OnKalmanLocation(robotId, kalmanOutputLocation);
         }
 
-        public void OnGyroSimulatedRobotSpeedReceived(object sender, GyroArgs e)
+        public void OnGyroRobotSpeedReceived(object sender, GyroArgs e)
         {
             currentGyroVtheta = e.Vtheta;
         }

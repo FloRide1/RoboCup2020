@@ -137,6 +137,10 @@
       <Project>{C6636D02-C51F-4EDB-8089-94D4C0E51A32}</Project>
       <Name>ImuProcessor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\KalmanPositioning\KalmanPositioning.csproj">
+      <Project>{825389C5-BF86-419E-8914-FC5A325D4A0B}</Project>
+      <Name>KalmanPositioning</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LidarOMD60M\LidarOMD60M.csproj">
       <Project>{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}</Project>
       <Name>LidarOMD60M</Name>
