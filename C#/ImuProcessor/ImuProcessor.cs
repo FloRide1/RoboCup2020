@@ -50,7 +50,7 @@ namespace ImuProcessor
 
             //On envois l'event aux abonnés
             OnIMUProcessedData(e.EmbeddedTimeStampInMs, accelXYZ, gyroXYZ);
-            OnGyroSimulatedRobotSpeed(robotId, e.gyroZ - offsetGyroZ);
+            OnGyroSpeed(robotId, e.gyroZ - offsetGyroZ);
         }
 
         public void OnCalibrateGyroFromInterfaceGeneratedEvent(object sender, EventArgs e)
@@ -76,10 +76,10 @@ namespace ImuProcessor
             }
         }
 
-        public event EventHandler<GyroArgs> OnGyroSimulatedRobotSpeedEvent;
-        public virtual void OnGyroSimulatedRobotSpeed(int id, double vtheta)
+        public event EventHandler<GyroArgs> OnGyroSpeedEvent;
+        public virtual void OnGyroSpeed(int id, double vtheta)
         {
-            var handler = OnGyroSimulatedRobotSpeedEvent;
+            var handler = OnGyroSpeedEvent;
             if (handler != null)
             {
                 handler(this, new GyroArgs { RobotId = id, Vtheta = vtheta });
