@@ -109,6 +109,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KalmanPositioning", "..\Kal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorSimulator", "..\SensorSimulator\SensorSimulator.csproj", "{BACF7A03-7D22-4C97-83FA-B37561B9EC73}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestGPU", "..\ClassLibrary1\TestGPU.csproj", "{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -541,6 +543,14 @@ Global
 		{BACF7A03-7D22-4C97-83FA-B37561B9EC73}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BACF7A03-7D22-4C97-83FA-B37561B9EC73}.Release|x64.ActiveCfg = Release|Any CPU
 		{BACF7A03-7D22-4C97-83FA-B37561B9EC73}.Release|x64.Build.0 = Release|Any CPU
+		{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}.Debug|x64.Build.0 = Debug|Any CPU
+		{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}.Release|x64.ActiveCfg = Release|Any CPU
+		{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

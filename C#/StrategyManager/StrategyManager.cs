@@ -12,6 +12,7 @@ using System.Diagnostics;
 using PerceptionManagement;
 using System.Timers;
 using Constants;
+using ClassLibrary1;
 
 namespace StrategyManager
 {
@@ -301,6 +302,7 @@ namespace StrategyManager
         Stopwatch sw = new Stopwatch();
         public void ProcessStrategy()
         {
+            TestGPU.Test();
             sw.Reset();
             sw.Start(); // début de la mesure
                         

@@ -50,6 +50,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Cudafy.NET, Version=1.29.5576.13786, Culture=neutral, PublicKeyToken=63a4c9931616906b, processorArchitecture=MSIL">
+      <HintPath>..\Robot\packages\CUDAfy.NET.1.29.5576.13786\lib\net40\Cudafy.NET.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -66,6 +69,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ClassLibrary1\TestGPU.csproj">
+      <Project>{71c3ca73-7dc0-472f-94a5-6e5589c5d73b}</Project>
+      <Name>TestGPU</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Constants\Constants.csproj">
       <Project>{0540B497-B2CE-40A1-84B5-3109CE2F3146}</Project>
       <Name>Constants</Name>
@@ -90,6 +97,19 @@
       <Project>{B2D0126F-8C82-4EAA-87E5-67415F589098}</Project>
       <Name>WorldMap</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="Tools\place_these_executables_in_same_folder_as_Cudafy.NET.dll_" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Readme\CUDA.NET.Readme.txt" />
+    <Content Include="Readme\CUDAfy-License.txt" />
+    <Content Include="Readme\example_source_code.cs.txt" />
+    <Content Include="Readme\ILSpy-license.txt" />
+    <Content Include="Readme\README.txt" />
+    <Content Include="Tools\cudafycl.exe" />
+    <Content Include="Tools\CudafyViewer.exe" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
