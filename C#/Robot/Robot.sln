@@ -111,6 +111,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorSimulator", "..\Senso
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestGPU", "..\ClassLibrary1\TestGPU.csproj", "{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestGPU_CUDA", "..\TestGPU_CUDA\TestGPU_CUDA.vcxproj", "{C27A21D1-39CF-4E01-BF0C-74344BD435B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -545,12 +547,18 @@ Global
 		{BACF7A03-7D22-4C97-83FA-B37561B9EC73}.Release|x64.Build.0 = Release|Any CPU
 		{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}.Debug|x64.Build.0 = Debug|Any CPU
+		{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}.Debug|x64.ActiveCfg = Debug|x64
+		{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}.Debug|x64.Build.0 = Debug|x64
 		{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}.Release|x64.ActiveCfg = Release|Any CPU
 		{71C3CA73-7DC0-472F-94A5-6E5589C5D73B}.Release|x64.Build.0 = Release|Any CPU
+		{C27A21D1-39CF-4E01-BF0C-74344BD435B6}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{C27A21D1-39CF-4E01-BF0C-74344BD435B6}.Debug|x64.ActiveCfg = Debug|x64
+		{C27A21D1-39CF-4E01-BF0C-74344BD435B6}.Debug|x64.Build.0 = Debug|x64
+		{C27A21D1-39CF-4E01-BF0C-74344BD435B6}.Release|Any CPU.ActiveCfg = Release|x64
+		{C27A21D1-39CF-4E01-BF0C-74344BD435B6}.Release|x64.ActiveCfg = Release|x64
+		{C27A21D1-39CF-4E01-BF0C-74344BD435B6}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

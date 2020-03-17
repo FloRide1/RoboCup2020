@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29503.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AleaSample.CS.DeviceQuery", "tutorial\samples\AleaSample.CS.DeviceQuery\AleaSample.CS.DeviceQuery.csproj", "{AD7A9A32-91DF-456B-9275-84915FE1D61F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AD7A9A32-91DF-456B-9275-84915FE1D61F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD7A9A32-91DF-456B-9275-84915FE1D61F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD7A9A32-91DF-456B-9275-84915FE1D61F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD7A9A32-91DF-456B-9275-84915FE1D61F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F1EB1F1B-0B0D-4C8C-8FA9-0647EF7AF37D}
+	EndGlobalSection
+EndGlobal

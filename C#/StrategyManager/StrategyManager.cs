@@ -12,7 +12,6 @@ using System.Diagnostics;
 using PerceptionManagement;
 using System.Timers;
 using Constants;
-using ClassLibrary1;
 
 namespace StrategyManager
 {
@@ -28,6 +27,8 @@ namespace StrategyManager
         double robotOrientation = 0;
         
         Timer timerStrategy;
+
+        
 
 
         public StrategyManager(int robotId, int teamId)
@@ -300,9 +301,12 @@ namespace StrategyManager
 
         Heatmap heatMap;
         Stopwatch sw = new Stopwatch();
+
+        TestGPU.TestGPU testGPU = new TestGPU.TestGPU();
         public void ProcessStrategy()
         {
-            TestGPU.Test();
+            testGPU.Test();
+            //TestGPU.ActionWithClosure();
             sw.Reset();
             sw.Start(); // début de la mesure
                         

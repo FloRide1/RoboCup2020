@@ -1,63 +1,61 @@
-﻿using Cudafy;
-using Cudafy.Host;
-using Cudafy.Translator;
+﻿
+using Hybridizer.Runtime.CUDAImports;
+using Microsoft.VisualStudio.Web.CodeGeneration.Design;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace ClassLibrary1
+namespace TestGPU
 {
-    public static class TestGPU
+    public class TestGPU
     {
-
-        public const int N = 33 * 1024;
-        public const int threadsPerBlock = 256;
-        public const int blocksPerGrid = 32;
-
-        public static void Test()
+        [EntryPoint("run")]
+        public void Run(int N, double[] a, double[] b)
         {
-            Stopwatch watch = new Stopwatch();
-            watch.Start();
-            CudafyModule km = CudafyTranslator.Cudafy();
-
-            GPGPU gpu = CudafyHost.GetDevice(CudafyModes.Target, CudafyModes.DeviceId);
-            gpu.LoadModule(km);
-
-            string Text = "";
-            int iterations = 1000000;
-            double Value;
-            double[] dev_Value = gpu.Allocate<double>(iterations * sizeof(double));
-            gpu.Launch(blocksPerGrid, threadsPerBlock).SumOfSines(iterations, dev_Value);
-            gpu.CopyFromDevice(dev_Value, out Value);
-            watch.Stop();
-            Text = watch.Elapsed.TotalSeconds.ToString();
-            Console.WriteLine("The process took a total of: " + Text + " Seconds");
-            Console.WriteLine(Value);
-            Console.Read();
-            gpu.FreeAll();
+            Parallel.For(0, N, i => { a[i] += b[i]; });
         }
 
-        [Cudafy]
-        public static void SumOfSines(GThread thread, int _iterations, double[] Value)
+        public void Test()
         {
-            int threadID = thread.threadIdx.x + thread.blockIdx.x * thread.blockDim.x;
-            int numThreads = thread.blockDim.x * thread.gridDim.x;
-            if (threadID < _iterations)
+            // 268 MB allocated on device -- should fit in every CUDA compatible GPU
+            int N = 1024 * 1024 * 16;
+            double[] acuda = new double[N];
+            double[] adotnet = new double[N];
+
+            double[] b = new double[N];
+
+            Random rand = new Random();
+
+            //Initialize acuda et adotnet and b by some doubles randoms, acuda and adotnet have same numbers. 
+            for (int i = 0; i < N; ++i)
             {
-                for (int i = threadID; i < _iterations; i += numThreads)
-                {
-                    double _degAsRad = Math.PI / 180;
-                    Value[i] = 0.0;
-                    for (int a = 0; a < 100; a++)
-                    {
-                        double angle = (double)a * _degAsRad;
-                        Value[i] += Math.Sin(angle);
-                    }
-                }
+                acuda[i] = rand.NextDouble();
+                adotnet[i] = acuda[i];
+                b[i] = rand.NextDouble();
             }
+
+            cudaDeviceProp prop;
+            cuda.GetDeviceProperties(out prop, 0);
+            HybRunner runner = HybRunner.Cuda().SetDistrib(prop.multiProcessorCount * 16, 128);
+
+            // create a wrapper object to call GPU methods instead of C#
+            dynamic wrapped = runner.Wrap(this);
+
+            // run the method on GPU
+            wrapped.Run(N, acuda, b);
+
+            // run .Net method
+            Run(N, adotnet, b);
+
+            // verify the results
+            for (int k = 0; k < N; ++k)
+            {
+                if (acuda[k] != adotnet[k])
+                    Console.Out.WriteLine("ERROR !");
+            }
+            Console.Out.WriteLine("DONE");
+            //Thread.Sleep(10000);
         }
     }
 }
