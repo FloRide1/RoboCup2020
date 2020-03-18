@@ -16,7 +16,7 @@ namespace TestGPU
             Parallel.For(0, N, i => { a[i] += b[i]; });
         }
 
-        public void Test()
+        public void Test(string dllname)
         {
             // 268 MB allocated on device -- should fit in every CUDA compatible GPU
             int N = 1024 * 1024 * 16;
@@ -37,7 +37,7 @@ namespace TestGPU
 
             cudaDeviceProp prop;
             cuda.GetDeviceProperties(out prop, 0);
-            HybRunner runner = HybRunner.Cuda().SetDistrib(prop.multiProcessorCount * 16, 128);
+            HybRunner runner = HybRunner.Cuda(dllname).SetDistrib(prop.multiProcessorCount * 16, 128);
 
             // create a wrapper object to call GPU methods instead of C#
             dynamic wrapped = runner.Wrap(this);

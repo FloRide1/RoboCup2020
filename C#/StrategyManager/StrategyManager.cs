@@ -305,7 +305,7 @@ namespace StrategyManager
         TestGPU.TestGPU testGPU = new TestGPU.TestGPU();
         public void ProcessStrategy()
         {
-            testGPU.Test();
+            testGPU.Test("TestGPU_CUDA.dll");
             //TestGPU.ActionWithClosure();
             sw.Reset();
             sw.Start(); // début de la mesure

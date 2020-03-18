@@ -204,4 +204,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy "$(SolutionDir)$(Platform)\$(Configuration)\*.dll" "$(ProjectDir)$(OutDir)" /Y
+xcopy "$(SolutionDir)$(Platform)\$(Configuration)\*.pdb" "$(ProjectDir)$(OutDir)" /Y</PostBuildEvent>
+  </PropertyGroup>
 </Project>
