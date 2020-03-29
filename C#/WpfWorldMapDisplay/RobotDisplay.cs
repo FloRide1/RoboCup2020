@@ -19,12 +19,8 @@ namespace WpfWorldMapDisplay
         private Location waypointLocation;
         public double[,] heatMap;
         List<PointD> lidarMap;
-        List<Location> opponentLocationList;
-        List<Location> teamLocationList;
         List<PolarPointListExtended> lidarObjectList;
-
-        //System.Drawing.Color displayColor;
-        int displayTransparency = 0xFF;
+        public List<Location> ballLocationList;
 
         public RobotDisplay(PolygonExtended rbtShape)
         {
@@ -45,10 +41,8 @@ namespace WpfWorldMapDisplay
             ghostShape.backgroundColor = System.Drawing.Color.FromArgb(20, 0, 255, 0);
             ghostShape.borderColor = System.Drawing.Color.Black;
 
-
             lidarMap = new List<PointD>();
-            //displayTransparency = (int)(transparency * 255);
-            //displayColor = System.Drawing.Color.FromArgb((byte)displayTransparency, color.R, color.G, color.B);
+            ballLocationList = new List<Location>();
         }
 
         public void SetLocation(Location loc)
@@ -85,7 +79,12 @@ namespace WpfWorldMapDisplay
         {
             this.lidarObjectList = lidarObjectList;
         }
-        
+
+        public void SetBallList(List<Location> ballLocationList)
+        {
+            this.ballLocationList = ballLocationList;
+        }
+
         public PolygonExtended GetRobotPolygon()
         {
             PolygonExtended polygonToDisplay = new PolygonExtended();

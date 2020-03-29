@@ -447,7 +447,6 @@ namespace Robot
                 interfaceRobot = new RobotInterface.WpfRobotInterface();
                 interfaceRobot.Loaded += RegisterRobotInterfaceEvents;
                 interfaceRobot.ShowDialog();
-
             });
             t1.SetApartmentState(ApartmentState.STA);
             t1.Start();

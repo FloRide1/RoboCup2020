@@ -48,8 +48,8 @@ namespace TeamSimulator
 
         static object ExitLock = new object();
 
-        static int nbPlayersTeam1 = 5;
-        static int nbPlayersTeam2 = 5;
+        static int nbPlayersTeam1 = 1;
+        static int nbPlayersTeam2 = 0;
 
         [STAThread] //à ajouter au projet initial
 
@@ -76,7 +76,7 @@ namespace TeamSimulator
             robotUdpMulticastReceiverList = new List<UDPMulticastReceiver>();
             robotUdpMulticastInterpreterList = new List<UDPMulticastInterpreter>();
 
-            physicalSimulator = new PhysicalSimulator.PhysicalSimulator();
+            physicalSimulator = new PhysicalSimulator.PhysicalSimulator(22, 14);
             globalWorldMapManagerTeam1 = new GlobalWorldMapManager((int)TeamId.Team1, "224.16.32.79");
             globalWorldMapManagerTeam2 = new GlobalWorldMapManager((int)TeamId.Team2, "224.16.32.63");
 
@@ -193,7 +193,7 @@ namespace TeamSimulator
 
 
             physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicalObjectListLocationReceived;
-            physicalSimulator.OnPhysicalBallPositionEvent += perceptionSimulator.OnPhysicalBallPositionReceived;
+            physicalSimulator.OnPhysicalBallPositionListEvent += perceptionSimulator.OnPhysicalBallPositionListReceived;
 
             //Update des données de la localWorldMap
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
@@ -258,7 +258,7 @@ namespace TeamSimulator
             for (int i = 0; i < nbPlayersTeam1; i++)
             {
                 strategyManagerDictionary[(int)TeamId.Team1 + i].SetRole((StrategyManager.PlayerRole)roleList[i]);
-                strategyManagerDictionary[(int)TeamId.Team1 + i].ProcessStrategy();
+                //strategyManagerDictionary[(int)TeamId.Team1 + i].ProcessStrategy();
             }
             
             roleList = new List<int>();
@@ -271,7 +271,7 @@ namespace TeamSimulator
             for (int i = 0; i < nbPlayersTeam2; i++)
             {
                 strategyManagerDictionary[(int)TeamId.Team2 + i].SetRole((StrategyManager.PlayerRole)roleList[i]);
-                strategyManagerDictionary[(int)TeamId.Team2 + i].ProcessStrategy();
+                //strategyManagerDictionary[(int)TeamId.Team2 + i].ProcessStrategy();
             }
         }
 

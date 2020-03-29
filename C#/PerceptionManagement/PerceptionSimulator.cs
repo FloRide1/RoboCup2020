@@ -77,11 +77,11 @@ namespace PerceptionManagement
             }
         }
 
-        public void OnPhysicalBallPositionReceived(object sender, LocationArgs e)
+        public void OnPhysicalBallPositionListReceived(object sender, LocationListArgs e)
         {
             //On calcule la perception simulée de position balle d'après le retour du simulateur physique directement
             //En réel on utilisera la caméra
-            robotPerception.ballLocation = e.Location;            
+            robotPerception.ballLocationList = e.LocationList;            
         }
 
         public delegate void PerceptionEventHandler(object sender, PerceptionArgs e);

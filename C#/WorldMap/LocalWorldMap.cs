@@ -17,7 +17,7 @@ namespace WorldMap
         public int timeStampMs;
         public GameState gameState = GameState.STOPPED;
         public StoppedGameAction stoppedGameAction = StoppedGameAction.NONE;
-        public Location ballLocation { get; set; }
+        public List<Location> ballLocationList { get; set; }
         public Dictionary<int, Location> teammateLocationList { get; set; }
         public Dictionary<int, Location> teammateGhostLocationList { get; set; }
         public Dictionary<int, Location> teammateDestinationLocationList { get; set; }
@@ -49,9 +49,10 @@ namespace WorldMap
                 wsm.Robots.Add(r);
             }
 
+            //On prend par défaut la première balle du premier robot
             Ball b = new Ball();
-            b.Position = new List<double?>() { ballLocation.X, ballLocation.X, 0};
-            b.Velocity = new List<double?>() { ballLocation.Vx, ballLocation.Vy, 0 };
+            b.Position = new List<double?>() { ballLocationList[0].X, ballLocationList[0].X, 0};
+            b.Velocity = new List<double?>() { ballLocationList[0].Vx, ballLocationList[0].Vy, 0 };
             b.Confidence = 1;
             wsm.Balls.Add(b);
 
@@ -81,9 +82,9 @@ namespace WorldMap
         public int TeamId = 0;
         public Location robotLocation { get; set; }
         public Location robotGhostLocation { get; set; }
-        public Location ballLocation { get; set; }
         public Location destinationLocation { get; set; }
         public Location waypointLocation { get; set; }
+        public List<Location> ballLocationList { get; set; }
         public List<Location> obstaclesLocationList { get; set; }
         public List<PolarPointListExtended> lidarObjectList { get; set; }
 

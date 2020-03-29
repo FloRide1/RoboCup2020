@@ -10,17 +10,17 @@ namespace WorldMap
     public class GlobalWorldMapStorage
     {
         public Dictionary<int, Location> robotLocationDictionary { get; set; }
-        public Dictionary<int, Location> ballLocationDictionary { get; set; }
         public Dictionary<int, Location> destinationLocationDictionary { get; set; }
         public Dictionary<int, Location> waypointLocationDictionary { get; set; }
+        public Dictionary<int, List<Location>> ballLocationListDictionary { get; set; }
         public Dictionary<int, List<Location>> ObstaclesLocationListDictionary { get; set; }
 
         public GlobalWorldMapStorage()
         {
             robotLocationDictionary = new Dictionary<int, Location>();
-            ballLocationDictionary = new Dictionary<int, Location>();
             destinationLocationDictionary = new Dictionary<int, Location>();
             waypointLocationDictionary = new Dictionary<int, Location>();
+            ballLocationListDictionary = new Dictionary<int, List<Location>>();
             ObstaclesLocationListDictionary = new Dictionary<int, List<Location>>();
         }
 
@@ -35,16 +35,6 @@ namespace WorldMap
             }
         }
 
-        public void AddOrUpdateBallLocation(int id, Location loc)
-        {
-            lock (ballLocationDictionary)
-            {
-                if (ballLocationDictionary.ContainsKey(id))
-                    ballLocationDictionary[id] = loc;
-                else
-                    ballLocationDictionary.Add(id, loc);
-            }
-        }
         public void AddOrUpdateRobotDestination(int id, Location loc)
         {
             lock (destinationLocationDictionary)
@@ -55,6 +45,7 @@ namespace WorldMap
                     destinationLocationDictionary.Add(id, loc);
             }
         }
+
         public void AddOrUpdateRobotWayPoint(int id, Location loc)
         {
             lock (waypointLocationDictionary)
@@ -65,6 +56,18 @@ namespace WorldMap
                     waypointLocationDictionary.Add(id, loc);
             }
         }
+
+        public void AddOrUpdateBallLocationList(int id, List<Location> ballLocationList)
+        {
+            lock (ballLocationListDictionary)
+            {
+                if (ballLocationListDictionary.ContainsKey(id))
+                    ballLocationListDictionary[id] = ballLocationList;
+                else
+                    ballLocationListDictionary.Add(id, ballLocationList);
+            }
+        }
+
         public void AddOrUpdateObstaclesList(int id, List<Location> locList)
         {
             lock (ObstaclesLocationListDictionary)

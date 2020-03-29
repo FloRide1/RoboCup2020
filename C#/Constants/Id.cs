@@ -32,6 +32,7 @@ namespace Constants
         Destination = 200,
         WayPoint = 300,
         Ghost = 400,
+        Ball = 500,
     }
 
     public enum Terrain
@@ -54,5 +55,18 @@ namespace Constants
         CornerHautGauche=16,
         PtAvantSurfaceGauche=17,
         PtAvantSurfaceDroit=18,
+
+
+        TerrainComplet = 19,
+        LigneTerrainGauche = 20,
+        LigneTerrainDroite = 21,
+        LigneCentraleEpaisse = 22,
+        LigneCentraleFine = 23,
+        BaliseGaucheHaut = 24,
+        BaliseGaucheCentre = 25,
+        BaliseGaucheBas = 26,
+        BaliseDroiteHaut = 27,
+        BaliseDroiteCentre = 28,
+        BaliseDroiteBas = 29
     }
 }

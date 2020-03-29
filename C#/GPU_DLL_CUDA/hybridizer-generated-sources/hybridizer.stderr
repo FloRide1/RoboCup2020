@@ -1,0 +1,8 @@
+hybridizer.cuda.cuh(1964): warning: statement is unreachable
+hybridizer.cuda.cuh(1980): warning: statement is unreachable
+hybridizer.cuda.cuh(1996): warning: statement is unreachable
+hybridizer.cuda.cuh(1559): warning: a value of type "void (*)(void *, int)" cannot be used to initialize an entity of type "void *"
+          detected during instantiation of "hybridizer::action<T...>::action(void *, void *, __nv_bool) [with T=<int>]" 
+C:\Github\RoboCup2020\C#\GPU_DLL\GPU_DLL.cs(27): here
+C:\Github\RoboCup2020\C#\GPU_DLL\GPU_DLL.cs(33): error: no instance of overloaded function "hybridizer::hybset" matches the argument list
+            argument types are: (double *, int, int, double)

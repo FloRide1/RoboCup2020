@@ -17,6 +17,10 @@ namespace WpfWorldMapDisplay
         {
             location = new Location(0, 0, 0, 0, 0, 0);
         }
+        public BallDisplay(Location loc)
+        {
+            location = loc;
+        }
 
         public void SetPosition(double x, double y, double theta)
         {
@@ -31,7 +35,7 @@ namespace WpfWorldMapDisplay
             location.Vtheta = vTheta;
         }
 
-        public void SetLocation(double x, double y, double theta, double vx, double vy, double vTheta)
+        public void SetLocationList(double x, double y, double theta, double vx, double vy, double vTheta)
         {
             location.X = x;
             location.Y = y;

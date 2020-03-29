@@ -42,7 +42,7 @@ namespace WorldMapManager
             {
                 localWorldMap.robotLocation = e.Perception.robotLocation;
                 localWorldMap.obstaclesLocationList = e.Perception.obstaclesLocationList;
-                localWorldMap.ballLocation = e.Perception.ballLocation;
+                localWorldMap.ballLocationList = e.Perception.ballLocationList;
 
                 if (localWorldMap.robotLocation != null)
                 {

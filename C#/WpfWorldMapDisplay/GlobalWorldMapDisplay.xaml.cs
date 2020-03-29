@@ -33,11 +33,11 @@ namespace WpfWorldMapDisplay
         Dictionary<int, RobotDisplay> TeamMatesDisplayDictionary = new Dictionary<int, RobotDisplay>();
         Dictionary<int, RobotDisplay> OpponentDisplayDictionary = new Dictionary<int, RobotDisplay>();
 
+        //Liste des objets à afficher
         List<PolygonExtended> ObjectDisplayList = new List<PolygonExtended>();
 
         //Liste des balles à afficher
-        BallDisplay Balle = new BallDisplay();
-        //List<BallDisplay> ListBalles = new List<BallDisplay>();
+        List<BallDisplay> BallDisplayList = new List<BallDisplay>();
 
         public GlobalWorldMapDisplay()
         {
@@ -48,7 +48,7 @@ namespace WpfWorldMapDisplay
             //timerAffichage.Interval = new TimeSpan(0, 0, 0, 0, 50);
             //timerAffichage.Tick += TimerAffichage_Tick;
             //timerAffichage.Start();
-            InitSoccerField();
+            InitRoboCupSoccerField();
         }
 
         public void InitTeamMate(int robotId)
@@ -90,7 +90,7 @@ namespace WpfWorldMapDisplay
 
         public void UpdateWorldMapDisplay()
         {
-            DrawBall();
+            DrawBalls();
             DrawTeam();
             PolygonSeries.RedrawAll();
             RobotGhostSeries.RedrawAll();
@@ -145,14 +145,22 @@ namespace WpfWorldMapDisplay
                     i++;
                 }
             }
-            UpdateBallLocation(globalWorldMap.ballLocation);
+            UpdateBallLocationList(globalWorldMap.ballLocationList);
         }
         
-        public void DrawBall()
+        public void DrawBalls()
         {
-            //Affichage de la balle
-            BallPolygon.AddOrUpdatePolygonExtended((int)BallId.Ball, Balle.GetBallPolygon());
-            BallPolygon.AddOrUpdatePolygonExtended((int)BallId.Ball + (int)Caracteristique.Speed, Balle.GetBallSpeedArrow());
+            lock (BallDisplayList)
+            {
+                int indexBall = 0;
+                foreach (var ball in BallDisplayList)
+                {
+                    //Affichage de la balle
+                    BallPolygon.AddOrUpdatePolygonExtended((int)BallId.Ball + indexBall, ball.GetBallPolygon());
+                    BallPolygon.AddOrUpdatePolygonExtended((int)BallId.Ball + indexBall + (int)Caracteristique.Speed, ball.GetBallSpeedArrow());
+                    indexBall++;
+                }
+            }
         }
 
         public void DrawTeam()
@@ -167,6 +175,7 @@ namespace WpfWorldMapDisplay
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Speed, TeamMatesDisplayDictionary[r.Key].GetRobotSpeedArrow());
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.Destination, TeamMatesDisplayDictionary[r.Key].GetRobotDestinationArrow());
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key + (int)Caracteristique.WayPoint, TeamMatesDisplayDictionary[r.Key].GetRobotWaypointArrow());
+
                 //On trace le robot en dernier pour l'avoir en couche de dessus
                 RobotShapesSeries.AddOrUpdatePolygonExtended(r.Key, TeamMatesDisplayDictionary[r.Key].GetRobotPolygon());
                 
@@ -210,9 +219,19 @@ namespace WpfWorldMapDisplay
             }
         }
 
-        public void UpdateBallLocation(Location ballLocation)
+        public void UpdateBallLocationList(List<Location> ballLocationList)
         {
-            Balle.SetLocation(ballLocation);
+            if (ballLocationList != null)
+            {
+                lock (BallDisplayList)
+                {
+                    BallDisplayList.Clear();
+                    foreach (var ballLocation in ballLocationList)
+                    {
+                        BallDisplayList.Add(new BallDisplay(ballLocation));
+                    }
+                }
+            }
         }
 
         public void UpdateRobotWaypoint(int robotId, Location waypointLocation)
@@ -250,8 +269,13 @@ namespace WpfWorldMapDisplay
         }
         
 
-        void InitSoccerField()
+        void InitRoboCupSoccerField()
         {
+            TerrainLowerX = -11;
+            TerrainUpperX = 11;
+            TerrainLowerY = -7;
+            TerrainUpperY = 7;
+
             int fieldLineWidth = 2;
             PolygonExtended p = new PolygonExtended();
             p.polygon.Points.Add(new System.Windows.Point(-12, -8));

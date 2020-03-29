@@ -9,8 +9,8 @@ namespace HeatMap
 {
     public class Heatmap
     {
-        double FieldLength;
-        double FieldHeight;
+        public double FieldLength;
+        public double FieldHeight;
         
         double HalfFieldLength;
         double HalfFieldHeight;
@@ -23,19 +23,7 @@ namespace HeatMap
         public double[] SubSamplingCellSizeList;
         public double[] nbCellInSubSampledHeatMapHeightList;
         public double[] nbCellInSubSampledHeatMapWidthList;
-
-        ////public double[,] SubSampledHeatMapData1;
-        //public double SubSamplingRate1;
-        //public double SubSampledCellSize1;
-        //public int nbCellInSubSampledHeatMapHeight1;
-        //public int nbCellInSubSampledHeatMapWidth1;
-
-        ////public double[,] SubSampledHeatMapData2;
-        //public double SubSamplingRate2;
-        //public double SubSampledCellSize2;
-        //public int nbCellInSubSampledHeatMapHeight2;
-        //public int nbCellInSubSampledHeatMapWidth2;
-
+        
         public double BaseCellSize;
         public int nbCellInBaseHeatMapHeight;
         public int nbCellInBaseHeatMapWidth;

@@ -207,9 +207,9 @@ namespace WorldMapManager
                 foreach (var localMap in localWorldMapDictionary)
                 {
                     globalWorldMapStorage.AddOrUpdateRobotLocation(localMap.Key, localMap.Value.robotLocation);
-                    globalWorldMapStorage.AddOrUpdateBallLocation(localMap.Key, localMap.Value.ballLocation);
                     globalWorldMapStorage.AddOrUpdateRobotDestination(localMap.Key, localMap.Value.destinationLocation);
                     globalWorldMapStorage.AddOrUpdateRobotWayPoint(localMap.Key, localMap.Value.waypointLocation);
+                    globalWorldMapStorage.AddOrUpdateBallLocationList(localMap.Key, localMap.Value.ballLocationList);
                     globalWorldMapStorage.AddOrUpdateObstaclesList(localMap.Key, localMap.Value.obstaclesLocationList);
                 }
 
@@ -221,7 +221,7 @@ namespace WorldMapManager
 
                 //Pour l'instant on prend la position de balle vue par le robot 1 comme vérité, mais c'est à améliorer !
                 if (localWorldMapDictionary.Count > 0)
-                    globalWorldMap.ballLocation = localWorldMapDictionary.First().Value.ballLocation;
+                    globalWorldMap.ballLocationList = localWorldMapDictionary.First().Value.ballLocationList;
                 globalWorldMap.teammateLocationList = new Dictionary<int, Location>();
                 globalWorldMap.teammateGhostLocationList = new Dictionary<int, Location>();
                 globalWorldMap.teammateDestinationLocationList = new Dictionary<int, Location>();
