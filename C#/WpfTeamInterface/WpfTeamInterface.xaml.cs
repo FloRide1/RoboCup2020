@@ -20,9 +20,17 @@ namespace TeamInterface
 
         DispatcherTimer timerAffichage;
 
-        public WpfTeamInterface()
+        public WpfTeamInterface(string typeTerrain)
         {
             InitializeComponent();
+
+            localWorldMapDisplay1.Init(typeTerrain);
+            localWorldMapDisplay2.Init(typeTerrain);
+            localWorldMapDisplay3.Init(typeTerrain);
+            localWorldMapDisplay4.Init(typeTerrain);
+            localWorldMapDisplay5.Init(typeTerrain);
+            localWorldMapDisplay6.Init(typeTerrain);
+
             localWorldMapDisplay1.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1);
             localWorldMapDisplay2.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot2);
             localWorldMapDisplay3.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot3);

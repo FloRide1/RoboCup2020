@@ -12,7 +12,7 @@ namespace ExtendedSerialPort
 
         private Thread connectionThread;
         private bool IsSerialPortConnected = false;
-        private String PortName;
+        //private String PortName;
 
         public ReliableSerialPort(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits)
         {

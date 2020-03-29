@@ -24,10 +24,10 @@ namespace WpfWorldMapDisplay
 
         public bool IsExtended = false;
 
-        double TerrainLowerX = -11;
-        double TerrainUpperX = 11;
-        double TerrainLowerY = -7;
-        double TerrainUpperY = 7;
+        //double TerrainLowerX = -11;
+        //double TerrainUpperX = 11;
+        //double TerrainLowerY = -7;
+        //double TerrainUpperY = 7;
 
         //Liste des robots à afficher
         Dictionary<int, RobotDisplay> TeamMatesDisplayDictionary = new Dictionary<int, RobotDisplay>();
@@ -43,11 +43,6 @@ namespace WpfWorldMapDisplay
         {
             InitializeComponent();
 
-            //Timer de simulation
-            //timerAffichage = new DispatcherTimer();
-            //timerAffichage.Interval = new TimeSpan(0, 0, 0, 0, 50);
-            //timerAffichage.Tick += TimerAffichage_Tick;
-            //timerAffichage.Start();
             InitRoboCupSoccerField();
         }
 
@@ -271,10 +266,10 @@ namespace WpfWorldMapDisplay
 
         void InitRoboCupSoccerField()
         {
-            TerrainLowerX = -11;
-            TerrainUpperX = 11;
-            TerrainLowerY = -7;
-            TerrainUpperY = 7;
+            double TerrainLowerX = -11;
+            double TerrainUpperX = 11;
+            double TerrainLowerY = -7;
+            double TerrainUpperY = 7;
 
             int fieldLineWidth = 2;
             PolygonExtended p = new PolygonExtended();

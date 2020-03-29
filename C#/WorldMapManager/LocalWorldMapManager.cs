@@ -94,7 +94,7 @@ namespace WorldMapManager
             }
         }
         
-        int i = 0;
+        //int i = 0;
         public void OnRawLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
         {
             if (localWorldMap == null || localWorldMap.robotLocation == null)

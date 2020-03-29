@@ -18,9 +18,7 @@ namespace UDPMulticast
     public class UDPMulticastSender
     {
         int Id;
-        //private string multicastIpAddress = "224.16.32.79";
         private string multicastIpAddress;
-        private string localInterfaceAddress = "127.0.0.1";
         private int endPointPort = 4567;
         Socket s;
 

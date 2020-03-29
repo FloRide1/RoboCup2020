@@ -25,14 +25,16 @@ namespace WpfWorldMapDisplay
     public partial class LocalWorldMapDisplay : UserControl
     {
         Random random = new Random();
-        DispatcherTimer timerAffichage;
 
         public bool IsExtended = false;
 
-        double TerrainLowerX = -11;
-        double TerrainUpperX = 11;
-        double TerrainLowerY = -7;
-        double TerrainUpperY = 7;
+        double LengthGameArea = 0;
+        double WidthGameArea = 0;
+
+        //double TerrainLowerX = -11;
+        //double TerrainUpperX = 11;
+        //double TerrainLowerY = -7;
+        //double TerrainUpperY = 7;
 
         //Liste des robots à afficher
         Dictionary<int, RobotDisplay> TeamMatesDisplayDictionary = new Dictionary<int, RobotDisplay>();
@@ -42,17 +44,36 @@ namespace WpfWorldMapDisplay
         //Liste des balles vues par le robot à afficher
         List<BallDisplay> BallDisplayList = new List<BallDisplay>();
 
+        string typeTerrain = "RoboCup";
+
         public LocalWorldMapDisplay()
         {
             InitializeComponent();
+        }
 
-            //Timer de simulation
-            //timerAffichage = new DispatcherTimer();
-            //timerAffichage.Interval = new TimeSpan(0, 0, 0, 0, 100);
-            //timerAffichage.Tick += TimerAffichage_Tick;
-            //timerAffichage.Start();
-            //InitSoccerField();
-            InitCachanField();
+        public void Init(string typeTerrain)
+        {
+            switch (typeTerrain)
+            {
+                case "Cachan":
+                    LengthGameArea = 8;
+                    WidthGameArea = 4;
+                    InitCachanField();
+                    break;
+                case "RoboCup":
+                    LengthGameArea = 30;
+                    WidthGameArea = 18;
+                    InitSoccerField();
+                    break;
+                default:
+                    LengthGameArea = 26;
+                    WidthGameArea = 18;
+                    InitSoccerField();
+                    break;
+            }
+
+            this.sciChart.XAxis.VisibleRange.SetMinMax(-LengthGameArea / 2, LengthGameArea / 2);
+            this.sciChart.YAxis.VisibleRange.SetMinMax(-WidthGameArea / 2, WidthGameArea / 2);
         }
 
         public void InitTeamMate(int robotId)
@@ -104,9 +125,9 @@ namespace WpfWorldMapDisplay
                 if (TeamMatesDisplayDictionary[robotId].heatMap == null)
                     return;
                 //heatmapSeries.DataSeries = new UniformHeatmapDataSeries<double, double, double>(data, startX, stepX, startY, stepY);
-                double xStep = (TerrainUpperX - TerrainLowerX) / (TeamMatesDisplayDictionary[robotId].heatMap.GetUpperBound(1) + 1);
-                double yStep = (TerrainUpperY - TerrainLowerY) / (TeamMatesDisplayDictionary[robotId].heatMap.GetUpperBound(0) + 1);
-                var heatmapDataSeries = new UniformHeatmapDataSeries<double, double, double>(TeamMatesDisplayDictionary[robotId].heatMap, TerrainLowerX, yStep, TerrainLowerY, xStep);
+                double xStep = (LengthGameArea) / (TeamMatesDisplayDictionary[robotId].heatMap.GetUpperBound(1) + 1);
+                double yStep = (WidthGameArea) / (TeamMatesDisplayDictionary[robotId].heatMap.GetUpperBound(0) + 1);
+                var heatmapDataSeries = new UniformHeatmapDataSeries<double, double, double>(TeamMatesDisplayDictionary[robotId].heatMap, -LengthGameArea/2, yStep, -WidthGameArea/2, xStep);
 
                 // Apply the dataseries to the heatmap
                 heatmapSeries.DataSeries = heatmapDataSeries;
@@ -471,10 +492,10 @@ namespace WpfWorldMapDisplay
 
         void InitCachanField()
         {
-            TerrainLowerX = -4;
-            TerrainUpperX = 4;
-            TerrainLowerY = -2;
-            TerrainUpperY = 2;
+            double TerrainLowerX = -LengthGameArea/2;
+            double TerrainUpperX = LengthGameArea/2;
+            double TerrainLowerY = -WidthGameArea/2;
+            double TerrainUpperY = WidthGameArea/2;
 
             int fieldLineWidth = 1;
             PolygonExtended p = new PolygonExtended();

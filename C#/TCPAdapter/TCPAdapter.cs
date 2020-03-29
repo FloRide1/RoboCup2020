@@ -18,10 +18,6 @@ namespace TCPAdapter
         private string ipAddress;
 
         private System.Net.Sockets.TcpClient tcpClient;
-        private NetworkStream clientStream;
-        private bool isConnected = false;
-
-        System.Timers.Timer connectionManagementTimer;
         public TCPAdapter(string ipAddress, int port, string name)
         {
             this.ipAddress = ipAddress;

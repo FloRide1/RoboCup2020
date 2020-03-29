@@ -23,10 +23,21 @@ namespace PhysicalSimulator
         FiltreOrdre1 filterLowPassVy = new FiltreOrdre1();
         FiltreOrdre1 filterLowPassVTheta = new FiltreOrdre1();
 
-        public PhysicalSimulator(double lengthAireDeJeu, double widthAireDeJeu)
+        public PhysicalSimulator(string typeTerrain)
         {
-            LengthAireDeJeu = lengthAireDeJeu;
-            WidthAireDeJeu = widthAireDeJeu;
+            switch(typeTerrain)
+            {
+                case "Cachan":
+                    LengthAireDeJeu = 8;
+                    WidthAireDeJeu = 4;
+                    break;
+                case "RoboCup":
+                    LengthAireDeJeu = 24;
+                    WidthAireDeJeu = 16;
+                    break;
+                default:
+                    break;
+            }
 
             ballSimulatedList.Add(0, new PhysicalBallSimulator(0, 0));
             ballSimulatedList.Add(1, new PhysicalBallSimulator(3, 0));
@@ -81,8 +92,8 @@ namespace PhysicalSimulator
                 foreach (var robot in robotList)
                 {
                     //On check les murs 
-                    if ((robot.Value.newXWithoutCollision + robot.Value.radius > 13) || (robot.Value.newXWithoutCollision - robot.Value.radius < -13)
-                        || (robot.Value.newYWithoutCollision + robot.Value.radius > 9) || (robot.Value.newYWithoutCollision - robot.Value.radius < -9))
+                    if ((robot.Value.newXWithoutCollision + robot.Value.radius > LengthAireDeJeu/2) || (robot.Value.newXWithoutCollision - robot.Value.radius < -LengthAireDeJeu/2)
+                        || (robot.Value.newYWithoutCollision + robot.Value.radius > WidthAireDeJeu / 2) || (robot.Value.newYWithoutCollision - robot.Value.radius < -WidthAireDeJeu/2))
                     {
                         robot.Value.Collision = true;
                     }
@@ -136,19 +147,19 @@ namespace PhysicalSimulator
                     //Gestion des collisions balle-murs
                     //On check les murs virtuels
                     //Mur haut ou bas
-                    if ((ballSimu.Value.newYWithoutCollision + ballSimu.Value.radius > 7) || (ballSimu.Value.newYWithoutCollision + ballSimu.Value.radius < -7))
+                    if ((ballSimu.Value.newYWithoutCollision + ballSimu.Value.radius > WidthAireDeJeu / 2) || (ballSimu.Value.newYWithoutCollision + ballSimu.Value.radius < -WidthAireDeJeu / 2))
                     {
                         ballSimu.Value.Vy = -ballSimu.Value.Vy; //On simule un rebond
                     }
                     //Mur gauche ou droit
-                    if ((ballSimu.Value.newXWithoutCollision + ballSimu.Value.radius < -11) || (ballSimu.Value.newXWithoutCollision + ballSimu.Value.radius > 11))
+                    if ((ballSimu.Value.newXWithoutCollision + ballSimu.Value.radius < -LengthAireDeJeu / 2) || (ballSimu.Value.newXWithoutCollision + ballSimu.Value.radius > LengthAireDeJeu/2))
                     {
                         ballSimu.Value.Vx = -ballSimu.Value.Vx; //On simule un rebond
                     }
                 }
 
                 //Gestion de la décélération de la balle
-                double deceleration = 0.5;
+                //double deceleration = 0.5;
 
                 //Calcul de la nouvelle location des balles
                 List<Location> newBallLocationList = new List<Location>();

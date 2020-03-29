@@ -76,7 +76,7 @@ namespace TeamSimulator
             robotUdpMulticastReceiverList = new List<UDPMulticastReceiver>();
             robotUdpMulticastInterpreterList = new List<UDPMulticastInterpreter>();
 
-            physicalSimulator = new PhysicalSimulator.PhysicalSimulator(22, 14);
+            physicalSimulator = new PhysicalSimulator.PhysicalSimulator("RoboCup");
             globalWorldMapManagerTeam1 = new GlobalWorldMapManager((int)TeamId.Team1, "224.16.32.79");
             globalWorldMapManagerTeam2 = new GlobalWorldMapManager((int)TeamId.Team2, "224.16.32.63");
 
@@ -303,7 +303,7 @@ namespace TeamSimulator
             Thread t1 = new Thread(() =>
             {
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
-                TeamConsole = new WpfTeamInterface();
+                TeamConsole = new WpfTeamInterface("RoboCup");  //RoboCup
 
                 for (int i = 0; i < nbPlayersTeam1; i++)
                 {

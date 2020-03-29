@@ -13,7 +13,6 @@ using PerceptionManagement;
 using System.Timers;
 using Constants;
 
-using System.Linq;
 using Hybridizer.Runtime.CUDAImports;
 using GPU_DLL;
 
@@ -40,7 +39,7 @@ namespace StrategyManager
             this.teamId = teamId;
             this.robotId = robotId;
             //heatMap = new Heatmap(22.0, 14.0, 22.0/Math.Pow(2,8), 2); //Init HeatMap
-            heatMap = new Heatmap(22.0, 14.0, 22.0 / Math.Pow(2, 8), 1); //Init HeatMap
+            heatMap = new Heatmap(24.0, 16.0, 22.0 / Math.Pow(2, 8), 1); //Init HeatMap
 
             timerStrategy = new Timer();
             timerStrategy.Interval = 50;
