@@ -1,0 +1,6 @@
+
+ACTIVATED BY 	SERIAL 	ACTIVATED ON 	DEACTIVATE
+Valentin Gies (gies@univ-tln.fr) 	f999f1e3-3c3d-4874-90d0-25dc4596bf65 	December 2, 2019 	Deactivate
+
+// Set this code once in AppDelegate or application startup
+SciChartSurface.SetRuntimeLicenseKey("bnweykn43d7/jR5Lr2TNcodJKih5tDJs4tQPikAhjuW7dNwWxSSyFDp8fCE0plOD7ow1Q4tRA7m+reZyXcVdm6Ob6uDvOwQ4KkCm2zbXl/CKFNyqC0lXSe1E5QFE1nDjc2TIEi4fivKGkMchP4KfHcgnRDZTmflld1vFksgc9ttk9WM37SoiBhpM4nP/Ha3DoEKscJF3s54P40jbuFy75Qjm/eQdfg7hqtgRMzOB09VeKvoV9uDbZqMA2r+Nt35vhpPi1o6MTWIJcWZ1uZY7goRtwwrbUTwf8+ONECzfWFDbanJaPbZlkwj/d5CVsmky/K0Za5J/0sDDmWn0xJTAHKvh4Hm0cLn9xtQSMjiBp9ENU4Snodapb68TyFwZgmT6jgyY6ccnhACBQWwTeSvvHIn+KlaxqcvA3D1LB5KFYnlJtgMPqcGQQ/l3WcxAq4Nbs+ABg9Cqb05pxaq8utQp1lVtPuRdonkJmIFrNp7iEY97WwGRfakj1Q9oQYG3f/JVNw6cUtofpXvSW2sTtm+WJXxfI8NJvw0DXzZ8eHU=");
