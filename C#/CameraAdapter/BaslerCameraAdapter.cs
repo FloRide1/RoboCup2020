@@ -229,7 +229,7 @@ namespace CameraAdapter
             circle = new CircleF();
             try
             {
-                Image<Bgr, Byte> imageCV = new Image<Bgr, byte>(bitmap); //Image Class from Emgu.CV
+                Image<Bgr, Byte> imageCV = bitmap.ToImage<Bgr, Byte>(); //Image Class from Emgu.CV
                 imgOriginal = imageCV.Mat; //This is your Image converted to Mat
                 Mat imgGray = new Mat();
                 CvInvoke.CvtColor(imgOriginal, imgGray, ColorConversion.Bgr2Gray);
@@ -270,7 +270,7 @@ namespace CameraAdapter
                 Console.WriteLine(e);
             }
 
-            return imgOriginal.Bitmap;
+            return imgOriginal.ToBitmap();
         }
 
         private void StreamGrabber_GrabStopped(object sender, GrabStopEventArgs e)

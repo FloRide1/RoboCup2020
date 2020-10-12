@@ -229,7 +229,7 @@ namespace YoloObjectDetector
         private Mat DrawBorder2Image(Mat mat,List<YoloItem> items, YoloItem selectedItem = null)
         {
             //Load the image(probably from your stream)
-            Bitmap image = mat.Bitmap;
+            Bitmap image = mat.ToBitmap();
             Image<Bgr, Byte> im = null;
             using (var canvas = Graphics.FromImage(image))
             {
@@ -254,7 +254,7 @@ namespace YoloObjectDetector
                         canvas.Flush();
                     }
                 }
-                im = new Image<Bgr, Byte>(image);
+                im = image.ToImage<Bgr, Byte>();
             }
             
             return im.Mat;

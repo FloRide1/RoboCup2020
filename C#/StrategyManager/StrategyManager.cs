@@ -13,8 +13,6 @@ using PerceptionManagement;
 using System.Timers;
 using Constants;
 
-using Hybridizer.Runtime.CUDAImports;
-using GPU_DLL;
 
 namespace StrategyManager
 {
@@ -305,8 +303,6 @@ namespace StrategyManager
         Heatmap heatMap;
         Stopwatch sw = new Stopwatch();
 
-        //TestGPU.TestGPU testGPU = new TestGPU.TestGPU();
-        GPU_DLL.GPU_DLL gpuDll = new GPU_DLL.GPU_DLL();
 
         public void ProcessStrategy()
         {

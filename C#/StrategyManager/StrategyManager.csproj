@@ -60,7 +60,6 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
-    <Reference Include="Hybridizer.Runtime.CUDAImports" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="StrategyManager.cs" />
@@ -74,10 +73,6 @@
     <ProjectReference Include="..\EventArgsLibrary\EventArgsLibrary.csproj">
       <Project>{9C46A7C0-4675-41BE-B282-E6F0825AD73E}</Project>
       <Name>EventArgsLibrary</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\GPU_DLL\GPU_DLL.csproj">
-      <Project>{1A98893A-B050-462D-A752-3FB222848F92}</Project>
-      <Name>GPU_DLL</Name>
     </ProjectReference>
     <ProjectReference Include="..\HeatMap\HeatMap.csproj">
       <Project>{BDF7D4A0-1E8B-4487-862E-2DA58A7BC267}</Project>
@@ -99,16 +94,6 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="Tools\place_these_executables_in_same_folder_as_Cudafy.NET.dll_" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Readme\CUDA.NET.Readme.txt" />
-    <Content Include="Readme\CUDAfy-License.txt" />
-    <Content Include="Readme\example_source_code.cs.txt" />
-    <Content Include="Readme\ILSpy-license.txt" />
-    <Content Include="Readme\README.txt" />
-    <Content Include="Tools\cudafycl.exe" />
-    <Content Include="Tools\CudafyViewer.exe" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
