@@ -37,7 +37,7 @@
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
-           
+
 
             <oscillo:WpfOscilloscope x:Name="oscilloM1" Grid.Column="0" Grid.Row="0" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
             <oscillo:WpfOscilloscope x:Name="oscilloM2" Grid.Column="2" Grid.Row="0" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
@@ -66,9 +66,9 @@
                         <CheckBox Name="CheckBoxControlManette" Content="Enable Manette" HorizontalAlignment="Center"  Margin="10,0,10,5" VerticalAlignment="Top" Checked="CheckBox_CheckedChanged" Unchecked="CheckBox_CheckedChanged"/>
                     </StackPanel>
                     <StackPanel Name="ButtonsStackPanelColumn2" Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Orientation="Vertical">
-                        <Button Name="ButtonEnableAsservissement" Content="Enable Asservissement"  HorizontalAlignment="Center" Margin="10,0,10,5" VerticalAlignment="Top" Width="85" Height="20" Click="ButtonEnableAsservissement_Click"/>               
+                        <Button Name="ButtonEnableAsservissement" Content="Enable Asservissement"  HorizontalAlignment="Center" Margin="10,0,10,5" VerticalAlignment="Top" Width="85" Height="20" Click="ButtonEnableAsservissement_Click"/>
                     </StackPanel>
-                    
+
                     <GroupBox Grid.ColumnSpan="1" Grid.Column="1" Header="debug data" HorizontalAlignment="Stretch"  Margin="0,0,0,-0" Grid.Row="1" Grid.RowSpan="2" VerticalAlignment="Stretch">
                         <ScrollViewer Name="scrollViewerDebugOption">
                             <Grid>
@@ -131,14 +131,14 @@
                                 <TextBox Name="textBoxDy" Grid.ColumnSpan="1" Grid.Column="5" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="3" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
                                 <TextBox Name="textBoxDtheta" Grid.ColumnSpan="1" Grid.Column="5" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="5" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
                                 <Button Name="ButtonSetPID" Grid.ColumnSpan="2" Content="Set PID" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="6" VerticalAlignment="Top" Click="ButtonSetPID_Click"/>
-                                
+
                             </Grid>
                         </ScrollViewer>
                     </GroupBox>
-                    
+
                 </Grid>
             </GroupBox>
-                        
+
             <GroupBox Grid.Column="1" Header="Console" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Stretch" Background="White">
                 <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
@@ -155,7 +155,7 @@
                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"/>
                     </ScrollViewer>
                 </Grid>
-                
+
             </GroupBox>
         </Grid>
 
@@ -169,8 +169,13 @@
                 <RowDefinition Height="180"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
-                    <oscillo:WpfOscilloscope x:Name="oscilloLidar" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>      
-                    <ext:LocalWorldMapDisplay x:Name="worldMapDisplay" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" MouseDoubleClick="worldMapDisplay_MouseDoubleClick"></ext:LocalWorldMapDisplay>
+            <oscillo:WpfOscilloscope x:Name="oscilloLidar" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
+            <!--<ext:LocalWorldMapDisplay x:Name="worldMapDisplay" Grid.Row="1" Grid.Column="1"  MouseDoubleClick="worldMapDisplay_MouseDoubleClick" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></ext:LocalWorldMapDisplay>-->
+            <Viewbox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" Stretch="Uniform" MaxWidth="900" MaxHeight="800"   >
+                <ext:LocalWorldMapDisplay x:Name="worldMapDisplay" Width="300" Height="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></ext:LocalWorldMapDisplay>
+                <!--MouseDoubleClick="worldMapDisplay_MouseDoubleClick"-->
+            </Viewbox>
+
         </Grid>
 
 

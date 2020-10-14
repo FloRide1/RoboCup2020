@@ -111,7 +111,7 @@ namespace WorldMapManager
                         //pt => new PointD(localWorldMap.robotLocation.X + pt.Distance * Math.Cos(pt.Angle),
                         //                 localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle))).ToList();
 
-                        listPtLidar = e.RssiList.Select(
+                        listPtLidar = e.PtList.Select(
                         pt => new PointD(localWorldMap.robotLocation.X + pt.Distance * Math.Cos(pt.Angle),
                                          localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle))).ToList();
                     }
