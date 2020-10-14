@@ -107,7 +107,11 @@ namespace WorldMapManager
                 {
                     //for (int i = 0; i < 500; i++) //Stress test
                     {
-                        listPtLidar = e.PtList.Select(
+                        //listPtLidar = e.PtList.Select(
+                        //pt => new PointD(localWorldMap.robotLocation.X + pt.Distance * Math.Cos(pt.Angle),
+                        //                 localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle))).ToList();
+
+                        listPtLidar = e.RssiList.Select(
                         pt => new PointD(localWorldMap.robotLocation.X + pt.Distance * Math.Cos(pt.Angle),
                                          localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle))).ToList();
                     }

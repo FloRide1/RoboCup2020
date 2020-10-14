@@ -30,12 +30,13 @@ namespace LidarOMD60M
         R2000Scanner r2000;
 
         List<PolarPoint> lastLidarPtList = new List<PolarPoint>();
+        List<PolarPoint> lastLidarRssiList = new List<PolarPoint>();
         int lastScanNumber;
         bool newLidarDataAvailable = false;
 
-        public Lidar_OMD60M_TCP()
+        public Lidar_OMD60M_TCP(double freq = 20, R2000SamplingRate samplingRate = R2000SamplingRate._252kHz)
         {
-            var threadStartLidar = new Thread(LidarStartAndAcquire);
+            var threadStartLidar = new Thread(() => LidarStartAndAcquire(freq, samplingRate));
             threadStartLidar.SetApartmentState(ApartmentState.STA);
             threadStartLidar.Start();
             var threadSendEventLidar = new Thread(LidarSendEvent);
@@ -45,14 +46,14 @@ namespace LidarOMD60M
         }
 
         double angleIncrement;
-        private void LidarStartAndAcquire()
+        private void LidarStartAndAcquire(double freq, R2000SamplingRate samplingRate)
         {
             using (r2000 = new R2000Scanner(IPAddress.Parse("169.254.235.44"), R2000ConnectionType.TCPConnection))
             {
                 r2000.Connect();
                 r2000.SetSamplingRate(R2000SamplingRate._8kHz);
-                r2000.SetScanFrequency(20);
-                r2000.SetSamplingRate(R2000SamplingRate._252kHz);
+                r2000.SetScanFrequency(freq);
+                r2000.SetSamplingRate(samplingRate);
 
                 angleIncrement = 2 * Math.PI/((double)R2000SamplingRate._252kHz / 20);
 
@@ -76,7 +77,8 @@ namespace LidarOMD60M
                         //{
                         //    if()
                         //}
-                        lastLidarPtList = new List<PolarPoint>(x.Points.Select(pt => new PolarPoint(pt.Distance/1000, Utilities.Toolbox.DegToRad(pt.Azimuth))));
+                        lastLidarPtList = new List<PolarPoint>(x.Points.Select(pt => new PolarPoint(pt.Distance / 1000, Utilities.Toolbox.DegToRad(pt.Azimuth))));
+                        lastLidarRssiList = new List<PolarPoint>(x.Points.Select(pt => new PolarPoint(pt.Amplitude, Utilities.Toolbox.DegToRad(pt.Azimuth))));
                         lastScanNumber = (int)x.Scan;
                         newLidarDataAvailable = true;
                         //Console.WriteLine($"Got {x.Count} points for scan {x.Scan} / Min {x.Points.Min(pt => pt.Azimuth)} :: Max {x.Points.Max(pt => pt.Azimuth)}");
@@ -100,7 +102,7 @@ namespace LidarOMD60M
                 {
                     //lock(lastLidarPtList)
                     {
-                        OnLidarDecodedFrame((int)TeamId.Team1, lastLidarPtList, lastScanNumber); //TODO on creuse le bug de lag
+                        OnLidarDecodedFrame((int)TeamId.Team1, lastLidarPtList, lastLidarRssiList, lastScanNumber); //TODO on creuse le bug de lag
                         //Console.WriteLine(lastScanNumber + " Envoi de la trame lidar sur event");
                         newLidarDataAvailable = false;
                     }
@@ -670,12 +672,12 @@ namespace LidarOMD60M
 
         public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<RawLidarArgs> OnLidarDecodedFrameEvent;
-        public virtual void OnLidarDecodedFrame(int id, List<PolarPoint> ptList, int lidarFrameNumber=0)
+        public virtual void OnLidarDecodedFrame(int id, List<PolarPoint> ptList, List<PolarPoint> rssiList, int lidarFrameNumber =0)
         {
             var handler = OnLidarDecodedFrameEvent;
             if (handler != null)
             {
-                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList, LidarFrameNumber=lidarFrameNumber});
+                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList, RssiList=rssiList, LidarFrameNumber=lidarFrameNumber});
             }
         }
     }

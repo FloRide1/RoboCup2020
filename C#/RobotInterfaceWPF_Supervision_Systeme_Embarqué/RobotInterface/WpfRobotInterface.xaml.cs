@@ -56,7 +56,8 @@ namespace RobotInterface
             //SciChartSurface.SetRuntimeLicenseKey("fE00fIihccLO3oQbIBBZdrLh0ZWhRPxTSTGVMBVK51242lHVH3psTy6uZRTxKdk4UX2uSivlbh3c/m0SdZlgNHiMFONKSqo68Xtrcb8vjczLU9Usun6b7BtUIX5+Y3UfVsm+iN2Jg4Fc6l2/f5n0Sz4yG8204RdBexeifufMIkbd5LZBrfOPThBPC5iYnTS4W06S52QMCPjjQN0zALKG+0MmjBdQqeMidbmtCku6WVs6EVGJac/YNHi/jWHYC7XlVmWUf5KqivDvtKrQQLqtO88n1lHPz/aD/T0Bkw4bDlYcFy3GsYvinieGvLIGQsAIm45dA+/+WIoR9foMcfWVMMh2LtiKpbT3idmABMrsTn3/zzdrsiFfCbg6KmTBA55N9UWNxvKUQ+nhwoLxOmvznC6FszXSmrwR8qFUdbVUA58HzPfLVa6Ge40GwLIuCHBFQrd5uwzhh2JQKmkn2zWD3an92O66EsLptUT655MBXlXx9xoOd6iiUkdyfF2KHZsD18c=");
             InitializeComponent();
             
-            worldMapDisplay.InitTeamMate((int)TeamId.Team1+(int)RobotId.Robot1);
+            worldMapDisplay.InitTeamMate((int)TeamId.Team1+(int)RobotId.Robot1, "Eurobot");
+            worldMapDisplay.Init("Eurobot");
 
             foreach (string s in SerialPort.GetPortNames())
             {

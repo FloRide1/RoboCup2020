@@ -41,7 +41,8 @@ namespace WayPointGenerator
             //timerWayPointGeneration.Start();
 
             //waypointHeatMap = new Heatmap(22.0, 14.0, 22.0 / Math.Pow(2, 8), 2);
-            waypointHeatMap = new Heatmap(22.0, 14.0, 22.0 / Math.Pow(2, 8), 1);
+            //waypointHeatMap = new Heatmap(22.0, 14.0, 22.0 / Math.Pow(2, 8), 1);
+            waypointHeatMap = new Heatmap(3.0, 2.0, 3.0 / Math.Pow(2, 4), 1);
         }
 
         public void SetNextWayPoint(Location waypointLocation)

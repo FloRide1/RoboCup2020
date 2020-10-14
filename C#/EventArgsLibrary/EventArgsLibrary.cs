@@ -228,6 +228,7 @@ namespace EventArgsLibrary
     {
         public int RobotId { get; set; }
         public List<PolarPoint> PtList { get; set; }
+        public List<PolarPoint> RssiList { get; set; }
         public int LidarFrameNumber { get; set; }
     }
     public class PolarPointListExtendedListArgs : EventArgs

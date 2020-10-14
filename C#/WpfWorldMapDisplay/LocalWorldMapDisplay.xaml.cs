@@ -51,14 +51,19 @@ namespace WpfWorldMapDisplay
             InitializeComponent();
         }
 
-        public void Init(string typeTerrain)
+        public void Init(string competition)
         {
-            switch (typeTerrain)
+            switch (competition)
             {
                 case "Cachan":
                     LengthGameArea = 8;
                     WidthGameArea = 4;
                     InitCachanField();
+                    break;
+                case "Eurobot":
+                    LengthGameArea = 3.4;
+                    WidthGameArea = 2.4;
+                    InitEurobotField();
                     break;
                 case "RoboCup":
                     LengthGameArea = 30;
@@ -76,20 +81,53 @@ namespace WpfWorldMapDisplay
             this.sciChart.YAxis.VisibleRange.SetMinMax(-WidthGameArea / 2, WidthGameArea / 2);
         }
 
-        public void InitTeamMate(int robotId)
+        public void InitTeamMate(int robotId, string competition)
         {
-            PolygonExtended robotShape = new PolygonExtended();
-            robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
-            robotShape.polygon.Points.Add(new System.Windows.Point(0.25, -0.25));
-            robotShape.polygon.Points.Add(new System.Windows.Point(0.2, 0));
-            robotShape.polygon.Points.Add(new System.Windows.Point(0.25, 0.25));
-            robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, 0.25));
-            robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
-            robotShape.borderColor = System.Drawing.Color.Blue;
-            robotShape.backgroundColor = System.Drawing.Color.Red;
-            RobotDisplay rd = new RobotDisplay(robotShape);
-            rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
-            TeamMatesDisplayDictionary.Add(robotId, rd);
+            switch (competition)
+            {
+                case "Cachan":
+                    PolygonExtended robotShape = new PolygonExtended();
+                    robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
+                    robotShape.polygon.Points.Add(new System.Windows.Point(0.25, -0.25));
+                    robotShape.polygon.Points.Add(new System.Windows.Point(0.2, 0));
+                    robotShape.polygon.Points.Add(new System.Windows.Point(0.25, 0.25));
+                    robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, 0.25));
+                    robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
+                    robotShape.borderColor = System.Drawing.Color.Blue;
+                    robotShape.backgroundColor = System.Drawing.Color.Red;
+                    RobotDisplay rd = new RobotDisplay(robotShape);
+                    rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
+                    TeamMatesDisplayDictionary.Add(robotId, rd);
+                    break;
+                case "Eurobot":
+                    robotShape = new PolygonExtended();
+                    robotShape.polygon.Points.Add(new System.Windows.Point(-0.12, -0.12));
+                    robotShape.polygon.Points.Add(new System.Windows.Point(0.12, -0.12));
+                    robotShape.polygon.Points.Add(new System.Windows.Point(0.1, 0));
+                    robotShape.polygon.Points.Add(new System.Windows.Point(0.12, 0.12));
+                    robotShape.polygon.Points.Add(new System.Windows.Point(-0.12, 0.12));
+                    robotShape.polygon.Points.Add(new System.Windows.Point(-0.12, -0.12));
+                    robotShape.borderColor = System.Drawing.Color.Blue;
+                    robotShape.backgroundColor = System.Drawing.Color.DarkRed;
+                    rd = new RobotDisplay(robotShape);
+                    rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
+                    TeamMatesDisplayDictionary.Add(robotId, rd);
+                    break;
+                default:
+                    robotShape = new PolygonExtended();
+                    robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
+                    robotShape.polygon.Points.Add(new System.Windows.Point(0.25, -0.25));
+                    robotShape.polygon.Points.Add(new System.Windows.Point(0.2, 0));
+                    robotShape.polygon.Points.Add(new System.Windows.Point(0.25, 0.25));
+                    robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, 0.25));
+                    robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
+                    robotShape.borderColor = System.Drawing.Color.Blue;
+                    robotShape.backgroundColor = System.Drawing.Color.Red;
+                    rd = new RobotDisplay(robotShape);
+                    rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
+                    TeamMatesDisplayDictionary.Add(robotId, rd);
+                    break;
+                    }
         }
 
         public void UpdateWorldMapDisplay()
@@ -487,6 +525,58 @@ namespace WpfWorldMapDisplay
             p.borderWidth = fieldLineWidth;
             p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.PtAvantSurfaceDroit, p);
+
+        }void InitEurobotField()
+        {
+            double TerrainLowerX = -LengthGameArea/2-0.2;
+            double TerrainUpperX = LengthGameArea/2+0.2;
+            double TerrainLowerY = -WidthGameArea/2-0.2;
+            double TerrainUpperY = WidthGameArea/2+0.2;
+
+            int fieldLineWidth = 1;
+            PolygonExtended p = new PolygonExtended();
+            p.polygon.Points.Add(new Point(-1.5, -1));
+            p.polygon.Points.Add(new Point(1.5, -1));
+            p.polygon.Points.Add(new Point(1.5, 1));
+            p.polygon.Points.Add(new Point(-1.5, 1));
+            p.polygon.Points.Add(new Point(-1.5, -1));
+            p.borderWidth = fieldLineWidth;
+            p.borderColor = System.Drawing.Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0xFF, 46, 49, 146);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.TerrainComplet, p);
+                                    
+            p = new PolygonExtended();
+            p.polygon.Points.Add(new Point(-1.5 - 0.1, 1));
+            p.polygon.Points.Add(new Point(-1.5 , 1));
+            p.polygon.Points.Add(new Point(-1.5 , 1-0.1));
+            p.polygon.Points.Add(new Point(-1.5 - 0.1, 1 - 0.1));
+            p.polygon.Points.Add(new Point(-1.5 - 0.1, 1));
+            p.borderWidth = fieldLineWidth;
+            p.borderColor = System.Drawing.Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0xFF, 0xA0, 0xA0, 0xA0);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.BaliseGaucheHaut, p);
+
+            p = new PolygonExtended();
+            p.polygon.Points.Add(new Point(+1.5, -0.1));
+            p.polygon.Points.Add(new Point(+1.5 + 0.1, -0.1));
+            p.polygon.Points.Add(new Point(+1.5 + 0.1, 0.1));
+            p.polygon.Points.Add(new Point(+1.5, 0.1));
+            p.polygon.Points.Add(new Point(+1.5, -0.1));
+            p.borderWidth = fieldLineWidth;
+            p.borderColor = System.Drawing.Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0xFF, 0xA0, 0xA0, 0xA0);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.BaliseGaucheCentre, p);
+
+            p = new PolygonExtended();
+            p.polygon.Points.Add(new Point(-1.5 - 0.1, -1));
+            p.polygon.Points.Add(new Point(-1.5, -1));
+            p.polygon.Points.Add(new Point(-1.5, -1 + 0.1));
+            p.polygon.Points.Add(new Point(-1.5 - 0.1, -1 + 0.1));
+            p.polygon.Points.Add(new Point(-1.5 - 0.1, -1));
+            p.borderWidth = fieldLineWidth;
+            p.borderColor = System.Drawing.Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF);
+            p.backgroundColor = System.Drawing.Color.FromArgb(0xFF, 0xA0, 0xA0, 0xA0);
+            PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.BaliseGaucheBas, p);
 
         }
 

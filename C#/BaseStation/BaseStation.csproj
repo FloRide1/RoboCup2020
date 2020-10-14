@@ -76,29 +76,13 @@
       <Project>{9C46A7C0-4675-41BE-B282-E6F0825AD73E}</Project>
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\RefereeBoxAdapter\RefereeBoxAdapter.csproj">
-      <Project>{A8C04138-90DC-42F9-AB39-E71125B805B9}</Project>
-      <Name>RefereeBoxAdapter</Name>
-    </ProjectReference>
     <ProjectReference Include="..\StrategyManager\StrategyManager.csproj">
       <Project>{F2D3FB95-F97A-4049-BCA4-71854FD4FAF3}</Project>
       <Name>StrategyManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\UdpMulticastInterpreter\UdpMulticastInterpreter.csproj">
-      <Project>{2E2E2FF7-D7A1-4AF7-956E-0951B18B7FF5}</Project>
-      <Name>UdpMulticastInterpreter</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\UDPMulticast\UDPMulticast.csproj">
-      <Project>{6DA72C33-AC0E-4174-AA47-5A12453F5900}</Project>
-      <Name>UDPMulticast</Name>
-    </ProjectReference>
     <ProjectReference Include="..\WorldMapManager\WorldMapManager.csproj">
       <Project>{01E89552-13A5-4A24-80B2-9246700F72FD}</Project>
       <Name>WorldMapManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WpfTeamInterface\WpfTeamInterface.csproj">
-      <Project>{F8837AF6-36A5-4D14-B1FE-E09CAFFA6DAC}</Project>
-      <Name>WpfTeamInterface</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

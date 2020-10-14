@@ -143,10 +143,6 @@
       <Project>{9c46a7c0-4675-41be-b282-e6f0825ad73e}</Project>
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\RefereeBoxAdapter\RefereeBoxAdapter.csproj">
-      <Project>{A8C04138-90DC-42F9-AB39-E71125B805B9}</Project>
-      <Name>RefereeBoxAdapter</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8E7D0DA4-9A13-4B18-A90E-0243BBCCE40A}</Project>
       <Name>Utilities</Name>
