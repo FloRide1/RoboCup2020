@@ -130,7 +130,7 @@
       <Name>KalmanPositioning</Name>
     </ProjectReference>
     <ProjectReference Include="..\LidarOMD60M\LidarOMD60M.csproj">
-      <Project>{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}</Project>
+      <Project>{446e56f7-4dfc-4b69-85de-77b7b48dbe44}</Project>
       <Name>LidarOMD60M</Name>
     </ProjectReference>
     <ProjectReference Include="..\LidarProcessor\LidarProcessor.csproj">

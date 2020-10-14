@@ -117,7 +117,7 @@ namespace Staudt.Engineering.LidaRx.Drivers.R2000
                     carthCoordinate, 
                     pt.Angle, 
                     pt.Distance,
-                    (byte)(pt.Amplitude / 256), 
+                    (byte)(pt.Amplitude >> 4), //(byte)(pt.Amplitude / 256), Valeur max 4096 -> ramené à 256
                     base.ScanCounter,
                     this);
 

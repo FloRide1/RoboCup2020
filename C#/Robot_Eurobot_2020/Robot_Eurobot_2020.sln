@@ -31,8 +31,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorldMapManager", "..\World
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LidarSimulator", "..\LidarSimulator\LidarSimulator.csproj", "{45A044B5-1D4F-4B6E-964B-3B2FA5E39AB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LidarOMD60M", "..\LidarOMD60M\LidarOMD60M.csproj", "{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPClient", "..\TCPClient\TCPClient.csproj", "{54D19BA4-AC57-4A0E-BF19-42A567F28108}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XboxController", "..\XboxController\XboxController.csproj", "{DD54A1C0-2926-45BF-82DE-36221845F1D7}"
@@ -86,6 +84,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Robot_Eurobot_2020", "Robot_Eurobot_2020.csproj", "{F48FF3AC-50C6-4016-8F67-F5430FED1A2C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StrategyManager_Eurobot", "..\StrategyManager_Eurobot\StrategyManager_Eurobot.csproj", "{F2D3FB95-F97A-4049-BCA4-71854FD4FAF3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LidarOMD60M", "..\LidarOMD60M\LidarOMD60M.csproj", "{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -207,14 +207,6 @@ Global
 		{45A044B5-1D4F-4B6E-964B-3B2FA5E39AB2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{45A044B5-1D4F-4B6E-964B-3B2FA5E39AB2}.Release|x64.ActiveCfg = Release|x64
 		{45A044B5-1D4F-4B6E-964B-3B2FA5E39AB2}.Release|x64.Build.0 = Release|x64
-		{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}.Debug|x64.ActiveCfg = Debug|x64
-		{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}.Debug|x64.Build.0 = Debug|x64
-		{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}.Release|Any CPU.Build.0 = Release|Any CPU
-		{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}.Release|x64.ActiveCfg = Release|x64
-		{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}.Release|x64.Build.0 = Release|x64
 		{54D19BA4-AC57-4A0E-BF19-42A567F28108}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{54D19BA4-AC57-4A0E-BF19-42A567F28108}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{54D19BA4-AC57-4A0E-BF19-42A567F28108}.Debug|x64.ActiveCfg = Debug|x64
@@ -429,6 +421,14 @@ Global
 		{F2D3FB95-F97A-4049-BCA4-71854FD4FAF3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F2D3FB95-F97A-4049-BCA4-71854FD4FAF3}.Release|x64.ActiveCfg = Release|x64
 		{F2D3FB95-F97A-4049-BCA4-71854FD4FAF3}.Release|x64.Build.0 = Release|x64
+		{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}.Debug|x64.ActiveCfg = Debug|x64
+		{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}.Debug|x64.Build.0 = Debug|x64
+		{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}.Release|x64.ActiveCfg = Release|x64
+		{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
