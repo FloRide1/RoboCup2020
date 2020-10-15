@@ -173,17 +173,10 @@ namespace Robot
         {
             SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
 
-            SciChartSurface.SetRuntimeLicenseKey(@"<LicenseContract>
-  <Customer>University of  Toulon</Customer>
-  <OrderId>EDUCATIONAL-USE-0109</OrderId>
-  <LicenseCount>1</LicenseCount>
-  <IsTrialLicense>false</IsTrialLicense>
-  <SupportExpires>11/04/2019 00:00:00</SupportExpires>
-  <ProductCode>SC-WPF-SDK-PRO-SITE</ProductCode>
-  <KeyCode>lwABAQEAAABZVzOfQ0zVAQEAewBDdXN0b21lcj1Vbml2ZXJzaXR5IG9mICBUb3Vsb247T3JkZXJJZD1FRFVDQVRJT05BTC1VU0UtMDEwOTtTdWJzY3JpcHRpb25WYWxpZFRvPTA0LU5vdi0yMDE5O1Byb2R1Y3RDb2RlPVNDLVdQRi1TREstUFJPLVNJVEWDf0QgB8GnCQXI6yAqNM2njjnGbUt2KsujTDzeE+k69K1XYVF1s1x1Hb/i/E3GHaU=</KeyCode>
-</LicenseContract>");
+            // Set this code once in App.xaml.cs or application startup
+            SciChartSurface.SetRuntimeLicenseKey("wsCOsvBlAs2dax4o8qBefxMi4Qe5BVWax7TGOMLcwzWFYRNCa/f1rA5VA1ITvLHSULvhDMKVTc+niao6URAUXmGZ9W8jv/4jtziBzFZ6Z15ek6SLU49eIqJxGoQEFWvjANJqzp0asw+zvLV0HMirjannvDRj4i/WoELfYDubEGO1O+oAToiJlgD/e2lVqg3F8JREvC0iqBbNrmfeUCQdhHt6SKS2QpdmOoGbvtCossAezGNxv92oUbog6YIhtpSyGikCEwwKSDrlKlAab6302LLyFsITqogZychLYrVXJTFvFVnDfnkQ9cDi7017vT5flesZwIzeH497lzGp3B8fKWFQyZemD2RzlQkvj5GUWBwxiKAHrYMnQjJ/PsfojF1idPEEconVsh1LoYofNk2v/Up8AzXEAvxWUEcgzANeQggaUNy+OFet8b/yACa/bgYG7QYzFQZzgdng8IK4vCPdtg4/x7g5EdovN2PI9vB76coMuKnNVPnZN60kSjtd/24N8A==");
 
-            switch(robotMode)
+            switch (robotMode)
             {
                 case RobotMode.Standard:
                     usingLidar = true;
@@ -231,7 +224,7 @@ namespace Robot
 
             robotPilot = new RobotPilot.RobotPilot(robotId);
             strategyManager = new StrategyManager.StrategyManager(robotId, teamId);
-            waypointGenerator = new WaypointGenerator(robotId);
+            waypointGenerator = new WaypointGenerator(robotId, "RoboCup");
             trajectoryPlanner = new TrajectoryPlanner(robotId);
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
 
@@ -260,7 +253,7 @@ namespace Robot
             if (usingCamera || usingLogReplay)
             {
                 imageProcessingPositionFromOmniCamera = new ImageProcessingPositionFromOmniCamera();
-                absolutePositionEstimator = new AbsolutePositionEstimator();
+                absolutePositionEstimator = new AbsolutePositionEstimator(robotId);
             }
 
             if (usingCamera)

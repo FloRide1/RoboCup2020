@@ -1,5 +1,6 @@
 ﻿using EventArgsLibrary;
 using Newtonsoft.Json;
+using RefereeBoxAdapter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,6 +42,146 @@ namespace WorldMapManager
         public void OnLocalWorldMapReceived(object sender, EventArgsLibrary.LocalWorldMapArgs e)
         {
             AddOrUpdateLocalWorldMap(e.LocalWorldMap);
+        }
+
+        public void OnRefereeBoxCommandReceived(object sender, RefBoxMessageArgs e)
+        {
+            var command = e.refBoxMsg.command;
+            var robotId = e.refBoxMsg.robotID;
+            var targetTeam = e.refBoxMsg.targetTeam;
+
+            switch (command)
+            {
+                case RefBoxCommand.START:
+                    currentGameState = GameState.PLAYING;
+                    currentStoppedGameAction = StoppedGameAction.NONE;
+                    break;
+                case RefBoxCommand.STOP:
+                    currentGameState = GameState.STOPPED;
+                    break;
+                case RefBoxCommand.DROP_BALL:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    currentStoppedGameAction = StoppedGameAction.DROPBALL;
+                    break;
+                case RefBoxCommand.HALF_TIME:
+                    break;
+                case RefBoxCommand.END_GAME:
+                    break;
+                case RefBoxCommand.GAME_OVER:
+                    break;
+                case RefBoxCommand.PARK:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    currentStoppedGameAction = StoppedGameAction.PARK;
+                    break;
+                case RefBoxCommand.FIRST_HALF:
+                    break;
+                case RefBoxCommand.SECOND_HALF:
+                    break;
+                case RefBoxCommand.FIRST_HALF_OVER_TIME:
+                    break;
+                case RefBoxCommand.RESET:
+                    break;
+                case RefBoxCommand.WELCOME:
+                    break;
+                case RefBoxCommand.KICKOFF:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.KICKOFF;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.KICKOFF_OPPONENT;
+                    break;
+                case RefBoxCommand.FREEKICK:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.FREEKICK;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.FREEKICK_OPPONENT;
+                    break;
+                case RefBoxCommand.GOALKICK:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.GOALKICK;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.GOALKICK_OPPONENT;
+                    break;
+                case RefBoxCommand.THROWIN:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.THROWIN;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.THROWIN_OPPONENT;
+                    break;
+                case RefBoxCommand.CORNER:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.CORNER;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.CORNER_OPPONENT;
+                    break;
+                case RefBoxCommand.PENALTY:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.PENALTY;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.PENALTY_OPPONENT;
+                    break;
+                case RefBoxCommand.GOAL:
+                    break;
+                case RefBoxCommand.SUBGOAL:
+                    break;
+                case RefBoxCommand.REPAIR:
+                    break;
+                case RefBoxCommand.YELLOW_CARD:
+                    break;
+                case RefBoxCommand.DOUBLE_YELLOW:
+                    break;
+                case RefBoxCommand.RED_CARD:
+                    break;
+                case RefBoxCommand.SUBSTITUTION:
+                    break;
+                case RefBoxCommand.IS_ALIVE:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.KICKOFF;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.KICKOFF_OPPONENT;
+                    break;
+                case RefBoxCommand.GOTO_0_0:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.GOTO_0_0;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.GOTO_0_0_OPPONENT;
+                    break;
+                case RefBoxCommand.GOTO_0_1:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.GOTO_0_1;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.GOTO_0_1_OPPONENT;
+                    break;
+                case RefBoxCommand.GOTO_1_0:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.GOTO_1_0;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.GOTO_1_0_OPPONENT;
+                    break;
+                case RefBoxCommand.GOTO_0_M1:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.GOTO_0_M1;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.GOTO_0_M1_OPPONENT;
+                    break;
+                case RefBoxCommand.GOTO_M1_0:
+                    currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        currentStoppedGameAction = StoppedGameAction.GOTO_M1_0;
+                    else
+                        currentStoppedGameAction = StoppedGameAction.GOTO_M1_0_OPPONENT;
+                    break;
+            }
         }
 
 

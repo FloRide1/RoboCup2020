@@ -33,7 +33,7 @@ namespace WayPointGenerator
 
         Heatmap StrategyHeatmap; 
 
-        public WaypointGenerator(int id)
+        public WaypointGenerator(int id, string competition)
         {
             robotId = id;
             //timerWayPointGeneration = new Timer(100);
@@ -42,7 +42,18 @@ namespace WayPointGenerator
 
             //waypointHeatMap = new Heatmap(22.0, 14.0, 22.0 / Math.Pow(2, 8), 2);
             //waypointHeatMap = new Heatmap(22.0, 14.0, 22.0 / Math.Pow(2, 8), 1);
-            waypointHeatMap = new Heatmap(3.0, 2.0, (int)Math.Pow(2, 4), 1);
+            switch(competition)
+            {
+                case "RoboCup":
+                    waypointHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 8), 2);
+                    break;
+                case "Eurobot":
+                    waypointHeatMap = new Heatmap(3.0, 2.0, (int)Math.Pow(2, 4), 1);
+                    break;
+                default:
+                    waypointHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 8), 2);
+                    break;
+            }
         }
 
         public void SetNextWayPoint(Location waypointLocation)

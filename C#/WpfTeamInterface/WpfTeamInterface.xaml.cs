@@ -31,12 +31,12 @@ namespace TeamInterface
             localWorldMapDisplay5.Init(typeTerrain);
             localWorldMapDisplay6.Init(typeTerrain);
 
-            localWorldMapDisplay1.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1);
-            localWorldMapDisplay2.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot2);
-            localWorldMapDisplay3.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot3);
-            localWorldMapDisplay4.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot4);
-            localWorldMapDisplay5.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot5);
-            localWorldMapDisplay6.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot6);
+            localWorldMapDisplay1.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, "RoboCup");
+            localWorldMapDisplay2.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot2, "RoboCup");
+            localWorldMapDisplay3.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot3, "RoboCup");
+            localWorldMapDisplay4.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot4, "RoboCup");
+            localWorldMapDisplay5.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot5, "RoboCup");
+            localWorldMapDisplay6.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot6, "RoboCup");
 
             for (int i = 0; i < 5; i++)
             {

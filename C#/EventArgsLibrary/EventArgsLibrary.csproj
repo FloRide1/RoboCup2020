@@ -90,7 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Emgu.CV">
-      <Version>4.2.0.3662</Version>
+      <Version>4.4.0.4099</Version>
     </PackageReference>
     <PackageReference Include="ZedGraph">
       <Version>5.1.7</Version>
