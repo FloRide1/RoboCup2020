@@ -284,7 +284,7 @@ namespace LogReplay
        
 
         public event EventHandler<RawLidarArgs> OnLidarEvent;
-        public virtual void OnLidar(int id, List<PolarPoint> ptList)
+        public virtual void OnLidar(int id, List<PolarPointRssi> ptList)
         {
             var handler = OnLidarEvent;
             if (handler != null)

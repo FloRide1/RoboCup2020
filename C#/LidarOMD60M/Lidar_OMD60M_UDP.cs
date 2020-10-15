@@ -44,7 +44,7 @@ namespace LidarOMD60M
         Timer LidarDisplayTimer;
 
         //Dernière données acquises
-        List<PolarPoint> lastLidarPtList = new List<PolarPoint>();
+        List<PolarPointRssi> lastLidarPtList = new List<PolarPointRssi>();
         int lastScanNumber;
         bool newLidarDataAvailable = false;
 
@@ -291,7 +291,7 @@ namespace LidarOMD60M
         Stopwatch swLidar = new Stopwatch();
 
         List<LidarPacket> scanLidarPacketsList = new List<LidarPacket>();
-        List<PolarPoint> lidarPtList = new List<PolarPoint>();
+        List<PolarPointRssi> lidarPtList = new List<PolarPointRssi>();
         private void DecodeLidarScanData(byte[] buffer, int bufferSize)
         {         
             int pos = 0;
@@ -412,7 +412,7 @@ namespace LidarOMD60M
                     pos += shift;
                     pos = lp.header_size;
 
-                    lp.ptList = new List<PolarPoint>();
+                    lp.ptList = new List<PolarPointRssi>();
                     for (int index = 0; index < lp.num_points_packet; index++)
                     {
                         if (lp.packet_type == 'A')
@@ -421,7 +421,7 @@ namespace LidarOMD60M
                             dist += (UInt32)(buffer[pos++] << 8);
                             dist += (UInt32)(buffer[pos++] << 16);
                             dist += (UInt32)(buffer[pos++] << 24);
-                            lp.ptList.Add(new PolarPoint(dist / 1000.0, (lp.first_angle + index * lp.angular_increment) / 10000.0 * Math.PI / 180.0));
+                            lp.ptList.Add(new PolarPointRssi((lp.first_angle + index * lp.angular_increment) / 10000.0 * Math.PI / 180.0, dist / 1000.0, 0));
                         }
                     }
 
@@ -432,7 +432,7 @@ namespace LidarOMD60M
                         int nbPacketAttendus = lp.num_points_scan / lp.num_points_packet;
                         if (nbPacketAttendus == scanLidarPacketsList.Count)
                         {
-                            lidarPtList = new List<PolarPoint>();
+                            lidarPtList = new List<PolarPointRssi>();
                             foreach(var p in scanLidarPacketsList)
                                 lidarPtList.AddRange(lp.ptList);
                             lock (lastLidarPtList)
@@ -705,7 +705,7 @@ namespace LidarOMD60M
 
         public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<RawLidarArgs> OnLidarDecodedFrameEvent;
-        public virtual void OnLidarDecodedFrame(int id, List<PolarPoint> ptList, int lidarFrameNumber=0)
+        public virtual void OnLidarDecodedFrame(int id, List<PolarPointRssi> ptList, int lidarFrameNumber=0)
         {
             var handler = OnLidarDecodedFrameEvent;
             if (handler != null)
@@ -736,6 +736,6 @@ namespace LidarOMD60M
         public UInt32 iq_overload;
         public UInt64 iq_timestamp_raw;
         public UInt64 iq_timestamp_sync;
-        public List<PolarPoint> ptList = new List<PolarPoint>();
+        public List<PolarPointRssi> ptList = new List<PolarPointRssi>();
     }
 }

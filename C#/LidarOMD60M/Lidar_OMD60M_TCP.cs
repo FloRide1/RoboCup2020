@@ -29,8 +29,7 @@ namespace LidarOMD60M
     {
         R2000Scanner r2000;
 
-        List<PolarPoint> lastLidarPtList = new List<PolarPoint>();
-        List<PolarPoint> lastLidarRssiList = new List<PolarPoint>();
+        List<PolarPointRssi> lastLidarPtList = new List<PolarPointRssi>();
         int lastScanNumber;
         bool newLidarDataAvailable = false;
 
@@ -77,8 +76,7 @@ namespace LidarOMD60M
                         //{
                         //    if()
                         //}
-                        lastLidarPtList = new List<PolarPoint>(x.Points.Select(pt => new PolarPoint(pt.Distance / 1000, Utilities.Toolbox.DegToRad(pt.Azimuth))));
-                        lastLidarRssiList = new List<PolarPoint>(x.Points.Select(pt => new PolarPoint(pt.Amplitude, Utilities.Toolbox.DegToRad(pt.Azimuth))));
+                        lastLidarPtList = new List<PolarPointRssi>(x.Points.Select(pt => new PolarPointRssi(Utilities.Toolbox.DegToRad(pt.Azimuth), pt.Distance / 1000, pt.Amplitude)));
                         lastScanNumber = (int)x.Scan;
                         newLidarDataAvailable = true;
                         //Console.WriteLine($"Got {x.Count} points for scan {x.Scan} / Min {x.Points.Min(pt => pt.Azimuth)} :: Max {x.Points.Max(pt => pt.Azimuth)}");
@@ -102,7 +100,7 @@ namespace LidarOMD60M
                 {
                     //lock(lastLidarPtList)
                     {
-                        OnLidarDecodedFrame((int)TeamId.Team1, lastLidarPtList, lastLidarRssiList, lastScanNumber); //TODO on creuse le bug de lag
+                        OnLidarDecodedFrame((int)TeamId.Team1, lastLidarPtList, lastScanNumber); //TODO on creuse le bug de lag
                         //Console.WriteLine(lastScanNumber + " Envoi de la trame lidar sur event");
                         newLidarDataAvailable = false;
                     }
@@ -672,12 +670,12 @@ namespace LidarOMD60M
 
         public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<RawLidarArgs> OnLidarDecodedFrameEvent;
-        public virtual void OnLidarDecodedFrame(int id, List<PolarPoint> ptList, List<PolarPoint> rssiList, int lidarFrameNumber =0)
+        public virtual void OnLidarDecodedFrame(int id, List<PolarPointRssi> ptList, int lidarFrameNumber =0)
         {
             var handler = OnLidarDecodedFrameEvent;
             if (handler != null)
             {
-                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList, RssiList=rssiList, LidarFrameNumber=lidarFrameNumber});
+                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList, LidarFrameNumber=lidarFrameNumber});
             }
         }
     }

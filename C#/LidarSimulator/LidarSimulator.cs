@@ -37,11 +37,11 @@ namespace LidarSimulator
         {
             List<double> angleList = new List<double>();
             List<double> distanceList = new List<double>();
-            List<PolarPoint> ptList = new List<PolarPoint>();
+            List<PolarPointRssi> ptList = new List<PolarPointRssi>();
 
             for (double angle = 0; angle < Math.PI*2; angle+=resolution)
             {
-                ptList.Add(new PolarPoint(angle, 4.0f + 2 * rand.Next(-50, 50) / 100.0));
+                ptList.Add(new PolarPointRssi(angle, 4.0f + 2 * rand.Next(-50, 50) / 100.0, 0));
             }
 
             OnSimulatedLidar(robotId, ptList);
@@ -50,7 +50,7 @@ namespace LidarSimulator
 
         public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<RawLidarArgs> OnSimulatedLidarEvent;
-        public virtual void OnSimulatedLidar(int id, List<PolarPoint> ptList)
+        public virtual void OnSimulatedLidar(int id, List<PolarPointRssi> ptList)
         {
             var handler = OnSimulatedLidarEvent;
             if (handler != null)

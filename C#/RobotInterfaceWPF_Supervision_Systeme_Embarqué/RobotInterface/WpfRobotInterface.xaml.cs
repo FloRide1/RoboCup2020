@@ -171,7 +171,7 @@ namespace RobotInterface
         public void OnRawLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
         {
             List<Point> ptList = new List<Point>();
-            ptList = e.PtList.Select(p => new Point(p.Angle, p.Distance)).ToList();
+            ptList = e.PtList.Select(p => new Point(p.Angle, p.Rssi)).ToList();
             oscilloLidar.UpdatePointListOfLine(0, ptList);
         }
 

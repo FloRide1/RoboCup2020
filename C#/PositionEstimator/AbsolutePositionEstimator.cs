@@ -16,7 +16,7 @@ namespace PositionEstimator
 {
     public class AbsolutePositionEstimator
     {
-        List<PolarPoint> LidarPtList;
+        List<PolarPointRssi> LidarPtList;
 
         public void OnRawLidarDataReceived(object sender, RawLidarArgs e)
         {

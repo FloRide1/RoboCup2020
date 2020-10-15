@@ -209,7 +209,7 @@ namespace Robot
 
             if (usingLidar)
             {
-                lidar_OMD60M_TCP = new Lidar_OMD60M_TCP(50, R2000SamplingRate._40kHz);
+                lidar_OMD60M_TCP = new Lidar_OMD60M_TCP(50, R2000SamplingRate._72kHz);
             }
 
             if (usingLidar || usingLogReplay)

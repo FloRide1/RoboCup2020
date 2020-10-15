@@ -34,11 +34,25 @@ namespace Utilities
         public double Distance;
         public double Angle;
 
-        public PolarPoint(double distance, double angle)
+        public PolarPoint(double angle, double distance)
         {
             Distance = distance;
             Angle = angle;
         }
+    }
+    public class PolarPointRssi
+    {
+        public double Distance;
+        public double Angle;
+        public double Rssi;
+
+        public PolarPointRssi(double angle, double distance, double rssi)
+        {
+            Distance = distance;
+            Angle = angle;
+            Rssi = rssi;
+        }
+
     }
 
     public class Location
@@ -73,7 +87,7 @@ namespace Utilities
 
     public class PolarPointListExtended
     {
-        public List<PolarPoint> polarPointList;        
+        public List<PolarPointRssi> polarPointList;        
         public System.Drawing.Color displayColor;
         public double displayWidth=1;
     }
