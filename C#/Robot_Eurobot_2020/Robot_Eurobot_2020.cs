@@ -198,7 +198,7 @@ namespace Robot
 
             robotPilot = new RobotPilot.RobotPilot(robotId);
             strategyManager = new StrategyManager_Eurobot(robotId, teamId);
-            waypointGenerator = new WaypointGenerator(robotId);
+            waypointGenerator = new WaypointGenerator(robotId, "Eurobot");
             trajectoryPlanner = new TrajectoryPlanner(robotId);
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
 
