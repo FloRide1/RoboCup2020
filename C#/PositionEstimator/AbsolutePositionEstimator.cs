@@ -54,43 +54,97 @@ namespace PositionEstimator
             int iSelected = 0;
             int jSelected = 0;
             int kSelected  = 0;
+            PointD ptBalise1 = new PointD(0, 0);
+            PointD ptBalise3 = new PointD(0, 0);
 
-            //On calcule toutes les combinaisons de deux vecteurs possibles 
-            //à partir des points candidats à être des balises, et on regarde qu'elle est leur 
-            //distance par rapport aux vecteurs balises théoriques
-            for (int i = 0; i< listeBalisesPotentielle.Count(); i++) //Identifiant 1
+            if (listeBalisesPotentielle.Count() >= 3)
             {
-                PointD pt1 = new PointD(listeBalisesPotentielle[i].XMoyen, listeBalisesPotentielle[i].YMoyen);
-                for (int j=0; j< listeBalisesPotentielle.Count(); j++) //Identifiant 2
+                //On calcule toutes les combinaisons de deux vecteurs possibles 
+                //à partir des points candidats à être des balises, et on regarde qu'elle est leur 
+                //distance par rapport aux vecteurs balises théoriques
+                for (int i = 0; i < listeBalisesPotentielle.Count(); i++) //Identifiant 1
                 {
-                    PointD pt2 = new PointD(listeBalisesPotentielle[j].XMoyen, listeBalisesPotentielle[j].YMoyen);
-                    for (int k = 0; k < listeBalisesPotentielle.Count(); k++) //Identifiant 3
+                    PointD pt1 = new PointD(listeBalisesPotentielle[i].XMoyen, listeBalisesPotentielle[i].YMoyen);
+                    for (int j = 0; j < listeBalisesPotentielle.Count(); j++) //Identifiant 2
+                    {
+                        PointD pt2 = new PointD(listeBalisesPotentielle[j].XMoyen, listeBalisesPotentielle[j].YMoyen);
+                        for (int k = 0; k < listeBalisesPotentielle.Count(); k++) //Identifiant 3
+                        {
+                            PointD pt3 = new PointD(listeBalisesPotentielle[k].XMoyen, listeBalisesPotentielle[k].YMoyen);
+                            double normVector12 = Toolbox.Distance(pt1, pt2);
+                            double normVector13 = Toolbox.Distance(pt1, pt3);
+                            double angleVector12Vector13 = Math.Atan2(pt3.Y - pt1.Y, pt3.X - pt1.X) - Math.Atan2(pt2.Y - pt1.Y, pt2.X - pt1.X);
+
+                            double ScoreCandidatureBalises = Math.Abs(normVector12 - normVector12Theorique) / normVector12Theorique
+                                + Math.Abs(normVector13 - normVector13Theorique) / normVector13Theorique
+                                + Math.Abs(Toolbox.ModuloByAngle(angleVector12Vector13Theorique, angleVector12Vector13) - angleVector12Vector13Theorique) / Math.PI;
+                            if (ScoreCandidatureBalises < minScore)
+                            {
+                                minScore = ScoreCandidatureBalises;
+                                iSelected = i;
+                                jSelected = j;
+                                kSelected = k;
+                            }
+                        }
+                    }
+                }
+
+                //Si l'indicateur de fiabilité de mesure est suffisant, on évalue la position du robot
+                if (minScore <= 0.2) //0.2 indicativement...
+                {
+                    //On a identifé le trio de balises correspondant au terrain réel, 
+                    //on calcule à présent les coordonnées du robot dans le repère des balises théoriques.
+                    ptBalise1 = new PointD(listeBalisesPotentielle[iSelected].XMoyen, listeBalisesPotentielle[iSelected].YMoyen);
+                    ptBalise3 = new PointD(listeBalisesPotentielle[kSelected].XMoyen, listeBalisesPotentielle[kSelected].YMoyen);                    
+                }
+            }
+
+            //Dans le cas où le score optimal est mauvais, on se positionne uniquement avec deux balises.
+            if (minScore > 0.2 && listeBalisesPotentielle.Count >= 2)
+            {
+                minScore = double.PositiveInfinity;
+                for (int i = 0; i < listeBalisesPotentielle.Count(); i++) //Identifiant 1
+                {
+                    PointD pt1 = new PointD(listeBalisesPotentielle[i].XMoyen, listeBalisesPotentielle[i].YMoyen);
+                    for (int k = 0; k < listeBalisesPotentielle.Count(); k++) //Identifiant 2
                     {
                         PointD pt3 = new PointD(listeBalisesPotentielle[k].XMoyen, listeBalisesPotentielle[k].YMoyen);
-                        double normVector12 = Toolbox.Distance(pt1, pt2);
                         double normVector13 = Toolbox.Distance(pt1, pt3);
-                        double angleVector12Vector13 = Math.Atan2(pt3.Y - pt1.Y, pt3.X - pt1.X) - Math.Atan2(pt2.Y - pt1.Y, pt2.X - pt1.X);
-
-                        double ScoreCandidatureBalises = Math.Abs(normVector12 - normVector12Theorique) / normVector12Theorique
-                            + Math.Abs(normVector13 - normVector13Theorique) / normVector13Theorique
-                            + Math.Abs(Toolbox.ModuloByAngle(angleVector12Vector13Theorique, angleVector12Vector13) - angleVector12Vector13Theorique) / Math.PI;
-                        if(ScoreCandidatureBalises<minScore)
+                        double ScoreCandidatureBalises = Math.Abs(normVector13 - normVector13Theorique) / normVector13Theorique;
+                        if (ScoreCandidatureBalises < minScore)
                         {
                             minScore = ScoreCandidatureBalises;
                             iSelected = i;
-                            jSelected = j;
                             kSelected = k;
                         }
                     }
                 }
+
+                //Si l'indicateur de fiabilité de mesure est suffisant, on évalue la position du robot
+                if (minScore <= 0.2) //0.2 indicativement... tolérance de 20% d'erreur sur le critère choisi
+                {
+                    //On a identifé le trio de balises correspondant au terrain réel, 
+                    ptBalise1 = new PointD(listeBalisesPotentielle[iSelected].XMoyen, listeBalisesPotentielle[iSelected].YMoyen);
+                    ptBalise3 = new PointD(listeBalisesPotentielle[kSelected].XMoyen, listeBalisesPotentielle[kSelected].YMoyen);
+                }
             }
 
-            //On a identifé le trio de balises correspondant au terrain réel, 
+            //Si le score de matching du positionnement optimal est ok, 
             //on calcule à présent les coordonnées du robot dans le repère des balises théoriques.
+            if (minScore <= 0.2)
+            {
+                double angleVector13Vector1Robot = Math.Atan2(0 - ptBalise1.Y, 0 - ptBalise1.X) - Math.Atan2(ptBalise3.Y - ptBalise1.Y, ptBalise3.X - ptBalise1.X);
+                double normVector1Robot = Toolbox.Distance(ptBalise1, new PointD(0, 0));
+                double angleRobot = Math.PI / 2 + angleVector13Vector1Robot; //Angle 1/3 = PI/2
+                double xRobot = ptBalise1.X + normVector1Robot * Math.Cos(angleRobot);
+                double yRobot = ptBalise1.Y + normVector1Robot * Math.Sin(angleRobot);
+
+                OnPositionCalculatedEvent((float)xRobot, (float)yRobot, (float)angleRobot, (float)Math.Max(0, 1 - minScore));
+            }
         }
 
 
-        // Event position dans l'image calculée
+        // Event position évaluée
         public event EventHandler<PositionArgs> PositionEvent;
         public virtual void OnPositionCalculatedEvent(float x, float y, float angle, float reliability)
         {
@@ -100,28 +154,6 @@ namespace PositionEstimator
                 handler(this, new PositionArgs { X = x, Y = y, Theta = angle, Reliability = reliability });
             }
         }
-
-        // Event image postprocessée
-        public event EventHandler<OpenCvMatImageArgs> OnOpenCvMatImageProcessedEvent;
-
-        public virtual void OnOpenCvMatImageProcessedReady(Mat mat, string descriptor)
-        {
-            var handler = OnOpenCvMatImageProcessedEvent;
-            if (handler != null)
-            {
-                handler(this, new OpenCvMatImageArgs { Mat = mat, Descriptor = descriptor });
-            }
-        }
-
-        public event EventHandler<BitmapImageArgs> OnBitmapImageProcessedEvent;
-        public virtual void OnBitmapImageProcessedReady(Bitmap image, string descriptor)
-        {
-
-            var handler = OnBitmapImageProcessedEvent;
-            if (handler != null)
-            {
-                handler(this, new BitmapImageArgs { Bitmap = image, Descriptor = descriptor });
-            }
-        }
+        
     }
 }
