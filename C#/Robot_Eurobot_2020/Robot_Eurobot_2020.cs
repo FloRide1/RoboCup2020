@@ -206,6 +206,7 @@ namespace Robot
             //lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             perceptionSimulator = new PerceptionSimulator(robotId);
             imuProcessor = new ImuProcessor.ImuProcessor(robotId);
+            absolutePositionEstimator = new AbsolutePositionEstimator(robotId);
 
             if (usingLidar)
             {
@@ -400,7 +401,7 @@ namespace Robot
 
             //lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += interfaceRobot.OnRawLidarDataReceived;
             lidarProcessor.OnLidarProcessedEvent += interfaceRobot.OnRawLidarDataReceived;
-            //lidarProcessor.OnLidarObjectProcessedEvent +=  
+            lidarProcessor.OnLidarBalisesListExtractedEvent += absolutePositionEstimator.OnLidarBalisesListExtractedEvent;
 
             if (!usingLogReplay)
             {
@@ -439,8 +440,8 @@ namespace Robot
                 logReplay.OnSpeedDataEvent += interfaceRobot.UpdateSpeedDataOnGraph;
             }
         }
-        
-        
+
+
         static Thread t3;
         static void StartReplayNavigatorInterface()
         {

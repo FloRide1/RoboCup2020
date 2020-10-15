@@ -236,6 +236,7 @@ namespace EventArgsLibrary
         public List<PolarPointListExtended> ObjectList { get; set; }
     }
 
+
     public class BitmapImageArgs : EventArgs
     {
         public Bitmap Bitmap { get; set; }

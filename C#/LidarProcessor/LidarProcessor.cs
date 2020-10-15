@@ -65,6 +65,7 @@ namespace LidarProcessor
             //List<PolarPoint> PtListProcessed = new List<PolarPoint>();
 
             List<LidarDetectedObject> ObjetsSaillantsList = new List<LidarDetectedObject>();
+            List<LidarDetectedObject> BalisesCatadioptriqueList = new List<LidarDetectedObject>();
             List<LidarDetectedObject> ObjetsFondList = new List<LidarDetectedObject>();
             List<LidarDetectedObject> ObjetsPoteauPossible = new List<LidarDetectedObject>();
             LidarDetectedObject currentObject = new LidarDetectedObject();
@@ -77,12 +78,13 @@ namespace LidarProcessor
 
             //Opérations de traitement du signal LIDAR
             //ptList = PrefiltragePointsIsoles(ptList, 0.04, zoomCoeff);
-            ObjetsSaillantsList = DetectionBalisesCatadioptriques(ptList, 3, zoomCoeff);
+            BalisesCatadioptriqueList = DetectionBalisesCatadioptriques(ptList, 3, zoomCoeff);
+
             //ObjetsSaillantsList = DetectionObjetsSaillants(ptList, zoomCoeff);
             //ObjetsFondList = DetectionObjetsFond(ptList, zoomCoeff);
 
             //Filtrage des points pouvant être un poteau
-            foreach (var obj in ObjetsSaillantsList)
+            foreach (var obj in BalisesCatadioptriqueList)
             {
                 //if (Math.Abs(obj.Largeur - 0.125 * zoomCoeff) < 0.1 * zoomCoeff)
                 {
@@ -134,6 +136,7 @@ namespace LidarProcessor
             //OnLidarProcessed(robotId, AngleListProcessed, DistanceListProcessed);
 
             OnLidarProcessed(robotId, ptList);
+            OnLidarBalisesListExtracted(robotId, BalisesCatadioptriqueList);
             OnLidarObjectProcessed(robotId, objectList);
         }
 
@@ -245,29 +248,35 @@ namespace LidarProcessor
 
             //Détection des objets ayant un très fort RSSI
             //On récupère dans un prermier temps le max de RSSI
-            double maxRssi = ptList.Max(p => p.Rssi);
-            var selectedPoints = ptList.Where(p => (p.Rssi >= maxRssi * 0.7) && (p.Distance< distanceMax));
+            //double maxRssi = ptList.Max(p => p.Rssi);
+            double maxRssiCatadioptre = 90;
+            double minRssiCatadioptre = 60;
+            var selectedPoints = ptList.Where(p => (p.Rssi >= minRssiCatadioptre) && (p.Rssi <= maxRssiCatadioptre) && (p.Distance< distanceMax));
             List<PolarPointRssi> balisesPointsList = (List<PolarPointRssi>)selectedPoints.ToList();
 
             //On segmente la liste de points sélectionnée en objets par la distance
-            currentObject = new LidarDetectedObject();
-            currentObject.PtList.Add(balisesPointsList[0]);
-            for (int i = 1; i < balisesPointsList.Count; i++)
+            if (balisesPointsList.Count() > 0)
             {
-                if (Math.Abs(balisesPointsList[i].Angle - balisesPointsList[i - 1].Angle) < Toolbox.DegToRad(1)) //Si les pts successifs sont distants de moins de 1 degré
+                currentObject = new LidarDetectedObject();
+                currentObject.PtList.Add(balisesPointsList[0]);
+                for (int i = 1; i < balisesPointsList.Count; i++)
                 {
-                    //Le point est cohérent avec l'objet en cours, on ajoute le point à l'objet courant
-                    currentObject.PtList.Add(balisesPointsList[i]);
+                    if (Math.Abs(balisesPointsList[i].Angle - balisesPointsList[i - 1].Angle) < Toolbox.DegToRad(2)) //Si les pts successifs sont distants de moins de 1 degré
+                    {
+                        //Le point est cohérent avec l'objet en cours, on ajoute le point à l'objet courant
+                        currentObject.PtList.Add(balisesPointsList[i]);
+                    }
+                    else
+                    {
+                        currentObject.ExtractObjectAttributes();
+                        BalisesCatadioptriquesList.Add(currentObject);
+                        currentObject = new LidarDetectedObject();
+                        currentObject.PtList.Add(balisesPointsList[i]);
+                    }
                 }
-                else
-                {
-                    currentObject.ExtractObjectAttributes();
-                    BalisesCatadioptriquesList.Add(currentObject);
-                    currentObject = new LidarDetectedObject();
-                }
+                currentObject.ExtractObjectAttributes();
+                BalisesCatadioptriquesList.Add(currentObject);
             }
-            currentObject.ExtractObjectAttributes();
-            BalisesCatadioptriquesList.Add(currentObject);
             return BalisesCatadioptriquesList;
         }
 
@@ -293,6 +302,26 @@ namespace LidarProcessor
                 handler(this, new PolarPointListExtendedListArgs { RobotId = id, ObjectList = objectList});
             }
         }
+
+        public delegate void LidarBalisesListExtractedEventHandler(object sender, LidarDetectedObjectListArgs e);
+        public event EventHandler<LidarDetectedObjectListArgs> OnLidarBalisesListExtractedEvent;
+        public virtual void OnLidarBalisesListExtracted(int id, List<LidarDetectedObject> objectList)
+        {
+            var handler = OnLidarBalisesListExtractedEvent;
+            if (handler != null)
+            {
+                handler(this, new LidarDetectedObjectListArgs { RobotId = id, LidarObjectList = objectList });
+            }
+        }
+
+
+    }
+
+
+    public class LidarDetectedObjectListArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+        public List<LidarDetectedObject> LidarObjectList { get; set; }
     }
 
     public class LidarDetectedObject
@@ -302,6 +331,9 @@ namespace LidarProcessor
         public List<double> YList;
         public double Largeur;
         public double DistanceMoyenne;
+        public double AngleMoyen;
+        public double XMoyen;
+        public double YMoyen;
         public double ResiduLineModel;
 
 
@@ -316,7 +348,10 @@ namespace LidarProcessor
             if (PtList.Count > 1)
             {
                 DistanceMoyenne = PtList.Average(r => r.Distance);
+                AngleMoyen = PtList.Average(r => r.Angle);
                 Largeur = (PtList.Max(r => r.Angle) - PtList.Min(r => r.Angle)) * DistanceMoyenne;
+                XMoyen = DistanceMoyenne * Math.Cos(AngleMoyen);
+                YMoyen = DistanceMoyenne * Math.Sin(AngleMoyen);
                 XList = PtList.Select(r => r.Distance * Math.Cos(r.Angle)).ToList();
                 YList = PtList.Select(r => r.Distance * Math.Sin(r.Angle)).ToList();
                 var coeff = Fit.Line(XList.ToArray(), YList.ToArray());
