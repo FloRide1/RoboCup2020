@@ -57,6 +57,8 @@ namespace PositionEstimator
             PointD ptBalise1 = new PointD(0, 0);
             PointD ptBalise3 = new PointD(0, 0);
 
+            double tolerancePositionnement = 0.2;
+
             if (listeBalisesPotentielle.Count() >= 3)
             {
                 //On calcule toutes les combinaisons de deux vecteurs possibles 
@@ -90,7 +92,7 @@ namespace PositionEstimator
                 }
 
                 //Si l'indicateur de fiabilité de mesure est suffisant, on évalue la position du robot
-                if (minScore <= 0.2) //0.2 indicativement...
+                if (minScore <= tolerancePositionnement)
                 {
                     //On a identifé le trio de balises correspondant au terrain réel, 
                     //on calcule à présent les coordonnées du robot dans le repère des balises théoriques.
@@ -100,7 +102,7 @@ namespace PositionEstimator
             }
 
             //Dans le cas où le score optimal est mauvais, on se positionne uniquement avec deux balises.
-            if (minScore > 0.2 && listeBalisesPotentielle.Count >= 2)
+            if (minScore > tolerancePositionnement && listeBalisesPotentielle.Count >= 2)
             {
                 minScore = double.PositiveInfinity;
                 for (int i = 0; i < listeBalisesPotentielle.Count(); i++) //Identifiant 1
@@ -121,7 +123,7 @@ namespace PositionEstimator
                 }
 
                 //Si l'indicateur de fiabilité de mesure est suffisant, on évalue la position du robot
-                if (minScore <= 0.2) //0.2 indicativement... tolérance de 20% d'erreur sur le critère choisi
+                if (minScore <= tolerancePositionnement) //0.2 indicativement... tolérance de 20% d'erreur sur le critère choisi
                 {
                     //On a identifé le trio de balises correspondant au terrain réel, 
                     ptBalise1 = new PointD(listeBalisesPotentielle[iSelected].XMoyen, listeBalisesPotentielle[iSelected].YMoyen);
@@ -131,7 +133,7 @@ namespace PositionEstimator
 
             //Si le score de matching du positionnement optimal est ok, 
             //on calcule à présent les coordonnées du robot dans le repère des balises théoriques.
-            if (minScore <= 0.2)
+            if (minScore <= tolerancePositionnement)
             {
                 double angleVector13Vector1Robot = Math.Atan2(0 - ptBalise1.Y, 0 - ptBalise1.X) - Math.Atan2(ptBalise3.Y - ptBalise1.Y, ptBalise3.X - ptBalise1.X);
                 double normVector1Robot = Toolbox.Distance(ptBalise1, new PointD(0, 0));

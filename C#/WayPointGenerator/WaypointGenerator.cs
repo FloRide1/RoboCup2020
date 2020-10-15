@@ -42,7 +42,7 @@ namespace WayPointGenerator
 
             //waypointHeatMap = new Heatmap(22.0, 14.0, 22.0 / Math.Pow(2, 8), 2);
             //waypointHeatMap = new Heatmap(22.0, 14.0, 22.0 / Math.Pow(2, 8), 1);
-            waypointHeatMap = new Heatmap(3.0, 2.0, 3.0 / Math.Pow(2, 4), 1);
+            waypointHeatMap = new Heatmap(3.0, 2.0, (int)Math.Pow(2, 4), 1);
         }
 
         public void SetNextWayPoint(Location waypointLocation)
@@ -114,10 +114,10 @@ namespace WayPointGenerator
                 int maxXpos = 0;
                 int maxYpos = 0;
 
-                Parallel.For((int)minY, (int)maxY, (y) =>
+                Parallel.For((int)minY, (int)maxY+1, (y) =>
                 //for (double y = minY; y < maxY; y += 1)
                 {
-                    Parallel.For((int)minX, (int)maxX, (x) =>
+                    Parallel.For((int)minX, (int)maxX+1, (x) =>
                     //for (double x = minX; x < maxX; x += 1)
                     {
                         //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées

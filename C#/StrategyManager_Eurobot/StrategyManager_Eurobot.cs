@@ -35,7 +35,7 @@ namespace StrategyManager
             this.teamId = teamId;
             this.robotId = robotId;
             //heatMap = new Heatmap(22.0, 14.0, 22.0/Math.Pow(2,8), 2); //Init HeatMap
-            heatMap = new Heatmap(3, 2, 3 / Math.Pow(2, 4), 1); //Init HeatMap
+            heatMap = new Heatmap(3, 2, (int)Math.Pow(2, 4), 1); //Init HeatMap
 
             timerStrategy = new Timer();
             timerStrategy.Interval = 50;
@@ -351,8 +351,8 @@ namespace StrategyManager
                 }
             }
 
-            int maxXpos = indexMax;// indexMax % heatMap.nbCellInBaseHeatMapWidth;
-            int maxYpos = tabIndexMax[indexMax];// indexMax / heatMap.nbCellInBaseHeatMapWidth;
+            int maxYpos = indexMax;// indexMax % heatMap.nbCellInBaseHeatMapWidth;
+            int maxXpos = tabIndexMax[indexMax];// indexMax / heatMap.nbCellInBaseHeatMapWidth;
 
             OptimalPosInBaseHeatMapCoordinates = new PointD(maxXpos, maxYpos);
 
@@ -461,8 +461,8 @@ namespace StrategyManager
 
         public void ParallelCalculateHeatMap(double[,] heatMap, int width, int height, float widthTerrain, float heightTerrain, float destinationX, float destinationY)
         {
-            float destXInHeatmap = (float)((float)destinationX / widthTerrain + 0.5) * width;
-            float destYInHeatmap = (float)((float)destinationY / heightTerrain + 0.5) * height;
+            float destXInHeatmap = (float)((float)destinationX / widthTerrain + 0.5) * (width-1);  //-1 car on a augmenté la taille de 1 pour avoir une figure symétrique
+            float destYInHeatmap = (float)((float)destinationY / heightTerrain + 0.5) * (height-1);  //-1 car on a augmenté la taille de 1 pour avoir une figure symétrique
 
             float normalizer = height;
 

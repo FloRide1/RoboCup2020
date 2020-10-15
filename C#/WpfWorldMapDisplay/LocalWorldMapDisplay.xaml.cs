@@ -30,6 +30,8 @@ namespace WpfWorldMapDisplay
 
         double LengthGameArea = 0;
         double WidthGameArea = 0;
+        double LengthDisplayArea = 0;
+        double WidthDisplayArea = 0;
 
         //double TerrainLowerX = -11;
         //double TerrainUpperX = 11;
@@ -56,29 +58,37 @@ namespace WpfWorldMapDisplay
             switch (competition)
             {
                 case "Cachan":
+                    LengthDisplayArea = 10;
+                    WidthDisplayArea = 6;
                     LengthGameArea = 8;
                     WidthGameArea = 4;
                     InitCachanField();
                     break;
                 case "Eurobot":
-                    LengthGameArea = 3.4;
-                    WidthGameArea = 2.4;
+                    LengthDisplayArea = 3.4;
+                    WidthDisplayArea = 2.4;
+                    LengthGameArea = 3.0;
+                    WidthGameArea = 2.0;
                     InitEurobotField();
                     break;
                 case "RoboCup":
-                    LengthGameArea = 30;
-                    WidthGameArea = 18;
+                    LengthDisplayArea = 30;
+                    WidthDisplayArea = 18;
+                    LengthGameArea = 22;
+                    WidthGameArea = 14;
                     InitSoccerField();
                     break;
                 default:
-                    LengthGameArea = 26;
-                    WidthGameArea = 18;
+                    LengthDisplayArea = 30;
+                    WidthDisplayArea = 18;
+                    LengthGameArea = 22;
+                    WidthGameArea = 14;
                     InitSoccerField();
                     break;
             }
 
-            this.sciChart.XAxis.VisibleRange.SetMinMax(-LengthGameArea / 2, LengthGameArea / 2);
-            this.sciChart.YAxis.VisibleRange.SetMinMax(-WidthGameArea / 2, WidthGameArea / 2);
+            this.sciChart.XAxis.VisibleRange.SetMinMax(-LengthDisplayArea / 2, LengthDisplayArea / 2);
+            this.sciChart.YAxis.VisibleRange.SetMinMax(-WidthDisplayArea / 2, WidthDisplayArea / 2);
         }
 
         public void InitTeamMate(int robotId, string competition)
@@ -163,9 +173,9 @@ namespace WpfWorldMapDisplay
                 if (TeamMatesDisplayDictionary[robotId].heatMap == null)
                     return;
                 //heatmapSeries.DataSeries = new UniformHeatmapDataSeries<double, double, double>(data, startX, stepX, startY, stepY);
-                double xStep = (LengthGameArea) / (TeamMatesDisplayDictionary[robotId].heatMap.GetUpperBound(1) + 1);
-                double yStep = (WidthGameArea) / (TeamMatesDisplayDictionary[robotId].heatMap.GetUpperBound(0) + 1);
-                var heatmapDataSeries = new UniformHeatmapDataSeries<double, double, double>(TeamMatesDisplayDictionary[robotId].heatMap, -LengthGameArea/2, yStep, -WidthGameArea/2, xStep);
+                double xStep = (LengthGameArea) / (TeamMatesDisplayDictionary[robotId].heatMap.GetUpperBound(1));
+                double yStep = (WidthGameArea) / (TeamMatesDisplayDictionary[robotId].heatMap.GetUpperBound(0));
+                var heatmapDataSeries = new UniformHeatmapDataSeries<double, double, double>(TeamMatesDisplayDictionary[robotId].heatMap, -LengthGameArea/2- xStep/2, xStep, -WidthGameArea/2 - yStep/2, yStep);
 
                 // Apply the dataseries to the heatmap
                 heatmapSeries.DataSeries = heatmapDataSeries;
