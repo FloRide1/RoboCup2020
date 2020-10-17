@@ -10,11 +10,18 @@ using Utilities;
 
 namespace RobotMessageProcessor
 {
+    public enum Competition
+    {
+        RoboCup = 1,
+        Eurobot=2,
+    }
     public class RobotMsgProcessor
     {
+        Competition chosenCompetition;
         Timer tmrComptageMessage;
-        public RobotMsgProcessor()
+        public RobotMsgProcessor(Competition type)
         {
+            chosenCompetition = type;
             tmrComptageMessage = new Timer(1000);
             tmrComptageMessage.Elapsed += TmrComptageMessage_Elapsed;
             tmrComptageMessage.Start();
@@ -64,22 +71,46 @@ namespace RobotMessageProcessor
                     break;
                 case (short)Commands.IMUData:
                     {
-                        nbMessageIMUReceived++;
-                        timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
-                        tab  = payload.GetRange(4, 4);
-                        float accelX = tab.GetFloat();
-                        tab = payload.GetRange(8, 4);
-                        float accelY = tab.GetFloat();
-                        tab = payload.GetRange(12, 4);
-                        float accelZ = tab.GetFloat();
-                        tab = payload.GetRange(16, 4);
-                        float gyroX = tab.GetFloat();
-                        tab = payload.GetRange(20, 4);
-                        float gyroY = tab.GetFloat();
-                        tab = payload.GetRange(24, 4);
-                        float gyroZ = tab.GetFloat();
+                        float accelX=0, accelY=0, accelZ=0, gyroX=0, gyroY=0, gyroZ=0;
+                        timeStamp = 0;
+                        switch (chosenCompetition)
+                        {
+                            case Competition.RoboCup:
+                                nbMessageIMUReceived++;
+                                timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                                tab  = payload.GetRange(4, 4);
+                                accelX = tab.GetFloat();
+                                tab = payload.GetRange(8, 4);
+                                accelY = tab.GetFloat();
+                                tab = payload.GetRange(12, 4);
+                                accelZ = tab.GetFloat();
+                                tab = payload.GetRange(16, 4);
+                                gyroX = tab.GetFloat();
+                                tab = payload.GetRange(20, 4);
+                                gyroY = tab.GetFloat();
+                                tab = payload.GetRange(24, 4);
+                                gyroZ = tab.GetFloat();
+                                break;
 
-                        Point3D accelXYZ = new Point3D(accelX, accelY, accelZ);
+                            case Competition.Eurobot: //La carte de mesure est placée verticalement
+                                nbMessageIMUReceived++;
+                                timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                                tab = payload.GetRange(4, 4);
+                                accelY = -tab.GetFloat();
+                                tab = payload.GetRange(8, 4);
+                                accelZ = tab.GetFloat();
+                                tab = payload.GetRange(12, 4);
+                                accelX = -tab.GetFloat();
+                                tab = payload.GetRange(16, 4);
+                                gyroY = -tab.GetFloat();
+                                tab = payload.GetRange(20, 4);
+                                gyroZ = tab.GetFloat();
+                                tab = payload.GetRange(24, 4);
+                                gyroX = -tab.GetFloat();
+                                break;
+                        }
+
+                    Point3D accelXYZ = new Point3D(accelX, accelY, accelZ);
                         Point3D gyroXYZ = new Point3D(gyroX, gyroY, gyroZ);
 
                         //On envois l'event aux abonnés

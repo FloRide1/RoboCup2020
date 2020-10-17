@@ -176,5 +176,11 @@
       <Version>6.2.1.13304</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Ressources\Robot_Shape.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Ressources\Robot_Shape.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

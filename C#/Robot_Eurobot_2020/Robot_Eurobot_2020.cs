@@ -188,7 +188,7 @@ namespace Robot
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
             robotMsgGenerator = new RobotMsgGenerator();
-            robotMsgProcessor = new RobotMsgProcessor();
+            robotMsgProcessor = new RobotMsgProcessor(Competition.Eurobot);
 
             //physicalSimulator = new PhysicalSimulator.PhysicalSimulator();
 

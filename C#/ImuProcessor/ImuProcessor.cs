@@ -13,9 +13,19 @@ namespace ImuProcessor
     public class ImuProcessor
     {
         int robotId = 0;
+        double offsetAccelX = 0;
+        double offsetAccelY = 0;
+        double offsetAccelZ = 0;
+        double offsetGyroX = 0;
+        double offsetGyroY = 0;
         double offsetGyroZ = 0;
         Timer TimerCalibration = new Timer(3000);
         bool calibrationInProgress = false;
+        List<double> accelXCalibrationList = new List<double>();
+        List<double> accelYCalibrationList = new List<double>();
+        List<double> accelZCalibrationList = new List<double>();
+        List<double> gyroXCalibrationList = new List<double>();
+        List<double> gyroYCalibrationList = new List<double>();
         List<double> gyroZCalibrationList = new List<double>();
         System.Configuration.Configuration configFile;
 
@@ -32,6 +42,11 @@ namespace ImuProcessor
         {
             calibrationInProgress = false;
             TimerCalibration.Stop();
+            offsetAccelX = accelXCalibrationList.Average();
+            offsetAccelY = accelYCalibrationList.Average();
+            offsetAccelZ = accelZCalibrationList.Average();
+            offsetGyroX = gyroXCalibrationList.Average();
+            offsetGyroY = gyroYCalibrationList.Average();
             offsetGyroZ = gyroZCalibrationList.Average();
             configFile.AppSettings.Settings["GyroOffsetZ"].Value = offsetGyroZ.ToString();
             configFile.Save();
@@ -40,11 +55,16 @@ namespace ImuProcessor
 
         public void OnIMURawDataReceived(object sender, IMUDataEventArgs e)
         {
-            Point3D accelXYZ = new Point3D(e.accelX, e.accelY, e.accelZ);
-            Point3D gyroXYZ = new Point3D(e.gyroX, e.gyroY, e.gyroZ-offsetGyroZ);
+            Point3D accelXYZ = new Point3D(e.accelX - offsetAccelX, e.accelY - offsetAccelY, e.accelZ - offsetAccelZ);
+            Point3D gyroXYZ = new Point3D(e.gyroX - offsetGyroX, e.gyroY - offsetGyroY, e.gyroZ - offsetGyroZ);
 
             if(calibrationInProgress)            
             { 
+                accelXCalibrationList.Add(e.accelX);
+                accelYCalibrationList.Add(e.accelY);
+                accelZCalibrationList.Add(e.accelZ);
+                gyroXCalibrationList.Add(e.gyroX);
+                gyroYCalibrationList.Add(e.gyroY);
                 gyroZCalibrationList.Add(e.gyroZ);
             }
 
@@ -57,6 +77,11 @@ namespace ImuProcessor
         {
             TimerCalibration.Start();
             calibrationInProgress = true;
+            accelXCalibrationList.Clear();
+            accelYCalibrationList.Clear();
+            accelZCalibrationList.Clear();
+            gyroXCalibrationList.Clear();
+            gyroYCalibrationList.Clear();
             gyroZCalibrationList.Clear();
         }
 

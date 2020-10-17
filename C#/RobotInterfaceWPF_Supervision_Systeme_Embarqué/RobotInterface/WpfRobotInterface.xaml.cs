@@ -185,8 +185,18 @@ namespace RobotInterface
             oscilloM3.ResetGraph();
             oscilloM4.ResetGraph();
         }
+
+        double Vx_T_1 = 0;
+        double Vy_T_1 = 0;
+        double Vtheta_T_1 = 0;
         public void UpdateSpeedDataOnGraph(object sender, SpeedDataEventArgs e)
         {
+            //oscilloX.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, (e.Vx - Vx_T_1)*50);
+            //Vx_T_1 = e.Vx;
+            //oscilloY.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, (e.Vy - Vy_T_1) * 50);
+            //Vy_T_1 = e.Vy;
+            //oscilloTheta.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vtheta);
+            //Vtheta_T_1 = e.Vtheta;
             oscilloX.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vx);
             oscilloY.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vy);
             oscilloTheta.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vtheta);
@@ -212,14 +222,16 @@ namespace RobotInterface
             oscilloX.AddPointToLine(0, currentTime, e.Vx);
             oscilloY.AddPointToLine(0, currentTime, e.Vy);
             oscilloTheta.AddPointToLine(0, currentTime, e.Vtheta);
+
         }
 
+        double VM1_1 = 0;
         public void UpdateMotorSpeedConsigneOnGraph(object sender, MotorsVitesseDataEventArgs e)
         {
             oscilloM1.AddPointToLine(4, e.timeStampMS / 1000.0, e.vitesseMotor1);
             oscilloM2.AddPointToLine(4, e.timeStampMS / 1000.0, e.vitesseMotor2);
             oscilloM3.AddPointToLine(4, e.timeStampMS / 1000.0, e.vitesseMotor3);
-            oscilloM4.AddPointToLine(4, e.timeStampMS / 1000.0, e.vitesseMotor4);        
+            oscilloM4.AddPointToLine(4, e.timeStampMS / 1000.0, e.vitesseMotor4);
         }
 
         public void UpdateMotorsCurrentsOnGraph(object sender, MotorsCurrentsEventArgs e)
