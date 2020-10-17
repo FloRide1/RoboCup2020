@@ -243,6 +243,7 @@ namespace Robot
 
 
             //Filtre de Kalman
+            absolutePositionEstimator.OnAbsolutePositionCalculatedEvent += kalmanPositioning.OnAbsolutePositionCalculatedEvent;
             robotMsgProcessor.OnSpeedDataFromRobotGeneratedEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
             imuProcessor.OnGyroSpeedEvent += kalmanPositioning.OnGyroRobotSpeedReceived;
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
@@ -312,7 +313,6 @@ namespace Robot
                 Monitor.Wait(ExitLock);
             }
         }
-
 
         static Random rand = new Random();
         private static void TimerStrategie_Tick(object sender, EventArgs e)
