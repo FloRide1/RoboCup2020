@@ -227,6 +227,14 @@ namespace KalmanPositioning
         }
 
 
+        public void OnAbsolutePositionCalculatedEvent(object sender, PositionArgs e)
+        {
+            currentGpsXRefTerrain = e.X;
+            currentGpsYRefTerrain = e.Y;
+            currentGpsTheta = e.Theta;
+        }
+
+
         //Output events
         public event EventHandler<LocationArgs> OnKalmanLocationEvent;
         public virtual void OnKalmanLocation(int id, Location location)

@@ -41,13 +41,13 @@ namespace PositionEstimator
             var listeBalisesPotentielle = e.LidarObjectList;
 
             //Normes et angles théoriques
-            PointD pt1Theorique = new PointD(-1.55, -0.95); //Pt balise droite coté départ
-            PointD pt2Theorique = new PointD(1.55, 0); //Pt balise centre opposé départ
-            PointD pt3Theorique = new PointD(-1.55, 0.95); //Pt balise gauche coté départ
-            double normVector12Theorique = Toolbox.Distance(pt1Theorique, pt2Theorique);
-            double normVector13Theorique = Toolbox.Distance(pt1Theorique, pt3Theorique);
-            double angleVector12Vector13Theorique = Math.Atan2(pt3Theorique.Y - pt1Theorique.Y, pt3Theorique.X - pt1Theorique.X) 
-                - Math.Atan2(pt2Theorique.Y - pt1Theorique.Y, pt2Theorique.X - pt1Theorique.X);
+            PointD ptBalise1Theorique = new PointD(-1.55, -0.95); //Pt balise droite coté départ
+            PointD ptBalise2Theorique = new PointD(1.55, 0); //Pt balise centre opposé départ
+            PointD ptBalise3Theorique = new PointD(-1.55, 0.95); //Pt balise gauche coté départ
+            double normVector12Theorique = Toolbox.Distance(ptBalise1Theorique, ptBalise2Theorique);
+            double normVector13Theorique = Toolbox.Distance(ptBalise1Theorique, ptBalise3Theorique);
+            double angleVector12Vector13Theorique = Math.Atan2(ptBalise3Theorique.Y - ptBalise1Theorique.Y, ptBalise3Theorique.X - ptBalise1Theorique.X) 
+                - Math.Atan2(ptBalise2Theorique.Y - ptBalise1Theorique.Y, ptBalise2Theorique.X - ptBalise1Theorique.X);
             angleVector12Vector13Theorique = Toolbox.Modulo2PiAngleRad(angleVector12Vector13Theorique);
 
             double minScore = double.PositiveInfinity;
@@ -80,6 +80,7 @@ namespace PositionEstimator
                             double ScoreCandidatureBalises = Math.Abs(normVector12 - normVector12Theorique) / normVector12Theorique
                                 + Math.Abs(normVector13 - normVector13Theorique) / normVector13Theorique
                                 + Math.Abs(Toolbox.ModuloByAngle(angleVector12Vector13Theorique, angleVector12Vector13) - angleVector12Vector13Theorique) / Math.PI;
+                                                        
                             if (ScoreCandidatureBalises < minScore)
                             {
                                 minScore = ScoreCandidatureBalises;
@@ -113,6 +114,15 @@ namespace PositionEstimator
                         PointD pt3 = new PointD(listeBalisesPotentielle[k].XMoyen, listeBalisesPotentielle[k].YMoyen);
                         double normVector13 = Toolbox.Distance(pt1, pt3);
                         double ScoreCandidatureBalises = Math.Abs(normVector13 - normVector13Theorique) / normVector13Theorique;
+
+                        //On ajoute le fait que le robot doive se trouver dans le bon demi plan, ou l'angle 13-1R est entre -Pi/2 et 0
+                        double angleVector13Vector1Robot = Math.Atan2(0 - pt1.Y, 0 - pt1.X) - Math.Atan2(pt3.Y - pt1.Y, pt3.X - pt1.X);
+                        if ((angleVector13Vector1Robot < 0) && (angleVector13Vector1Robot > -Math.PI / 2))
+                            ;//On est ok, on ne pénalise pas
+                        else
+                            ScoreCandidatureBalises += 1;
+
+
                         if (ScoreCandidatureBalises < minScore)
                         {
                             minScore = ScoreCandidatureBalises;
@@ -137,20 +147,21 @@ namespace PositionEstimator
             {
                 double angleVector13Vector1Robot = Math.Atan2(0 - ptBalise1.Y, 0 - ptBalise1.X) - Math.Atan2(ptBalise3.Y - ptBalise1.Y, ptBalise3.X - ptBalise1.X);
                 double normVector1Robot = Toolbox.Distance(ptBalise1, new PointD(0, 0));
-                double angleRobot = Math.PI / 2 + angleVector13Vector1Robot; //Angle 1/3 = PI/2
-                double xRobot = ptBalise1.X + normVector1Robot * Math.Cos(angleRobot);
-                double yRobot = ptBalise1.Y + normVector1Robot * Math.Sin(angleRobot);
+                double xRobot = ptBalise1Theorique.X + normVector1Robot * Math.Cos(Math.PI / 2 + angleVector13Vector1Robot);
+                double yRobot = ptBalise1Theorique.Y + normVector1Robot * Math.Sin(Math.PI / 2 + angleVector13Vector1Robot);
+                double angleRobot1ThVectorRobot1 = Math.Atan2(ptBalise1Theorique.Y - yRobot, ptBalise1Theorique.X - xRobot)- Math.Atan2(ptBalise1.Y, ptBalise1.X);
 
-                OnPositionCalculatedEvent((float)xRobot, (float)yRobot, (float)angleRobot, (float)Math.Max(0, 1 - minScore));
+                Console.WriteLine("Position estimée - X : " + xRobot.ToString("N2") + " - Y : " + yRobot.ToString("N2") + " - Theta : " + angleRobot1ThVectorRobot1.ToString("N2"));
+                OnPositionCalculatedEvent((float)xRobot, (float)yRobot, (float)angleRobot1ThVectorRobot1, (float)Math.Max(0, 1 - minScore));
             }
         }
 
 
         // Event position évaluée
-        public event EventHandler<PositionArgs> PositionEvent;
+        public event EventHandler<PositionArgs> OnAbsolutePositionCalculatedEvent;
         public virtual void OnPositionCalculatedEvent(float x, float y, float angle, float reliability)
         {
-            var handler = PositionEvent;
+            var handler = OnAbsolutePositionCalculatedEvent;
             if (handler != null)
             {
                 handler(this, new PositionArgs { X = x, Y = y, Theta = angle, Reliability = reliability });
