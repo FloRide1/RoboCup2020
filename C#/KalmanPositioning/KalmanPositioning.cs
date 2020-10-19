@@ -231,7 +231,8 @@ namespace KalmanPositioning
         {
             currentGpsXRefTerrain = e.X;
             currentGpsYRefTerrain = e.Y;
-            currentGpsTheta = e.Theta;
+
+            currentGpsTheta = Toolbox.ModuloByAngle(kalmanLocationRefTerrain.Theta, e.Theta);
         }
 
 

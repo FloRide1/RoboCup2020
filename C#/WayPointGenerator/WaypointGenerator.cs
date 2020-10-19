@@ -125,11 +125,11 @@ namespace WayPointGenerator
                 int maxXpos = 0;
                 int maxYpos = 0;
 
-                Parallel.For((int)minY, (int)maxY+1, (y) =>
-                //for (double y = minY; y < maxY; y += 1)
+                //Parallel.For((int)minY, (int)maxY+1, (y) =>
+                for (double y = (int)minY; y < (int)maxY + 1; y += 1)
                 {
-                    Parallel.For((int)minX, (int)maxX+1, (x) =>
-                    //for (double x = minX; x < maxX; x += 1)
+                    //Parallel.For((int)minX, (int)maxX+1, (x) =>
+                    for (double x = (int)minX; x < (int)maxX + 1; x += 1)
                     {
                         //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
                         //double value = Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, heatMap.GetFieldPosFromSubSampledHeatMapCoordinates(x, y)) / 20.0);
@@ -159,8 +159,10 @@ namespace WayPointGenerator
                                     waypointHeatMap.BaseHeatMapData[yBase + i, xBase + j] = value;
                             }
                         }
-                    });
-                });
+                    }
+                }
+                //    });
+                //});
                 //OptimalPosInBaseHeatMapCoordinates = heatMap.GetMaxPositionInBaseHeatMapCoordinates();
                 OptimalPosInBaseHeatMapCoordinates = new PointD(maxXpos, maxYpos);
             }

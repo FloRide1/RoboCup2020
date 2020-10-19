@@ -112,8 +112,8 @@ namespace WorldMapManager
                         //                 localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle))).ToList();
 
                         listPtLidar = e.PtList.Select(
-                        pt => new PointD(localWorldMap.robotLocation.X + pt.Distance * Math.Cos(pt.Angle),
-                                         localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle))).ToList();
+                        pt => new PointD(localWorldMap.robotLocation.X + pt.Distance * Math.Cos(pt.Angle + localWorldMap.robotLocation.Theta),
+                                         localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle + localWorldMap.robotLocation.Theta))).ToList();
                     }
                 }
                 catch { };
@@ -128,6 +128,7 @@ namespace WorldMapManager
                 return;
             if (localWorldMap.RobotId == e.RobotId)
             {
+                //TODO : déplacer les objets dans le référentiel du robot...
                 localWorldMap.lidarObjectList = e.ObjectList;
             }
         }
