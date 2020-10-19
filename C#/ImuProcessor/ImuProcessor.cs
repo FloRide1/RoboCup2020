@@ -35,7 +35,12 @@ namespace ImuProcessor
             TimerCalibration.Elapsed += CalibrationFinished_Event;
             configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
-            Double.TryParse(configFile.AppSettings.Settings["GyroOffsetZ"].Value, out offsetGyroZ);
+            Double.TryParse(configFile.AppSettings.Settings["AccelOffsetX"].Value.Replace(',', '.'), out offsetAccelX);
+            Double.TryParse(configFile.AppSettings.Settings["AccelOffsetY"].Value.Replace(',', '.'), out offsetAccelY);
+            Double.TryParse(configFile.AppSettings.Settings["AccelOffsetZ"].Value.Replace(',', '.'), out offsetAccelZ);
+            Double.TryParse(configFile.AppSettings.Settings["GyroOffsetX"].Value.Replace(',', '.'), out offsetGyroX);
+            Double.TryParse(configFile.AppSettings.Settings["GyroOffsetY"].Value.Replace(',','.'), out offsetGyroY);
+            Double.TryParse(configFile.AppSettings.Settings["GyroOffsetZ"].Value.Replace(',', '.'), out offsetGyroZ);
         }
 
         private void CalibrationFinished_Event(object sender, ElapsedEventArgs e)
@@ -43,10 +48,15 @@ namespace ImuProcessor
             calibrationInProgress = false;
             TimerCalibration.Stop();
             offsetAccelX = accelXCalibrationList.Average();
+            configFile.AppSettings.Settings["AccelOffsetX"].Value = offsetAccelX.ToString();
             offsetAccelY = accelYCalibrationList.Average();
+            configFile.AppSettings.Settings["AccelOffsetY"].Value = offsetAccelY.ToString();
             offsetAccelZ = accelZCalibrationList.Average();
+            configFile.AppSettings.Settings["AccelOffsetZ"].Value = offsetAccelZ.ToString();
             offsetGyroX = gyroXCalibrationList.Average();
+            configFile.AppSettings.Settings["GyroOffsetX"].Value = offsetGyroX.ToString();
             offsetGyroY = gyroYCalibrationList.Average();
+            configFile.AppSettings.Settings["GyroOffsetY"].Value = offsetGyroY.ToString();
             offsetGyroZ = gyroZCalibrationList.Average();
             configFile.AppSettings.Settings["GyroOffsetZ"].Value = offsetGyroZ.ToString();
             configFile.Save();
@@ -55,7 +65,8 @@ namespace ImuProcessor
 
         public void OnIMURawDataReceived(object sender, IMUDataEventArgs e)
         {
-            Point3D accelXYZ = new Point3D(e.accelX - offsetAccelX, e.accelY - offsetAccelY, e.accelZ - offsetAccelZ);
+            //Point3D accelXYZ = new Point3D(e.accelX - offsetAccelX, e.accelY - offsetAccelY, e.accelZ - offsetAccelZ);
+            Point3D accelXYZ = new Point3D(e.accelX , e.accelY , e.accelZ );
             Point3D gyroXYZ = new Point3D(e.gyroX - offsetGyroX, e.gyroY - offsetGyroY, e.gyroZ - offsetGyroZ);
 
             if(calibrationInProgress)            

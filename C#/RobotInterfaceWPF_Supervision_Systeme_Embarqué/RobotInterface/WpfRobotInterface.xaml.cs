@@ -191,15 +191,15 @@ namespace RobotInterface
         double Vtheta_T_1 = 0;
         public void UpdateSpeedDataOnGraph(object sender, SpeedDataEventArgs e)
         {
-            //oscilloX.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, (e.Vx - Vx_T_1)*50);
-            //Vx_T_1 = e.Vx;
-            //oscilloY.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, (e.Vy - Vy_T_1) * 50);
-            //Vy_T_1 = e.Vy;
-            //oscilloTheta.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vtheta);
-            //Vtheta_T_1 = e.Vtheta;
-            oscilloX.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vx);
-            oscilloY.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vy);
+            oscilloX.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, (e.Vx - Vx_T_1) * 50);
+            Vx_T_1 = e.Vx;
+            oscilloY.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, (e.Vy - Vy_T_1) * 50);
+            Vy_T_1 = e.Vy;
             oscilloTheta.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vtheta);
+            Vtheta_T_1 = e.Vtheta;
+            //oscilloX.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vx);
+            //oscilloY.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vy);
+            //oscilloTheta.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vtheta);
             currentTime = e.EmbeddedTimeStampInMs / 1000.0;
         }
         public void ActualizeAccelDataOnGraph(object sender, AccelEventArgs e)
