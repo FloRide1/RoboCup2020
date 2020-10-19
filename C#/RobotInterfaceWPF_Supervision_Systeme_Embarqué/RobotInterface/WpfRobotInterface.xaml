@@ -14,178 +14,163 @@
 
     <Grid x:Name="GridApplication" Background="#222222">
         <Grid.RowDefinitions>
-            <RowDefinition Height="5"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="5"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="5"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1.6*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="30"/>
             <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="30"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
 
-        <Grid x:Name="GridAffichageTelemetrie" Grid.Column="1" Grid.Row="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="1*"/>
-                <RowDefinition Height="1*"/>
-                <RowDefinition Height="1*"/>
-            </Grid.RowDefinitions>
+        <oscillo:WpfOscilloscope x:Name="oscilloM1" Grid.Column="0" Grid.Row="0" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
+        <oscillo:WpfOscilloscope x:Name="oscilloM2" Grid.Column="0" Grid.Row="2" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
+        <oscillo:WpfOscilloscope x:Name="oscilloM3" Grid.Column="2" Grid.Row="2" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
+        <oscillo:WpfOscilloscope x:Name="oscilloM4" Grid.Column="2" Grid.Row="0" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
+        <oscillo:WpfOscilloscope x:Name="oscilloX" Grid.Column="1" Grid.Row="0" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
+        <oscillo:WpfOscilloscope x:Name="oscilloY" Grid.Column="0" Grid.Row="1" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
+        <Grid Grid.Column="1" Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="150"/>
                 <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
-
-
-            <oscillo:WpfOscilloscope x:Name="oscilloM1" Grid.Column="0" Grid.Row="0" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
-            <oscillo:WpfOscilloscope x:Name="oscilloM2" Grid.Column="0" Grid.Row="2" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
-            <oscillo:WpfOscilloscope x:Name="oscilloM3" Grid.Column="2" Grid.Row="2" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
-            <oscillo:WpfOscilloscope x:Name="oscilloM4" Grid.Column="2" Grid.Row="0" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
-            <oscillo:WpfOscilloscope x:Name="oscilloX" Grid.Column="1" Grid.Row="0" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
-            <oscillo:WpfOscilloscope x:Name="oscilloY" Grid.Column="0" Grid.Row="1" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
-            <Grid Grid.Column="1" Grid.Row="1">
+            <Image Source="Ressources/Robot_Shape.png"></Image>
+            <oscillo:WpfOscilloscope x:Name="oscilloTheta" Grid.Column="1" Grid.Row="0" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
+        </Grid>
+        <GroupBox Grid.Column="2" Header="Options" Margin="10,10,10,10" Grid.Row="1"  MouseDoubleClick="ZoomOnGraph_MouseDoubleClick" Background="#FF636363">
+            <Grid >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
-                <Image Source="Ressources/Robot_Shape.png"></Image>
-                <oscillo:WpfOscilloscope x:Name="oscilloTheta" Grid.Column="1" Grid.Row="0" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
-            </Grid>
-            <GroupBox Grid.Column="2" Header="Options" Margin="10,10,10,10" Grid.Row="1"  MouseDoubleClick="ZoomOnGraph_MouseDoubleClick" Background="#FF636363">
-                <Grid >
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="1*"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1*"/>
-                    </Grid.ColumnDefinitions>
 
-                    <StackPanel Name="ButtonsStackPanelColumn1" Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Orientation="Vertical">
-                        <Button Name="ButtonDisableMotors" Content="Disable Motors" HorizontalAlignment="Center" Margin="10,0,10,5" VerticalAlignment="Top" Width="85" Height="20" Click="ButtonDisableMotors_Click"/>
-                        <Button Name="ButtonCalibrateGyro" Content="Calibrate Gyro" HorizontalAlignment="Center" Margin="10,0,10,5" VerticalAlignment="Top" Width="85" Height="20" Click="ButtonCalibrateGyro_Click"/>
-                        <Button Name="ButtonEnableDisableTir" Content="Enable Tir" HorizontalAlignment="Center"  Margin="10,0,10,5" VerticalAlignment="Top" Width="85" Height="20" Click="ButtonEnableDisableTir_Click"/>
-                        <CheckBox Name="CheckBoxControlManette" Content="Enable Manette" HorizontalAlignment="Center"  Margin="10,0,10,5" VerticalAlignment="Top" Checked="CheckBox_CheckedChanged" Unchecked="CheckBox_CheckedChanged"/>
-                    </StackPanel>
-                    <StackPanel Name="ButtonsStackPanelColumn2" Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Orientation="Vertical">
-                        <Button Name="ButtonEnableAsservissement" Content="Enable Asservissement"  HorizontalAlignment="Center" Margin="10,0,10,5" VerticalAlignment="Top" Width="85" Height="20" Click="ButtonEnableAsservissement_Click"/>
-                    </StackPanel>
+                <StackPanel Name="ButtonsStackPanelColumn1" Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Orientation="Vertical">
+                    <Button Name="ButtonDisableMotors" Content="Disable Motors" HorizontalAlignment="Center" Margin="10,0,10,5" VerticalAlignment="Top" Width="85" Height="20" Click="ButtonDisableMotors_Click"/>
+                    <Button Name="ButtonCalibrateGyro" Content="Calibrate Gyro" HorizontalAlignment="Center" Margin="10,0,10,5" VerticalAlignment="Top" Width="85" Height="20" Click="ButtonCalibrateGyro_Click"/>
+                    <Button Name="ButtonEnableDisableTir" Content="Enable Tir" HorizontalAlignment="Center"  Margin="10,0,10,5" VerticalAlignment="Top" Width="85" Height="20" Click="ButtonEnableDisableTir_Click"/>
+                    <CheckBox Name="CheckBoxControlManette" Content="Enable Manette" HorizontalAlignment="Center"  Margin="10,0,10,5" VerticalAlignment="Top" Checked="CheckBox_CheckedChanged" Unchecked="CheckBox_CheckedChanged"/>
+                </StackPanel>
+                <StackPanel Name="ButtonsStackPanelColumn2" Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Orientation="Vertical">
+                    <Button Name="ButtonEnableAsservissement" Content="Enable Asservissement"  HorizontalAlignment="Center" Margin="10,0,10,5" VerticalAlignment="Top" Width="85" Height="20" Click="ButtonEnableAsservissement_Click"/>
+                </StackPanel>
 
-                    <GroupBox Grid.ColumnSpan="1" Grid.Column="1" Header="debug data" HorizontalAlignment="Stretch"  Margin="0,0,0,-0" Grid.Row="1" Grid.RowSpan="2" VerticalAlignment="Stretch">
-                        <ScrollViewer Name="scrollViewerDebugOption">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-                                <CheckBox Name="CheckBoxEnablePositionData" Content="EnablePositionData" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="0" VerticalAlignment="Top" Checked="CheckBoxEnablePositionData_Checked" Unchecked="CheckBoxEnablePositionData_Checked"/>
-                                <CheckBox Name="CheckBoxEnableEncRawData" Content="Enable Encoder Raw Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="1" VerticalAlignment="Top" Checked="CheckBoxEnableEncRawData_Checked" Unchecked="CheckBoxEnableEncRawData_Checked"/>
-                                <CheckBox Name="CheckBoxEnableMotorCurrentData" Content="Enable Motor Current Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Top" Checked="CheckBoxEnableMotorCurrentData_Checked" Unchecked="CheckBoxEnableMotorCurrentData_Checked"/>
-                                <CheckBox Name="CheckBoxEnableMotorSpeedConsigneData" Content="Enable Motor Speed Consigne Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="3" VerticalAlignment="Top" Checked="CheckBoxEnableMotorSpeedConsigneData_Checked" Unchecked="CheckBoxEnableMotorSpeedConsigneData_Checked"/>
-                                <CheckBox Name="CheckBoxEnablePIDDebugData" Content="Enable PID Debug Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="4" VerticalAlignment="Top" Checked="CheckBoxEnablePIDDebugData_Checked" Unchecked="CheckBoxEnablePIDDebugData_Checked"/>
-                            </Grid>
-                        </ScrollViewer>
-                    </GroupBox>
-                    <GroupBox Grid.Column="2" Header="PID Values" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.RowSpan="3" >
-                        <ScrollViewer Name="scrollViewerOption">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                                <Label Content="Vitesse X PID:" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6"/>
-                                <Label Content="Vitesse Y PID:" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Top" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="6"/>
-                                <Label Content="Vitesse Theta PID:" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Top" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="6"/>
-                                <Label Content="P:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="1" Grid.Column="0"/>
-                                <Label Content="P:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="3" Grid.Column="0"/>
-                                <Label Content="P:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="5" Grid.Column="0"/>
-                                <Label Content="I:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="1" Grid.Column="2"/>
-                                <Label Content="I:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="3" Grid.Column="2"/>
-                                <Label Content="I:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="5" Grid.Column="2"/>
-                                <Label Content="D:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="1" Grid.Column="4"/>
-                                <Label Content="D:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="3" Grid.Column="4"/>
-                                <Label Content="D:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="5" Grid.Column="4"/>
-                                <TextBox Name="textBoxPx" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="1" TextWrapping="Wrap" Text="2" VerticalAlignment="Top" Width="120"/>
-                                <TextBox Name="textBoxPy" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="3" TextWrapping="Wrap" Text="2" VerticalAlignment="Top" Width="120"/>
-                                <TextBox Name="textBoxPtheta" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="5" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
-
-                                <TextBox Name="textBoxIx" Grid.ColumnSpan="1" Grid.Column="3" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="1" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
-                                <TextBox Name="textBoxIy" Grid.ColumnSpan="1" Grid.Column="3" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="3" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
-                                <TextBox Name="textBoxItheta" Grid.ColumnSpan="1" Grid.Column="3" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="5" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
-
-                                <TextBox Name="textBoxDx" Grid.ColumnSpan="1" Grid.Column="5" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="1" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
-                                <TextBox Name="textBoxDy" Grid.ColumnSpan="1" Grid.Column="5" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="3" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
-                                <TextBox Name="textBoxDtheta" Grid.ColumnSpan="1" Grid.Column="5" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="5" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
-                                <Button Name="ButtonSetPID" Grid.ColumnSpan="2" Content="Set PID" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="6" VerticalAlignment="Top" Click="ButtonSetPID_Click"/>
-
-                            </Grid>
-                        </ScrollViewer>
-                    </GroupBox>
-
-                </Grid>
-            </GroupBox>
-
-            <GroupBox Grid.Column="1" Header="Console" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Stretch" Background="White">
-                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="200"/>
-                        <ColumnDefinition Width="1*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <Label x:Name="LabelNbIMUDataPerSec" Content="Nb IMU data / sec : "></Label>
-                        <Label x:Name="LabelNbSpeedOdometryDataPerSec" Content="Nb odometry data / sec : "></Label>
-                        <Label x:Name="LabelNbLidarProcessedDataPerSec" Content="Nb Lidar data / sec : "></Label>
-                    </StackPanel>
-                    <ScrollViewer Name="scrollViewerTextBoxConsole" Grid.Column="1">
-                        <TextBlock Name="textBoxConsole" HorizontalAlignment="Stretch" Margin="0,0,0,0" TextWrapping="WrapWithOverflow" Text="TextBlock" VerticalAlignment="Stretch" Background="Gray" 
-                                   ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"/>
+                <GroupBox Grid.ColumnSpan="1" Grid.Column="1" Header="debug data" HorizontalAlignment="Stretch"  Margin="0,0,0,-0" Grid.Row="1" Grid.RowSpan="2" VerticalAlignment="Stretch">
+                    <ScrollViewer Name="scrollViewerDebugOption">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <CheckBox Name="CheckBoxEnablePositionData" Content="EnablePositionData" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="0" VerticalAlignment="Top" Checked="CheckBoxEnablePositionData_Checked" Unchecked="CheckBoxEnablePositionData_Checked"/>
+                            <CheckBox Name="CheckBoxEnableEncRawData" Content="Enable Encoder Raw Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="1" VerticalAlignment="Top" Checked="CheckBoxEnableEncRawData_Checked" Unchecked="CheckBoxEnableEncRawData_Checked"/>
+                            <CheckBox Name="CheckBoxEnableMotorCurrentData" Content="Enable Motor Current Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Top" Checked="CheckBoxEnableMotorCurrentData_Checked" Unchecked="CheckBoxEnableMotorCurrentData_Checked"/>
+                            <CheckBox Name="CheckBoxEnableMotorSpeedConsigneData" Content="Enable Motor Speed Consigne Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="3" VerticalAlignment="Top" Checked="CheckBoxEnableMotorSpeedConsigneData_Checked" Unchecked="CheckBoxEnableMotorSpeedConsigneData_Checked"/>
+                            <CheckBox Name="CheckBoxEnablePIDDebugData" Content="Enable PID Debug Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="4" VerticalAlignment="Top" Checked="CheckBoxEnablePIDDebugData_Checked" Unchecked="CheckBoxEnablePIDDebugData_Checked"/>
+                        </Grid>
                     </ScrollViewer>
-                </Grid>
+                </GroupBox>
+                <GroupBox Grid.Column="2" Header="PID Values" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.RowSpan="3" >
+                    <ScrollViewer Name="scrollViewerOption">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content="Vitesse X PID:" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6"/>
+                            <Label Content="Vitesse Y PID:" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Top" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="6"/>
+                            <Label Content="Vitesse Theta PID:" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Top" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="6"/>
+                            <Label Content="P:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="1" Grid.Column="0"/>
+                            <Label Content="P:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="3" Grid.Column="0"/>
+                            <Label Content="P:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="5" Grid.Column="0"/>
+                            <Label Content="I:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="1" Grid.Column="2"/>
+                            <Label Content="I:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="3" Grid.Column="2"/>
+                            <Label Content="I:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="5" Grid.Column="2"/>
+                            <Label Content="D:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="1" Grid.Column="4"/>
+                            <Label Content="D:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="3" Grid.Column="4"/>
+                            <Label Content="D:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="5" Grid.Column="4"/>
+                            <TextBox Name="textBoxPx" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="1" TextWrapping="Wrap" Text="2" VerticalAlignment="Top" Width="120"/>
+                            <TextBox Name="textBoxPy" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="3" TextWrapping="Wrap" Text="2" VerticalAlignment="Top" Width="120"/>
+                            <TextBox Name="textBoxPtheta" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="5" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
 
-            </GroupBox>
-        </Grid>
+                            <TextBox Name="textBoxIx" Grid.ColumnSpan="1" Grid.Column="3" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="1" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
+                            <TextBox Name="textBoxIy" Grid.ColumnSpan="1" Grid.Column="3" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="3" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
+                            <TextBox Name="textBoxItheta" Grid.ColumnSpan="1" Grid.Column="3" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="5" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
 
-        <Grid Grid.Column="1" Grid.Row="3">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="3*"/>
-                <ColumnDefinition Width="1*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="180"/>
-                <RowDefinition Height="1*"/>
-            </Grid.RowDefinitions>
-            <oscillo:WpfOscilloscope x:Name="oscilloLidar" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
-            <!--<ext:LocalWorldMapDisplay x:Name="worldMapDisplay" Grid.Row="1" Grid.Column="1"  MouseDoubleClick="worldMapDisplay_MouseDoubleClick" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></ext:LocalWorldMapDisplay>-->
-            <Viewbox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" Stretch="Uniform" MaxWidth="900" MaxHeight="800"   >
-                <ext:LocalWorldMapDisplay x:Name="worldMapDisplay" Width="300" Height="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></ext:LocalWorldMapDisplay>
-                <!--MouseDoubleClick="worldMapDisplay_MouseDoubleClick"-->
-            </Viewbox>
+                            <TextBox Name="textBoxDx" Grid.ColumnSpan="1" Grid.Column="5" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="1" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
+                            <TextBox Name="textBoxDy" Grid.ColumnSpan="1" Grid.Column="5" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="3" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
+                            <TextBox Name="textBoxDtheta" Grid.ColumnSpan="1" Grid.Column="5" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="5" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
+                            <Button Name="ButtonSetPID" Grid.ColumnSpan="2" Content="Set PID" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="6" VerticalAlignment="Top" Click="ButtonSetPID_Click"/>
 
-        </Grid>
+                        </Grid>
+                    </ScrollViewer>
+                </GroupBox>
+
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Grid.Column="1" Header="Console" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Stretch" Background="White">
+            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <Label x:Name="LabelNbIMUDataPerSec" Content="Nb IMU data / sec : "></Label>
+                    <Label x:Name="LabelNbSpeedOdometryDataPerSec" Content="Nb odometry data / sec : "></Label>
+                    <Label x:Name="LabelNbLidarProcessedDataPerSec" Content="Nb Lidar data / sec : "></Label>
+                </StackPanel>
+                <ScrollViewer Name="scrollViewerTextBoxConsole" Grid.Column="1">
+                    <TextBlock Name="textBoxConsole" HorizontalAlignment="Stretch" Margin="0,0,0,0" TextWrapping="WrapWithOverflow" Text="TextBlock" VerticalAlignment="Stretch" Background="Gray" 
+                                   ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"/>
+                </ScrollViewer>
+            </Grid>
+
+        </GroupBox>
 
 
+        <oscillo:WpfOscilloscope x:Name="oscilloLidar" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
+        <!--<ext:LocalWorldMapDisplay x:Name="worldMapDisplay" Grid.Row="1" Grid.Column="1"  MouseDoubleClick="worldMapDisplay_MouseDoubleClick" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></ext:LocalWorldMapDisplay>-->
+        <Viewbox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="1" Stretch="Uniform" MaxWidth="900" MaxHeight="800"   >
+            <ext:LocalWorldMapDisplay x:Name="worldMapDisplay" Width="300" Height="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></ext:LocalWorldMapDisplay>
+            <!--MouseDoubleClick="worldMapDisplay_MouseDoubleClick"-->
+        </Viewbox>
+        <Viewbox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1" Stretch="Uniform" MaxWidth="900" MaxHeight="800"   >
+            <ext:LocalWorldMapDisplay x:Name="worldMapDisplayWaypoint" Width="300" Height="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></ext:LocalWorldMapDisplay>
+            <!--MouseDoubleClick="worldMapDisplay_MouseDoubleClick"-->
+        </Viewbox>
+
+        <StackPanel Grid.Row="4" Grid.Column="2" VerticalAlignment="Top">
+            <Button x:Name="Button_0_0" HorizontalAlignment="Center" Width="60" Margin="4" Content="Go to (0,0)" Click="Button_0_0_Click"/>
+            <Button x:Name="Button_0_1" HorizontalAlignment="Center" Width="60" Margin="4" Content="Go to (0,1)" Click="Button_0_1_Click"/>
+            <Button x:Name="Button_1_0" HorizontalAlignment="Center" Width="60" Margin="4" Content="Go to (1,0)" Click="Button_1_0_Click"/>
+            <Button x:Name="Button_0_m1" HorizontalAlignment="Center" Width="60" Margin="4" Content="Go to (0,-1)" Click="Button_0_m1_Click"/>
+            <Button x:Name="Button_m1_0" HorizontalAlignment="Center" Width="60" Margin="4" Content="Go to (-1,0)" Click="Button_m1_0_Click"/>
+        </StackPanel>
 
         <!--<GroupBox x:Name="groupBox" Header="Reception" Margin="0" Background="#FFDDDDDD" BorderBrush="Black" Grid.Column="1" Grid.Row="1">
             <TextBox x:Name="textBoxReception" Margin="0" Grid.Row="1" TextWrapping="Wrap" Background="{x:Null}" BorderBrush="{x:Null}" IsReadOnly="True" AcceptsReturn="True"/>

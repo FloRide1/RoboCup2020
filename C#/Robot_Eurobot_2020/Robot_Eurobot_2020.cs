@@ -123,6 +123,7 @@ namespace Robot
         static KalmanPositioning.KalmanPositioning kalmanPositioning;
 
         static LocalWorldMapManager localWorldMapManager;
+        static GlobalWorldMapManager globalWorldMapManager;
         //static LidarSimulator.LidarSimulator lidarSimulator;
         static ImuProcessor.ImuProcessor imuProcessor;
         static StrategyManager_Eurobot strategyManager;
@@ -203,6 +204,7 @@ namespace Robot
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
 
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId);
+            globalWorldMapManager = new GlobalWorldMapManager(robotId, "0.0.0.0");
             //lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             perceptionSimulator = new PerceptionSimulator(robotId);
             imuProcessor = new ImuProcessor.ImuProcessor(robotId);
@@ -271,8 +273,14 @@ namespace Robot
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
-            strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
-            
+            //strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
+            waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
+
+            //Copy de la local world map nourrie par les capteurs vers la global worldmap pour la prise de décisions
+            localWorldMapManager.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+            globalWorldMapManager.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
+            globalWorldMapManager.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
+
             if (usingLidar)
             {
                 lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += lidarProcessor.OnRawLidarDataReceived;
@@ -402,6 +410,9 @@ namespace Robot
             //lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += interfaceRobot.OnRawLidarDataReceived;
             lidarProcessor.OnLidarProcessedEvent += interfaceRobot.OnRawLidarDataReceived;
             lidarProcessor.OnLidarBalisesListExtractedEvent += absolutePositionEstimator.OnLidarBalisesListExtractedEvent;
+
+            //On récupère les évènements de type refbox, qui sont ici des tests manuels dans le globalManager pour lancer à la main des actions ou stratégies
+            interfaceRobot.OnRefereeBoxCommandEvent += globalWorldMapManager.OnRefereeBoxCommandReceived;
 
             if (!usingLogReplay)
             {

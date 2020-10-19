@@ -113,7 +113,7 @@ namespace WpfWorldMapDisplay
                     robotShape = new PolygonExtended();
                     robotShape.polygon.Points.Add(new System.Windows.Point(-0.12, -0.12));
                     robotShape.polygon.Points.Add(new System.Windows.Point(0.12, -0.12));
-                    robotShape.polygon.Points.Add(new System.Windows.Point(0.1, 0));
+                    robotShape.polygon.Points.Add(new System.Windows.Point(0.02, 0));
                     robotShape.polygon.Points.Add(new System.Windows.Point(0.12, 0.12));
                     robotShape.polygon.Points.Add(new System.Windows.Point(-0.12, 0.12));
                     robotShape.polygon.Points.Add(new System.Windows.Point(-0.12, -0.12));

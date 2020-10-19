@@ -172,6 +172,10 @@
       <Project>{d668c327-67c7-41bb-b949-311a239b514c}</Project>
       <Name>PositionEstimator</Name>
     </ProjectReference>
+    <ProjectReference Include="..\RefereeBoxAdapter\RefereeBoxAdapter.csproj">
+      <Project>{A8C04138-90DC-42F9-AB39-E71125B805B9}</Project>
+      <Name>RefereeBoxAdapter</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RobotInterfaceWPF_Supervision_Systeme_Embarqué\RobotInterface\WpfRobotInterface.csproj">
       <Project>{1CDC0611-A2E5-42E8-A28B-BA4269343C68}</Project>
       <Name>WpfRobotInterface</Name>

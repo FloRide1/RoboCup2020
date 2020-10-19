@@ -146,6 +146,10 @@
       <Project>{EFAFBA95-1787-41A9-8F12-14ECD9FE127A}</Project>
       <Name>MessageEncoder</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\RefereeBoxAdapter\RefereeBoxAdapter.csproj">
+      <Project>{A8C04138-90DC-42F9-AB39-E71125B805B9}</Project>
+      <Name>RefereeBoxAdapter</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\RobotMessageGenerator\RobotMessageGenerator.csproj">
       <Project>{7f098ee2-a8cd-48cf-b9f4-256ea3df2bc6}</Project>
       <Name>RobotMessageGenerator</Name>
