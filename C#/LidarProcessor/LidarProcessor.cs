@@ -313,10 +313,7 @@ namespace LidarProcessor
                 handler(this, new LidarDetectedObjectListArgs { RobotId = id, LidarObjectList = objectList });
             }
         }
-
-
     }
-
 
     public class LidarDetectedObjectListArgs : EventArgs
     {

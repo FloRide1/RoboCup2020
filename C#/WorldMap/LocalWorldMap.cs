@@ -90,8 +90,9 @@ namespace WorldMap
 
         [JsonIgnore] 
         public List<PointD> lidarMap { get; set; }
-        [JsonIgnore] 
-        public Heatmap heatMap { get; set; }
+        [JsonIgnore]
+        public Heatmap heatMapStrategy { get; set; }
+        public Heatmap heatMapWaypoint { get; set; }
 
         public LocalWorldMap()
         {

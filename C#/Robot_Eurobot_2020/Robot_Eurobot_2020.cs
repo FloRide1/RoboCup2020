@@ -273,8 +273,8 @@ namespace Robot
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
-            //strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
-            waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
+            strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapStrategyReceived;
+            waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapWaypointReceived;
 
             //Copy de la local world map nourrie par les capteurs vers la global worldmap pour la prise de décisions
             localWorldMapManager.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
@@ -444,7 +444,9 @@ namespace Robot
             interfaceRobot.OnEnablePIDDebugDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnablePIDDebugData;
             interfaceRobot.OnCalibrateGyroFromInterfaceGeneratedEvent += imuProcessor.OnCalibrateGyroFromInterfaceGeneratedEvent;
 
-            localWorldMapManager.OnLocalWorldMapEvent += interfaceRobot.OnLocalWorldMapEvent;
+            localWorldMapManager.OnLocalWorldMapEvent += interfaceRobot.OnLocalWorldMapStrategyEvent;
+            localWorldMapManager.OnLocalWorldMapEvent += interfaceRobot.OnLocalWorldMapWayPointEvent;
+
             if (usingLogReplay)
             {
                 logReplay.OnIMUEvent += interfaceRobot.UpdateImuDataOnGraph;

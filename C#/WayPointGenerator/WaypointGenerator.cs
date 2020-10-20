@@ -218,6 +218,9 @@ namespace WayPointGenerator
                     //lock (robotToAvoidList)
                     var robotToAvoidList = robotToAvoidDictionary.ToList();   //On évite un lock couteux en perf en faisant une copie locale
                     {
+                        if (ptCourant.X< 0.5)
+                            penalisation += 1;
+
                         foreach (var robot in robotToAvoidList)
                         {
                             int competitorId = robot.Key;
@@ -228,8 +231,7 @@ namespace WayPointGenerator
                             {
                                 double angleRobotAdverse = Math.Atan2(competitorLocation.Y - robotLocation.Y, competitorLocation.X - robotLocation.X);
                                 double distanceRobotAdverse = Toolbox.Distance(competitorLocation.X, competitorLocation.Y, robotLocation.X, robotLocation.Y);
-
-
+                                
                                 //PointD ptCourant = GetFieldPosFromHeatMapCoordinates(x, y);
                                 double distancePt = Toolbox.Distance(ptCourant.X, ptCourant.Y, robotLocation.X, robotLocation.Y);
                                 double anglePtCourant = Math.Atan2(ptCourant.Y - robotLocation.Y, ptCourant.X - robotLocation.X);

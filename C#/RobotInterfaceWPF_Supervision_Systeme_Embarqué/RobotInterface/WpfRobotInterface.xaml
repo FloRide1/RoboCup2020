@@ -156,7 +156,7 @@
         <oscillo:WpfOscilloscope x:Name="oscilloLidar" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
         <!--<ext:LocalWorldMapDisplay x:Name="worldMapDisplay" Grid.Row="1" Grid.Column="1"  MouseDoubleClick="worldMapDisplay_MouseDoubleClick" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></ext:LocalWorldMapDisplay>-->
         <Viewbox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="1" Stretch="Uniform" MaxWidth="900" MaxHeight="800"   >
-            <ext:LocalWorldMapDisplay x:Name="worldMapDisplay" Width="300" Height="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></ext:LocalWorldMapDisplay>
+            <ext:LocalWorldMapDisplay x:Name="worldMapDisplayStrategy" Width="300" Height="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></ext:LocalWorldMapDisplay>
             <!--MouseDoubleClick="worldMapDisplay_MouseDoubleClick"-->
         </Viewbox>
         <Viewbox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1" Stretch="Uniform" MaxWidth="900" MaxHeight="800"   >

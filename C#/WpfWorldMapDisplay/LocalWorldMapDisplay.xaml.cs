@@ -19,11 +19,19 @@ using WorldMap;
 namespace WpfWorldMapDisplay
 {
 
+    public enum LocalWorldMapDisplayType
+    {
+        StrategyMap,
+        WayPointMap,
+    }
+
     /// <summary>
     /// Logique d'interaction pour ExtendedHeatMap.xaml
-    /// </summary>
+    /// </summary>    /// 
     public partial class LocalWorldMapDisplay : UserControl
     {
+        LocalWorldMapDisplayType lwmdType = LocalWorldMapDisplayType.StrategyMap; //Par défaut
+
         Random random = new Random();
 
         public bool IsExtended = false;
@@ -32,12 +40,7 @@ namespace WpfWorldMapDisplay
         double WidthGameArea = 0;
         double LengthDisplayArea = 0;
         double WidthDisplayArea = 0;
-
-        //double TerrainLowerX = -11;
-        //double TerrainUpperX = 11;
-        //double TerrainLowerY = -7;
-        //double TerrainUpperY = 7;
-
+        
         //Liste des robots à afficher
         Dictionary<int, RobotDisplay> TeamMatesDisplayDictionary = new Dictionary<int, RobotDisplay>();
         Dictionary<int, RobotDisplay> OpponentDisplayDictionary = new Dictionary<int, RobotDisplay>();
@@ -47,14 +50,21 @@ namespace WpfWorldMapDisplay
         List<BallDisplay> BallDisplayList = new List<BallDisplay>();
 
         string typeTerrain = "RoboCup";
+        
 
         public LocalWorldMapDisplay()
         {
             InitializeComponent();
         }
 
-        public void Init(string competition)
+        public void Init(string competition, LocalWorldMapDisplayType type)
         {
+            lwmdType = type;
+            if (lwmdType == LocalWorldMapDisplayType.StrategyMap)
+                LocalWorldMapTitle.Content = "Strategy Local World Map";
+            if (lwmdType == LocalWorldMapDisplayType.WayPointMap)
+                LocalWorldMapTitle.Content = "Waypoint Local World Map";
+
             switch (competition)
             {
                 case "Cachan":
@@ -159,8 +169,16 @@ namespace WpfWorldMapDisplay
             UpdateRobotGhostLocation(robotId, localWorldMap.robotGhostLocation);
             UpdateRobotDestination(robotId, localWorldMap.destinationLocation);
             UpdateRobotWaypoint(robotId, localWorldMap.waypointLocation);
-            if (localWorldMap.heatMap != null)
-                UpdateHeatMap(robotId, localWorldMap.heatMap.BaseHeatMapData);
+            if (lwmdType == LocalWorldMapDisplayType.StrategyMap)
+            {
+                if (localWorldMap.heatMapStrategy != null)
+                    UpdateHeatMap(robotId, localWorldMap.heatMapStrategy.BaseHeatMapData);
+            }
+            else if (lwmdType == LocalWorldMapDisplayType.WayPointMap)
+            {
+                if (localWorldMap.heatMapWaypoint != null)
+                    UpdateHeatMap(robotId, localWorldMap.heatMapWaypoint.BaseHeatMapData);
+            }
             UpdateLidarMap(robotId, localWorldMap.lidarMap);
             UpdateLidarObjects(robotId, localWorldMap.lidarObjectList);
             UpdateBallLocationList(localWorldMap.ballLocationList);
@@ -170,16 +188,32 @@ namespace WpfWorldMapDisplay
         {
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
             {
-                if (TeamMatesDisplayDictionary[robotId].heatMap == null)
-                    return;
-                //heatmapSeries.DataSeries = new UniformHeatmapDataSeries<double, double, double>(data, startX, stepX, startY, stepY);
-                double xStep = (LengthGameArea) / (TeamMatesDisplayDictionary[robotId].heatMap.GetUpperBound(1));
-                double yStep = (WidthGameArea) / (TeamMatesDisplayDictionary[robotId].heatMap.GetUpperBound(0));
-                var heatmapDataSeries = new UniformHeatmapDataSeries<double, double, double>(TeamMatesDisplayDictionary[robotId].heatMap, -LengthGameArea/2- xStep/2, xStep, -WidthGameArea/2 - yStep/2, yStep);
+                UniformHeatmapDataSeries<double, double, double> heatmapDataSeries = null;
+                if (lwmdType == LocalWorldMapDisplayType.StrategyMap)
+                {
+                    if (TeamMatesDisplayDictionary[robotId].heatMapStrategy == null)
+                        return;
+                    //heatmapSeries.DataSeries = new UniformHeatmapDataSeries<double, double, double>(data, startX, stepX, startY, stepY);
+                    double xStep = (LengthGameArea) / (TeamMatesDisplayDictionary[robotId].heatMapStrategy.GetUpperBound(1));
+                    double yStep = (WidthGameArea) / (TeamMatesDisplayDictionary[robotId].heatMapStrategy.GetUpperBound(0));
+                    heatmapDataSeries = new UniformHeatmapDataSeries<double, double, double>(TeamMatesDisplayDictionary[robotId].heatMapStrategy, -LengthGameArea / 2 - xStep / 2, xStep, -WidthGameArea / 2 - yStep / 2, yStep);
+                }
+                else
+                {
+                    if (TeamMatesDisplayDictionary[robotId].heatMapWaypoint == null)
+                        return;
+                    //heatmapSeries.DataSeries = new UniformHeatmapDataSeries<double, double, double>(data, startX, stepX, startY, stepY);
+                    double xStep = (LengthGameArea) / (TeamMatesDisplayDictionary[robotId].heatMapWaypoint.GetUpperBound(1));
+                    double yStep = (WidthGameArea) / (TeamMatesDisplayDictionary[robotId].heatMapWaypoint.GetUpperBound(0));
+                    heatmapDataSeries = new UniformHeatmapDataSeries<double, double, double>(TeamMatesDisplayDictionary[robotId].heatMapWaypoint, -LengthGameArea / 2 - xStep / 2, xStep, -WidthGameArea / 2 - yStep / 2, yStep);
+                }
 
                 // Apply the dataseries to the heatmap
-                heatmapSeries.DataSeries = heatmapDataSeries;
-                heatmapDataSeries.InvalidateParentSurface(RangeMode.None);
+                if (heatmapDataSeries != null)
+                {
+                    heatmapSeries.DataSeries = heatmapDataSeries;
+                    heatmapDataSeries.InvalidateParentSurface(RangeMode.None);
+                }
             }
         }
 
@@ -290,7 +324,10 @@ namespace WpfWorldMapDisplay
                 return;
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
             {
-                TeamMatesDisplayDictionary[robotId].SetHeatMap(data);
+                if (lwmdType == LocalWorldMapDisplayType.StrategyMap)
+                    TeamMatesDisplayDictionary[robotId].SetHeatMapStrategy(data);
+                if (lwmdType == LocalWorldMapDisplayType.WayPointMap)
+                    TeamMatesDisplayDictionary[robotId].SetHeatMapWaypoint(data);
             }
         }
 

@@ -84,16 +84,26 @@ namespace WorldMapManager
             }
         }
 
-        public void OnHeatMapReceived(object sender, EventArgsLibrary.HeatMapArgs e)
+        public void OnHeatMapStrategyReceived(object sender, EventArgsLibrary.HeatMapArgs e)
         {
             if (localWorldMap == null)
                 return;
             if (localWorldMap.RobotId == e.RobotId)
             {
-                localWorldMap.heatMap = e.HeatMap;
+                localWorldMap.heatMapStrategy = e.HeatMap;
             }
         }
-        
+
+        public void OnHeatMapWaypointReceived(object sender, EventArgsLibrary.HeatMapArgs e)
+        {
+            if (localWorldMap == null)
+                return;
+            if (localWorldMap.RobotId == e.RobotId)
+            {
+                localWorldMap.heatMapWaypoint = e.HeatMap;
+            }
+        }
+
         //int i = 0;
         public void OnRawLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
         {
@@ -128,7 +138,6 @@ namespace WorldMapManager
                 return;
             if (localWorldMap.RobotId == e.RobotId)
             {
-                //TODO : déplacer les objets dans le référentiel du robot...
                 localWorldMap.lidarObjectList = e.ObjectList;
             }
         }

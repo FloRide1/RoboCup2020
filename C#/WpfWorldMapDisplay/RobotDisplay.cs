@@ -17,7 +17,8 @@ namespace WpfWorldMapDisplay
         private Location ghostLocation;
         private Location destinationLocation;
         private Location waypointLocation;
-        public double[,] heatMap;
+        public double[,] heatMapStrategy;
+        public double[,] heatMapWaypoint;
         List<PointD> lidarMap;
         List<PolarPointListExtended> lidarObjectList;
         public List<Location> ballLocationList;
@@ -66,9 +67,13 @@ namespace WpfWorldMapDisplay
             waypointLocation.Theta = theta;
         }
 
-        public void SetHeatMap(double[,] heatMap)
+        public void SetHeatMapStrategy(double[,] heatMap)
         {
-            this.heatMap = heatMap;
+            this.heatMapStrategy = heatMap;
+        }
+        public void SetHeatMapWaypoint(double[,] heatMap)
+        {
+            this.heatMapWaypoint = heatMap;
         }
 
         public void SetLidarMap(List<PointD> lidarMap)
@@ -215,7 +220,7 @@ namespace WpfWorldMapDisplay
                 PolygonExtended polygonToDisplay = new PolygonExtended();
                 foreach (var pt in obj.polarPointList)
                 {
-                    polygonToDisplay.polygon.Points.Add(new Point(robotLocation.X + pt.Distance * Math.Cos(pt.Angle), robotLocation.Y + pt.Distance * Math.Sin(pt.Angle)));
+                    polygonToDisplay.polygon.Points.Add(new Point(robotLocation.X + pt.Distance * Math.Cos(pt.Angle+robotLocation.Theta), robotLocation.Y + pt.Distance * Math.Sin(pt.Angle + robotLocation.Theta)));
                 }
                 polygonToDisplay.borderColor = obj.displayColor;
                 polygonToDisplay.borderWidth = (float)obj.displayWidth;

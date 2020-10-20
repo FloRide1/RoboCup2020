@@ -49,7 +49,7 @@
                 </local:PolygonRenderableSeries>
             </s:SciChartSurface.RenderableSeries>
         </s:SciChartSurface>
-        <Label Grid.Row="0" Content="Local World Map" HorizontalContentAlignment="Center" VerticalAlignment="Stretch" Foreground="White" HorizontalAlignment="Stretch">
+        <Label x:Name="LocalWorldMapTitle" Grid.Row="0" Content="Local World Map" HorizontalContentAlignment="Center" VerticalAlignment="Stretch" Foreground="White" HorizontalAlignment="Stretch">
         </Label>
     </Grid>
 </UserControl>
