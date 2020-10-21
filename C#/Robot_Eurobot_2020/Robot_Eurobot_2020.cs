@@ -22,7 +22,6 @@ using LogReplay;
 using LidarProcessor;
 using WpfReplayNavigator;
 using System.Runtime.InteropServices;
-using PositionEstimator;
 using Staudt.Engineering.LidaRx.Drivers.R2000;
 using System.Net;
 using Staudt.Engineering.LidaRx;
@@ -30,6 +29,8 @@ using System.Linq;
 using ImuProcessor;
 using KalmanPositioning;
 using StrategyManager;
+using UDPMulticast;
+using UdpMulticastInterpreter;
 
 namespace Robot
 {
@@ -115,19 +116,24 @@ namespace Robot
         static MsgEncoder msgEncoder;
         static RobotMsgGenerator robotMsgGenerator;
         static RobotMsgProcessor robotMsgProcessor;
-        static RobotPilot.RobotPilot robotPilot;
-        //static PhysicalSimulator.PhysicalSimulator physicalSimulator;
         static WaypointGenerator waypointGenerator;
         static TrajectoryPlanner trajectoryPlanner;
         static KalmanPositioning.KalmanPositioning kalmanPositioning;
 
         static LocalWorldMapManager localWorldMapManager;
+        //Lien de transmission par socket
+        static UDPMulticastSender baseStationUdpMulticastSender = null;
+        static UDPMulticastReceiver baseStationUdpMulticastReceiver = null;
+        static UDPMulticastInterpreter baseStationUdpMulticastInterpreter = null;
+        static UDPMulticastSender robotUdpMulticastSender = null;
+        static UDPMulticastReceiver robotUdpMulticastReceiver = null;
+        static UDPMulticastInterpreter robotUdpMulticastInterpreter = null;
+
         static GlobalWorldMapManager globalWorldMapManager;
-        //static LidarSimulator.LidarSimulator lidarSimulator;
+                
         static ImuProcessor.ImuProcessor imuProcessor;
         static StrategyManager_Eurobot strategyManager;
-        static PerceptionManager perceptionManager;
-        //static Lidar_OMD60M_UDP lidar_OMD60M_UDP;
+        static PerceptionManager perceptionManager;        
         static Lidar_OMD60M_TCP lidar_OMD60M_TCP;
         static XBoxController.XBoxController xBoxManette;
 
@@ -192,25 +198,32 @@ namespace Robot
             int robotId = (int)TeamId.Team1 + (int)RobotId.Robot1;
             int teamId = (int)TeamId.Team1;
 
-            robotPilot = new RobotPilot.RobotPilot(robotId);
-            strategyManager = new StrategyManager_Eurobot(robotId, teamId);
-            waypointGenerator = new WaypointGenerator(robotId, "Eurobot");
-            trajectoryPlanner = new TrajectoryPlanner(robotId);
+            perceptionManager = new PerceptionManager(robotId);
+            imuProcessor = new ImuProcessor.ImuProcessor(robotId);
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
 
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId);
-            globalWorldMapManager = new GlobalWorldMapManager(robotId, "0.0.0.0");
-            perceptionManager = new PerceptionManager(robotId);
-            imuProcessor = new ImuProcessor.ImuProcessor(robotId);
 
+            //On simule une base station en local
+            baseStationUdpMulticastSender = new UDPMulticastSender(0, "224.16.32.79");
+            baseStationUdpMulticastReceiver = new UDPMulticastReceiver(0, "224.16.32.79");
+            baseStationUdpMulticastInterpreter = new UDPMulticastInterpreter(0);
+
+            robotUdpMulticastSender = new UDPMulticastSender(robotId, "224.16.32.79");
+            robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, "224.16.32.79");
+            robotUdpMulticastInterpreter = new UDPMulticastInterpreter(robotId);
+
+            globalWorldMapManager = new GlobalWorldMapManager(robotId, "0.0.0.0");
+            strategyManager = new StrategyManager_Eurobot(robotId, teamId);
+            waypointGenerator = new WaypointGenerator(robotId, "Eurobot");
+            trajectoryPlanner = new TrajectoryPlanner(robotId);
+            
             if (usingLidar)
             {
                 lidar_OMD60M_TCP = new Lidar_OMD60M_TCP(50, R2000SamplingRate._72kHz);
             }
             
             xBoxManette = new XBoxController.XBoxController(robotId);
-                    
-           
 
             //Démarrage des interface de visualisation
             if (usingRobotInterface)
@@ -234,9 +247,7 @@ namespace Robot
             if (usingLidar)
             {
                 lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += perceptionManager.OnRawLidarDataReceived;
-                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
-                //lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
-                
+                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;                
             }
 
             //Filtre de Kalman
@@ -273,16 +284,16 @@ namespace Robot
             strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapStrategyReceived;
             waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapWaypointReceived;
 
-            //
-            //localWorldMapManager.OnMulticastSendLocalWorldMapEvent; 
-
-
-
-            //Copy de la local world map nourrie par les capteurs vers la global worldmap pour la prise de décisions
-            localWorldMapManager.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived; //Bypass car pas de liaison radio dans eurobot
-            globalWorldMapManager.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
-            globalWorldMapManager.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
-
+            //Transfert de la local map vers la global world map via UPD en mode Multicast : 
+            //inutile dans Eurobot mais permet une extension radio simple.
+            localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
+            baseStationUdpMulticastReceiver.OnDataReceivedEvent += baseStationUdpMulticastInterpreter.OnMulticastDataReceived;
+            baseStationUdpMulticastInterpreter.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+            globalWorldMapManager.OnMulticastSendGlobalWorldMapEvent += baseStationUdpMulticastSender.OnMulticastMessageToSendReceived;
+            robotUdpMulticastReceiver.OnDataReceivedEvent += robotUdpMulticastInterpreter.OnMulticastDataReceived;
+            robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
+            robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
+            robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += perceptionManager.OnGlobalWorldMapReceived;
 
             //Events de recording
             if (usingLogging)

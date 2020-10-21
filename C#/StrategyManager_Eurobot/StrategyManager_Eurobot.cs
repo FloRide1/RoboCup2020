@@ -21,8 +21,10 @@ namespace StrategyManager
         int robotId = 0;
         int teamId = 0;
         
-        GlobalWorldMap globalWorldMap = new GlobalWorldMap(); 
-        
+        GlobalWorldMap globalWorldMap = new GlobalWorldMap();
+        Heatmap heatMap;
+        Stopwatch sw = new Stopwatch();
+
         PlayerRole robotRole = PlayerRole.Stop;
         PointD robotDestination = new PointD(0, 0);
         double robotOrientation = 0;
@@ -47,7 +49,7 @@ namespace StrategyManager
 
         private void TimerStrategy_Elapsed(object sender, ElapsedEventArgs e)
         {
-            ProcessStrategy();
+            //ProcessStrategy();
         }
 
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
@@ -68,6 +70,7 @@ namespace StrategyManager
             //Le joueur détermine sa stratégie
             SetRobotRole();
             SetRobotDestination(robotRole);
+            ProcessStrategy();
         }
 
         void SetRobotRole()
@@ -298,8 +301,6 @@ namespace StrategyManager
             }            
         }
 
-        Heatmap heatMap;
-        Stopwatch sw = new Stopwatch();
 
 
         public void ProcessStrategy()

@@ -40,23 +40,26 @@ namespace WorldMapManager
                 return;
             if (localWorldMap.RobotId == e.RobotId)
             {
+                //On ajoute les infos à la Local World Map
+                localWorldMap.robotLocation = e.Perception.robotKalmanLocation;
+                localWorldMap.obstaclesLocationList = e.Perception.obstaclesLocationList;
+                localWorldMap.ballLocationList = e.Perception.ballLocationList;
+                
+                //On recopie les infos de la local World Map dans la structure de transfert (sans ce qui coute cher : heatmaps, lidarpoints...)
                 LocalWorldMap transferLocalWorldMap = new LocalWorldMap();
-                transferLocalWorldMap.RobotId = e.RobotId;
+                transferLocalWorldMap.RobotId = localWorldMap.RobotId;
                 transferLocalWorldMap.TeamId = localWorldMap.TeamId;
                 transferLocalWorldMap.destinationLocation = localWorldMap.destinationLocation;
-
-
-                transferLocalWorldMap.robotLocation = e.Perception.robotLocation;
-                transferLocalWorldMap.obstaclesLocationList = e.Perception.obstaclesLocationList;
-                transferLocalWorldMap.ballLocationList = e.Perception.ballLocationList;
-                
+                transferLocalWorldMap.robotLocation = localWorldMap.robotLocation;
+                transferLocalWorldMap.obstaclesLocationList = localWorldMap.obstaclesLocationList;
+                transferLocalWorldMap.ballLocationList = localWorldMap.ballLocationList;
 
                 if (transferLocalWorldMap.robotLocation != null)
                 {
                     string json = JsonConvert.SerializeObject(transferLocalWorldMap, decimalJsonConverter);
                     OnMulticastSendLocalWorldMapCommand(json.GetBytes());
 
-                    //OnLocalWorldMap(localWorldMap); //For debug only !!!
+                    OnLocalWorldMap(localWorldMap); //Pour affichage uniquement, sinon transmission radio en, multicast
                 }
             }
         }

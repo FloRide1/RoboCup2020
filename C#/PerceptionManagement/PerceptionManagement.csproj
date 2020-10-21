@@ -64,6 +64,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AbsolutePositionEstimator\AbsolutePositionEstimator.csproj">
+      <Project>{c8760a70-0073-45f9-afb7-806881456673}</Project>
+      <Name>AbsolutePositionEstimator</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EventArgsLibrary\EventArgsLibrary.csproj">
       <Project>{9C46A7C0-4675-41BE-B282-E6F0825AD73E}</Project>
       <Name>EventArgsLibrary</Name>
@@ -75,10 +79,6 @@
     <ProjectReference Include="..\Perception\Perception.csproj">
       <Project>{dd8fd061-d3b2-43ae-b74d-03d94a2876a3}</Project>
       <Name>Perception</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PositionEstimator\AbsolutePositionEstimator.csproj">
-      <Project>{D668C327-67C7-41BB-B949-311A239B514C}</Project>
-      <Name>AbsolutePositionEstimator</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8E7D0DA4-9A13-4B18-A90E-0243BBCCE40A}</Project>

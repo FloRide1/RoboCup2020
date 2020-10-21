@@ -14,7 +14,7 @@ namespace WorldMapManager
     {
         int TeamId;
         string TeamIpAddress = "";
-        double freqRafraichissementWorldMap = 30;
+        double freqRafraichissementWorldMap = 20;
 
         Dictionary<int, LocalWorldMap> localWorldMapDictionary = new Dictionary<int, LocalWorldMap>();
         GlobalWorldMapStorage globalWorldMapStorage = new GlobalWorldMapStorage();
@@ -36,6 +36,7 @@ namespace WorldMapManager
 
         private void GlobalWorldMapSendTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
+            //Starting point pour pas mal de processings
             MergeLocalWorldMaps();
         }
 
@@ -313,7 +314,6 @@ namespace WorldMapManager
             globalWorldMap.stoppedGameAction = currentStoppedGameAction;
 
             string json = JsonConvert.SerializeObject(globalWorldMap, decimalJsonConverter);
-            OnGlobalWorldMap(globalWorldMap);
             OnMulticastSendGlobalWorldMap(json.GetBytes());
         }
 
@@ -333,14 +333,14 @@ namespace WorldMapManager
             }
         }
 
-        public event EventHandler<GlobalWorldMapArgs> OnGlobalWorldMapEvent;
-        public virtual void OnGlobalWorldMap(GlobalWorldMap map)
-        {
-            var handler = OnGlobalWorldMapEvent;
-            if (handler != null)
-            {
-                handler(this, new GlobalWorldMapArgs { GlobalWorldMap = map });
-            }
-        }
+        //public event EventHandler<GlobalWorldMapArgs> OnGlobalWorldMapEvent;
+        //public virtual void OnGlobalWorldMap(GlobalWorldMap map)
+        //{
+        //    var handler = OnGlobalWorldMapEvent;
+        //    if (handler != null)
+        //    {
+        //        handler(this, new GlobalWorldMapArgs { GlobalWorldMap = map });
+        //    }
+        //}
     }
 }

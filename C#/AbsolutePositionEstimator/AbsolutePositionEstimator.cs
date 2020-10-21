@@ -13,7 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Utilities;
 
-namespace PositionEstimator
+namespace AbsolutePositionEstimatorNS
 {
     public class AbsolutePositionEstimator
     {

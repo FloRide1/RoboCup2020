@@ -1,6 +1,5 @@
-﻿using EventArgsLibrary;
-using LidarProcessor;
-using PositionEstimator;
+﻿using AbsolutePositionEstimatorNS;
+using EventArgsLibrary;
 using System;
 using System.Collections.Generic;
 using Utilities;
@@ -28,12 +27,12 @@ namespace PerceptionManagement
             robotPerception = new Perception();
             physicalObjectList = new List<Location>();
 
+            //Chainage des modules composant le Perception Manager
             absolutePositionEstimator = new AbsolutePositionEstimator(robotId);
 
             lidarProcessor = new LidarProcessor.LidarProcessor(robotId);
             lidarProcessor.OnLidarBalisesListExtractedEvent += absolutePositionEstimator.OnLidarBalisesListExtractedEvent;
-            //lidarProcessor.OnLidarProcessedEvent += LidarProcessor_OnLidarProcessedEvent; //localWorldMapManager.OnRawLidarDataReceived;
-            lidarProcessor.OnLidarObjectProcessedEvent += OnLidarObjectsReceived; //perceptionManager.OnLidarObjectsReceived;
+            lidarProcessor.OnLidarObjectProcessedEvent += OnLidarObjectsReceived; 
 
             absolutePositionEstimator.OnAbsolutePositionCalculatedEvent += OnAbsolutePositionCalculatedEvent;
 
@@ -49,6 +48,7 @@ namespace PerceptionManagement
         private void OnAbsolutePositionCalculatedEvent(object sender, PositionArgs e)
         {
             OnAbsolutePositionEvent?.Invoke(this, e);
+            robotPerception.robotAbsoluteLocation = new Location(e.X, e.Y, e.Theta, 0, 0, 0);
         }
 
         public void OnRawLidarDataReceived(object sender, RawLidarArgs e)
@@ -65,7 +65,7 @@ namespace PerceptionManagement
             //On réel on utilisera la triangulation lidar et la caméra
             if (robotId == e.RobotId)
             {
-                robotPerception.robotLocation = e.Location;
+                robotPerception.robotKalmanLocation = e.Location;
                 GeneratePerception();
             }
         }
@@ -112,9 +112,9 @@ namespace PerceptionManagement
                 {
                     double angle = obj.polarPointList[0].Angle;
                     double distance = obj.polarPointList[0].Distance;
-                    double xRobot = robotPerception.robotLocation.X;
-                    double yRobot = robotPerception.robotLocation.Y;
-                    double angleRobot = robotPerception.robotLocation.Theta;
+                    double xRobot = robotPerception.robotKalmanLocation.X;
+                    double yRobot = robotPerception.robotKalmanLocation.Y;
+                    double angleRobot = robotPerception.robotKalmanLocation.Theta;
 
                     physicalObjectList.Add(new Location(xRobot + distance * Math.Cos(angle + angleRobot), yRobot + distance * Math.Sin(angle + angleRobot), 0, 0, 0, 0));
                 }
