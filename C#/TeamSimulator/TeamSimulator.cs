@@ -32,7 +32,7 @@ namespace TeamSimulator
         static List<SensorSimulator.SensorSimulator> sensorSimulatorList;
         static List<KalmanPositioning.KalmanPositioning> kalmanPositioningList;
         static List<LocalWorldMapManager> localWorldMapManagerList;
-        static List<PerceptionSimulator> perceptionSimulatorList;
+        static List<PerceptionManager> perceptionManagerList;
         static List<UDPMulticastSender> robotUdpMulticastSenderList;
         static List<UDPMulticastReceiver> robotUdpMulticastReceiverList;
         static List<UDPMulticastInterpreter> robotUdpMulticastInterpreterList;
@@ -64,7 +64,7 @@ namespace TeamSimulator
             kalmanPositioningList = new List<KalmanPositioning.KalmanPositioning>();
             strategyManagerDictionary = new Dictionary<int, StrategyManager.StrategyManager>();
             localWorldMapManagerList = new List<LocalWorldMapManager>();
-            perceptionSimulatorList = new List<PerceptionSimulator>();
+            perceptionManagerList = new List<PerceptionManager>();
             robotUdpMulticastSenderList = new List<UDPMulticastSender>();
             robotUdpMulticastReceiverList = new List<UDPMulticastReceiver>();
             robotUdpMulticastInterpreterList = new List<UDPMulticastInterpreter>();
@@ -139,7 +139,7 @@ namespace TeamSimulator
             var kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
             var localWorldMapManager = new LocalWorldMapManager(robotId, TeamNumber);
             //var lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
-            var perceptionSimulator = new PerceptionSimulator(robotId);
+            var perceptionSimulator = new PerceptionManager(robotId);
             UDPMulticastSender robotUdpMulticastSender = null;
             UDPMulticastReceiver robotUdpMulticastReceiver = null;
             UDPMulticastInterpreter robotUdpMulticastInterpreter = null;
@@ -192,7 +192,7 @@ namespace TeamSimulator
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
-            waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
+            waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapWaypointReceived;
             trajectoryPlanner.OnGhostLocationEvent += localWorldMapManager.OnGhostLocationReceived;
 
             //Event de Réception de data Multicast sur sur le robot
@@ -211,7 +211,7 @@ namespace TeamSimulator
             kalmanPositioningList.Add(kalmanPositioning);
             localWorldMapManagerList.Add(localWorldMapManager);
             //lidarSimulatorList.Add(lidarSimulator);
-            perceptionSimulatorList.Add(perceptionSimulator);
+            perceptionManagerList.Add(perceptionSimulator);
             robotUdpMulticastReceiverList.Add(robotUdpMulticastReceiver);
             robotUdpMulticastSenderList.Add(robotUdpMulticastSender);
             robotUdpMulticastInterpreterList.Add(robotUdpMulticastInterpreter);

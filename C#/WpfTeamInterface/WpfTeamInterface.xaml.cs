@@ -24,12 +24,12 @@ namespace TeamInterface
         {
             InitializeComponent();
 
-            localWorldMapDisplay1.Init(typeTerrain);
-            localWorldMapDisplay2.Init(typeTerrain);
-            localWorldMapDisplay3.Init(typeTerrain);
-            localWorldMapDisplay4.Init(typeTerrain);
-            localWorldMapDisplay5.Init(typeTerrain);
-            localWorldMapDisplay6.Init(typeTerrain);
+            localWorldMapDisplay1.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
+            localWorldMapDisplay2.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
+            localWorldMapDisplay3.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
+            localWorldMapDisplay4.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
+            localWorldMapDisplay5.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
+            localWorldMapDisplay6.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
 
             localWorldMapDisplay1.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, "RoboCup");
             localWorldMapDisplay2.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot2, "RoboCup");
