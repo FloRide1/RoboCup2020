@@ -15,5 +15,11 @@ namespace PerceptionManagement
         public List<Location> obstaclesLocationList;
         //public List<Location> opponentLocationList;
         //public List<Location> obstacleLocationList;
+
+        public Perception()
+        {
+            ballLocationList = new List<Location>();
+            obstaclesLocationList = new List<Location>();
+        }
     }
 }

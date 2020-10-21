@@ -229,9 +229,25 @@ namespace WpfWorldMapDisplay
                     Point pt = polygonToDisplay.polygon.Points[0];
                     polygonToDisplay.polygon.Points.Add(new Point(pt.X+0.001, pt.Y + 0.001));
                 }
-                polygonToDisplay.borderColor = obj.displayColor;
-                polygonToDisplay.borderWidth = (float)obj.displayWidth;
-                polygonToDisplay.backgroundColor = obj.displayColor;
+                switch(obj.type)
+                {
+                    case ObjectType.Objet:
+                        polygonToDisplay.borderColor = System.Drawing.Color.Red;
+                        polygonToDisplay.borderWidth = 2;
+                        polygonToDisplay.backgroundColor = System.Drawing.Color.Yellow;
+                        break;
+                    case ObjectType.Balle:
+                        polygonToDisplay.borderColor = System.Drawing.Color.Black;
+                        polygonToDisplay.borderWidth = 2;
+                        polygonToDisplay.backgroundColor = System.Drawing.Color.Yellow;
+                        break;
+                    default:
+                        polygonToDisplay.borderColor = System.Drawing.Color.Black;
+                        polygonToDisplay.borderWidth = 2;
+                        polygonToDisplay.backgroundColor = System.Drawing.Color.LightBlue;
+                        break;
+                }
+                
                 polygonExtendedList.Add(polygonToDisplay);
             }
             return polygonExtendedList;

@@ -161,11 +161,7 @@ namespace PositionEstimator
         public event EventHandler<PositionArgs> OnAbsolutePositionCalculatedEvent;
         public virtual void OnPositionCalculatedEvent(float x, float y, float angle, float reliability)
         {
-            var handler = OnAbsolutePositionCalculatedEvent;
-            if (handler != null)
-            {
-                handler(this, new PositionArgs { X = x, Y = y, Theta = angle, Reliability = reliability });
-            }
+            OnAbsolutePositionCalculatedEvent?.Invoke(this, new PositionArgs { X = x, Y = y, Theta = angle, Reliability = reliability });
         }
         
     }

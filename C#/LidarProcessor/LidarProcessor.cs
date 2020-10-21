@@ -62,80 +62,64 @@ namespace LidarProcessor
         {
             double zoomCoeff = 1.0;
 
-            //List<PolarPoint> PtListProcessed = new List<PolarPoint>();
-
             List<LidarDetectedObject> ObjetsSaillantsList = new List<LidarDetectedObject>();
             List<LidarDetectedObject> BalisesCatadioptriqueList = new List<LidarDetectedObject>();
             List<LidarDetectedObject> ObjetsProchesList = new List<LidarDetectedObject>();
             List<LidarDetectedObject> ObjetsFondList = new List<LidarDetectedObject>();
             List<LidarDetectedObject> ObjetsPoteauPossible = new List<LidarDetectedObject>();
             LidarDetectedObject currentObject = new LidarDetectedObject();
-
-            ////A enlever une fois le debug terminé
-            //for (int i = 1; i < ptList.Count; i++)
-            //{
-            //    ptList[i].Distance *= zoomCoeff;
-            //}
-
+            
             //Opérations de traitement du signal LIDAR
-            ptList = PrefiltragePointsIsoles(ptList, 0.04, zoomCoeff);
+            //ptList = PrefiltragePointsIsoles(ptList, 0.04, zoomCoeff);
             BalisesCatadioptriqueList = DetectionBalisesCatadioptriques(ptList, 3.6, zoomCoeff);
-
-            ObjetsProchesList = DetectionObjetsProches(ptList, 2.0, 0.04, zoomCoeff);
-
-            //ObjetsSaillantsList = DetectionObjetsSaillants(ptList, zoomCoeff);
-            //ObjetsFondList = DetectionObjetsFond(ptList, zoomCoeff);
-
-            //Filtrage des points pouvant être un poteau
-            foreach (var obj in BalisesCatadioptriqueList)
-            {
-                //if (Math.Abs(obj.Largeur - 0.125 * zoomCoeff) < 0.1 * zoomCoeff)
-                {
-                    ObjetsPoteauPossible.Add(obj);
-                }
-            }
-
+            ObjetsProchesList = DetectionObjetsProches(ptList, 0.012, 2.0, 0.2, zoomCoeff);
+            
             //Affichage des résultats
             List<PolarPointListExtended> objectList = new List<PolarPointListExtended>();
             foreach (var obj in ObjetsProchesList)
             {
                 PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
                 currentPolarPointListExtended.polarPointList = new List<PolarPointRssi>();
-                //if (obj.Largeur > 0.05 && obj.Largeur < 0.5)
                 {
                     currentPolarPointListExtended.polarPointList.Add(new PolarPointRssi(obj.AngleMoyen, obj.DistanceMoyenne, 0));
-                    //currentPolarPointListExtended.displayColor = System.Drawing.Color.FromArgb(rand.Next(0, 255), rand.Next(0, 255), rand.Next(0, 255), 0xFF);
-                    currentPolarPointListExtended.displayColor = System.Drawing.Color.DarkRed;
-                    currentPolarPointListExtended.displayWidth = 5;
+                    currentPolarPointListExtended.type = ObjectType.Objet;
                     objectList.Add(currentPolarPointListExtended);
                 }
             }
-            foreach (var obj in ObjetsPoteauPossible)
+            foreach (var obj in BalisesCatadioptriqueList)
             {
                 PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
                 currentPolarPointListExtended.polarPointList = new List<PolarPointRssi>();
-                //if (obj.Largeur > 0.05 && obj.Largeur < 0.5)
                 {
                     currentPolarPointListExtended.polarPointList = obj.PtList;
-                    currentPolarPointListExtended.displayColor = System.Drawing.Color.Yellow;
-                    currentPolarPointListExtended.displayWidth = 1;
+                    currentPolarPointListExtended.type = ObjectType.Balise;
                     objectList.Add(currentPolarPointListExtended);
                 }
             }
-            foreach (var obj in ObjetsFondList)
-            {
-                PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
-                currentPolarPointListExtended.polarPointList = new List<PolarPointRssi>();
-                //if (obj.Largeur > 0.05 && obj.Largeur < 0.5)
-                {
-                    currentPolarPointListExtended.polarPointList = obj.PtList;
-                    currentPolarPointListExtended.displayColor = System.Drawing.Color.Blue;
-                    currentPolarPointListExtended.displayWidth = 1;
-                    objectList.Add(currentPolarPointListExtended);
-                }
-            }
+            //foreach (var obj in ObjetsPoteauPossible)
+            //{
+            //    PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
+            //    currentPolarPointListExtended.polarPointList = new List<PolarPointRssi>();
+            //    {
+            //        currentPolarPointListExtended.polarPointList = obj.PtList;
+            //        currentPolarPointListExtended.type = ObjectType.Poteau;
+            //        objectList.Add(currentPolarPointListExtended);
+            //    }
+            //}
+            //foreach (var obj in ObjetsFondList)
+            //{
+            //    PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
+            //    currentPolarPointListExtended.polarPointList = new List<PolarPointRssi>();
+            //    //if (obj.Largeur > 0.05 && obj.Largeur < 0.5)
+            //    {
+            //        currentPolarPointListExtended.polarPointList = obj.PtList;
+            //        currentPolarPointListExtended.displayColor = System.Drawing.Color.Blue;
+            //        currentPolarPointListExtended.displayWidth = 1;
+            //        objectList.Add(currentPolarPointListExtended);
+            //    }
+            //}
 
-            OnLidarProcessed(robotId, ptList);
+            //OnLidarProcessed(robotId, ptList);
             OnLidarBalisesListExtracted(robotId, BalisesCatadioptriqueList);
             OnLidarObjectProcessed(robotId, objectList);
         }
@@ -155,91 +139,91 @@ namespace LidarProcessor
             return ptListFiltered;
         }
 
-        double seuilResiduLine = 0.03;
+        //double seuilResiduLine = 0.03;
 
-        private List<LidarDetectedObject> DetectionObjetsFond(List<PolarPointRssi> ptList, double zoomCoeff)
-        {
-            //Détection des objets de fond
-            List<LidarDetectedObject> ObjetsFondList = new List<LidarDetectedObject>();
-            LidarDetectedObject currentObject = new LidarDetectedObject();
-            bool objetFondEnCours = false;
+        //private List<LidarDetectedObject> DetectionObjetsFond(List<PolarPointRssi> ptList, double zoomCoeff)
+        //{
+        //    //Détection des objets de fond
+        //    List<LidarDetectedObject> ObjetsFondList = new List<LidarDetectedObject>();
+        //    LidarDetectedObject currentObject = new LidarDetectedObject();
+        //    bool objetFondEnCours = false;
 
-            for (int i = 1; i < ptList.Count; i++)
-            {
-                //On commence un objet de fond sur un front montant de distance
-                if (ptList[i].Distance - ptList[i - 1].Distance > 0.06 * zoomCoeff)
-                {
-                    currentObject = new LidarDetectedObject();
-                    currentObject.PtList.Add(ptList[i]);
-                    objetFondEnCours = true;
-                }
-                //On termine un objet de fond sur un front descendant de distance
-                else if (ptList[i].Distance - ptList[i - 1].Distance < -0.12 * zoomCoeff && objetFondEnCours)
-                {
-                    objetFondEnCours = false;
-                    if (currentObject.PtList.Count > 20)
-                    {
-                        currentObject.ExtractObjectAttributes();
-                        //Console.WriteLine("Résidu fond : " + currentObject.ResiduLineModel);
-                        //if (currentObject.ResiduLineModel < seuilResiduLine*2)
-                        {
+        //    for (int i = 1; i < ptList.Count; i++)
+        //    {
+        //        //On commence un objet de fond sur un front montant de distance
+        //        if (ptList[i].Distance - ptList[i - 1].Distance > 0.06 * zoomCoeff)
+        //        {
+        //            currentObject = new LidarDetectedObject();
+        //            currentObject.PtList.Add(ptList[i]);
+        //            objetFondEnCours = true;
+        //        }
+        //        //On termine un objet de fond sur un front descendant de distance
+        //        else if (ptList[i].Distance - ptList[i - 1].Distance < -0.12 * zoomCoeff && objetFondEnCours)
+        //        {
+        //            objetFondEnCours = false;
+        //            if (currentObject.PtList.Count > 20)
+        //            {
+        //                currentObject.ExtractObjectAttributes();
+        //                //Console.WriteLine("Résidu fond : " + currentObject.ResiduLineModel);
+        //                //if (currentObject.ResiduLineModel < seuilResiduLine*2)
+        //                {
 
-                        }
-                            ObjetsFondList.Add(currentObject);
-                    }
-                }
-                //Sinon on reste sur le même objet
-                else
-                {
-                    if (objetFondEnCours)
-                    {
-                        currentObject.PtList.Add(ptList[i]);
-                    }
-                }
-            }
+        //                }
+        //                    ObjetsFondList.Add(currentObject);
+        //            }
+        //        }
+        //        //Sinon on reste sur le même objet
+        //        else
+        //        {
+        //            if (objetFondEnCours)
+        //            {
+        //                currentObject.PtList.Add(ptList[i]);
+        //            }
+        //        }
+        //    }
 
-            return ObjetsFondList;
-        }
+        //    return ObjetsFondList;
+        //}
 
-        private List<LidarDetectedObject> DetectionObjetsSaillants(List<PolarPointRssi> ptList, double zoomCoeff)
-        {
-            List<LidarDetectedObject> ObjetsSaillantsList = new List<LidarDetectedObject>();
-            LidarDetectedObject currentObject = new LidarDetectedObject(); ;
+        //private List<LidarDetectedObject> DetectionObjetsSaillants(List<PolarPointRssi> ptList, double zoomCoeff)
+        //{
+        //    List<LidarDetectedObject> ObjetsSaillantsList = new List<LidarDetectedObject>();
+        //    LidarDetectedObject currentObject = new LidarDetectedObject(); ;
 
-            //Détection des objets saillants
-            bool objetSaillantEnCours = false;
-            for (int i = 1; i < ptList.Count; i++)
-            {
-                //On commence un objet saillant sur un front descendant de distance
-                if (ptList[i].Distance - ptList[i - 1].Distance < -0.1 * zoomCoeff)
-                {
-                    currentObject = new LidarDetectedObject();
-                    currentObject.PtList.Add(ptList[i]);
-                    objetSaillantEnCours = true;
-                }
-                //On termine un objet saillant sur un front montant de distance
-                else if ((ptList[i].Distance - ptList[i - 1].Distance > 0.15 * zoomCoeff) && objetSaillantEnCours)
-                {
-                    objetSaillantEnCours = false;
-                    if (currentObject.PtList.Count > 20)
-                    {
-                        currentObject.ExtractObjectAttributes();
-                        if(currentObject.ResiduLineModel< seuilResiduLine)
-                            ObjetsSaillantsList.Add(currentObject);
-                    }
-                }
-                //Sinon on reste sur le même objet
-                else
-                {
-                    if (objetSaillantEnCours)
-                    {
-                        currentObject.PtList.Add(ptList[i]);
-                    }
-                }
-            }
+        //    //Détection des objets saillants
+        //    bool objetSaillantEnCours = false;
+        //    for (int i = 1; i < ptList.Count; i++)
+        //    {
+        //        //On commence un objet saillant sur un front descendant de distance
+        //        if (ptList[i].Distance - ptList[i - 1].Distance < -0.1 * zoomCoeff)
+        //        {
+        //            currentObject = new LidarDetectedObject();
+        //            currentObject.PtList.Add(ptList[i]);
+        //            objetSaillantEnCours = true;
+        //        }
+        //        //On termine un objet saillant sur un front montant de distance
+        //        else if ((ptList[i].Distance - ptList[i - 1].Distance > 0.15 * zoomCoeff) && objetSaillantEnCours)
+        //        {
+        //            objetSaillantEnCours = false;
+        //            if (currentObject.PtList.Count > 20)
+        //            {
+        //                currentObject.ExtractObjectAttributes();
+        //                if(currentObject.ResiduLineModel< seuilResiduLine)
+        //                    ObjetsSaillantsList.Add(currentObject);
+        //            }
+        //        }
+        //        //Sinon on reste sur le même objet
+        //        else
+        //        {
+        //            if (objetSaillantEnCours)
+        //            {
+        //                currentObject.PtList.Add(ptList[i]);
+        //            }
+        //        }
+        //    }
 
-            return ObjetsSaillantsList;
-        }
+        //    return ObjetsSaillantsList;
+        //}
 
         private List<LidarDetectedObject> DetectionBalisesCatadioptriques(List<PolarPointRssi> ptList, double distanceMax, double zoomCoeff)
         {
@@ -249,7 +233,7 @@ namespace LidarProcessor
             //Détection des objets ayant un RSSI dans un intervalle correspondant aux catadioptres utilisés et proches
             double maxRssiCatadioptre = 90;
             double minRssiCatadioptre = 60;
-            var selectedPoints = ptList.Where(p => (p.Rssi >= minRssiCatadioptre) && (p.Rssi <= maxRssiCatadioptre) && (p.Distance< distanceMax));
+            var selectedPoints = ptList.Where(p => (p.Rssi >= minRssiCatadioptre) && (p.Rssi <= maxRssiCatadioptre) && (p.Distance < distanceMax));
             List<PolarPointRssi> balisesPointsList = (List<PolarPointRssi>)selectedPoints.ToList();
 
             //On segmente la liste de points sélectionnée en objets par la distance
@@ -279,13 +263,13 @@ namespace LidarProcessor
         }
 
 
-        private List<LidarDetectedObject> DetectionObjetsProches(List<PolarPointRssi> ptList, double distanceMax, double tailleMaxObjet, double zoomCoeff)
+        private List<LidarDetectedObject> DetectionObjetsProches(List<PolarPointRssi> ptList, double distanceMin, double distanceMax, double tailleMaxObjet, double zoomCoeff)
         {
             List<LidarDetectedObject> ObjetsProchesList = new List<LidarDetectedObject>();
             LidarDetectedObject currentObject = new LidarDetectedObject(); ;
 
             //Détection des objets proches
-            var selectedPoints = ptList.Where(p => (p.Distance < distanceMax));
+            var selectedPoints = ptList.Where(p => (p.Distance < distanceMax) && (p.Distance > distanceMin));
             List<PolarPointRssi> objetsProchesPointsList = (List<PolarPointRssi>)selectedPoints.ToList();
 
             //On segmente la liste de points sélectionnée en objets par la distance
@@ -373,9 +357,6 @@ namespace LidarProcessor
         public double YMoyen;
         public double ResiduLineModel;
 
-
-
-
         public LidarDetectedObject()
         {
             PtList = new List<PolarPointRssi>();
@@ -391,11 +372,11 @@ namespace LidarProcessor
                 YMoyen = DistanceMoyenne * Math.Sin(AngleMoyen);
                 XList = PtList.Select(r => r.Distance * Math.Cos(r.Angle)).ToList();
                 YList = PtList.Select(r => r.Distance * Math.Sin(r.Angle)).ToList();
-                var coeff = Fit.Line(XList.ToArray(), YList.ToArray());
-                double a = coeff.Item1;
-                double b = coeff.Item2;
-                var YListFitted = XList.Select(r => a + r * b);
-                ResiduLineModel = GoodnessOfFit.PopulationStandardError(YListFitted, YList);
+                //var coeff = Fit.Line(XList.ToArray(), YList.ToArray());
+                //double a = coeff.Item1;
+                //double b = coeff.Item2;
+                //var YListFitted = XList.Select(r => a + r * b);
+                //ResiduLineModel = GoodnessOfFit.PopulationStandardError(YListFitted, YList);
             }
         }
     }

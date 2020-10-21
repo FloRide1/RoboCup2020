@@ -87,8 +87,18 @@ namespace Utilities
 
     public class PolarPointListExtended
     {
-        public List<PolarPointRssi> polarPointList;        
-        public System.Drawing.Color displayColor;
-        public double displayWidth=1;
+        public List<PolarPointRssi> polarPointList;
+        public ObjectType type;
+        //public System.Drawing.Color displayColor;
+        //public double displayWidth=1;
+    }
+
+    public enum ObjectType
+    {
+        Balle,
+        Objet,
+        Robot,
+        Poteau,
+        Balise
     }
 }

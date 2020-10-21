@@ -149,14 +149,14 @@ namespace WorldMapManager
             }
         }
 
-        //Output event for debug only
+        ////Output event for display only : NO USE for transmitting data !
         public event EventHandler<LocalWorldMapArgs> OnLocalWorldMapEvent;
         public virtual void OnLocalWorldMap(LocalWorldMap map)
         {
             var handler = OnLocalWorldMapEvent;
             if (handler != null)
             {
-                handler(this, new LocalWorldMapArgs {  LocalWorldMap = map });
+                handler(this, new LocalWorldMapArgs { LocalWorldMap = map });
             }
         }
     }

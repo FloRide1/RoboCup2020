@@ -68,9 +68,17 @@
       <Project>{9C46A7C0-4675-41BE-B282-E6F0825AD73E}</Project>
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\LidarProcessor\LidarProcessor.csproj">
+      <Project>{3C4270CF-77BA-4100-BBAB-6E2802C49478}</Project>
+      <Name>LidarProcessor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Perception\Perception.csproj">
       <Project>{dd8fd061-d3b2-43ae-b74d-03d94a2876a3}</Project>
       <Name>Perception</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PositionEstimator\PositionEstimator.csproj">
+      <Project>{D668C327-67C7-41BB-B949-311A239B514C}</Project>
+      <Name>PositionEstimator</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8E7D0DA4-9A13-4B18-A90E-0243BBCCE40A}</Project>
