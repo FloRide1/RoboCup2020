@@ -127,7 +127,7 @@ namespace Robot
         //static LidarSimulator.LidarSimulator lidarSimulator;
         static ImuProcessor.ImuProcessor imuProcessor;
         static StrategyManager_Eurobot strategyManager;
-        static PerceptionSimulator perceptionSimulator;
+        static PerceptionManager perceptionManager;
         //static Lidar_OMD60M_UDP lidar_OMD60M_UDP;
         static Lidar_OMD60M_TCP lidar_OMD60M_TCP;
         static LidarProcessor.LidarProcessor lidarProcessor;
@@ -190,12 +190,9 @@ namespace Robot
             msgEncoder = new MsgEncoder();
             robotMsgGenerator = new RobotMsgGenerator();
             robotMsgProcessor = new RobotMsgProcessor(Competition.Eurobot);
-
-            //physicalSimulator = new PhysicalSimulator.PhysicalSimulator();
-
+            
             int robotId = (int)TeamId.Team1 + (int)RobotId.Robot1;
             int teamId = (int)TeamId.Team1;
-            //physicalSimulator.RegisterRobot(robotId, 0, 0);
 
             robotPilot = new RobotPilot.RobotPilot(robotId);
             strategyManager = new StrategyManager_Eurobot(robotId, teamId);
@@ -205,8 +202,7 @@ namespace Robot
 
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId);
             globalWorldMapManager = new GlobalWorldMapManager(robotId, "0.0.0.0");
-            //lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
-            perceptionSimulator = new PerceptionSimulator(robotId);
+            perceptionManager = new PerceptionManager(robotId);
             imuProcessor = new ImuProcessor.ImuProcessor(robotId);
             absolutePositionEstimator = new AbsolutePositionEstimator(robotId);
 
@@ -249,7 +245,7 @@ namespace Robot
             robotMsgProcessor.OnSpeedDataFromRobotGeneratedEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
             imuProcessor.OnGyroSpeedEvent += kalmanPositioning.OnGyroRobotSpeedReceived;
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
-            kalmanPositioning.OnKalmanLocationEvent += perceptionSimulator.OnPhysicalRobotPositionReceived;
+            kalmanPositioning.OnKalmanLocationEvent += perceptionManager.OnPhysicalRobotPositionReceived;
 
             //L'envoi des commandes dépend du fait qu'on soit en mode manette ou pas. 
             //Il faut donc enregistrer les évènement ou pas en fonction de l'activation
@@ -263,21 +259,23 @@ namespace Robot
             //Gestion des messages reçu par le robot
             serialPort1.OnDataReceivedEvent += msgDecoder.DecodeMsgReceived;
             msgDecoder.OnMessageDecodedEvent += robotMsgProcessor.ProcessRobotDecodedMessage;
-            robotMsgProcessor.OnIMURawDataFromRobotGeneratedEvent += imuProcessor.OnIMURawDataReceived;            
-            
+            robotMsgProcessor.OnIMURawDataFromRobotGeneratedEvent += imuProcessor.OnIMURawDataReceived;
+
             //physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             //physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicalObjectListLocationReceived;
             //physicalSimulator.OnPhysicalRobotLocationEvent += perceptionSimulator.OnPhysicalRobotPositionReceived;
             //physicalSimulator.OnPhysicalBallPositionEvent += perceptionSimulator.OnPhysicalBallPositionReceived;
 
-            perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
+            //Le local Manager n'est là que pour assurer le stockage avant affichage des infos, il ne doit pas calculer quoique ce soit, 
+            //c'est le perception manager qui le fait.
+            perceptionManager.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapStrategyReceived;
             waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapWaypointReceived;
 
             //Copy de la local world map nourrie par les capteurs vers la global worldmap pour la prise de décisions
-            localWorldMapManager.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+            localWorldMapManager.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived; //Bypass car pas de liaison radio dans eurobot
             globalWorldMapManager.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
             globalWorldMapManager.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
 
@@ -286,7 +284,9 @@ namespace Robot
                 lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += lidarProcessor.OnRawLidarDataReceived;
                 //lidar_OMD60M.OnLidarDecodedFrameEvent += absolutePositionEstimator.OnRawLidarDataReceived;
                 lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
-                lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
+                //lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
+                lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
+                lidarProcessor.OnLidarObjectProcessedEvent += perceptionManager.OnLidarObjectsReceived;
             }
 
             //Events de recording
@@ -305,8 +305,7 @@ namespace Robot
                 logReplay.OnLidarEvent += lidarProcessor.OnRawLidarDataReceived;
                 //logReplay.OnCameraImageEvent += imageProcessingPositionFromOmniCamera.ProcessOpenCvMatImage;
                 //logReplay.OnCameraImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
-                lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
-                lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
+                //lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
             }
 
             //Timer de stratégie

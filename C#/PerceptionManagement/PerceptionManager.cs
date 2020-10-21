@@ -1,24 +1,124 @@
 ﻿using EventArgsLibrary;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Utilities;
+using WorldMap;
 
-namespace Perception
+namespace PerceptionManagement
 {
     public class PerceptionManager
     {
-        string robotName = "";
+        int robotId = 0;
 
-        public PerceptionManager(string name)
+        GlobalWorldMap globalWorldMap = new GlobalWorldMap();
+
+        List<Location> physicalObjectList;
+        Perception robotPerception;
+
+        public PerceptionManager(int id)
         {
-            robotName = name;
+            robotPerception = new Perception();
+            robotPerception.obstaclesLocationList = new List<Location>();
+
+            physicalObjectList = new List<Location>();
+            robotId = id;
+        }
+
+        void GeneratePerception()
+        {            
+            robotPerception.obstaclesLocationList.Clear();
+
+            //On regarde sur chacun des objets détectés si il appartient ou pas à une équipe.
+            lock (physicalObjectList)
+            {
+                foreach (var obj in physicalObjectList)
+                {
+                    bool isRobot = false;
+
+                    //On regarde si l'objet physique n'est pas le robot lui même
+                    if (obj != null)
+                    {
+                        if (Toolbox.Distance(obj.X, obj.Y, robotPerception.robotLocation.X, robotPerception.robotLocation.Y) < 0.4)
+                        {
+                            isRobot = true;
+                        }
+
+                        if (!isRobot)
+                        {
+                            robotPerception.obstaclesLocationList.Add(new Location(obj.X, obj.Y, obj.Theta, obj.Vx, obj.Vy, obj.Vtheta));
+                        }
+                    }
+                }
+            }
+
+            //Gestion de la balle
+            OnPerception(robotPerception);
+        }
+
+        public void OnLidarObjectsReceived(object sender, EventArgsLibrary.PolarPointListExtendedListArgs e)
+        {
+            lock (physicalObjectList)
+            {
+                physicalObjectList.Clear();
+                //On récupère la liste des objets physiques vus par le robot en simulation (y compris lui-même)
+                foreach (var obj in e.ObjectList)
+                {
+                    double angle = obj.polarPointList[0].Angle;
+                    double distance = obj.polarPointList[0].Distance;
+                    double xRobot = robotPerception.robotLocation.X;
+                    double yRobot = robotPerception.robotLocation.Y;
+                    double angleRobot = robotPerception.robotLocation.Theta;
+
+                    physicalObjectList.Add(new Location(xRobot + distance * Math.Cos(angle - angleRobot), yRobot + distance * Math.Sin(angle - angleRobot), 0, 0, 0, 0));
+                }
+            }
         }
 
         public void OnRawLidarDataReceived(object sender, RawLidarArgs e)
         {
             //Fonctions de traitement
         }
-    }
+
+        public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
+        {
+            globalWorldMap = e.GlobalWorldMap;
+        }
+
+        public void OnPhysicalObjectListLocationReceived(object sender, LocationListArgs e)
+        {
+            //On récupère la liste des objets physiques vus par le robot en simulation (y compris lui-même)
+            physicalObjectList = e.LocationList;
+        }
+
+        //L'arrivée d'une nouvelle position mesurée (ou simulée) déclenche le recalcul et event de perception
+        public void OnPhysicalRobotPositionReceived(object sender, LocationArgs e)
+        {
+            //On calcule la perception simulée de position d'après le retour du simulateur physique directement
+            //On réel on utilisera la triangulation lidar et la caméra
+            if (robotId == e.RobotId)
+            {
+                robotPerception.robotLocation = e.Location;
+                GeneratePerception();
+            }
+        }
+
+        public void OnPhysicalBallPositionListReceived(object sender, LocationListArgs e)
+        {
+            //On calcule la perception simulée de position balle d'après le retour du simulateur physique directement
+            //En réel on utilisera la caméra
+            robotPerception.ballLocationList = e.LocationList;            
+        }
+
+        public delegate void PerceptionEventHandler(object sender, PerceptionArgs e);
+        public event EventHandler<PerceptionArgs> OnPerceptionEvent;
+        public virtual void OnPerception(Perception perception)
+        {
+            var handler = OnPerceptionEvent;
+            if (handler != null)
+            {
+                handler(this, new PerceptionArgs { RobotId=robotId, Perception = perception });
+            }
+        }
+    }  
 }
+

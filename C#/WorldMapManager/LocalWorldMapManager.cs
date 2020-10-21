@@ -117,10 +117,6 @@ namespace WorldMapManager
                 {
                     //for (int i = 0; i < 500; i++) //Stress test
                     {
-                        //listPtLidar = e.PtList.Select(
-                        //pt => new PointD(localWorldMap.robotLocation.X + pt.Distance * Math.Cos(pt.Angle),
-                        //                 localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle))).ToList();
-
                         listPtLidar = e.PtList.Select(
                         pt => new PointD(localWorldMap.robotLocation.X + pt.Distance * Math.Cos(pt.Angle + localWorldMap.robotLocation.Theta),
                                          localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle + localWorldMap.robotLocation.Theta))).ToList();
@@ -132,15 +128,15 @@ namespace WorldMapManager
             }
         }
 
-        public void OnLidarObjectsReceived(object sender, EventArgsLibrary.PolarPointListExtendedListArgs e)
-        {
-            if (localWorldMap == null || localWorldMap.robotLocation == null)
-                return;
-            if (localWorldMap.RobotId == e.RobotId)
-            {
-                localWorldMap.lidarObjectList = e.ObjectList;
-            }
-        }
+        //public void OnLidarObjectsReceived(object sender, EventArgsLibrary.PolarPointListExtendedListArgs e)
+        //{
+        //    if (localWorldMap == null || localWorldMap.robotLocation == null)
+        //        return;
+        //    if (localWorldMap.RobotId == e.RobotId)
+        //    {
+        //        localWorldMap.lidarObjectList = e.ObjectList;
+        //    }
+        //}
 
         //Output events
         public event EventHandler<DataReceivedArgs> OnMulticastSendLocalWorldMapEvent;

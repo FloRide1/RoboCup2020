@@ -222,6 +222,13 @@ namespace WpfWorldMapDisplay
                 {
                     polygonToDisplay.polygon.Points.Add(new Point(robotLocation.X + pt.Distance * Math.Cos(pt.Angle+robotLocation.Theta), robotLocation.Y + pt.Distance * Math.Sin(pt.Angle + robotLocation.Theta)));
                 }
+                //Cas des polygones à un seul point (objets représentés par leur centre : 
+                //on trace un second point juste à coté
+                if(obj.polarPointList.Count==1)
+                {
+                    Point pt = polygonToDisplay.polygon.Points[0];
+                    polygonToDisplay.polygon.Points.Add(new Point(pt.X+0.001, pt.Y + 0.001));
+                }
                 polygonToDisplay.borderColor = obj.displayColor;
                 polygonToDisplay.borderWidth = (float)obj.displayWidth;
                 polygonToDisplay.backgroundColor = obj.displayColor;

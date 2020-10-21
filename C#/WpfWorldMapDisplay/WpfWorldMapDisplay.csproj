@@ -73,6 +73,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ObstacleDisplay.cs" />
     <Compile Include="BallDisplay.cs" />
     <Compile Include="PolygonRenderableSeries.cs" />
     <Compile Include="RobotDisplay.cs" />

@@ -36,12 +36,6 @@ namespace WayPointGenerator
         public WaypointGenerator(int id, string competition)
         {
             robotId = id;
-            //timerWayPointGeneration = new Timer(100);
-            //timerWayPointGeneration.Elapsed += TimerWayPointGeneration_Elapsed;
-            //timerWayPointGeneration.Start();
-
-            //waypointHeatMap = new Heatmap(22.0, 14.0, 22.0 / Math.Pow(2, 8), 2);
-            //waypointHeatMap = new Heatmap(22.0, 14.0, 22.0 / Math.Pow(2, 8), 1);
             switch(competition)
             {
                 case "RoboCup":
@@ -193,56 +187,56 @@ namespace WayPointGenerator
                 if (globalWorldMap.teammateLocationList.ContainsKey(robotId))
                 {
                     Location robotLocation = globalWorldMap.teammateLocationList[robotId];
-                    double angleDestination = Math.Atan2(destinationLocation.Y - robotLocation.Y, destinationLocation.X - robotLocation.X);
-
-                    //On génère la liste des robots à éviter...
-                    Dictionary<int, Location> robotToAvoidDictionary = new Dictionary<int, Location>();
-
-                    lock (globalWorldMap.teammateLocationList)
+                    if (destinationLocation != null && robotLocation != null)
                     {
-                        foreach (var robot in globalWorldMap.teammateLocationList)
+                        double angleDestination = Math.Atan2(destinationLocation.Y - robotLocation.Y, destinationLocation.X - robotLocation.X);
+
+                        //On génère la liste des robots à éviter...
+                        Dictionary<int, Location> robotToAvoidDictionary = new Dictionary<int, Location>();
+
+                        lock (globalWorldMap.teammateLocationList)
                         {
-                            robotToAvoidDictionary.Add(robot.Key, robot.Value);
-                        }
-                    }
-
-                    var opponentsList = globalWorldMap.opponentLocationList.ToList(); //On évite un lock couteux en perf en faisant une copie locale
-                    int i = 0;
-                    foreach (var robot in opponentsList)
-                    {
-                        i++;
-                        robotToAvoidDictionary.Add((int)TeamId.Opponents+i, robot);
-                    }
-
-                    //On veut éviter de taper les autres robots                        
-                    //lock (robotToAvoidList)
-                    var robotToAvoidList = robotToAvoidDictionary.ToList();   //On évite un lock couteux en perf en faisant une copie locale
-                    {
-                        if (ptCourant.X< 0.5)
-                            penalisation += 1;
-
-                        foreach (var robot in robotToAvoidList)
-                        {
-                            int competitorId = robot.Key;
-                            Location competitorLocation = robot.Value;
-
-                            //On itère sur tous les robots sauf celui-ci
-                            if (competitorId != robotId && competitorLocation != null)
+                            foreach (var robot in globalWorldMap.teammateLocationList)
                             {
-                                double angleRobotAdverse = Math.Atan2(competitorLocation.Y - robotLocation.Y, competitorLocation.X - robotLocation.X);
-                                double distanceRobotAdverse = Toolbox.Distance(competitorLocation.X, competitorLocation.Y, robotLocation.X, robotLocation.Y);
-                                
-                                //PointD ptCourant = GetFieldPosFromHeatMapCoordinates(x, y);
-                                double distancePt = Toolbox.Distance(ptCourant.X, ptCourant.Y, robotLocation.X, robotLocation.Y);
-                                double anglePtCourant = Math.Atan2(ptCourant.Y - robotLocation.Y, ptCourant.X - robotLocation.X);
+                                robotToAvoidDictionary.Add(robot.Key, robot.Value);
+                            }
+                        }
 
-                                if (Math.Abs(distanceRobotAdverse * (anglePtCourant - angleRobotAdverse)) < 2.0 && distancePt > distanceRobotAdverse - 3)
-                                    penalisation += 1;// Math.Max(0, 1 - Math.Abs(anglePtCourant - angleRobotAdverse) *10.0);
+                        var opponentsList = globalWorldMap.opponentLocationList.ToList(); //On évite un lock couteux en perf en faisant une copie locale
+                        int i = 0;
+                        foreach (var robot in opponentsList)
+                        {
+                            i++;
+                            robotToAvoidDictionary.Add((int)TeamId.Opponents + i, robot);
+                        }
 
+                        //On veut éviter de taper les autres robots                        
+                        //lock (robotToAvoidList)
+                        var robotToAvoidList = robotToAvoidDictionary.ToList();   //On évite un lock couteux en perf en faisant une copie locale
+                        {
+
+                            foreach (var robot in robotToAvoidList)
+                            {
+                                int competitorId = robot.Key;
+                                Location competitorLocation = robot.Value;
+
+                                //On itère sur tous les robots sauf celui-ci
+                                if (competitorId != robotId && competitorLocation != null)
+                                {
+                                    double angleRobotAdverse = Math.Atan2(competitorLocation.Y - robotLocation.Y, competitorLocation.X - robotLocation.X);
+                                    double distanceRobotAdverse = Toolbox.Distance(competitorLocation.X, competitorLocation.Y, robotLocation.X, robotLocation.Y);
+
+                                    //PointD ptCourant = GetFieldPosFromHeatMapCoordinates(x, y);
+                                    double distancePt = Toolbox.Distance(ptCourant.X, ptCourant.Y, robotLocation.X, robotLocation.Y);
+                                    double anglePtCourant = Math.Atan2(ptCourant.Y - robotLocation.Y, ptCourant.X - robotLocation.X);
+
+                                    if (Math.Abs(distanceRobotAdverse * (anglePtCourant - angleRobotAdverse)) < 0.2 && distancePt > distanceRobotAdverse - 0.2)
+                                        penalisation += 1;// Math.Max(0, 1 - Math.Abs(anglePtCourant - angleRobotAdverse) *10.0);
+
+                                }
                             }
                         }
                     }
-                    //}
                 }
             }
             return penalisation;

@@ -66,6 +66,7 @@ namespace LidarProcessor
 
             List<LidarDetectedObject> ObjetsSaillantsList = new List<LidarDetectedObject>();
             List<LidarDetectedObject> BalisesCatadioptriqueList = new List<LidarDetectedObject>();
+            List<LidarDetectedObject> ObjetsProchesList = new List<LidarDetectedObject>();
             List<LidarDetectedObject> ObjetsFondList = new List<LidarDetectedObject>();
             List<LidarDetectedObject> ObjetsPoteauPossible = new List<LidarDetectedObject>();
             LidarDetectedObject currentObject = new LidarDetectedObject();
@@ -77,8 +78,10 @@ namespace LidarProcessor
             //}
 
             //Opérations de traitement du signal LIDAR
-            //ptList = PrefiltragePointsIsoles(ptList, 0.04, zoomCoeff);
-            BalisesCatadioptriqueList = DetectionBalisesCatadioptriques(ptList, 3, zoomCoeff);
+            ptList = PrefiltragePointsIsoles(ptList, 0.04, zoomCoeff);
+            BalisesCatadioptriqueList = DetectionBalisesCatadioptriques(ptList, 3.6, zoomCoeff);
+
+            ObjetsProchesList = DetectionObjetsProches(ptList, 2.0, 0.04, zoomCoeff);
 
             //ObjetsSaillantsList = DetectionObjetsSaillants(ptList, zoomCoeff);
             //ObjetsFondList = DetectionObjetsFond(ptList, zoomCoeff);
@@ -92,20 +95,18 @@ namespace LidarProcessor
                 }
             }
 
-
-
             //Affichage des résultats
             List<PolarPointListExtended> objectList = new List<PolarPointListExtended>();
-            foreach (var obj in ObjetsSaillantsList)
+            foreach (var obj in ObjetsProchesList)
             {
                 PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
                 currentPolarPointListExtended.polarPointList = new List<PolarPointRssi>();
                 //if (obj.Largeur > 0.05 && obj.Largeur < 0.5)
                 {
-                    currentPolarPointListExtended.polarPointList = obj.PtList;
-                    int variation = rand.Next(0, 255);
-                    currentPolarPointListExtended.displayColor = System.Drawing.Color.FromArgb(0xFF, 0xFF, 0,0);
-                    currentPolarPointListExtended.displayWidth = 2;
+                    currentPolarPointListExtended.polarPointList.Add(new PolarPointRssi(obj.AngleMoyen, obj.DistanceMoyenne, 0));
+                    //currentPolarPointListExtended.displayColor = System.Drawing.Color.FromArgb(rand.Next(0, 255), rand.Next(0, 255), rand.Next(0, 255), 0xFF);
+                    currentPolarPointListExtended.displayColor = System.Drawing.Color.DarkRed;
+                    currentPolarPointListExtended.displayWidth = 5;
                     objectList.Add(currentPolarPointListExtended);
                 }
             }
@@ -133,7 +134,6 @@ namespace LidarProcessor
                     objectList.Add(currentPolarPointListExtended);
                 }
             }
-            //OnLidarProcessed(robotId, AngleListProcessed, DistanceListProcessed);
 
             OnLidarProcessed(robotId, ptList);
             OnLidarBalisesListExtracted(robotId, BalisesCatadioptriqueList);
@@ -246,9 +246,7 @@ namespace LidarProcessor
             List<LidarDetectedObject> BalisesCatadioptriquesList = new List<LidarDetectedObject>();
             LidarDetectedObject currentObject = new LidarDetectedObject(); ;
 
-            //Détection des objets ayant un très fort RSSI
-            //On récupère dans un prermier temps le max de RSSI
-            //double maxRssi = ptList.Max(p => p.Rssi);
+            //Détection des objets ayant un RSSI dans un intervalle correspondant aux catadioptres utilisés et proches
             double maxRssiCatadioptre = 90;
             double minRssiCatadioptre = 60;
             var selectedPoints = ptList.Where(p => (p.Rssi >= minRssiCatadioptre) && (p.Rssi <= maxRssiCatadioptre) && (p.Distance< distanceMax));
@@ -278,6 +276,48 @@ namespace LidarProcessor
                 BalisesCatadioptriquesList.Add(currentObject);
             }
             return BalisesCatadioptriquesList;
+        }
+
+
+        private List<LidarDetectedObject> DetectionObjetsProches(List<PolarPointRssi> ptList, double distanceMax, double tailleMaxObjet, double zoomCoeff)
+        {
+            List<LidarDetectedObject> ObjetsProchesList = new List<LidarDetectedObject>();
+            LidarDetectedObject currentObject = new LidarDetectedObject(); ;
+
+            //Détection des objets proches
+            var selectedPoints = ptList.Where(p => (p.Distance < distanceMax));
+            List<PolarPointRssi> objetsProchesPointsList = (List<PolarPointRssi>)selectedPoints.ToList();
+
+            //On segmente la liste de points sélectionnée en objets par la distance
+            if (objetsProchesPointsList.Count() > 0)
+            {
+                currentObject = new LidarDetectedObject();
+                currentObject.PtList.Add(objetsProchesPointsList[0]);
+                double angleInitialObjet = objetsProchesPointsList[0].Angle;
+                for (int i = 1; i < objetsProchesPointsList.Count; i++)
+                {
+                    if ((Math.Abs(objetsProchesPointsList[i].Angle - objetsProchesPointsList[i - 1].Angle) < Toolbox.DegToRad(2)) &&
+                        (Math.Abs(objetsProchesPointsList[i].Distance - objetsProchesPointsList[i - 1].Distance) < 0.1)&&
+                        (Math.Abs(objetsProchesPointsList[i].Angle - angleInitialObjet) *objetsProchesPointsList[i].Distance< tailleMaxObjet))
+                        //Si les pts successifs sont distants de moins de x degrés et de moins de y mètres
+                        //et que l'objet fait moins de tailleMax en largeur
+                    {
+                        //Le point est cohérent avec l'objet en cours, on ajoute le point à l'objet courant
+                        currentObject.PtList.Add(objetsProchesPointsList[i]);
+                    }
+                    else
+                    {
+                        currentObject.ExtractObjectAttributes();
+                        ObjetsProchesList.Add(currentObject);
+                        currentObject = new LidarDetectedObject();
+                        currentObject.PtList.Add(objetsProchesPointsList[i]);
+                        angleInitialObjet = objetsProchesPointsList[i].Angle;
+                    }
+                }
+                currentObject.ExtractObjectAttributes();
+                ObjetsProchesList.Add(currentObject);
+            }
+            return ObjetsProchesList;
         }
 
 

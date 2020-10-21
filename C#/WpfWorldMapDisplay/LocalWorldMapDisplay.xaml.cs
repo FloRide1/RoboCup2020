@@ -49,6 +49,9 @@ namespace WpfWorldMapDisplay
         //Liste des balles vues par le robot à afficher
         List<BallDisplay> BallDisplayList = new List<BallDisplay>();
 
+        //Liste des obstacles vus par le robot à afficher
+        List<ObstacleDisplay> ObstacleDisplayList = new List<ObstacleDisplay>();
+
         string typeTerrain = "RoboCup";
         
 
@@ -154,12 +157,14 @@ namespace WpfWorldMapDisplay
         {
             DrawBalls();
             DrawTeam();
+            DrawObstacles();
             //DrawLidar();
             if (TeamMatesDisplayDictionary.Count == 1) //Cas d'un affichage de robot unique (localWorldMap)
                 DrawHeatMap(TeamMatesDisplayDictionary.First().Key);
             PolygonSeries.RedrawAll();
             ObjectsPolygonSeries.RedrawAll();
             BallPolygon.RedrawAll();
+            ObstaclePolygons.RedrawAll();
         }
 
         public void UpdateLocalWorldMap(LocalWorldMap localWorldMap)
@@ -179,8 +184,13 @@ namespace WpfWorldMapDisplay
                 if (localWorldMap.heatMapWaypoint != null)
                     UpdateHeatMap(robotId, localWorldMap.heatMapWaypoint.BaseHeatMapData);
             }
-            UpdateLidarMap(robotId, localWorldMap.lidarMap);
+            //Affichage du lidar uniquement dans la strategy map
+            if (lwmdType == LocalWorldMapDisplayType.StrategyMap)
+            {
+                UpdateLidarMap(robotId, localWorldMap.lidarMap);
+            }
             UpdateLidarObjects(robotId, localWorldMap.lidarObjectList);
+            UpdateObstacleList(localWorldMap.obstaclesLocationList);
             UpdateBallLocationList(localWorldMap.ballLocationList);
         }
         
@@ -227,6 +237,20 @@ namespace WpfWorldMapDisplay
                     //Affichage de la balle
                     BallPolygon.AddOrUpdatePolygonExtended((int)BallId.Ball + indexBall, ball.GetBallPolygon());
                     BallPolygon.AddOrUpdatePolygonExtended((int)BallId.Ball + indexBall + (int)Caracteristique.Speed, ball.GetBallSpeedArrow());
+                    indexBall++;
+                }
+            }
+        }
+        public void DrawObstacles()
+        {
+            lock (ObstacleDisplayList)
+            {
+                int indexBall = 0;
+                foreach (var obstacle in ObstacleDisplayList)
+                {
+                    //Affichage des obstacles
+                    ObstaclePolygons.AddOrUpdatePolygonExtended((int)ObstacleId.Obstacle + indexBall, obstacle.GetObstaclePolygon());
+                    //ObstaclePolygons.AddOrUpdatePolygonExtended((int)ObstacleId.Obstacle + indexBall + (int)Caracteristique.Speed, obstacle.GetObstacleSpeedArrow());
                     indexBall++;
                 }
             }
@@ -344,7 +368,7 @@ namespace WpfWorldMapDisplay
             //    DrawLidar();
             //}));
         }
-        
+
         private void UpdateLidarObjects(int robotId, List<PolarPointListExtended> lidarObjectList)
         {
             if (lidarObjectList == null)
@@ -365,6 +389,21 @@ namespace WpfWorldMapDisplay
                     foreach (var ballLocation in ballLocationList)
                     {
                         BallDisplayList.Add(new BallDisplay(ballLocation));
+                    }
+                }
+            }
+        }
+
+        public void UpdateObstacleList(List<Location> obstacleList)
+        {
+            if (obstacleList != null)
+            {
+                lock (ObstacleDisplayList)
+                {
+                    ObstacleDisplayList.Clear();
+                    foreach (var obstacleLocation in obstacleList)
+                    {
+                        ObstacleDisplayList.Add(new ObstacleDisplay(obstacleLocation));
                     }
                 }
             }

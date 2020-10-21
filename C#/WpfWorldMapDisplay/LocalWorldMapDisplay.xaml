@@ -26,6 +26,8 @@
                 </local:PolygonRenderableSeries>
                 <local:PolygonRenderableSeries x:Name="BallPolygon" Opacity="1" >
                 </local:PolygonRenderableSeries>
+                <local:PolygonRenderableSeries x:Name="ObstaclePolygons" Opacity="1" >
+                </local:PolygonRenderableSeries>
                 <s:XyScatterRenderableSeries x:Name="LidarPoints" Opacity="0.5">
                     <s:XyScatterRenderableSeries.PointMarker>
                         <s:EllipsePointMarker Width="2" Height="2" Fill="SteelBlue" Stroke="LightSteelBlue" StrokeThickness="1"/>
