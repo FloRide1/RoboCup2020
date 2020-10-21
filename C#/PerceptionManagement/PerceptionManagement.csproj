@@ -76,9 +76,9 @@
       <Project>{dd8fd061-d3b2-43ae-b74d-03d94a2876a3}</Project>
       <Name>Perception</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PositionEstimator\PositionEstimator.csproj">
+    <ProjectReference Include="..\PositionEstimator\AbsolutePositionEstimator.csproj">
       <Project>{D668C327-67C7-41BB-B949-311A239B514C}</Project>
-      <Name>PositionEstimator</Name>
+      <Name>AbsolutePositionEstimator</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8E7D0DA4-9A13-4B18-A90E-0243BBCCE40A}</Project>

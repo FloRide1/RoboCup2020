@@ -40,16 +40,23 @@ namespace WorldMapManager
                 return;
             if (localWorldMap.RobotId == e.RobotId)
             {
-                localWorldMap.robotLocation = e.Perception.robotLocation;
-                localWorldMap.obstaclesLocationList = e.Perception.obstaclesLocationList;
-                localWorldMap.ballLocationList = e.Perception.ballLocationList;
+                LocalWorldMap transferLocalWorldMap = new LocalWorldMap();
+                transferLocalWorldMap.RobotId = e.RobotId;
+                transferLocalWorldMap.TeamId = localWorldMap.TeamId;
+                transferLocalWorldMap.destinationLocation = localWorldMap.destinationLocation;
 
-                if (localWorldMap.robotLocation != null)
+
+                transferLocalWorldMap.robotLocation = e.Perception.robotLocation;
+                transferLocalWorldMap.obstaclesLocationList = e.Perception.obstaclesLocationList;
+                transferLocalWorldMap.ballLocationList = e.Perception.ballLocationList;
+                
+
+                if (transferLocalWorldMap.robotLocation != null)
                 {
-                    string json = JsonConvert.SerializeObject(localWorldMap, decimalJsonConverter);
+                    string json = JsonConvert.SerializeObject(transferLocalWorldMap, decimalJsonConverter);
                     OnMulticastSendLocalWorldMapCommand(json.GetBytes());
 
-                    OnLocalWorldMap(localWorldMap); //For debug only !!!
+                    //OnLocalWorldMap(localWorldMap); //For debug only !!!
                 }
             }
         }

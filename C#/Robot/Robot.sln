@@ -89,7 +89,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageSaver", "..\ImageSaver
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfReplayNavigator", "..\WpfReplayNavigator\WpfReplayNavigator.csproj", "{32A52236-C210-40A2-829E-ACB4BB3A1B43}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PositionEstimator", "..\PositionEstimator\PositionEstimator.csproj", "{D668C327-67C7-41BB-B949-311A239B514C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbsolutePositionEstimator", "..\PositionEstimator\AbsolutePositionEstimator.csproj", "{D668C327-67C7-41BB-B949-311A239B514C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YoloObjectDetector", "..\YoloObjectDetector\YoloObjectDetector.csproj", "{5E7C4784-9AF5-4D8C-B89C-D1EF3C8C5445}"
 EndProject

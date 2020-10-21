@@ -18,9 +18,12 @@ namespace PerceptionManagement
         LidarProcessor.LidarProcessor lidarProcessor;
         AbsolutePositionEstimator absolutePositionEstimator;
 
+        GlobalWorldMap globalWorldMap;
+
         public PerceptionManager(int id)
         {
             robotId = id;
+            globalWorldMap = new GlobalWorldMap();
 
             robotPerception = new Perception();
             physicalObjectList = new List<Location>();
@@ -116,6 +119,11 @@ namespace PerceptionManagement
                     physicalObjectList.Add(new Location(xRobot + distance * Math.Cos(angle + angleRobot), yRobot + distance * Math.Sin(angle + angleRobot), 0, 0, 0, 0));
                 }
             }
+        }
+
+        public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
+        {
+            globalWorldMap = e.GlobalWorldMap;
         }
 
         public void OnPhysicalObjectListLocationReceived(object sender, LocationListArgs e)
