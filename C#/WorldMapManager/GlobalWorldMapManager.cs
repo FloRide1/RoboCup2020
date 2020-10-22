@@ -36,7 +36,7 @@ namespace WorldMapManager
 
         private void GlobalWorldMapSendTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            //Starting point pour pas mal de processings
+            //ATTENTION : Starting point temporel pour beaucoup de processing, car cela envoie la GlobalWorldMap aux robots.
             MergeLocalWorldMaps();
         }
 
@@ -229,6 +229,7 @@ namespace WorldMapManager
                 globalWorldMap.teammateDestinationLocationList = new Dictionary<int, Location>();
                 globalWorldMap.teammateWayPointList = new Dictionary<int, Location>();
                 globalWorldMap.opponentLocationList = new List<Location>();
+                globalWorldMap.obstacleLocationList = new List<Location>();
 
                 //On place tous les robots de l'équipe dans la global map
                 foreach (var localMap in localWorldMapDictionary)
@@ -243,74 +244,86 @@ namespace WorldMapManager
                     globalWorldMap.teammateWayPointList.Add(localMap.Key, localMap.Value.waypointLocation);
                 }
 
-                //On établit une liste des emplacements d'adversaires potentiels afin de les fusionner si possible
-                List<Location> AdversairesPotentielsList = new List<Location>();
-                List<int> AdversairesPotentielsMatchOccurenceList = new List<int>();
+                //Fusion des obstacles vus par chacun des robots
                 foreach (var localMap in localWorldMapDictionary)
                 {
-                    //On tente de transformer les objets vus et ne correspondant pas à des robots alliés en des adversaires
-                    List<Location> obstacleLocationList = new List<Location>();
-                    try
+                    foreach (var obstacle in localMap.Value.obstaclesLocationList)
                     {
-                         obstacleLocationList = localMap.Value.obstaclesLocationList.ToList();
-                    }
-                    catch { }
-
-                    foreach (var obstacleLocation in obstacleLocationList)
-                    {
-                        bool isTeamMate = false;
-                        bool isAlreadyPresentInOpponentList = false;
-
-                        //On regarde si l'obstacle est un coéquipier ou pas
-                        foreach (var robotTeamLocation in globalWorldMap.teammateLocationList.Values)
-                        {
-                            if (obstacleLocation != null && robotTeamLocation != null)
-                            {
-                                if (Toolbox.Distance(obstacleLocation.X, obstacleLocation.Y, robotTeamLocation.X, robotTeamLocation.Y) < 0.4)
-                                    isTeamMate = true;
-                            }
-                        }
-
-                        //On regarde si l'obstacle existe dans la liste des adversaires potentiels ou pas
-                        foreach (var opponentLocation in AdversairesPotentielsList)
-                        {
-                            if (obstacleLocation != null && opponentLocation != null)
-                            {
-                                if (Toolbox.Distance(obstacleLocation.X, obstacleLocation.Y, opponentLocation.X, opponentLocation.Y) < 0.4)
-                                {
-                                    isAlreadyPresentInOpponentList = true;
-                                    var index = AdversairesPotentielsList.IndexOf(opponentLocation);
-                                    AdversairesPotentielsMatchOccurenceList[index]++;
-                                }
-                            }
-                        }
-
-                        //Si un obstacle n'est ni un coéquipier, ni un adversaire potentiel déjà trouvé, c'est un nouvel adversaire potentiel
-                        if (!isTeamMate && !isAlreadyPresentInOpponentList)
-                        {
-                            AdversairesPotentielsList.Add(obstacleLocation);
-                            AdversairesPotentielsMatchOccurenceList.Add(1);
-                        }
+                        globalWorldMap.obstacleLocationList.Add(obstacle);
                     }
                 }
 
-                //On valide les adversaires potentiels si ils ont été perçus plus d'une fois par les robots
 
-                lock (globalWorldMap.opponentLocationList)
-                {
-                    for (int i = 0; i < AdversairesPotentielsList.Count; i++)
-                    {
-                        if (AdversairesPotentielsMatchOccurenceList[i] >= 2)
-                        {
-                            var opponentLocation = AdversairesPotentielsList[i];
-                            globalWorldMap.opponentLocationList.Add(opponentLocation);
-                        }
-                    }
-                }
+
+                //    //On établit une liste des emplacements d'adversaires potentiels afin de les fusionner si possible
+                //    List<Location> AdversairesPotentielsList = new List<Location>();
+                //    List<int> AdversairesPotentielsMatchOccurenceList = new List<int>();
+                //    foreach (var localMap in localWorldMapDictionary)
+                //    {
+                //        //On tente de transformer les objets vus et ne correspondant pas à des robots alliés en des adversaires
+                //        List<Location> obstacleLocationList = new List<Location>();
+                //        try
+                //        {
+                //             obstacleLocationList = localMap.Value.obstaclesLocationList.ToList();
+                //        }
+                //        catch { }
+
+                //        foreach (var obstacleLocation in obstacleLocationList)
+                //        {
+                //            bool isTeamMate = false;
+                //            bool isAlreadyPresentInOpponentList = false;
+
+                //            //On regarde si l'obstacle est un coéquipier ou pas
+                //            foreach (var robotTeamLocation in globalWorldMap.teammateLocationList.Values)
+                //            {
+                //                if (obstacleLocation != null && robotTeamLocation != null)
+                //                {
+                //                    if (Toolbox.Distance(obstacleLocation.X, obstacleLocation.Y, robotTeamLocation.X, robotTeamLocation.Y) < 0.4)
+                //                        isTeamMate = true;
+                //                }
+                //            }
+
+                //            //On regarde si l'obstacle existe dans la liste des adversaires potentiels ou pas
+                //            foreach (var opponentLocation in AdversairesPotentielsList)
+                //            {
+                //                if (obstacleLocation != null && opponentLocation != null)
+                //                {
+                //                    if (Toolbox.Distance(obstacleLocation.X, obstacleLocation.Y, opponentLocation.X, opponentLocation.Y) < 0.4)
+                //                    {
+                //                        isAlreadyPresentInOpponentList = true;
+                //                        var index = AdversairesPotentielsList.IndexOf(opponentLocation);
+                //                        AdversairesPotentielsMatchOccurenceList[index]++;
+                //                    }
+                //                }
+                //            }
+
+                //            //Si un obstacle n'est ni un coéquipier, ni un adversaire potentiel déjà trouvé, c'est un nouvel adversaire potentiel
+                //            if (!isTeamMate && !isAlreadyPresentInOpponentList)
+                //            {
+                //                AdversairesPotentielsList.Add(obstacleLocation);
+                //                AdversairesPotentielsMatchOccurenceList.Add(1);
+                //            }
+                //        }
+                //    }
+
+                //    //On valide les adversaires potentiels si ils ont été perçus plus d'une fois par les robots
+
+                //    lock (globalWorldMap.opponentLocationList)
+                //    {
+                //        for (int i = 0; i < AdversairesPotentielsList.Count; i++)
+                //        {
+                //            if (AdversairesPotentielsMatchOccurenceList[i] >= 2)
+                //            {
+                //                var opponentLocation = AdversairesPotentielsList[i];
+                //                globalWorldMap.opponentLocationList.Add(opponentLocation);
+                //            }
+                //        }
+                //    }
+                //
+
             }
-
-            //On ajoute les informations de stratégie utilisant les commandes de la referee box
-            globalWorldMap.gameState = currentGameState;
+                    //On ajoute les informations de stratégie utilisant les commandes de la referee box
+                    globalWorldMap.gameState = currentGameState;
             globalWorldMap.stoppedGameAction = currentStoppedGameAction;
 
             string json = JsonConvert.SerializeObject(globalWorldMap, decimalJsonConverter);

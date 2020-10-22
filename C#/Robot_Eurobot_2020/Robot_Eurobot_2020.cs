@@ -260,7 +260,7 @@ namespace Robot
             //L'envoi des commandes dépend du fait qu'on soit en mode manette ou pas. 
             //Il faut donc enregistrer les évènement ou pas en fonction de l'activation
             //C'est fait plus bas dans le code avec la fonction que l'on appelle
-            ConfigControlEvents(useXBoxController: true);
+            ConfigControlEvents(usingXBoxController);
             
             //Gestion des messages envoyé par le robot
             robotMsgGenerator.OnMessageToRobotGeneratedEvent += msgEncoder.EncodeMessageToRobot;
@@ -282,6 +282,7 @@ namespace Robot
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapStrategyReceived;
+            strategyManager.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
             waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapWaypointReceived;
 
             //Transfert de la local map vers la global world map via UPD en mode Multicast : 
@@ -436,6 +437,7 @@ namespace Robot
                 robotMsgProcessor.OnMessageCounterEvent += interfaceRobot.MessageCounterReceived;
             }
             xBoxManette.OnSpeedConsigneEvent += interfaceRobot.UpdateSpeedConsigneOnGraph;
+            trajectoryPlanner.OnSpeedConsigneEvent += interfaceRobot.UpdateSpeedConsigneOnGraph;
             interfaceRobot.OnEnableDisableMotorsFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableMotors;
             interfaceRobot.OnEnableDisableTirFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableTir;
             interfaceRobot.OnEnableDisableControlManetteFromInterfaceGeneratedEvent += ChangeUseOfXBoxController;
@@ -447,8 +449,8 @@ namespace Robot
             interfaceRobot.OnEnablePIDDebugDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnablePIDDebugData;
             interfaceRobot.OnCalibrateGyroFromInterfaceGeneratedEvent += imuProcessor.OnCalibrateGyroFromInterfaceGeneratedEvent;
 
-            localWorldMapManager.OnLocalWorldMapEvent += interfaceRobot.OnLocalWorldMapStrategyEvent;
-            localWorldMapManager.OnLocalWorldMapEvent += interfaceRobot.OnLocalWorldMapWayPointEvent;
+            localWorldMapManager.OnLocalWorldMapEventForDisplayOnly += interfaceRobot.OnLocalWorldMapStrategyEvent;
+            localWorldMapManager.OnLocalWorldMapEventForDisplayOnly += interfaceRobot.OnLocalWorldMapWayPointEvent;
 
             if (usingLogReplay)
             {

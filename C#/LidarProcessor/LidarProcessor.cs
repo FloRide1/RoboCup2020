@@ -70,7 +70,7 @@ namespace LidarProcessor
             LidarDetectedObject currentObject = new LidarDetectedObject();
             
             //Opérations de traitement du signal LIDAR
-            //ptList = PrefiltragePointsIsoles(ptList, 0.04, zoomCoeff);
+            ptList = PrefiltragePointsIsoles(ptList, 0.04, zoomCoeff);
             BalisesCatadioptriqueList = DetectionBalisesCatadioptriques(ptList, 3.6, zoomCoeff);
             ObjetsProchesList = DetectionObjetsProches(ptList, 0.012, 2.0, 0.2, zoomCoeff);
             
