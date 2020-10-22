@@ -105,6 +105,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AbsolutePositionEstimator\AbsolutePositionEstimator.csproj">
+      <Project>{C8760A70-0073-45F9-AFB7-806881456673}</Project>
+      <Name>AbsolutePositionEstimator</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CameraAdapter\CameraAdapter.csproj">
       <Project>{856f8dfd-84d3-4ff6-889f-22517addadcf}</Project>
       <Name>CameraAdapter</Name>

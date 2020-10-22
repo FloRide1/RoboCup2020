@@ -160,10 +160,10 @@ namespace WorldMapManager
         }
 
         ////Output event for display only : NO USE for transmitting data !
-        public event EventHandler<LocalWorldMapArgs> OnLocalWorldMapEvent;
+        public event EventHandler<LocalWorldMapArgs> OnLocalWorldMapEventForDisplayOnly;
         public virtual void OnLocalWorldMap(LocalWorldMap map)
         {
-            var handler = OnLocalWorldMapEvent;
+            var handler = OnLocalWorldMapEventForDisplayOnly;
             if (handler != null)
             {
                 handler(this, new LocalWorldMapArgs { LocalWorldMap = map });

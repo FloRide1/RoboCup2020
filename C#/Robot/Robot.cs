@@ -26,7 +26,6 @@ using LidarProcessor;
 using ImageSaver;
 using WpfReplayNavigator;
 using System.Runtime.InteropServices;
-using PositionEstimator;
 using YoloObjectDetector;
 using Staudt.Engineering.LidaRx.Drivers.R2000;
 using System.Net;
@@ -34,6 +33,7 @@ using Staudt.Engineering.LidaRx;
 using System.Linq;
 using ImuProcessor;
 using KalmanPositioning;
+using AbsolutePositionEstimatorNS;
 
 namespace Robot
 {
@@ -145,7 +145,7 @@ namespace Robot
         //static LidarSimulator.LidarSimulator lidarSimulator;
         static ImuProcessor.ImuProcessor imuProcessor;
         static StrategyManager.StrategyManager strategyManager;
-        static PerceptionSimulator perceptionSimulator;
+        static PerceptionManager perceptionManager;
         //static Lidar_OMD60M_UDP lidar_OMD60M_UDP;
         static Lidar_OMD60M_TCP lidar_OMD60M_TCP;
         static LidarProcessor.LidarProcessor lidarProcessor;
@@ -230,7 +230,7 @@ namespace Robot
 
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId);
             //lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
-            perceptionSimulator = new PerceptionSimulator(robotId);
+            perceptionManager = new PerceptionManager(robotId);
             imuProcessor = new ImuProcessor.ImuProcessor(robotId);
 
             if (usingYolo)
@@ -297,7 +297,7 @@ namespace Robot
             robotMsgProcessor.OnSpeedDataFromRobotGeneratedEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
             imuProcessor.OnGyroSpeedEvent += kalmanPositioning.OnGyroRobotSpeedReceived;
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
-            kalmanPositioning.OnKalmanLocationEvent += perceptionSimulator.OnPhysicalRobotPositionReceived;
+            kalmanPositioning.OnKalmanLocationEvent += perceptionManager.OnPhysicalRobotPositionReceived;
 
             //L'envoi des commandes dépend du fait qu'on soit en mode manette ou pas. 
             //Il faut donc enregistrer les évènement ou pas en fonction de l'activation
@@ -318,7 +318,7 @@ namespace Robot
             //physicalSimulator.OnPhysicalRobotLocationEvent += perceptionSimulator.OnPhysicalRobotPositionReceived;
             //physicalSimulator.OnPhysicalBallPositionEvent += perceptionSimulator.OnPhysicalBallPositionReceived;
 
-            perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
+            perceptionManager.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
@@ -485,7 +485,7 @@ namespace Robot
             interfaceRobot.OnEnablePIDDebugDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnablePIDDebugData;
             interfaceRobot.OnCalibrateGyroFromInterfaceGeneratedEvent += imuProcessor.OnCalibrateGyroFromInterfaceGeneratedEvent;
 
-            localWorldMapManager.OnLocalWorldMapEvent += interfaceRobot.OnLocalWorldMapEvent;
+            localWorldMapManager.OnLocalWorldMapEventForDisplayOnly += interfaceRobot.OnLocalWorldMapEvent;
             if (usingLogReplay)
             {
                 logReplay.OnIMUEvent += interfaceRobot.UpdateImuDataOnGraph;
