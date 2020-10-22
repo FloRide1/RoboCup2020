@@ -21,6 +21,11 @@ namespace EventArgsLibrary
     {
         public string Value { get; set; }
     }
+    public class LidarMessageArgs : EventArgs
+    {
+        public string Value { get; set; }
+        public int Line { get; set; }
+    }
     public class DoubleArgs : EventArgs
     {
         public double Value { get; set; }

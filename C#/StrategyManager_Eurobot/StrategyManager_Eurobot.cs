@@ -12,7 +12,7 @@ using System.Diagnostics;
 using PerceptionManagement;
 using System.Timers;
 using Constants;
-
+using System.Threading;
 
 namespace StrategyManager
 {
@@ -29,8 +29,7 @@ namespace StrategyManager
         PointD robotDestination = new PointD(0, 0);
         double robotOrientation = 0;
         
-        Timer timerStrategy;    
-
+        System.Timers.Timer timerStrategy;       
 
         public StrategyManager_Eurobot(int robotId, int teamId)
         {
@@ -39,13 +38,69 @@ namespace StrategyManager
             //heatMap = new Heatmap(22.0, 14.0, 22.0/Math.Pow(2,8), 2); //Init HeatMap
             heatMap = new Heatmap(3, 2, (int)Math.Pow(2, 5), 1); //Init HeatMap
 
-            timerStrategy = new Timer();
+            timerStrategy = new System.Timers.Timer();
             timerStrategy.Interval = 50;
             timerStrategy.Elapsed += TimerStrategy_Elapsed;
             timerStrategy.Start();
 
             OnGameStateChanged(robotId, globalWorldMap.gameState);
+
+            //Déclaration des taches élémentaires
+            Thread ThreadTimeManager = new Thread(TaskTimeManager)
+            { Name = "Task Time Remaining"};
+            ThreadTimeManager.Start();
+            
+            //Tache de gestion du temps
+            Thread ThreadPublicite = new Thread(TaskPublicite)
+            { Name = "Task Publicite" };
+            ThreadPublicite.Start();
+
         }
+
+        public void TaskCatchEcoCup()
+        {
+            int i = 0;
+            while(true)
+            {
+                Thread.Sleep(2000);
+                
+                i++;
+            }
+        }
+
+        int remainingTime = 100;
+        public void TaskTimeManager()
+        {
+            while (true)
+            {
+                Thread.Sleep(1000);
+                OnLidarMessage("Time remaining : " + remainingTime--.ToString()+" s", 2);
+
+                //Démarrage de l'asservissement : TODO ne pas l'appeler ici
+                OnSetRobotPID(6.0, 0.5, 0, 6.0, 0.5, 0, 6.0, 0.5, 0);
+                OnEnableAsservissement(true);
+            }
+        }
+
+        List<string> publicite = new List<string>();
+        public void TaskPublicite()
+        {
+            publicite.Add("Robot Club Toulon - IUT Toulon");
+            publicite.Add("Thanks to Pepperl+Fuchs");
+            publicite.Add("Thanks to Radiospares");
+            publicite.Add("Thanks to SciChart");
+            publicite.Add("Thanks to Basler");
+            int i = 0;
+
+            while (true)
+            {
+                Thread.Sleep(3000);
+                OnLidarMessage(publicite[i++], 1);
+                if (i >= publicite.Count())
+                    i = 0;
+            }
+        }
+
 
         private void TimerStrategy_Elapsed(object sender, ElapsedEventArgs e)
         {
@@ -481,9 +536,7 @@ namespace StrategyManager
         double EvaluateStrategyCostFunction(PointD destination, PointD fieldPos)
         {
             return Math.Max(0, 1 - Toolbox.Distance(destination, fieldPos) / 20.0);
-        }
-
-        
+        }        
 
         public PointD GetInterceptionLocation(Location target, Location hunter, double huntingSpeed)
         {
@@ -560,6 +613,29 @@ namespace StrategyManager
             {
                 handler(this, new GameStateArgs { RobotId = robotId, gameState = state });
             }
+        }
+
+        public event EventHandler<LidarMessageArgs> OnMessageEvent;
+        public virtual void OnLidarMessage(string message, int line)
+        {
+            var handler = OnMessageEvent;
+            if (handler != null)
+            {
+                handler(this, new LidarMessageArgs { Value = message, Line = line});
+            }
+        }
+        
+        //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<PIDDataArgs> OnSetRobotPIDEvent;
+        public virtual void OnSetRobotPID(double px, double ix, double dx, double py, double iy, double dy, double ptheta, double itheta, double dtheta)
+        {
+            OnSetRobotPIDEvent?.Invoke(this, new PIDDataArgs { P_x = px, I_x = ix, D_x = dx, P_y = py, I_y = iy, D_y = dy, P_theta = ptheta, I_theta = itheta, D_theta = dtheta });
+        }
+                
+        public event EventHandler<BoolEventArgs> OnEnableAsservissementEvent;
+        public virtual void OnEnableAsservissement(bool val)
+        {
+            OnEnableAsservissementEvent?.Invoke(this, new BoolEventArgs { value = val });
         }
     }
 

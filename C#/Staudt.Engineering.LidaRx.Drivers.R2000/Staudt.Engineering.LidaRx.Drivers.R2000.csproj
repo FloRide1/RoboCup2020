@@ -14,6 +14,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <COMReference Include="{bed7f4ea-1a96-11d2-8f08-00a0c9a6186d}">
+      <Guid>bed7f4ea-1a96-11d2-8f08-00a0c9a6186d</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>4</VersionMinor>
+      <WrapperTool>tlbimp</WrapperTool>
+    </COMReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />    
     <PackageReference Include="System.Reactive" Version="3.1.1" />
   </ItemGroup>
@@ -33,5 +42,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Staudt.Engineering.LidaRx\Staudt.Engineering.LidaRx.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Drawing">
+      <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Drawing.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

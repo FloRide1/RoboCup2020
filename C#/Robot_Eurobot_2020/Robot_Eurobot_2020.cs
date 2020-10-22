@@ -242,6 +242,10 @@ namespace Robot
             //Liens entre modules
             strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
             strategyManager.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
+            strategyManager.OnMessageEvent += lidar_OMD60M_TCP.OnMessageReceivedEvent;
+            strategyManager.OnSetRobotPIDEvent += robotMsgGenerator.GenerateMessageSetPIDValueToRobot;
+            strategyManager.OnEnableAsservissementEvent += robotMsgGenerator.GenerateMessageEnableAsservissement;
+
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
             
             if (usingLidar)
@@ -314,7 +318,7 @@ namespace Robot
                 //logReplay.OnCameraImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
                 //lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
             }
-
+                        
             //Timer de stratégie
             timerStrategie = new HighFreqTimer(0.5);
             timerStrategie.Tick += TimerStrategie_Tick;
@@ -327,6 +331,7 @@ namespace Robot
                 Monitor.Wait(ExitLock);
             }
         }
+
 
         static Random rand = new Random();
         private static void TimerStrategie_Tick(object sender, EventArgs e)

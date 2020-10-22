@@ -44,7 +44,7 @@ namespace LidarOMD60M
 
         }
 
-        double angleIncrement;
+        //double angleIncrement;
         private void LidarStartAndAcquire(double freq, R2000SamplingRate samplingRate)
         {
             using (r2000 = new R2000Scanner(IPAddress.Parse("169.254.235.44"), R2000ConnectionType.TCPConnection))
@@ -54,7 +54,7 @@ namespace LidarOMD60M
                 r2000.SetScanFrequency(freq);
                 r2000.SetSamplingRate(samplingRate);
 
-                angleIncrement = 2 * Math.PI/((double)R2000SamplingRate._252kHz / 20);
+                //angleIncrement = 2 * Math.PI/((double)R2000SamplingRate._252kHz / 20);
 
                 r2000.OnlyStatusEvents().Subscribe(ev =>
                 {
@@ -90,6 +90,13 @@ namespace LidarOMD60M
                     Thread.Sleep(5);
                 }
             }
+        }
+
+
+        public void OnMessageReceivedEvent(object sender, LidarMessageArgs e)
+        {
+            if(r2000 != null)
+                r2000.DisplayMessage(e.Line, e.Value);
         }
 
         private void LidarSendEvent()

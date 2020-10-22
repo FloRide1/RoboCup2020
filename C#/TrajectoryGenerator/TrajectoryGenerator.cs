@@ -19,13 +19,13 @@ namespace TrajectoryGenerator
 
         double FreqEch = 30.0;
 
-        double accelLineaireMax = 1.5; //en m.s-2
-        double accelRotationCapVitesseMax = 2*Math.PI * 1.5; //en rad.s-2
-        double accelRotationOrientationRobotMax = 2 * Math.PI * 1.5; //en rad.s-2
+        double accelLineaireMax = 0.5; //en m.s-2
+        double accelRotationCapVitesseMax = 2*Math.PI * 0.5; //en rad.s-2
+        double accelRotationOrientationRobotMax = 2 * Math.PI * 0.5; //en rad.s-2
                 
-        double vitesseLineaireMax = 1.5; //en m.s-1
-        double vitesseRotationCapVitesseMax = 2 * Math.PI * 1.5; //en rad.s-1
-        double vitesseRotationOrientationRobotMax = 2 * Math.PI * 1.5; //en rad.s-1
+        double vitesseLineaireMax = 0.5; //en m.s-1
+        double vitesseRotationCapVitesseMax = 2 * Math.PI * 0.5; //en rad.s-1
+        double vitesseRotationOrientationRobotMax = 2 * Math.PI * 0.5; //en rad.s-1
 
         double capVitesseRefTerrain = 0;
         double vitesseRotationCapVitesse = 0;
@@ -221,9 +221,9 @@ namespace TrajectoryGenerator
         AsservissementPID PID_Theta;
         void InitPositionPID()
         {
-            PID_X  = new AsservissementPID(FreqEch, 25.0, 0, 0, 50, 50, 5);
-            PID_Y = new AsservissementPID(FreqEch, 25.0, 0, 0, 50, 50, 5);
-            PID_Theta = new AsservissementPID(FreqEch, 25, 0, 0, 50, 5, 5);
+            PID_X  = new AsservissementPID(FreqEch, 50.0, 10.0, 0, 50, 500, 5);
+            PID_Y = new AsservissementPID(FreqEch, 50.0, 10.0, 0, 50, 500, 5);
+            PID_Theta = new AsservissementPID(FreqEch, 20.0, 5.0, 0, 50, 500, 5);
         }
 
         void PIDPosition()
