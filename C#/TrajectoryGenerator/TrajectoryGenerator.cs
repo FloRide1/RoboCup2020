@@ -19,13 +19,13 @@ namespace TrajectoryGenerator
 
         double FreqEch = 30.0;
 
-        double accelLineaireMax = 1.5; //en m.s-2
-        double accelRotationCapVitesseMax = 2*Math.PI * 1.5; //en rad.s-2
-        double accelRotationOrientationRobotMax = 2 * Math.PI * 1.5; //en rad.s-2
-                
-        double vitesseLineaireMax = 1.5; //en m.s-1
-        double vitesseRotationCapVitesseMax = 2 * Math.PI * 1.5; //en rad.s-1
-        double vitesseRotationOrientationRobotMax = 2 * Math.PI * 1.5; //en rad.s-1
+        double accelLineaireMax = 0.2; //en m.s-2
+        double accelRotationCapVitesseMax = 2 * Math.PI * 0.2; //en rad.s-2
+        double accelRotationOrientationRobotMax = 2 * Math.PI * 0.2; //en rad.s-2
+
+        double vitesseLineaireMax = 0.2; //en m.s-1
+        double vitesseRotationCapVitesseMax = 2 * Math.PI * 0.2; //en rad.s-1
+        double vitesseRotationOrientationRobotMax = 2 * Math.PI * 0.2; //en rad.s-1
 
         double capVitesseRefTerrain = 0;
         double vitesseRotationCapVitesse = 0;
@@ -73,6 +73,50 @@ namespace TrajectoryGenerator
             if (e.RobotId == robotId)
             {
                 currentGameState = e.gameState;
+            }
+        }
+
+        AsservissementPID PID_X;
+        AsservissementPID PID_Y;
+        AsservissementPID PID_Theta;
+        void InitPositionPID()
+        {
+            PID_X = new AsservissementPID(FreqEch, 2.0, 0.5, 0, 1, 1, 0.5);
+            PID_Y = new AsservissementPID(FreqEch, 2.0, 0.5, 0, 1, 1, 0.5);
+            PID_Theta = new AsservissementPID(FreqEch, 2.0, 0.5, 0, 2 * Math.PI, 2 * Math.PI, 0.5);
+        }
+
+        void PIDPosition()
+        {
+            if (ghostLocation != null)
+            {
+                double erreurXRefTerrain = ghostLocation.X - currentLocation.X;
+                double erreurYRefTerrain = ghostLocation.Y - currentLocation.Y;
+                currentLocation.Theta = Toolbox.ModuloByAngle(ghostLocation.Theta, currentLocation.Theta);
+                double erreurTheta = ghostLocation.Theta - currentLocation.Theta;
+
+                //Changement de repère car les asservissements se font dans le référentiel du robot
+                double erreurXRefRobot = erreurXRefTerrain * Math.Cos(currentLocation.Theta) + erreurYRefTerrain * Math.Sin(currentLocation.Theta);
+                double erreurYRefRobot = -erreurXRefTerrain * Math.Sin(currentLocation.Theta) + erreurYRefTerrain * Math.Cos(currentLocation.Theta);
+
+                double vxRefRobot = PID_X.CalculatePIDoutput(erreurXRefRobot);
+                double vyRefRobot = PID_Y.CalculatePIDoutput(erreurYRefRobot);
+                double vtheta = PID_Theta.CalculatePIDoutput(erreurTheta);
+
+                //On regarde si la position du robot est proche de la position du ghost
+                if (Math.Sqrt(Math.Pow(erreurXRefTerrain, 2) + Math.Pow(erreurYRefTerrain, 2)) < 0.5)
+                {
+                    //Si c'est le cas, le robot n'a pas rencontré de problème, on envoie les vitesses consigne.
+                    OnSpeedConsigneToRobot(robotId, (float)vxRefRobot, (float)vyRefRobot, (float)vtheta);
+                }
+                else
+                {
+                    //Sinon, le robot a rencontré un obstacle ou eu un problème, on arrête le robot et on réinitialise les correcteurs et la ghostLocation
+                    OnCollision(robotId, currentLocation);
+                    OnSpeedConsigneToRobot(robotId, 0, 0, 0);
+                    ghostLocation = currentLocation;
+                    InitPositionPID();
+                }
             }
         }
 
@@ -213,51 +257,6 @@ namespace TrajectoryGenerator
             }
 
             OnGhostLocation(robotId, ghostLocation);
-
-        }
-
-        AsservissementPID PID_X;
-        AsservissementPID PID_Y;
-        AsservissementPID PID_Theta;
-        void InitPositionPID()
-        {
-            PID_X  = new AsservissementPID(FreqEch, 25.0, 0, 0, 50, 50, 5);
-            PID_Y = new AsservissementPID(FreqEch, 25.0, 0, 0, 50, 50, 5);
-            PID_Theta = new AsservissementPID(FreqEch, 25, 0, 0, 50, 5, 5);
-        }
-
-        void PIDPosition()
-        {
-            if (ghostLocation != null)
-            {
-                double erreurXRefTerrain = ghostLocation.X - currentLocation.X;
-                double erreurYRefTerrain = ghostLocation.Y - currentLocation.Y;
-                currentLocation.Theta = Toolbox.ModuloByAngle(ghostLocation.Theta, currentLocation.Theta);
-                double erreurTheta = ghostLocation.Theta - currentLocation.Theta;
-
-                //Changement de repère car les asservissements se font dans le référentiel du robot
-                double erreurXRefRobot = erreurXRefTerrain * Math.Cos(currentLocation.Theta) + erreurYRefTerrain * Math.Sin(currentLocation.Theta);
-                double erreurYRefRobot = -erreurXRefTerrain * Math.Sin(currentLocation.Theta) + erreurYRefTerrain * Math.Cos(currentLocation.Theta);
-
-                double vxRefRobot = PID_X.CalculatePIDoutput(erreurXRefRobot);
-                double vyRefRobot = PID_Y.CalculatePIDoutput(erreurYRefRobot);
-                double vtheta = PID_Theta.CalculatePIDoutput(erreurTheta);
-
-                //On regarde si la position du robot est proche de la position du ghost
-                if (Math.Sqrt(Math.Pow(erreurXRefTerrain, 2) + Math.Pow(erreurYRefTerrain, 2)) < 0.5)
-                {
-                    //Si c'est le cas, le robot n'a pas rencontré de problème, on envoie les vitesses consigne.
-                    OnSpeedConsigneToRobot(robotId, (float)vxRefRobot, (float)vyRefRobot, (float)vtheta);
-                }
-                else
-                {
-                    //Sinon, le robot a rencontré un obstacle ou eu un problème, on arrête le robot et on réinitialise les correcteurs et la ghostLocation
-                    OnCollision(robotId, currentLocation);
-                    OnSpeedConsigneToRobot(robotId, 0, 0, 0);
-                    ghostLocation = currentLocation;
-                    InitPositionPID();
-                }
-            }
         }
         
         //Output events

@@ -561,6 +561,30 @@ namespace StrategyManager
                 handler(this, new GameStateArgs { RobotId = robotId, gameState = state });
             }
         }
+
+
+        public event EventHandler<LidarMessageArgs> OnMessageEvent;
+        public virtual void OnLidarMessage(string message, int line)
+        {
+            var handler = OnMessageEvent;
+            if (handler != null)
+            {
+                handler(this, new LidarMessageArgs { Value = message, Line = line });
+            }
+        }
+
+        //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<PIDDataArgs> OnSetRobotPIDEvent;
+        public virtual void OnSetRobotPID(double px, double ix, double dx, double py, double iy, double dy, double ptheta, double itheta, double dtheta)
+        {
+            OnSetRobotPIDEvent?.Invoke(this, new PIDDataArgs { P_x = px, I_x = ix, D_x = dx, P_y = py, I_y = iy, D_y = dy, P_theta = ptheta, I_theta = itheta, D_theta = dtheta });
+        }
+
+        public event EventHandler<BoolEventArgs> OnEnableAsservissementEvent;
+        public virtual void OnEnableAsservissement(bool val)
+        {
+            OnEnableAsservissementEvent?.Invoke(this, new BoolEventArgs { value = val });
+        }
     }
 
     public enum PlayerRole

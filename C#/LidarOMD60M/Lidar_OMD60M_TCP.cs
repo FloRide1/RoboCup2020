@@ -91,6 +91,12 @@ namespace LidarOMD60M
                 }
             }
         }
+               
+        public void OnMessageReceivedEvent(object sender, LidarMessageArgs e)
+        {
+            if (r2000 != null)
+                r2000.DisplayMessage(e.Line, e.Value);
+        }
 
         private void LidarSendEvent()
         {
