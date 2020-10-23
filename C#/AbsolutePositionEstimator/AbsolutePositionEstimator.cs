@@ -57,7 +57,7 @@ namespace AbsolutePositionEstimatorNS
             PointD ptBalise1 = new PointD(0, 0);
             PointD ptBalise3 = new PointD(0, 0);
 
-            double tolerancePositionnement = 0.2;
+            double tolerancePositionnement = 0.08;
 
             if (listeBalisesPotentielle.Count() >= 3)
             {
@@ -152,6 +152,7 @@ namespace AbsolutePositionEstimatorNS
                 double angleRobot1ThVectorRobot1 = Math.Atan2(ptBalise1Theorique.Y - yRobot, ptBalise1Theorique.X - xRobot)- Math.Atan2(ptBalise1.Y, ptBalise1.X);
 
                 Console.WriteLine("Position estimée - X : " + xRobot.ToString("N2") + " - Y : " + yRobot.ToString("N2") + " - Theta : " + angleRobot1ThVectorRobot1.ToString("N2"));
+
                 OnPositionCalculatedEvent((float)xRobot, (float)yRobot, (float)angleRobot1ThVectorRobot1, (float)Math.Max(0, 1 - minScore));
             }
         }
