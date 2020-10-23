@@ -473,33 +473,28 @@ namespace RobotInterface
                 }
             }
 
-            
-
-
-
-
-            /*if (!isZoomed)
+            if (!isZoomed)
             {
-                GridAffichageTelemetrie.ColumnDefinitions[column].Width = new GridLength(GridAffichageTelemetrie.ColumnDefinitions[column].Width.Value * zoomFactor, GridUnitType.Star);
-                GridAffichageTelemetrie.RowDefinitions[row].Height = new GridLength(GridAffichageTelemetrie.RowDefinitions[row].Height.Value * zoomFactor, GridUnitType.Star);
+                GridApplication.ColumnDefinitions[column].Width = new GridLength(GridApplication.ColumnDefinitions[column].Width.Value * zoomFactor, GridUnitType.Star);
+                GridApplication.RowDefinitions[row].Height = new GridLength(GridApplication.RowDefinitions[row].Height.Value * zoomFactor, GridUnitType.Star);
                 lastZoomedCol = column;
                 lastZoomedRow = row;
                 isZoomed = true;
             }
             else
             {
-                GridAffichageTelemetrie.ColumnDefinitions[lastZoomedCol].Width = new GridLength(GridAffichageTelemetrie.ColumnDefinitions[lastZoomedCol].Width.Value / zoomFactor, GridUnitType.Star);
-                GridAffichageTelemetrie.RowDefinitions[lastZoomedRow].Height = new GridLength(GridAffichageTelemetrie.RowDefinitions[lastZoomedRow].Height.Value / zoomFactor, GridUnitType.Star);
+                GridApplication.ColumnDefinitions[lastZoomedCol].Width = new GridLength(GridApplication.ColumnDefinitions[lastZoomedCol].Width.Value / zoomFactor, GridUnitType.Star);
+                GridApplication.RowDefinitions[lastZoomedRow].Height = new GridLength(GridApplication.RowDefinitions[lastZoomedRow].Height.Value / zoomFactor, GridUnitType.Star);
                 isZoomed = false;
                 if (lastZoomedRow != row || lastZoomedCol != column)
                 {
-                    GridAffichageTelemetrie.ColumnDefinitions[column].Width = new GridLength(GridAffichageTelemetrie.ColumnDefinitions[column].Width.Value * zoomFactor, GridUnitType.Star);
-                    GridAffichageTelemetrie.RowDefinitions[row].Height = new GridLength(GridAffichageTelemetrie.RowDefinitions[row].Height.Value * zoomFactor, GridUnitType.Star);
+                    GridApplication.ColumnDefinitions[column].Width = new GridLength(GridApplication.ColumnDefinitions[column].Width.Value * zoomFactor, GridUnitType.Star);
+                    GridApplication.RowDefinitions[row].Height = new GridLength(GridApplication.RowDefinitions[row].Height.Value * zoomFactor, GridUnitType.Star);
                     lastZoomedCol = column;
                     lastZoomedRow = row;
                     isZoomed = true;
                 }
-            }*/
+            }
         }
 #region OUTPUT EVENT
         //OUTPUT EVENT
