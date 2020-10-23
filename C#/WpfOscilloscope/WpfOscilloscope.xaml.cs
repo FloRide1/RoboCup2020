@@ -31,7 +31,7 @@ namespace WpfOscilloscopeControl
             InitializeComponent();
         }
 
-        public void AddOrUpdateLine(int id, int maxNumberOfPoints, string lineName)
+        public void AddOrUpdateLine(int id, int maxNumberOfPoints, string lineName, bool useYAxisRight = true)
         {
             if (lineDictionary.ContainsKey(id))
             {
@@ -46,6 +46,10 @@ namespace WpfOscilloscopeControl
                 lineRenderableSerie.Name = "lineRenderableSerie"+id.ToString();
                 lineRenderableSerie.DataSeries = lineDictionary[id];
                 lineRenderableSerie.DataSeries.AcceptsUnsortedData = true;
+                if(useYAxisRight)
+                    lineRenderableSerie.YAxisId = "RightYAxis";
+                else
+                    lineRenderableSerie.YAxisId = "LeftYAxis";
 
                 //Ajout de la ligne dans le scichart
                 sciChart.RenderableSeries.Add(lineRenderableSerie);
@@ -139,7 +143,7 @@ namespace WpfOscilloscopeControl
         public void UpdatePointListOfLine(int lineId, List<Point> pointList)
         {
             lineDictionary[lineId].Clear();
-            lineDictionary[lineId].Append(pointList.Select(e => e.X).ToList(), pointList.Select(e2 => e2.Y).ToList());
+            lineDictionary[lineId].Append(pointList.Select(e => e.X).ToList(), pointList.Select(e2 => e2.Y).ToList());            
         }
     }
 }

@@ -18,6 +18,7 @@ using System.Windows.Input;
 using System.Linq;
 using RefereeBoxAdapter;
 using Utilities;
+using SciChart.Charting.Visuals.Axes;
 
 namespace RobotInterface
 {
@@ -115,8 +116,11 @@ namespace RobotInterface
             oscilloTheta.ChangeLineColor(1, Colors.Red);
             oscilloTheta.ChangeLineColor(0, Colors.Blue);
             
-            oscilloLidar.AddOrUpdateLine(0, 20000, "Lidar");
+            oscilloLidar.AddOrUpdateLine(0, 20000, "Lidar RSSI", false);
+            oscilloLidar.AddOrUpdateLine(1, 20000, "Lidar Distance");
             oscilloLidar.ChangeLineColor(0, Colors.SeaGreen);
+            oscilloLidar.ChangeLineColor(01, Colors.IndianRed);
+
             //oscilloLidar.DrawOnlyPoints(0);
         }
 
@@ -187,6 +191,9 @@ namespace RobotInterface
             List<Point> ptList = new List<Point>();
             ptList = e.PtList.Select(p => new Point(p.Angle, p.Rssi)).ToList();
             oscilloLidar.UpdatePointListOfLine(0, ptList);
+            List<Point> ptList2 = new List<Point>();
+            ptList2 = e.PtList.Select(p => new Point(p.Angle, p.Distance)).ToList();
+            oscilloLidar.UpdatePointListOfLine(1, ptList2);
         }
 
         public void ResetInterfaceState()

@@ -43,12 +43,12 @@ namespace PerceptionManagement
         //    throw new NotImplementedException();
         //}
 
-        // Event position absoklue, on le forward vers l'extérieur du perception Manager
+        // Event position absolue, on le forward vers l'extérieur du perception Manager
         public event EventHandler<PositionArgs> OnAbsolutePositionEvent;
         private void OnAbsolutePositionCalculatedEvent(object sender, PositionArgs e)
         {
-            OnAbsolutePositionEvent?.Invoke(this, e);
             robotPerception.robotAbsoluteLocation = new Location(e.X, e.Y, e.Theta, 0, 0, 0);
+            OnAbsolutePositionEvent?.Invoke(this, e);
         }
 
         public void OnRawLidarDataReceived(object sender, RawLidarArgs e)
@@ -66,6 +66,8 @@ namespace PerceptionManagement
             if (robotId == e.RobotId)
             {
                 robotPerception.robotKalmanLocation = e.Location;
+                //On transmet la location au positionnement absolu
+                absolutePositionEstimator.OnPhysicalPositionReceived(sender, e);
                 GeneratePerception();
             }
         }

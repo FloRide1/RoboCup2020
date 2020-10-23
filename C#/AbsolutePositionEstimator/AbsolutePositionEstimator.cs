@@ -19,6 +19,7 @@ namespace AbsolutePositionEstimatorNS
     {
         int robotId = 0;
         List<PolarPointRssi> LidarPtList;
+        Location currentLocation;
 
         public AbsolutePositionEstimator(int id)
         {
@@ -30,9 +31,12 @@ namespace AbsolutePositionEstimatorNS
             LidarPtList = e.PtList;
         }
 
-        public void AbsolutePositionEvaluation(object sender, BitmapImageArgs e)
+        public void OnPhysicalPositionReceived(object sender, EventArgsLibrary.LocationArgs e)
         {
-
+            if (robotId == e.RobotId)
+            {
+                currentLocation = e.Location;
+            }
         }
         
         public void OnLidarBalisesListExtractedEvent(object sender, LidarDetectedObjectListArgs e)
@@ -77,10 +81,21 @@ namespace AbsolutePositionEstimatorNS
                             double normVector13 = Toolbox.Distance(pt1, pt3);
                             double angleVector12Vector13 = Math.Atan2(pt3.Y - pt1.Y, pt3.X - pt1.X) - Math.Atan2(pt2.Y - pt1.Y, pt2.X - pt1.X);
 
+                            //On somme les pourcentages d'erreur des distance entre balises candidates et balises théorique et idem pour les angles
                             double ScoreCandidatureBalises = Math.Abs(normVector12 - normVector12Theorique) / normVector12Theorique
                                 + Math.Abs(normVector13 - normVector13Theorique) / normVector13Theorique
                                 + Math.Abs(Toolbox.ModuloByAngle(angleVector12Vector13Theorique, angleVector12Vector13) - angleVector12Vector13Theorique) / Math.PI;
-                                                        
+
+                            //On regarde si l'angle des balises 1 et 3 (la ligne de fond) + l'angle courant du robot = PI / 2
+                            //On ne se téléporte pas, surtout en angle grace au gyro !
+                            
+                            //FINALEMENT quand on a 3 balises, on doit être fiable et on ne fait pas cette manip, 
+                            //Sinon on n'accorchera jamais, c'est valable à deux balises par contre...
+
+                            //double angleVector13Vector1Robot = Math.Atan2(0 - pt1.Y, 0 - pt1.X) - Math.Atan2(pt3.Y - pt1.Y, pt3.X - pt1.X);
+                            //ScoreCandidatureBalises += Math.Abs(Math.PI / 2 - (angleVector13Vector1Robot + currentLocation.Theta)) / Math.PI;
+
+
                             if (ScoreCandidatureBalises < minScore)
                             {
                                 minScore = ScoreCandidatureBalises;
@@ -122,7 +137,10 @@ namespace AbsolutePositionEstimatorNS
                         else
                             ScoreCandidatureBalises += 1;
 
-
+                        //On regarde si l'angle des balises 1 et 3 (la ligne de fond) + l'angle courant du robot = PI / 2
+                        //On ne se téléporte pas, surtout en angle grace au gyro !
+                        ScoreCandidatureBalises += Math.Abs(Math.PI / 2 - (angleVector13Vector1Robot + currentLocation.Theta)) / Math.PI;
+                                               
                         if (ScoreCandidatureBalises < minScore)
                         {
                             minScore = ScoreCandidatureBalises;

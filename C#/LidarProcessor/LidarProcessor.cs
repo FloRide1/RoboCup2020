@@ -287,7 +287,7 @@ namespace LidarProcessor
             }
 
             //On regarde la taille des objets autour des max de Rssi
-            double seuilSaillance = 0.2;
+            double seuilSaillance = 0.1;
             foreach (int indexPicRssi in maxRssiIndexList)
             {
                 //On cherche à détecter les fronts montants de distance (distance qui augmente brutalement) autour des pics pour déterminer la taille des objets

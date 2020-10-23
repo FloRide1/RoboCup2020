@@ -164,7 +164,15 @@ namespace WayPointGenerator
             //var OptimalPosition = heatMap.GetMaxPositionInBaseHeatMap();
             OptimalPosition = waypointHeatMap.GetFieldPosFromBaseHeatMapCoordinates(OptimalPosInBaseHeatMapCoordinates.X, OptimalPosInBaseHeatMapCoordinates.Y);
 
-            //var OptimalPosition = destinationLocation;
+            //Si la position optimale est très de la cible théorique, on prend la cible théorique
+            double seuilPositionnementFinal = 0.1;
+            if (destinationLocation != null && OptimalPosition != null)
+            {
+                if (Math.Abs(destinationLocation.X - OptimalPosition.X) < seuilPositionnementFinal && Math.Abs(destinationLocation.Y - OptimalPosition.Y) < seuilPositionnementFinal)
+                {
+                    OptimalPosition = new PointD(destinationLocation.X, destinationLocation.Y);
+                }
+            }
 
             OnHeatMap(robotId, waypointHeatMap);
             if (OptimalPosition != null && destinationLocation != null)

@@ -462,7 +462,6 @@ namespace Robot
             }
         }
 
-
         static Thread t3;
         static void StartReplayNavigatorInterface()
         {
@@ -496,11 +495,6 @@ namespace Robot
             }
 
             //imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;
-        }
-
-        private static void RefBoxAdapter_DataReceivedEvent(object sender, EventArgsLibrary.DataReceivedArgs e)
-        {
-            throw new NotImplementedException();
         }
     }
 

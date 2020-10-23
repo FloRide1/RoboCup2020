@@ -12,7 +12,7 @@ using System.Diagnostics;
 using PerceptionManagement;
 using System.Timers;
 using Constants;
-
+using System.Threading;
 
 namespace StrategyManager
 {
@@ -29,8 +29,8 @@ namespace StrategyManager
         PointD robotDestination = new PointD(0, 0);
         double robotOrientation = 0;
         
-        Timer timerStrategy;    
-
+        System.Timers.Timer timerStrategy;
+        
 
         public StrategyManager_Eurobot(int robotId, int teamId)
         {
@@ -39,12 +39,25 @@ namespace StrategyManager
             //heatMap = new Heatmap(22.0, 14.0, 22.0/Math.Pow(2,8), 2); //Init HeatMap
             heatMap = new Heatmap(3, 2, (int)Math.Pow(2, 5), 1); //Init HeatMap
 
-            timerStrategy = new Timer();
+            timerStrategy = new System.Timers.Timer();
             timerStrategy.Interval = 50;
             timerStrategy.Elapsed += TimerStrategy_Elapsed;
             timerStrategy.Start();
 
             OnGameStateChanged(robotId, globalWorldMap.gameState);
+
+            Thread GameManagementThread = new Thread(ThreadManagementTask);
+            GameManagementThread.IsBackground = true;
+            GameManagementThread.Start();
+        }
+
+        private void ThreadManagementTask()
+        {
+            while(true)
+            {
+                Thread.Sleep(1000);
+                OnSetRobotPID(1.0, 0.1, 0, 1.0, 0.1, 0, 1.0, 0.1, 0);
+            }
         }
 
         private void TimerStrategy_Elapsed(object sender, ElapsedEventArgs e)
@@ -359,6 +372,13 @@ namespace StrategyManager
 
             OptimalPosition = heatMap.GetFieldPosFromBaseHeatMapCoordinates(OptimalPosInBaseHeatMapCoordinates.X, OptimalPosInBaseHeatMapCoordinates.Y);
             
+            //Si la position optimale est très de la cible théorique, on prend la cible théorique
+            double seuilPositionnementFinal = 0.1;
+            if(Math.Abs(robotDestination.X-OptimalPosition.X)<seuilPositionnementFinal && Math.Abs(robotDestination.Y - OptimalPosition.Y) < seuilPositionnementFinal)
+            {
+                OptimalPosition = robotDestination;
+            }
+
             OnHeatMap(robotId, heatMap);
             SetDestination(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, (float)robotOrientation, 0, 0, 0));
 
