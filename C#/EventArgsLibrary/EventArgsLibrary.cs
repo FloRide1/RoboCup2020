@@ -176,6 +176,15 @@ namespace EventArgsLibrary
         public double P_theta;
         public double I_theta;
         public double D_theta;
+        public double P_x_Limit;
+        public double I_x_Limit;
+        public double D_x_Limit;
+        public double P_y_Limit;
+        public double I_y_Limit;
+        public double D_y_Limit;
+        public double P_theta_Limit;
+        public double I_theta_Limit;
+        public double D_theta_Limit;
     }
 
     public class AccelEventArgs : EventArgs

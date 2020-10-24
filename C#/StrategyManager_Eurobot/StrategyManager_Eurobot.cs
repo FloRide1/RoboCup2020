@@ -56,7 +56,13 @@ namespace StrategyManager
             while(true)
             {
                 Thread.Sleep(1000);
-                OnSetRobotVitessePID(15.0, 10.0, 0, 15.0, 10.0, 0, 10.0, 100.0, 0);
+                OnSetRobotVitessePID(
+                    px:100.0, ix:50.0, dx:0, 
+                    py:100.0, iy:50.0, dy:0, 
+                    ptheta:100.0, itheta:50.0, dtheta:0,
+                    pxLimit: 10.0, ixLimit: 10.0, dxLimit: 1.0,
+                    pyLimit: 10.0, iyLimit: 10.0, dyLimit: 1.0,
+                    pthetaLimit: 20*Math.PI, ithetaLimit: 20* Math.PI, dthetaLimit: 2 * Math.PI);
             }
         }
 
@@ -596,9 +602,14 @@ namespace StrategyManager
 
         //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
         public event EventHandler<PIDDataArgs> OnSetRobotVitessePIDEvent;
-        public virtual void OnSetRobotVitessePID(double px, double ix, double dx, double py, double iy, double dy, double ptheta, double itheta, double dtheta)
+        public virtual void OnSetRobotVitessePID(double px, double ix, double dx, double py, double iy, double dy, double ptheta, double itheta, double dtheta,
+            double pxLimit, double ixLimit, double dxLimit, double pyLimit, double iyLimit, double dyLimit, double pthetaLimit, double ithetaLimit, double dthetaLimit
+            )
         {
-            OnSetRobotVitessePIDEvent?.Invoke(this, new PIDDataArgs { P_x = px, I_x = ix, D_x = dx, P_y = py, I_y = iy, D_y = dy, P_theta = ptheta, I_theta = itheta, D_theta = dtheta });
+            OnSetRobotVitessePIDEvent?.Invoke(this, new PIDDataArgs {
+                P_x = px, I_x = ix, D_x = dx, P_y = py, I_y = iy, D_y = dy, P_theta = ptheta, I_theta = itheta, D_theta = dtheta,
+                P_x_Limit = px, I_x_Limit = ix, D_x_Limit = dx, P_y_Limit = py, I_y_Limit = iy, D_y_Limit = dy, P_theta_Limit = ptheta, I_theta_Limit = itheta, D_theta_Limit = dtheta
+            });
         }
 
         public event EventHandler<BoolEventArgs> OnEnableAsservissementEvent;

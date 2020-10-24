@@ -130,7 +130,7 @@ namespace RobotMessageGenerator
 
         public void GenerateMessageSetPIDValueToRobot(object sender, PIDDataArgs e)
         {
-            byte[] payload = new byte[36];
+            byte[] payload = new byte[72];
             payload.SetValueRange(((float)(e.P_x)).GetBytes(), 0);
             payload.SetValueRange(((float)(e.I_x)).GetBytes(), 4);
             payload.SetValueRange(((float)(e.D_x)).GetBytes(), 8);
@@ -140,7 +140,16 @@ namespace RobotMessageGenerator
             payload.SetValueRange(((float)(e.P_theta)).GetBytes(), 24);
             payload.SetValueRange(((float)(e.I_theta)).GetBytes(), 28);
             payload.SetValueRange(((float)(e.D_theta)).GetBytes(), 32);
-            OnMessageToRobot((Int16)Commands.SetPIDValues, 36, payload);
+            payload.SetValueRange(((float)(e.P_x_Limit)).GetBytes(), 36);
+            payload.SetValueRange(((float)(e.I_x_Limit)).GetBytes(), 40);
+            payload.SetValueRange(((float)(e.D_x_Limit)).GetBytes(), 44);
+            payload.SetValueRange(((float)(e.P_y_Limit)).GetBytes(), 48);
+            payload.SetValueRange(((float)(e.I_y_Limit)).GetBytes(), 52);
+            payload.SetValueRange(((float)(e.D_y_Limit)).GetBytes(), 56);
+            payload.SetValueRange(((float)(e.P_theta_Limit)).GetBytes(), 60);
+            payload.SetValueRange(((float)(e.I_theta_Limit)).GetBytes(), 64);
+            payload.SetValueRange(((float)(e.D_theta_Limit)).GetBytes(), 68);
+            OnMessageToRobot((Int16)Commands.SetPIDValues, 72, payload);
         }
         //public void GenerateTextMessage(object sender, EventArgsLibrary.SpeedConsigneArgs e)
         //{
