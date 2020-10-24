@@ -168,7 +168,7 @@ namespace WayPointGenerator
             double seuilPositionnementFinal = 0.1;
             if (destinationLocation != null && OptimalPosition != null)
             {
-                if (Math.Abs(destinationLocation.X - OptimalPosition.X) < seuilPositionnementFinal && Math.Abs(destinationLocation.Y - OptimalPosition.Y) < seuilPositionnementFinal)
+                if (Toolbox.Distance(new PointD(destinationLocation.X, destinationLocation.Y), new PointD(OptimalPosition.X, OptimalPosition.Y)) < seuilPositionnementFinal)
                 {
                     OptimalPosition = new PointD(destinationLocation.X, destinationLocation.Y);
                 }
@@ -257,7 +257,7 @@ namespace WayPointGenerator
 
                             //if (distanceObstacle> 0.3 && distancePtObstacle < 0.2)
                             anglePtCourant = Toolbox.ModuloByAngle(angleObstacle, anglePtCourant);
-                            if (distanceObstacle > 0.25 && Math.Abs(distanceObstacle * (anglePtCourant - angleObstacle)) < 0.18 && distancePt > distanceObstacle - 0.2)
+                            if (distanceObstacle > 0.28 && Math.Abs(distanceObstacle * (anglePtCourant - angleObstacle)) < 0.18 && distancePt > distanceObstacle - 0.2)
                                 penalisation += 1;// Math.Max(0, 1 - Math.Abs(anglePtCourant - angleRobotAdverse) *10.0);                                                         
                         }
                     }

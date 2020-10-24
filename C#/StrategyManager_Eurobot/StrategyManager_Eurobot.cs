@@ -56,7 +56,7 @@ namespace StrategyManager
             while(true)
             {
                 Thread.Sleep(1000);
-                OnSetRobotPID(2.0, 0.0, 0, 2.0, 0.0, 0, 2.0, 0.0, 0);
+                OnSetRobotVitessePID(15.0, 10.0, 0, 15.0, 10.0, 0, 10.0, 100.0, 0);
             }
         }
 
@@ -374,10 +374,11 @@ namespace StrategyManager
             
             //Si la position optimale est très de la cible théorique, on prend la cible théorique
             double seuilPositionnementFinal = 0.1;
-            if(Math.Abs(robotDestination.X-OptimalPosition.X)<seuilPositionnementFinal && Math.Abs(robotDestination.Y - OptimalPosition.Y) < seuilPositionnementFinal)
+            if (Toolbox.Distance(new PointD(robotDestination.X, robotDestination.Y), new PointD(OptimalPosition.X, OptimalPosition.Y)) < seuilPositionnementFinal)
             {
                 OptimalPosition = robotDestination;
             }
+
 
             OnHeatMap(robotId, heatMap);
             SetDestination(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, (float)robotOrientation, 0, 0, 0));
@@ -594,10 +595,10 @@ namespace StrategyManager
         }
 
         //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
-        public event EventHandler<PIDDataArgs> OnSetRobotPIDEvent;
-        public virtual void OnSetRobotPID(double px, double ix, double dx, double py, double iy, double dy, double ptheta, double itheta, double dtheta)
+        public event EventHandler<PIDDataArgs> OnSetRobotVitessePIDEvent;
+        public virtual void OnSetRobotVitessePID(double px, double ix, double dx, double py, double iy, double dy, double ptheta, double itheta, double dtheta)
         {
-            OnSetRobotPIDEvent?.Invoke(this, new PIDDataArgs { P_x = px, I_x = ix, D_x = dx, P_y = py, I_y = iy, D_y = dy, P_theta = ptheta, I_theta = itheta, D_theta = dtheta });
+            OnSetRobotVitessePIDEvent?.Invoke(this, new PIDDataArgs { P_x = px, I_x = ix, D_x = dx, P_y = py, I_y = iy, D_y = dy, P_theta = ptheta, I_theta = itheta, D_theta = dtheta });
         }
 
         public event EventHandler<BoolEventArgs> OnEnableAsservissementEvent;

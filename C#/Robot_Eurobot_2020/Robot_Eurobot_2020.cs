@@ -243,7 +243,7 @@ namespace Robot
             strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
             strategyManager.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
             strategyManager.OnMessageEvent += lidar_OMD60M_TCP.OnMessageReceivedEvent;
-            strategyManager.OnSetRobotPIDEvent += robotMsgGenerator.GenerateMessageSetPIDValueToRobot;
+            strategyManager.OnSetRobotVitessePIDEvent += robotMsgGenerator.GenerateMessageSetPIDValueToRobot;
             strategyManager.OnEnableAsservissementEvent += robotMsgGenerator.GenerateMessageEnableAsservissement;
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
             

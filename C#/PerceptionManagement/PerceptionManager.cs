@@ -115,50 +115,52 @@ namespace PerceptionManagement
 
         public void OnLidarObjectsReceived(object sender, EventArgsLibrary.PolarPointListExtendedListArgs e)
         {
-            lock (physicalObjectList)
+            if (robotPerception.robotKalmanLocation != null)
             {
-                physicalObjectList.Clear();
-
-                double xRobot = robotPerception.robotKalmanLocation.X;
-                double yRobot = robotPerception.robotKalmanLocation.Y;
-                double angleRobot = robotPerception.robotKalmanLocation.Theta;
-
-                //On récupère la liste des objets physiques vus par le robot (y compris lui-même en simulation)
-                foreach (var obj in e.ObjectList)
+                lock (physicalObjectList)
                 {
-                    double angle = obj.polarPointList[0].Angle;
-                    double distance = obj.polarPointList[0].Distance;
-                    double xObjetRefTerrain = xRobot + distance * Math.Cos(angle + angleRobot);
-                    double yObjetRefTerrain = yRobot + distance * Math.Sin(angle + angleRobot);
+                    physicalObjectList.Clear();
 
-                    //Code spécifique Eurobot
-                    //On s'accupe des obstacles dans le terrain qui sont a priori des robots
-                    if (Math.Abs(xObjetRefTerrain) < 1.5 && Math.Abs(yObjetRefTerrain) < 1.0)
+                    double xRobot = robotPerception.robotKalmanLocation.X;
+                    double yRobot = robotPerception.robotKalmanLocation.Y;
+                    double angleRobot = robotPerception.robotKalmanLocation.Theta;
+
+                    //On récupère la liste des objets physiques vus par le robot (y compris lui-même en simulation)
+                    foreach (var obj in e.ObjectList)
                     {
-                        double rayon = 0.2;
-                        if (distance > 0.2) //On exclut les obstacles trop proches
+                        double angle = obj.polarPointList[0].Angle;
+                        double distance = obj.polarPointList[0].Distance;
+                        double xObjetRefTerrain = xRobot + distance * Math.Cos(angle + angleRobot);
+                        double yObjetRefTerrain = yRobot + distance * Math.Sin(angle + angleRobot);
+
+                        //Code spécifique Eurobot
+                        //On s'accupe des obstacles dans le terrain qui sont a priori des robots
+                        if (Math.Abs(xObjetRefTerrain) < 1.5 && Math.Abs(yObjetRefTerrain) < 1.0)
                         {
-                            //On génère une liste de points périmètres des obstacle pour les interdire
-                            for (double anglePourtour = 0; anglePourtour < 2 * Math.PI; anglePourtour += 2*Math.PI / 5)
+                            double rayon = 0.2;
+                            if (distance > 0.2) //On exclut les obstacles trop proches
                             {
-                                physicalObjectList.Add(new Location(xObjetRefTerrain + rayon * Math.Cos(anglePourtour), yObjetRefTerrain + rayon * Math.Sin(anglePourtour), 0, 0, 0, 0));
+                                //On génère une liste de points périmètres des obstacle pour les interdire
+                                for (double anglePourtour = 0; anglePourtour < 2 * Math.PI; anglePourtour += 2 * Math.PI / 5)
+                                {
+                                    physicalObjectList.Add(new Location(xObjetRefTerrain + rayon * Math.Cos(anglePourtour), yObjetRefTerrain + rayon * Math.Sin(anglePourtour), 0, 0, 0, 0));
+                                }
                             }
                         }
                     }
-                }
 
-                //On rajoute les bordures du terrain à la main :
-                for (double x = -1.5; x <= 1.5; x += 0.35)
-                {
-                    physicalObjectList.Add(new Location(x, -1, 0, 0, 0, 0));
-                    physicalObjectList.Add(new Location(x, 1, 0, 0, 0, 0));
+                    //On rajoute les bordures du terrain à la main :
+                    for (double x = -1.5; x <= 1.5; x += 0.35)
+                    {
+                        physicalObjectList.Add(new Location(x, -1, 0, 0, 0, 0));
+                        physicalObjectList.Add(new Location(x, 1, 0, 0, 0, 0));
+                    }
+                    for (double y = -0.8; y <= 0.8; y += 0.35)
+                    {
+                        physicalObjectList.Add(new Location(-1.5, y, 0, 0, 0, 0));
+                        physicalObjectList.Add(new Location(1.5, y, 0, 0, 0, 0));
+                    }
                 }
-                for (double y = -0.8; y <= 0.8; y += 0.35)
-                {
-                    physicalObjectList.Add(new Location(-1.5, y, 0, 0, 0, 0));
-                    physicalObjectList.Add(new Location(1.5, y, 0, 0, 0, 0));
-                }
-
             }
         }
 
