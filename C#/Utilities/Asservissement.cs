@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Lifetime;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,7 +25,7 @@ namespace Utilities
             Kd = kd;
 
             ProportionalLimit = proportionalLimit;
-            IntegralLimit = integralLimit * Kp / Ki;
+            IntegralLimit = integralLimit;
             DerivationLimit = derivationLimit;
 
             IntegraleErreur = 0;
@@ -38,16 +40,22 @@ namespace Utilities
 
         public double CalculatePIDoutput(double error)
         {
-            double correctionP = Kp * error;
-            correctionP = Toolbox.LimitToInterval(correctionP, -ProportionalLimit, ProportionalLimit);
+            //Le principe de calcul est le suivant :
+            //On veut borner les corrections sur chaque terme à une valeur donnée, par exemple ProportionalLimit pour la contribution de P à la correction
+            //Sachant que correctionP = Kp*erreur, il faut donc borner au préalable erreur à ProportionalLimit / Kp
+
+            double erreurBornee = Toolbox.LimitToInterval(error, -ProportionalLimit / Kp, ProportionalLimit / Kp);
+            double correctionP = Kp * erreurBornee;
+
 
             IntegraleErreur += error / SampleFreq;
-            IntegraleErreur = Toolbox.LimitToInterval(IntegraleErreur, -IntegralLimit / Ki, IntegralLimit / Ki);
+            IntegraleErreur = Toolbox.LimitToInterval(IntegraleErreur, -IntegralLimit / Ki, IntegralLimit / Ki); //On touche à Integrale directement car on ne veut pas laisser l'intégrale grandir à l'infini
             double correctionI = Ki * IntegraleErreur;
 
-            double correctionD = Kd * (error - errorT_1) * SampleFreq;
+            double derivee = (error - errorT_1) * SampleFreq;
+            double deriveeBornee = Toolbox.LimitToInterval(derivee, -DerivationLimit / Kd, DerivationLimit / Kd);
             errorT_1 = error;
-            correctionD = Toolbox.LimitToInterval(correctionD, -DerivationLimit, DerivationLimit);
+            double correctionD = deriveeBornee * Kd;
 
             return correctionP + correctionI + correctionD;
         }

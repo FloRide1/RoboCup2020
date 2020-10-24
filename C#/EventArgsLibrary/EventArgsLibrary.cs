@@ -122,6 +122,19 @@ namespace EventArgsLibrary
         public int motor6;
         public int motor7;
     }
+    public class IOValuesEventArgs : EventArgs
+    {
+        public uint timeStampMS;
+        public int ioValues;
+    }
+    public class PowerMonitoringValuesEventArgs : EventArgs
+    {
+        public uint timeStampMS;
+        public double battCMDVoltage;
+        public double battCMDCurrent;
+        public double battPWRVoltage;
+        public double battPWRCurrent;
+    }
     public class MotorsPositionDataEventArgs : MotorsCurrentsEventArgs
     {
 

@@ -21,6 +21,13 @@ namespace RobotMessageGenerator
             OnMessageToRobot((Int16)Commands.SetSpeedConsigne, 12, payload);
         }
 
+        public void GenerateMessageSetIOPollingFrequencyToRobot(object sender, DoubleArgs e)
+        {
+            byte[] payload = new byte[5];
+            payload[0]=(byte)e.Value;
+            OnMessageToRobot((Int16)Commands.SetIOPollingFrequency, 1, payload);
+        }
+
         public void GenerateMessageSetSpeedConsigneToMotor(object sender, SpeedConsigneToMotorArgs e)
         {
             byte[] payload = new byte[5];
@@ -42,6 +49,19 @@ namespace RobotMessageGenerator
         public void GenerateMessageMoveTirDown(object sender, EventArgs e)
         {
             OnMessageToRobot((Int16)Commands.MoveTirDown, 0, null);
+        }
+
+        public void GenerateMessageEnablePowerMonitoring(object sender, BoolEventArgs e)
+        {
+            byte[] payload = new byte[1];
+            payload[0] = Convert.ToByte(e.value);
+            OnMessageToRobot((Int16)Commands.EnablePowerMonitoring, 1, payload);
+        }
+        public void GenerateMessageEnableIOPolling(object sender, BoolEventArgs e)
+        {
+            byte[] payload = new byte[1];
+            payload[0] = Convert.ToByte(e.value);
+            OnMessageToRobot((Int16)Commands.EnableIOPolling, 1, payload);
         }
 
         public void GenerateMessageEnableDisableMotors(object sender, BoolEventArgs e)
