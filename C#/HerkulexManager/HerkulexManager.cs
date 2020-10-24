@@ -48,6 +48,7 @@ namespace HerkulexManagerNS
             sw.Start();
 
             SendingThread = new Thread(SendingThreadProcessing);
+            SendingThread.IsBackground = true;
             SendingThread.Start();
             serialPort.Open();
         }

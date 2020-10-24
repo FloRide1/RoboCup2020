@@ -1,11 +1,6 @@
 ﻿using HeatMap;
 using Newtonsoft.Json;
-using PerceptionManagement;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utilities;
 
 namespace WorldMap

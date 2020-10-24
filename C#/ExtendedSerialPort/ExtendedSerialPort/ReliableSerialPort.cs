@@ -66,6 +66,7 @@ namespace ExtendedSerialPort
                     Thread.Sleep(2000);
                 }
             });
+            connectionThread.IsBackground = true;
         }
 
         private void StartTryingToConnect()

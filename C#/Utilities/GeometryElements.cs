@@ -128,6 +128,11 @@ namespace Utilities
         Obstacle,
         Robot,
         Poteau,
-        Balise
+        Balise,
+        LimiteHorizontaleHaute,
+        LimiteHorizontaleBasse,
+        LimiteVerticaleGauche,
+        LimiteVerticaleDroite,
+
     }
 }

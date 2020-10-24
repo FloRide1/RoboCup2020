@@ -1,17 +1,10 @@
-﻿using AdvancedTimers;
-using Constants;
+﻿using Constants;
 using EventArgsLibrary;
 using HeatMap;
-using PerceptionManagement;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Timers;
 using Utilities;
 using WorldMap;
 
@@ -250,35 +243,61 @@ namespace WayPointGenerator
                         //On calcule la pénalisation sur la liste des obstacles à éviter
                         foreach (var obstacle in globalWorldMap.obstacleLocationList)
                         {
-                            if (penalisation < 1) ;
-                            double angleObstacle = Math.Atan2(obstacle.Y - robotLocation.Y, obstacle.X - robotLocation.X);
-                            double distanceObstacle = Toolbox.Distance(obstacle.X, obstacle.Y, robotLocation.X, robotLocation.Y);
-
-                            double distancePt = Toolbox.Distance(ptCourant.X, ptCourant.Y, robotLocation.X, robotLocation.Y);
-                            double anglePtCourant = Math.Atan2(ptCourant.Y - robotLocation.Y, ptCourant.X - robotLocation.X);
-
-                            //double distancePtObstacle = Toolbox.Distance(ptCourant.X, ptCourant.Y, obstacle.X, obstacle.Y);
-
-                            //if (distanceObstacle> 0.3 && distancePtObstacle < 0.2)
-                            anglePtCourant = Toolbox.ModuloByAngle(angleObstacle, anglePtCourant);
-                            double seuilDistance = 0;
-                            switch(obstacle.Type)
+                            if (penalisation < 1) //Si on est dans une zone déjà éliminée, pas la peine de faire des calculs pour rien
                             {
-                                case ObjectType.Obstacle:
-                                    seuilDistance = 0.18;
-                                    break;
-                                case ObjectType.Robot:
-                                    seuilDistance = 0.4;
-                                    break;
-                                default:
-                                    seuilDistance = 0.2;
-                                    break;
+                                if (obstacle.Type == ObjectType.LimiteHorizontaleHaute)
+                                {
+                                    if (ptCourant.Y > obstacle.Y)
+                                        penalisation += 1;
+                                }
+                                else if (obstacle.Type == ObjectType.LimiteHorizontaleBasse)
+                                {
+                                    if (ptCourant.Y < obstacle.Y)
+                                        penalisation += 1;
+                                }
+                                else if (obstacle.Type == ObjectType.LimiteVerticaleGauche)
+                                {
+                                    if (ptCourant.X < obstacle.X)
+                                        penalisation += 1;
+                                }
+                                else if (obstacle.Type == ObjectType.LimiteVerticaleDroite)
+                                {
+                                    if (ptCourant.X > obstacle.X)
+                                        penalisation += 1;
+                                }
+                                else
+                                {
+                                    double angleObstacle = Math.Atan2(obstacle.Y - robotLocation.Y, obstacle.X - robotLocation.X);
+                                    double distanceObstacle = Toolbox.Distance(obstacle.X, obstacle.Y, robotLocation.X, robotLocation.Y);
+
+                                    double distancePt = Toolbox.Distance(ptCourant.X, ptCourant.Y, robotLocation.X, robotLocation.Y);
+                                    double anglePtCourant = Math.Atan2(ptCourant.Y - robotLocation.Y, ptCourant.X - robotLocation.X);
+
+                                    //double distancePtObstacle = Toolbox.Distance(ptCourant.X, ptCourant.Y, obstacle.X, obstacle.Y);
+
+                                    //if (distanceObstacle> 0.3 && distancePtObstacle < 0.2)
+                                    anglePtCourant = Toolbox.ModuloByAngle(angleObstacle, anglePtCourant);
+                                    double seuilDistance = 0;
+
+                                    switch (obstacle.Type)
+                                    {
+                                        case ObjectType.Obstacle:
+                                            seuilDistance = 0.18;
+                                            break;
+                                        case ObjectType.Robot:
+                                            seuilDistance = 0.4;
+                                            break;
+                                        default:
+                                            seuilDistance = 0.2;
+                                            break;
+                                    }
+
+                                    if (distanceObstacle > 0.28 && //distance mùinimum pour considérer un objet, en dessous, on a probablment un morceau de notre robot
+                                        Math.Abs(distanceObstacle * (anglePtCourant - angleObstacle)) < seuilDistance && //Si on est dans le cone de masquage d'un objet
+                                        distancePt > distanceObstacle - seuilDistance) //Si on est dans le cone de masquage - condition 2
+                                        penalisation += 1;
+                                }
                             }
-                            
-                            if (distanceObstacle > 0.28 && //distance mùinimum pour considérer un objet, en dessous, on a probablment un morceau de notre robot
-                                Math.Abs(distanceObstacle * (anglePtCourant - angleObstacle)) < seuilDistance && //Si on est dans le cone de masquage d'un objet
-                                distancePt > distanceObstacle - seuilDistance) //Si on est dans le cone de masquage - condition 2
-                                penalisation += 1;                                                 
                         }
                     }
                 }

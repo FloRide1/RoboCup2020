@@ -274,6 +274,7 @@ namespace Robot
             serialPort1.OnDataReceivedEvent += msgDecoder.DecodeMsgReceived;
             msgDecoder.OnMessageDecodedEvent += robotMsgProcessor.ProcessRobotDecodedMessage;
             robotMsgProcessor.OnIMURawDataFromRobotGeneratedEvent += imuProcessor.OnIMURawDataReceived;
+            robotMsgProcessor.OnIOValuesFromRobotGeneratedEvent += RobotMsgProcessor_OnIOValuesFromRobotGeneratedEvent;
 
             //physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             //physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicalObjectListLocationReceived;
@@ -330,6 +331,15 @@ namespace Robot
                 // once we are done wait
                 Monitor.Wait(ExitLock);
             }
+        }
+
+        private static void RobotMsgProcessor_OnIOValuesFromRobotGeneratedEvent(object sender, IOValuesEventArgs e)
+        {
+            bool jackIsPresent = (((e.ioValues >> 0) & 0x01) == 0x00);
+            bool config1IsOn = (((e.ioValues >> 1) & 0x01) == 0x01);
+            bool config2 = (((e.ioValues >> 2) & 0x01) == 0x01);
+            bool config3 = (((e.ioValues >> 3) & 0x01) == 0x01);
+            bool config4 = (((e.ioValues >> 4) & 0x01) == 0x01);
         }
 
         static Random rand = new Random();

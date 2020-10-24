@@ -22,7 +22,9 @@ namespace RefereeBoxAdapter
 
         public RefereeBoxAdapter()
         {
-            new Thread(StartRefBoxAdapter).Start();
+            Thread StartRefBoxAdapterThread = new Thread(StartRefBoxAdapter);
+            StartRefBoxAdapterThread.IsBackground = true;
+            StartRefBoxAdapterThread.Start();
         }
 
         private void StartRefBoxAdapter()

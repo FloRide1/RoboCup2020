@@ -1,18 +1,12 @@
 ﻿
 using Constants;
-using PerceptionManagement;
 using SciChart.Charting.Model.DataSeries;
 using SciChart.Charting.Model.DataSeries.Heatmap2DArrayDataSeries;
-using SciChart.Charting.Visuals.RenderableSeries;
-using SciChart.Drawing.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 using Utilities;
 using WorldMap;
 
