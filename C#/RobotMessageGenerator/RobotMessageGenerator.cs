@@ -21,6 +21,12 @@ namespace RobotMessageGenerator
             OnMessageToRobot((Int16)Commands.SetSpeedConsigne, 12, payload);
         }
 
+        public event EventHandler<SpeedArgs> OnSetSpeedConsigneToRobotReceivedEvent;
+        public virtual void OnSetSpeedConsigneToRobotReceived(SpeedArgs args)
+        {
+            OnSetSpeedConsigneToRobotReceivedEvent?.Invoke(this, args);
+        }
+
         public void GenerateMessageSetIOPollingFrequencyToRobot(object sender, DoubleArgs e)
         {
             byte[] payload = new byte[5];
@@ -165,11 +171,7 @@ namespace RobotMessageGenerator
         public event EventHandler<MessageToRobotArgs> OnMessageToRobotGeneratedEvent;
         public virtual void OnMessageToRobot(Int16 msgFunction, Int16 msgPayloadLength, byte[] msgPayload)
         {
-            var handler = OnMessageToRobotGeneratedEvent;
-            if (handler != null)
-            {
-                handler(this, new MessageToRobotArgs { MsgFunction = msgFunction, MsgPayloadLength = msgPayloadLength, MsgPayload=msgPayload});
-            }
+            OnMessageToRobotGeneratedEvent?.Invoke(this, new MessageToRobotArgs { MsgFunction = msgFunction, MsgPayloadLength = msgPayloadLength, MsgPayload = msgPayload });
         }
     }
 }

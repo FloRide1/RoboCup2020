@@ -83,7 +83,7 @@ namespace LidarProcessor
                 currentPolarPointListExtended.polarPointList = new List<PolarPointRssi>();
                 {
                     currentPolarPointListExtended.polarPointList.Add(new PolarPointRssi(obj.AngleMoyen, obj.DistanceMoyenne, 0));
-                    currentPolarPointListExtended.type = ObjectType.Objet;
+                    currentPolarPointListExtended.type = ObjectType.Obstacle;
                     objectList.Add(currentPolarPointListExtended);
                 }
             }

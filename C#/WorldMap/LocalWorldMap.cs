@@ -23,7 +23,7 @@ namespace WorldMap
         public Dictionary<int, Location> teammateDestinationLocationList { get; set; }
         public Dictionary<int, Location> teammateWayPointList { get; set; }
         public List<Location> opponentLocationList { get; set; }
-        public List<Location> obstacleLocationList { get; set; }
+        public List<LocationExtended> obstacleLocationList { get; set; }
 
         public GlobalWorldMap()
         {
@@ -85,7 +85,7 @@ namespace WorldMap
         public Location destinationLocation { get; set; }
         public Location waypointLocation { get; set; }
         public List<Location> ballLocationList { get; set; }
-        public List<Location> obstaclesLocationList { get; set; }
+        public List<LocationExtended> obstaclesLocationList { get; set; }
         public List<PolarPointListExtended> lidarObjectList { get; set; }
 
         [JsonIgnore] 

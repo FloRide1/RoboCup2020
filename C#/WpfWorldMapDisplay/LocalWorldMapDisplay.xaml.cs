@@ -394,7 +394,7 @@ namespace WpfWorldMapDisplay
             }
         }
 
-        public void UpdateObstacleList(List<Location> obstacleList)
+        public void UpdateObstacleList(List<LocationExtended> obstacleList)
         {
             if (obstacleList != null)
             {

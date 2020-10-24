@@ -40,48 +40,36 @@
             <Image Source="Ressources/Robot_Shape.png"></Image>
             <oscillo:WpfOscilloscope x:Name="oscilloTheta" Grid.Column="1" Grid.Row="0" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
         </Grid>
-        <GroupBox Grid.Column="2" Header="Options" Margin="10,10,10,10" Grid.Row="1"  MouseDoubleClick="ZoomOnGraph_MouseDoubleClick" Background="#FF636363">
-            <Grid >
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="1*"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
 
+        <Grid Grid.Column="2" Grid.Row="1"  >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <GroupBox Header="Actions" Margin="5" Grid.Column="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick" Background="Transparent" Foreground="White">
                 <StackPanel Name="ButtonsStackPanelColumn1" Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Orientation="Vertical">
-                    <Button Name="ButtonDisableMotors" Content="Disable Motors" HorizontalAlignment="Center" Margin="10,0,10,5" VerticalAlignment="Top" Width="85" Height="20" Click="ButtonDisableMotors_Click"/>
-                    <Button Name="ButtonCalibrateGyro" Content="Calibrate Gyro" HorizontalAlignment="Center" Margin="10,0,10,5" VerticalAlignment="Top" Width="85" Height="20" Click="ButtonCalibrateGyro_Click"/>
-                    <Button Name="ButtonEnableDisableTir" Content="Enable Tir" HorizontalAlignment="Center"  Margin="10,0,10,5" VerticalAlignment="Top" Width="85" Height="20" Click="ButtonEnableDisableTir_Click"/>
-                    <CheckBox Name="CheckBoxControlManette" Content="Enable Manette" HorizontalAlignment="Center"  Margin="10,0,10,5" VerticalAlignment="Top" Checked="CheckBox_CheckedChanged" Unchecked="CheckBox_CheckedChanged"/>
+                    <Button Name="ButtonDisableMotors" Content="Disable Motors" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="2" VerticalAlignment="Top" Height="20" Click="ButtonDisableMotors_Click" Background="Transparent" Foreground="White"/>
+                    <Button Name="ButtonCalibrateGyro" Content="Calibrate Gyro" HorizontalAlignment="Stretch" Margin="2" VerticalAlignment="Top"  Height="20" Click="ButtonCalibrateGyro_Click" Background="Transparent" Foreground="White"/>
+                    <Button Name="ButtonEnableDisableTir" Content="Enable Tir" HorizontalAlignment="Stretch"  Margin="2" VerticalAlignment="Top"  Height="20" Click="ButtonEnableDisableTir_Click" Background="Transparent" Foreground="White"/>
+                    <Button Name="ButtonEnableAsservissement" Content="Enable Asservissement"  HorizontalAlignment="Stretch" Margin="2" VerticalAlignment="Top" Height="20" Click="ButtonEnableAsservissement_Click" Background="Transparent" Foreground="White"/>
+                    <CheckBox Name="CheckBoxControlManette" Content="Enable Manette"  HorizontalAlignment="Center"  Margin="2" VerticalAlignment="Top" Checked="CheckBox_CheckedChanged" Unchecked="CheckBox_CheckedChanged" Background="Transparent" Foreground="White"/>
                 </StackPanel>
-                <StackPanel Name="ButtonsStackPanelColumn2" Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Orientation="Vertical">
-                    <Button Name="ButtonEnableAsservissement" Content="Enable Asservissement"  HorizontalAlignment="Center" Margin="10,0,10,5" VerticalAlignment="Top" Width="85" Height="20" Click="ButtonEnableAsservissement_Click"/>
-                </StackPanel>
+            </GroupBox>
 
-                <GroupBox Grid.ColumnSpan="1" Grid.Column="1" Header="debug data" HorizontalAlignment="Stretch"  Margin="0,0,0,-0" Grid.Row="1" Grid.RowSpan="2" VerticalAlignment="Stretch">
-                    <ScrollViewer Name="scrollViewerDebugOption">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <CheckBox Name="CheckBoxEnablePositionData" Content="EnablePositionData" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="0" VerticalAlignment="Top" Checked="CheckBoxEnablePositionData_Checked" Unchecked="CheckBoxEnablePositionData_Checked"/>
-                            <CheckBox Name="CheckBoxEnableEncRawData" Content="Enable Encoder Raw Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="1" VerticalAlignment="Top" Checked="CheckBoxEnableEncRawData_Checked" Unchecked="CheckBoxEnableEncRawData_Checked"/>
-                            <CheckBox Name="CheckBoxEnableMotorCurrentData" Content="Enable Motor Current Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Top" Checked="CheckBoxEnableMotorCurrentData_Checked" Unchecked="CheckBoxEnableMotorCurrentData_Checked"/>
-                            <CheckBox Name="CheckBoxEnableMotorSpeedConsigneData" Content="Enable Motor Speed Consigne Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="3" VerticalAlignment="Top" Checked="CheckBoxEnableMotorSpeedConsigneData_Checked" Unchecked="CheckBoxEnableMotorSpeedConsigneData_Checked"/>
-                            <CheckBox Name="CheckBoxEnablePIDDebugData" Content="Enable PID Debug Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="4" VerticalAlignment="Top" Checked="CheckBoxEnablePIDDebugData_Checked" Unchecked="CheckBoxEnablePIDDebugData_Checked"/>
-                        </Grid>
-                    </ScrollViewer>
-                </GroupBox>
-                <GroupBox Grid.Column="2" Header="PID Values" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.RowSpan="3" >
+            <GroupBox Grid.ColumnSpan="1"  Grid.Column="1" Margin="5" Header="Options" HorizontalAlignment="Stretch" Grid.Row="1" Grid.RowSpan="2" VerticalAlignment="Stretch" Background="Transparent" Foreground="White">
+                <StackPanel Orientation="Vertical">
+                    <CheckBox Name="CheckBoxEnablePositionData" Content="EnablePositionData" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="0" VerticalAlignment="Top" Checked="CheckBoxEnablePositionData_Checked" Unchecked="CheckBoxEnablePositionData_Checked" Background="Transparent" Foreground="White"/>
+                    <CheckBox Name="CheckBoxEnableEncRawData" Content="Enable Encoder Raw Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="1" VerticalAlignment="Top" Checked="CheckBoxEnableEncRawData_Checked" Unchecked="CheckBoxEnableEncRawData_Checked" Background="Transparent" Foreground="White"/>
+                    <CheckBox Name="CheckBoxEnableMotorCurrentData" Content="Enable Motor Current Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Top" Checked="CheckBoxEnableMotorCurrentData_Checked" Unchecked="CheckBoxEnableMotorCurrentData_Checked" Background="Transparent" Foreground="White"/>
+                    <CheckBox Name="CheckBoxEnableMotorSpeedConsigneData" Content="Enable Motor Speed Consigne Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="3" VerticalAlignment="Top" Checked="CheckBoxEnableMotorSpeedConsigneData_Checked" Unchecked="CheckBoxEnableMotorSpeedConsigneData_Checked" Background="Transparent" Foreground="White"/>
+                    <CheckBox Name="CheckBoxEnablePIDDebugData" Content="Enable PID Debug Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="4" VerticalAlignment="Top" Checked="CheckBoxEnablePIDDebugData_Checked" Unchecked="CheckBoxEnablePIDDebugData_Checked" Background="Transparent" Foreground="White"/>
+                </StackPanel>
+            </GroupBox>
+        </Grid>
+        <!--<GroupBox Grid.Column="2" Header="PID Values" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.RowSpan="3" >
                     <ScrollViewer Name="scrollViewerOption">
                         <Grid>
                             <Grid.RowDefinitions>
@@ -128,24 +116,21 @@
 
                         </Grid>
                     </ScrollViewer>
-                </GroupBox>
+                </GroupBox>-->
 
-            </Grid>
-        </GroupBox>
-
-        <GroupBox Grid.Column="1" Header="Console" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Stretch" Background="White">
+        <GroupBox Grid.Column="1" Header="Console" Foreground="White" HorizontalAlignment="Stretch" Margin="5" Grid.Row="2" VerticalAlignment="Stretch" Background="Transparent">
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="200"/>
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
-                    <Label x:Name="LabelNbIMUDataPerSec" Content="Nb IMU data / sec : "></Label>
-                    <Label x:Name="LabelNbSpeedOdometryDataPerSec" Content="Nb odometry data / sec : "></Label>
-                    <Label x:Name="LabelNbLidarProcessedDataPerSec" Content="Nb Lidar data / sec : "></Label>
+                    <Label x:Name="LabelNbIMUDataPerSec" Content="Nb IMU data / sec : " Foreground="White"></Label>
+                    <Label x:Name="LabelNbSpeedOdometryDataPerSec" Content="Nb odometry data / sec : " Foreground="White"></Label>
+                    <Label x:Name="LabelNbLidarProcessedDataPerSec" Content="Nb Lidar data / sec : " Foreground="White"></Label>
                 </StackPanel>
                 <ScrollViewer Name="scrollViewerTextBoxConsole" Grid.Column="1">
-                    <TextBlock Name="textBoxConsole" HorizontalAlignment="Stretch" Margin="0,0,0,0" TextWrapping="WrapWithOverflow" Text="TextBlock" VerticalAlignment="Stretch" Background="Gray" 
+                    <TextBlock Name="textBoxConsole" HorizontalAlignment="Stretch" Margin="0,0,0,0" TextWrapping="WrapWithOverflow" Text="" VerticalAlignment="Stretch" Background="Transparent" Foreground="White"
                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"/>
                 </ScrollViewer>
             </Grid>

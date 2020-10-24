@@ -688,20 +688,20 @@ namespace RobotInterface
                 OnEnableAsservissementFromInterface(true);
         }
 
-        private void ButtonSetPID_Click(object sender, RoutedEventArgs e)
-        {
-            double Px = Convert.ToDouble(textBoxPx.Text);
-            double Ix = Convert.ToDouble(textBoxIx.Text);
-            double Dx = Convert.ToDouble(textBoxDx.Text);
-            double Py = Convert.ToDouble(textBoxPy.Text);
-            double Iy = Convert.ToDouble(textBoxIy.Text);
-            double Dy = Convert.ToDouble(textBoxDy.Text);
-            double Ptheta = Convert.ToDouble(textBoxPtheta.Text);
-            double Itheta = Convert.ToDouble(textBoxItheta.Text);
-            double Dtheta = Convert.ToDouble(textBoxDtheta.Text);
-            OnSetRobotPIDFromInterface(Px,Ix, Dx, Py, Iy, Dy, Ptheta, Itheta, Dtheta);
+        //private void ButtonSetPID_Click(object sender, RoutedEventArgs e)
+        //{
+        //    double Px = Convert.ToDouble(textBoxPx.Text);
+        //    double Ix = Convert.ToDouble(textBoxIx.Text);
+        //    double Dx = Convert.ToDouble(textBoxDx.Text);
+        //    double Py = Convert.ToDouble(textBoxPy.Text);
+        //    double Iy = Convert.ToDouble(textBoxIy.Text);
+        //    double Dy = Convert.ToDouble(textBoxDy.Text);
+        //    double Ptheta = Convert.ToDouble(textBoxPtheta.Text);
+        //    double Itheta = Convert.ToDouble(textBoxItheta.Text);
+        //    double Dtheta = Convert.ToDouble(textBoxDtheta.Text);
+        //    OnSetRobotPIDFromInterface(Px,Ix, Dx, Py, Iy, Dy, Ptheta, Itheta, Dtheta);
 
-        }
+        //}
 
         private void CheckBoxEnableMotorCurrentData_Checked(object sender, RoutedEventArgs e)
         {

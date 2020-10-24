@@ -229,7 +229,7 @@ namespace WorldMapManager
                 globalWorldMap.teammateDestinationLocationList = new Dictionary<int, Location>();
                 globalWorldMap.teammateWayPointList = new Dictionary<int, Location>();
                 globalWorldMap.opponentLocationList = new List<Location>();
-                globalWorldMap.obstacleLocationList = new List<Location>();
+                globalWorldMap.obstacleLocationList = new List<LocationExtended>();
 
                 //On place tous les robots de l'équipe dans la global map
                 foreach (var localMap in localWorldMapDictionary)

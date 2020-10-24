@@ -15,11 +15,11 @@
         <s:SciChartSurface x:Name="sciChart" Padding="0" BorderThickness="0" Grid.Row="1">
             <!--  Create a X Axis  -->
             <s:SciChartSurface.XAxis>
-                <s:NumericAxis VisibleRange="-12,12" IsCenterAxis="False" AutoRange="Never" Visibility="Visible"/>
+                <s:NumericAxis VisibleRange="-12,12" IsCenterAxis="False" AutoRange="Never" Visibility="Hidden"/>
             </s:SciChartSurface.XAxis>
             <!--  Create a Y Axis  -->
             <s:SciChartSurface.YAxis>
-                <s:NumericAxis VisibleRange="-8,8" IsCenterAxis="False" AutoRange="Never" Visibility="Visible"/>
+                <s:NumericAxis VisibleRange="-8,8" IsCenterAxis="False" AutoRange="Never" Visibility="Hidden"/>
             </s:SciChartSurface.YAxis>            
             <s:SciChartSurface.RenderableSeries >
                 <local:PolygonRenderableSeries x:Name="PolygonSeries" Opacity="0.5">

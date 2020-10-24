@@ -119,7 +119,7 @@ namespace WayPointGenerator
                 int maxXpos = 0;
                 int maxYpos = 0;
 
-                //Parallel.For((int)minY, (int)maxY+1, (y) =>
+                //Parallel.For((int)minY, (int)maxY + 1, (y) =>
                 for (double y = (int)minY; y < (int)maxY + 1; y += 1)
                 {
                     //Parallel.For((int)minX, (int)maxX+1, (x) =>
@@ -155,7 +155,7 @@ namespace WayPointGenerator
                         //}
                     }
                 }
-                //    });
+                    //});
                 //});
                 //OptimalPosInBaseHeatMapCoordinates = heatMap.GetMaxPositionInBaseHeatMapCoordinates();
                 OptimalPosInBaseHeatMapCoordinates = new PointD(maxXpos, maxYpos);
@@ -183,7 +183,7 @@ namespace WayPointGenerator
             //{
             //    Console.WriteLine("Calcul WayPoint - Nb Calculs Etape " + n + " : " + nbComputationsList[n]);
             //}
-            //Console.WriteLine("Temps de calcul de la heatMap WayPoint : " + sw.Elapsed.TotalMilliseconds.ToString("N4")+" ms"); // Affichage de la mesure
+            Console.WriteLine("Temps de calcul de la heatMap WayPoint : " + sw.Elapsed.TotalMilliseconds.ToString("N4")+" ms"); // Affichage de la mesure
         }
 
         double CalculPenalisation(PointD ptCourant)
@@ -195,7 +195,7 @@ namespace WayPointGenerator
                 if (globalWorldMap.teammateLocationList.ContainsKey(robotId))
                 {
                     Location robotLocation = globalWorldMap.teammateLocationList[robotId];
-                    if (destinationLocation != null && robotLocation != null)
+                    if (destinationLocation != null && robotLocation != null )
                     {
                         double angleDestination = Math.Atan2(destinationLocation.Y - robotLocation.Y, destinationLocation.X - robotLocation.X);
 
@@ -224,29 +224,33 @@ namespace WayPointGenerator
                         var robotToAvoidList = robotToAvoidDictionary.ToList();   //On évite un lock couteux en perf en faisant une copie locale                        
                         foreach (var robot in robotToAvoidList)
                         {
-                            int competitorId = robot.Key;
-                            Location competitorLocation = robot.Value;
-
-                            //On itère sur tous les robots sauf celui-ci
-                            if (competitorId != robotId && competitorLocation != null)
+                            if (penalisation < 1)
                             {
-                                double angleRobotAdverse = Math.Atan2(competitorLocation.Y - robotLocation.Y, competitorLocation.X - robotLocation.X);
-                                double distanceRobotAdverse = Toolbox.Distance(competitorLocation.X, competitorLocation.Y, robotLocation.X, robotLocation.Y);
+                                int competitorId = robot.Key;
+                                Location competitorLocation = robot.Value;
 
-                                //PointD ptCourant = GetFieldPosFromHeatMapCoordinates(x, y);
-                                double distancePt = Toolbox.Distance(ptCourant.X, ptCourant.Y, robotLocation.X, robotLocation.Y);
-                                double anglePtCourant = Math.Atan2(ptCourant.Y - robotLocation.Y, ptCourant.X - robotLocation.X);
+                                //On itère sur tous les robots sauf celui-ci
+                                if (competitorId != robotId && competitorLocation != null)
+                                {
+                                    double angleRobotAdverse = Math.Atan2(competitorLocation.Y - robotLocation.Y, competitorLocation.X - robotLocation.X);
+                                    double distanceRobotAdverse = Toolbox.Distance(competitorLocation.X, competitorLocation.Y, robotLocation.X, robotLocation.Y);
 
-                                anglePtCourant = Toolbox.ModuloByAngle(angleRobotAdverse, anglePtCourant);
-                                if (Math.Abs(distanceRobotAdverse * (anglePtCourant - angleRobotAdverse)) < 0.2 && distancePt > distanceRobotAdverse - 0.2)
-                                    penalisation += 1;// Math.Max(0, 1 - Math.Abs(anglePtCourant - angleRobotAdverse) *10.0);
+                                    //PointD ptCourant = GetFieldPosFromHeatMapCoordinates(x, y);
+                                    double distancePt = Toolbox.Distance(ptCourant.X, ptCourant.Y, robotLocation.X, robotLocation.Y);
+                                    double anglePtCourant = Math.Atan2(ptCourant.Y - robotLocation.Y, ptCourant.X - robotLocation.X);
 
+                                    anglePtCourant = Toolbox.ModuloByAngle(angleRobotAdverse, anglePtCourant);
+                                    if (Math.Abs(distanceRobotAdverse * (anglePtCourant - angleRobotAdverse)) < 0.2 && distancePt > distanceRobotAdverse - 0.2)
+                                        penalisation += 1;// Math.Max(0, 1 - Math.Abs(anglePtCourant - angleRobotAdverse) *10.0);
+
+                                }
                             }
                         }
 
                         //On calcule la pénalisation sur la liste des obstacles à éviter
                         foreach (var obstacle in globalWorldMap.obstacleLocationList)
                         {
+                            if (penalisation < 1) ;
                             double angleObstacle = Math.Atan2(obstacle.Y - robotLocation.Y, obstacle.X - robotLocation.X);
                             double distanceObstacle = Toolbox.Distance(obstacle.X, obstacle.Y, robotLocation.X, robotLocation.Y);
 
@@ -257,8 +261,24 @@ namespace WayPointGenerator
 
                             //if (distanceObstacle> 0.3 && distancePtObstacle < 0.2)
                             anglePtCourant = Toolbox.ModuloByAngle(angleObstacle, anglePtCourant);
-                            if (distanceObstacle > 0.28 && Math.Abs(distanceObstacle * (anglePtCourant - angleObstacle)) < 0.18 && distancePt > distanceObstacle - 0.2)
-                                penalisation += 1;// Math.Max(0, 1 - Math.Abs(anglePtCourant - angleRobotAdverse) *10.0);                                                         
+                            double seuilDistance = 0;
+                            switch(obstacle.Type)
+                            {
+                                case ObjectType.Obstacle:
+                                    seuilDistance = 0.18;
+                                    break;
+                                case ObjectType.Robot:
+                                    seuilDistance = 0.4;
+                                    break;
+                                default:
+                                    seuilDistance = 0.2;
+                                    break;
+                            }
+                            
+                            if (distanceObstacle > 0.28 && //distance mùinimum pour considérer un objet, en dessous, on a probablment un morceau de notre robot
+                                Math.Abs(distanceObstacle * (anglePtCourant - angleObstacle)) < seuilDistance && //Si on est dans le cone de masquage d'un objet
+                                distancePt > distanceObstacle - seuilDistance) //Si on est dans le cone de masquage - condition 2
+                                penalisation += 1;                                                 
                         }
                     }
                 }

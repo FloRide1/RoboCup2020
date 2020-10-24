@@ -12,7 +12,7 @@ namespace PerceptionManagement
     {
         int robotId = 0;
         
-        List<Location> physicalObjectList;
+        List<LocationExtended> physicalObjectList;
         Perception robotPerception;
 
         LidarProcessor.LidarProcessor lidarProcessor;
@@ -26,7 +26,7 @@ namespace PerceptionManagement
             globalWorldMap = new GlobalWorldMap();
 
             robotPerception = new Perception();
-            physicalObjectList = new List<Location>();
+            physicalObjectList = new List<LocationExtended>();
 
             //Chainage des modules composant le Perception Manager
             absolutePositionEstimator = new AbsolutePositionEstimator(robotId);
@@ -103,7 +103,7 @@ namespace PerceptionManagement
 
                         if (!isRobot)
                         {
-                            robotPerception.obstaclesLocationList.Add(new Location(obj.X, obj.Y, obj.Theta, obj.Vx, obj.Vy, obj.Vtheta));
+                            robotPerception.obstaclesLocationList.Add(new LocationExtended(obj.X, obj.Y, obj.Theta, obj.Vx, obj.Vy, obj.Vtheta, obj.Type));
                         }
                     }
                 }
@@ -134,17 +134,18 @@ namespace PerceptionManagement
                         double yObjetRefTerrain = yRobot + distance * Math.Sin(angle + angleRobot);
 
                         //Code spécifique Eurobot
-                        //On s'accupe des obstacles dans le terrain qui sont a priori des robots
+                        //On s'occupe des obstacles dans le terrain qui sont a priori des robots
                         if (Math.Abs(xObjetRefTerrain) < 1.5 && Math.Abs(yObjetRefTerrain) < 1.0)
                         {
                             double rayon = 0.2;
                             if (distance > 0.2) //On exclut les obstacles trop proches
                             {
-                                //On génère une liste de points périmètres des obstacle pour les interdire
-                                for (double anglePourtour = 0; anglePourtour < 2 * Math.PI; anglePourtour += 2 * Math.PI / 5)
-                                {
-                                    physicalObjectList.Add(new Location(xObjetRefTerrain + rayon * Math.Cos(anglePourtour), yObjetRefTerrain + rayon * Math.Sin(anglePourtour), 0, 0, 0, 0));
-                                }
+                                physicalObjectList.Add(new LocationExtended(xObjetRefTerrain, yObjetRefTerrain, 0, 0, 0, 0, ObjectType.Robot));
+                                ////On génère une liste de points périmètres des obstacle pour les interdire
+                                //for (double anglePourtour = 0; anglePourtour < 2 * Math.PI; anglePourtour += 2 * Math.PI / 5)
+                                //{
+                                //    physicalObjectList.Add(new LocationExtended(xObjetRefTerrain + rayon * Math.Cos(anglePourtour), yObjetRefTerrain + rayon * Math.Sin(anglePourtour), 0, 0, 0, 0, ObjectType.Robot));
+                                //}
                             }
                         }
                     }
@@ -152,13 +153,13 @@ namespace PerceptionManagement
                     //On rajoute les bordures du terrain à la main :
                     for (double x = -1.5; x <= 1.5; x += 0.35)
                     {
-                        physicalObjectList.Add(new Location(x, -1, 0, 0, 0, 0));
-                        physicalObjectList.Add(new Location(x, 1, 0, 0, 0, 0));
+                        physicalObjectList.Add(new LocationExtended(x, -1, 0, 0, 0, 0, ObjectType.Obstacle));
+                        physicalObjectList.Add(new LocationExtended(x, 1, 0, 0, 0, 0, ObjectType.Obstacle));
                     }
                     for (double y = -0.8; y <= 0.8; y += 0.35)
                     {
-                        physicalObjectList.Add(new Location(-1.5, y, 0, 0, 0, 0));
-                        physicalObjectList.Add(new Location(1.5, y, 0, 0, 0, 0));
+                        physicalObjectList.Add(new LocationExtended(-1.5, y, 0, 0, 0, 0, ObjectType.Obstacle));
+                        physicalObjectList.Add(new LocationExtended(1.5, y, 0, 0, 0, 0, ObjectType.Obstacle));
                     }
                 }
             }
@@ -169,10 +170,10 @@ namespace PerceptionManagement
             globalWorldMap = e.GlobalWorldMap;
         }
 
-        public void OnPhysicalObjectListLocationReceived(object sender, LocationListArgs e)
+        public void OnPhysicalObjectListLocationReceived(object sender, LocationExtendedListArgs e)
         {
             //On récupère la liste des objets physiques vus par le robot en simulation (y compris lui-même)
-            physicalObjectList = e.LocationList;
+            physicalObjectList = e.LocationExtendedList;
         }
 
         public void OnPhysicalBallPositionListReceived(object sender, LocationListArgs e)

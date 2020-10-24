@@ -13,14 +13,14 @@ namespace PerceptionManagement
         public Location robotAbsoluteLocation;
         public List<Location> ballLocationList;
         //public Dictionary<int, Location> teamLocationList;
-        public List<Location> obstaclesLocationList;
+        public List<LocationExtended> obstaclesLocationList;
         //public List<Location> opponentLocationList;
         //public List<Location> obstacleLocationList;
 
         public Perception()
         {
             ballLocationList = new List<Location>();
-            obstaclesLocationList = new List<Location>();
+            obstaclesLocationList = new List<LocationExtended>();
         }
     }
 }

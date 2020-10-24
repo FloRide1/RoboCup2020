@@ -231,7 +231,7 @@ namespace WpfWorldMapDisplay
                 }
                 switch(obj.type)
                 {
-                    case ObjectType.Objet:
+                    case ObjectType.Obstacle:
                         polygonToDisplay.borderColor = System.Drawing.Color.Red;
                         polygonToDisplay.borderWidth = 2;
                         polygonToDisplay.backgroundColor = System.Drawing.Color.Yellow;

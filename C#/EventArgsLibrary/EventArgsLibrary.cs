@@ -231,6 +231,10 @@ namespace EventArgsLibrary
     {
         public List<Location> LocationList { get; set; }
     }
+    public class LocationExtendedListArgs : EventArgs
+    {
+        public List<LocationExtended> LocationExtendedList { get; set; }
+    }
     public class PerceptionArgs : EventArgs
     {
         public int RobotId { get; set; }
