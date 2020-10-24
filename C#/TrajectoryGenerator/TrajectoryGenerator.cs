@@ -36,9 +36,9 @@ namespace TrajectoryGenerator
         AsservissementPID PID_Theta;
         void InitPositionPID()
         {
-            PID_X = new AsservissementPID(FreqEch, 20.0, 30.0, 0, 1, 1, 0.5);
-            PID_Y = new AsservissementPID(FreqEch, 20.0, 30.0, 0, 1, 1, 0.5);
-            PID_Theta = new AsservissementPID(FreqEch, 20.0, 20.0, 0, 2 * Math.PI, 2 * Math.PI, 0.5); //Validé VG : 20 20 0 2PI 2PI 0..5
+            PID_X = new AsservissementPID(FreqEch, 20.0, 4.0, 0, 1, 1, 0.5);
+            PID_Y = new AsservissementPID(FreqEch, 20.0, 4.0, 0, 1, 1, 0.5);
+            PID_Theta = new AsservissementPID(FreqEch, 20.0, 4.0, 0, Math.PI, Math.PI, 0.5); //Validé VG : 20 20 0 2PI 2PI 0..5
         }
 
 
