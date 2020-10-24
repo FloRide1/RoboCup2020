@@ -73,7 +73,7 @@ namespace LidarProcessor
 
             BalisesCatadioptriqueList = DetectionBalisesCatadioptriques(ptList, 3.6);
             BalisesCatadioptriqueList2 = DetectionBalisesCatadioptriquesParRssiEtTaille(ptList, 3.6);
-            ObjetsProchesList = DetectionObjetsProches(ptList, 0.012, 2.0, 0.2);
+            ObjetsProchesList = DetectionObjetsProches(ptList, 0.17, 2.0, 0.2);
             
             //Affichage des résultats
             List<PolarPointListExtended> objectList = new List<PolarPointListExtended>();
@@ -263,9 +263,10 @@ namespace LidarProcessor
 
         private List<LidarDetectedObject> DetectionBalisesCatadioptriquesParRssiEtTaille(List<PolarPointRssi> ptList, double distanceMax)
         {
-            double minRssiBalise = 70;
+            double minRssiBalise = 60;
             List<LidarDetectedObject> BalisesCatadioptriquesList = new List<LidarDetectedObject>();
             LidarDetectedObject currentObject = new LidarDetectedObject(); ;
+            List<PolarPointRssi> BalisePointList = new List<PolarPointRssi>();
 
             ////Détection des objets ayant un RSSI dans un intervalle correspondant aux catadioptres utilisés et proches
             ////double maxRssiCatadioptre = 90;
@@ -279,50 +280,77 @@ namespace LidarProcessor
             {
                 for (int i = 1; i < ptList.Count - 1; i++)
                 {
-                    if (ptList[i].Rssi > ptList[i - 1].Rssi && ptList[i].Rssi > ptList[i + 1].Rssi && ptList[i].Rssi > minRssiBalise)
+                    if (ptList[i].Rssi >= ptList[i - 1].Rssi && ptList[i].Rssi > ptList[i + 1].Rssi && ptList[i].Rssi > minRssiBalise)
                     {
                         maxRssiIndexList.Add(i);
                     }
                 }
+                //Gestion des cas de bord de tableau pour ne pas avoir de zone morte
+                if (ptList[0].Rssi >= ptList[ptList.Count-1].Rssi && ptList[0].Rssi > ptList[1].Rssi && ptList[0].Rssi > minRssiBalise)
+                {
+                    maxRssiIndexList.Add(0);
+                }
+                if (ptList[ptList.Count - 1].Rssi >= ptList[ptList.Count - 2].Rssi && ptList[ptList.Count - 1].Rssi > ptList[0].Rssi && ptList[ptList.Count - 1].Rssi > minRssiBalise)
+                {
+                    maxRssiIndexList.Add(ptList.Count - 1);
+                }
+            }
+
+
+            //ON génère la liste des points des balises pour affichage de debug uniquement
+            BalisePointList = new List<PolarPointRssi>();
+            for (int i = 0; i < ptList.Count ; i++)
+            {
+                PolarPointRssi pt = new PolarPointRssi(ptList[i].Angle, 0, ptList[i].Rssi);
+                BalisePointList.Add(pt);
             }
 
             //On regarde la taille des objets autour des max de Rssi
-            double seuilSaillance = 0.1;
+            double seuilSaillance = 0.2;
             foreach (int indexPicRssi in maxRssiIndexList)
             {
                 //On cherche à détecter les fronts montants de distance (distance qui augmente brutalement) autour des pics pour déterminer la taille des objets
                 //On définit une taille max de recherche correspondant à 5 fois la taille d'une balise
-                double tailleAngulaireBalisePotentielle = 0.08 * 5 / ptList[indexPicRssi].Distance;
+                double tailleAngulaireBalisePotentielle = 0.15 / ptList[indexPicRssi].Distance;
                 double incrementAngleLidar = ptList[1].Angle - ptList[0].Angle;
                 //Défini la fenetre de recherche
                 int indexSearchWindow = (int)(tailleAngulaireBalisePotentielle / incrementAngleLidar);
 
                 int indexFrontMontantAngleSup = -1;
                 int indexFrontMontantAngleInf = -1;
-                //Détection des fronts montants
+                //Détection des fronts montants coté des angles inférieurs à l'angle central
                 int index = indexPicRssi;
+                int indexShift = 0; //Pour gérer les balises situées à l'angle 0
                 while (index > indexPicRssi-indexSearchWindow)
                 {
-                    if (index -1 < 0)
-                        break;
-                    if (ptList[index - 1].Distance - ptList[index].Distance > seuilSaillance)
+                    if (index - 1 < 0)
+                        indexShift = ptList.Count(); //Gestion des bords de tableau
+
+                    BalisePointList[index+ indexShift - 1].Distance = 5; //For debug display
+
+                    if (Math.Abs(ptList[index + indexShift - 1].Distance - ptList[indexPicRssi].Distance) > seuilSaillance)
                     {
                         //On a un front montant coté des angles inférieurs à l'angle central
-                        indexFrontMontantAngleInf = index;
+                        indexFrontMontantAngleInf = index + indexShift - 1;
                         break;
                     }
                     index--;                    
                 }
-                //Détection des fronts montants
+
+                //Détection des fronts montants  coté des angles supérieurs à l'angle central
                 index = indexPicRssi;
+                indexShift = 0; //Pour gérer les balises situées à l'angle 0
                 while (index < indexPicRssi + indexSearchWindow)
                 {
                     if (index + 1 >= ptList.Count)
-                        break;
-                    if (ptList[index + 1].Distance - ptList[index].Distance > seuilSaillance)
+                        indexShift = -ptList.Count(); //Gestion des bords de tableau
+
+                    BalisePointList[index + indexShift + 1].Distance = 6; //For debug display
+                    
+                    if (Math.Abs(ptList[index + indexShift + 1].Distance - ptList[indexPicRssi].Distance) > seuilSaillance)
                     {
                         //On a un front montant coté des angles supérieurs à l'angle central
-                        indexFrontMontantAngleSup = index;
+                        indexFrontMontantAngleSup = index + indexShift + 1;
                         break;
                     }
                     index++;
@@ -332,26 +360,48 @@ namespace LidarProcessor
                     //On a deux fronts montants de part et d'autre du pic, on regarde la taille de l'objet
                     double tailleObjet = (ptList[indexFrontMontantAngleSup].Angle - ptList[indexFrontMontantAngleInf].Angle)
                         * (ptList[indexFrontMontantAngleSup].Distance + ptList[indexFrontMontantAngleInf].Distance + ptList[indexPicRssi].Distance) / 3;
-                    if(tailleObjet>0.05&& tailleObjet<0.25)
+                    //if(tailleObjet>0.05&& tailleObjet<0.25)
                     {
-                        //On a probablement un caadioptre de type balise Eurobot !
+                        //On a probablement un catadioptre de type balise Eurobot !
                         currentObject = new LidarDetectedObject();
 
-                        for (int i=indexFrontMontantAngleInf; i< indexFrontMontantAngleSup; i++)
+                        if (indexFrontMontantAngleInf < indexFrontMontantAngleSup)
                         {
-                            currentObject.PtList.Add(ptList[i]);
+                            for (int i = indexFrontMontantAngleInf+1; i < indexFrontMontantAngleSup-1; i++) //Décalages pour éviter de mettre une distance erronnée dans les amas de points
+                            {
+                                currentObject.PtList.Add(ptList[i]);
+                                BalisePointList[i].Distance = 10; //For debug display
+                            }
+                            currentObject.ExtractObjectAttributes();
+                            BalisesCatadioptriquesList.Add(currentObject);
                         }
+                        else  //Gestion des objets coupés en deux par l'angle 0
+                        {
+                            for (int i = indexFrontMontantAngleInf+1; i < ptList.Count; i++) //Décalages pour éviter de mettre une distance erronnée dans les amas de points
+                            {
+                                currentObject.PtList.Add(ptList[i]);
+                                BalisePointList[i].Distance = 10; //For debug display
+                            }
 
-                        currentObject.ExtractObjectAttributes();
-                        BalisesCatadioptriquesList.Add(currentObject);
+                            for (int i = 0; i < indexFrontMontantAngleSup-1; i++) //Décalages pour éviter de mettre une distance erronnée dans les amas de points
+                            {
+                                currentObject.PtList.Add(new PolarPointRssi(ptList[i].Angle + 2 * Math.PI, ptList[i].Distance, ptList[i].Rssi));
+                                BalisePointList[i].Distance = 10; //For debug display
+                            }
+                            currentObject.ExtractObjectAttributes();
+                            BalisesCatadioptriquesList.Add(currentObject);
+                        }
                     }
                 }
             }
+
+            OnLidarBalisePointListForDebug(robotId, BalisePointList);
+
             return BalisesCatadioptriquesList;
         }
 
 
-        private List<LidarDetectedObject> DetectionObjetsProches(List<PolarPointRssi> ptList, double distanceMin, double distanceMax, double tailleMaxObjet)
+        private List<LidarDetectedObject> DetectionObjetsProches(List<PolarPointRssi> ptList, double distanceMin, double distanceMax, double tailleSegmentationObjet)
         {
             List<LidarDetectedObject> ObjetsProchesList = new List<LidarDetectedObject>();
             LidarDetectedObject currentObject = new LidarDetectedObject(); ;
@@ -370,7 +420,7 @@ namespace LidarProcessor
                 {
                     if ((Math.Abs(objetsProchesPointsList[i].Angle - objetsProchesPointsList[i - 1].Angle) < Toolbox.DegToRad(2)) &&
                         (Math.Abs(objetsProchesPointsList[i].Distance - objetsProchesPointsList[i - 1].Distance) < 0.1)&&
-                        (Math.Abs(objetsProchesPointsList[i].Angle - angleInitialObjet) *objetsProchesPointsList[i].Distance< tailleMaxObjet))
+                        (Math.Abs(objetsProchesPointsList[i].Angle - angleInitialObjet) *objetsProchesPointsList[i].Distance< tailleSegmentationObjet))
                         //Si les pts successifs sont distants de moins de x degrés et de moins de y mètres
                         //et que l'objet fait moins de tailleMax en largeur
                     {
@@ -400,7 +450,18 @@ namespace LidarProcessor
             var handler = OnLidarProcessedEvent;
             if (handler != null)
             {
-                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList});
+                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList });
+            }
+        }
+
+        public delegate void OnLidarBalisePointListForDebugEventHandler(object sender, RawLidarArgs e);
+        public event EventHandler<RawLidarArgs> OnLidarBalisePointListForDebugEvent;
+        public virtual void OnLidarBalisePointListForDebug(int id, List<PolarPointRssi> ptList)
+        {
+            var handler = OnLidarBalisePointListForDebugEvent;
+            if (handler != null)
+            {
+                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList });
             }
         }
 
@@ -426,7 +487,7 @@ namespace LidarProcessor
             }
         }
     }
-
+    
     public class LidarDetectedObjectListArgs : EventArgs
     {
         public int RobotId { get; set; }
@@ -444,6 +505,8 @@ namespace LidarProcessor
         public double XMoyen;
         public double YMoyen;
         public double ResiduLineModel;
+
+        public bool IsEdgeObject = false; //Pour les objets coupés en deux par le tableau d'angle
 
         public LidarDetectedObject()
         {

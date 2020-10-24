@@ -1,5 +1,6 @@
 ﻿using AbsolutePositionEstimatorNS;
 using EventArgsLibrary;
+using LidarProcessor;
 using System;
 using System.Collections.Generic;
 using Utilities;
@@ -32,12 +33,19 @@ namespace PerceptionManagement
 
             lidarProcessor = new LidarProcessor.LidarProcessor(robotId);
             lidarProcessor.OnLidarBalisesListExtractedEvent += absolutePositionEstimator.OnLidarBalisesListExtractedEvent;
+            lidarProcessor.OnLidarBalisePointListForDebugEvent += OnLidarBalisePointListForDebugReceived;
             lidarProcessor.OnLidarObjectProcessedEvent += OnLidarObjectsReceived; 
 
             absolutePositionEstimator.OnAbsolutePositionCalculatedEvent += OnAbsolutePositionCalculatedEvent;
 
         }
-        
+
+        private void OnLidarBalisePointListForDebugReceived(object sender, RawLidarArgs e)
+        {
+            //On transmet l'event
+            OnLidarBalisePointListForDebug(e.RobotId, e.PtList);
+        }
+
         //private void LidarProcessor_OnLidarProcessedEvent(object sender, RawLidarArgs e)
         //{
         //    throw new NotImplementedException();
@@ -148,7 +156,18 @@ namespace PerceptionManagement
             var handler = OnPerceptionEvent;
             if (handler != null)
             {
-                handler(this, new PerceptionArgs { RobotId=robotId, Perception = perception });
+                handler(this, new PerceptionArgs { RobotId = robotId, Perception = perception });
+            }
+        }
+        
+        public delegate void OnLidarBalisePointListForDebugEventHandler(object sender, RawLidarArgs e);
+        public event EventHandler<RawLidarArgs> OnLidarBalisePointListForDebugEvent;
+        public virtual void OnLidarBalisePointListForDebug(int id, List<PolarPointRssi> ptList)
+        {
+            var handler = OnLidarBalisePointListForDebugEvent;
+            if (handler != null)
+            {
+                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList });
             }
         }
     }  

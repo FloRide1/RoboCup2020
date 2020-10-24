@@ -237,6 +237,7 @@ namespace WayPointGenerator
                                 double distancePt = Toolbox.Distance(ptCourant.X, ptCourant.Y, robotLocation.X, robotLocation.Y);
                                 double anglePtCourant = Math.Atan2(ptCourant.Y - robotLocation.Y, ptCourant.X - robotLocation.X);
 
+                                anglePtCourant = Toolbox.ModuloByAngle(angleRobotAdverse, anglePtCourant);
                                 if (Math.Abs(distanceRobotAdverse * (anglePtCourant - angleRobotAdverse)) < 0.2 && distancePt > distanceRobotAdverse - 0.2)
                                     penalisation += 1;// Math.Max(0, 1 - Math.Abs(anglePtCourant - angleRobotAdverse) *10.0);
 
@@ -255,6 +256,7 @@ namespace WayPointGenerator
                             //double distancePtObstacle = Toolbox.Distance(ptCourant.X, ptCourant.Y, obstacle.X, obstacle.Y);
 
                             //if (distanceObstacle> 0.3 && distancePtObstacle < 0.2)
+                            anglePtCourant = Toolbox.ModuloByAngle(angleObstacle, anglePtCourant);
                             if (distanceObstacle > 0.25 && Math.Abs(distanceObstacle * (anglePtCourant - angleObstacle)) < 0.4 && distancePt > distanceObstacle - 0.4)
                                 penalisation += 1;// Math.Max(0, 1 - Math.Abs(anglePtCourant - angleRobotAdverse) *10.0);                                                         
                         }

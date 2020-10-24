@@ -259,5 +259,4 @@ namespace EventArgsLibrary
         public int RobotId { get; set; }
         public GameState gameState { get; set; }
     }
-
 }

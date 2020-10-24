@@ -56,7 +56,7 @@ namespace StrategyManager
             while(true)
             {
                 Thread.Sleep(1000);
-                OnSetRobotPID(1.0, 0.1, 0, 1.0, 0.1, 0, 1.0, 0.1, 0);
+                OnSetRobotPID(2.0, 0.0, 0, 2.0, 0.0, 0, 2.0, 0.0, 0);
             }
         }
 

@@ -118,8 +118,10 @@ namespace RobotInterface
             
             oscilloLidar.AddOrUpdateLine(0, 20000, "Lidar RSSI", false);
             oscilloLidar.AddOrUpdateLine(1, 20000, "Lidar Distance");
+            oscilloLidar.AddOrUpdateLine(2, 20000, "Balise Points");
             oscilloLidar.ChangeLineColor(0, Colors.SeaGreen);
-            oscilloLidar.ChangeLineColor(01, Colors.IndianRed);
+            oscilloLidar.ChangeLineColor(1, Colors.IndianRed);
+            oscilloLidar.ChangeLineColor(2, Colors.LightGoldenrodYellow);
 
             //oscilloLidar.DrawOnlyPoints(0);
         }
@@ -194,6 +196,13 @@ namespace RobotInterface
             List<Point> ptList2 = new List<Point>();
             ptList2 = e.PtList.Select(p => new Point(p.Angle, p.Distance)).ToList();
             oscilloLidar.UpdatePointListOfLine(1, ptList2);
+        }
+
+        public void OnRawLidarBalisePointsReceived(object sender, EventArgsLibrary.RawLidarArgs e)
+        {
+            List<Point> ptList2 = new List<Point>();
+            ptList2 = e.PtList.Select(p => new Point(p.Angle, p.Distance)).ToList();
+            oscilloLidar.UpdatePointListOfLine(2, ptList2);
         }
 
         public void ResetInterfaceState()
