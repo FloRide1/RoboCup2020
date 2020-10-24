@@ -15,6 +15,7 @@ namespace RobotMessageGenerator
             payload.SetValueRange(((float)e.Vy).GetBytes(), 4);
             payload.SetValueRange(((float)e.Vtheta).GetBytes(), 8);
             OnMessageToRobot((Int16)Commands.SetSpeedConsigne, 12, payload);
+            OnSetSpeedConsigneToRobotReceived(e);
         }
 
         public event EventHandler<SpeedArgs> OnSetSpeedConsigneToRobotReceivedEvent;

@@ -4,7 +4,6 @@ using ExtendedSerialPort;
 using LidarOMD60M;
 using MessageDecoder;
 using MessageEncoder;
-using PhysicalSimulator;
 using RobotInterface;
 using RobotMessageGenerator;
 using SciChart.Charting.Visuals;
@@ -17,17 +16,10 @@ using WorldMapManager;
 using RobotMessageProcessor;
 using PerceptionManagement;
 using EventArgsLibrary;
-using LogRecorder;
-using LogReplay;
-using LidarProcessor;
 using WpfReplayNavigator;
 using System.Runtime.InteropServices;
 using Staudt.Engineering.LidaRx.Drivers.R2000;
-using System.Net;
 using Staudt.Engineering.LidaRx;
-using System.Linq;
-using ImuProcessor;
-using KalmanPositioning;
 using StrategyManager;
 using UDPMulticast;
 using UdpMulticastInterpreter;
@@ -258,7 +250,7 @@ namespace Robot
             robotMsgProcessor.OnSpeedDataFromRobotGeneratedEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
             imuProcessor.OnGyroSpeedEvent += kalmanPositioning.OnGyroRobotSpeedReceived;
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
-            trajectoryPlanner.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
+            //trajectoryPlanner.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot; //Configuré dans le gestionnaire de manette
             kalmanPositioning.OnKalmanLocationEvent += perceptionManager.OnPhysicalRobotPositionReceived;
 
             //L'envoi des commandes dépend du fait qu'on soit en mode manette ou pas. 
@@ -399,7 +391,6 @@ namespace Robot
                 xBoxManette.OnTirEvent -= robotMsgGenerator.GenerateMessageTir;
                 xBoxManette.OnStopEvent -= robotMsgGenerator.GenerateMessageSTOP;
 
-                trajectoryPlanner.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
                 //Gestion des events liés à une détection de collision soft
                 trajectoryPlanner.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
             }
