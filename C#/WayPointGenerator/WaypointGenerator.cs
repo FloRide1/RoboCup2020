@@ -144,15 +144,15 @@ namespace WayPointGenerator
                             maxYpos = yBase;
                         }
 
-                        //Code ci-dessous utile si on veut afficher la heatmap complete(video), mais consommateur en temps
-                        for (int i = 0; i < waypointHeatMap.SubSamplingRateList[n]; i += 1)
-                        {
-                            for (int j = 0; j < waypointHeatMap.SubSamplingRateList[n]; j += 1)
-                            {
-                                if ((xBase + j < waypointHeatMap.nbCellInBaseHeatMapWidth) && (yBase + i < waypointHeatMap.nbCellInBaseHeatMapHeight))
-                                    waypointHeatMap.BaseHeatMapData[yBase + i, xBase + j] = value;
-                            }
-                        }
+                        ////Code ci-dessous utile si on veut afficher la heatmap complete(video), mais consommateur en temps
+                        //for (int i = 0; i < waypointHeatMap.SubSamplingRateList[n]; i += 1)
+                        //{
+                        //    for (int j = 0; j < waypointHeatMap.SubSamplingRateList[n]; j += 1)
+                        //    {
+                        //        if ((xBase + j < waypointHeatMap.nbCellInBaseHeatMapWidth) && (yBase + i < waypointHeatMap.nbCellInBaseHeatMapHeight))
+                        //            waypointHeatMap.BaseHeatMapData[yBase + i, xBase + j] = value;
+                        //    }
+                        //}
                     }
                 }
                 //    });
@@ -257,7 +257,7 @@ namespace WayPointGenerator
 
                             //if (distanceObstacle> 0.3 && distancePtObstacle < 0.2)
                             anglePtCourant = Toolbox.ModuloByAngle(angleObstacle, anglePtCourant);
-                            if (distanceObstacle > 0.25 && Math.Abs(distanceObstacle * (anglePtCourant - angleObstacle)) < 0.4 && distancePt > distanceObstacle - 0.4)
+                            if (distanceObstacle > 0.25 && Math.Abs(distanceObstacle * (anglePtCourant - angleObstacle)) < 0.18 && distancePt > distanceObstacle - 0.2)
                                 penalisation += 1;// Math.Max(0, 1 - Math.Abs(anglePtCourant - angleRobotAdverse) *10.0);                                                         
                         }
                     }

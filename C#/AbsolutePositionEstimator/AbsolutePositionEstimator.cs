@@ -169,7 +169,7 @@ namespace AbsolutePositionEstimatorNS
                 double yRobot = ptBalise1Theorique.Y + normVector1Robot * Math.Sin(Math.PI / 2 + angleVector13Vector1Robot);
                 double angleRobot1ThVectorRobot1 = Math.Atan2(ptBalise1Theorique.Y - yRobot, ptBalise1Theorique.X - xRobot)- Math.Atan2(ptBalise1.Y, ptBalise1.X);
 
-                Console.WriteLine("Position estimée - X : " + xRobot.ToString("N2") + " - Y : " + yRobot.ToString("N2") + " - Theta : " + angleRobot1ThVectorRobot1.ToString("N2"));
+//                Console.WriteLine("Position estimée - X : " + xRobot.ToString("N2") + " - Y : " + yRobot.ToString("N2") + " - Theta : " + angleRobot1ThVectorRobot1.ToString("N2"));
 
                 OnPositionCalculatedEvent((float)xRobot, (float)yRobot, (float)angleRobot1ThVectorRobot1, (float)Math.Max(0, 1 - minScore));
             }
