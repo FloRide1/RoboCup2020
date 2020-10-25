@@ -23,6 +23,7 @@ using Staudt.Engineering.LidaRx;
 using StrategyManager;
 using UDPMulticast;
 using UdpMulticastInterpreter;
+using HerkulexManagerNS;
 
 namespace Robot
 {
@@ -98,7 +99,7 @@ namespace Robot
         static bool usingLogging = false;
         static bool usingLogReplay = false;
         
-        static bool usingRobotInterface = true;
+        static bool usingRobotInterface = false;
         static bool usingReplayNavigator = true;
 
         //static HighFreqTimer highFrequencyTimer;
@@ -129,6 +130,8 @@ namespace Robot
         static Lidar_OMD60M_TCP lidar_OMD60M_TCP;
         static XBoxController.XBoxController xBoxManette;
 
+        static HerkulexManager herkulexManager;
+
         static object ExitLock = new object();
 
         static WpfRobotInterface interfaceRobot;
@@ -151,6 +154,16 @@ namespace Robot
 
             // Set this code once in App.xaml.cs or application startup
             SciChartSurface.SetRuntimeLicenseKey("RJWA77RbaJDdCRJpg4Iunl5Or6/FPX1xT+Gzu495Eaa0ZahxWi3jkNFDjUb/w70cHXyv7viRTjiNRrYqnqGA+Dc/yzIIzTJlf1s4DJvmQc8TCSrH7MBeQ2ON5lMs/vO0p6rBlkaG+wwnJk7cp4PbOKCfEQ4NsMb8cT9nckfdcWmaKdOQNhHsrw+y1oMR7rIH+rGes0jGGttRDhTOBxwUJK2rBA9Z9PDz2pGOkPjy9fwQ4YY2V4WPeeqM+6eYxnDZ068mnSCPbEnBxpwAldwXTyeWdXv8sn3Dikkwt3yqphQxvs0h6a8Dd6K/9UYni3o8pRkTed6SWodQwICcewfHTyGKQowz3afARj07et2h+becxowq3cRHL+76RyukbIXMfAqLYoT2UzDJNsZqcPPq/kxeXujuhT4SrNF3444MU1GaZZ205KYEMFlz7x/aEnjM6p3BuM6ZuO3Fjf0A0Ki/NBfS6n20E07CTGRtI6AsM2m59orPpI8+24GFlJ9xGTjoRA==");
+            //To use configurqtion file, must be declare variable no static
+            //ConfigRobotEurobot cfgRobot = FileManager.JsonSerialize<ConfigRobotEurobot>.DeserializeObjectFromFile(@"Configs", "Robot");
+            //robotMode = cfgRobot.RobotMode;
+            //usingPhysicalSimulator = cfgRobot.UsingPhysicalSimulator;
+            //usingXBoxController = cfgRobot.UsingXBoxController;
+            //usingLidar = cfgRobot.UsingLidar;
+            //usingLogging = cfgRobot.UsingLogging;
+            //usingLogReplay = cfgRobot.UsingLogReplay;
+            //usingRobotInterface = cfgRobot.usingRobotInterface;
+            //usingReplayNavigator = cfgRobot.usingReplayNavigator;
 
             switch (robotMode)
             {
@@ -180,8 +193,9 @@ namespace Robot
                     usingLogReplay = false;
                     break;
             }
-
-            serialPort1 = new ReliableSerialPort("COM4", 115200, Parity.None, 8, StopBits.One);
+            ConfigSerialPort cfgSerialPort = FileManager.JsonSerialize<ConfigSerialPort>.DeserializeObjectFromFile(@"Configs", "SerialPort");
+            serialPort1 = new ReliableSerialPort(cfgSerialPort.CommName, cfgSerialPort.ComBaudrate, cfgSerialPort.Parity, cfgSerialPort.DataByte, cfgSerialPort.StopByte);
+            //serialPort1 = new ReliableSerialPort("COM4", 115200, Parity.None, 8, StopBits.One);
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
             robotMsgGenerator = new RobotMsgGenerator();
@@ -209,7 +223,16 @@ namespace Robot
             strategyManager = new StrategyManager_Eurobot(robotId, teamId);
             waypointGenerator = new WaypointGenerator(robotId, "Eurobot");
             trajectoryPlanner = new TrajectoryPlanner(robotId);
-            
+
+            herkulexManager = new HerkulexManager("COM3", 115200, Parity.None, 8, StopBits.One);
+            herkulexManager.AddServo(101, HerkulexDescription.JOG_MODE.positionControlJOG, 512);
+            herkulexManager.AddServo(102, HerkulexDescription.JOG_MODE.positionControlJOG, 512);
+            herkulexManager.AddServo(103, HerkulexDescription.JOG_MODE.positionControlJOG, 512);
+
+            herkulexManager.AddServo(104, HerkulexDescription.JOG_MODE.positionControlJOG, 512);
+            herkulexManager.AddServo(105, HerkulexDescription.JOG_MODE.positionControlJOG, 512);
+            herkulexManager.AddServo(106, HerkulexDescription.JOG_MODE.positionControlJOG, 512);
+
             if (usingLidar)
             {
                 lidar_OMD60M_TCP = new Lidar_OMD60M_TCP(50, R2000SamplingRate._72kHz);

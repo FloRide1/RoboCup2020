@@ -24,10 +24,10 @@ namespace RobotMessageGenerator
             OnSetSpeedConsigneToRobotReceivedEvent?.Invoke(this, args);
         }
 
-        public void GenerateMessageSetIOPollingFrequencyToRobot(object sender, DoubleArgs e)
+        public void GenerateMessageSetIOPollingFrequencyToRobot(object sender, ByteEventArgs e)
         {
-            byte[] payload = new byte[5];
-            payload[0]=(byte)e.Value;
+            byte[] payload = new byte[1];
+            payload[0]= e.Value;
             OnMessageToRobot((Int16)Commands.SetIOPollingFrequency, 1, payload);
         }
 

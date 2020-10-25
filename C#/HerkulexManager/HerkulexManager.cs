@@ -1,5 +1,6 @@
 ﻿using ExtendedSerialPort;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Ports;
@@ -27,7 +28,7 @@ namespace HerkulexManagerNS
 
         private Stopwatch sw = new Stopwatch();
 
-        private Queue<byte[]> messageQueue = new Queue<byte[]>();
+        private ConcurrentQueue<byte[]> messageQueue = new ConcurrentQueue<byte[]>();
 
         Thread SendingThread;
 
@@ -37,10 +38,12 @@ namespace HerkulexManagerNS
         {
 
             serialPort = new ReliableSerialPort(portName, baudRate, parity, dataBits, stopBits);
+            serialPort.Open();
+
             decoder = new HerkulexDecoder();
             pollingTimer.Interval = pollingPeriodMs;
 
-            serialPort.DataReceived += decoder.DecodePacket;
+            serialPort.OnDataReceivedEvent += decoder.DecodePacket;
             decoder.OnAnyAckEvent += AckReceived;
             decoder.OnRamReadAckEvent += Decoder_OnRamReadAckEvent;
             pollingTimer.Elapsed += PollingTimer_Elapsed;
@@ -50,7 +53,6 @@ namespace HerkulexManagerNS
             SendingThread = new Thread(SendingThreadProcessing);
             SendingThread.IsBackground = true;
             SendingThread.Start();
-            serialPort.Open();
         }
 
         void SendingThreadProcessing()
@@ -60,16 +62,18 @@ namespace HerkulexManagerNS
                 if(messageQueue.Count()>0)
                 {
                     byte[] message;
-                    lock (messageQueue)
+                    if (messageQueue.TryDequeue(out message))
                     {
-                        message = messageQueue.Dequeue();
+                        if (message != null)
+                        {
+                            if (serialPort.IsOpen)
+                            {
+                                serialPort.Write(message, 0, message.Length);
+                                //Thread.Sleep(4);
+                                bool IsAckReceived = WaitingForAck.WaitOne(pollingTimeoutMs);
+                            }
+                        }
                     }
-                    if (message != null)
-                    {
-                        serialPort.Write(message, 0, message.Length);
-                        //Thread.Sleep(4);
-                        bool IsAckReceived = WaitingForAck.WaitOne(pollingTimeoutMs);
-                    }                    
                 }
                 Thread.Sleep(10);
             }
@@ -203,8 +207,10 @@ namespace HerkulexManagerNS
             Servos[ID].SetAbsolutePosition(initialPosition);
             //reply to all packets
             RAM_WRITE(ID, HerkulexDescription.RAM_ADDR.ACK_Policy, 1, 0x02); //reply to I_JOG / S_JOG
-
             RecoverErrors(servo);
+            //RAM_WRITE(ID, HerkulexDescription.RAM_ADDR.Absolute_Goal_Position, 1, 512);
+            I_JOG(Servos[ID]);
+            Thread.Sleep(100);
         }
 
         /// <summary>
@@ -526,10 +532,7 @@ namespace HerkulexManagerNS
             for (int i = 0; i < dataToSend.Length; i++)
                 packet[7 + i] = dataToSend[i];
 
-            lock (messageQueue)
-            {
-                messageQueue.Enqueue(packet);
-            }
+            messageQueue.Enqueue(packet);
             
             //serialPort.Write(packet, 0, packet.Length);
             //Console.WriteLine("Serial Port Write Finish : " + DateTime.Now.Second + "." + DateTime.Now.Millisecond);

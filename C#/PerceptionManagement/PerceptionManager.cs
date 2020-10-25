@@ -138,7 +138,7 @@ namespace PerceptionManagement
                         if (Math.Abs(xObjetRefTerrain) < 1.5 && Math.Abs(yObjetRefTerrain) < 1.0)
                         {
                             double rayon = 0.2;
-                            if (distance > 0.2) //On exclut les obstacles trop proches
+                            if (distance > 0.05) //On exclut les obstacles trop proches
                             {
                                 physicalObjectList.Add(new LocationExtended(xObjetRefTerrain, yObjetRefTerrain, 0, 0, 0, 0, ObjectType.Robot));
                                 ////On génère une liste de points périmètres des obstacle pour les interdire

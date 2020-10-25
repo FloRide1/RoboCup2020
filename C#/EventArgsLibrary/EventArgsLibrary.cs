@@ -198,6 +198,10 @@ namespace EventArgsLibrary
     {
         public bool value { get; set; }
     }
+    public class ByteEventArgs : EventArgs
+    {
+        public byte Value { get; set; }
+    }
     public class CollisionEventArgs : EventArgs
     {
         public int RobotId { get; set; }
