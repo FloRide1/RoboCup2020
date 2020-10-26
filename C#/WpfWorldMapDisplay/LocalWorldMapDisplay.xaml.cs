@@ -239,13 +239,13 @@ namespace WpfWorldMapDisplay
         {
             lock (ObstacleDisplayList)
             {
-                int indexBall = 0;
+                int indexObstacle = 0;
                 foreach (var obstacle in ObstacleDisplayList)
                 {
                     //Affichage des obstacles
-                    ObstaclePolygons.AddOrUpdatePolygonExtended((int)ObstacleId.Obstacle + indexBall, obstacle.GetObstaclePolygon());
+                    ObstaclePolygons.AddOrUpdatePolygonExtended((int)ObstacleId.Obstacle + indexObstacle, obstacle.GetObstaclePolygon());
                     //ObstaclePolygons.AddOrUpdatePolygonExtended((int)ObstacleId.Obstacle + indexBall + (int)Caracteristique.Speed, obstacle.GetObstacleSpeedArrow());
-                    indexBall++;
+                    indexObstacle++;
                 }
             }
         }

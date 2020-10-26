@@ -99,7 +99,7 @@ namespace Robot
         static bool usingLogging = false;
         static bool usingLogReplay = false;
         
-        static bool usingRobotInterface = false;
+        static bool usingRobotInterface = true;
         static bool usingReplayNavigator = true;
 
         //static HighFreqTimer highFrequencyTimer;
@@ -225,6 +225,9 @@ namespace Robot
             trajectoryPlanner = new TrajectoryPlanner(robotId);
 
             herkulexManager = new HerkulexManager("COM3", 115200, Parity.None, 8, StopBits.One);
+            herkulexManager.SetPollingInterval(200);
+            herkulexManager.StartPolling();
+
             herkulexManager.AddServo(101, HerkulexDescription.JOG_MODE.positionControlJOG, 512);
             herkulexManager.AddServo(102, HerkulexDescription.JOG_MODE.positionControlJOG, 512);
             herkulexManager.AddServo(103, HerkulexDescription.JOG_MODE.positionControlJOG, 512);
@@ -450,6 +453,8 @@ namespace Robot
             lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += interfaceRobot.OnRawLidarDataReceived;
             perceptionManager.OnLidarBalisePointListForDebugEvent += interfaceRobot.OnRawLidarBalisePointsReceived;
 
+            herkulexManager.OnHerkulexServoInformationEvent += interfaceRobot.OnHerkulexServoInformationReceived;
+
             //On récupère les évènements de type refbox, qui sont ici des tests manuels dans le globalManager pour lancer à la main des actions ou stratégies
             interfaceRobot.OnRefereeBoxCommandEvent += globalWorldMapManager.OnRefereeBoxCommandReceived;
 
@@ -474,6 +479,7 @@ namespace Robot
 
             robotMsgGenerator.OnSetSpeedConsigneToRobotReceivedEvent += interfaceRobot.UpdateSpeedConsigneOnGraph; //Valable quelque soit la source des consignes vitesse
             interfaceRobot.OnEnableDisableMotorsFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableMotors;
+            interfaceRobot.OnEnableDisableServosFromInterfaceGeneratedEvent += herkulexManager.OnEnableDisableServosRequestEvent;
             interfaceRobot.OnEnableDisableTirFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableTir;
             interfaceRobot.OnEnableDisableControlManetteFromInterfaceGeneratedEvent += ChangeUseOfXBoxController;
             interfaceRobot.OnEnableAsservissementFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableAsservissement;

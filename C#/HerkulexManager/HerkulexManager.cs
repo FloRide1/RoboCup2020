@@ -1,4 +1,5 @@
-﻿using ExtendedSerialPort;
+﻿using EventArgsLibrary;
+using ExtendedSerialPort;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -9,13 +10,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using static HerkulexManagerNS.HerkulexEventArgs;
 
 namespace HerkulexManagerNS
 {
     public class HerkulexManager
     {
         private int pollingTimeoutMs = 300;
-        private int pollingPeriodMs = 70;
 
         #region classInst
 
@@ -41,7 +42,7 @@ namespace HerkulexManagerNS
             serialPort.Open();
 
             decoder = new HerkulexDecoder();
-            pollingTimer.Interval = pollingPeriodMs;
+            pollingTimer.Interval = 200;
 
             serialPort.OnDataReceivedEvent += decoder.DecodePacket;
             decoder.OnAnyAckEvent += AckReceived;
@@ -78,12 +79,12 @@ namespace HerkulexManagerNS
                 Thread.Sleep(10);
             }
         }
-
+        
         #region userMethods
 
         public void SetPollingInterval(int intervalMs)
         {
-            pollingPeriodMs = intervalMs;
+            pollingTimer.Interval = intervalMs;
         }
 
         public void StartPolling()
@@ -231,14 +232,19 @@ namespace HerkulexManagerNS
         //polling timer
         private void PollingTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            double[] startTimes = new double[Servos.Keys.Count];
-            double[] endTimes = new double[Servos.Keys.Count];
-            for(int i=0; i<Servos.Keys.Count; i++)
+            //double[] startTimes = new double[Servos.Keys.Count];
+            //double[] endTimes = new double[Servos.Keys.Count];
+            lock (Servos)
             {
-                var key = Servos.Keys.ElementAt(i);
-                startTimes[i] = sw.ElapsedMilliseconds;
-                RAM_READ(key, HerkulexDescription.RAM_ADDR.Absolute_Position, 2);
-                endTimes[i] = sw.ElapsedMilliseconds;
+                for (int i = 0; i < Servos.Keys.Count; i++)
+                {
+
+                    var key = Servos.Keys.ElementAt(i);
+                    //startTimes[i] = sw.ElapsedMilliseconds;
+                    RAM_READ(key, HerkulexDescription.RAM_ADDR.Absolute_Position, 2);
+                    RAM_READ(key, HerkulexDescription.RAM_ADDR.Calibrated_Position, 2);
+                    //endTimes[i] = sw.ElapsedMilliseconds;
+                }
             }
         }
 
@@ -246,13 +252,30 @@ namespace HerkulexManagerNS
         private void Decoder_OnRamReadAckEvent(object sender, HerkulexEventArgs.Hklx_RAM_READ_Ack_Args e)
         {
             Servo pulledServo = null;
-            UInt16 actualAbsolutePosition = 0;
+            UInt16 result = 0;
             if (Servos.ContainsKey(e.PID))
             {
-                actualAbsolutePosition = (ushort)(e.ReceivedData[1] << 8);
-                actualAbsolutePosition += (ushort)(e.ReceivedData[0] << 0);
-
+                //On récupère le servo dans le dictionnaire pour l'updater
                 Servos.TryGetValue(e.PID, out pulledServo);
+
+                switch ((HerkulexDescription.RAM_ADDR)e.Address)
+                {
+                    case HerkulexDescription.RAM_ADDR.Absolute_Position:
+                        result = (UInt16)(e.ReceivedData[1] << 8);
+                        result += (UInt16)(e.ReceivedData[0] << 0);
+                        pulledServo.AbsolutePosition = result;
+                        break;
+                    case HerkulexDescription.RAM_ADDR.Calibrated_Position:
+                        result = (UInt16)(e.ReceivedData[1] << 8);
+                        result += (UInt16)(e.ReceivedData[0] << 0);
+                        //pulledServo.CalibratedPosition = (UInt16)(result); //Résultat sur 10 bits
+                        pulledServo.CalibratedPosition = (UInt16)(result & 0x03FF); //Résultat sur 10 bits
+                        break;
+                    default:
+                        //Autre trame reçue;
+                        break;
+                }
+
                 //getting flags and error details
                 pulledServo.IsMoving = (e.StatusDetails.Contains(HerkulexDescription.ErrorStatusDetail.Moving_flag) ? (true) : (false));
                 pulledServo.IsInposition = (e.StatusDetails.Contains(HerkulexDescription.ErrorStatusDetail.Inposition_flag) ? (true) : (false));
@@ -261,8 +284,7 @@ namespace HerkulexManagerNS
                 pulledServo.UnknownCommandError = (e.StatusDetails.Contains(HerkulexDescription.ErrorStatusDetail.Unknown_Command) ? (true) : (false));
                 pulledServo.ExceedRegRangeError = (e.StatusDetails.Contains(HerkulexDescription.ErrorStatusDetail.Exceed_REG_RANGE) ? (true) : (false));
                 pulledServo.GarbageDetectedError = (e.StatusDetails.Contains(HerkulexDescription.ErrorStatusDetail.Garbage_detected) ? (true) : (false));
-                pulledServo.ActualAbsolutePosition = actualAbsolutePosition;
-
+                
                 //getting errors
                 pulledServo.Exceed_input_voltage_limit = (e.StatusErrors.Contains(HerkulexDescription.ErrorStatus.Exceed_input_voltage_limit)) ? (true) : (false);
                 pulledServo.Exceed_allowed_pot_limit = (e.StatusErrors.Contains(HerkulexDescription.ErrorStatus.Exceed_allowed_pot_limit)) ? (true) : (false);
@@ -285,23 +307,37 @@ namespace HerkulexManagerNS
                     //if (AutoRecoverMode == true)
                     //    RecoverErrors(pulledServo);
                 }
-                OnInfosUpdated(pulledServo);
-
+                OnHerkulexServoInformation(pulledServo);
             }
 
         }
 
         //le seul endroit où le ACK reset event doit être set
-        private void AckReceived(object sender, HerkulexEventArgs.Hklx_AnyAck_Args e)
+        private void AckReceived(object sender, Hklx_AnyAck_Args e)
         {
             WaitingForAck.Set();
         }
 
+
+
         #endregion internalMethods
 
         #region outputEvents
-        public event EventHandler<HerkulexManagerNS.HerkulexEventArgs.InfosUpdatedArgs> InfosUpdatedEvent;
-        public event EventHandler<HerkulexManagerNS.HerkulexEventArgs.HerkulexErrorArgs> HerkulexErrorEvent;
+        
+
+        public void OnEnableDisableServosRequestEvent(object sender, BoolEventArgs e)
+        {
+            foreach (var servo in Servos)
+            {
+                if (e.value == false)
+                    SetTorqueMode(servo.Key, HerkulexDescription.TorqueControl.TorqueFree);
+                else
+                    SetTorqueMode(servo.Key, HerkulexDescription.TorqueControl.TorqueOn);
+            }
+        }
+
+        public event EventHandler<HerkulexServoInformationArgs> OnHerkulexServoInformationEvent;
+        public event EventHandler<HerkulexErrorArgs> HerkulexErrorEvent;
 
         /// <summary>
         /// Sets the torque control mode of the specified servo I.e BreakOn / TorqueOn / TorqueFree
@@ -317,12 +353,12 @@ namespace HerkulexManagerNS
         /// Servo polled event
         /// </summary>
         /// <param name="servo"></param>
-        public virtual void OnInfosUpdated(Servo servo)
+        public virtual void OnHerkulexServoInformation(Servo servo)
         {
-            var handler = InfosUpdatedEvent;
+            var handler = OnHerkulexServoInformationEvent;
             if (handler != null)
             {
-                handler(this, new HerkulexManagerNS.HerkulexEventArgs.InfosUpdatedArgs
+                handler(this, new HerkulexServoInformationArgs
                 {
                     Servo = servo
                 });
@@ -537,6 +573,7 @@ namespace HerkulexManagerNS
             //serialPort.Write(packet, 0, packet.Length);
             //Console.WriteLine("Serial Port Write Finish : " + DateTime.Now.Second + "." + DateTime.Now.Millisecond);
         }
+
 
         /// <summary>
         /// Encodes and sends a packet with the Herkulex protocol

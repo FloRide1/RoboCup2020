@@ -151,10 +151,10 @@ namespace PerceptionManagement
                     }
 
                     //On rajoute les bordures du terrain à la main :
-                    physicalObjectList.Add(new LocationExtended(0, -1+0.2, 0, 0, 0, 0, ObjectType.LimiteHorizontaleBasse));
-                    physicalObjectList.Add(new LocationExtended(0, 1-0.2, 0, 0, 0, 0, ObjectType.LimiteHorizontaleHaute));
-                    physicalObjectList.Add(new LocationExtended(-1.5+0.2, 0, 0, 0, 0, 0, ObjectType.LimiteVerticaleGauche));
-                    physicalObjectList.Add(new LocationExtended(1.5-0.2, 0, 0, 0, 0, 0, ObjectType.LimiteVerticaleDroite));
+                    physicalObjectList.Add(new LocationExtended(0, -1+0.16, 0, 0, 0, 0, ObjectType.LimiteHorizontaleBasse));
+                    physicalObjectList.Add(new LocationExtended(0, 1-0.16, 0, 0, 0, 0, ObjectType.LimiteHorizontaleHaute));
+                    physicalObjectList.Add(new LocationExtended(-1.5+0.16, 0, 0, 0, 0, 0, ObjectType.LimiteVerticaleGauche));
+                    physicalObjectList.Add(new LocationExtended(1.5-0.16, 0, 0, 0, 0, 0, ObjectType.LimiteVerticaleDroite));
                     //for (double x = -1.5; x <= 1.5; x += 0.35)
                     //{
                     //    physicalObjectList.Add(new LocationExtended(x, -1, 0, 0, 0, 0, ObjectType.Obstacle));

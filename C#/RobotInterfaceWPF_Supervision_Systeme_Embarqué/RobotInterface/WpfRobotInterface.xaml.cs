@@ -19,6 +19,7 @@ using System.Linq;
 using RefereeBoxAdapter;
 using Utilities;
 using SciChart.Charting.Visuals.Axes;
+using HerkulexManagerNS;
 
 namespace RobotInterface
 {
@@ -27,10 +28,12 @@ namespace RobotInterface
     /// </summary>
     public partial class WpfRobotInterface : Window
     {
-        DispatcherTimer timerAffichage;
+        DispatcherTimer timerAffichage = new DispatcherTimer();
 
         public WpfRobotInterface()
         {
+            InitializeComponent();
+            
             //Among other settings, this code may be used
             CultureInfo ci = CultureInfo.CurrentUICulture;
 
@@ -55,10 +58,7 @@ namespace RobotInterface
                 //Handler attach - will not be done if not needed
                 PreviewKeyDown += new KeyEventHandler(MainWindow_PreviewKeyDown);
             }
-
-            //SciChartSurface.SetRuntimeLicenseKey("fE00fIihccLO3oQbIBBZdrLh0ZWhRPxTSTGVMBVK51242lHVH3psTy6uZRTxKdk4UX2uSivlbh3c/m0SdZlgNHiMFONKSqo68Xtrcb8vjczLU9Usun6b7BtUIX5+Y3UfVsm+iN2Jg4Fc6l2/f5n0Sz4yG8204RdBexeifufMIkbd5LZBrfOPThBPC5iYnTS4W06S52QMCPjjQN0zALKG+0MmjBdQqeMidbmtCku6WVs6EVGJac/YNHi/jWHYC7XlVmWUf5KqivDvtKrQQLqtO88n1lHPz/aD/T0Bkw4bDlYcFy3GsYvinieGvLIGQsAIm45dA+/+WIoR9foMcfWVMMh2LtiKpbT3idmABMrsTn3/zzdrsiFfCbg6KmTBA55N9UWNxvKUQ+nhwoLxOmvznC6FszXSmrwR8qFUdbVUA58HzPfLVa6Ge40GwLIuCHBFQrd5uwzhh2JQKmkn2zWD3an92O66EsLptUT655MBXlXx9xoOd6iiUkdyfF2KHZsD18c=");
-            InitializeComponent();
-
+            
             worldMapDisplayStrategy.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, "Eurobot");
             worldMapDisplayStrategy.Init("Eurobot", LocalWorldMapDisplayType.StrategyMap);
 
@@ -69,8 +69,7 @@ namespace RobotInterface
             {
                 Console.WriteLine("   {0}", s);
             }
-
-            timerAffichage = new DispatcherTimer();
+                                   
             timerAffichage.Interval = new TimeSpan(0, 0, 0, 0, 50);
             timerAffichage.Tick += TimerAffichage_Tick;
             timerAffichage.Start();
@@ -163,6 +162,15 @@ namespace RobotInterface
         double currentTime = 0;
         private void TimerAffichage_Tick(object sender, EventArgs e)
         {
+            lock(HerkulexServos)
+            {
+                string output = "";
+                for(int i = 0; i<HerkulexServos.Count; i++)
+                {
+                    output += "Servo " + HerkulexServos.Keys.ElementAt(i) + " : " + HerkulexServos.Values.ElementAt(i) + "\n";
+                }
+                textBoxConsole.Text = output;
+            }
             //currentTime += 0.050;
             //double value = Math.Sin(0.5 * currentTime);
             //oscilloX.AddPointToLine(0, currentTime, value);
@@ -205,6 +213,40 @@ namespace RobotInterface
             oscilloLidar.UpdatePointListOfLine(2, ptList2);
         }
 
+        Dictionary<byte, Servo> HerkulexServos = new Dictionary<byte, Servo>();
+        int counterServo = 0;
+        public void OnHerkulexServoInformationReceived(object sender, HerkulexEventArgs.HerkulexServoInformationArgs e)
+        {
+            lock (HerkulexServos)
+            {
+                if (HerkulexServos.ContainsKey(e.Servo.GetID()))
+                {
+                    HerkulexServos[e.Servo.GetID()] = e.Servo;
+                }
+                else
+                {
+                    HerkulexServos.Add(e.Servo.GetID(), e.Servo);
+                }
+            }
+
+            if (counterServo++ % HerkulexServos.Count == 0) //On n'affiche qu'une fois tous les n évènements, n étant égal au nombre de servos
+            {
+                textBoxConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
+                {
+                    string output = "";
+                    lock (HerkulexServos)
+                    {
+                        for (int i = 0; i < HerkulexServos.Count; i++)
+                        {
+                            //output += "Servo " + HerkulexServos.Keys.ElementAt(i) + " Abs Pos : " + HerkulexServos.Values.ElementAt(i).AbsolutePosition + " Cal Pos : "+ HerkulexServos.Values.ElementAt(i).CalibratedPosition + "\n";
+                            output += "Servo " + HerkulexServos.Keys.ElementAt(i) + " Cal Pos : " + HerkulexServos.Values.ElementAt(i).CalibratedPosition + "\n";
+                        }
+                    }
+                    textBoxConsole.Text = output;
+                }));
+            }
+        }
+
         public void ResetInterfaceState()
         {
             oscilloX.ResetGraph();
@@ -216,10 +258,7 @@ namespace RobotInterface
             oscilloM4.ResetGraph();
         }
 
-        double Vx_T_1 = 0;
-        double Vy_T_1 = 0;
-        double Vtheta_T_1 = 0;
-        public void UpdateSpeedDataOnGraph(object sender, SpeedDataEventArgs e)
+         public void UpdateSpeedDataOnGraph(object sender, SpeedDataEventArgs e)
         {
             //oscilloX.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, (e.Vx - Vx_T_1) * 50);
             //Vx_T_1 = e.Vx;
@@ -399,7 +438,10 @@ namespace RobotInterface
 
         private void ButtonEnableDisableTir_Click(object sender, RoutedEventArgs e)
         {
-            OnEnableDisableTirFromInterface(true);
+            if (ButtonEnableDisableTir.Content == "Enable Tir")
+                OnEnableDisableTirFromInterface(true);
+            else
+                OnEnableDisableTirFromInterface(false);
         }
 
         //Methode appelée sur evenement (event) provenant du port Serie.
@@ -416,6 +458,39 @@ namespace RobotInterface
                     ButtonEnableDisableTir.Content = "Enable Tir";
                 else
                     ButtonEnableDisableTir.Content = "Disable Tir";
+            }));
+        }
+
+
+
+        private void ButtonEnableDisableServos_Click(object sender, RoutedEventArgs e)
+        {
+            if (ButtonEnableDisableServos.Content == "Servos Torque Off")
+            {
+                OnEnableDisableServosFromInterface(false);
+                ButtonEnableDisableServos.Content = "Servos Torque On";
+            }
+            else
+            {
+                OnEnableDisableServosFromInterface(true);
+                ButtonEnableDisableServos.Content = "Servos Torque Off";
+            }
+        }
+
+        //Methode appelée sur evenement (event) provenant du port Serie.
+        //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
+        public void ActualizeEnableDisableServosButton(object sender, BoolEventArgs e)
+        {
+            //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
+            //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
+            //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
+            //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
+            ButtonEnableDisableServos.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
+            {
+                if (!e.value)
+                    ButtonEnableDisableServos.Content = "Servos Torque On";
+                else
+                    ButtonEnableDisableServos.Content = "Servos Torque Off";
             }));
         }
 
@@ -538,6 +613,17 @@ namespace RobotInterface
         public virtual void OnEnableDisableTirFromInterface(bool val)
         {
             var handler = OnEnableDisableTirFromInterfaceGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = val });
+            }
+        }
+
+        //public delegate void EnableDisableTirEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<BoolEventArgs> OnEnableDisableServosFromInterfaceGeneratedEvent;
+        public virtual void OnEnableDisableServosFromInterface(bool val)
+        {
+            var handler = OnEnableDisableServosFromInterfaceGeneratedEvent;
             if (handler != null)
             {
                 handler(this, new BoolEventArgs { value = val });

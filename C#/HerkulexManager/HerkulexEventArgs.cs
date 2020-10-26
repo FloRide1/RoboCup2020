@@ -141,9 +141,15 @@ namespace HerkulexManagerNS
 
         #region OutputEventArgs
 
-        public class InfosUpdatedArgs : EventArgs
+        public class HerkulexServoInformationArgs : EventArgs
         {
             public Servo Servo;
+        }
+        
+        public class HerkulexPositionsReceivedArgs : EventArgs
+        {
+            public Dictionary<int, int> servoPositions;
+
         }
 
         public class HerkulexErrorArgs : EventArgs

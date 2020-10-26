@@ -19,7 +19,8 @@ namespace HerkulexManagerNS
         private byte _SET;
 
         //values
-        public UInt16 ActualAbsolutePosition;
+        public UInt16 AbsolutePosition;
+        public UInt16 CalibratedPosition;
 
         //flags
         public bool IsMoving;
