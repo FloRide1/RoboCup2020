@@ -16,12 +16,12 @@ namespace HerkulexManagerNS
 {
     public class HerkulexManager
     {
-        private int pollingTimeoutMs = 300;
+        private int pollingTimeoutMs = 5000;
 
         #region classInst
 
         private AutoResetEvent WaitingForAck = new AutoResetEvent(false);
-        private Dictionary<byte, Servo> Servos = new Dictionary<byte, Servo>();
+        private ConcurrentDictionary<ServoId, Servo> Servos = new ConcurrentDictionary<ServoId, Servo>();
         private ReliableSerialPort serialPort { get; set; }
         private HerkulexDecoder decoder;
 
@@ -42,7 +42,7 @@ namespace HerkulexManagerNS
             serialPort.Open();
 
             decoder = new HerkulexDecoder();
-            pollingTimer.Interval = 200;
+            pollingTimer.Interval = 250;
 
             serialPort.OnDataReceivedEvent += decoder.DecodePacket;
             decoder.OnAnyAckEvent += AckReceived;
@@ -60,7 +60,7 @@ namespace HerkulexManagerNS
         {
             while(true)
             {
-                if(messageQueue.Count()>0)
+                while(messageQueue.Count()>0)
                 {
                     byte[] message;
                     if (messageQueue.TryDequeue(out message))
@@ -111,7 +111,7 @@ namespace HerkulexManagerNS
         /// </summary>
         /// <param name="ID">Servo ID</param>
         /// <param name="mode">Torque mode</param>
-        public void SetTorqueMode(byte ID, HerkulexDescription.TorqueControl mode)
+        public void SetTorqueMode(ServoId ID, HerkulexDescription.TorqueControl mode)
         {
             if (Servos.ContainsKey(ID))
                 _SetTorqueMode(ID, mode);
@@ -124,7 +124,7 @@ namespace HerkulexManagerNS
         /// </summary>
         /// <param name="ID">Servo ID</param>
         /// <param name="color">Led color</param>
-        public void SetLedColor(byte ID, HerkulexDescription.LedColor color)
+        public void SetLedColor(ServoId ID, HerkulexDescription.LedColor color)
         {
             if (Servos.ContainsKey(ID))
             {
@@ -144,35 +144,36 @@ namespace HerkulexManagerNS
         }
 
 
-        /// <summary>
-        /// Sets the target absolute position of the servo
-        /// </summary>
-        /// <param name="ID">Servo ID</param>
-        /// <param name="absolutePosition">Absolute position</param>
-        /// <param name="playTime">Playtime</param>
-        public void SetPosition(byte ID, ushort absolutePosition, byte playTime, bool IsSynchronous = false)
-        {
-            if (Servos.ContainsKey(ID))
-            {
-                Servos[ID].SetAbsolutePosition(absolutePosition);
-                Servos[ID].SetPlayTime(playTime);
+        ///// <summary>
+        ///// Sets the target absolute position of the servo
+        ///// </summary>
+        ///// <param name="ID">Servo ID</param>
+        ///// <param name="absolutePosition">Absolute position</param>
+        ///// <param name="playTime">Playtime</param>
+        //public void SetPosition(ServoId ID, ushort absolutePosition, byte playTime, bool IsSynchronous = false)
+        //{
+        //    if (Servos.ContainsKey(ID))
+        //    {
+        //        SetPosition(ID, absolutePosition, playTime);
+        //        //Servos[ID].SetAbsolutePosition(absolutePosition);
+        //        //Servos[ID].SetPlayTime(playTime);
 
-                if (IsSynchronous)
-                {
-                    Servos[ID].IsNextOrderSynchronous = true; //On clear le flag à l'envoi synchrone
-                }
-                else
-                {
-                    foreach (KeyValuePair<byte, Servo> IdServoPair in Servos)
-                    {
-                        I_JOG(IdServoPair.Value);
-                        IdServoPair.Value.IsNextOrderSynchronous = false;
-                    }
-                }
-            }
-            else
-                throw new Exception("The servo ID is not in the dictionnary");
-        }
+        //        ////if (IsSynchronous)
+        //        ////{
+        //        ////    Servos[ID].IsNextOrderSynchronous = true; //On clear le flag à l'envoi synchrone
+        //        ////}
+        //        //else
+        //        //{
+        //        //    foreach (KeyValuePair<ServoId, Servo> IdServoPair in Servos)
+        //        //    {
+        //        //        I_JOG(IdServoPair.Value);
+        //        //        IdServoPair.Value.IsNextOrderSynchronous = false;
+        //        //    }
+        //        //}
+        //    }
+        //    else
+        //        throw new Exception("The servo ID is not in the dictionnary");
+        //}
 
         /// <summary>
         /// Sets the maximum absolute position of the servo
@@ -180,7 +181,7 @@ namespace HerkulexManagerNS
         /// <param name="ID">Servo ID</param>
         /// <param name="position">Maximum absolute position</param>
         /// <param name="keepAfterReboot">weither to keep the change after a servo reboot</param>
-        public void SetMaximumPosition(byte ID, UInt16 position, bool keepAfterReboot = true)
+        public void SetMaximumPosition(ServoId ID, UInt16 position, bool keepAfterReboot = true)
         {
             _SetMaxAbsolutePosition(ID, position, keepAfterReboot);
         }
@@ -191,7 +192,7 @@ namespace HerkulexManagerNS
         /// <param name="ID">Servo ID</param>
         /// <param name="position">Minimum absolute position</param>
         /// <param name="keepAfterReboot">weither to keep the change after a servo reboot</param>
-        public void SetMinimumPosition(byte ID, UInt16 position, bool keepAfterReboot = true)
+        public void SetMinimumPosition(ServoId ID, UInt16 position, bool keepAfterReboot = true)
         {
             _SetMinAbsolutePosition(ID, position, keepAfterReboot);
         }
@@ -201,27 +202,38 @@ namespace HerkulexManagerNS
         /// </summary>
         /// <param name="ID">Servo ID</param>
         /// <param name="mode">JOG mode</param>
-        public void AddServo(byte ID, HerkulexDescription.JOG_MODE mode, UInt16 initialPosition)
+        public void AddServo(ServoId ID, HerkulexDescription.JOG_MODE mode)
         {
             Servo servo = new Servo(ID, mode);
-            Servos.Add(ID, servo);
-            Servos[ID].SetAbsolutePosition(initialPosition);
+            while (!Servos.TryAdd(ID, servo)) ; //ON tente l'ajout tant qu'il n'est pas validé
             //reply to all packets
             RAM_WRITE(ID, HerkulexDescription.RAM_ADDR.ACK_Policy, 1, 0x02); //reply to I_JOG / S_JOG
-            RecoverErrors(servo);
-            //RAM_WRITE(ID, HerkulexDescription.RAM_ADDR.Absolute_Goal_Position, 1, 512);
-            I_JOG(Servos[ID]);
+            RecoverErrors(ID);
             Thread.Sleep(100);
         }
+        //public void AddServo(ServoId ID, HerkulexDescription.JOG_MODE mode, UInt16 initialPosition)
+        //{
+        //    Servo servo = new Servo(ID, mode);
+
+        //    while (!Servos.TryAdd(ID, servo)) ; //ON tente l'ajout tant qu'il n'est pas validé
+
+        //    Servos[ID].SetAbsolutePosition(initialPosition);
+        //    //reply to all packets
+        //    RAM_WRITE(ID, HerkulexDescription.RAM_ADDR.ACK_Policy, 1, 0x02); //reply to I_JOG / S_JOG
+        //    RecoverErrors(servo);
+        //    //RAM_WRITE(ID, HerkulexDescription.RAM_ADDR.Absolute_Goal_Position, 1, 512);
+        //    I_JOG(Servos[ID]);
+        //    Thread.Sleep(100);
+        //}
 
         /// <summary>
         /// Recovers the servo from error state
         /// </summary>
         /// <param name="servo">Servo instance</param>
-        public void RecoverErrors(Servo servo)
+        public void RecoverErrors(ServoId servo)
         {
-            ClearAllErrors(servo.GetID());
-            SetTorqueMode(servo.GetID(), HerkulexDescription.TorqueControl.TorqueOn);
+            ClearAllErrors(servo);
+            SetTorqueMode(servo, HerkulexDescription.TorqueControl.TorqueOn);
         }
 
         #endregion userMethods
@@ -232,19 +244,11 @@ namespace HerkulexManagerNS
         //polling timer
         private void PollingTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            //double[] startTimes = new double[Servos.Keys.Count];
-            //double[] endTimes = new double[Servos.Keys.Count];
-            lock (Servos)
+            for (int i = 0; i < Servos.Keys.Count; i++)
             {
-                for (int i = 0; i < Servos.Keys.Count; i++)
-                {
-
-                    var key = Servos.Keys.ElementAt(i);
-                    //startTimes[i] = sw.ElapsedMilliseconds;
-                    RAM_READ(key, HerkulexDescription.RAM_ADDR.Absolute_Position, 2);
-                    RAM_READ(key, HerkulexDescription.RAM_ADDR.Calibrated_Position, 2);
-                    //endTimes[i] = sw.ElapsedMilliseconds;
-                }
+                var key = Servos.Keys.ElementAt(i);
+                RAM_READ(key, HerkulexDescription.RAM_ADDR.Absolute_Position, 2);
+                RAM_READ(key, HerkulexDescription.RAM_ADDR.Calibrated_Position, 2);
             }
         }
 
@@ -323,7 +327,15 @@ namespace HerkulexManagerNS
         #endregion internalMethods
 
         #region outputEvents
-        
+
+
+        public void OnHerkulexPositionRequestEvent(object sender, HerkulexEventArgs.HerkulexPositionsArgs e)
+        {
+            foreach(var positionCommand in e.servoPositions)
+            {
+                SetPosition((ServoId)positionCommand.Key, (UInt16)positionCommand.Value, 5); //TODO : fgaut pas déconner non plus !
+            }
+        }
 
         public void OnEnableDisableServosRequestEvent(object sender, BoolEventArgs e)
         {
@@ -344,7 +356,7 @@ namespace HerkulexManagerNS
         /// </summary>
         /// <param name="pID">Servo ID</param>
         /// <param name="mode">torque mode (TorqueControl enum)</param>
-        private void _SetTorqueMode(byte pID, HerkulexDescription.TorqueControl mode)
+        private void _SetTorqueMode(ServoId pID, HerkulexDescription.TorqueControl mode)
         {
             RAM_WRITE(pID, HerkulexDescription.RAM_ADDR.Torque_Control, 1, (ushort)mode);
         }
@@ -386,26 +398,26 @@ namespace HerkulexManagerNS
 
         #region LowLevelMethods
 
-        private void S_JOG(Dictionary<byte, Servo> servos, byte playTime)
+        private void S_JOG(ConcurrentDictionary<ServoId, Servo> servos, byte playTime)
         {
             byte[] dataToSend = new byte[1 + 4 * servos.Count];
             dataToSend[0] = playTime;
             byte dataOffset = 1;
 
-            foreach (KeyValuePair<byte, Servo> servoIdPair in servos)
+            foreach (KeyValuePair<ServoId, Servo> servoIdPair in servos)
             {
                 if (servoIdPair.Value.IsNextOrderSynchronous)
                 {
                     dataToSend[dataOffset + 0] = (byte)(servoIdPair.Value.GetTargetAbsolutePosition() >> 0);
                     dataToSend[dataOffset + 1] = (byte)(servoIdPair.Value.GetTargetAbsolutePosition() >> 8);
                     dataToSend[dataOffset + 2] = servoIdPair.Value.GetSETByte();
-                    dataToSend[dataOffset + 3] = servoIdPair.Value.GetID();
+                    dataToSend[dataOffset + 3] = (byte)servoIdPair.Value.GetID();
                     dataOffset += 4;
                     servoIdPair.Value.IsNextOrderSynchronous = false;
                 }
             }
 
-            EncodeAndEnqueuePacket(serialPort, 0xFE, (byte)HerkulexDescription.CommandSet.S_JOG, dataToSend);
+            EncodeAndEnqueuePacket(serialPort, ServoId.BroadCast, (byte)HerkulexDescription.CommandSet.S_JOG, dataToSend);
         }
 
         /// <summary>
@@ -416,7 +428,7 @@ namespace HerkulexManagerNS
         /// <param name="startAddr"></param>
         /// <param name="length"></param>
         /// <param name="value"></param>
-        private void EEP_WRITE(byte pID, byte startAddr, byte length, UInt16 value)
+        private void EEP_WRITE(ServoId pID, byte startAddr, byte length, UInt16 value)
         {
             if (length > 2)
                 return;
@@ -436,7 +448,7 @@ namespace HerkulexManagerNS
             EncodeAndEnqueuePacket(serialPort, pID, (byte)HerkulexDescription.CommandSet.EEP_WRITE, data);
         }
 
-        private void EEP_WRITE(byte pID, HerkulexDescription.EEP_ADDR startAddr, byte length, UInt16 value)
+        private void EEP_WRITE(ServoId pID, HerkulexDescription.EEP_ADDR startAddr, byte length, UInt16 value)
         {
             EEP_WRITE(pID, (byte)startAddr, length, value);
         }
@@ -447,7 +459,7 @@ namespace HerkulexManagerNS
         /// <param name="pID">Servo ID</param>
         /// <param name="minPosition">Minimum position</param>
         /// <param name="keepAfterReboot">Weither to keep the change after a reboot</param>
-        private void _SetMinAbsolutePosition(byte pID, ushort minPosition, bool keepAfterReboot)
+        private void _SetMinAbsolutePosition(ServoId pID, ushort minPosition, bool keepAfterReboot)
         {
             RAM_WRITE(pID, HerkulexDescription.RAM_ADDR.Min_Position, 2, minPosition);
 
@@ -461,7 +473,7 @@ namespace HerkulexManagerNS
         /// <param name="pID">Servo ID</param>
         /// <param name="maxPosition">Maximum position</param>
         /// <param name="keepAfterReboot">Weither to keep the changes after a reboot</param>
-        private void _SetMaxAbsolutePosition(byte pID, ushort maxPosition, bool keepAfterReboot)
+        private void _SetMaxAbsolutePosition(ServoId pID, ushort maxPosition, bool keepAfterReboot)
         {
             RAM_WRITE(pID, HerkulexDescription.RAM_ADDR.Max_Position, 2, maxPosition);
 
@@ -475,11 +487,27 @@ namespace HerkulexManagerNS
             dataToSend[0] = (byte)(servo.GetTargetAbsolutePosition() >> 0);
             dataToSend[1] = (byte)(servo.GetTargetAbsolutePosition() >> 8);
             dataToSend[2] = servo.GetSETByte();
-            dataToSend[3] = servo.GetID();
+            dataToSend[3] = (byte)servo.GetID();
 
             dataToSend[4] = servo.GetPlaytime();
 
             EncodeAndEnqueuePacket(serialPort, servo.GetID(), (byte)HerkulexDescription.CommandSet.I_JOG, dataToSend);
+        }
+
+        private void SetPosition(ServoId id, ushort targetPosition, byte playTime)
+        {
+            //On clear une éventuelle erreur
+            RecoverErrors(id);
+
+            byte[] dataToSend = new byte[5];
+            dataToSend[0] = (byte)(targetPosition >> 0);
+            dataToSend[1] = (byte)(targetPosition >> 8);
+            dataToSend[2] = 0;// servo.GetSETByte();
+            dataToSend[3] = (byte)id;
+
+            dataToSend[4] = playTime;
+
+            EncodeAndEnqueuePacket(serialPort, id, (byte)HerkulexDescription.CommandSet.I_JOG, dataToSend);
         }
 
         /// <summary>
@@ -487,7 +515,7 @@ namespace HerkulexManagerNS
         /// </summary>
         /// <param name="pID">Servo ID</param>
         /// <param name="color">Led color (LedColor enum)</param>
-        private void _SetLedColor(byte pID, HerkulexDescription.LedColor color)
+        private void _SetLedColor(ServoId pID, HerkulexDescription.LedColor color)
         {
             RAM_WRITE(pID, HerkulexDescription.RAM_ADDR.LED_Control, 1, (ushort)color);
         }
@@ -496,7 +524,7 @@ namespace HerkulexManagerNS
         /// Clears all of the servo error statuses
         /// </summary>
         /// <param name="pID">Servo ID</param>
-        private void ClearAllErrors(byte pID)
+        private void ClearAllErrors(ServoId pID)
         {
             RAM_WRITE(pID, HerkulexDescription.RAM_ADDR.Status_Error, 1, 0x00);
         }
@@ -509,7 +537,7 @@ namespace HerkulexManagerNS
         /// <param name="addr">Start memory address</param>
         /// <param name="length">Length of the data to write</param>
         /// <param name="value">data</param>
-        private void RAM_WRITE(byte pID, byte addr, byte length, UInt16 value)
+        private void RAM_WRITE(ServoId pID, byte addr, byte length, UInt16 value)
         {
             if (length > 2)
                 return;
@@ -529,7 +557,7 @@ namespace HerkulexManagerNS
             EncodeAndEnqueuePacket(serialPort, pID, (byte)HerkulexDescription.CommandSet.RAM_WRITE, data);
         }
 
-        private void RAM_WRITE(byte pID, HerkulexDescription.RAM_ADDR addr, byte length, UInt16 value)
+        private void RAM_WRITE(ServoId pID, HerkulexDescription.RAM_ADDR addr, byte length, UInt16 value)
         {
             RAM_WRITE(pID, (byte)addr, length, value);
         }
@@ -541,18 +569,18 @@ namespace HerkulexManagerNS
         /// <param name="pID">Servo ID</param>
         /// <param name="startAddr">Address to start from</param>
         /// <param name="length">Number of bytes to read</param>
-        private void RAM_READ(byte pID, byte startAddr, byte length)
+        private void RAM_READ(ServoId pID, byte startAddr, byte length)
         {
             byte[] data = { (byte)startAddr, length };
             EncodeAndEnqueuePacket(serialPort, pID, (byte)HerkulexDescription.CommandSet.RAM_READ, data);
         }
 
-        private void RAM_READ(byte pID, HerkulexDescription.RAM_ADDR startAddr, byte length)
+        private void RAM_READ(ServoId pID, HerkulexDescription.RAM_ADDR startAddr, byte length)
         {
             RAM_READ(pID, (byte)startAddr, length);
         }
 
-        private void EncodeAndEnqueuePacket(SerialPort port, byte pID, byte CMD, byte[] dataToSend)
+        private void EncodeAndEnqueuePacket(SerialPort port, ServoId pID, byte CMD, byte[] dataToSend)
         {
             byte packetSize = (byte)(7 + dataToSend.Length);
             byte[] packet = new byte[packetSize];
@@ -560,7 +588,7 @@ namespace HerkulexManagerNS
             packet[0] = 0xFF;
             packet[1] = 0xFF;
             packet[2] = packetSize;
-            packet[3] = pID;
+            packet[3] = (byte)pID;
             packet[4] = CMD;
             packet[5] = CommonMethods.CheckSum1(packet[2], packet[3], packet[4], dataToSend);
             packet[6] = CommonMethods.CheckSum2(packet[5]);

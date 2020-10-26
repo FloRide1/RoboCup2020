@@ -15,7 +15,7 @@ namespace HerkulexManagerNS
         public class HklxPacketDecodedArgs : EventArgs
         {
             public byte PacketSize { get; set; }
-            public byte PID { get; set; }
+            public ServoId PID { get; set; }
             public byte CMD { get; set; }
             public byte CheckSum1 { get; set; }
             public byte CheckSum2 { get; set; }
@@ -31,7 +31,7 @@ namespace HerkulexManagerNS
         {
             public byte CheckSum1 { get; set; }
             public byte CheckSum2 { get; set; }
-            public byte PID;
+            public ServoId PID;
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace HerkulexManagerNS
         {
             public List<HerkulexDescription.ErrorStatus> StatusErrors;
             public List<HerkulexDescription.ErrorStatusDetail> StatusDetails;
-            public byte PID;
+            public ServoId PID;
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace HerkulexManagerNS
             public byte Length;
             public List<HerkulexDescription.ErrorStatus> StatusErrors;
             public List<HerkulexDescription.ErrorStatusDetail> StatusDetails;
-            public byte PID;
+            public ServoId PID;
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace HerkulexManagerNS
         {
             public List<HerkulexDescription.ErrorStatus> StatusErrors;
             public List<HerkulexDescription.ErrorStatusDetail> StatusDetails;
-            public byte PID;
+            public ServoId PID;
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace HerkulexManagerNS
             public byte Length;
             public List<HerkulexDescription.ErrorStatus> StatusErrors;
             public List<HerkulexDescription.ErrorStatusDetail> StatusDetails;
-            public byte PID;
+            public ServoId PID;
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace HerkulexManagerNS
         {
             public List<HerkulexDescription.ErrorStatus> StatusErrors;
             public List<HerkulexDescription.ErrorStatusDetail> StatusDetails;
-            public byte PID;
+            public ServoId PID;
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace HerkulexManagerNS
         {
             public List<HerkulexDescription.ErrorStatus> StatusErrors;
             public List<HerkulexDescription.ErrorStatusDetail> StatusDetails;
-            public byte PID;
+            public ServoId PID;
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace HerkulexManagerNS
         {
             public List<HerkulexDescription.ErrorStatus> StatusErrors;
             public List<HerkulexDescription.ErrorStatusDetail> StatusDetails;
-            public byte PID;
+            public ServoId PID;
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace HerkulexManagerNS
         {
             public List<HerkulexDescription.ErrorStatus> StatusErrors;
             public List<HerkulexDescription.ErrorStatusDetail> StatusDetails;
-            public byte PID;
+            public ServoId PID;
         }
 
         /// <summary>
@@ -127,14 +127,14 @@ namespace HerkulexManagerNS
         {
             public List<HerkulexDescription.ErrorStatus> StatusErrors;
             public List<HerkulexDescription.ErrorStatusDetail> StatusDetails;
-            public byte PID;
+            public ServoId PID;
         }
 
         public class Hklx_AnyAck_Args : EventArgs
         {
             public List<HerkulexDescription.ErrorStatus> StatusErrors;
             public List<HerkulexDescription.ErrorStatusDetail> StatusDetails;
-            public byte PID;
+            public ServoId PID;
         }
 
         #endregion LowLevelEventArgs
@@ -146,9 +146,9 @@ namespace HerkulexManagerNS
             public Servo Servo;
         }
         
-        public class HerkulexPositionsReceivedArgs : EventArgs
+        public class HerkulexPositionsArgs : EventArgs
         {
-            public Dictionary<int, int> servoPositions;
+            public Dictionary<ServoId, int> servoPositions;
 
         }
 

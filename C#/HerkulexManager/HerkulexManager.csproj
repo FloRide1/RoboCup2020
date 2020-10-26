@@ -48,6 +48,7 @@
     <Compile Include="HerkulexManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Servo.cs" />
+    <Compile Include="ServoId.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventArgsLibrary\EventArgsLibrary.csproj">

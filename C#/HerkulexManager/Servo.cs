@@ -8,7 +8,7 @@ namespace HerkulexManagerNS
 {
     public class Servo
     {
-        private byte ID;
+        private ServoId ID;
         private HerkulexDescription.JOG_MODE Mode;
         private HerkulexDescription.LedColor LEDState;
         private UInt16 TargetAbsolutePosition;
@@ -42,7 +42,7 @@ namespace HerkulexManagerNS
         public bool Driver_fault_detected;
         public bool EEP_REG_distorted;
 
-        public Servo(byte pID, HerkulexDescription.JOG_MODE mode)
+        public Servo(ServoId pID, HerkulexDescription.JOG_MODE mode)
         {
             ID = pID;
             Mode = mode;
@@ -86,7 +86,7 @@ namespace HerkulexManagerNS
             return LEDState;
         }
 
-        public byte GetID()
+        public ServoId GetID()
         {
             return ID;
         }

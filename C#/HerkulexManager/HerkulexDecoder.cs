@@ -87,7 +87,7 @@ namespace HerkulexManagerNS
                         {
                             packetDataByteIndex = 0;
 
-                            byte clcChksum1 = CommonMethods.CheckSum1(packetSize, pID, cmd, packetData);
+                            byte clcChksum1 = CommonMethods.CheckSum1(packetSize, (byte)pID, cmd, packetData);
                             byte clcChksum2 = CommonMethods.CheckSum2(clcChksum1);
 
                             if (checkSum1 == clcChksum1 && checkSum2 == clcChksum2)
@@ -96,8 +96,8 @@ namespace HerkulexManagerNS
                                 byte statusDetail = packetData[packetData.Length - 1];
 
                                 //Console.WriteLine("Fin decodage Packet : " + DateTime.Now.Second + "." + DateTime.Now.Millisecond);
-                                ProcessPacket(packetSize, pID, cmd, checkSum1, checkSum2, packetData, statusError, statusDetail);
-                                OnAnyAckReveived(pID, statusError, statusDetail);
+                                ProcessPacket(packetSize, (ServoId)pID, cmd, checkSum1, checkSum2, packetData, statusError, statusDetail);
+                                OnAnyAckReveived((ServoId)pID, statusError, statusDetail);
                             }
                             //else
                             //    OnCheckSumErrorOccured(pID, checkSum1, checkSum2);
@@ -121,7 +121,7 @@ namespace HerkulexManagerNS
         }
 
 
-        public void ProcessPacket(byte packetSize, byte pID, byte cmd, byte checkSum1, byte checkSum2, byte[] packetData, byte statusError, byte statusDetail)
+        public void ProcessPacket(byte packetSize, ServoId pID, byte cmd, byte checkSum1, byte checkSum2, byte[] packetData, byte statusError, byte statusDetail)
         {
             int dataLen = packetData.Length;
             byte[] readOperationData;
@@ -214,7 +214,7 @@ namespace HerkulexManagerNS
         //    }
         //}
 
-        public virtual void OnAnyAckReveived(byte Pid, byte statusError, byte statusDetail)
+        public virtual void OnAnyAckReveived(ServoId Pid, byte statusError, byte statusDetail)
         {
             var handler = OnAnyAckEvent;
             if(handler != null)
@@ -228,7 +228,7 @@ namespace HerkulexManagerNS
             }
         }
 
-        public virtual void OnRamReadAck(byte pID, byte statusError, byte statusDetail, byte address, byte length, byte[] data)
+        public virtual void OnRamReadAck(ServoId pID, byte statusError, byte statusDetail, byte address, byte length, byte[] data)
         {
             var handler = OnRamReadAckEvent;
             if (handler != null)
@@ -288,7 +288,7 @@ namespace HerkulexManagerNS
         //}
 
 
-        public virtual void OnStatAck(byte pID, byte statusError, byte statusDetail)
+        public virtual void OnStatAck(ServoId pID, byte statusError, byte statusDetail)
         {
 
             var handler = OnStatAckEvent;
@@ -331,7 +331,7 @@ namespace HerkulexManagerNS
         //    }
         //}
 
-        public virtual void OnCheckSumErrorOccured(byte pID, byte checkSum1, byte checkSum2)
+        public virtual void OnCheckSumErrorOccured(ServoId pID, byte checkSum1, byte checkSum2)
         {
             var handler = OnCheckSumErrorOccuredEvent;
             if (handler != null)

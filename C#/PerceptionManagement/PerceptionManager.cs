@@ -198,7 +198,7 @@ namespace PerceptionManagement
             }
         }
         
-        public delegate void OnLidarBalisePointListForDebugEventHandler(object sender, RawLidarArgs e);
+        //public delegate void OnLidarBalisePointListForDebugEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<RawLidarArgs> OnLidarBalisePointListForDebugEvent;
         public virtual void OnLidarBalisePointListForDebug(int id, List<PolarPointRssi> ptList)
         {

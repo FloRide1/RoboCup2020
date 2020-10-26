@@ -228,13 +228,12 @@ namespace Robot
             herkulexManager.SetPollingInterval(200);
             herkulexManager.StartPolling();
 
-            herkulexManager.AddServo(101, HerkulexDescription.JOG_MODE.positionControlJOG, 512);
-            herkulexManager.AddServo(102, HerkulexDescription.JOG_MODE.positionControlJOG, 512);
-            herkulexManager.AddServo(103, HerkulexDescription.JOG_MODE.positionControlJOG, 512);
-
-            herkulexManager.AddServo(104, HerkulexDescription.JOG_MODE.positionControlJOG, 512);
-            herkulexManager.AddServo(105, HerkulexDescription.JOG_MODE.positionControlJOG, 512);
-            herkulexManager.AddServo(106, HerkulexDescription.JOG_MODE.positionControlJOG, 512);
+            herkulexManager.AddServo(ServoId.BrasCentralEpaule, HerkulexDescription.JOG_MODE.positionControlJOG);
+            herkulexManager.AddServo(ServoId.BrasCentralCoude, HerkulexDescription.JOG_MODE.positionControlJOG);
+            herkulexManager.AddServo(ServoId.BrasCentralPoignet, HerkulexDescription.JOG_MODE.positionControlJOG);
+            herkulexManager.AddServo(ServoId.BrasDroit, HerkulexDescription.JOG_MODE.positionControlJOG);
+            herkulexManager.AddServo(ServoId.BrasGauche, HerkulexDescription.JOG_MODE.positionControlJOG);
+            herkulexManager.AddServo(ServoId.PorteDrapeau, HerkulexDescription.JOG_MODE.positionControlJOG);
 
             if (usingLidar)
             {
@@ -263,6 +262,9 @@ namespace Robot
             strategyManager.OnMessageEvent += lidar_OMD60M_TCP.OnMessageReceivedEvent;
             strategyManager.OnSetRobotVitessePIDEvent += robotMsgGenerator.GenerateMessageSetPIDValueToRobot;
             strategyManager.OnEnableAsservissementEvent += robotMsgGenerator.GenerateMessageEnableAsservissement;
+            strategyManager.OnHerkulexPositionRequestEvent += herkulexManager.OnHerkulexPositionRequestEvent;
+            strategyManager.OnSetSpeedConsigneToMotor += robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
+            strategyManager.OnEnableDisableMotorCurrentDataEvent += robotMsgGenerator.GenerateMessageEnableMotorCurrentData;
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
             
             if (usingLidar)
@@ -306,6 +308,7 @@ namespace Robot
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapStrategyReceived;
             strategyManager.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
+            robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += strategyManager.OnMotorCurrentReceive;
             waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapWaypointReceived;
 
             //Transfert de la local map vers la global world map via UPD en mode Multicast : 
@@ -338,6 +341,8 @@ namespace Robot
                 //lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
             }
 
+
+            
             //Timer de stratégie
             timerStrategie = new HighFreqTimer(0.5);
             timerStrategie.Tick += TimerStrategie_Tick;
@@ -350,6 +355,7 @@ namespace Robot
                 Monitor.Wait(ExitLock);
             }
         }
+
 
         private static void RobotMsgProcessor_OnIOValuesFromRobotGeneratedEvent(object sender, IOValuesEventArgs e)
         {
@@ -498,6 +504,8 @@ namespace Robot
                 logReplay.OnIMUEvent += interfaceRobot.UpdateImuDataOnGraph;
                 logReplay.OnSpeedDataEvent += interfaceRobot.UpdateSpeedDataOnGraph;
             }
+
+            strategyManager.Init();
         }
 
         static Thread t3;

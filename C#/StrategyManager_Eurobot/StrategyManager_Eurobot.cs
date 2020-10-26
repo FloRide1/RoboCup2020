@@ -13,6 +13,7 @@ using PerceptionManagement;
 using System.Timers;
 using Constants;
 using System.Threading;
+using static HerkulexManagerNS.HerkulexEventArgs;
 
 namespace StrategyManager
 {
@@ -29,8 +30,22 @@ namespace StrategyManager
         PointD robotDestination = new PointD(0, 0);
         double robotOrientation = 0;
         
-        System.Timers.Timer timerStrategy;
-        
+        //System.Timers.Timer timerStrategy;
+
+        TaskBrasCentral taskBrasCentral;
+        TaskBrasGauche taskBrasGauche;
+        TaskBrasDroit taskBrasDroit;
+
+        //Thread de stratégie
+        Thread TaskStrategyThread;
+
+        enum TaskStrategyState
+        {
+            Init,
+            Attente,
+            ChasseAuxGobelets,
+            Finished
+        }
 
         public StrategyManager_Eurobot(int robotId, int teamId)
         {
@@ -38,18 +53,72 @@ namespace StrategyManager
             this.robotId = robotId;
             //heatMap = new Heatmap(22.0, 14.0, 22.0/Math.Pow(2,8), 2); //Init HeatMap
             heatMap = new Heatmap(3, 2, (int)Math.Pow(2, 5), 1); //Init HeatMap
-
-            timerStrategy = new System.Timers.Timer();
-            timerStrategy.Interval = 50;
-            timerStrategy.Elapsed += TimerStrategy_Elapsed;
-            timerStrategy.Start();
-
+            
             OnGameStateChanged(robotId, globalWorldMap.gameState);
 
-            Thread GameManagementThread = new Thread(ThreadManagementTask);
-            GameManagementThread.IsBackground = true;
-            GameManagementThread.Start();
+
+            //Initialisation des taches de la stratégie
+
+            //Taches de bas niveau
+            taskBrasCentral = new TaskBrasCentral();
+            taskBrasCentral.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
+            taskBrasCentral.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+            OnMotorCurrentReceiveForwardEvent += taskBrasCentral.OnMotorCurrentReceive;
+
+            taskBrasGauche = new TaskBrasGauche();
+            taskBrasGauche.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
+            taskBrasGauche.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+            OnMotorCurrentReceiveForwardEvent += taskBrasGauche.OnMotorCurrentReceive;
+
+            taskBrasDroit = new TaskBrasDroit();
+            taskBrasDroit.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
+            taskBrasDroit.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+            OnMotorCurrentReceiveForwardEvent += taskBrasDroit.OnMotorCurrentReceive;
+
+
+
+            //Thread GameManagementThread = new Thread(ThreadManagementTask);
+            //GameManagementThread.IsBackground = true;
+            //GameManagementThread.Start();
         }
+
+        public void Init()
+        {
+            taskBrasCentral.Init();
+            taskBrasGauche.Init();
+            taskBrasDroit.Init();
+            OnEnableDisableMotorCurrentData(true);
+        }
+
+
+        //Events
+        public event EventHandler<BoolEventArgs> OnEnableDisableMotorCurrentDataEvent;
+        public virtual void OnEnableDisableMotorCurrentData(bool val)
+        {
+            OnEnableDisableMotorCurrentDataEvent?.Invoke(this, new BoolEventArgs { value = val });
+        }
+
+        public event EventHandler<MotorsCurrentsEventArgs> OnMotorCurrentReceiveForwardEvent;
+        public void OnMotorCurrentReceive(object sender, MotorsCurrentsEventArgs e)
+        {
+            //Forward event to task on low level
+            OnMotorCurrentReceiveForwardEvent?.Invoke(sender, e);
+        }
+        
+
+        //On fait juste un forward d'event sans le récupérer localement
+        public event EventHandler<HerkulexPositionsArgs> OnHerkulexPositionRequestEvent;
+        private void OnHerkulexPositionRequestForwardEvent(object sender, HerkulexManagerNS.HerkulexEventArgs.HerkulexPositionsArgs e)
+        {
+            OnHerkulexPositionRequestEvent?.Invoke(sender, e);
+        }
+
+        public event EventHandler<SpeedConsigneToMotorArgs> OnSetSpeedConsigneToMotor;
+        public virtual void OnPilotageVentouseForwardEvent(object sender, SpeedConsigneToMotorArgs e)
+        {
+            OnSetSpeedConsigneToMotor?.Invoke(sender, e);
+        }
+
 
         private void ThreadManagementTask()
         {

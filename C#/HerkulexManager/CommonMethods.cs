@@ -10,7 +10,7 @@ namespace HerkulexManagerNS
     {
         public static byte CheckSum1(byte pSIZE, byte pID, byte CMD, byte[] data)
         {
-            byte checksum = (byte)(pSIZE ^ pID ^ CMD);
+            byte checksum = (byte)(pSIZE ^ (byte)pID ^ CMD);
             for (int i = 0; i < data.Length; i++)
                 checksum ^= data[i];
             checksum &= 0xFE;
@@ -19,7 +19,7 @@ namespace HerkulexManagerNS
 
         public static byte CheckSum1(byte pSIZE, byte pID, byte CMD)
         {
-            byte checksum = (byte)(pSIZE ^ pID ^ CMD);
+            byte checksum = (byte)(pSIZE ^ (byte)pID ^ CMD);
             checksum &= 0xFE;
             return checksum;
         }

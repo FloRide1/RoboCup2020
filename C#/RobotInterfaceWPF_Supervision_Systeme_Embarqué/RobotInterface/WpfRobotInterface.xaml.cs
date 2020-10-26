@@ -213,7 +213,7 @@ namespace RobotInterface
             oscilloLidar.UpdatePointListOfLine(2, ptList2);
         }
 
-        Dictionary<byte, Servo> HerkulexServos = new Dictionary<byte, Servo>();
+        Dictionary<ServoId, Servo> HerkulexServos = new Dictionary<ServoId, Servo>();
         int counterServo = 0;
         public void OnHerkulexServoInformationReceived(object sender, HerkulexEventArgs.HerkulexServoInformationArgs e)
         {

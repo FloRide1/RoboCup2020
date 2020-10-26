@@ -209,15 +209,10 @@ namespace XBoxController
             }
         }
 
-        public delegate void OnPriseBalleEventHandler(object sender, SpeedConsigneToMotorArgs e);
         public event EventHandler<SpeedConsigneToMotorArgs> OnPriseBalleEvent;
         public virtual void OnPriseBalleToRobot(byte motorNumber, double vitesse)
         {
-            var handler = OnPriseBalleEvent;
-            if (handler != null)
-            {
-                handler(this, new SpeedConsigneToMotorArgs { MotorNumber = motorNumber, V = vitesse });
-            }
+            OnPriseBalleEvent?.Invoke(this, new SpeedConsigneToMotorArgs { MotorNumber = motorNumber, V = vitesse });
         }
     }
 }
