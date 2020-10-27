@@ -100,9 +100,9 @@ namespace StrategyManager
                         state = TaskStrategyState.Attente;
                         break;
                     case TaskStrategyState.InitPrehension:
-                        parentStrategyManager.taskBrasCentral.StartPrehension();
-                        parentStrategyManager.taskBrasDroit.StartPrehension();
-                        parentStrategyManager.taskBrasGauche.StartPrehension();
+                        //parentStrategyManager.taskBrasCentral.StartPrehension();
+                        //parentStrategyManager.taskBrasDroit.StartPrehension();
+                        //parentStrategyManager.taskBrasGauche.StartPrehension();
                         state = TaskStrategyState.Ballade;
                         break;
                     case TaskStrategyState.Ballade:
@@ -110,19 +110,20 @@ namespace StrategyManager
                         state = TaskStrategyState.BalladeEnCours;
                         break;
                     case TaskStrategyState.BalladeEnCours:
-                        if (parentStrategyManager.taskBrasCentral.isFineshed ||
-                            parentStrategyManager.taskBrasGauche.isFineshed ||
-                            parentStrategyManager.taskBrasDroit.isFineshed)
-                        {
-                            parentStrategyManager.taskBalade.Pause();
-                            parentStrategyManager.taskDepose.Start();
-                            if(parentStrategyManager.taskDepose.isFinished)
-                            {
-                                state = TaskStrategyState.InitialPositioning;
-                            }
-                            //Il faut faire une depose !!! et couper la balade
-                        }
-                        else if (parentStrategyManager.taskBalade.isFinished)
+                        //if (parentStrategyManager.taskBrasCentral.isFineshed ||
+                        //    parentStrategyManager.taskBrasGauche.isFineshed ||
+                        //    parentStrategyManager.taskBrasDroit.isFineshed)
+                        //{
+                        //    parentStrategyManager.taskBalade.Pause();
+                        //    parentStrategyManager.taskDepose.Start();
+                        //    if(parentStrategyManager.taskDepose.isFinished)
+                        //    {
+                        //        state = TaskStrategyState.InitialPositioning;
+                        //    }
+                        //    //Il faut faire une depose !!! et couper la balade
+                        //}
+                        //else if
+                        if (parentStrategyManager.taskBalade.isFinished)
                         {
                             state = TaskStrategyState.Ballade;
                         }
