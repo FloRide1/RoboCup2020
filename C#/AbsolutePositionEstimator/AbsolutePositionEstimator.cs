@@ -20,6 +20,7 @@ namespace AbsolutePositionEstimatorNS
         int robotId = 0;
         List<PolarPointRssi> LidarPtList;
         Location currentLocation;
+        bool mirrorMode = false;
 
         public AbsolutePositionEstimator(int id)
         {
@@ -38,16 +39,26 @@ namespace AbsolutePositionEstimatorNS
                 currentLocation = e.Location;
             }
         }
+               
+        public void OnMirrorModeReceived(object sender, BoolEventArgs e)
+        {
+            mirrorMode = e.value;
+        }
 
         public void OnLidarBalisesListExtractedEvent(object sender, LidarDetectedObjectListArgs e)
         {
             //Liste de balises potentielles
             var listeBalisesPotentielle = e.LidarObjectList;
 
-            //Normes et angles théoriques
+            ////Normes et angles théoriques  
+            /////TODO : double compensation due aux erreurs de positionnement balises
             PointD ptBalise1Theorique = new PointD(-1.55, -0.95); //Pt balise droite coté départ
             PointD ptBalise2Theorique = new PointD(1.55, 0); //Pt balise centre opposé départ
             PointD ptBalise3Theorique = new PointD(-1.55, 0.95); //Pt balise gauche coté départ
+
+            //PointD ptBalise1Theorique = new PointD(1.55, 0.95); //Pt balise droite coté départ
+            //PointD ptBalise2Theorique = new PointD(-1.55, 0); //Pt balise centre opposé départ
+            //PointD ptBalise3Theorique = new PointD(1.55, -0.95); //Pt balise gauche coté départ
             double normVector12Theorique = Toolbox.Distance(ptBalise1Theorique, ptBalise2Theorique);
             double normVector13Theorique = Toolbox.Distance(ptBalise1Theorique, ptBalise3Theorique);
             double angleVector12Vector13Theorique = Math.Atan2(ptBalise3Theorique.Y - ptBalise1Theorique.Y, ptBalise3Theorique.X - ptBalise1Theorique.X)
@@ -170,6 +181,14 @@ namespace AbsolutePositionEstimatorNS
                 double angleRobot1ThVectorRobot1 = Math.Atan2(ptBalise1Theorique.Y - yRobot, ptBalise1Theorique.X - xRobot) - Math.Atan2(ptBalise1.Y, ptBalise1.X);
 
                 //                Console.WriteLine("Position estimée - X : " + xRobot.ToString("N2") + " - Y : " + yRobot.ToString("N2") + " - Theta : " + angleRobot1ThVectorRobot1.ToString("N2"));
+
+                //On symétrise centrale si on est en mode mirror
+                if(!mirrorMode)  //TODO : double compensation due aux erreurs de positionnement balises
+                {
+                    xRobot = -xRobot;
+                    yRobot = -yRobot;
+                    angleRobot1ThVectorRobot1 = Toolbox.Modulo2PiAngleRad(angleRobot1ThVectorRobot1 + Math.PI);
+                }
 
                 OnPositionCalculatedEvent((float)xRobot, (float)yRobot, (float)angleRobot1ThVectorRobot1, (float)Math.Max(0, 1 - minScore));
             }

@@ -80,6 +80,12 @@ namespace PerceptionManagement
                 GeneratePerception();
             }
         }
+        
+        public void OnMirrorModeReceived(object sender, BoolEventArgs e)
+        {
+            //On forward l'event vers le position estimator
+            absolutePositionEstimator.OnMirrorModeReceived(sender, e);
+        }
 
 
         void GeneratePerception()

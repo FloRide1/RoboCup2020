@@ -10,7 +10,7 @@ using static HerkulexManagerNS.HerkulexEventArgs;
 
 namespace StrategyManager
 {
-    class TaskBrasGauche
+    public class TaskBrasGauche
     {
         Thread TaskThread;
         TaskBrasState state = TaskBrasState.Attente;
@@ -27,19 +27,19 @@ namespace StrategyManager
 
         enum TaskBrasPositionsInit
         {
-            BrasGauchce = 772,
+            BrasGauche = 772,
         }
         enum TaskBrasPositionsPrehensionGobelet
         {
-            BrasGauchce = 538,
+            BrasGauche = 538,
         }
         enum TaskBrasPositionsStockageSurSupport
         {
-            BrasGauchce = 918,
+            BrasGauche = 918,
         }
         enum TaskBrasPositionsStockageEnHauteur
         {
-            BrasGauchce = 697,
+            BrasGauche = 697,
         }
         enum TaskBrasPositionsRangement
         {
@@ -65,6 +65,11 @@ namespace StrategyManager
             isSupportGauchceFull = false;
         }
 
+        public void StartPrehension()
+        {
+            state = TaskBrasState.PrehensionGobelet;
+        }
+
         void TaskThreadProcess()
         {
             while (true)
@@ -73,9 +78,8 @@ namespace StrategyManager
                 {
                     case TaskBrasState.Init:
                         servoPositionsRequested = new Dictionary<ServoId, int>();
-                        servoPositionsRequested.Add(ServoId.BrasGauche, (int)TaskBrasPositionsInit.BrasGauchce);
+                        servoPositionsRequested.Add(ServoId.BrasGauche, (int)TaskBrasPositionsInit.BrasGauche);
                         OnHerkulexPositionRequest(servoPositionsRequested);
-                        Thread.Sleep(2000);
                         state = TaskBrasState.Attente;
                         break;
                     case TaskBrasState.Attente:
@@ -83,8 +87,8 @@ namespace StrategyManager
                         break;
                     case TaskBrasState.PrehensionGobelet:
                         servoPositionsRequested = new Dictionary<ServoId, int>();
-                        OnPilotageVentouse((byte)PilotageVentouse.BrasCentral, 50);
-                        servoPositionsRequested.Add(ServoId.BrasGauche, (int)TaskBrasPositionsInit.BrasGauchce);
+                        OnPilotageVentouse((byte)PilotageVentouse.BrasGauche, 50);
+                        servoPositionsRequested.Add(ServoId.BrasGauche, (int)TaskBrasPositionsPrehensionGobelet.BrasGauche);
                         OnHerkulexPositionRequest(servoPositionsRequested);
                         Thread.Sleep(500);
                         if (ventouseBrasGauchceCurrent > 1.0)//mesuré 0.6A à vide et 1.35A en charge
@@ -105,17 +109,17 @@ namespace StrategyManager
                         break;
                     case TaskBrasState.StockageSurSupport:
                         servoPositionsRequested = new Dictionary<ServoId, int>();
-                        servoPositionsRequested.Add(ServoId.BrasGauche, (int)TaskBrasPositionsInit.BrasGauchce);
+                        servoPositionsRequested.Add(ServoId.BrasGauche, (int)TaskBrasPositionsStockageSurSupport.BrasGauche);
                         OnHerkulexPositionRequest(servoPositionsRequested);
                         Thread.Sleep(500);
-                        OnPilotageVentouse((byte)PilotageVentouse.BrasCentral, 0);
+                        OnPilotageVentouse((byte)PilotageVentouse.BrasGauche, 0);
                         Thread.Sleep(500);
                         isSupportGauchceFull = true;
                         state = TaskBrasState.PrehensionGobelet;
                         break;
                     case TaskBrasState.StockageEnHauteur:
                         servoPositionsRequested = new Dictionary<ServoId, int>();
-                        servoPositionsRequested.Add(ServoId.BrasGauche, (int)TaskBrasPositionsInit.BrasGauchce);
+                        servoPositionsRequested.Add(ServoId.BrasGauche, (int)TaskBrasPositionsStockageEnHauteur.BrasGauche);
                         OnHerkulexPositionRequest(servoPositionsRequested);
                         Thread.Sleep(500);
                         state = TaskBrasState.Finished;

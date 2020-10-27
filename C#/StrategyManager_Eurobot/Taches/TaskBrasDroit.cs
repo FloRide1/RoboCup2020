@@ -10,7 +10,7 @@ using static HerkulexManagerNS.HerkulexEventArgs;
 
 namespace StrategyManager
 {
-    class TaskBrasDroit
+    public class TaskBrasDroit
     {
         Thread TaskThread;
         TaskBrasState state = TaskBrasState.Attente;
@@ -53,6 +53,7 @@ namespace StrategyManager
             TaskThread.Start();
         }
 
+
         Dictionary<ServoId, int> servoPositionsRequested = new Dictionary<ServoId, int>();
         public bool isSupportDroitFull { get; private set; } = false;
         private bool isRunning = false;
@@ -61,10 +62,14 @@ namespace StrategyManager
         public void Init()
         {
             state = TaskBrasState.Init;
-            OnPilotageVentouse((byte)PilotageVentouse.BrasCentral, 0);
+            OnPilotageVentouse((byte)PilotageVentouse.BrasDroit, 0);
             isSupportDroitFull = false;
         }
-
+        
+        public void StartPrehension()
+        {
+            state = TaskBrasState.PrehensionGobelet;
+        }
         void TaskThreadProcess()
         {
             while(true)
@@ -75,7 +80,6 @@ namespace StrategyManager
                         servoPositionsRequested = new Dictionary<ServoId, int>();
                         servoPositionsRequested.Add(ServoId.BrasDroit, (int)TaskBrasPositionsInit.BrasDroit);
                         OnHerkulexPositionRequest(servoPositionsRequested);
-                        Thread.Sleep(2000);
                         state = TaskBrasState.Attente;
                         break;
                     case TaskBrasState.Attente:
@@ -83,8 +87,8 @@ namespace StrategyManager
                         break;
                     case TaskBrasState.PrehensionGobelet:
                         servoPositionsRequested = new Dictionary<ServoId, int>();
-                        OnPilotageVentouse((byte)PilotageVentouse.BrasCentral, 50);
-                        servoPositionsRequested.Add(ServoId.BrasDroit, (int)TaskBrasPositionsInit.BrasDroit);
+                        OnPilotageVentouse((byte)PilotageVentouse.BrasDroit, 50);
+                        servoPositionsRequested.Add(ServoId.BrasDroit, (int)TaskBrasPositionsPrehensionGobelet.BrasDroit);
                         OnHerkulexPositionRequest(servoPositionsRequested);
                         Thread.Sleep(500);
                         if(ventouseBrasDroitCurrent > 1.0)//mesuré 0.6A à vide et 1.35A en charge
@@ -105,17 +109,17 @@ namespace StrategyManager
                         break;
                     case TaskBrasState.StockageSurSupport:
                         servoPositionsRequested = new Dictionary<ServoId, int>();
-                        servoPositionsRequested.Add(ServoId.BrasDroit, (int)TaskBrasPositionsInit.BrasDroit);
+                        servoPositionsRequested.Add(ServoId.BrasDroit, (int)TaskBrasPositionsStockageSurSupport.BrasDroit);
                         OnHerkulexPositionRequest(servoPositionsRequested);
                         Thread.Sleep(500);
-                        OnPilotageVentouse((byte)PilotageVentouse.BrasCentral, 0);
+                        OnPilotageVentouse((byte)PilotageVentouse.BrasDroit, 0);
                         Thread.Sleep(500);
                         isSupportDroitFull = true;
                         state = TaskBrasState.PrehensionGobelet;
                         break;
                     case TaskBrasState.StockageEnHauteur:
                         servoPositionsRequested = new Dictionary<ServoId, int>();
-                        servoPositionsRequested.Add(ServoId.BrasDroit, (int)TaskBrasPositionsInit.BrasDroit);
+                        servoPositionsRequested.Add(ServoId.BrasDroit, (int)TaskBrasPositionsStockageEnHauteur.BrasDroit);
                         OnHerkulexPositionRequest(servoPositionsRequested);
                         Thread.Sleep(500);
                         state = TaskBrasState.Finished;

@@ -255,8 +255,9 @@ namespace Robot
             //Démarrage du log replay si l'interface est utilisée et existe ou si elle n'est pas utilisée, sinon on bloque
             if (usingLogReplay)
                 logReplay = new LogReplay.LogReplay();
-             
+
             //Liens entre modules
+            strategyManager.OnRefereeBoxCommandEvent += globalWorldMapManager.OnRefereeBoxCommandReceived;
             strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
             strategyManager.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
             strategyManager.OnMessageEvent += lidar_OMD60M_TCP.OnMessageReceivedEvent;
@@ -294,7 +295,7 @@ namespace Robot
             serialPort1.OnDataReceivedEvent += msgDecoder.DecodeMsgReceived;
             msgDecoder.OnMessageDecodedEvent += robotMsgProcessor.ProcessRobotDecodedMessage;
             robotMsgProcessor.OnIMURawDataFromRobotGeneratedEvent += imuProcessor.OnIMURawDataReceived;
-            robotMsgProcessor.OnIOValuesFromRobotGeneratedEvent += RobotMsgProcessor_OnIOValuesFromRobotGeneratedEvent;
+            robotMsgProcessor.OnIOValuesFromRobotGeneratedEvent += strategyManager.OnIOValuesFromRobotEvent;
 
             //physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             //physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicalObjectListLocationReceived;
@@ -308,6 +309,7 @@ namespace Robot
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapStrategyReceived;
             strategyManager.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
+            strategyManager.OnMirrorModeForwardEvent += perceptionManager.OnMirrorModeReceived;
             robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += strategyManager.OnMotorCurrentReceive;
             waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapWaypointReceived;
 
@@ -355,17 +357,7 @@ namespace Robot
                 Monitor.Wait(ExitLock);
             }
         }
-
-
-        private static void RobotMsgProcessor_OnIOValuesFromRobotGeneratedEvent(object sender, IOValuesEventArgs e)
-        {
-            bool jackIsPresent = (((e.ioValues >> 0) & 0x01) == 0x00);
-            bool config1IsOn = (((e.ioValues >> 1) & 0x01) == 0x01);
-            bool config2 = (((e.ioValues >> 2) & 0x01) == 0x01);
-            bool config3 = (((e.ioValues >> 3) & 0x01) == 0x01);
-            bool config4 = (((e.ioValues >> 4) & 0x01) == 0x01);
-        }
-
+        
         static Random rand = new Random();
         private static void TimerStrategie_Tick(object sender, EventArgs e)
         {
@@ -427,6 +419,7 @@ namespace Robot
                 trajectoryPlanner.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
             }
         }
+
 
         static void ExitProgram()
         {

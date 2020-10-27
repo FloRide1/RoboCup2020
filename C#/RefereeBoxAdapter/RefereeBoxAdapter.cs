@@ -45,11 +45,7 @@ namespace RefereeBoxAdapter
         public event EventHandler<RefBoxMessageArgs> OnRefereeBoxCommandEvent;
         public virtual void OnRefereeBoxReceivedCommand(RefBoxMessage msg)
         {
-            var handler = OnRefereeBoxCommandEvent;
-            if (handler != null)
-            {
-                handler(this, new RefBoxMessageArgs { refBoxMsg = msg});
-            }
+            OnRefereeBoxCommandEvent?.Invoke(this, new RefBoxMessageArgs { refBoxMsg = msg });
         }
     }
 

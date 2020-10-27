@@ -10,7 +10,7 @@ using static HerkulexManagerNS.HerkulexEventArgs;
 
 namespace StrategyManager
 {
-    class TaskBrasCentral
+    public class TaskBrasCentral
     {
         Thread TaskThread;
         TaskBrasState state = TaskBrasState.Attente;
@@ -29,9 +29,9 @@ namespace StrategyManager
 
         enum TaskBrasPositionsInit
         {
-            BrasCentralEpaule = 512,
-            BrasCentralCoude = 512,
-            BrasCentralPoignet = 512,
+            BrasCentralEpaule = 467,
+            BrasCentralCoude = 150,
+            BrasCentralPoignet = 478,
         }
         enum TaskBrasPositionsAttenteGobelet
         {
@@ -89,6 +89,11 @@ namespace StrategyManager
             isSupportCentralFull = false;
         }
 
+        public void StartPrehension()
+        {
+            state = TaskBrasState.AttenteGobelet;
+        }
+
         void TaskThreadProcess()
         {
             while(true)
@@ -101,7 +106,6 @@ namespace StrategyManager
                         servoPositionsRequested.Add(ServoId.BrasCentralCoude, (int)TaskBrasPositionsInit.BrasCentralCoude);
                         servoPositionsRequested.Add(ServoId.BrasCentralPoignet, (int)TaskBrasPositionsInit.BrasCentralPoignet);
                         OnHerkulexPositionRequest(servoPositionsRequested);
-                        Thread.Sleep(2000);
                         state = TaskBrasState.Attente;
                         break;
                     case TaskBrasState.Attente:

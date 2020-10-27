@@ -14,6 +14,7 @@ using System.Timers;
 using Constants;
 using System.Threading;
 using static HerkulexManagerNS.HerkulexEventArgs;
+using RefereeBoxAdapter;
 
 namespace StrategyManager
 {
@@ -27,14 +28,16 @@ namespace StrategyManager
         Stopwatch sw = new Stopwatch();
 
         PlayerRole robotRole = PlayerRole.Stop;
-        PointD robotDestination = new PointD(0, 0);
-        double robotOrientation = 0;
+
+        public PointD robotDestination = new PointD(0, 0);
+        public double robotOrientation = 0;
         
         //System.Timers.Timer timerStrategy;
 
-        TaskBrasCentral taskBrasCentral;
-        TaskBrasGauche taskBrasGauche;
-        TaskBrasDroit taskBrasDroit;
+        public TaskBrasCentral taskBrasCentral;
+        public TaskBrasGauche taskBrasGauche;
+        public TaskBrasDroit taskBrasDroit;
+        TaskStrategy taskStrategy;
 
         //Thread de stratégie
         Thread TaskStrategyThread;
@@ -75,12 +78,18 @@ namespace StrategyManager
             taskBrasDroit.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
             OnMotorCurrentReceiveForwardEvent += taskBrasDroit.OnMotorCurrentReceive;
 
+            taskStrategy = new TaskStrategy(this);
+            OnIOValuesEvent += taskStrategy.OnIOValuesFromRobotEvent;
+            taskStrategy.OnMirrorModeEvent += OnMirrorMode;
+
+
 
 
             //Thread GameManagementThread = new Thread(ThreadManagementTask);
             //GameManagementThread.IsBackground = true;
             //GameManagementThread.Start();
         }
+
 
         public void Init()
         {
@@ -113,33 +122,18 @@ namespace StrategyManager
             OnHerkulexPositionRequestEvent?.Invoke(sender, e);
         }
 
+        public event EventHandler<IOValuesEventArgs> OnIOValuesEvent;
+        public void OnIOValuesFromRobotEvent(object sender, IOValuesEventArgs e)
+        {
+            OnIOValuesEvent?.Invoke(sender, e);
+        }
+
         public event EventHandler<SpeedConsigneToMotorArgs> OnSetSpeedConsigneToMotor;
         public virtual void OnPilotageVentouseForwardEvent(object sender, SpeedConsigneToMotorArgs e)
         {
             OnSetSpeedConsigneToMotor?.Invoke(sender, e);
         }
-
-
-        private void ThreadManagementTask()
-        {
-            while(true)
-            {
-                Thread.Sleep(1000);
-                OnSetRobotVitessePID(
-                    px:100.0, ix:50.0, dx:0, 
-                    py:100.0, iy:50.0, dy:0, 
-                    ptheta:100.0, itheta:50.0, dtheta:0,
-                    pxLimit: 10.0, ixLimit: 10.0, dxLimit: 1.0,
-                    pyLimit: 10.0, iyLimit: 10.0, dyLimit: 1.0,
-                    pthetaLimit: 20*Math.PI, ithetaLimit: 20* Math.PI, dthetaLimit: 2 * Math.PI);
-            }
-        }
-
-        private void TimerStrategy_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            //ProcessStrategy();
-        }
-
+        
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
         {
             //On récupère le gameState avant arrivée de la nouvelle worldMap
@@ -214,51 +208,51 @@ namespace StrategyManager
                     break;
                 case GameState.PLAYING:
                     //C'est ici qu'il faut calculer les fonctions de cout pour chacun des roles.
-                    switch (role)
-                    {
-                        case PlayerRole.Stop:
-                            robotDestination = new PointD(-8, 3);
-                            break;
-                        case PlayerRole.Gardien:
-                            if(teamId == (int)TeamId.Team1)
-                                robotDestination = new PointD(10.5, 0);
-                            else
-                                robotDestination = new PointD(-10.5, 0);
-                            break;
-                        case PlayerRole.DefenseurPlace:
-                            robotDestination = new PointD(-8, 3);
-                            break;
-                        case PlayerRole.DefenseurActif:
-                            robotDestination = new PointD(-8, -3);
-                            break;
-                        case PlayerRole.AttaquantPlace:
-                            robotDestination = new PointD(6, -3);
-                            break;
-                        case PlayerRole.AttaquantAvecBalle:
-                            //if (globalWorldMap.ballLocation != null)
-                            //    robotDestination = new PointD(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y);
-                            //else
-                            //    robotDestination = new PointD(6, 0);
-                            {
-                                if (globalWorldMap.ballLocationList.Count > 0)
-                                {
-                                    var ptInterception = GetInterceptionLocation(new Location(globalWorldMap.ballLocationList[0].X, globalWorldMap.ballLocationList[0].Y, 0, globalWorldMap.ballLocationList[0].Vx, globalWorldMap.ballLocationList[0].Vy, 0), new Location(globalWorldMap.teammateLocationList[robotId].X, globalWorldMap.teammateLocationList[robotId].Y, 0, 0, 0, 0), 3);
+                    //switch (role)
+                    //{
+                    //    case PlayerRole.Stop:
+                    //        robotDestination = new PointD(-8, 3);
+                    //        break;
+                    //    case PlayerRole.Gardien:
+                    //        if(teamId == (int)TeamId.Team1)
+                    //            robotDestination = new PointD(10.5, 0);
+                    //        else
+                    //            robotDestination = new PointD(-10.5, 0);
+                    //        break;
+                    //    case PlayerRole.DefenseurPlace:
+                    //        robotDestination = new PointD(-8, 3);
+                    //        break;
+                    //    case PlayerRole.DefenseurActif:
+                    //        robotDestination = new PointD(-8, -3);
+                    //        break;
+                    //    case PlayerRole.AttaquantPlace:
+                    //        robotDestination = new PointD(6, -3);
+                    //        break;
+                    //    case PlayerRole.AttaquantAvecBalle:
+                    //        //if (globalWorldMap.ballLocation != null)
+                    //        //    robotDestination = new PointD(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y);
+                    //        //else
+                    //        //    robotDestination = new PointD(6, 0);
+                    //        {
+                    //            if (globalWorldMap.ballLocationList.Count > 0)
+                    //            {
+                    //                var ptInterception = GetInterceptionLocation(new Location(globalWorldMap.ballLocationList[0].X, globalWorldMap.ballLocationList[0].Y, 0, globalWorldMap.ballLocationList[0].Vx, globalWorldMap.ballLocationList[0].Vy, 0), new Location(globalWorldMap.teammateLocationList[robotId].X, globalWorldMap.teammateLocationList[robotId].Y, 0, 0, 0, 0), 3);
 
-                                    if (ptInterception != null)
-                                        robotDestination = ptInterception;
-                                    else
-                                        robotDestination = new PointD(globalWorldMap.ballLocationList[0].X, globalWorldMap.ballLocationList[0].Y);
-                                }
-                                else
-                                    robotDestination = new PointD(6, -3);
-                            }
-                            break;
-                        case PlayerRole.Centre:
-                            robotDestination = new PointD(0, 0);
-                            break;
-                        default:
-                            break;
-                    }
+                    //                if (ptInterception != null)
+                    //                    robotDestination = ptInterception;
+                    //                else
+                    //                    robotDestination = new PointD(globalWorldMap.ballLocationList[0].X, globalWorldMap.ballLocationList[0].Y);
+                    //            }
+                    //            else
+                    //                robotDestination = new PointD(6, -3);
+                    //        }
+                    //        break;
+                    //    case PlayerRole.Centre:
+                    //        robotDestination = new PointD(0, 0);
+                    //        break;
+                    //    default:
+                    //        break;
+                    //}
                     break;
                 case GameState.STOPPED_GAME_POSITIONING:
                     switch(globalWorldMap.stoppedGameAction)
@@ -636,6 +630,13 @@ namespace StrategyManager
                 handler(this, new LocationArgs { RobotId = id, Location = location });
             }
         }
+        
+        //Output events
+        public event EventHandler<RefBoxMessageArgs> OnRefereeBoxCommandEvent;
+        public virtual void OnRefereeBoxReceivedCommand(RefBoxMessage msg)
+        {
+            OnRefereeBoxCommandEvent?.Invoke(this, new RefBoxMessageArgs { refBoxMsg = msg });
+        }
 
         public delegate void HeatMapEventHandler(object sender, HeatMapArgs e);
         public event EventHandler<HeatMapArgs> OnHeatMapEvent;
@@ -685,6 +686,12 @@ namespace StrategyManager
         public virtual void OnEnableAsservissement(bool val)
         {
             OnEnableAsservissementEvent?.Invoke(this, new BoolEventArgs { value = val });
+        }
+
+        public event EventHandler<BoolEventArgs> OnMirrorModeForwardEvent;
+        public virtual void OnMirrorMode(object sender, BoolEventArgs val)
+        {
+            OnMirrorModeForwardEvent?.Invoke(sender, val);
         }
     }
 
