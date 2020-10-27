@@ -58,7 +58,7 @@ namespace WorldMapManager
                 {
                     string json = JsonConvert.SerializeObject(transferLocalWorldMap, decimalJsonConverter);
                     OnMulticastSendLocalWorldMapCommand(json.GetBytes());
-
+                    OnLocalWorldMapBypass(transferLocalWorldMap); //Pour bypass du multicast
                     OnLocalWorldMap(localWorldMap); //Pour affichage uniquement, sinon transmission radio en, multicast
                 }
             }
@@ -164,6 +164,17 @@ namespace WorldMapManager
         public virtual void OnLocalWorldMap(LocalWorldMap map)
         {
             var handler = OnLocalWorldMapEventForDisplayOnly;
+            if (handler != null)
+            {
+                handler(this, new LocalWorldMapArgs { LocalWorldMap = map });
+            }
+        }
+
+        ////Output event for Multicast Bypass : NO USE at RoboCup !
+        public event EventHandler<LocalWorldMapArgs> OnLocalWorldMapBypassEvent;
+        public virtual void OnLocalWorldMapBypass(LocalWorldMap map)
+        {
+            var handler = OnLocalWorldMapBypassEvent;
             if (handler != null)
             {
                 handler(this, new LocalWorldMapArgs { LocalWorldMap = map });
