@@ -115,12 +115,12 @@ namespace Robot
 
         static LocalWorldMapManager localWorldMapManager;
         //Lien de transmission par socket
-        static UDPMulticastSender baseStationUdpMulticastSender = null;
-        static UDPMulticastReceiver baseStationUdpMulticastReceiver = null;
-        static UDPMulticastInterpreter baseStationUdpMulticastInterpreter = null;
-        static UDPMulticastSender robotUdpMulticastSender = null;
-        static UDPMulticastReceiver robotUdpMulticastReceiver = null;
-        static UDPMulticastInterpreter robotUdpMulticastInterpreter = null;
+        //static UDPMulticastSender baseStationUdpMulticastSender = null;
+        //static UDPMulticastReceiver baseStationUdpMulticastReceiver = null;
+        //static UDPMulticastInterpreter baseStationUdpMulticastInterpreter = null;
+        //static UDPMulticastSender robotUdpMulticastSender = null;
+        //static UDPMulticastReceiver robotUdpMulticastReceiver = null;
+        //static UDPMulticastInterpreter robotUdpMulticastInterpreter = null;
 
         static GlobalWorldMapManager globalWorldMapManager;
                 
@@ -211,13 +211,13 @@ namespace Robot
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId);
 
             //On simule une base station en local
-            baseStationUdpMulticastSender = new UDPMulticastSender(0, "224.16.32.79");
-            baseStationUdpMulticastReceiver = new UDPMulticastReceiver(0, "224.16.32.79");
-            baseStationUdpMulticastInterpreter = new UDPMulticastInterpreter(0);
+            //baseStationUdpMulticastSender = new UDPMulticastSender(0, "224.16.32.79");
+            //baseStationUdpMulticastReceiver = new UDPMulticastReceiver(0, "224.16.32.79");
+            //baseStationUdpMulticastInterpreter = new UDPMulticastInterpreter(0);
 
-            robotUdpMulticastSender = new UDPMulticastSender(robotId, "224.16.32.79");
-            robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, "224.16.32.79");
-            robotUdpMulticastInterpreter = new UDPMulticastInterpreter(robotId);
+            //robotUdpMulticastSender = new UDPMulticastSender(robotId, "224.16.32.79");
+            //robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, "224.16.32.79");
+            //robotUdpMulticastInterpreter = new UDPMulticastInterpreter(robotId);
 
             globalWorldMapManager = new GlobalWorldMapManager(robotId, "0.0.0.0");
             strategyManager = new StrategyManager_Eurobot(robotId, teamId);
@@ -315,14 +315,20 @@ namespace Robot
 
             //Transfert de la local map vers la global world map via UPD en mode Multicast : 
             //inutile dans Eurobot mais permet une extension radio simple.
-            localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
-            baseStationUdpMulticastReceiver.OnDataReceivedEvent += baseStationUdpMulticastInterpreter.OnMulticastDataReceived;
-            baseStationUdpMulticastInterpreter.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
-            globalWorldMapManager.OnMulticastSendGlobalWorldMapEvent += baseStationUdpMulticastSender.OnMulticastMessageToSendReceived;
-            robotUdpMulticastReceiver.OnDataReceivedEvent += robotUdpMulticastInterpreter.OnMulticastDataReceived;
-            robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
-            robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
-            robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += perceptionManager.OnGlobalWorldMapReceived;
+            //localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
+            //baseStationUdpMulticastReceiver.OnDataReceivedEvent += baseStationUdpMulticastInterpreter.OnMulticastDataReceived;
+            //baseStationUdpMulticastInterpreter.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+            //globalWorldMapManager.OnMulticastSendGlobalWorldMapEvent += baseStationUdpMulticastSender.OnMulticastMessageToSendReceived;
+            //robotUdpMulticastReceiver.OnDataReceivedEvent += robotUdpMulticastInterpreter.OnMulticastDataReceived;
+            //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
+            //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
+            //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += perceptionManager.OnGlobalWorldMapReceived;
+
+            //On essaie d'enlever la communication UDP interne
+            localWorldMapManager.OnLocalWorldMapBypassEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+            globalWorldMapManager.OnGlobalWorldMapBypassEvent += strategyManager.OnGlobalWorldMapReceived;
+            globalWorldMapManager.OnGlobalWorldMapBypassEvent += waypointGenerator.OnGlobalWorldMapReceived;
+            globalWorldMapManager.OnGlobalWorldMapBypassEvent += perceptionManager.OnGlobalWorldMapReceived;
 
             //Events de recording
             if (usingLogging)
