@@ -232,24 +232,30 @@ namespace WorldMapManager
                 globalWorldMap.obstacleLocationList = new List<LocationExtended>();
 
                 //On place tous les robots de l'équipe dans la global map
-                foreach (var localMap in localWorldMapDictionary)
+                lock (localWorldMapDictionary)
                 {
-                    //On ajoute la position des robots de l'équipe dans la WorldMap
-                    globalWorldMap.teammateLocationList.Add(localMap.Key, localMap.Value.robotLocation);
-                    //On ajoute le ghost (position théorique) des robots de l'équipe dans la WorldMap
-                    globalWorldMap.teammateGhostLocationList.Add(localMap.Key, localMap.Value.robotGhostLocation);
-                    //On ajoute la destination des robots de l'équipe dans la WorldMap
-                    globalWorldMap.teammateDestinationLocationList.Add(localMap.Key, localMap.Value.destinationLocation);
-                    //On ajoute le waypoint courant des robots de l'équipe dans la WorldMap
-                    globalWorldMap.teammateWayPointList.Add(localMap.Key, localMap.Value.waypointLocation);
+                    foreach (var localMap in localWorldMapDictionary)
+                    {
+                        //On ajoute la position des robots de l'équipe dans la WorldMap
+                        globalWorldMap.teammateLocationList.Add(localMap.Key, localMap.Value.robotLocation);
+                        //On ajoute le ghost (position théorique) des robots de l'équipe dans la WorldMap
+                        globalWorldMap.teammateGhostLocationList.Add(localMap.Key, localMap.Value.robotGhostLocation);
+                        //On ajoute la destination des robots de l'équipe dans la WorldMap
+                        globalWorldMap.teammateDestinationLocationList.Add(localMap.Key, localMap.Value.destinationLocation);
+                        //On ajoute le waypoint courant des robots de l'équipe dans la WorldMap
+                        globalWorldMap.teammateWayPointList.Add(localMap.Key, localMap.Value.waypointLocation);
+                    }
                 }
 
-                //Fusion des obstacles vus par chacun des robots
-                foreach (var localMap in localWorldMapDictionary)
+                lock (localWorldMapDictionary)
                 {
-                    foreach (var obstacle in localMap.Value.obstaclesLocationList)
+                    //Fusion des obstacles vus par chacun des robots
+                    foreach (var localMap in localWorldMapDictionary)
                     {
-                        globalWorldMap.obstacleLocationList.Add(obstacle);
+                        foreach (var obstacle in localMap.Value.obstaclesLocationList)
+                        {
+                            globalWorldMap.obstacleLocationList.Add(obstacle);
+                        }
                     }
                 }
             }

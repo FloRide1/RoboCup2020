@@ -66,6 +66,7 @@
     <Compile Include="EnumsStrategy.cs" />
     <Compile Include="StrategyManager_Eurobot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Taches\TaskBalade.cs" />
     <Compile Include="Taches\TaskStrategy.cs" />
     <Compile Include="Taches\TaskBrasGauche.cs" />
     <Compile Include="Taches\TaskBrasDroit.cs" />

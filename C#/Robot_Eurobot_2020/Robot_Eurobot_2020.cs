@@ -281,6 +281,7 @@ namespace Robot
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             //trajectoryPlanner.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot; //Configuré dans le gestionnaire de manette
             kalmanPositioning.OnKalmanLocationEvent += perceptionManager.OnPhysicalRobotPositionReceived;
+            kalmanPositioning.OnKalmanLocationEvent += strategyManager.OnPositionRobotReceived;
 
             //L'envoi des commandes dépend du fait qu'on soit en mode manette ou pas. 
             //Il faut donc enregistrer les évènement ou pas en fonction de l'activation

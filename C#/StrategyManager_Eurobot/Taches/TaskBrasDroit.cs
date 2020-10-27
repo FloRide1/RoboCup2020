@@ -14,6 +14,7 @@ namespace StrategyManager
     {
         Thread TaskThread;
         TaskBrasState state = TaskBrasState.Attente;
+        public bool isFineshed = false;
         enum TaskBrasState
         {
             Init,
@@ -21,7 +22,7 @@ namespace StrategyManager
             PrehensionGobelet,
             StockageSurSupport,
             StockageEnHauteur,
-            Rangement,
+            Depose,
             Finished
         }
 
@@ -41,9 +42,9 @@ namespace StrategyManager
         {
             BrasDroit = 309,
         }
-        enum TaskBrasPositionsRangement
+        enum TaskBrasPositionsDepose
         {
-            BrasDroit = 512,
+            BrasDroit = 477,
         }
 
         public TaskBrasDroit()
@@ -64,12 +65,21 @@ namespace StrategyManager
             state = TaskBrasState.Init;
             OnPilotageVentouse((byte)PilotageVentouse.BrasDroit, 0);
             isSupportDroitFull = false;
+            isFineshed = false;
         }
         
         public void StartPrehension()
         {
             state = TaskBrasState.PrehensionGobelet;
+            isFineshed = false;
         }
+
+        public void StartDepose()
+        {
+            state = TaskBrasState.Depose;
+            isFineshed = false;
+        }
+
         void TaskThreadProcess()
         {
             while(true)
@@ -95,11 +105,13 @@ namespace StrategyManager
                         {
                             if(!isSupportDroitFull)
                             {
-                                state = TaskBrasState.StockageSurSupport;
+                                //state = TaskBrasState.StockageSurSupport;
+                                state = TaskBrasState.StockageEnHauteur;
                             }
                             else
                             {
                                 state = TaskBrasState.StockageEnHauteur;
+                                //state = TaskBrasState.StockageEnHauteur;
                             }
                         }
                         else
@@ -124,9 +136,15 @@ namespace StrategyManager
                         Thread.Sleep(500);
                         state = TaskBrasState.Finished;
                         break;
-                    case TaskBrasState.Rangement:
+                    case TaskBrasState.Depose:
+                        servoPositionsRequested = new Dictionary<ServoId, int>();
+                        servoPositionsRequested.Add(ServoId.BrasDroit, (int)TaskBrasPositionsDepose.BrasDroit);
+                        OnHerkulexPositionRequest(servoPositionsRequested);
+                        Thread.Sleep(500);
+                        state = TaskBrasState.Finished;
                         break;
                     case TaskBrasState.Finished:
+                        isFineshed = true;
                         break;
                     default:
                         break;
@@ -150,7 +168,7 @@ namespace StrategyManager
         public void OnMotorCurrentReceive(object sender, MotorsCurrentsEventArgs e)
         {
             //Motor 7 is bras central pump
-            ventouseBrasDroitCurrent = e.motor7;
+            ventouseBrasDroitCurrent = e.motor6;
         }
     }
 }

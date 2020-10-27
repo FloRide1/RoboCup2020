@@ -18,11 +18,15 @@ namespace StrategyManager
         TaskStrategyState state = TaskStrategyState.Attente;
         StrategyManager_Eurobot parentStrategyManager;
         Equipe playingTeam = Equipe.Jaune;
+        bool Jack = false;
 
         enum TaskStrategyState
         {
             InitialPositioning,
-            Attente,         
+            InitialPositioningEnCours,
+            Attente,   
+            Ballade,
+            BalladeEnCours,
             InitCaptureDistributeur,
             CaptureDistributeur1,
             CaptureDistributeur2,
@@ -52,6 +56,11 @@ namespace StrategyManager
                         break;
                     case TaskStrategyState.InitialPositioning:
                         //Le jack force le retour à cet état
+                        parentStrategyManager.taskBrasCentral.Init();
+                        parentStrategyManager.taskBrasDroit.Init();
+                        parentStrategyManager.taskBrasGauche.Init();
+                        parentStrategyManager.taskBalade.Init();
+                        this.Init();
                         RefBoxMessage message = new RefBoxMessage();
                         message.command = RefBoxCommand.START;
                         message.targetTeam = "224.16.32.79";
@@ -70,25 +79,39 @@ namespace StrategyManager
                             parentStrategyManager.robotOrientation = 0;
                             //parentStrategyManager.SetDestination(new Location(0, 0, 0, 0, 0, 0));
                         }
-                        state = TaskStrategyState.InitCaptureDistributeur;
+                        state = TaskStrategyState.InitialPositioningEnCours;
                         break;
-
+                    case TaskStrategyState.InitialPositioningEnCours:
+                        if(!Jack)
+                        {
+                            state = TaskStrategyState.Ballade;
+                        }
+                        break;
                     case TaskStrategyState.InitCaptureDistributeur:
-                        parentStrategyManager.taskBrasCentral.StartPrehension();
-                        parentStrategyManager.taskBrasDroit.StartPrehension();
-                        parentStrategyManager.taskBrasGauche.StartPrehension();
-                        parentStrategyManager.robotDestination = new PointD(-0.7, -1.067+0.21);
-                        parentStrategyManager.robotOrientation = -Math.PI/2;
-                        //Thread.Sleep(5000);
-                        parentStrategyManager.robotDestination = new PointD(-0.7+0.075, -1.067 + 0.21);
-                        parentStrategyManager.robotOrientation = -Math.PI / 2;
+                        //parentStrategyManager.taskBrasCentral.StartPrehension();
+                        //parentStrategyManager.taskBrasDroit.StartPrehension();
+                        //parentStrategyManager.taskBrasGauche.StartPrehension();
+                        //parentStrategyManager.robotDestination = new PointD(-0.7, -1.067+0.21);
+                        //parentStrategyManager.robotOrientation = -Math.PI/2;
+                        ////Thread.Sleep(5000);
+                        //parentStrategyManager.robotDestination = new PointD(-0.7+0.075, -1.067 + 0.21);
+                        //parentStrategyManager.robotOrientation = -Math.PI / 2;
                         state = TaskStrategyState.Attente;
                         break;
-
+                    case TaskStrategyState.Ballade:
+                        parentStrategyManager.taskBalade.Start();
+                        state = TaskStrategyState.BalladeEnCours;
+                        break;
+                    case TaskStrategyState.BalladeEnCours:
+                        if(parentStrategyManager.taskBalade.isFinished)
+                        {
+                            state = TaskStrategyState.Ballade;
+                        }
+                        break;
                     default:
                         break;
                 }
-                Thread.Sleep(100);
+                Thread.Sleep(10);
             }
         }
 
@@ -96,14 +119,12 @@ namespace StrategyManager
         public void OnIOValuesFromRobotEvent(object sender, IOValuesEventArgs e)
         {
             bool jackIsPresent = (((e.ioValues >> 0) & 0x01) == 0x00);
+            Jack = jackIsPresent;
             bool config1IsOn = (((e.ioValues >> 1) & 0x01) == 0x01);
             if(jackIsPresent)
             {
-                parentStrategyManager.taskBrasCentral.Init();
-                parentStrategyManager.taskBrasDroit.Init();
-                parentStrategyManager.taskBrasGauche.Init();
-                this.Init();
-                state = TaskStrategyState.InitialPositioning;
+                if(state != TaskStrategyState.InitialPositioningEnCours)
+                    state = TaskStrategyState.InitialPositioning;
 
                 if (config1IsOn)
                 {

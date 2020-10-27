@@ -31,17 +31,34 @@ namespace StrategyManager
 
         public PointD robotDestination = new PointD(0, 0);
         public double robotOrientation = 0;
+        public Location robotCurentLocation = new Location(0,0,0,0,0,0);
         
         //System.Timers.Timer timerStrategy;
 
         public TaskBrasCentral taskBrasCentral;
         public TaskBrasGauche taskBrasGauche;
         public TaskBrasDroit taskBrasDroit;
+        public TaskBalade taskBalade;
         TaskStrategy taskStrategy;
 
         //Thread de stratégie
         Thread TaskStrategyThread;
 
+        public bool isDeplacementFinished
+        {
+            get
+            {
+                if (robotOrientation - robotCurentLocation.Theta < Toolbox.DegToRad(3.0) &&
+                    Toolbox.Distance(new PointD(robotCurentLocation.X, robotCurentLocation.Y), robotDestination) < 0.05)
+                    return true;
+                else
+                    return false;
+            }
+            private set
+            {
+
+            }
+        }
         enum TaskStrategyState
         {
             Init,
@@ -77,6 +94,9 @@ namespace StrategyManager
             taskBrasDroit.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
             taskBrasDroit.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
             OnMotorCurrentReceiveForwardEvent += taskBrasDroit.OnMotorCurrentReceive;
+
+            taskBalade = new TaskBalade(this);
+            OnMotorCurrentReceiveForwardEvent += taskBalade.OnMotorCurrentReceive;
 
             taskStrategy = new TaskStrategy(this);
             OnIOValuesEvent += taskStrategy.OnIOValuesFromRobotEvent;
@@ -132,6 +152,17 @@ namespace StrategyManager
         public virtual void OnPilotageVentouseForwardEvent(object sender, SpeedConsigneToMotorArgs e)
         {
             OnSetSpeedConsigneToMotor?.Invoke(sender, e);
+        }
+
+        public void OnPositionRobotReceived(object sender, LocationArgs location)
+        {
+            robotCurentLocation.X = location.Location.X;
+            robotCurentLocation.Y = location.Location.Y;
+            robotCurentLocation.Theta = location.Location.Theta;
+
+            robotCurentLocation.Vx = location.Location.Vx;
+            robotCurentLocation.Vy = location.Location.Vy;
+            robotCurentLocation.Vtheta = location.Location.Vtheta;
         }
         
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)

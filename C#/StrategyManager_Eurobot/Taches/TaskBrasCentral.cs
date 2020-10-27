@@ -14,6 +14,7 @@ namespace StrategyManager
     {
         Thread TaskThread;
         TaskBrasState state = TaskBrasState.Attente;
+        public bool isFineshed = false;
         enum TaskBrasState
         {
             Init,
@@ -23,7 +24,7 @@ namespace StrategyManager
             PreparationRangementSurSupport,
             StockageSurSupport,
             StockageEnHauteur,
-            Rangement,
+            Depose,
             Finished
         }
 
@@ -63,11 +64,11 @@ namespace StrategyManager
             BrasCentralCoude = 831,
             BrasCentralPoignet = 345,
         }
-        enum TaskBrasPositionsRangement
+        enum TaskBrasPositionsDepose
         {
-            BrasCentralEpaule = 512,
-            BrasCentralCoude = 512,
-            BrasCentralPoignet = 512,
+            BrasCentralEpaule = 467,
+            BrasCentralCoude = 150,
+            BrasCentralPoignet = 478,
         }
 
         public TaskBrasCentral()
@@ -87,11 +88,18 @@ namespace StrategyManager
             state = TaskBrasState.Init;
             OnPilotageVentouse((byte)PilotageVentouse.BrasCentral, 0);
             isSupportCentralFull = false;
+            isFineshed = false;
         }
 
         public void StartPrehension()
         {
             state = TaskBrasState.AttenteGobelet;
+            isFineshed = false;
+        }
+        public void StartDepose()
+        {
+            state = TaskBrasState.Depose;
+            isFineshed = false;
         }
 
         void TaskThreadProcess()
@@ -132,10 +140,12 @@ namespace StrategyManager
                         {
                             if(!isSupportCentralFull)
                             {
-                                state = TaskBrasState.PreparationRangementSurSupport;
+                                //state = TaskBrasState.PreparationRangementSurSupport;
+                                state = TaskBrasState.StockageEnHauteur;
                             }
                             else
                             {
+                                //state = TaskBrasState.StockageEnHauteur;
                                 state = TaskBrasState.StockageEnHauteur;
                             }
                         }
@@ -174,9 +184,17 @@ namespace StrategyManager
                         Thread.Sleep(500);
                         state = TaskBrasState.Finished;
                         break;
-                    case TaskBrasState.Rangement:
+                    case TaskBrasState.Depose:
+                        servoPositionsRequested = new Dictionary<ServoId, int>();
+                        servoPositionsRequested.Add(ServoId.BrasCentralEpaule, (int)TaskBrasPositionsDepose.BrasCentralEpaule);
+                        servoPositionsRequested.Add(ServoId.BrasCentralCoude, (int)TaskBrasPositionsDepose.BrasCentralCoude);
+                        servoPositionsRequested.Add(ServoId.BrasCentralPoignet, (int)TaskBrasPositionsDepose.BrasCentralPoignet);
+                        OnHerkulexPositionRequest(servoPositionsRequested);
+                        Thread.Sleep(500);
+                        state = TaskBrasState.Finished;
                         break;
                     case TaskBrasState.Finished:
+                        isFineshed = true;
                         break;
                     default:
                         break;
