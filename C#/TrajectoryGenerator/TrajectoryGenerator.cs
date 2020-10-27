@@ -103,7 +103,7 @@ namespace TrajectoryGenerator
                 double vtheta = PID_Theta.CalculatePIDoutput(erreurTheta);
 
                 //On regarde si la position du robot est proche de la position du ghost
-                double seuilToleranceEcartGhost = 0.10;
+                double seuilToleranceEcartGhost = 0.20;
                 if (Math.Sqrt(Math.Pow(erreurXRefTerrain, 2) + Math.Pow(erreurYRefTerrain, 2)) < seuilToleranceEcartGhost)
                 {
                     //Si c'est le cas, le robot n'a pas rencontré de problème, on envoie les vitesses consigne.

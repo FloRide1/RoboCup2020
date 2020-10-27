@@ -97,6 +97,7 @@ namespace StrategyManager
 
             taskBalade = new TaskBalade(this);
             OnMotorCurrentReceiveForwardEvent += taskBalade.OnMotorCurrentReceive;
+            taskBalade.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
 
             taskStrategy = new TaskStrategy(this);
             OnIOValuesEvent += taskStrategy.OnIOValuesFromRobotEvent;
@@ -113,6 +114,7 @@ namespace StrategyManager
 
         public void Init()
         {
+            taskStrategy.Init();
             taskBrasCentral.Init();
             taskBrasGauche.Init();
             taskBrasDroit.Init();

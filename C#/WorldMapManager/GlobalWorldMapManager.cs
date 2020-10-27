@@ -249,14 +249,18 @@ namespace WorldMapManager
 
                 lock (localWorldMapDictionary)
                 {
-                    //Fusion des obstacles vus par chacun des robots
-                    foreach (var localMap in localWorldMapDictionary)
+                    try
                     {
-                        foreach (var obstacle in localMap.Value.obstaclesLocationList)
+                        //Fusion des obstacles vus par chacun des robots
+                        foreach (var localMap in localWorldMapDictionary)
                         {
-                            globalWorldMap.obstacleLocationList.Add(obstacle);
+                            foreach (var obstacle in localMap.Value.obstaclesLocationList)
+                            {
+                                globalWorldMap.obstacleLocationList.Add(obstacle);
+                            }
                         }
                     }
+                    catch { }
                 }
             }
             

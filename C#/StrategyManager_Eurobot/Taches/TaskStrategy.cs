@@ -60,7 +60,6 @@ namespace StrategyManager
                         parentStrategyManager.taskBrasDroit.Init();
                         parentStrategyManager.taskBrasGauche.Init();
                         parentStrategyManager.taskBalade.Init();
-                        this.Init();
                         RefBoxMessage message = new RefBoxMessage();
                         message.command = RefBoxCommand.START;
                         message.targetTeam = "224.16.32.79";

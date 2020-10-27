@@ -61,11 +61,13 @@ namespace StrategyManager
                 switch (state)
                 {
                     case TaskBaladeStates.Init:
+                        OnPilotageVentouse(5, 0);
                         state = TaskBaladeStates.Attente;
                         break;
                     case TaskBaladeStates.Attente:
                         break;
                     case TaskBaladeStates.Deplacement1:
+                        OnPilotageVentouse(5, 50);
                         parentManager.robotDestination = new PointD(-1.3, 0);
                         parentManager.robotOrientation = Math.PI;
                         state = TaskBaladeStates.Deplacement1Attente;
@@ -75,6 +77,7 @@ namespace StrategyManager
                             state = TaskBaladeStates.Deplacement2;
                         break;
                     case TaskBaladeStates.Deplacement2:
+                        OnPilotageVentouse(5, 0);
                         parentManager.robotDestination = new PointD(1.3, 0);
                         parentManager.robotOrientation = 0;
                         state = TaskBaladeStates.Deplacement2Attente;
@@ -89,6 +92,11 @@ namespace StrategyManager
                 }
                 Thread.Sleep(10);
             }
+        }
+        public event EventHandler<SpeedConsigneToMotorArgs> OnPilotageVentouseEvent;
+        public virtual void OnPilotageVentouse(byte motorNumber, double vitesse)
+        {
+            OnPilotageVentouseEvent?.Invoke(this, new SpeedConsigneToMotorArgs { MotorNumber = motorNumber, V = vitesse });
         }
         public void OnMotorCurrentReceive(object sender, MotorsCurrentsEventArgs e)
         {
