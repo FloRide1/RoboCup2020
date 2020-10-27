@@ -25,6 +25,10 @@ namespace StrategyManager
             Deplacement1Attente,
             Deplacement2,
             Deplacement2Attente,
+            Deplacement3,
+            Deplacement3Attente,
+            Deplacement4,
+            Deplacement4Attente,
             Finished,
         }
 
@@ -61,15 +65,21 @@ namespace StrategyManager
                 switch (state)
                 {
                     case TaskBaladeStates.Init:
-                        OnPilotageVentouse(5, 0);
                         state = TaskBaladeStates.Attente;
                         break;
                     case TaskBaladeStates.Attente:
                         break;
                     case TaskBaladeStates.Deplacement1:
-                        OnPilotageVentouse(5, 50);
-                        parentManager.robotDestination = new PointD(-1.3, 0);
-                        parentManager.robotOrientation = Math.PI;
+                        if(parentManager.Team == Equipe.Bleue)
+                        {
+                            parentManager.robotDestination = new PointD(0.725, -0.9);
+                            parentManager.robotOrientation = -Math.PI/2;
+                        }
+                        else if(parentManager.Team == Equipe.Jaune)
+                        {
+                            parentManager.robotDestination = new PointD(-0.725, -0.9);
+                            parentManager.robotOrientation = -Math.PI/2;
+                        }
                         state = TaskBaladeStates.Deplacement1Attente;
                         break;
                     case TaskBaladeStates.Deplacement1Attente:
@@ -77,12 +87,45 @@ namespace StrategyManager
                             state = TaskBaladeStates.Deplacement2;
                         break;
                     case TaskBaladeStates.Deplacement2:
-                        OnPilotageVentouse(5, 0);
-                        parentManager.robotDestination = new PointD(1.3, 0);
-                        parentManager.robotOrientation = 0;
+                        if (parentManager.Team == Equipe.Bleue)
+                        {
+                            parentManager.robotDestination = new PointD(0.650, -0.7);
+                            parentManager.robotOrientation = -Math.PI / 2;
+                        }
+                        else if (parentManager.Team == Equipe.Jaune)
+                        {
+                            parentManager.robotDestination = new PointD(-0.650, -0.7);
+                            parentManager.robotOrientation = -Math.PI / 2;
+                        }
                         state = TaskBaladeStates.Deplacement2Attente;
                         break;
                     case TaskBaladeStates.Deplacement2Attente:
+                        if (parentManager.isDeplacementFinished)
+                            state = TaskBaladeStates.Finished;
+                        break;
+                    case TaskBaladeStates.Deplacement3:
+                        if (parentManager.Team == Equipe.Bleue)
+                        {
+                            parentManager.robotDestination = new PointD(0.600, -0.7);
+                            parentManager.robotOrientation = -Math.PI / 2;
+                        }
+                        else if (parentManager.Team == Equipe.Jaune)
+                        {
+                            parentManager.robotDestination = new PointD(-0.600, -0.7);
+                            parentManager.robotOrientation = -Math.PI / 2;
+                        }
+                        state = TaskBaladeStates.Deplacement3Attente;
+                        break;
+                    case TaskBaladeStates.Deplacement3Attente:
+                        if (parentManager.isDeplacementFinished)
+                            state = TaskBaladeStates.Finished;
+                        break;
+                    case TaskBaladeStates.Deplacement4:
+                        parentManager.robotDestination = new PointD(1.3, 0);
+                        parentManager.robotOrientation = 0;
+                        state = TaskBaladeStates.Deplacement4Attente;
+                        break;
+                    case TaskBaladeStates.Deplacement4Attente:
                         if (parentManager.isDeplacementFinished)
                             state = TaskBaladeStates.Finished;
                         break;

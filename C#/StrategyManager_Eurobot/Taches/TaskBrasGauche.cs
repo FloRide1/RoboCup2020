@@ -2,6 +2,7 @@
 using HerkulexManagerNS;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -15,14 +16,21 @@ namespace StrategyManager
         Thread TaskThread;
         TaskBrasState state = TaskBrasState.Attente;
         public bool isFineshed = false;
+        Stopwatch sw = new Stopwatch();
+
         enum TaskBrasState
         {
             Init,
+            InitEnCours,
             Attente,
             PrehensionGobelet,
+            PrehensionGobeletEnCours,
             StockageSurSupport,
+            StockageSurSupportEnCours,
             StockageEnHauteur,
+            StockageEnHauteurEnCours,
             Depose,
+            DeposeEnCours,
             Finished
         }
 
@@ -32,7 +40,7 @@ namespace StrategyManager
         }
         enum TaskBrasPositionsPrehensionGobelet
         {
-            BrasGauche = 538,
+            BrasGauche = 520,
         }
         enum TaskBrasPositionsStockageSurSupport
         {
@@ -44,7 +52,7 @@ namespace StrategyManager
         }
         enum TaskBrasPositionsDepose
         {
-            BrasGauchce = 538,
+            BrasGauche = 538,
         }
 
         public TaskBrasGauche()
@@ -52,31 +60,39 @@ namespace StrategyManager
             TaskThread = new Thread(TaskThreadProcess);
             TaskThread.IsBackground = true;
             TaskThread.Start();
+            sw.Stop();
+            sw.Reset();
         }
 
         Dictionary<ServoId, int> servoPositionsRequested = new Dictionary<ServoId, int>();
-        public bool isSupportGauchceFull { get; private set; } = false;
-        private double ventouseBrasGauchceCurrent = -1;
+        public bool isSupportGaucheFull { get; private set; } = false;
+        private double ventouseBrasGaucheCurrent = -1;
         private bool isRunning = false;
 
         public void Init()
         {
             state = TaskBrasState.Init;
             OnPilotageVentouse((byte)PilotageVentouse.BrasCentral, 0);
-            isSupportGauchceFull = false;
+            isSupportGaucheFull = false;
             isFineshed = false;
+            sw.Stop();
+            sw.Reset();
         }
 
         public void StartPrehension()
         {
             state = TaskBrasState.PrehensionGobelet;
             isFineshed = false;
+            sw.Stop();
+            sw.Reset();
         }
 
         public void StartDepose()
         {
             state = TaskBrasState.Depose;
             isFineshed = false;
+            sw.Stop();
+            sw.Reset();
         }
 
         void TaskThreadProcess()
@@ -99,48 +115,67 @@ namespace StrategyManager
                         OnPilotageVentouse((byte)PilotageVentouse.BrasGauche, 50);
                         servoPositionsRequested.Add(ServoId.BrasGauche, (int)TaskBrasPositionsPrehensionGobelet.BrasGauche);
                         OnHerkulexPositionRequest(servoPositionsRequested);
-                        Thread.Sleep(500);
-                        if (ventouseBrasGauchceCurrent > 1.0)//mesuré 0.6A à vide et 1.35A en charge
+                        state = TaskBrasState.PrehensionGobeletEnCours;
+                        sw.Reset();
+                        sw.Start();
+                        break;
+                    case TaskBrasState.PrehensionGobeletEnCours:
+                        if (sw.ElapsedMilliseconds > 500)
                         {
-                            if (!isSupportGauchceFull)
+                            if (ventouseBrasGaucheCurrent > 0.8)//mesuré 0.6A à vide et 1.35A en charge
                             {
-                                //state = TaskBrasState.StockageSurSupport;
+                                sw.Stop();
+                                sw.Reset();
                                 state = TaskBrasState.StockageEnHauteur;
                             }
                             else
                             {
-                                //state = TaskBrasState.StockageEnHauteur;
-                                state = TaskBrasState.StockageEnHauteur;
+                                sw.Stop();
+                                state = TaskBrasState.PrehensionGobeletEnCours;
                             }
                         }
-                        else
-                        {
-                            state = TaskBrasState.PrehensionGobelet;
-                        }
                         break;
-                    case TaskBrasState.StockageSurSupport:
-                        servoPositionsRequested = new Dictionary<ServoId, int>();
-                        servoPositionsRequested.Add(ServoId.BrasGauche, (int)TaskBrasPositionsStockageSurSupport.BrasGauche);
-                        OnHerkulexPositionRequest(servoPositionsRequested);
-                        Thread.Sleep(500);
-                        OnPilotageVentouse((byte)PilotageVentouse.BrasGauche, 0);
-                        Thread.Sleep(500);
-                        isSupportGauchceFull = true;
-                        state = TaskBrasState.PrehensionGobelet;
-                        break;
+                    //case TaskBrasState.StockageSurSupport:
+                    //    servoPositionsRequested = new Dictionary<ServoId, int>();
+                    //    servoPositionsRequested.Add(ServoId.BrasGauche, (int)TaskBrasPositionsStockageSurSupport.BrasGauche);
+                    //    OnHerkulexPositionRequest(servoPositionsRequested);
+                    //    Thread.Sleep(500);
+                    //    OnPilotageVentouse((byte)PilotageVentouse.BrasGauche, 0);
+                    //    Thread.Sleep(500);
+                    //    isSupportGaucheFull = true;
+                    //    state = TaskBrasState.PrehensionGobelet;
+                    //    break;
                     case TaskBrasState.StockageEnHauteur:
                         servoPositionsRequested = new Dictionary<ServoId, int>();
                         servoPositionsRequested.Add(ServoId.BrasGauche, (int)TaskBrasPositionsStockageEnHauteur.BrasGauche);
                         OnHerkulexPositionRequest(servoPositionsRequested);
-                        Thread.Sleep(500);
-                        state = TaskBrasState.Finished;
+                        state = TaskBrasState.StockageEnHauteurEnCours;
+                        sw.Reset();
+                        sw.Start();
+                        break;
+                    case TaskBrasState.StockageEnHauteurEnCours:
+                        if (sw.ElapsedMilliseconds > 500)
+                        {
+                            sw.Stop();
+                            sw.Reset();
+                            state = TaskBrasState.Finished;
+                        }
                         break;
                     case TaskBrasState.Depose:
                         servoPositionsRequested = new Dictionary<ServoId, int>();
-                        servoPositionsRequested.Add(ServoId.BrasGauche, (int)TaskBrasPositionsStockageEnHauteur.BrasGauche);
+                        servoPositionsRequested.Add(ServoId.BrasGauche, (int)TaskBrasPositionsDepose.BrasGauche);
                         OnHerkulexPositionRequest(servoPositionsRequested);
-                        Thread.Sleep(500);
                         state = TaskBrasState.Finished;
+                        sw.Reset();
+                        sw.Start();
+                        break;
+                    case TaskBrasState.DeposeEnCours:
+                        if (sw.ElapsedMilliseconds > 500)
+                        {
+                            sw.Stop();
+                            sw.Reset();
+                            state = TaskBrasState.Finished;
+                        }
                         break;
                     case TaskBrasState.Finished:
                         isFineshed = true;
@@ -166,7 +201,7 @@ namespace StrategyManager
 
         public void OnMotorCurrentReceive(object sender, MotorsCurrentsEventArgs e)
         {
-            ventouseBrasGauchceCurrent = e.motor5;
+            ventouseBrasGaucheCurrent = e.motor5;
         }
 
         public void OnStartPrehension(object sender, BoolEventArgs e)

@@ -15,6 +15,7 @@ using Constants;
 using System.Threading;
 using static HerkulexManagerNS.HerkulexEventArgs;
 using RefereeBoxAdapter;
+using HerkulexManagerNS;
 
 namespace StrategyManager
 {
@@ -22,6 +23,13 @@ namespace StrategyManager
     {
         int robotId = 0;
         int teamId = 0;
+        public Equipe Team
+        {
+            get
+            {
+                return taskStrategy.playingTeam;
+            }
+        }
         
         GlobalWorldMap globalWorldMap = new GlobalWorldMap();
         Heatmap heatMap;
@@ -39,6 +47,7 @@ namespace StrategyManager
         public TaskBrasGauche taskBrasGauche;
         public TaskBrasDroit taskBrasDroit;
         public TaskBalade taskBalade;
+        public TaskDepose taskDepose;
         TaskStrategy taskStrategy;
 
         //Thread de stratégie
@@ -80,7 +89,7 @@ namespace StrategyManager
             //Initialisation des taches de la stratégie
 
             //Taches de bas niveau
-            taskBrasCentral = new TaskBrasCentral();
+            taskBrasCentral = new TaskBrasCentral(this);
             taskBrasCentral.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
             taskBrasCentral.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
             OnMotorCurrentReceiveForwardEvent += taskBrasCentral.OnMotorCurrentReceive;
@@ -98,6 +107,10 @@ namespace StrategyManager
             taskBalade = new TaskBalade(this);
             OnMotorCurrentReceiveForwardEvent += taskBalade.OnMotorCurrentReceive;
             taskBalade.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+
+            taskDepose = new TaskDepose(this);
+            OnMotorCurrentReceiveForwardEvent += taskDepose.OnMotorCurrentReceive;
+            taskDepose.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
 
             taskStrategy = new TaskStrategy(this);
             OnIOValuesEvent += taskStrategy.OnIOValuesFromRobotEvent;
@@ -139,7 +152,7 @@ namespace StrategyManager
 
         //On fait juste un forward d'event sans le récupérer localement
         public event EventHandler<HerkulexPositionsArgs> OnHerkulexPositionRequestEvent;
-        private void OnHerkulexPositionRequestForwardEvent(object sender, HerkulexManagerNS.HerkulexEventArgs.HerkulexPositionsArgs e)
+        private void OnHerkulexPositionRequestForwardEvent(object sender, HerkulexPositionsArgs e)
         {
             OnHerkulexPositionRequestEvent?.Invoke(sender, e);
         }
@@ -725,6 +738,23 @@ namespace StrategyManager
         public virtual void OnMirrorMode(object sender, BoolEventArgs val)
         {
             OnMirrorModeForwardEvent?.Invoke(sender, val);
+        }
+
+        public Dictionary<ServoId, Servo> HerkulexServos = new Dictionary<ServoId, Servo>();
+        int counterServo = 0;
+        public void OnHerkulexServoInformationReceived(object sender, HerkulexEventArgs.HerkulexServoInformationArgs e)
+        {
+            lock (HerkulexServos)
+            {
+                if (HerkulexServos.ContainsKey(e.Servo.GetID()))
+                {
+                    HerkulexServos[e.Servo.GetID()] = e.Servo;
+                }
+                else
+                {
+                    HerkulexServos.Add(e.Servo.GetID(), e.Servo);
+                }
+            }
         }
     }
 

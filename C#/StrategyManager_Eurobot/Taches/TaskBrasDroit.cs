@@ -2,6 +2,7 @@
 using HerkulexManagerNS;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -15,36 +16,42 @@ namespace StrategyManager
         Thread TaskThread;
         TaskBrasState state = TaskBrasState.Attente;
         public bool isFineshed = false;
+        Stopwatch sw = new Stopwatch();
         enum TaskBrasState
         {
             Init,
+            InitEnCours,
             Attente,         
             PrehensionGobelet,
+            PrehensionGobeletEnCours,
             StockageSurSupport,
+            StockageSurSupportEnCours,
             StockageEnHauteur,
+            StockageEnHauteurEnCours,
             Depose,
+            DeposeEnCours,
             Finished
         }
 
         enum TaskBrasPositionsInit
         {
-            BrasDroit = 234,
+            BrasDroit = 772,
         }
         enum TaskBrasPositionsPrehensionGobelet
         {
-            BrasDroit = 477,
+            BrasDroit = 520,
         }
         enum TaskBrasPositionsStockageSurSupport
         {
-            BrasDroit = 93,
+            BrasDroit = 918,
         }
         enum TaskBrasPositionsStockageEnHauteur
         {
-            BrasDroit = 309,
+            BrasDroit = 697,
         }
         enum TaskBrasPositionsDepose
         {
-            BrasDroit = 477,
+            BrasDroit = 538,
         }
 
         public TaskBrasDroit()
@@ -52,6 +59,8 @@ namespace StrategyManager
             TaskThread = new Thread(TaskThreadProcess);
             TaskThread.IsBackground = true;
             TaskThread.Start();
+            sw.Stop();
+            sw.Reset();
         }
 
 
@@ -66,18 +75,24 @@ namespace StrategyManager
             OnPilotageVentouse((byte)PilotageVentouse.BrasDroit, 0);
             isSupportDroitFull = false;
             isFineshed = false;
+            sw.Stop();
+            sw.Reset();
         }
         
         public void StartPrehension()
         {
             state = TaskBrasState.PrehensionGobelet;
             isFineshed = false;
+            sw.Stop();
+            sw.Reset();
         }
 
         public void StartDepose()
         {
             state = TaskBrasState.Depose;
             isFineshed = false;
+            sw.Stop();
+            sw.Reset();
         }
 
         void TaskThreadProcess()
@@ -100,48 +115,67 @@ namespace StrategyManager
                         OnPilotageVentouse((byte)PilotageVentouse.BrasDroit, 50);
                         servoPositionsRequested.Add(ServoId.BrasDroit, (int)TaskBrasPositionsPrehensionGobelet.BrasDroit);
                         OnHerkulexPositionRequest(servoPositionsRequested);
-                        Thread.Sleep(500);
-                        if(ventouseBrasDroitCurrent > 1.0)//mesuré 0.6A à vide et 1.35A en charge
+                        state = TaskBrasState.PrehensionGobeletEnCours;
+                        sw.Reset();
+                        sw.Start();
+                        break;
+                    case TaskBrasState.PrehensionGobeletEnCours:
+                        if (sw.ElapsedMilliseconds > 500)
                         {
-                            if(!isSupportDroitFull)
+                            if (ventouseBrasDroitCurrent > 1.2)//mesuré 0.6A à vide et 1.35A en charge
                             {
-                                //state = TaskBrasState.StockageSurSupport;
+                                sw.Stop();
+                                sw.Reset();
                                 state = TaskBrasState.StockageEnHauteur;
                             }
                             else
                             {
-                                state = TaskBrasState.StockageEnHauteur;
-                                //state = TaskBrasState.StockageEnHauteur;
+                                sw.Stop();
+                                state = TaskBrasState.PrehensionGobeletEnCours;
                             }
                         }
-                        else
-                        {
-                            state = TaskBrasState.PrehensionGobelet;
-                        }
                         break;
-                    case TaskBrasState.StockageSurSupport:
-                        servoPositionsRequested = new Dictionary<ServoId, int>();
-                        servoPositionsRequested.Add(ServoId.BrasDroit, (int)TaskBrasPositionsStockageSurSupport.BrasDroit);
-                        OnHerkulexPositionRequest(servoPositionsRequested);
-                        Thread.Sleep(500);
-                        OnPilotageVentouse((byte)PilotageVentouse.BrasDroit, 0);
-                        Thread.Sleep(500);
-                        isSupportDroitFull = true;
-                        state = TaskBrasState.PrehensionGobelet;
-                        break;
+                    //case TaskBrasState.StockageSurSupport:
+                    //    servoPositionsRequested = new Dictionary<ServoId, int>();
+                    //    servoPositionsRequested.Add(ServoId.BrasDroit, (int)TaskBrasPositionsStockageSurSupport.BrasDroit);
+                    //    OnHerkulexPositionRequest(servoPositionsRequested);
+                    //    Thread.Sleep(500);
+                    //    OnPilotageVentouse((byte)PilotageVentouse.BrasDroit, 0);
+                    //    Thread.Sleep(500);
+                    //    isSupportDroitFull = true;
+                    //    state = TaskBrasState.PrehensionGobelet;
+                    //    break;
                     case TaskBrasState.StockageEnHauteur:
                         servoPositionsRequested = new Dictionary<ServoId, int>();
                         servoPositionsRequested.Add(ServoId.BrasDroit, (int)TaskBrasPositionsStockageEnHauteur.BrasDroit);
                         OnHerkulexPositionRequest(servoPositionsRequested);
-                        Thread.Sleep(500);
-                        state = TaskBrasState.Finished;
+                        state = TaskBrasState.StockageEnHauteurEnCours;
+                        sw.Reset();
+                        sw.Start();
+                        break;
+                    case TaskBrasState.StockageEnHauteurEnCours:
+                        if(sw.ElapsedMilliseconds > 500)
+                        {
+                            sw.Stop();
+                            sw.Reset();
+                            state = TaskBrasState.Finished;
+                        }
                         break;
                     case TaskBrasState.Depose:
                         servoPositionsRequested = new Dictionary<ServoId, int>();
                         servoPositionsRequested.Add(ServoId.BrasDroit, (int)TaskBrasPositionsDepose.BrasDroit);
                         OnHerkulexPositionRequest(servoPositionsRequested);
-                        Thread.Sleep(500);
                         state = TaskBrasState.Finished;
+                        sw.Reset();
+                        sw.Start();
+                        break;
+                    case TaskBrasState.DeposeEnCours:
+                        if(sw.ElapsedMilliseconds > 500)
+                        {
+                            sw.Stop();
+                            sw.Reset();
+                            state = TaskBrasState.Finished;
+                        }
                         break;
                     case TaskBrasState.Finished:
                         isFineshed = true;

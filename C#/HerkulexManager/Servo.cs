@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utilities;
 
 namespace HerkulexManagerNS
 {
@@ -17,6 +18,18 @@ namespace HerkulexManagerNS
         public byte _playtime;
 
         private byte _SET;
+
+        public bool isDeplacementFinished
+        {
+            get
+            {
+                if(TargetAbsolutePosition - CalibratedPosition < 0.5)//In degree
+                    return true;
+                return false;
+            }
+            set
+            { }
+        }
 
         //values
         public UInt16 AbsolutePosition;
@@ -66,24 +79,9 @@ namespace HerkulexManagerNS
             return TargetAbsolutePosition;
         }
 
-        public void SetPlayTime(byte playTime)
-        {
-            _playtime = playTime;
-        }
-
         public byte GetPlaytime()
         {
             return _playtime;
-        }
-
-        public void SetLedColor(HerkulexDescription.LedColor color)
-        {
-            LEDState = color;
-        }
-
-        public HerkulexDescription.LedColor GetTargetLedColor()
-        {
-            return LEDState;
         }
 
         public ServoId GetID()

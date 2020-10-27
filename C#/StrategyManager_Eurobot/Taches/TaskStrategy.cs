@@ -17,8 +17,8 @@ namespace StrategyManager
         Thread TaskThread;
         TaskStrategyState state = TaskStrategyState.Attente;
         StrategyManager_Eurobot parentStrategyManager;
-        Equipe playingTeam = Equipe.Jaune;
-        bool Jack = false;
+        public Equipe playingTeam = Equipe.Jaune;
+        bool Jack = true;
 
         enum TaskStrategyState
         {
@@ -26,6 +26,7 @@ namespace StrategyManager
             InitialPositioningEnCours,
             Attente,   
             Ballade,
+            InitPrehension,
             BalladeEnCours,
             InitCaptureDistributeur,
             CaptureDistributeur1,
@@ -60,6 +61,7 @@ namespace StrategyManager
                         parentStrategyManager.taskBrasDroit.Init();
                         parentStrategyManager.taskBrasGauche.Init();
                         parentStrategyManager.taskBalade.Init();
+                        parentStrategyManager.taskDepose.Init();
                         RefBoxMessage message = new RefBoxMessage();
                         message.command = RefBoxCommand.START;
                         message.targetTeam = "224.16.32.79";
@@ -83,7 +85,7 @@ namespace StrategyManager
                     case TaskStrategyState.InitialPositioningEnCours:
                         if(!Jack)
                         {
-                            state = TaskStrategyState.Ballade;
+                            state = TaskStrategyState.InitPrehension;
                         }
                         break;
                     case TaskStrategyState.InitCaptureDistributeur:
@@ -97,12 +99,30 @@ namespace StrategyManager
                         //parentStrategyManager.robotOrientation = -Math.PI / 2;
                         state = TaskStrategyState.Attente;
                         break;
+                    case TaskStrategyState.InitPrehension:
+                        parentStrategyManager.taskBrasCentral.StartPrehension();
+                        parentStrategyManager.taskBrasDroit.StartPrehension();
+                        parentStrategyManager.taskBrasGauche.StartPrehension();
+                        state = TaskStrategyState.Ballade;
+                        break;
                     case TaskStrategyState.Ballade:
                         parentStrategyManager.taskBalade.Start();
                         state = TaskStrategyState.BalladeEnCours;
                         break;
                     case TaskStrategyState.BalladeEnCours:
-                        if(parentStrategyManager.taskBalade.isFinished)
+                        if (parentStrategyManager.taskBrasCentral.isFineshed ||
+                            parentStrategyManager.taskBrasGauche.isFineshed ||
+                            parentStrategyManager.taskBrasDroit.isFineshed)
+                        {
+                            parentStrategyManager.taskBalade.Pause();
+                            parentStrategyManager.taskDepose.Start();
+                            if(parentStrategyManager.taskDepose.isFinished)
+                            {
+                                state = TaskStrategyState.InitialPositioning;
+                            }
+                            //Il faut faire une depose !!! et couper la balade
+                        }
+                        else if (parentStrategyManager.taskBalade.isFinished)
                         {
                             state = TaskStrategyState.Ballade;
                         }

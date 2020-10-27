@@ -81,17 +81,5 @@ namespace HerkulexManagerNS
             }
             return errorList;
         }
-
-        private static UInt16 LimitToInterval(ushort min, ushort max, ushort value)
-        {
-            if (value > max)
-                return max;
-
-            else if (value < min)
-                return min;
-
-            return value;
-        }
-
     }
 }

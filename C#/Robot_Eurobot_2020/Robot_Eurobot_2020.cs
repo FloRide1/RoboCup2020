@@ -193,9 +193,9 @@ namespace Robot
                     usingLogReplay = false;
                     break;
             }
-            ConfigSerialPort cfgSerialPort = FileManager.JsonSerialize<ConfigSerialPort>.DeserializeObjectFromFile(@"Configs", "SerialPort");
-            serialPort1 = new ReliableSerialPort(cfgSerialPort.CommName, cfgSerialPort.ComBaudrate, cfgSerialPort.Parity, cfgSerialPort.DataByte, cfgSerialPort.StopByte);
-            //serialPort1 = new ReliableSerialPort("COM4", 115200, Parity.None, 8, StopBits.One);
+            //ConfigSerialPort cfgSerialPort = FileManager.JsonSerialize<ConfigSerialPort>.DeserializeObjectFromFile(@"Configs", "SerialPort");
+            //serialPort1 = new ReliableSerialPort(cfgSerialPort.CommName, cfgSerialPort.ComBaudrate, cfgSerialPort.Parity, cfgSerialPort.DataByte, cfgSerialPort.StopByte);
+            serialPort1 = new ReliableSerialPort("COM4", 115200, Parity.None, 8, StopBits.One);
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
             robotMsgGenerator = new RobotMsgGenerator();
@@ -224,9 +224,7 @@ namespace Robot
             waypointGenerator = new WaypointGenerator(robotId, "Eurobot");
             trajectoryPlanner = new TrajectoryPlanner(robotId);
 
-            herkulexManager = new HerkulexManager("COM3", 115200, Parity.None, 8, StopBits.One);
-            herkulexManager.SetPollingInterval(200);
-            herkulexManager.StartPolling();
+            herkulexManager = new HerkulexManager("COM8", 115200, Parity.None, 8, StopBits.One);
 
             herkulexManager.AddServo(ServoId.BrasCentralEpaule, HerkulexDescription.JOG_MODE.positionControlJOG);
             herkulexManager.AddServo(ServoId.BrasCentralCoude, HerkulexDescription.JOG_MODE.positionControlJOG);
@@ -266,6 +264,7 @@ namespace Robot
             strategyManager.OnHerkulexPositionRequestEvent += herkulexManager.OnHerkulexPositionRequestEvent;
             strategyManager.OnSetSpeedConsigneToMotor += robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
             strategyManager.OnEnableDisableMotorCurrentDataEvent += robotMsgGenerator.GenerateMessageEnableMotorCurrentData;
+            herkulexManager.OnHerkulexServoInformationEvent += strategyManager.OnHerkulexServoInformationReceived;
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
             
             if (usingLidar)
@@ -460,6 +459,7 @@ namespace Robot
             perceptionManager.OnLidarBalisePointListForDebugEvent += interfaceRobot.OnRawLidarBalisePointsReceived;
 
             herkulexManager.OnHerkulexServoInformationEvent += interfaceRobot.OnHerkulexServoInformationReceived;
+            
 
             //On récupère les évènements de type refbox, qui sont ici des tests manuels dans le globalManager pour lancer à la main des actions ou stratégies
             interfaceRobot.OnRefereeBoxCommandEvent += globalWorldMapManager.OnRefereeBoxCommandReceived;
