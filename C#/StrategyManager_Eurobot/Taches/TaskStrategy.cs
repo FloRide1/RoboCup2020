@@ -56,6 +56,8 @@ namespace StrategyManager
                     case TaskStrategyState.Attente:
                         break;
                     case TaskStrategyState.InitialPositioning:
+
+                        parentStrategyManager.OnEnableDisableMotorCurrentData(true);
                         //Le jack force le retour à cet état
                         parentStrategyManager.taskBrasCentral.Init();
                         parentStrategyManager.taskBrasDroit.Init();
@@ -125,7 +127,8 @@ namespace StrategyManager
                         //else if
                         if (parentStrategyManager.taskBalade.isFinished)
                         {
-                            state = TaskStrategyState.Ballade;
+                            state = TaskStrategyState.Attente; //Equal stop
+                            parentStrategyManager.OnEnableDisableMotorCurrentData(false);
                         }
                         break;
                     default:

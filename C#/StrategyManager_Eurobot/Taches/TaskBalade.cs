@@ -29,6 +29,8 @@ namespace StrategyManager
             Deplacement3Attente,
             Deplacement4,
             Deplacement4Attente,
+            Deplacement5,
+            Deplacement5Attente,
             Finished,
         }
 
@@ -89,12 +91,12 @@ namespace StrategyManager
                     case TaskBaladeStates.Deplacement2:
                         if (parentManager.Team == Equipe.Bleue)
                         {
-                            parentManager.robotDestination = new PointD(-1.2, 0.140);
+                            parentManager.robotDestination = new PointD(-0.725, 0.140);
                             parentManager.robotOrientation = 0;
                         }
                         else if (parentManager.Team == Equipe.Jaune)
                         {
-                            parentManager.robotDestination = new PointD(1.2, 0.140);
+                            parentManager.robotDestination = new PointD(0.725, 0.140);
                             parentManager.robotOrientation = Math.PI;
                         }
                         state = TaskBaladeStates.Deplacement2Attente;
@@ -106,12 +108,12 @@ namespace StrategyManager
                     case TaskBaladeStates.Deplacement3:
                         if (parentManager.Team == Equipe.Bleue)
                         {
-                            parentManager.robotDestination = new PointD(-1.2, -0.545);
+                            parentManager.robotDestination = new PointD(-0.725, -0.545);
                             parentManager.robotOrientation = -Math.PI / 2;
                         }
                         else if (parentManager.Team == Equipe.Jaune)
                         {
-                            parentManager.robotDestination = new PointD(1.2, -0.545);
+                            parentManager.robotDestination = new PointD(0.725, -0.545);
                             parentManager.robotOrientation = -Math.PI / 2;
                         }
                         state = TaskBaladeStates.Deplacement3Attente;
@@ -131,9 +133,26 @@ namespace StrategyManager
                             parentManager.robotDestination = new PointD(-1.2, -0.545);
                             parentManager.robotOrientation = 0;
                         }
-                        state = TaskBaladeStates.Deplacement3Attente;
+                        state = TaskBaladeStates.Deplacement4Attente;
                         break;
                     case TaskBaladeStates.Deplacement4Attente:
+                        if (parentManager.isDeplacementFinished)
+                            state = TaskBaladeStates.Deplacement5;
+                        break;
+                    case TaskBaladeStates.Deplacement5:
+                        if (parentManager.Team == Equipe.Bleue)
+                        {
+                            parentManager.robotDestination = new PointD(1.25, -0.2);
+                            parentManager.robotOrientation = Math.PI - Toolbox.DegToRad(45);
+                        }
+                        else if (parentManager.Team == Equipe.Jaune)
+                        {
+                            parentManager.robotDestination = new PointD(-1.25, -0.2);
+                            parentManager.robotOrientation = Toolbox.DegToRad(45);
+                        }
+                        state = TaskBaladeStates.Deplacement5Attente;
+                        break;
+                    case TaskBaladeStates.Deplacement5Attente:
                         if (parentManager.isDeplacementFinished)
                             state = TaskBaladeStates.Finished;
                         break;

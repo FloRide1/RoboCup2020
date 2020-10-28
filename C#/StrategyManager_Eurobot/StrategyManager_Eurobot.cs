@@ -57,8 +57,8 @@ namespace StrategyManager
         {
             get
             {
-                if (robotOrientation - robotCurentLocation.Theta < Toolbox.DegToRad(3.0) &&
-                    Toolbox.Distance(new PointD(robotCurentLocation.X, robotCurentLocation.Y), robotDestination) < 0.05)
+                if (robotOrientation - robotCurentLocation.Theta < Toolbox.DegToRad(5.0) &&
+                    Toolbox.Distance(new PointD(robotCurentLocation.X, robotCurentLocation.Y), robotDestination) < 0.1)
                     return true;
                 else
                     return false;
