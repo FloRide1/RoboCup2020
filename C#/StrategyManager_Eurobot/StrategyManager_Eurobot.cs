@@ -52,6 +52,7 @@ namespace StrategyManager
         public TaskWindFlag taskWindFlag;
         public TaskFinDeMatch taskFinDeMatch;
         public TaskPhare taskPhare;
+        //public TaskDistributeur taskDistributeur;
         TaskStrategy taskStrategy;
 
         //Thread de stratégie
@@ -140,6 +141,11 @@ namespace StrategyManager
             taskPhare.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
             OnMotorCurrentReceiveForwardEvent += taskPhare.OnMotorCurrentReceive;
             taskPhare.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+
+            //taskDistributeur = new TaskDistributeur(this);
+            //taskDistributeur.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
+            //taskDistributeur.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+            //OnMotorCurrentReceiveForwardEvent += taskDistributeur.OnMotorCurrentReceive;
 
             //Thread GameManagementThread = new Thread(ThreadManagementTask);
             //GameManagementThread.IsBackground = true;

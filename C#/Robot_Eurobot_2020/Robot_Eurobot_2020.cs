@@ -224,7 +224,7 @@ namespace Robot
             waypointGenerator = new WaypointGenerator(robotId, "Eurobot");
             trajectoryPlanner = new TrajectoryPlanner(robotId);
 
-            herkulexManager = new HerkulexManager("COM8", 115200, Parity.None, 8, StopBits.One);
+            herkulexManager = new HerkulexManager();
 
             herkulexManager.AddServo(ServoId.BrasCentral, HerkulexDescription.JOG_MODE.positionControlJOG);
             herkulexManager.AddServo(ServoId.BrasDroit, HerkulexDescription.JOG_MODE.positionControlJOG);

@@ -22,7 +22,6 @@ namespace HerkulexManagerNS
 
         //private AutoResetEvent WaitingForAck = new AutoResetEvent(false);
         private ConcurrentDictionary<ServoId, Servo> Servos = new ConcurrentDictionary<ServoId, Servo>();
-        private SerialPort serialPort { get; set; }
         private HerkulexDecoder decoder;
 
         //private System.Timers.Timer pollingTimer = new System.Timers.Timer(100);
@@ -33,12 +32,8 @@ namespace HerkulexManagerNS
 
         #endregion classInst
 
-        public HerkulexManager(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits)
+        public HerkulexManager()
         {
-
-            serialPort = new SerialPort(portName, baudRate, parity, dataBits, stopBits);
-            serialPort.Open();
-
             decoder = new HerkulexDecoder();
             SendingThread = new Thread(SendingThreadProcessing);
             SendingThread.IsBackground = true;
@@ -56,13 +51,13 @@ namespace HerkulexManagerNS
                     {
                         if (message != null)
                         {
-                            if (serialPort.IsOpen)
-                            {
-                                //Ajouter l'event de forward au lieu de l'envoi direct
-                                OnHerkulexSendToSerial(message);
+                            //    if (serialPort.IsOpen)
+                            //    {
+                            //Ajouter l'event de forward au lieu de l'envoi direct
+                            OnHerkulexSendToSerial(message);
                                 //serialPort.Write(message, 0, message.Length);
                                 Thread.Sleep(50);
-                            }
+                            //}
                         }
                     }
                 }
@@ -198,7 +193,7 @@ namespace HerkulexManagerNS
 
             dataToSend[4] = playTime;
 
-            EncodeAndEnqueuePacket(serialPort, id, (byte)HerkulexDescription.CommandSet.I_JOG, dataToSend);
+            EncodeAndEnqueuePacket(id, (byte)HerkulexDescription.CommandSet.I_JOG, dataToSend);
         }
 
         /// <summary>
@@ -227,7 +222,7 @@ namespace HerkulexManagerNS
             else
                 data[2] = (byte)(value);
 
-            EncodeAndEnqueuePacket(serialPort, pID, (byte)HerkulexDescription.CommandSet.RAM_WRITE, data);
+            EncodeAndEnqueuePacket(pID, (byte)HerkulexDescription.CommandSet.RAM_WRITE, data);
         }
 
         private void RAM_WRITE(ServoId pID, HerkulexDescription.RAM_ADDR addr, byte length, UInt16 value)
@@ -238,7 +233,7 @@ namespace HerkulexManagerNS
         private void RAM_READ(ServoId pID, byte startAddr, byte length)
         {
             byte[] data = { (byte)startAddr, length };
-            EncodeAndEnqueuePacket(serialPort, pID, (byte)HerkulexDescription.CommandSet.RAM_READ, data);
+            EncodeAndEnqueuePacket(pID, (byte)HerkulexDescription.CommandSet.RAM_READ, data);
         }
 
         private void RAM_READ(ServoId pID, HerkulexDescription.RAM_ADDR startAddr, byte length)
@@ -246,7 +241,7 @@ namespace HerkulexManagerNS
             RAM_READ(pID, (byte)startAddr, length);
         }
         int k = 0;
-        private void EncodeAndEnqueuePacket(SerialPort port, ServoId pID, byte CMD, byte[] dataToSend)
+        private void EncodeAndEnqueuePacket(ServoId pID, byte CMD, byte[] dataToSend)
         {
             byte packetSize = (byte)(7 + dataToSend.Length);
             byte[] packet = new byte[packetSize];

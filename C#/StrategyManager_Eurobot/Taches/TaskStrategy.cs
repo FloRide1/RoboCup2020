@@ -47,6 +47,8 @@ namespace StrategyManager
             CaptureDistributeur2,
             Phare,
             PhareEnCours,
+            Distributeurs,
+            DistributeursEnCours,
             Finished
         }
         
@@ -63,18 +65,49 @@ namespace StrategyManager
             state = TaskStrategyState.InitialPositioning;
         }
 
+        List<Location> locsPriseBleue = new List<Location>() {
+            new Location(0.575, -1.059, -Math.PI/2, 0, 0, 0),
+            new Location(0.725, -1.059, -Math.PI/2, 0, 0, 0),
+            new Location(1.559, 0.675, 0, 0, 0, 0),
+            new Location(1.559, 0.675, 0, 0, 0, 0),
+        };
+
+        List<Location> locsPoseBleue = new List<Location>() {
+            new Location(1.3, 0.08, Math.PI/2, 0, 0, 0),
+            new Location(1.3, -0.49, Math.PI/2, 0, 0, 0),
+            new Location(0.05, 1.15, 0, 0, 0, 0),
+            new Location(-0.49, 1.15, 0, 0, 0, 0),
+        };
+
+
+        List<Location> locsPriseJaune = new List<Location>() {
+            new Location(0.575, -1.059, -Math.PI/2, 0, 0, 0),
+            new Location(0.725, -1.059, -Math.PI/2, 0, 0, 0),
+            new Location(1.559, 0.675, 0, 0, 0, 0),
+            new Location(1.559, 0.675, 0, 0, 0, 0),
+        };
+
+        List<Location> locsPoseJaunee = new List<Location>() {
+            new Location(-1.3, 0.08, Math.PI/2, 0, 0, 0),
+            new Location(-1.3, -0.49, Math.PI/2, 0, 0, 0),
+            new Location(-0.05, 1.15, Math.PI, 0, 0, 0),
+            new Location(+0.49, 1.15, Math.PI, 0, 0, 0),
+        };
+
+        int indexPrise = 0;
+
         void TaskThreadProcess()
         {
             while(true)
             {
-                if (timeStamp.ElapsedMilliseconds < 99990)
+                if (timeStamp.ElapsedMilliseconds < 99999)
                 {
                     switch (state)
                     {
                         case TaskStrategyState.Attente:
                             break;
                         case TaskStrategyState.InitialPositioning:  //Le positionnement initial est manuel de manière à pouvoir coller deux robots très proches sans mouvement parasite
-                            parentStrategyManager.OnEnableMotors(false);
+                            parentStrategyManager.OnEnableMotors(true);
                             //Le jack force le retour à cet état
                             parentStrategyManager.taskBrasDroit.Init();
                             parentStrategyManager.taskBrasGauche.Init();
@@ -85,6 +118,7 @@ namespace StrategyManager
                             parentStrategyManager.taskBalade.Init();
                             parentStrategyManager.taskDepose.Init();
                             parentStrategyManager.taskFinDeMatch.Init();
+                            //parentStrategyManager.taskDistributeur.Init();
                             RefBoxMessage message = new RefBoxMessage();
                             message.command = RefBoxCommand.STOP;
                             message.targetTeam = "224.16.32.79";
@@ -107,47 +141,7 @@ namespace StrategyManager
                                 StartSw();
                             }
                             break;
-                        case TaskStrategyState.InitCaptureDistributeur:
-                            //parentStrategyManager.taskBrasCentral.StartPrehension();
-                            //parentStrategyManager.taskBrasDroit.StartPrehension();
-                            //parentStrategyManager.taskBrasGauche.StartPrehension();
-                            //parentStrategyManager.robotDestination = new PointD(-0.7, -1.067+0.21);
-                            //parentStrategyManager.robotOrientation = -Math.PI/2;
-                            ////Thread.Sleep(5000);
-                            //parentStrategyManager.robotDestination = new PointD(-0.7+0.075, -1.067 + 0.21);
-                            //parentStrategyManager.robotOrientation = -Math.PI / 2;
-                            state = TaskStrategyState.Attente;
-                            break;
-                        case TaskStrategyState.InitPrehension:
-                            //parentStrategyManager.taskBrasCentral.StartPrehension();
-                            //parentStrategyManager.taskBrasDroit.StartPrehension();
-                            //parentStrategyManager.taskBrasGauche.StartPrehension();
-                            state = TaskStrategyState.Ballade;
-                            break;
-                        case TaskStrategyState.Ballade:
-                            parentStrategyManager.taskBalade.Start();
-                            state = TaskStrategyState.BalladeEnCours;
-                            break;
-                        case TaskStrategyState.BalladeEnCours:
-                            //if (parentStrategyManager.taskBrasCentral.isFineshed ||
-                            //    parentStrategyManager.taskBrasGauche.isFineshed ||
-                            //    parentStrategyManager.taskBrasDroit.isFineshed)
-                            //{
-                            //    parentStrategyManager.taskBalade.Pause();
-                            //    parentStrategyManager.taskDepose.Start();
-                            //    if(parentStrategyManager.taskDepose.isFinished)
-                            //    {
-                            //        state = TaskStrategyState.InitialPositioning;
-                            //    }
-                            //    //Il faut faire une depose !!! et couper la balade
-                            //}
-                            //else if
-                            if (parentStrategyManager.taskBalade.isFinished)
-                            {
-                                state = TaskStrategyState.Attente; //Equal stop
-                                parentStrategyManager.OnEnableDisableMotorCurrentData(false);
-                            }
-                            break;
+                        
                         case TaskStrategyState.PushFlags:
                             parentStrategyManager.taskWindFlag.Start();
                             state = TaskStrategyState.PushFlagsEnCours;
@@ -155,7 +149,7 @@ namespace StrategyManager
                         case TaskStrategyState.PushFlagsEnCours:
                             if(parentStrategyManager.taskWindFlag.isFinished)
                             {
-                                state = TaskStrategyState.Attente;
+                                state = TaskStrategyState.Distributeurs;
                             }
                             break;
                         case TaskStrategyState.Phare:
@@ -168,7 +162,29 @@ namespace StrategyManager
                                 state = TaskStrategyState.PushFlags;
                             }
                             break;
+                        //case TaskStrategyState.Distributeurs:
+                        //    if (parentStrategyManager.Team == Equipe.Jaune)
+                        //    {
+                        //        if (indexPrise < locsPoseJaunee.Count && indexPrise < locsPriseJaune.Count)
+                        //        {
+                        //            parentStrategyManager.taskDistributeur.Start(locsPoseJaunee[indexPrise], locsPriseJaune[indexPrise]);
+                        //            indexPrise++;
+                        //            state = TaskStrategyState.DistributeursEnCours;
+                        //        }
+                        //        else
+                        //        {
+                        //            state = TaskStrategyState.Attente;
+                        //        }
+                        //    }
+                        //    break;
+                        //case TaskStrategyState.DistributeursEnCours:
+                        //    if (parentStrategyManager.taskDistributeur.isFinished)
+                        //    {
+                        //        state = TaskStrategyState.Distributeurs;
+                        //    }
+                        //    break;
                         default:
+                            state = TaskStrategyState.Attente;
                             break;
                     }
                 }
@@ -196,7 +212,8 @@ namespace StrategyManager
             bool config1IsOn = (((e.ioValues >> 1) & 0x01) == 0x01);
             if(jackIsPresent)
             {
-                if(state != TaskStrategyState.InitialPositioningEnCours)
+                timeStamp.Restart();
+                if (state != TaskStrategyState.InitialPositioningEnCours)
                     state = TaskStrategyState.InitialPositioning;
 
                 if (config1IsOn)
