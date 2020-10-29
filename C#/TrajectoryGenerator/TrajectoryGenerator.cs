@@ -36,9 +36,9 @@ namespace TrajectoryGenerator
         AsservissementPID PID_Theta;
         void InitPositionPID()
         {
-            PID_X = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5, 5, 1);
-            PID_Y = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5, 5, 1);
-            PID_Theta = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5*Math.PI, 5*Math.PI, Math.PI); //Validé VG : 20 20 0 2PI 2PI 0..5
+            PID_X = new AsservissementPID(FreqEch, 60.0, 10.0, 0, 5, 5, 5);// double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity);
+            PID_Y = new AsservissementPID(FreqEch, 60.0, 10.0, 0, 5, 5, 5);//, double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity);
+            PID_Theta = new AsservissementPID(FreqEch, 20.0, 10.0,  0, 2, 2, 2); //0, double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity);//5 * Math.PI, 5*Math.PI, Math.PI); //Validé VG : 20 20 0 2PI 2PI 0..5
         }
 
         public TrajectoryPlanner(int id)
@@ -58,6 +58,7 @@ namespace TrajectoryGenerator
                 OnCollision(robotId, currentLocation);
             else if (Toolbox.Distance(new PointD(old_currectLocation.X, old_currectLocation.Y), new PointD(currentLocation.X, currentLocation.Y)) > 0.5)
                 OnCollision(robotId, currentLocation);
+            PIDPositionReset();
         }
         
         //Input Events
@@ -81,6 +82,16 @@ namespace TrajectoryGenerator
             if (e.RobotId == robotId)
             {
                 currentGameState = e.gameState;
+            }
+        }
+
+        void PIDPositionReset()
+        {
+            if (PID_X != null && PID_Y != null && PID_Theta != null)
+            {
+                PID_X.ResetPID(0);
+                PID_Y.ResetPID(0);
+                PID_Theta.ResetPID(0);
             }
         }
 
@@ -115,7 +126,7 @@ namespace TrajectoryGenerator
                     OnCollision(robotId, currentLocation);
                     OnSpeedConsigneToRobot(robotId, 0, 0, 0);
                     ghostLocation = currentLocation;
-                    InitPositionPID();
+                    PIDPositionReset();
                 }
             }
         }

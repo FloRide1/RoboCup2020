@@ -73,25 +73,25 @@ namespace StrategyManager
         };
 
         List<Location> locsPoseBleue = new List<Location>() {
-            new Location(1.3, 0.08, Math.PI/2, 0, 0, 0),
-            new Location(1.3, -0.49, Math.PI/2, 0, 0, 0),
-            new Location(0.05, 1.15, 0, 0, 0, 0),
-            new Location(-0.49, 1.15, 0, 0, 0, 0),
+            new Location(1.3, 0.08, 0, 0, 0, 0),
+            new Location(1.3, -0.49, 0, 0, 0, 0),
+            new Location(1.15, 0.05, 0, 0, 0, 0),
+            new Location(1.15, -0.49, 0, 0, 0, 0),
         };
 
 
         List<Location> locsPriseJaune = new List<Location>() {
-            new Location(0.575, -1.059, -Math.PI/2, 0, 0, 0),
-            new Location(0.725, -1.059, -Math.PI/2, 0, 0, 0),
-            new Location(1.559, 0.675, 0, 0, 0, 0),
-            new Location(1.559, 0.675, 0, 0, 0, 0),
+            new Location(-0.575, -1.059, -Math.PI/2, 0, 0, 0),
+            new Location(-0.725, -1.059, -Math.PI/2, 0, 0, 0),
+            new Location(-1.559, 0.675, Math.PI, 0, 0, 0),
+            new Location(-1.559, 0.525, Math.PI, 0, 0, 0),
         };
 
-        List<Location> locsPoseJaunee = new List<Location>() {
-            new Location(-1.3, 0.08, Math.PI/2, 0, 0, 0),
-            new Location(-1.3, -0.49, Math.PI/2, 0, 0, 0),
-            new Location(-0.05, 1.15, Math.PI, 0, 0, 0),
-            new Location(+0.49, 1.15, Math.PI, 0, 0, 0),
+        List<Location> locsPoseJaune = new List<Location>() {
+            new Location(-1.3, 0.08, Math.PI, 0, 0, 0),
+            new Location(-1.3, -0.49, Math.PI, 0, 0, 0),
+            new Location(-1.15, -0.05, Math.PI, 0, 0, 0),
+            new Location(-1.15, 0.49, Math.PI, 0, 0, 0),
         };
 
         int indexPrise = 0;
@@ -107,28 +107,29 @@ namespace StrategyManager
                         case TaskStrategyState.Attente:
                             break;
                         case TaskStrategyState.InitialPositioning:  //Le positionnement initial est manuel de manière à pouvoir coller deux robots très proches sans mouvement parasite
-                            parentStrategyManager.OnEnableMotors(true);
+                            parentStrategyManager.OnEnableMotors(false);
                             //Le jack force le retour à cet état
-                            parentStrategyManager.taskBrasDroit.Init();
-                            parentStrategyManager.taskBrasGauche.Init();
-                            parentStrategyManager.taskBrasCentre.Init();
-                            parentStrategyManager.taskBrasDrapeau.Init();
-                            parentStrategyManager.taskPhare.Init();
-                            parentStrategyManager.taskWindFlag.Init();
-                            parentStrategyManager.taskBalade.Init();
-                            parentStrategyManager.taskDepose.Init();
-                            parentStrategyManager.taskFinDeMatch.Init();
                             //parentStrategyManager.taskDistributeur.Init();
                             RefBoxMessage message = new RefBoxMessage();
                             message.command = RefBoxCommand.STOP;
                             message.targetTeam = "224.16.32.79";
                             message.robotID = 0;
                             parentStrategyManager.OnRefereeBoxReceivedCommand(message);
+                            indexPrise = 0;
                             state = TaskStrategyState.InitialPositioningEnCours;
                             break;
                         case TaskStrategyState.InitialPositioningEnCours:
                             if (!Jack)
                             {
+                                parentStrategyManager.taskBrasDroit.Init();
+                                parentStrategyManager.taskBrasGauche.Init();
+                                parentStrategyManager.taskBrasCentre.Init();
+                                parentStrategyManager.taskBrasDrapeau.Init();
+                                parentStrategyManager.taskPhare.Init();
+                                parentStrategyManager.taskWindFlag.Init();
+                                parentStrategyManager.taskBalade.Init();
+                                parentStrategyManager.taskDepose.Init();
+                                parentStrategyManager.taskFinDeMatch.Init();
                                 parentStrategyManager.OnEnableMotors(true);
                                 message = new RefBoxMessage();
                                 message.command = RefBoxCommand.START;
@@ -136,7 +137,7 @@ namespace StrategyManager
                                 message.robotID = 0;
                                 parentStrategyManager.OnRefereeBoxReceivedCommand(message); 
                                 parentStrategyManager.OnCollision(parentStrategyManager.robotId, parentStrategyManager.robotCurentLocation); //On génère artificellement une collision pour resetter Kalman et le reste autour de la position courante.
-                                state = TaskStrategyState.Attente;
+                                state = TaskStrategyState.Phare;
                                 StartSw();
                             }
                             break;
@@ -161,29 +162,42 @@ namespace StrategyManager
                                 state = TaskStrategyState.PushFlags;
                             }
                             break;
-                        //case TaskStrategyState.Distributeurs:
-                        //    if (parentStrategyManager.Team == Equipe.Jaune)
-                        //    {
-                        //        if (indexPrise < locsPoseJaunee.Count && indexPrise < locsPriseJaune.Count)
-                        //        {
-                        //            parentStrategyManager.taskDistributeur.Start(locsPoseJaunee[indexPrise], locsPriseJaune[indexPrise]);
-                        //            indexPrise++;
-                        //            state = TaskStrategyState.DistributeursEnCours;
-                        //        }
-                        //        else
-                        //        {
-                        //            state = TaskStrategyState.Attente;
-                        //        }
-                        //    }
-                        //    break;
-                        //case TaskStrategyState.DistributeursEnCours:
-                        //    if (parentStrategyManager.taskDistributeur.isFinished)
-                        //    {
-                        //        state = TaskStrategyState.Distributeurs;
-                        //    }
-                        //    break;
+                        case TaskStrategyState.Distributeurs:
+                            if (parentStrategyManager.Team == Equipe.Jaune)
+                            {
+                                if (indexPrise < locsPoseJaune.Count && indexPrise < locsPriseJaune.Count)
+                                {
+                                    parentStrategyManager.taskDistributeur.Start(locsPriseJaune[indexPrise], locsPoseJaune[indexPrise]);
+                                    indexPrise++;
+                                    state = TaskStrategyState.DistributeursEnCours;
+                                }
+                                else
+                                {
+                                    state = TaskStrategyState.Attente;
+                                }
+                            }
+                            else if (parentStrategyManager.Team == Equipe.Bleue)
+                            {
+                                if (indexPrise < locsPoseBleue.Count && indexPrise < locsPriseBleue.Count)
+                                {
+                                    parentStrategyManager.taskDistributeur.Start(locsPriseBleue[indexPrise], locsPoseBleue[indexPrise]);
+                                    indexPrise++;
+                                    state = TaskStrategyState.DistributeursEnCours;
+                                }
+                                else
+                                {
+                                    state = TaskStrategyState.InitialPositioningEnCours;
+                                }
+                            }
+                            break;
+                        case TaskStrategyState.DistributeursEnCours:
+                            if (parentStrategyManager.taskDistributeur.isFinished)
+                            {
+                                state = TaskStrategyState.Distributeurs;
+                            }
+                            break;
                         default:
-                            state = TaskStrategyState.Attente;
+                            state = TaskStrategyState.Phare;
                             break;
                     }
                 }

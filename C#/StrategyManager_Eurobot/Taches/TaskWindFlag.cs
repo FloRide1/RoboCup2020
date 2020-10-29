@@ -107,19 +107,23 @@ namespace StrategyManager
                     case TaskWindFlagStates.DeplacementToFlag:
                         if(parentManager.Team == Equipe.Bleue)
                         {
-                            parentManager.robotDestination = new PointD(1.3, 0.85);
+                            parentManager.robotDestination = new PointD(1.4, 0.90);
                             parentManager.robotOrientation = Math.PI/2;
                         }
                         else if(parentManager.Team == Equipe.Jaune)
                         {
-                            parentManager.robotDestination = new PointD(-1.3, 0.85);
+                            parentManager.robotDestination = new PointD(-1.4, 0.90);
                             parentManager.robotOrientation = Math.PI/2;
                         }
                         state = TaskWindFlagStates.DeplacementToFlagAttente;
+                        StartSw();
                         break;
                     case TaskWindFlagStates.DeplacementToFlagAttente:
-                        if (parentManager.isDeplacementFinished)
+                        if (parentManager.isDeplacementFinished || sw.ElapsedMilliseconds > 5000)
+                        {
                             state = TaskWindFlagStates.PrepareServo;
+                            StopSw();
+                        }
                         break;
                     /**********************Préparation des servos**************************************/
                     case TaskWindFlagStates.PrepareServo:
@@ -147,19 +151,23 @@ namespace StrategyManager
                     case TaskWindFlagStates.PushFirstFlag:
                         if (parentManager.Team == Equipe.Bleue)
                         {
-                            parentManager.robotDestination = new PointD(1.1, 0.85);
+                            parentManager.robotDestination = new PointD(1.1, 0.90);
                             parentManager.robotOrientation = Math.PI / 2;
                         }
                         else if (parentManager.Team == Equipe.Jaune)
                         {
-                            parentManager.robotDestination = new PointD(-1.1, 0.85);
+                            parentManager.robotDestination = new PointD(-1.1, 0.90);
                             parentManager.robotOrientation = Math.PI / 2;
                         }
                         state = TaskWindFlagStates.PushFirstFlagAttente;
+                        StartSw();
                         break;
                     case TaskWindFlagStates.PushFirstFlagAttente:
-                        if (parentManager.isDeplacementFinished)
+                        if (parentManager.isDeplacementFinished || sw.ElapsedMilliseconds > 5000)
+                        {
                             state = TaskWindFlagStates.PrepareServo2;
+                            StopSw();
+                        }
                         break;
                     /**********************Preparation des servo 2 eme flag**************************************/
                     case TaskWindFlagStates.PrepareServo2:
@@ -189,19 +197,23 @@ namespace StrategyManager
                     case TaskWindFlagStates.PushSecondFlag:
                         if (parentManager.Team == Equipe.Bleue)
                         {
-                            parentManager.robotDestination = new PointD(0.8, 0.85);
+                            parentManager.robotDestination = new PointD(0.8, 0.90);
                             parentManager.robotOrientation = Math.PI / 2;
                         }
                         else if (parentManager.Team == Equipe.Jaune)
                         {
-                            parentManager.robotDestination = new PointD(-0.8, 0.85);
+                            parentManager.robotDestination = new PointD(-0.8, 0.90);
                             parentManager.robotOrientation = Math.PI / 2;
                         }
                         state = TaskWindFlagStates.PushSecondFlagAttente;
+                        StartSw();
                         break;
                     case TaskWindFlagStates.PushSecondFlagAttente:
-                        if (parentManager.isDeplacementFinished)
+                        if (parentManager.isDeplacementFinished || sw.ElapsedMilliseconds > 5000)
+                        {
                             state = TaskWindFlagStates.ReplyServo;
+                            StopSw();
+                        }
                         break;
                     /**********************Reply servos**************************************/
                     case TaskWindFlagStates.ReplyServo:

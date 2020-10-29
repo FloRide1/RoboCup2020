@@ -168,11 +168,12 @@ namespace PerceptionManagement
                         }
                     }
 
+                    double borderAvoidanceZone = 0.05;
                     //On rajoute les bordures du terrain à la main :
-                    physicalObjectList.Add(new LocationExtended(0, -1+0.16, 0, 0, 0, 0, ObjectType.LimiteHorizontaleBasse));
-                    physicalObjectList.Add(new LocationExtended(0, 1-0.16, 0, 0, 0, 0, ObjectType.LimiteHorizontaleHaute));
-                    physicalObjectList.Add(new LocationExtended(-1.5+0.16, 0, 0, 0, 0, 0, ObjectType.LimiteVerticaleGauche));
-                    physicalObjectList.Add(new LocationExtended(1.5-0.16, 0, 0, 0, 0, 0, ObjectType.LimiteVerticaleDroite));
+                    physicalObjectList.Add(new LocationExtended(0, -1+ borderAvoidanceZone, 0, 0, 0, 0, ObjectType.LimiteHorizontaleBasse));
+                    physicalObjectList.Add(new LocationExtended(0, 1- borderAvoidanceZone, 0, 0, 0, 0, ObjectType.LimiteHorizontaleHaute));
+                    physicalObjectList.Add(new LocationExtended(-1.5+ borderAvoidanceZone, 0, 0, 0, 0, 0, ObjectType.LimiteVerticaleGauche));
+                    physicalObjectList.Add(new LocationExtended(1.5- borderAvoidanceZone, 0, 0, 0, 0, 0, ObjectType.LimiteVerticaleDroite));
 
                     if (playingTeam == Equipe.Jaune)
                     {

@@ -87,7 +87,7 @@ namespace Constants
         OdometryData = 431,             //0x01AF
         GetParameter = 432,
         SetParameter = 433,
-        SetMotorSpeedConsigne = 430,    //0x01AE
+        SetMotorSpeedConsigne = 0x01AE,    //0x01AE
         EnablePowerMonitoring = 431,    //0x01B1
         EnableIOPolling= 432,           //0x01B2
         EnableDisableMotors = 435,      //0x01B3
