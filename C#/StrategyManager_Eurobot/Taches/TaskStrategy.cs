@@ -130,14 +130,13 @@ namespace StrategyManager
                             if (!Jack)
                             {
                                 parentStrategyManager.OnEnableMotors(true);
-                                state = TaskStrategyState.Phare;
                                 message = new RefBoxMessage();
                                 message.command = RefBoxCommand.START;
                                 message.targetTeam = "224.16.32.79";
                                 message.robotID = 0;
                                 parentStrategyManager.OnRefereeBoxReceivedCommand(message); 
                                 parentStrategyManager.OnCollision(parentStrategyManager.robotId, parentStrategyManager.robotCurentLocation); //On génère artificellement une collision pour resetter Kalman et le reste autour de la position courante.
-
+                                state = TaskStrategyState.Attente;
                                 StartSw();
                             }
                             break;
@@ -232,7 +231,20 @@ namespace StrategyManager
             {
                 ;
             }
+            if (config1IsOn)
+            {
+                playingTeam = Equipe.Jaune;
+                OnMirrorMode(false);
+            }
+            else
+            {
+                playingTeam = Equipe.Bleue;
+                //On transmet au Perception Manager le fait que l'on soit en mode miroir
+                OnMirrorMode(true);
+            }
+
             bool config2 = (((e.ioValues >> 2) & 0x01) == 0x01);
+
             bool config3 = (((e.ioValues >> 3) & 0x01) == 0x01);
             bool config4 = (((e.ioValues >> 4) & 0x01) == 0x01);
         }

@@ -231,7 +231,7 @@ namespace LidarProcessor
 
             //Détection des objets ayant un RSSI dans un intervalle correspondant aux catadioptres utilisés et proches
             //double maxRssiCatadioptre = 90;
-            double minRssiCatadioptre = 60;
+            double minRssiCatadioptre = 50;
             var selectedPoints = ptList.Where(p => (p.Rssi >= minRssiCatadioptre) && (p.Distance < distanceMax));
             List<PolarPointRssi> balisesPointsList = (List<PolarPointRssi>)selectedPoints.ToList();
 

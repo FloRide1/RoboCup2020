@@ -55,8 +55,8 @@ namespace HerkulexManagerNS
                             //    {
                             //Ajouter l'event de forward au lieu de l'envoi direct
                             OnHerkulexSendToSerial(message);
-                                //serialPort.Write(message, 0, message.Length);
-                                Thread.Sleep(50);
+                            //serialPort.Write(message, 0, message.Length);
+                            Thread.Sleep(50);
                             //}
                         }
                     }
@@ -64,7 +64,7 @@ namespace HerkulexManagerNS
                 Thread.Sleep(10);
             }
         }
-        
+
         #region userMethods
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace HerkulexManagerNS
 
         public void OnHerkulexPositionRequestEvent(object sender, HerkulexEventArgs.HerkulexPositionsArgs e)
         {
-            foreach(var positionCommand in e.servoPositions)
+            foreach (var positionCommand in e.servoPositions)
             {
                 SetPosition((ServoId)positionCommand.Key, (UInt16)positionCommand.Value, 5); //TODO : fgaut pas déconner non plus !
             }
@@ -182,7 +182,7 @@ namespace HerkulexManagerNS
         {
             //On clear une éventuelle erreur
             RecoverErrors(id);
-            if(Servos.ContainsKey(id))
+            if (Servos.ContainsKey(id))
                 Servos[id].SetAbsolutePosition(targetPosition);
 
             byte[] dataToSend = new byte[5];
