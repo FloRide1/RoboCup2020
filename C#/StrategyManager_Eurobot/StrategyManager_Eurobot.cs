@@ -43,11 +43,13 @@ namespace StrategyManager
         
         //System.Timers.Timer timerStrategy;
 
-        public TaskBrasCentral taskBrasCentral;
         public TaskBrasGauche taskBrasGauche;
         public TaskBrasDroit taskBrasDroit;
         public TaskBalade taskBalade;
         public TaskDepose taskDepose;
+        public TaskWindFlag taskWindFlag;
+        public TaskFinDeMatch taskFinDeMatch;
+        public TaskPhare taskPhare;
         TaskStrategy taskStrategy;
 
         //Thread de stratégie
@@ -58,7 +60,7 @@ namespace StrategyManager
             get
             {
                 if (robotOrientation - robotCurentLocation.Theta < Toolbox.DegToRad(5.0) &&
-                    Toolbox.Distance(new PointD(robotCurentLocation.X, robotCurentLocation.Y), robotDestination) < 0.1)
+                    Toolbox.Distance(new PointD(robotCurentLocation.X, robotCurentLocation.Y), robotDestination) < 0.05)
                     return true;
                 else
                     return false;
@@ -89,10 +91,6 @@ namespace StrategyManager
             //Initialisation des taches de la stratégie
 
             //Taches de bas niveau
-            taskBrasCentral = new TaskBrasCentral(this);
-            taskBrasCentral.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
-            taskBrasCentral.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
-            OnMotorCurrentReceiveForwardEvent += taskBrasCentral.OnMotorCurrentReceive;
 
             taskBrasGauche = new TaskBrasGauche();
             taskBrasGauche.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
@@ -112,12 +110,24 @@ namespace StrategyManager
             OnMotorCurrentReceiveForwardEvent += taskDepose.OnMotorCurrentReceive;
             taskDepose.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
 
-            taskStrategy = new TaskStrategy(this);
+            taskWindFlag = new TaskWindFlag(this);
+            taskWindFlag.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
+            OnMotorCurrentReceiveForwardEvent += taskWindFlag.OnMotorCurrentReceive;
+            taskWindFlag.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+
+            taskStrategy = new TaskStrategy(this);            
             OnIOValuesEvent += taskStrategy.OnIOValuesFromRobotEvent;
             taskStrategy.OnMirrorModeEvent += OnMirrorMode;
 
+            taskFinDeMatch = new TaskFinDeMatch(this);
+            taskFinDeMatch.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
+            OnMotorCurrentReceiveForwardEvent += taskFinDeMatch.OnMotorCurrentReceive;
+            taskFinDeMatch.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
 
-
+            taskPhare = new TaskPhare(this);
+            taskPhare.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
+            OnMotorCurrentReceiveForwardEvent += taskPhare.OnMotorCurrentReceive;
+            taskPhare.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
 
             //Thread GameManagementThread = new Thread(ThreadManagementTask);
             //GameManagementThread.IsBackground = true;
@@ -128,9 +138,10 @@ namespace StrategyManager
         public void Init()
         {
             taskStrategy.Init();
-            taskBrasCentral.Init();
             taskBrasGauche.Init();
             taskBrasDroit.Init();
+            taskWindFlag.Init();
+            taskFinDeMatch.Init();
             OnEnableDisableMotorCurrentData(true);
         }
 
@@ -732,6 +743,12 @@ namespace StrategyManager
         public virtual void OnEnableAsservissement(bool val)
         {
             OnEnableAsservissementEvent?.Invoke(this, new BoolEventArgs { value = val });
+        }
+
+        public event EventHandler<BoolEventArgs> OnEnableMotorsEvent;
+        public virtual void OnEnableMotors(bool val)
+        {
+            OnEnableMotorsEvent?.Invoke(this, new BoolEventArgs { value = val });
         }
 
         public event EventHandler<BoolEventArgs> OnMirrorModeForwardEvent;

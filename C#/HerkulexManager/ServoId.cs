@@ -8,9 +8,7 @@ namespace HerkulexManagerNS
 {
     public enum ServoId
     {
-        BrasCentralEpaule = 103,
-        BrasCentralCoude = 102,
-        BrasCentralPoignet = 101,
+        BrasCentral = 101,
         BrasGauche = 105,
         BrasDroit = 104,
         PorteDrapeau = 106,

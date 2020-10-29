@@ -226,9 +226,7 @@ namespace Robot
 
             herkulexManager = new HerkulexManager("COM8", 115200, Parity.None, 8, StopBits.One);
 
-            herkulexManager.AddServo(ServoId.BrasCentralEpaule, HerkulexDescription.JOG_MODE.positionControlJOG);
-            herkulexManager.AddServo(ServoId.BrasCentralCoude, HerkulexDescription.JOG_MODE.positionControlJOG);
-            herkulexManager.AddServo(ServoId.BrasCentralPoignet, HerkulexDescription.JOG_MODE.positionControlJOG);
+            herkulexManager.AddServo(ServoId.BrasCentral, HerkulexDescription.JOG_MODE.positionControlJOG);
             herkulexManager.AddServo(ServoId.BrasDroit, HerkulexDescription.JOG_MODE.positionControlJOG);
             herkulexManager.AddServo(ServoId.BrasGauche, HerkulexDescription.JOG_MODE.positionControlJOG);
             herkulexManager.AddServo(ServoId.PorteDrapeau, HerkulexDescription.JOG_MODE.positionControlJOG);
@@ -311,6 +309,7 @@ namespace Robot
             strategyManager.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
             strategyManager.OnMirrorModeForwardEvent += perceptionManager.OnMirrorModeReceived;
             robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += strategyManager.OnMotorCurrentReceive;
+            strategyManager.OnEnableMotorsEvent += robotMsgGenerator.GenerateMessageEnableDisableMotors;
             waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapWaypointReceived;
 
             //Transfert de la local map vers la global world map via UPD en mode Multicast : 
