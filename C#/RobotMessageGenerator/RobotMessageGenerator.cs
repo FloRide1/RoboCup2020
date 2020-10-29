@@ -2,6 +2,8 @@
 using EventArgsLibrary;
 using Utilities;
 using Constants;
+using System.Linq;
+using HerkulexManagerNS;
 
 namespace RobotMessageGenerator
 {
@@ -70,8 +72,13 @@ namespace RobotMessageGenerator
         public void GenerateMessageEnableDisableMotors(object sender, BoolEventArgs e)
         {
             byte[] payload = new byte[1];
-            payload[0] =Convert.ToByte(e.value);
+            payload[0] = Convert.ToByte(e.value);
             OnMessageToRobot((Int16)Commands.EnableDisableMotors, 1, payload);
+        }
+
+        public void GenerateMessageForwardHerkulex(object sender, DataReceivedArgs e)
+        {
+            OnMessageToRobot((Int16)Commands.ForwardHerkulex, (short)e.Data.Length, e.Data);
         }
 
         public void GenerateMessageEnableDisableTir(object sender, BoolEventArgs e)

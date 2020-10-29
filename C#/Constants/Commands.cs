@@ -98,7 +98,8 @@ namespace Constants
         EnableEncoderRawData=440,       //0x01B8
         EnablePositionData=441,         //0x01B9
         EnableMotorSpeedConsigne=442,   //0x01BA
-        EnablePIDDebugData=443,         //0x01BB
+        EnablePIDDebugData = 443,         //0x01BB
+        ForwardHerkulex = 0x3333,        
         GetCamera = 443,
         TirCommand = 444,
         MoveTirUp = 445,

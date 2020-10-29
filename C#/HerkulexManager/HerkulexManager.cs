@@ -58,7 +58,9 @@ namespace HerkulexManagerNS
                         {
                             if (serialPort.IsOpen)
                             {
-                                serialPort.Write(message, 0, message.Length);
+                                //Ajouter l'event de forward au lieu de l'envoi direct
+                                OnHerkulexSendToSerial(message);
+                                //serialPort.Write(message, 0, message.Length);
                                 Thread.Sleep(50);
                             }
                         }
@@ -130,6 +132,15 @@ namespace HerkulexManagerNS
             }
         }
 
+        //On envoie la trame serie vers le manager de port série
+        public event EventHandler<DataReceivedArgs> OnHerkulexSendToSerialEvent;
+        public void OnHerkulexSendToSerial(byte[] data)
+        {
+            DataReceivedArgs arg = new DataReceivedArgs();
+            arg.Data = data;
+            OnHerkulexSendToSerialEvent?.Invoke(this, arg);
+        }
+
         public event EventHandler<HerkulexServoInformationArgs> OnHerkulexServoInformationEvent;
         public event EventHandler<HerkulexErrorArgs> HerkulexErrorEvent;
 
@@ -149,14 +160,10 @@ namespace HerkulexManagerNS
         /// <param name="servo"></param>
         public virtual void OnHerkulexServoInformation(Servo servo)
         {
-            var handler = OnHerkulexServoInformationEvent;
-            if (handler != null)
+            OnHerkulexServoInformationEvent?.Invoke(this, new HerkulexServoInformationArgs
             {
-                handler(this, new HerkulexServoInformationArgs
-                {
-                    Servo = servo
-                });
-            }
+                Servo = servo
+            });
         }
 
         /// <summary>
@@ -166,14 +173,10 @@ namespace HerkulexManagerNS
         public virtual void OnHerkulexError(Servo servo)
         {
             //Ne doit être appelé que si il y a une erreur
-            var handler = HerkulexErrorEvent;
-            if (handler != null)
+            HerkulexErrorEvent?.Invoke(this, new HerkulexManagerNS.HerkulexEventArgs.HerkulexErrorArgs
             {
-                handler(this, new HerkulexManagerNS.HerkulexEventArgs.HerkulexErrorArgs
-                {
-                    Servo = servo
-                });
-            }
+                Servo = servo
+            });
         }
 
         #endregion outputEvents

@@ -21,7 +21,7 @@ namespace StrategyManager
 {
     public class StrategyManager_Eurobot
     {
-        int robotId = 0;
+        public int robotId = 0;
         int teamId = 0;
         public Equipe Team
         {
@@ -45,6 +45,8 @@ namespace StrategyManager
 
         public TaskBrasGauche taskBrasGauche;
         public TaskBrasDroit taskBrasDroit;
+        public TaskBrasCentre taskBrasCentre;
+        public TaskBrasDrapeau taskBrasDrapeau;
         public TaskBalade taskBalade;
         public TaskDepose taskDepose;
         public TaskWindFlag taskWindFlag;
@@ -102,6 +104,16 @@ namespace StrategyManager
             taskBrasDroit.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
             OnMotorCurrentReceiveForwardEvent += taskBrasDroit.OnMotorCurrentReceive;
 
+            taskBrasCentre = new TaskBrasCentre();
+            taskBrasCentre.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
+            taskBrasCentre.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+            OnMotorCurrentReceiveForwardEvent += taskBrasCentre.OnMotorCurrentReceive;
+
+            taskBrasDrapeau = new TaskBrasDrapeau();
+            taskBrasDrapeau.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
+            taskBrasDrapeau.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+            OnMotorCurrentReceiveForwardEvent += taskBrasDrapeau.OnMotorCurrentReceive;
+
             taskBalade = new TaskBalade(this);
             OnMotorCurrentReceiveForwardEvent += taskBalade.OnMotorCurrentReceive;
             taskBalade.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
@@ -137,11 +149,13 @@ namespace StrategyManager
 
         public void Init()
         {
-            taskStrategy.Init();
-            taskBrasGauche.Init();
-            taskBrasDroit.Init();
-            taskWindFlag.Init();
-            taskFinDeMatch.Init();
+            //taskStrategy.Init();
+            //taskBrasGauche.Init();
+            //taskBrasDroit.Init();
+            //taskBrasCentre.Init();
+            //taskBrasDrapeau.Init();
+            //taskWindFlag.Init();
+            //taskFinDeMatch.Init();
             OnEnableDisableMotorCurrentData(true);
         }
 
@@ -159,11 +173,10 @@ namespace StrategyManager
             //Forward event to task on low level
             OnMotorCurrentReceiveForwardEvent?.Invoke(sender, e);
         }
-        
 
         //On fait juste un forward d'event sans le récupérer localement
         public event EventHandler<HerkulexPositionsArgs> OnHerkulexPositionRequestEvent;
-        private void OnHerkulexPositionRequestForwardEvent(object sender, HerkulexPositionsArgs e)
+        public void OnHerkulexPositionRequestForwardEvent(object sender, HerkulexPositionsArgs e)
         {
             OnHerkulexPositionRequestEvent?.Invoke(sender, e);
         }
@@ -693,6 +706,12 @@ namespace StrategyManager
         public virtual void OnRefereeBoxReceivedCommand(RefBoxMessage msg)
         {
             OnRefereeBoxCommandEvent?.Invoke(this, new RefBoxMessageArgs { refBoxMsg = msg });
+        }
+
+        public event EventHandler<CollisionEventArgs> OnCollisionEvent;
+        public virtual void OnCollision(int id, Location robotLocation)
+        {
+            OnCollisionEvent?.Invoke(this, new CollisionEventArgs { RobotId = id, RobotRealPosition = robotLocation });
         }
 
         public delegate void HeatMapEventHandler(object sender, HeatMapArgs e);

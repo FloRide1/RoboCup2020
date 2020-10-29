@@ -73,38 +73,37 @@ namespace StrategyManager
                     {
                         case TaskStrategyState.Attente:
                             break;
-                        case TaskStrategyState.InitialPositioning:
-                            parentStrategyManager.OnEnableMotors(true);
+                        case TaskStrategyState.InitialPositioning:  //Le positionnement initial est manuel de manière à pouvoir coller deux robots très proches sans mouvement parasite
+                            parentStrategyManager.OnEnableMotors(false);
                             //Le jack force le retour à cet état
                             parentStrategyManager.taskBrasDroit.Init();
                             parentStrategyManager.taskBrasGauche.Init();
+                            parentStrategyManager.taskBrasCentre.Init();
+                            parentStrategyManager.taskBrasDrapeau.Init();
+                            parentStrategyManager.taskPhare.Init();
+                            parentStrategyManager.taskWindFlag.Init();
                             parentStrategyManager.taskBalade.Init();
                             parentStrategyManager.taskDepose.Init();
                             parentStrategyManager.taskFinDeMatch.Init();
                             RefBoxMessage message = new RefBoxMessage();
-                            message.command = RefBoxCommand.START;
+                            message.command = RefBoxCommand.STOP;
                             message.targetTeam = "224.16.32.79";
                             message.robotID = 0;
                             parentStrategyManager.OnRefereeBoxReceivedCommand(message);
-
-                            if (playingTeam == Equipe.Bleue)
-                            {
-                                parentStrategyManager.robotDestination = new PointD(1.32, -0.2);
-                                parentStrategyManager.robotOrientation = Math.PI;
-                                //parentStrategyManager.SetDestination(new Location(1.25, -0.2, Math.PI, 0, 0, 0));
-                            }
-                            else if (playingTeam == Equipe.Jaune)
-                            {
-                                parentStrategyManager.robotDestination = new PointD(-1.32, -0.2);
-                                parentStrategyManager.robotOrientation = 0;
-                                //parentStrategyManager.SetDestination(new Location(0, 0, 0, 0, 0, 0));
-                            }
                             state = TaskStrategyState.InitialPositioningEnCours;
                             break;
                         case TaskStrategyState.InitialPositioningEnCours:
                             if (!Jack)
                             {
+                                parentStrategyManager.OnEnableMotors(true);
                                 state = TaskStrategyState.Phare;
+                                message = new RefBoxMessage();
+                                message.command = RefBoxCommand.START;
+                                message.targetTeam = "224.16.32.79";
+                                message.robotID = 0;
+                                parentStrategyManager.OnRefereeBoxReceivedCommand(message); 
+                                parentStrategyManager.OnCollision(parentStrategyManager.robotId, parentStrategyManager.robotCurentLocation); //On génère artificellement une collision pour resetter Kalman et le reste autour de la position courante.
+
                                 StartSw();
                             }
                             break;
@@ -187,6 +186,7 @@ namespace StrategyManager
             }
         }
         bool isStoped = false;
+
 
         //Events
         public void OnIOValuesFromRobotEvent(object sender, IOValuesEventArgs e)
