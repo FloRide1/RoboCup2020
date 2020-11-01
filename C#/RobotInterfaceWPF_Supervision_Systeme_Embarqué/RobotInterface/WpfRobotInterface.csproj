@@ -134,6 +134,10 @@
       <Project>{21ac599e-e3d5-4181-aa0f-7c2e00cca016}</Project>
       <Name>ExtendedSerialPort</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\HerkulexManager\HerkulexManager.csproj">
+      <Project>{835B8B5A-C248-4443-99CA-FF11AC77481A}</Project>
+      <Name>HerkulexManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\HighFreqTimer\AdvancedTimers.csproj">
       <Project>{ecc907ed-f9b2-457f-901e-720987934e47}</Project>
       <Name>AdvancedTimers</Name>
@@ -165,6 +169,10 @@
     <ProjectReference Include="..\..\WorldMap\WorldMap.csproj">
       <Project>{B2D0126F-8C82-4EAA-87E5-67415F589098}</Project>
       <Name>WorldMap</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\WpfAsservissementDisplay\WpfAsservissementDisplay.csproj">
+      <Project>{f0a887e9-d0a2-47e3-994a-94a0dcae8d4f}</Project>
+      <Name>WpfAsservissementDisplay</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\WpfOscilloscope\WpfOscilloscopeControl.csproj">
       <Project>{88baa407-3fea-4f4b-bb41-5309ce48884e}</Project>

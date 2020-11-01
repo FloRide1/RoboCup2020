@@ -66,6 +66,7 @@ namespace ExtendedSerialPort
                     Thread.Sleep(2000);
                 }
             });
+            connectionThread.IsBackground = true;
         }
 
         private void StartTryingToConnect()
@@ -157,7 +158,7 @@ namespace ExtendedSerialPort
                 {
                     //Quand on reçoit un message à envoyer, on le fait partir
                     Write(e.Msg, 0, e.Msg.Length);
-                    Console.WriteLine("Message sent:" + DateTime.Now.Millisecond.ToString());
+                    //Console.WriteLine("Message sent:" + DateTime.Now.Millisecond.ToString());
                 }
                 catch
                 {

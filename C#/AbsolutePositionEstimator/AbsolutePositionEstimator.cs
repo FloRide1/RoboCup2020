@@ -19,6 +19,8 @@ namespace AbsolutePositionEstimatorNS
     {
         int robotId = 0;
         List<PolarPointRssi> LidarPtList;
+        Location currentLocation;
+        bool mirrorMode = false;
 
         public AbsolutePositionEstimator(int id)
         {
@@ -30,34 +32,47 @@ namespace AbsolutePositionEstimatorNS
             LidarPtList = e.PtList;
         }
 
-        public void AbsolutePositionEvaluation(object sender, BitmapImageArgs e)
+        public void OnPhysicalPositionReceived(object sender, EventArgsLibrary.LocationArgs e)
         {
-
+            if (robotId == e.RobotId)
+            {
+                currentLocation = e.Location;
+            }
         }
-        
+               
+        public void OnMirrorModeReceived(object sender, BoolEventArgs e)
+        {
+            mirrorMode = e.value;
+        }
+
         public void OnLidarBalisesListExtractedEvent(object sender, LidarDetectedObjectListArgs e)
         {
             //Liste de balises potentielles
             var listeBalisesPotentielle = e.LidarObjectList;
 
-            //Normes et angles théoriques
+            ////Normes et angles théoriques  
+            /////TODO : double compensation due aux erreurs de positionnement balises
             PointD ptBalise1Theorique = new PointD(-1.55, -0.95); //Pt balise droite coté départ
             PointD ptBalise2Theorique = new PointD(1.55, 0); //Pt balise centre opposé départ
             PointD ptBalise3Theorique = new PointD(-1.55, 0.95); //Pt balise gauche coté départ
+
+            //PointD ptBalise1Theorique = new PointD(1.55, 0.95); //Pt balise droite coté départ
+            //PointD ptBalise2Theorique = new PointD(-1.55, 0); //Pt balise centre opposé départ
+            //PointD ptBalise3Theorique = new PointD(1.55, -0.95); //Pt balise gauche coté départ
             double normVector12Theorique = Toolbox.Distance(ptBalise1Theorique, ptBalise2Theorique);
             double normVector13Theorique = Toolbox.Distance(ptBalise1Theorique, ptBalise3Theorique);
-            double angleVector12Vector13Theorique = Math.Atan2(ptBalise3Theorique.Y - ptBalise1Theorique.Y, ptBalise3Theorique.X - ptBalise1Theorique.X) 
+            double angleVector12Vector13Theorique = Math.Atan2(ptBalise3Theorique.Y - ptBalise1Theorique.Y, ptBalise3Theorique.X - ptBalise1Theorique.X)
                 - Math.Atan2(ptBalise2Theorique.Y - ptBalise1Theorique.Y, ptBalise2Theorique.X - ptBalise1Theorique.X);
             angleVector12Vector13Theorique = Toolbox.Modulo2PiAngleRad(angleVector12Vector13Theorique);
 
             double minScore = double.PositiveInfinity;
             int iSelected = 0;
             int jSelected = 0;
-            int kSelected  = 0;
+            int kSelected = 0;
             PointD ptBalise1 = new PointD(0, 0);
             PointD ptBalise3 = new PointD(0, 0);
 
-            double tolerancePositionnement = 0.2;
+            double tolerancePositionnement = 0.08;
 
             if (listeBalisesPotentielle.Count() >= 3)
             {
@@ -77,10 +92,21 @@ namespace AbsolutePositionEstimatorNS
                             double normVector13 = Toolbox.Distance(pt1, pt3);
                             double angleVector12Vector13 = Math.Atan2(pt3.Y - pt1.Y, pt3.X - pt1.X) - Math.Atan2(pt2.Y - pt1.Y, pt2.X - pt1.X);
 
+                            //On somme les pourcentages d'erreur des distance entre balises candidates et balises théorique et idem pour les angles
                             double ScoreCandidatureBalises = Math.Abs(normVector12 - normVector12Theorique) / normVector12Theorique
                                 + Math.Abs(normVector13 - normVector13Theorique) / normVector13Theorique
                                 + Math.Abs(Toolbox.ModuloByAngle(angleVector12Vector13Theorique, angleVector12Vector13) - angleVector12Vector13Theorique) / Math.PI;
-                                                        
+
+                            //On regarde si l'angle des balises 1 et 3 (la ligne de fond) + l'angle courant du robot = PI / 2
+                            //On ne se téléporte pas, surtout en angle grace au gyro !
+
+                            //FINALEMENT quand on a 3 balises, on doit être fiable et on ne fait pas cette manip, 
+                            //Sinon on n'accorchera jamais, c'est valable à deux balises par contre...
+
+                            //double angleVector13Vector1Robot = Math.Atan2(0 - pt1.Y, 0 - pt1.X) - Math.Atan2(pt3.Y - pt1.Y, pt3.X - pt1.X);
+                            //ScoreCandidatureBalises += Math.Abs(Math.PI / 2 - (angleVector13Vector1Robot + currentLocation.Theta)) / Math.PI;
+
+
                             if (ScoreCandidatureBalises < minScore)
                             {
                                 minScore = ScoreCandidatureBalises;
@@ -98,12 +124,12 @@ namespace AbsolutePositionEstimatorNS
                     //On a identifé le trio de balises correspondant au terrain réel, 
                     //on calcule à présent les coordonnées du robot dans le repère des balises théoriques.
                     ptBalise1 = new PointD(listeBalisesPotentielle[iSelected].XMoyen, listeBalisesPotentielle[iSelected].YMoyen);
-                    ptBalise3 = new PointD(listeBalisesPotentielle[kSelected].XMoyen, listeBalisesPotentielle[kSelected].YMoyen);                    
+                    ptBalise3 = new PointD(listeBalisesPotentielle[kSelected].XMoyen, listeBalisesPotentielle[kSelected].YMoyen);
                 }
             }
 
             //Dans le cas où le score optimal est mauvais, on se positionne uniquement avec deux balises.
-            if (minScore > tolerancePositionnement && listeBalisesPotentielle.Count >= 2)
+            if (minScore > tolerancePositionnement && listeBalisesPotentielle.Count >= 2 && currentLocation != null)
             {
                 minScore = double.PositiveInfinity;
                 for (int i = 0; i < listeBalisesPotentielle.Count(); i++) //Identifiant 1
@@ -122,6 +148,9 @@ namespace AbsolutePositionEstimatorNS
                         else
                             ScoreCandidatureBalises += 1;
 
+                        //On regarde si l'angle des balises 1 et 3 (la ligne de fond) + l'angle courant du robot = PI / 2
+                        //On ne se téléporte pas, surtout en angle grace au gyro !
+                        ScoreCandidatureBalises += Math.Abs(Math.PI / 2 - (angleVector13Vector1Robot + currentLocation.Theta)) / Math.PI;
 
                         if (ScoreCandidatureBalises < minScore)
                         {
@@ -149,9 +178,18 @@ namespace AbsolutePositionEstimatorNS
                 double normVector1Robot = Toolbox.Distance(ptBalise1, new PointD(0, 0));
                 double xRobot = ptBalise1Theorique.X + normVector1Robot * Math.Cos(Math.PI / 2 + angleVector13Vector1Robot);
                 double yRobot = ptBalise1Theorique.Y + normVector1Robot * Math.Sin(Math.PI / 2 + angleVector13Vector1Robot);
-                double angleRobot1ThVectorRobot1 = Math.Atan2(ptBalise1Theorique.Y - yRobot, ptBalise1Theorique.X - xRobot)- Math.Atan2(ptBalise1.Y, ptBalise1.X);
+                double angleRobot1ThVectorRobot1 = Math.Atan2(ptBalise1Theorique.Y - yRobot, ptBalise1Theorique.X - xRobot) - Math.Atan2(ptBalise1.Y, ptBalise1.X);
 
-                Console.WriteLine("Position estimée - X : " + xRobot.ToString("N2") + " - Y : " + yRobot.ToString("N2") + " - Theta : " + angleRobot1ThVectorRobot1.ToString("N2"));
+                //                Console.WriteLine("Position estimée - X : " + xRobot.ToString("N2") + " - Y : " + yRobot.ToString("N2") + " - Theta : " + angleRobot1ThVectorRobot1.ToString("N2"));
+
+                //On symétrise centrale si on est en mode mirror
+                if(!mirrorMode)  //TODO : double compensation due aux erreurs de positionnement balises
+                {
+                    xRobot = -xRobot;
+                    yRobot = -yRobot;
+                    angleRobot1ThVectorRobot1 = Toolbox.Modulo2PiAngleRad(angleRobot1ThVectorRobot1 + Math.PI);
+                }
+
                 OnPositionCalculatedEvent((float)xRobot, (float)yRobot, (float)angleRobot1ThVectorRobot1, (float)Math.Max(0, 1 - minScore));
             }
         }
@@ -163,6 +201,6 @@ namespace AbsolutePositionEstimatorNS
         {
             OnAbsolutePositionCalculatedEvent?.Invoke(this, new PositionArgs { X = x, Y = y, Theta = angle, Reliability = reliability });
         }
-        
+
     }
 }

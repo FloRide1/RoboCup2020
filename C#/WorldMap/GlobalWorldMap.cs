@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Utilities;
 
 namespace WorldMap
@@ -13,7 +9,7 @@ namespace WorldMap
         public Dictionary<int, Location> destinationLocationDictionary { get; set; }
         public Dictionary<int, Location> waypointLocationDictionary { get; set; }
         public Dictionary<int, List<Location>> ballLocationListDictionary { get; set; }
-        public Dictionary<int, List<Location>> ObstaclesLocationListDictionary { get; set; }
+        public Dictionary<int, List<LocationExtended>> ObstaclesLocationListDictionary { get; set; }
 
         public GlobalWorldMapStorage()
         {
@@ -21,7 +17,7 @@ namespace WorldMap
             destinationLocationDictionary = new Dictionary<int, Location>();
             waypointLocationDictionary = new Dictionary<int, Location>();
             ballLocationListDictionary = new Dictionary<int, List<Location>>();
-            ObstaclesLocationListDictionary = new Dictionary<int, List<Location>>();
+            ObstaclesLocationListDictionary = new Dictionary<int, List<LocationExtended>>();
         }
 
         public void AddOrUpdateRobotLocation(int id, Location loc)
@@ -68,7 +64,7 @@ namespace WorldMap
             }
         }
 
-        public void AddOrUpdateObstaclesList(int id, List<Location> locList)
+        public void AddOrUpdateObstaclesList(int id, List<LocationExtended> locList)
         {
             lock (ObstaclesLocationListDictionary)
             {

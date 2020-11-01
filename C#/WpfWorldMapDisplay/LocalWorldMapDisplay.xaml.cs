@@ -1,18 +1,12 @@
 ﻿
 using Constants;
-using PerceptionManagement;
 using SciChart.Charting.Model.DataSeries;
 using SciChart.Charting.Model.DataSeries.Heatmap2DArrayDataSeries;
-using SciChart.Charting.Visuals.RenderableSeries;
-using SciChart.Drawing.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 using Utilities;
 using WorldMap;
 
@@ -245,13 +239,13 @@ namespace WpfWorldMapDisplay
         {
             lock (ObstacleDisplayList)
             {
-                int indexBall = 0;
+                int indexObstacle = 0;
                 foreach (var obstacle in ObstacleDisplayList)
                 {
                     //Affichage des obstacles
-                    ObstaclePolygons.AddOrUpdatePolygonExtended((int)ObstacleId.Obstacle + indexBall, obstacle.GetObstaclePolygon());
+                    ObstaclePolygons.AddOrUpdatePolygonExtended((int)ObstacleId.Obstacle + indexObstacle, obstacle.GetObstaclePolygon());
                     //ObstaclePolygons.AddOrUpdatePolygonExtended((int)ObstacleId.Obstacle + indexBall + (int)Caracteristique.Speed, obstacle.GetObstacleSpeedArrow());
-                    indexBall++;
+                    indexObstacle++;
                 }
             }
         }
@@ -394,7 +388,7 @@ namespace WpfWorldMapDisplay
             }
         }
 
-        public void UpdateObstacleList(List<Location> obstacleList)
+        public void UpdateObstacleList(List<LocationExtended> obstacleList)
         {
             if (obstacleList != null)
             {

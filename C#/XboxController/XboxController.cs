@@ -74,7 +74,7 @@ namespace XBoxController
                     Vtheta = 0;
                 Vtheta = Vtheta / short.MaxValue * VThetaMax;
 
-                Console.WriteLine("Gamepad Vx : " + Vx + " Vy : "+Vy +" VTheta : "+Vtheta);
+                //Console.WriteLine("Gamepad Vx : " + Vx + " Vy : "+Vy +" VTheta : "+Vtheta);
                 vitessePriseBalle = (float)(gamepad.RightTrigger) / 2.55;
                 if (gamepad.Buttons.HasFlag(GamepadButtonFlags.X))
                 {
@@ -209,15 +209,10 @@ namespace XBoxController
             }
         }
 
-        public delegate void OnPriseBalleEventHandler(object sender, SpeedConsigneToMotorArgs e);
         public event EventHandler<SpeedConsigneToMotorArgs> OnPriseBalleEvent;
         public virtual void OnPriseBalleToRobot(byte motorNumber, double vitesse)
         {
-            var handler = OnPriseBalleEvent;
-            if (handler != null)
-            {
-                handler(this, new SpeedConsigneToMotorArgs { MotorNumber = motorNumber, V = vitesse });
-            }
+            OnPriseBalleEvent?.Invoke(this, new SpeedConsigneToMotorArgs { MotorNumber = motorNumber, V = vitesse });
         }
     }
 }

@@ -55,14 +55,21 @@ namespace Utilities
 
     }
 
+    public class PointDExtended
+    {
+        public double X;
+        public double Y;
+        public ObjectType type;
+    }
+
     public class Location
     {
-        public double X { get; set; }
-        public double Y { get; set; }
-        public double Theta { get; set; }
-        public double Vx { get; set; }
-        public double Vy { get; set; }
-        public double Vtheta { get; set; }
+        public double X;
+        public double Y;
+        public double Theta;
+        public double Vx;
+        public double Vy;
+        public double Vtheta;
 
         public Location(double x, double y, double theta, double vx, double vy, double vtheta)
         {
@@ -72,6 +79,28 @@ namespace Utilities
             Vx = vx;
             Vy = vy;
             Vtheta = vtheta;
+        }
+    }
+
+    public class LocationExtended
+    {
+        public double X;
+        public double Y;
+        public double Theta;
+        public double Vx;
+        public double Vy;
+        public double Vtheta;
+        public ObjectType Type;
+
+        public LocationExtended(double x, double y, double theta, double vx, double vy, double vtheta, ObjectType type)
+        {
+            X = x;
+            Y = y;
+            Theta = theta;
+            Vx = vx;
+            Vy = vy;
+            Vtheta = vtheta;
+            Type = type;
         }
     }
 
@@ -96,9 +125,14 @@ namespace Utilities
     public enum ObjectType
     {
         Balle,
-        Objet,
+        Obstacle,
         Robot,
         Poteau,
-        Balise
+        Balise,
+        LimiteHorizontaleHaute,
+        LimiteHorizontaleBasse,
+        LimiteVerticaleGauche,
+        LimiteVerticaleDroite,
+
     }
 }

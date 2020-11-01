@@ -2,10 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utilities;
 using WorldMap;
 
@@ -57,8 +54,10 @@ namespace WorldMapManager
                 if (transferLocalWorldMap.robotLocation != null)
                 {
                     string json = JsonConvert.SerializeObject(transferLocalWorldMap, decimalJsonConverter);
-                    OnMulticastSendLocalWorldMapCommand(json.GetBytes());
+                    
+                    //OnMulticastSendLocalWorldMapCommand(json.GetBytes()); Retiré pour test de robustesse, mais nécessaire à la RoboCup
 
+                    OnLocalWorldMapBypass(transferLocalWorldMap); //Pour bypass du multicast
                     OnLocalWorldMap(localWorldMap); //Pour affichage uniquement, sinon transmission radio en, multicast
                 }
             }
@@ -164,6 +163,17 @@ namespace WorldMapManager
         public virtual void OnLocalWorldMap(LocalWorldMap map)
         {
             var handler = OnLocalWorldMapEventForDisplayOnly;
+            if (handler != null)
+            {
+                handler(this, new LocalWorldMapArgs { LocalWorldMap = map });
+            }
+        }
+
+        ////Output event for Multicast Bypass : NO USE at RoboCup !
+        public event EventHandler<LocalWorldMapArgs> OnLocalWorldMapBypassEvent;
+        public virtual void OnLocalWorldMapBypass(LocalWorldMap map)
+        {
+            var handler = OnLocalWorldMapBypassEvent;
             if (handler != null)
             {
                 handler(this, new LocalWorldMapArgs { LocalWorldMap = map });

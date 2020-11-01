@@ -4,7 +4,6 @@ using ExtendedSerialPort;
 using LidarOMD60M;
 using MessageDecoder;
 using MessageEncoder;
-using PhysicalSimulator;
 using RobotInterface;
 using RobotMessageGenerator;
 using SciChart.Charting.Visuals;
@@ -17,20 +16,14 @@ using WorldMapManager;
 using RobotMessageProcessor;
 using PerceptionManagement;
 using EventArgsLibrary;
-using LogRecorder;
-using LogReplay;
-using LidarProcessor;
 using WpfReplayNavigator;
 using System.Runtime.InteropServices;
 using Staudt.Engineering.LidaRx.Drivers.R2000;
-using System.Net;
 using Staudt.Engineering.LidaRx;
-using System.Linq;
-using ImuProcessor;
-using KalmanPositioning;
 using StrategyManager;
 using UDPMulticast;
 using UdpMulticastInterpreter;
+using HerkulexManagerNS;
 
 namespace Robot
 {
@@ -122,12 +115,12 @@ namespace Robot
 
         static LocalWorldMapManager localWorldMapManager;
         //Lien de transmission par socket
-        static UDPMulticastSender baseStationUdpMulticastSender = null;
-        static UDPMulticastReceiver baseStationUdpMulticastReceiver = null;
-        static UDPMulticastInterpreter baseStationUdpMulticastInterpreter = null;
-        static UDPMulticastSender robotUdpMulticastSender = null;
-        static UDPMulticastReceiver robotUdpMulticastReceiver = null;
-        static UDPMulticastInterpreter robotUdpMulticastInterpreter = null;
+        //static UDPMulticastSender baseStationUdpMulticastSender = null;
+        //static UDPMulticastReceiver baseStationUdpMulticastReceiver = null;
+        //static UDPMulticastInterpreter baseStationUdpMulticastInterpreter = null;
+        //static UDPMulticastSender robotUdpMulticastSender = null;
+        //static UDPMulticastReceiver robotUdpMulticastReceiver = null;
+        //static UDPMulticastInterpreter robotUdpMulticastInterpreter = null;
 
         static GlobalWorldMapManager globalWorldMapManager;
                 
@@ -136,6 +129,8 @@ namespace Robot
         static PerceptionManager perceptionManager;        
         static Lidar_OMD60M_TCP lidar_OMD60M_TCP;
         static XBoxController.XBoxController xBoxManette;
+
+        static HerkulexManager herkulexManager;
 
         static object ExitLock = new object();
 
@@ -159,6 +154,16 @@ namespace Robot
 
             // Set this code once in App.xaml.cs or application startup
             SciChartSurface.SetRuntimeLicenseKey("RJWA77RbaJDdCRJpg4Iunl5Or6/FPX1xT+Gzu495Eaa0ZahxWi3jkNFDjUb/w70cHXyv7viRTjiNRrYqnqGA+Dc/yzIIzTJlf1s4DJvmQc8TCSrH7MBeQ2ON5lMs/vO0p6rBlkaG+wwnJk7cp4PbOKCfEQ4NsMb8cT9nckfdcWmaKdOQNhHsrw+y1oMR7rIH+rGes0jGGttRDhTOBxwUJK2rBA9Z9PDz2pGOkPjy9fwQ4YY2V4WPeeqM+6eYxnDZ068mnSCPbEnBxpwAldwXTyeWdXv8sn3Dikkwt3yqphQxvs0h6a8Dd6K/9UYni3o8pRkTed6SWodQwICcewfHTyGKQowz3afARj07et2h+becxowq3cRHL+76RyukbIXMfAqLYoT2UzDJNsZqcPPq/kxeXujuhT4SrNF3444MU1GaZZ205KYEMFlz7x/aEnjM6p3BuM6ZuO3Fjf0A0Ki/NBfS6n20E07CTGRtI6AsM2m59orPpI8+24GFlJ9xGTjoRA==");
+            //To use configurqtion file, must be declare variable no static
+            //ConfigRobotEurobot cfgRobot = FileManager.JsonSerialize<ConfigRobotEurobot>.DeserializeObjectFromFile(@"Configs", "Robot");
+            //robotMode = cfgRobot.RobotMode;
+            //usingPhysicalSimulator = cfgRobot.UsingPhysicalSimulator;
+            //usingXBoxController = cfgRobot.UsingXBoxController;
+            //usingLidar = cfgRobot.UsingLidar;
+            //usingLogging = cfgRobot.UsingLogging;
+            //usingLogReplay = cfgRobot.UsingLogReplay;
+            //usingRobotInterface = cfgRobot.usingRobotInterface;
+            //usingReplayNavigator = cfgRobot.usingReplayNavigator;
 
             switch (robotMode)
             {
@@ -188,7 +193,8 @@ namespace Robot
                     usingLogReplay = false;
                     break;
             }
-
+            //ConfigSerialPort cfgSerialPort = FileManager.JsonSerialize<ConfigSerialPort>.DeserializeObjectFromFile(@"Configs", "SerialPort");
+            //serialPort1 = new ReliableSerialPort(cfgSerialPort.CommName, cfgSerialPort.ComBaudrate, cfgSerialPort.Parity, cfgSerialPort.DataByte, cfgSerialPort.StopByte);
             serialPort1 = new ReliableSerialPort("COM4", 115200, Parity.None, 8, StopBits.One);
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
@@ -205,19 +211,26 @@ namespace Robot
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId);
 
             //On simule une base station en local
-            baseStationUdpMulticastSender = new UDPMulticastSender(0, "224.16.32.79");
-            baseStationUdpMulticastReceiver = new UDPMulticastReceiver(0, "224.16.32.79");
-            baseStationUdpMulticastInterpreter = new UDPMulticastInterpreter(0);
+            //baseStationUdpMulticastSender = new UDPMulticastSender(0, "224.16.32.79");
+            //baseStationUdpMulticastReceiver = new UDPMulticastReceiver(0, "224.16.32.79");
+            //baseStationUdpMulticastInterpreter = new UDPMulticastInterpreter(0);
 
-            robotUdpMulticastSender = new UDPMulticastSender(robotId, "224.16.32.79");
-            robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, "224.16.32.79");
-            robotUdpMulticastInterpreter = new UDPMulticastInterpreter(robotId);
+            //robotUdpMulticastSender = new UDPMulticastSender(robotId, "224.16.32.79");
+            //robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, "224.16.32.79");
+            //robotUdpMulticastInterpreter = new UDPMulticastInterpreter(robotId);
 
             globalWorldMapManager = new GlobalWorldMapManager(robotId, "0.0.0.0");
             strategyManager = new StrategyManager_Eurobot(robotId, teamId);
             waypointGenerator = new WaypointGenerator(robotId, "Eurobot");
             trajectoryPlanner = new TrajectoryPlanner(robotId);
-            
+
+            herkulexManager = new HerkulexManager("COM8", 115200, Parity.None, 8, StopBits.One);
+
+            herkulexManager.AddServo(ServoId.BrasCentral, HerkulexDescription.JOG_MODE.positionControlJOG);
+            herkulexManager.AddServo(ServoId.BrasDroit, HerkulexDescription.JOG_MODE.positionControlJOG);
+            herkulexManager.AddServo(ServoId.BrasGauche, HerkulexDescription.JOG_MODE.positionControlJOG);
+            herkulexManager.AddServo(ServoId.PorteDrapeau, HerkulexDescription.JOG_MODE.positionControlJOG);
+
             if (usingLidar)
             {
                 lidar_OMD60M_TCP = new Lidar_OMD60M_TCP(50, R2000SamplingRate._72kHz);
@@ -238,10 +251,19 @@ namespace Robot
             //Démarrage du log replay si l'interface est utilisée et existe ou si elle n'est pas utilisée, sinon on bloque
             if (usingLogReplay)
                 logReplay = new LogReplay.LogReplay();
-             
+
             //Liens entre modules
+            strategyManager.OnRefereeBoxCommandEvent += globalWorldMapManager.OnRefereeBoxCommandReceived;
             strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
             strategyManager.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
+            strategyManager.OnMessageEvent += lidar_OMD60M_TCP.OnMessageReceivedEvent;
+            strategyManager.OnSetRobotVitessePIDEvent += robotMsgGenerator.GenerateMessageSetPIDValueToRobot;
+            strategyManager.OnEnableAsservissementEvent += robotMsgGenerator.GenerateMessageEnableAsservissement;
+            strategyManager.OnHerkulexPositionRequestEvent += herkulexManager.OnHerkulexPositionRequestEvent;
+            strategyManager.OnSetSpeedConsigneToMotor += robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
+            strategyManager.OnEnableDisableMotorCurrentDataEvent += robotMsgGenerator.GenerateMessageEnableMotorCurrentData;
+            herkulexManager.OnHerkulexSendToSerialEvent += robotMsgGenerator.GenerateMessageForwardHerkulex;
+
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
             
             if (usingLidar)
@@ -255,7 +277,9 @@ namespace Robot
             robotMsgProcessor.OnSpeedDataFromRobotGeneratedEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
             imuProcessor.OnGyroSpeedEvent += kalmanPositioning.OnGyroRobotSpeedReceived;
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
+            //trajectoryPlanner.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot; //Configuré dans le gestionnaire de manette
             kalmanPositioning.OnKalmanLocationEvent += perceptionManager.OnPhysicalRobotPositionReceived;
+            kalmanPositioning.OnKalmanLocationEvent += strategyManager.OnPositionRobotReceived;
 
             //L'envoi des commandes dépend du fait qu'on soit en mode manette ou pas. 
             //Il faut donc enregistrer les évènement ou pas en fonction de l'activation
@@ -270,6 +294,7 @@ namespace Robot
             serialPort1.OnDataReceivedEvent += msgDecoder.DecodeMsgReceived;
             msgDecoder.OnMessageDecodedEvent += robotMsgProcessor.ProcessRobotDecodedMessage;
             robotMsgProcessor.OnIMURawDataFromRobotGeneratedEvent += imuProcessor.OnIMURawDataReceived;
+            robotMsgProcessor.OnIOValuesFromRobotGeneratedEvent += strategyManager.OnIOValuesFromRobotEvent;
 
             //physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             //physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicalObjectListLocationReceived;
@@ -283,18 +308,27 @@ namespace Robot
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapStrategyReceived;
             strategyManager.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
+            strategyManager.OnMirrorModeForwardEvent += perceptionManager.OnMirrorModeReceived;
+            robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += strategyManager.OnMotorCurrentReceive;
+            strategyManager.OnEnableMotorsEvent += robotMsgGenerator.GenerateMessageEnableDisableMotors;
             waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapWaypointReceived;
 
             //Transfert de la local map vers la global world map via UPD en mode Multicast : 
             //inutile dans Eurobot mais permet une extension radio simple.
-            localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
-            baseStationUdpMulticastReceiver.OnDataReceivedEvent += baseStationUdpMulticastInterpreter.OnMulticastDataReceived;
-            baseStationUdpMulticastInterpreter.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
-            globalWorldMapManager.OnMulticastSendGlobalWorldMapEvent += baseStationUdpMulticastSender.OnMulticastMessageToSendReceived;
-            robotUdpMulticastReceiver.OnDataReceivedEvent += robotUdpMulticastInterpreter.OnMulticastDataReceived;
-            robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
-            robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
-            robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += perceptionManager.OnGlobalWorldMapReceived;
+            //localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
+            //baseStationUdpMulticastReceiver.OnDataReceivedEvent += baseStationUdpMulticastInterpreter.OnMulticastDataReceived;
+            //baseStationUdpMulticastInterpreter.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+            //globalWorldMapManager.OnMulticastSendGlobalWorldMapEvent += baseStationUdpMulticastSender.OnMulticastMessageToSendReceived;
+            //robotUdpMulticastReceiver.OnDataReceivedEvent += robotUdpMulticastInterpreter.OnMulticastDataReceived;
+            //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
+            //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
+            //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += perceptionManager.OnGlobalWorldMapReceived;
+
+            //On essaie d'enlever la communication UDP interne
+            localWorldMapManager.OnLocalWorldMapBypassEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+            globalWorldMapManager.OnGlobalWorldMapBypassEvent += strategyManager.OnGlobalWorldMapReceived;
+            globalWorldMapManager.OnGlobalWorldMapBypassEvent += waypointGenerator.OnGlobalWorldMapReceived;
+            globalWorldMapManager.OnGlobalWorldMapBypassEvent += perceptionManager.OnGlobalWorldMapReceived;
 
             //Events de recording
             if (usingLogging)
@@ -315,6 +349,8 @@ namespace Robot
                 //lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
             }
 
+
+            
             //Timer de stratégie
             timerStrategie = new HighFreqTimer(0.5);
             timerStrategie.Tick += TimerStrategie_Tick;
@@ -327,7 +363,7 @@ namespace Robot
                 Monitor.Wait(ExitLock);
             }
         }
-
+        
         static Random rand = new Random();
         private static void TimerStrategie_Tick(object sender, EventArgs e)
         {
@@ -357,14 +393,18 @@ namespace Robot
             if (usingXBoxController)
             {
                 //xBoxManette.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
+                trajectoryPlanner.OnSpeedConsigneEvent -= robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
                 xBoxManette.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
+                //if (interfaceRobot != null)
+                //{
+                //    xBoxManette.OnSpeedConsigneEvent += interfaceRobot.UpdateSpeedConsigneOnGraph;
+                //}
                 xBoxManette.OnPriseBalleEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
                 xBoxManette.OnMoveTirUpEvent += robotMsgGenerator.GenerateMessageMoveTirUp;
                 xBoxManette.OnMoveTirDownEvent += robotMsgGenerator.GenerateMessageMoveTirDown;
                 xBoxManette.OnTirEvent += robotMsgGenerator.GenerateMessageTir;
                 xBoxManette.OnStopEvent += robotMsgGenerator.GenerateMessageSTOP;
 
-                trajectoryPlanner.OnSpeedConsigneEvent -= robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
                 //Gestion des events liés à une détection de collision soft
                 trajectoryPlanner.OnCollisionEvent -= kalmanPositioning.OnCollisionReceived;
             }
@@ -372,18 +412,21 @@ namespace Robot
             {
                 //On se desabonne aux evenements suivants:
                 //xBoxManette.OnSpeedConsigneEvent -= physicalSimulator.SetRobotSpeed;
+                trajectoryPlanner.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
                 xBoxManette.OnSpeedConsigneEvent -= robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
+                
                 xBoxManette.OnPriseBalleEvent -= robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
                 xBoxManette.OnMoveTirUpEvent -= robotMsgGenerator.GenerateMessageMoveTirUp;
                 xBoxManette.OnMoveTirDownEvent -= robotMsgGenerator.GenerateMessageMoveTirDown;
                 xBoxManette.OnTirEvent -= robotMsgGenerator.GenerateMessageTir;
                 xBoxManette.OnStopEvent -= robotMsgGenerator.GenerateMessageSTOP;
 
-                trajectoryPlanner.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
                 //Gestion des events liés à une détection de collision soft
                 trajectoryPlanner.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
+                strategyManager.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
             }
         }
+
 
         static void ExitProgram()
         {
@@ -413,7 +456,11 @@ namespace Robot
             msgDecoder.OnMessageDecodedEvent += interfaceRobot.DisplayMessageDecoded;
             msgDecoder.OnMessageDecodedErrorEvent += interfaceRobot.DisplayMessageDecodedError;
 
-            //lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += interfaceRobot.OnRawLidarDataReceived; ///TODO : est-ce vraiment nécesssaire ?
+            lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += interfaceRobot.OnRawLidarDataReceived;
+            perceptionManager.OnLidarBalisePointListForDebugEvent += interfaceRobot.OnRawLidarBalisePointsReceived;
+
+            //herkulexManager.OnHerkulexServoInformationEvent += interfaceRobot.OnHerkulexServoInformationReceived;
+            
 
             //On récupère les évènements de type refbox, qui sont ici des tests manuels dans le globalManager pour lancer à la main des actions ou stratégies
             interfaceRobot.OnRefereeBoxCommandEvent += globalWorldMapManager.OnRefereeBoxCommandReceived;
@@ -436,9 +483,10 @@ namespace Robot
 
                 robotMsgProcessor.OnMessageCounterEvent += interfaceRobot.MessageCounterReceived;
             }
-            xBoxManette.OnSpeedConsigneEvent += interfaceRobot.UpdateSpeedConsigneOnGraph;
-            trajectoryPlanner.OnSpeedConsigneEvent += interfaceRobot.UpdateSpeedConsigneOnGraph;
+
+            robotMsgGenerator.OnSetSpeedConsigneToRobotReceivedEvent += interfaceRobot.UpdateSpeedConsigneOnGraph; //Valable quelque soit la source des consignes vitesse
             interfaceRobot.OnEnableDisableMotorsFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableMotors;
+            interfaceRobot.OnEnableDisableServosFromInterfaceGeneratedEvent += herkulexManager.OnEnableDisableServosRequestEvent;
             interfaceRobot.OnEnableDisableTirFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableTir;
             interfaceRobot.OnEnableDisableControlManetteFromInterfaceGeneratedEvent += ChangeUseOfXBoxController;
             interfaceRobot.OnEnableAsservissementFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableAsservissement;
@@ -457,8 +505,9 @@ namespace Robot
                 logReplay.OnIMUEvent += interfaceRobot.UpdateImuDataOnGraph;
                 logReplay.OnSpeedDataEvent += interfaceRobot.UpdateSpeedDataOnGraph;
             }
-        }
 
+            strategyManager.Init();
+        }
 
         static Thread t3;
         static void StartReplayNavigatorInterface()
@@ -493,11 +542,6 @@ namespace Robot
             }
 
             //imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;
-        }
-
-        private static void RefBoxAdapter_DataReceivedEvent(object sender, EventArgsLibrary.DataReceivedArgs e)
-        {
-            throw new NotImplementedException();
         }
     }
 

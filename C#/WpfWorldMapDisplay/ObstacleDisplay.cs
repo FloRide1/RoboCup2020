@@ -8,45 +8,14 @@ namespace WpfWorldMapDisplay
     public class ObstacleDisplay
     {
         private Random rand = new Random();
-        private Location location = new Location(0, 0, 0, 0, 0, 0);
+        private LocationExtended location = new LocationExtended(0, 0, 0, 0, 0, 0, ObjectType.Obstacle);
         private System.Drawing.Color backgroundColor = System.Drawing.Color.Yellow;
         private System.Drawing.Color borderColor = System.Drawing.Color.Red;
         private int borderWidth = 2;
 
-        public ObstacleDisplay()
-        {
-            location = new Location(0, 0, 0, 0, 0, 0);
-        }
-        public ObstacleDisplay(Location loc)
+        public ObstacleDisplay(LocationExtended loc)
         {
             location = loc;
-        }
-
-        public void SetPosition(double x, double y, double theta)
-        {
-            location.X = x;
-            location.Y = y;
-            location.Theta = theta;
-        }
-        public void SetSpeed(double vx, double vy, double vTheta)
-        {
-            location.Vx = vx;
-            location.Vy = vy;
-            location.Vtheta = vTheta;
-        }
-
-        public void SetLocationList(double x, double y, double theta, double vx, double vy, double vTheta)
-        {
-            location.X = x;
-            location.Y = y;
-            location.Theta = theta;
-            location.Vx = vx;
-            location.Vy = vy;
-            location.Vtheta = vTheta;
-        }
-        public void SetLocation(Location l)
-        {
-            location = l;
         }
 
         public PolygonExtended GetObstaclePolygon()

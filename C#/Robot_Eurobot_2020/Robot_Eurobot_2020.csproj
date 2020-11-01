@@ -100,6 +100,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigRobotEurobot.cs" />
+    <Compile Include="ConfigSerialPort.cs" />
     <Compile Include="Robot_Eurobot_2020.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -123,6 +125,14 @@
     <ProjectReference Include="..\ExtendedSerialPort\ExtendedSerialPort\ExtendedSerialPort.csproj">
       <Project>{21ac599e-e3d5-4181-aa0f-7c2e00cca016}</Project>
       <Name>ExtendedSerialPort</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FileManager\FileManager.csproj">
+      <Project>{17c540a1-8d13-4cb6-8094-32229e50e031}</Project>
+      <Name>FileManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HerkulexManager\HerkulexManager.csproj">
+      <Project>{835b8b5a-c248-4443-99ca-ff11ac77481a}</Project>
+      <Name>HerkulexManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\HighFreqTimer\AdvancedTimers.csproj">
       <Project>{ecc907ed-f9b2-457f-901e-720987934e47}</Project>

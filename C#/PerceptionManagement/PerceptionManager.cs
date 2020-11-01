@@ -1,5 +1,6 @@
 ﻿using AbsolutePositionEstimatorNS;
 using EventArgsLibrary;
+using LidarProcessor;
 using System;
 using System.Collections.Generic;
 using Utilities;
@@ -11,7 +12,7 @@ namespace PerceptionManagement
     {
         int robotId = 0;
         
-        List<Location> physicalObjectList;
+        List<LocationExtended> physicalObjectList;
         Perception robotPerception;
 
         LidarProcessor.LidarProcessor lidarProcessor;
@@ -25,30 +26,37 @@ namespace PerceptionManagement
             globalWorldMap = new GlobalWorldMap();
 
             robotPerception = new Perception();
-            physicalObjectList = new List<Location>();
+            physicalObjectList = new List<LocationExtended>();
 
             //Chainage des modules composant le Perception Manager
             absolutePositionEstimator = new AbsolutePositionEstimator(robotId);
 
             lidarProcessor = new LidarProcessor.LidarProcessor(robotId);
             lidarProcessor.OnLidarBalisesListExtractedEvent += absolutePositionEstimator.OnLidarBalisesListExtractedEvent;
+            lidarProcessor.OnLidarBalisePointListForDebugEvent += OnLidarBalisePointListForDebugReceived;
             lidarProcessor.OnLidarObjectProcessedEvent += OnLidarObjectsReceived; 
 
             absolutePositionEstimator.OnAbsolutePositionCalculatedEvent += OnAbsolutePositionCalculatedEvent;
 
         }
-        
+
+        private void OnLidarBalisePointListForDebugReceived(object sender, RawLidarArgs e)
+        {
+            //On transmet l'event
+            OnLidarBalisePointListForDebug(e.RobotId, e.PtList);
+        }
+
         //private void LidarProcessor_OnLidarProcessedEvent(object sender, RawLidarArgs e)
         //{
         //    throw new NotImplementedException();
         //}
 
-        // Event position absoklue, on le forward vers l'extérieur du perception Manager
+        // Event position absolue, on le forward vers l'extérieur du perception Manager
         public event EventHandler<PositionArgs> OnAbsolutePositionEvent;
         private void OnAbsolutePositionCalculatedEvent(object sender, PositionArgs e)
         {
-            OnAbsolutePositionEvent?.Invoke(this, e);
             robotPerception.robotAbsoluteLocation = new Location(e.X, e.Y, e.Theta, 0, 0, 0);
+            OnAbsolutePositionEvent?.Invoke(this, e);
         }
 
         public void OnRawLidarDataReceived(object sender, RawLidarArgs e)
@@ -66,8 +74,17 @@ namespace PerceptionManagement
             if (robotId == e.RobotId)
             {
                 robotPerception.robotKalmanLocation = e.Location;
+                //On transmet la location au positionnement absolu pour qu'il puisse vérifier que la nouvelle position absolue est cohérente avec le positionnement Kalman.
+                absolutePositionEstimator.OnPhysicalPositionReceived(sender, e);
+                //On génère la perception
                 GeneratePerception();
             }
+        }
+        
+        public void OnMirrorModeReceived(object sender, BoolEventArgs e)
+        {
+            //On forward l'event vers le position estimator
+            absolutePositionEstimator.OnMirrorModeReceived(sender, e);
         }
 
 
@@ -92,7 +109,7 @@ namespace PerceptionManagement
 
                         if (!isRobot)
                         {
-                            robotPerception.obstaclesLocationList.Add(new Location(obj.X, obj.Y, obj.Theta, obj.Vx, obj.Vy, obj.Vtheta));
+                            robotPerception.obstaclesLocationList.Add(new LocationExtended(obj.X, obj.Y, obj.Theta, obj.Vx, obj.Vy, obj.Vtheta, obj.Type));
                         }
                     }
                 }
@@ -104,19 +121,56 @@ namespace PerceptionManagement
 
         public void OnLidarObjectsReceived(object sender, EventArgsLibrary.PolarPointListExtendedListArgs e)
         {
-            lock (physicalObjectList)
+            if (robotPerception.robotKalmanLocation != null)
             {
-                physicalObjectList.Clear();
-                //On récupère la liste des objets physiques vus par le robot en simulation (y compris lui-même)
-                foreach (var obj in e.ObjectList)
+                lock (physicalObjectList)
                 {
-                    double angle = obj.polarPointList[0].Angle;
-                    double distance = obj.polarPointList[0].Distance;
+                    physicalObjectList.Clear();
+
                     double xRobot = robotPerception.robotKalmanLocation.X;
                     double yRobot = robotPerception.robotKalmanLocation.Y;
                     double angleRobot = robotPerception.robotKalmanLocation.Theta;
 
-                    physicalObjectList.Add(new Location(xRobot + distance * Math.Cos(angle + angleRobot), yRobot + distance * Math.Sin(angle + angleRobot), 0, 0, 0, 0));
+                    //On récupère la liste des objets physiques vus par le robot (y compris lui-même en simulation)
+                    foreach (var obj in e.ObjectList)
+                    {
+                        double angle = obj.polarPointList[0].Angle;
+                        double distance = obj.polarPointList[0].Distance;
+                        double xObjetRefTerrain = xRobot + distance * Math.Cos(angle + angleRobot);
+                        double yObjetRefTerrain = yRobot + distance * Math.Sin(angle + angleRobot);
+
+                        //Code spécifique Eurobot
+                        //On s'occupe des obstacles dans le terrain qui sont a priori des robots
+                        if (Math.Abs(xObjetRefTerrain) < 1.5 && Math.Abs(yObjetRefTerrain) < 1.0)
+                        {
+                            double rayon = 0.2;
+                            if (distance > 0.05) //On exclut les obstacles trop proches
+                            {
+                                physicalObjectList.Add(new LocationExtended(xObjetRefTerrain, yObjetRefTerrain, 0, 0, 0, 0, ObjectType.Robot));
+                                ////On génère une liste de points périmètres des obstacle pour les interdire
+                                //for (double anglePourtour = 0; anglePourtour < 2 * Math.PI; anglePourtour += 2 * Math.PI / 5)
+                                //{
+                                //    physicalObjectList.Add(new LocationExtended(xObjetRefTerrain + rayon * Math.Cos(anglePourtour), yObjetRefTerrain + rayon * Math.Sin(anglePourtour), 0, 0, 0, 0, ObjectType.Robot));
+                                //}
+                            }
+                        }
+                    }
+
+                    //On rajoute les bordures du terrain à la main :
+                    physicalObjectList.Add(new LocationExtended(0, -1+0.16, 0, 0, 0, 0, ObjectType.LimiteHorizontaleBasse));
+                    physicalObjectList.Add(new LocationExtended(0, 1-0.16, 0, 0, 0, 0, ObjectType.LimiteHorizontaleHaute));
+                    physicalObjectList.Add(new LocationExtended(-1.5+0.16, 0, 0, 0, 0, 0, ObjectType.LimiteVerticaleGauche));
+                    physicalObjectList.Add(new LocationExtended(1.5-0.16, 0, 0, 0, 0, 0, ObjectType.LimiteVerticaleDroite));
+                    //for (double x = -1.5; x <= 1.5; x += 0.35)
+                    //{
+                    //    physicalObjectList.Add(new LocationExtended(x, -1, 0, 0, 0, 0, ObjectType.Obstacle));
+                    //    physicalObjectList.Add(new LocationExtended(x, 1, 0, 0, 0, 0, ObjectType.Obstacle));
+                    //}
+                    //for (double y = -0.8; y <= 0.8; y += 0.35)
+                    //{
+                    //    physicalObjectList.Add(new LocationExtended(-1.5, y, 0, 0, 0, 0, ObjectType.Obstacle));
+                    //    physicalObjectList.Add(new LocationExtended(1.5, y, 0, 0, 0, 0, ObjectType.Obstacle));
+                    //}
                 }
             }
         }
@@ -126,10 +180,10 @@ namespace PerceptionManagement
             globalWorldMap = e.GlobalWorldMap;
         }
 
-        public void OnPhysicalObjectListLocationReceived(object sender, LocationListArgs e)
+        public void OnPhysicalObjectListLocationReceived(object sender, LocationExtendedListArgs e)
         {
             //On récupère la liste des objets physiques vus par le robot en simulation (y compris lui-même)
-            physicalObjectList = e.LocationList;
+            physicalObjectList = e.LocationExtendedList;
         }
 
         public void OnPhysicalBallPositionListReceived(object sender, LocationListArgs e)
@@ -146,7 +200,18 @@ namespace PerceptionManagement
             var handler = OnPerceptionEvent;
             if (handler != null)
             {
-                handler(this, new PerceptionArgs { RobotId=robotId, Perception = perception });
+                handler(this, new PerceptionArgs { RobotId = robotId, Perception = perception });
+            }
+        }
+        
+        //public delegate void OnLidarBalisePointListForDebugEventHandler(object sender, RawLidarArgs e);
+        public event EventHandler<RawLidarArgs> OnLidarBalisePointListForDebugEvent;
+        public virtual void OnLidarBalisePointListForDebug(int id, List<PolarPointRssi> ptList)
+        {
+            var handler = OnLidarBalisePointListForDebugEvent;
+            if (handler != null)
+            {
+                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList });
             }
         }
     }  

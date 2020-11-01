@@ -1,11 +1,7 @@
 ﻿using Constants;
-using SciChart.Charting.Model.DataSeries;
-using SciChart.Charting.Model.DataSeries.Heatmap2DArrayDataSeries;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using Utilities;

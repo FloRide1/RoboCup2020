@@ -1,11 +1,9 @@
 ﻿using System;
 using EventArgsLibrary;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utilities;
 using Constants;
+using System.Linq;
+using HerkulexManagerNS;
 
 namespace RobotMessageGenerator
 {
@@ -19,6 +17,20 @@ namespace RobotMessageGenerator
             payload.SetValueRange(((float)e.Vy).GetBytes(), 4);
             payload.SetValueRange(((float)e.Vtheta).GetBytes(), 8);
             OnMessageToRobot((Int16)Commands.SetSpeedConsigne, 12, payload);
+            OnSetSpeedConsigneToRobotReceived(e);
+        }
+
+        public event EventHandler<SpeedArgs> OnSetSpeedConsigneToRobotReceivedEvent;
+        public virtual void OnSetSpeedConsigneToRobotReceived(SpeedArgs args)
+        {
+            OnSetSpeedConsigneToRobotReceivedEvent?.Invoke(this, args);
+        }
+
+        public void GenerateMessageSetIOPollingFrequencyToRobot(object sender, ByteEventArgs e)
+        {
+            byte[] payload = new byte[1];
+            payload[0]= e.Value;
+            OnMessageToRobot((Int16)Commands.SetIOPollingFrequency, 1, payload);
         }
 
         public void GenerateMessageSetSpeedConsigneToMotor(object sender, SpeedConsigneToMotorArgs e)
@@ -44,11 +56,29 @@ namespace RobotMessageGenerator
             OnMessageToRobot((Int16)Commands.MoveTirDown, 0, null);
         }
 
+        public void GenerateMessageEnablePowerMonitoring(object sender, BoolEventArgs e)
+        {
+            byte[] payload = new byte[1];
+            payload[0] = Convert.ToByte(e.value);
+            OnMessageToRobot((Int16)Commands.EnablePowerMonitoring, 1, payload);
+        }
+        public void GenerateMessageEnableIOPolling(object sender, BoolEventArgs e)
+        {
+            byte[] payload = new byte[1];
+            payload[0] = Convert.ToByte(e.value);
+            OnMessageToRobot((Int16)Commands.EnableIOPolling, 1, payload);
+        }
+
         public void GenerateMessageEnableDisableMotors(object sender, BoolEventArgs e)
         {
             byte[] payload = new byte[1];
-            payload[0] =Convert.ToByte(e.value);
+            payload[0] = Convert.ToByte(e.value);
             OnMessageToRobot((Int16)Commands.EnableDisableMotors, 1, payload);
+        }
+
+        public void GenerateMessageForwardHerkulex(object sender, DataReceivedArgs e)
+        {
+            OnMessageToRobot((Int16)Commands.ForwardHerkulex, (short)e.Data.Length, e.Data);
         }
 
         public void GenerateMessageEnableDisableTir(object sender, BoolEventArgs e)
@@ -110,7 +140,7 @@ namespace RobotMessageGenerator
 
         public void GenerateMessageSetPIDValueToRobot(object sender, PIDDataArgs e)
         {
-            byte[] payload = new byte[36];
+            byte[] payload = new byte[72];
             payload.SetValueRange(((float)(e.P_x)).GetBytes(), 0);
             payload.SetValueRange(((float)(e.I_x)).GetBytes(), 4);
             payload.SetValueRange(((float)(e.D_x)).GetBytes(), 8);
@@ -120,7 +150,16 @@ namespace RobotMessageGenerator
             payload.SetValueRange(((float)(e.P_theta)).GetBytes(), 24);
             payload.SetValueRange(((float)(e.I_theta)).GetBytes(), 28);
             payload.SetValueRange(((float)(e.D_theta)).GetBytes(), 32);
-            OnMessageToRobot((Int16)Commands.SetPIDValues, 36, payload);
+            payload.SetValueRange(((float)(e.P_x_Limit)).GetBytes(), 36);
+            payload.SetValueRange(((float)(e.I_x_Limit)).GetBytes(), 40);
+            payload.SetValueRange(((float)(e.D_x_Limit)).GetBytes(), 44);
+            payload.SetValueRange(((float)(e.P_y_Limit)).GetBytes(), 48);
+            payload.SetValueRange(((float)(e.I_y_Limit)).GetBytes(), 52);
+            payload.SetValueRange(((float)(e.D_y_Limit)).GetBytes(), 56);
+            payload.SetValueRange(((float)(e.P_theta_Limit)).GetBytes(), 60);
+            payload.SetValueRange(((float)(e.I_theta_Limit)).GetBytes(), 64);
+            payload.SetValueRange(((float)(e.D_theta_Limit)).GetBytes(), 68);
+            OnMessageToRobot((Int16)Commands.SetPIDValues, 72, payload);
         }
         //public void GenerateTextMessage(object sender, EventArgsLibrary.SpeedConsigneArgs e)
         //{
@@ -136,11 +175,7 @@ namespace RobotMessageGenerator
         public event EventHandler<MessageToRobotArgs> OnMessageToRobotGeneratedEvent;
         public virtual void OnMessageToRobot(Int16 msgFunction, Int16 msgPayloadLength, byte[] msgPayload)
         {
-            var handler = OnMessageToRobotGeneratedEvent;
-            if (handler != null)
-            {
-                handler(this, new MessageToRobotArgs { MsgFunction = msgFunction, MsgPayloadLength = msgPayloadLength, MsgPayload=msgPayload});
-            }
+            OnMessageToRobotGeneratedEvent?.Invoke(this, new MessageToRobotArgs { MsgFunction = msgFunction, MsgPayloadLength = msgPayloadLength, MsgPayload = msgPayload });
         }
     }
 }

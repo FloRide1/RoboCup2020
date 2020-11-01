@@ -21,6 +21,13 @@ namespace EventArgsLibrary
     {
         public string Value { get; set; }
     }
+
+    public class LidarMessageArgs : EventArgs
+    {
+        public string Value { get; set; }
+        public int Line { get; set; }
+    }
+
     public class DoubleArgs : EventArgs
     {
         public double Value { get; set; }
@@ -115,6 +122,19 @@ namespace EventArgsLibrary
         public int motor6;
         public int motor7;
     }
+    public class IOValuesEventArgs : EventArgs
+    {
+        public uint timeStampMS;
+        public int ioValues;
+    }
+    public class PowerMonitoringValuesEventArgs : EventArgs
+    {
+        public uint timeStampMS;
+        public double battCMDVoltage;
+        public double battCMDCurrent;
+        public double battPWRVoltage;
+        public double battPWRCurrent;
+    }
     public class MotorsPositionDataEventArgs : MotorsCurrentsEventArgs
     {
 
@@ -156,6 +176,15 @@ namespace EventArgsLibrary
         public double P_theta;
         public double I_theta;
         public double D_theta;
+        public double P_x_Limit;
+        public double I_x_Limit;
+        public double D_x_Limit;
+        public double P_y_Limit;
+        public double I_y_Limit;
+        public double D_y_Limit;
+        public double P_theta_Limit;
+        public double I_theta_Limit;
+        public double D_theta_Limit;
     }
 
     public class AccelEventArgs : EventArgs
@@ -168,6 +197,10 @@ namespace EventArgsLibrary
     public class BoolEventArgs : EventArgs
     {
         public bool value { get; set; }
+    }
+    public class ByteEventArgs : EventArgs
+    {
+        public byte Value { get; set; }
     }
     public class CollisionEventArgs : EventArgs
     {
@@ -201,6 +234,10 @@ namespace EventArgsLibrary
     public class LocationListArgs : EventArgs
     {
         public List<Location> LocationList { get; set; }
+    }
+    public class LocationExtendedListArgs : EventArgs
+    {
+        public List<LocationExtended> LocationExtendedList { get; set; }
     }
     public class PerceptionArgs : EventArgs
     {
@@ -252,5 +289,4 @@ namespace EventArgsLibrary
         public int RobotId { get; set; }
         public GameState gameState { get; set; }
     }
-
 }

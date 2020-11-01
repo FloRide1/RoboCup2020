@@ -12,25 +12,73 @@ using System.Diagnostics;
 using PerceptionManagement;
 using System.Timers;
 using Constants;
-
+using System.Threading;
+using static HerkulexManagerNS.HerkulexEventArgs;
+using RefereeBoxAdapter;
+using HerkulexManagerNS;
 
 namespace StrategyManager
 {
     public class StrategyManager_Eurobot
     {
-        int robotId = 0;
+        public int robotId = 0;
         int teamId = 0;
+        public Equipe Team
+        {
+            get
+            {
+                return taskStrategy.playingTeam;
+            }
+        }
         
         GlobalWorldMap globalWorldMap = new GlobalWorldMap();
         Heatmap heatMap;
         Stopwatch sw = new Stopwatch();
 
         PlayerRole robotRole = PlayerRole.Stop;
-        PointD robotDestination = new PointD(0, 0);
-        double robotOrientation = 0;
-        
-        Timer timerStrategy;    
 
+        public PointD robotDestination = new PointD(0, 0);
+        public double robotOrientation = 0;
+        public Location robotCurentLocation = new Location(0,0,0,0,0,0);
+        
+        //System.Timers.Timer timerStrategy;
+
+        public TaskBrasGauche taskBrasGauche;
+        public TaskBrasDroit taskBrasDroit;
+        public TaskBrasCentre taskBrasCentre;
+        public TaskBrasDrapeau taskBrasDrapeau;
+        public TaskBalade taskBalade;
+        public TaskDepose taskDepose;
+        public TaskWindFlag taskWindFlag;
+        public TaskFinDeMatch taskFinDeMatch;
+        public TaskPhare taskPhare;
+        TaskStrategy taskStrategy;
+
+        //Thread de stratégie
+        Thread TaskStrategyThread;
+
+        public bool isDeplacementFinished
+        {
+            get
+            {
+                if (robotOrientation - robotCurentLocation.Theta < Toolbox.DegToRad(5.0) &&
+                    Toolbox.Distance(new PointD(robotCurentLocation.X, robotCurentLocation.Y), robotDestination) < 0.05)
+                    return true;
+                else
+                    return false;
+            }
+            private set
+            {
+
+            }
+        }
+        enum TaskStrategyState
+        {
+            Init,
+            Attente,
+            ChasseAuxGobelets,
+            Finished
+        }
 
         public StrategyManager_Eurobot(int robotId, int teamId)
         {
@@ -38,20 +86,124 @@ namespace StrategyManager
             this.robotId = robotId;
             //heatMap = new Heatmap(22.0, 14.0, 22.0/Math.Pow(2,8), 2); //Init HeatMap
             heatMap = new Heatmap(3, 2, (int)Math.Pow(2, 5), 1); //Init HeatMap
-
-            timerStrategy = new Timer();
-            timerStrategy.Interval = 50;
-            timerStrategy.Elapsed += TimerStrategy_Elapsed;
-            timerStrategy.Start();
-
+            
             OnGameStateChanged(robotId, globalWorldMap.gameState);
+
+
+            //Initialisation des taches de la stratégie
+
+            //Taches de bas niveau
+
+            taskBrasGauche = new TaskBrasGauche();
+            taskBrasGauche.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
+            taskBrasGauche.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+            OnMotorCurrentReceiveForwardEvent += taskBrasGauche.OnMotorCurrentReceive;
+
+            taskBrasDroit = new TaskBrasDroit();
+            taskBrasDroit.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
+            taskBrasDroit.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+            OnMotorCurrentReceiveForwardEvent += taskBrasDroit.OnMotorCurrentReceive;
+
+            taskBrasCentre = new TaskBrasCentre();
+            taskBrasCentre.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
+            taskBrasCentre.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+            OnMotorCurrentReceiveForwardEvent += taskBrasCentre.OnMotorCurrentReceive;
+
+            taskBrasDrapeau = new TaskBrasDrapeau();
+            taskBrasDrapeau.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
+            taskBrasDrapeau.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+            OnMotorCurrentReceiveForwardEvent += taskBrasDrapeau.OnMotorCurrentReceive;
+
+            taskBalade = new TaskBalade(this);
+            OnMotorCurrentReceiveForwardEvent += taskBalade.OnMotorCurrentReceive;
+            taskBalade.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+
+            taskDepose = new TaskDepose(this);
+            OnMotorCurrentReceiveForwardEvent += taskDepose.OnMotorCurrentReceive;
+            taskDepose.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+
+            taskWindFlag = new TaskWindFlag(this);
+            taskWindFlag.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
+            OnMotorCurrentReceiveForwardEvent += taskWindFlag.OnMotorCurrentReceive;
+            taskWindFlag.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+
+            taskStrategy = new TaskStrategy(this);            
+            OnIOValuesEvent += taskStrategy.OnIOValuesFromRobotEvent;
+            taskStrategy.OnMirrorModeEvent += OnMirrorMode;
+
+            taskFinDeMatch = new TaskFinDeMatch(this);
+            taskFinDeMatch.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
+            OnMotorCurrentReceiveForwardEvent += taskFinDeMatch.OnMotorCurrentReceive;
+            taskFinDeMatch.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+
+            taskPhare = new TaskPhare(this);
+            taskPhare.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
+            OnMotorCurrentReceiveForwardEvent += taskPhare.OnMotorCurrentReceive;
+            taskPhare.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+
+            //Thread GameManagementThread = new Thread(ThreadManagementTask);
+            //GameManagementThread.IsBackground = true;
+            //GameManagementThread.Start();
         }
 
-        private void TimerStrategy_Elapsed(object sender, ElapsedEventArgs e)
+
+        public void Init()
         {
-            //ProcessStrategy();
+            //taskStrategy.Init();
+            //taskBrasGauche.Init();
+            //taskBrasDroit.Init();
+            //taskBrasCentre.Init();
+            //taskBrasDrapeau.Init();
+            //taskWindFlag.Init();
+            //taskFinDeMatch.Init();
+            OnEnableDisableMotorCurrentData(true);
         }
 
+
+        //Events
+        public event EventHandler<BoolEventArgs> OnEnableDisableMotorCurrentDataEvent;
+        public virtual void OnEnableDisableMotorCurrentData(bool val)
+        {
+            OnEnableDisableMotorCurrentDataEvent?.Invoke(this, new BoolEventArgs { value = val });
+        }
+
+        public event EventHandler<MotorsCurrentsEventArgs> OnMotorCurrentReceiveForwardEvent;
+        public void OnMotorCurrentReceive(object sender, MotorsCurrentsEventArgs e)
+        {
+            //Forward event to task on low level
+            OnMotorCurrentReceiveForwardEvent?.Invoke(sender, e);
+        }
+
+        //On fait juste un forward d'event sans le récupérer localement
+        public event EventHandler<HerkulexPositionsArgs> OnHerkulexPositionRequestEvent;
+        public void OnHerkulexPositionRequestForwardEvent(object sender, HerkulexPositionsArgs e)
+        {
+            OnHerkulexPositionRequestEvent?.Invoke(sender, e);
+        }
+
+        public event EventHandler<IOValuesEventArgs> OnIOValuesEvent;
+        public void OnIOValuesFromRobotEvent(object sender, IOValuesEventArgs e)
+        {
+            OnIOValuesEvent?.Invoke(sender, e);
+        }
+
+        public event EventHandler<SpeedConsigneToMotorArgs> OnSetSpeedConsigneToMotor;
+        public virtual void OnPilotageVentouseForwardEvent(object sender, SpeedConsigneToMotorArgs e)
+        {
+            OnSetSpeedConsigneToMotor?.Invoke(sender, e);
+        }
+
+        public void OnPositionRobotReceived(object sender, LocationArgs location)
+        {
+            robotCurentLocation.X = location.Location.X;
+            robotCurentLocation.Y = location.Location.Y;
+            robotCurentLocation.Theta = location.Location.Theta;
+
+            robotCurentLocation.Vx = location.Location.Vx;
+            robotCurentLocation.Vy = location.Location.Vy;
+            robotCurentLocation.Vtheta = location.Location.Vtheta;
+        }
+        
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
         {
             //On récupère le gameState avant arrivée de la nouvelle worldMap
@@ -126,51 +278,51 @@ namespace StrategyManager
                     break;
                 case GameState.PLAYING:
                     //C'est ici qu'il faut calculer les fonctions de cout pour chacun des roles.
-                    switch (role)
-                    {
-                        case PlayerRole.Stop:
-                            robotDestination = new PointD(-8, 3);
-                            break;
-                        case PlayerRole.Gardien:
-                            if(teamId == (int)TeamId.Team1)
-                                robotDestination = new PointD(10.5, 0);
-                            else
-                                robotDestination = new PointD(-10.5, 0);
-                            break;
-                        case PlayerRole.DefenseurPlace:
-                            robotDestination = new PointD(-8, 3);
-                            break;
-                        case PlayerRole.DefenseurActif:
-                            robotDestination = new PointD(-8, -3);
-                            break;
-                        case PlayerRole.AttaquantPlace:
-                            robotDestination = new PointD(6, -3);
-                            break;
-                        case PlayerRole.AttaquantAvecBalle:
-                            //if (globalWorldMap.ballLocation != null)
-                            //    robotDestination = new PointD(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y);
-                            //else
-                            //    robotDestination = new PointD(6, 0);
-                            {
-                                if (globalWorldMap.ballLocationList.Count > 0)
-                                {
-                                    var ptInterception = GetInterceptionLocation(new Location(globalWorldMap.ballLocationList[0].X, globalWorldMap.ballLocationList[0].Y, 0, globalWorldMap.ballLocationList[0].Vx, globalWorldMap.ballLocationList[0].Vy, 0), new Location(globalWorldMap.teammateLocationList[robotId].X, globalWorldMap.teammateLocationList[robotId].Y, 0, 0, 0, 0), 3);
+                    //switch (role)
+                    //{
+                    //    case PlayerRole.Stop:
+                    //        robotDestination = new PointD(-8, 3);
+                    //        break;
+                    //    case PlayerRole.Gardien:
+                    //        if(teamId == (int)TeamId.Team1)
+                    //            robotDestination = new PointD(10.5, 0);
+                    //        else
+                    //            robotDestination = new PointD(-10.5, 0);
+                    //        break;
+                    //    case PlayerRole.DefenseurPlace:
+                    //        robotDestination = new PointD(-8, 3);
+                    //        break;
+                    //    case PlayerRole.DefenseurActif:
+                    //        robotDestination = new PointD(-8, -3);
+                    //        break;
+                    //    case PlayerRole.AttaquantPlace:
+                    //        robotDestination = new PointD(6, -3);
+                    //        break;
+                    //    case PlayerRole.AttaquantAvecBalle:
+                    //        //if (globalWorldMap.ballLocation != null)
+                    //        //    robotDestination = new PointD(globalWorldMap.ballLocation.X, globalWorldMap.ballLocation.Y);
+                    //        //else
+                    //        //    robotDestination = new PointD(6, 0);
+                    //        {
+                    //            if (globalWorldMap.ballLocationList.Count > 0)
+                    //            {
+                    //                var ptInterception = GetInterceptionLocation(new Location(globalWorldMap.ballLocationList[0].X, globalWorldMap.ballLocationList[0].Y, 0, globalWorldMap.ballLocationList[0].Vx, globalWorldMap.ballLocationList[0].Vy, 0), new Location(globalWorldMap.teammateLocationList[robotId].X, globalWorldMap.teammateLocationList[robotId].Y, 0, 0, 0, 0), 3);
 
-                                    if (ptInterception != null)
-                                        robotDestination = ptInterception;
-                                    else
-                                        robotDestination = new PointD(globalWorldMap.ballLocationList[0].X, globalWorldMap.ballLocationList[0].Y);
-                                }
-                                else
-                                    robotDestination = new PointD(6, -3);
-                            }
-                            break;
-                        case PlayerRole.Centre:
-                            robotDestination = new PointD(0, 0);
-                            break;
-                        default:
-                            break;
-                    }
+                    //                if (ptInterception != null)
+                    //                    robotDestination = ptInterception;
+                    //                else
+                    //                    robotDestination = new PointD(globalWorldMap.ballLocationList[0].X, globalWorldMap.ballLocationList[0].Y);
+                    //            }
+                    //            else
+                    //                robotDestination = new PointD(6, -3);
+                    //        }
+                    //        break;
+                    //    case PlayerRole.Centre:
+                    //        robotDestination = new PointD(0, 0);
+                    //        break;
+                    //    default:
+                    //        break;
+                    //}
                     break;
                 case GameState.STOPPED_GAME_POSITIONING:
                     switch(globalWorldMap.stoppedGameAction)
@@ -359,6 +511,14 @@ namespace StrategyManager
 
             OptimalPosition = heatMap.GetFieldPosFromBaseHeatMapCoordinates(OptimalPosInBaseHeatMapCoordinates.X, OptimalPosInBaseHeatMapCoordinates.Y);
             
+            //Si la position optimale est très de la cible théorique, on prend la cible théorique
+            double seuilPositionnementFinal = 0.1;
+            if (Toolbox.Distance(new PointD(robotDestination.X, robotDestination.Y), new PointD(OptimalPosition.X, OptimalPosition.Y)) < seuilPositionnementFinal)
+            {
+                OptimalPosition = robotDestination;
+            }
+
+
             OnHeatMap(robotId, heatMap);
             SetDestination(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, (float)robotOrientation, 0, 0, 0));
 
@@ -368,7 +528,7 @@ namespace StrategyManager
             //{
             //    Console.WriteLine("Calcul Strategy - Nb Calculs Etape " + n + " : " + nbComputationsList[n]);
             //}
-            Console.WriteLine("Temps de calcul de la heatMap de stratégie : " + sw.Elapsed.TotalMilliseconds.ToString("N4")+" ms"); // Affichage de la mesure
+            //Console.WriteLine("Temps de calcul de la heatMap de stratégie : " + sw.Elapsed.TotalMilliseconds.ToString("N4")+" ms"); // Affichage de la mesure
         }
 
         //public void ProcessStrategy()
@@ -540,6 +700,19 @@ namespace StrategyManager
                 handler(this, new LocationArgs { RobotId = id, Location = location });
             }
         }
+        
+        //Output events
+        public event EventHandler<RefBoxMessageArgs> OnRefereeBoxCommandEvent;
+        public virtual void OnRefereeBoxReceivedCommand(RefBoxMessage msg)
+        {
+            OnRefereeBoxCommandEvent?.Invoke(this, new RefBoxMessageArgs { refBoxMsg = msg });
+        }
+
+        public event EventHandler<CollisionEventArgs> OnCollisionEvent;
+        public virtual void OnCollision(int id, Location robotLocation)
+        {
+            OnCollisionEvent?.Invoke(this, new CollisionEventArgs { RobotId = id, RobotRealPosition = robotLocation });
+        }
 
         public delegate void HeatMapEventHandler(object sender, HeatMapArgs e);
         public event EventHandler<HeatMapArgs> OnHeatMapEvent;
@@ -559,6 +732,64 @@ namespace StrategyManager
             if (handler != null)
             {
                 handler(this, new GameStateArgs { RobotId = robotId, gameState = state });
+            }
+        }
+
+
+        public event EventHandler<LidarMessageArgs> OnMessageEvent;
+        public virtual void OnLidarMessage(string message, int line)
+        {
+            var handler = OnMessageEvent;
+            if (handler != null)
+            {
+                handler(this, new LidarMessageArgs { Value = message, Line = line });
+            }
+        }
+
+        //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<PIDDataArgs> OnSetRobotVitessePIDEvent;
+        public virtual void OnSetRobotVitessePID(double px, double ix, double dx, double py, double iy, double dy, double ptheta, double itheta, double dtheta,
+            double pxLimit, double ixLimit, double dxLimit, double pyLimit, double iyLimit, double dyLimit, double pthetaLimit, double ithetaLimit, double dthetaLimit
+            )
+        {
+            OnSetRobotVitessePIDEvent?.Invoke(this, new PIDDataArgs {
+                P_x = px, I_x = ix, D_x = dx, P_y = py, I_y = iy, D_y = dy, P_theta = ptheta, I_theta = itheta, D_theta = dtheta,
+                P_x_Limit = px, I_x_Limit = ix, D_x_Limit = dx, P_y_Limit = py, I_y_Limit = iy, D_y_Limit = dy, P_theta_Limit = ptheta, I_theta_Limit = itheta, D_theta_Limit = dtheta
+            });
+        }
+
+        public event EventHandler<BoolEventArgs> OnEnableAsservissementEvent;
+        public virtual void OnEnableAsservissement(bool val)
+        {
+            OnEnableAsservissementEvent?.Invoke(this, new BoolEventArgs { value = val });
+        }
+
+        public event EventHandler<BoolEventArgs> OnEnableMotorsEvent;
+        public virtual void OnEnableMotors(bool val)
+        {
+            OnEnableMotorsEvent?.Invoke(this, new BoolEventArgs { value = val });
+        }
+
+        public event EventHandler<BoolEventArgs> OnMirrorModeForwardEvent;
+        public virtual void OnMirrorMode(object sender, BoolEventArgs val)
+        {
+            OnMirrorModeForwardEvent?.Invoke(sender, val);
+        }
+
+        public Dictionary<ServoId, Servo> HerkulexServos = new Dictionary<ServoId, Servo>();
+        int counterServo = 0;
+        public void OnHerkulexServoInformationReceived(object sender, HerkulexEventArgs.HerkulexServoInformationArgs e)
+        {
+            lock (HerkulexServos)
+            {
+                if (HerkulexServos.ContainsKey(e.Servo.GetID()))
+                {
+                    HerkulexServos[e.Servo.GetID()] = e.Servo;
+                }
+                else
+                {
+                    HerkulexServos.Add(e.Servo.GetID(), e.Servo);
+                }
             }
         }
     }

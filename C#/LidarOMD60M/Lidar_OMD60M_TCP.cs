@@ -36,9 +36,11 @@ namespace LidarOMD60M
         public Lidar_OMD60M_TCP(double freq = 20, R2000SamplingRate samplingRate = R2000SamplingRate._252kHz)
         {
             var threadStartLidar = new Thread(() => LidarStartAndAcquire(freq, samplingRate));
+            threadStartLidar.IsBackground = true;
             threadStartLidar.SetApartmentState(ApartmentState.STA);
             threadStartLidar.Start();
             var threadSendEventLidar = new Thread(LidarSendEvent);
+            threadSendEventLidar.IsBackground = true;
             threadSendEventLidar.SetApartmentState(ApartmentState.STA);
             threadSendEventLidar.Start();
 
@@ -90,6 +92,12 @@ namespace LidarOMD60M
                     Thread.Sleep(5);
                 }
             }
+        }
+               
+        public void OnMessageReceivedEvent(object sender, LidarMessageArgs e)
+        {
+            if (r2000 != null)
+                r2000.DisplayMessage(e.Line, e.Value);
         }
 
         private void LidarSendEvent()

@@ -1,10 +1,7 @@
 ﻿using Constants;
 using EventArgsLibrary;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Timers;
 using Utilities;
 
@@ -192,6 +189,26 @@ namespace RobotMessageProcessor
                     //On envois l'event aux abonnés
                     OnEncoderRawDataFromRobot(timeStamp, enc1RawVal, enc2RawVal, enc3RawVal, enc4RawVal, enc5RawVal, enc6RawVal, enc7RawVal);
                     break;
+
+                case (short)Commands.IOValues:
+                    timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                    byte ioValue = payload[4];
+                    OnIOValuesFromRobot(timeStamp, ioValue);
+                    break;
+
+                case (short)Commands.PowerMonitoringValues:
+                    timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                    tab = payload.GetRange(4, 4);
+                    float battCMDVoltage = tab.GetFloat();
+                    tab = payload.GetRange(8, 4);
+                    float battCMDCurrent = tab.GetFloat();
+                    tab = payload.GetRange(12, 4);
+                    float battPWRVoltage = tab.GetFloat();
+                    tab = payload.GetRange(16, 4);
+                    float battPWRCurrent = tab.GetFloat();
+                    OnPowerMonitoringValuesFromRobot(timeStamp, battCMDVoltage, battCMDCurrent, battPWRVoltage, battPWRCurrent);
+                    break;
+
                 case (short)Commands.PIDDebugData:
                     timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
                     tab = payload.GetRange(4, 4);
@@ -434,6 +451,37 @@ namespace RobotMessageProcessor
                     motor5 = m5,
                     motor6 = m6,
                     motor7 = m7
+                });
+            }
+        }
+
+        public event EventHandler<IOValuesEventArgs> OnIOValuesFromRobotGeneratedEvent;
+        public virtual void OnIOValuesFromRobot(uint timeStamp, byte ioValues)
+        {
+            var handler = OnIOValuesFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new IOValuesEventArgs
+                {
+                    timeStampMS = timeStamp,
+                    ioValues=ioValues
+                });
+            }
+        }
+
+        public event EventHandler<PowerMonitoringValuesEventArgs> OnPowerMonitoringValuesFromRobotGeneratedEvent;
+        public virtual void OnPowerMonitoringValuesFromRobot(uint timeStamp, double battCMDVoltage, double battCMDCurrent, double battPWRVoltage, double battPWRCurrent)
+        {
+            var handler = OnPowerMonitoringValuesFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new PowerMonitoringValuesEventArgs
+                {
+                    timeStampMS = timeStamp,
+                    battCMDVoltage = battCMDVoltage,
+                    battCMDCurrent= battCMDCurrent,
+                    battPWRVoltage=battPWRVoltage,
+                    battPWRCurrent=battPWRCurrent
                 });
             }
         }
