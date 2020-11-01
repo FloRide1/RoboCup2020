@@ -641,9 +641,7 @@ namespace StrategyManager
         double EvaluateStrategyCostFunction(PointD destination, PointD fieldPos)
         {
             return Math.Max(0, 1 - Toolbox.Distance(destination, fieldPos) / 20.0);
-        }
-
-        
+        }        
 
         public PointD GetInterceptionLocation(Location target, Location hunter, double huntingSpeed)
         {

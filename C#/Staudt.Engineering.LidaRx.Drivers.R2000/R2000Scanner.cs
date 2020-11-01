@@ -25,6 +25,8 @@ using Staudt.Engineering.LidaRx.Drivers.R2000.Exceptions;
 using Staudt.Engineering.LidaRx.Drivers.R2000.Helpers;
 using Staudt.Engineering.LidaRx.Drivers.R2000.Serialization;
 using System;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
@@ -293,6 +295,156 @@ namespace Staudt.Engineering.LidaRx.Drivers.R2000
             // when it didn't fail...
             this.MeasurementConfiguration.ScanFrequency = frequencyHz;
         }
+
+        /// <summary>
+        /// Display a message on the LED display
+        /// </summary>
+        /// <param name="line">Display line number</param>
+        /// <param name="message">Message to display</param>
+        public void DisplayMessage(int line, string message)
+        {
+            try
+            {
+                DisplayMessageAsync(line, message).Wait();
+            }
+            catch {; }
+        }
+
+        /// <summary>
+        /// Display a message on the LED display
+        /// </summary>
+        /// <param name="line">Display line number</param>
+        /// <param name="message">Message to display</param>
+        /// <returns></returns>
+        public async Task DisplayMessageAsync(int line, string message)
+        {
+            if (!Connected)
+                throw new LidaRxStateException("This instance is not yet connected to the R2000 scanner.");
+
+            // on recent devices we can check the configurable frequency range!
+            if (this.instanceProtocolVersion >= R2000ProtocolVersion.v101)
+            {
+                //if (frequencyHz < SensorCapabilities.ScanFrequencyMin || frequencyHz > SensorCapabilities.ScanFrequencyMax)
+                //    throw new ArgumentOutOfRangeException(
+                //        "frequencyHz",
+                //        $"Acceptable range is [{SensorCapabilities.ScanFrequencyMin}, {SensorCapabilities.ScanFrequencyMax}]");
+            }
+
+            // build the url
+            var request = $"set_parameter?hmi_display_mode=application_text";
+            var result = await commandClient.GetAsAsync<SetParameterResult>(request);
+
+            if (line == 1)
+            {
+                request = @"set_parameter?hmi_application_text_1=" + message;
+                result = await commandClient.GetAsAsync<SetParameterResult>(request);
+            }
+            else if (line == 2)
+            {
+                request = @"set_parameter?hmi_application_text_2=" + message;
+                result = await commandClient.GetAsAsync<SetParameterResult>(request);
+            }
+        }
+
+        ///// <summary>
+        ///// Display a message on the LED display
+        ///// </summary>
+        ///// <param name="line">Display line number</param>
+        ///// <param name="message">Message to display</param>
+        //public void DisplayRotatingText(int line, string message)
+        //{
+        //    try
+        //    {
+        //        DisplayRotatingTextAsync(line, message).Wait();
+        //    }
+        //    catch {; }
+        //}
+
+        ///// <summary>
+        ///// Display a message on the LED display
+        ///// </summary>
+        ///// <param name="line">Display line number</param>
+        ///// <param name="message">Message to display</param>
+        ///// <returns></returns>
+        //public async Task DisplayRotatingTextAsync(int line, string message)
+        //{
+        //    if (!Connected)
+        //        throw new LidaRxStateException("This instance is not yet connected to the R2000 scanner.");
+                        
+        //    // Go to bitmap mode
+        //    var request = $"set_parameter?hmi_display_mode=application_bitmap";
+        //    var result = await commandClient.GetAsAsync<SetParameterResult>(request);
+
+        //    //Image image = DrawText("Merci Pepperl+Fuchs", new Font("Verdana", 12.0f, FontStyle.Bold), -horizontalShift);
+
+        //    //var array = ConvertBitmapToArray(new Bitmap(image));
+        //    //    var bitmapString = ConvertToBase64StringForLidar(array);
+
+        //    //    string request = @"http://" + LidarIpAddress + "/cmd/set_parameter?hmi_application_bitmap="+ bitmapString;
+        //    if (line == 1)
+        //    {
+        //        request = @"set_parameter?hmi_application_text_1=" + message;
+        //        result = await commandClient.GetAsAsync<SetParameterResult>(request);
+        //    }
+        //    else if (line == 2)
+        //    {
+        //        request = @"set_parameter?hmi_application_text_2=" + message;
+        //        result = await commandClient.GetAsAsync<SetParameterResult>(request);
+        //    }
+        //}
+
+        //private Image DrawText(String text, Font font, int horizontalShift)
+        //{
+        //    Color textColor = Color.Black;
+        //    Color backColor = Color.White;
+
+        //    int width = 252;
+        //    int height = 24;
+        //    //On créé une image de taille réduite par trois pour avoir le vrai affichage
+        //    var img = new Bitmap(width / 3, height);
+        //    Graphics drawing = Graphics.FromImage(img);
+
+        //    //measure the string to see how big the image needs to be
+        //    //SizeF textSize = drawing.MeasureString(text, font);
+
+        //    //paint the background
+        //    drawing.Clear(backColor);
+
+        //    //create a brush for the text
+        //    Brush textBrush = new SolidBrush(textColor);
+        //    drawing.DrawString(text, font, textBrush, horizontalShift, 0);
+        //    drawing.Save();
+        //    textBrush.Dispose();
+        //    drawing.Dispose();
+
+        //    Bitmap finalImage = new Bitmap(width, height);
+        //    using (Graphics g = Graphics.FromImage(finalImage))
+        //    {
+        //        g.DrawImage(img, 0, 0, width, height);
+        //    }
+
+        //    return finalImage;
+
+        //}
+
+
+        //async Task LidarSetApplicationBitmapMode()
+        //{
+        //    string request = @"http://" + LidarIpAddress + "/cmd/set_parameter?hmi_display_mode=application_bitmap";
+        //    var content = await HttpClient.GetStringAsync(request);
+        //    //Console.WriteLine(content);
+        //}
+
+        //async Task LidarSetImage(int horizontalShift)
+        //{
+        //    Image image = DrawText("Merci Pepperl+Fuchs", new Font("Verdana", 12.0f, FontStyle.Bold), -horizontalShift);
+
+        //    var array = ConvertBitmapToArray(new Bitmap(image));
+        //    var bitmapString = ConvertToBase64StringForLidar(array);
+
+        //    string request = @"http://" + LidarIpAddress + "/cmd/set_parameter?hmi_application_bitmap="+ bitmapString;
+        //    var content = await HttpClient.GetStringAsync(request);
+        //}
 
         /// <summary>
         /// Set the sampling rate
