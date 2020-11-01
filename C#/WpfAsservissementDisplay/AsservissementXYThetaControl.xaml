@@ -83,15 +83,20 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
-            <Label x:Name="LabelKpX" Content="0" Foreground="White" Margin="0" Padding="0"/>
+            <Label x:Name="LabelKpX" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
             <Label x:Name="LabelCorrPX" Grid.Row="1" Content="0" Foreground="White" Margin="0" Padding="0"/>
-            <Label x:Name="LabelCorrMaxPX" Grid.Row="2" Content="0" Foreground="White" Margin="0" Padding="0"/>
-            <Polyline Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#BB0000" Fill="#FF0000"  StrokeThickness="2">
+                <Label x:Name="LabelCorrMaxPX" Grid.Row="2" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
+            <!--<Polyline Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#BB0000" Fill="#FF0000"  StrokeThickness="2">
                 <Polyline.Effect>
                     <DropShadowEffect Color="#FF9999" ShadowDepth="0" Direction="0" BlurRadius="25"  />
                 </Polyline.Effect>
-            </Polyline>
-        </Grid>
+            </Polyline>-->
+                <Polyline Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#00BB00" Fill="#00FF00"  StrokeThickness="2">
+                    <Polyline.Effect>
+                        <DropShadowEffect Color="#99FF99" ShadowDepth="0" Direction="0" BlurRadius="25"  />
+                    </Polyline.Effect>
+                </Polyline>
+            </Grid>
         <Grid x:Name="CorrPYGrid" Grid.Column="2" MinWidth="80" Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
@@ -102,15 +107,15 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
-            <Label x:Name="LabelKpY" Content="0" Foreground="White" Margin="0" Padding="0"/>
+                <Label x:Name="LabelKpY" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
             <Label x:Name="LabelCorrPY" Grid.Row="1" Content="0" Foreground="White" Margin="0" Padding="0"/>
-            <Label x:Name="LabelCorrMaxPY" Grid.Row="2" Content="0" Foreground="White" Margin="0" Padding="0"/>
-            <Polyline Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#BB0000" Fill="#FF0000"  StrokeThickness="2">
-                <Polyline.Effect>
-                    <DropShadowEffect Color="#FF9999" ShadowDepth="0" Direction="0" BlurRadius="25"  />
-                </Polyline.Effect>
-            </Polyline>
-        </Grid>
+                <Label x:Name="LabelCorrMaxPY" Grid.Row="2" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
+                <Polyline Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#00BB00" Fill="#00FF00"  StrokeThickness="2">
+                    <Polyline.Effect>
+                        <DropShadowEffect Color="#99FF99" ShadowDepth="0" Direction="0" BlurRadius="25"  />
+                    </Polyline.Effect>
+                </Polyline>
+            </Grid>
         <Grid x:Name="CorrPThetaGrid" Grid.Column="3" MinWidth="80" Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
@@ -121,15 +126,15 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
-            <Label x:Name="LabelKpTheta" Content="0" Foreground="White" Margin="0" Padding="0"/>
+                <Label x:Name="LabelKpTheta" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
             <Label x:Name="LabelCorrPTheta" Grid.Row="1" Content="0" Foreground="White" Margin="0" Padding="0"/>
-            <Label x:Name="LabelCorrMaxPTheta" Grid.Row="2" Content="0" Foreground="White" Margin="0" Padding="0"/>
-            <Polyline Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#BB0000" Fill="#FF0000"  StrokeThickness="2">
-                <Polyline.Effect>
-                    <DropShadowEffect Color="#FF9999" ShadowDepth="0" Direction="0" BlurRadius="25"  />
-                </Polyline.Effect>
-            </Polyline>
-        </Grid>
+                <Label x:Name="LabelCorrMaxPTheta" Grid.Row="2" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
+                <Polyline Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#00BB00" Fill="#00FF00"  StrokeThickness="2">
+                    <Polyline.Effect>
+                        <DropShadowEffect Color="#99FF99" ShadowDepth="0" Direction="0" BlurRadius="25"  />
+                    </Polyline.Effect>
+                </Polyline>
+            </Grid>
 
         <Grid x:Name="CorrIXGrid" Grid.Column="1" MinWidth="80" Grid.Row="3">
             <Grid.ColumnDefinitions>
@@ -141,10 +146,10 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
-            <Label x:Name="LabelKiX" Content="0" Foreground="White" Margin="0" Padding="0"/>
+                <Label x:Name="LabelKiX" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
             <Label x:Name="LabelCorrIX" Grid.Row="1" Content="0" Foreground="White" Margin="0" Padding="0"/>
-            <Label x:Name="LabelCorrMaxIX" Grid.Row="2" Content="0" Foreground="White" Margin="0" Padding="0"/>
-            <Polyline Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#00BB00" Fill="#00FF00"  StrokeThickness="2">
+                <Label x:Name="LabelCorrMaxIX" Grid.Row="2" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
+            <Polyline Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#00BB00" Fill="#00FF00"  StrokeThickness="2">
                 <Polyline.Effect>
                     <DropShadowEffect Color="#99FF99" ShadowDepth="0" Direction="0" BlurRadius="25"  />
                 </Polyline.Effect>
@@ -160,15 +165,15 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
-            <Label x:Name="LabelKiY" Content="0" Foreground="White" Margin="0" Padding="0"/>
+                <Label x:Name="LabelKiY" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
             <Label x:Name="LabelCorrIY" Grid.Row="1" Content="0" Foreground="White" Margin="0" Padding="0"/>
-            <Label x:Name="LabelCorrMaxIY" Grid.Row="2" Content="0" Foreground="White" Margin="0" Padding="0"/>
-            <Polyline Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#BB0000" Fill="#FF0000"  StrokeThickness="2">
-                <Polyline.Effect>
-                    <DropShadowEffect Color="#FF9999" ShadowDepth="0" Direction="0" BlurRadius="25"  />
-                </Polyline.Effect>
-            </Polyline>
-        </Grid>
+                <Label x:Name="LabelCorrMaxIY" Grid.Row="2" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
+                <Polyline Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#00BB00" Fill="#00FF00"  StrokeThickness="2">
+                    <Polyline.Effect>
+                        <DropShadowEffect Color="#99FF99" ShadowDepth="0" Direction="0" BlurRadius="25"  />
+                    </Polyline.Effect>
+                </Polyline>
+            </Grid>
         <Grid x:Name="CorrIThetaGrid" Grid.Column="3" MinWidth="80" Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
@@ -179,15 +184,15 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
-            <Label x:Name="LabelKiTheta" Content="0" Foreground="White" Margin="0" Padding="0"/>
+                <Label x:Name="LabelKiTheta" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
             <Label x:Name="LabelCorrITheta" Grid.Row="1" Content="0" Foreground="White" Margin="0" Padding="0"/>
-            <Label x:Name="LabelCorrMaxITheta" Grid.Row="2" Content="0" Foreground="White" Margin="0" Padding="0"/>
-            <Polyline Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#BB0000" Fill="#FF0000"  StrokeThickness="2">
-                <Polyline.Effect>
-                    <DropShadowEffect Color="#FF9999" ShadowDepth="0" Direction="0" BlurRadius="25"  />
-                </Polyline.Effect>
-            </Polyline>
-        </Grid>
+                <Label x:Name="LabelCorrMaxITheta" Grid.Row="2" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
+                <Polyline Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#00BB00" Fill="#00FF00"  StrokeThickness="2">
+                    <Polyline.Effect>
+                        <DropShadowEffect Color="#99FF99" ShadowDepth="0" Direction="0" BlurRadius="25"  />
+                    </Polyline.Effect>
+                </Polyline>
+            </Grid>
 
         <Grid x:Name="CorrDXGrid" Grid.Column="1" MinWidth="80" Grid.Row="4">
             <Grid.ColumnDefinitions>
@@ -199,15 +204,15 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
-            <Label x:Name="LabelKdX" Content="0" Foreground="White" Margin="0" Padding="0"/>
+                <Label x:Name="LabelKdX" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
             <Label x:Name="LabelCorrDX" Grid.Row="1" Content="0" Foreground="White" Margin="0" Padding="0"/>
-            <Label x:Name="LabelCorrMaxDX" Grid.Row="2" Content="0" Foreground="White" Margin="0" Padding="0"/>
-            <Polyline Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#BB0000" Fill="#FF0000"  StrokeThickness="2">
-                <Polyline.Effect>
-                    <DropShadowEffect Color="#FF9999" ShadowDepth="0" Direction="0" BlurRadius="25"  />
-                </Polyline.Effect>
-            </Polyline>
-        </Grid>
+                <Label x:Name="LabelCorrMaxDX" Grid.Row="2" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
+                <Polyline Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#00BB00" Fill="#00FF00"  StrokeThickness="2">
+                    <Polyline.Effect>
+                        <DropShadowEffect Color="#99FF99" ShadowDepth="0" Direction="0" BlurRadius="25"  />
+                    </Polyline.Effect>
+                </Polyline>
+            </Grid>
         <Grid x:Name="CorrDYGrid" Grid.Column="2" MinWidth="80" Grid.Row="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
@@ -218,15 +223,15 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
-            <Label x:Name="LabelKdY" Content="0" Foreground="White" Margin="0" Padding="0"/>
+                <Label x:Name="LabelKdY" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
             <Label x:Name="LabelCorrDY" Grid.Row="1" Content="0" Foreground="White" Margin="0" Padding="0"/>
-            <Label x:Name="LabelCorrMaxDY" Grid.Row="2" Content="0" Foreground="White" Margin="0" Padding="0"/>
-            <Polyline Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#BB0000" Fill="#FF0000"  StrokeThickness="2">
-                <Polyline.Effect>
-                    <DropShadowEffect Color="#FF9999" ShadowDepth="0" Direction="0" BlurRadius="25"  />
-                </Polyline.Effect>
-            </Polyline>
-        </Grid>
+                <Label x:Name="LabelCorrMaxDY" Grid.Row="2" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
+                <Polyline Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#00BB00" Fill="#00FF00"  StrokeThickness="2">
+                    <Polyline.Effect>
+                        <DropShadowEffect Color="#99FF99" ShadowDepth="0" Direction="0" BlurRadius="25"  />
+                    </Polyline.Effect>
+                </Polyline>
+            </Grid>
         <Grid x:Name="CorrDThetaGrid" Grid.Column="3" MinWidth="80" Grid.Row="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
@@ -237,15 +242,15 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
-            <Label x:Name="LabelKdTheta" Content="0" Foreground="White" Margin="0" Padding="0"/>
+                <Label x:Name="LabelKdTheta" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
             <Label x:Name="LabelCorrDTheta" Grid.Row="1" Content="0" Foreground="White" Margin="0" Padding="0"/>
-            <Label x:Name="LabelCorrMaxDTheta" Grid.Row="2" Content="0" Foreground="White" Margin="0" Padding="0"/>
-            <Polyline Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#BB0000" Fill="#FF0000"  StrokeThickness="2">
-                <Polyline.Effect>
-                    <DropShadowEffect Color="#FF9999" ShadowDepth="0" Direction="0" BlurRadius="25"  />
-                </Polyline.Effect>
-            </Polyline>
-        </Grid>
+                <Label x:Name="LabelCorrMaxDTheta" Grid.Row="2" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
+                <Polyline Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#00BB00" Fill="#00FF00"  StrokeThickness="2">
+                    <Polyline.Effect>
+                        <DropShadowEffect Color="#99FF99" ShadowDepth="0" Direction="0" BlurRadius="25"  />
+                    </Polyline.Effect>
+                </Polyline>
+            </Grid>
 
         </Grid>
     </Border>
