@@ -1,5 +1,4 @@
 ﻿using EventArgsLibrary;
-using ExtendedSerialPort;
 using System;
 using System.Collections.Generic;
 using System.Linq;

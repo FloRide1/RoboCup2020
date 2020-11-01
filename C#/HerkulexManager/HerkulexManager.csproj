@@ -55,10 +55,6 @@
       <Project>{9C46A7C0-4675-41BE-B282-E6F0825AD73E}</Project>
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ExtendedSerialPort\ExtendedSerialPort\ExtendedSerialPort.csproj">
-      <Project>{21ac599e-e3d5-4181-aa0f-7c2e00cca016}</Project>
-      <Name>ExtendedSerialPort</Name>
-    </ProjectReference>
     <ProjectReference Include="..\lib\HerkulexController\HerkulexController.csproj">
       <Project>{ADA2C3AB-18D0-4391-8066-272AB39102AA}</Project>
       <Name>HerkulexController</Name>

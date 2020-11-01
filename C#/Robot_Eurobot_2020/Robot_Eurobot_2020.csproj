@@ -13,6 +13,21 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -102,12 +117,21 @@
   <ItemGroup>
     <Compile Include="ConfigRobotEurobot.cs" />
     <Compile Include="ConfigSerialPort.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="Robot_Eurobot_2020.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AbsolutePositionEstimator\AbsolutePositionEstimator.csproj">
@@ -121,10 +145,6 @@
     <ProjectReference Include="..\EventArgsLibrary\EventArgsLibrary.csproj">
       <Project>{9c46a7c0-4675-41be-b282-e6f0825ad73e}</Project>
       <Name>EventArgsLibrary</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ExtendedSerialPort\ExtendedSerialPort\ExtendedSerialPort.csproj">
-      <Project>{21ac599e-e3d5-4181-aa0f-7c2e00cca016}</Project>
-      <Name>ExtendedSerialPort</Name>
     </ProjectReference>
     <ProjectReference Include="..\FileManager\FileManager.csproj">
       <Project>{17c540a1-8d13-4cb6-8094-32229e50e031}</Project>
@@ -182,13 +202,13 @@
       <Project>{4CF48B4E-AB93-479E-B79C-F9101F24B7BA}</Project>
       <Name>PhysicalSimulator</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PositionEstimator\PositionEstimator.csproj">
-      <Project>{d668c327-67c7-41bb-b949-311a239b514c}</Project>
-      <Name>PositionEstimator</Name>
-    </ProjectReference>
     <ProjectReference Include="..\RefereeBoxAdapter\RefereeBoxAdapter.csproj">
       <Project>{A8C04138-90DC-42F9-AB39-E71125B805B9}</Project>
       <Name>RefereeBoxAdapter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ReliableSerialPort\ReliableSerialPort.csproj">
+      <Project>{ED8EA38E-A83C-47D7-B220-3B89A2EFA1ED}</Project>
+      <Name>ReliableSerialPort</Name>
     </ProjectReference>
     <ProjectReference Include="..\RobotInterfaceWPF_Supervision_Systeme_Embarqué\RobotInterface\WpfRobotInterface.csproj">
       <Project>{1CDC0611-A2E5-42E8-A28B-BA4269343C68}</Project>
@@ -250,6 +270,18 @@
       <Project>{DD54A1C0-2926-45BF-82DE-36221845F1D7}</Project>
       <Name>XboxController</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.8">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.8 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

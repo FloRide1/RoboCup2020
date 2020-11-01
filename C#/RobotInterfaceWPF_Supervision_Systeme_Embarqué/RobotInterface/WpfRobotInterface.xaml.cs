@@ -122,7 +122,8 @@ namespace RobotInterface
             oscilloLidar.ChangeLineColor(1, Colors.IndianRed);
             oscilloLidar.ChangeLineColor(2, Colors.LightGoldenrodYellow);
 
-            //oscilloLidar.DrawOnlyPoints(0);
+            asservPositionDisplay.SetTitle("Asservissement Position");
+            asservSpeedDisplay.SetTitle("Asservissement Vitesse");
         }
 
         void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -213,6 +214,23 @@ namespace RobotInterface
             oscilloLidar.UpdatePointListOfLine(2, ptList2);
         }
 
+        public void OnMessageToDisplaySpeedPidSetupReceived(object sender, PIDSetupArgs e)
+        {
+            asservSpeedDisplay.UpdateCorrectionGains(e.P_x, e.P_y, e.P_theta, e.I_x, e.I_y, e.I_theta, e.D_x, e.D_y, e.D_theta);
+            asservSpeedDisplay.UpdateCorrectionLimits(e.P_x_Limit, e.P_y_Limit, e.P_theta_Limit, e.I_x_Limit, e.I_y_Limit, e.I_theta_Limit, e.D_x_Limit, e.D_y_Limit, e.D_theta_Limit);
+        }
+
+        public void OnMessageToDisplayPositionPidSetupReceived(object sender, PIDSetupArgs e)
+        {
+            asservPositionDisplay.UpdateCorrectionGains(e.P_x, e.P_y, e.P_theta, e.I_x, e.I_y, e.I_theta, e.D_x, e.D_y, e.D_theta);
+            asservPositionDisplay.UpdateCorrectionLimits(e.P_x_Limit, e.P_y_Limit, e.P_theta_Limit, e.I_x_Limit, e.I_y_Limit, e.I_theta_Limit, e.D_x_Limit, e.D_y_Limit, e.D_theta_Limit);
+        }
+
+        public void OnMessageToDisplayPositionPidCorrectionReceived(object sender, PIDCorrectionArgs e)
+        {
+            asservPositionDisplay.UpdateCorrectionValues(e.CorrPx, e.CorrPy, e.CorrPTheta, e.CorrIx, e.CorrIy, e.CorrITheta, e.CorrDx, e.CorrDy, e.CorrDTheta);
+        }
+
         Dictionary<ServoId, Servo> HerkulexServos = new Dictionary<ServoId, Servo>();
         int counterServo = 0;
         public void OnHerkulexServoInformationReceived(object sender, HerkulexEventArgs.HerkulexServoInformationArgs e)
@@ -294,7 +312,6 @@ namespace RobotInterface
 
         }
 
-        double VM1_1 = 0;
         public void UpdateMotorSpeedConsigneOnGraph(object sender, MotorsVitesseDataEventArgs e)
         {
             oscilloM1.AddPointToLine(4, e.timeStampMS / 1000.0, e.vitesseMotor1);
@@ -337,7 +354,7 @@ namespace RobotInterface
 
         public void UpdatePIDDebugDataOnGraph(object sender, PIDDebugDataArgs e)
         {
-            asservDisplay.UpdateErrorValues(e.xCorrection, e.yCorrection, e.thetaCorrection);
+            asservSpeedDisplay.UpdateErrorValues(e.xCorrection, e.yCorrection, e.thetaCorrection);
 
             oscilloX.AddPointToLine(3, e.timeStampMS / 1000.0, e.xErreur);
             oscilloX.AddPointToLine(4, e.timeStampMS / 1000.0, e.xCorrection);
@@ -708,13 +725,13 @@ namespace RobotInterface
         }
 
         //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
-        public event EventHandler<PIDDataArgs> OnSetRobotPIDFromInterfaceGeneratedEvent;
+        public event EventHandler<PIDSetupArgs> OnSetRobotPIDFromInterfaceGeneratedEvent;
         public virtual void OnSetRobotPIDFromInterface(double px, double ix, double dx, double py, double iy, double dy, double ptheta, double itheta, double dtheta)
         {
             var handler = OnSetRobotPIDFromInterfaceGeneratedEvent;
             if (handler != null)
             {
-                handler(this, new PIDDataArgs { P_x = px, I_x=ix, D_x=dx, P_y=py, I_y=iy, D_y=dy, P_theta=ptheta, I_theta=itheta, D_theta=dtheta });
+                handler(this, new PIDSetupArgs { P_x = px, I_x=ix, D_x=dx, P_y=py, I_y=iy, D_y=dy, P_theta=ptheta, I_theta=itheta, D_theta=dtheta });
             }
         }
 

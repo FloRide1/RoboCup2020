@@ -1,6 +1,5 @@
 ﻿using AdvancedTimers;
 using Constants;
-using ExtendedSerialPort;
 using LidarOMD60M;
 using MessageDecoder;
 using MessageEncoder;
@@ -21,9 +20,8 @@ using System.Runtime.InteropServices;
 using Staudt.Engineering.LidaRx.Drivers.R2000;
 using Staudt.Engineering.LidaRx;
 using StrategyManager;
-using UDPMulticast;
-using UdpMulticastInterpreter;
 using HerkulexManagerNS;
+using ReliableSerialPortNS;
 
 namespace Robot
 {
@@ -150,11 +148,15 @@ namespace Robot
         }
         static void Main(string[] args)
         {
-            SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
-
             // Set this code once in App.xaml.cs or application startup
             SciChartSurface.SetRuntimeLicenseKey("RJWA77RbaJDdCRJpg4Iunl5Or6/FPX1xT+Gzu495Eaa0ZahxWi3jkNFDjUb/w70cHXyv7viRTjiNRrYqnqGA+Dc/yzIIzTJlf1s4DJvmQc8TCSrH7MBeQ2ON5lMs/vO0p6rBlkaG+wwnJk7cp4PbOKCfEQ4NsMb8cT9nckfdcWmaKdOQNhHsrw+y1oMR7rIH+rGes0jGGttRDhTOBxwUJK2rBA9Z9PDz2pGOkPjy9fwQ4YY2V4WPeeqM+6eYxnDZ068mnSCPbEnBxpwAldwXTyeWdXv8sn3Dikkwt3yqphQxvs0h6a8Dd6K/9UYni3o8pRkTed6SWodQwICcewfHTyGKQowz3afARj07et2h+becxowq3cRHL+76RyukbIXMfAqLYoT2UzDJNsZqcPPq/kxeXujuhT4SrNF3444MU1GaZZ205KYEMFlz7x/aEnjM6p3BuM6ZuO3Fjf0A0Ki/NBfS6n20E07CTGRtI6AsM2m59orPpI8+24GFlJ9xGTjoRA==");
-            //To use configurqtion file, must be declare variable no static
+
+            //On ajoute un gestionnaire d'évènement pour détecter la fermeture de l'application
+            _handler += new EventHandler(Handler);
+            SetConsoleCtrlHandler(_handler, true);
+
+
+            //To use configuration file, must be declare variable no static
             //ConfigRobotEurobot cfgRobot = FileManager.JsonSerialize<ConfigRobotEurobot>.DeserializeObjectFromFile(@"Configs", "Robot");
             //robotMode = cfgRobot.RobotMode;
             //usingPhysicalSimulator = cfgRobot.UsingPhysicalSimulator;
@@ -257,7 +259,7 @@ namespace Robot
             strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
             strategyManager.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
             strategyManager.OnMessageEvent += lidar_OMD60M_TCP.OnMessageReceivedEvent;
-            strategyManager.OnSetRobotVitessePIDEvent += robotMsgGenerator.GenerateMessageSetPIDValueToRobot;
+            strategyManager.OnSetRobotVitessePIDEvent += robotMsgGenerator.GenerateMessageSetupSpeedPIDToRobot;
             strategyManager.OnEnableAsservissementEvent += robotMsgGenerator.GenerateMessageEnableAsservissement;
             strategyManager.OnHerkulexPositionRequestEvent += herkulexManager.OnHerkulexPositionRequestEvent;
             strategyManager.OnSetSpeedConsigneToMotor += robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
@@ -356,14 +358,13 @@ namespace Robot
             timerStrategie.Tick += TimerStrategie_Tick;
             timerStrategie.Start();
 
-            lock (ExitLock)
+            while(!exitSystem)
             {
-                // Do whatever setup code you need here
-                // once we are done wait
-                Monitor.Wait(ExitLock);
+                Thread.Sleep(500);
             }
+
         }
-        
+
         static Random rand = new Random();
         private static void TimerStrategie_Tick(object sender, EventArgs e)
         {
@@ -428,12 +429,35 @@ namespace Robot
         }
 
 
-        static void ExitProgram()
+        /******************************************* Trap app termination ***************************************/
+        static bool exitSystem = false;
+        [DllImport("Kernel32")]
+        private static extern bool SetConsoleCtrlHandler(EventHandler handler, bool add);
+        enum CtrlType
         {
-            lock (ExitLock)
-            {
-                Monitor.Pulse(ExitLock);
-            }
+            CTRL_C_EVENT=0,
+            CTRL_BREAK_EVENT = 1,
+            CTRL_CLOSE_EVENT = 2,
+            CTRL_LOGOFF_EVENT = 3,
+            CTRL_SHUTDOWN_EVENT = 4
+        }
+
+        private delegate bool EventHandler(CtrlType sig);
+        static EventHandler _handler;
+        //Gestion de la terminaison de l'application de manière propre
+        private static bool Handler(CtrlType sig)
+        {
+            Console.WriteLine("Existing on CTRL+C or process kill or shutdown...");
+
+            //Nettoyage des process à faire ici
+            serialPort1.Close();
+
+            Console.WriteLine("Nettoyage effectué");
+            exitSystem = true;
+
+            //Sortie
+            Environment.Exit(-1);
+            return true;
         }
 
         static Thread t1;
@@ -459,8 +483,12 @@ namespace Robot
             lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += interfaceRobot.OnRawLidarDataReceived;
             perceptionManager.OnLidarBalisePointListForDebugEvent += interfaceRobot.OnRawLidarBalisePointsReceived;
 
+            robotMsgGenerator.OnMessageToDisplaySpeedPidSetupEvent += interfaceRobot.OnMessageToDisplaySpeedPidSetupReceived;
+            trajectoryPlanner.OnMessageToDisplayPositionPidSetupEvent += interfaceRobot.OnMessageToDisplayPositionPidSetupReceived;
+            trajectoryPlanner.OnMessageToDisplayPositionPidCorrectionEvent += interfaceRobot.OnMessageToDisplayPositionPidCorrectionReceived;
+
             //herkulexManager.OnHerkulexServoInformationEvent += interfaceRobot.OnHerkulexServoInformationReceived;
-            
+
 
             //On récupère les évènements de type refbox, qui sont ici des tests manuels dans le globalManager pour lancer à la main des actions ou stratégies
             interfaceRobot.OnRefereeBoxCommandEvent += globalWorldMapManager.OnRefereeBoxCommandReceived;
@@ -493,7 +521,7 @@ namespace Robot
             interfaceRobot.OnEnableEncodersRawDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableEncoderRawData;
             interfaceRobot.OnEnableMotorCurrentDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableMotorCurrentData;
             interfaceRobot.OnEnableMotorsSpeedConsigneDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableMotorSpeedConsigne;
-            interfaceRobot.OnSetRobotPIDFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageSetPIDValueToRobot;
+            interfaceRobot.OnSetRobotPIDFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageSetupSpeedPIDToRobot;
             interfaceRobot.OnEnablePIDDebugDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnablePIDDebugData;
             interfaceRobot.OnCalibrateGyroFromInterfaceGeneratedEvent += imuProcessor.OnCalibrateGyroFromInterfaceGeneratedEvent;
 

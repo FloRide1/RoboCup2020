@@ -130,10 +130,6 @@
       <Project>{9C46A7C0-4675-41BE-B282-E6F0825AD73E}</Project>
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\ExtendedSerialPort\ExtendedSerialPort\ExtendedSerialPort.csproj">
-      <Project>{21ac599e-e3d5-4181-aa0f-7c2e00cca016}</Project>
-      <Name>ExtendedSerialPort</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\HerkulexManager\HerkulexManager.csproj">
       <Project>{835B8B5A-C248-4443-99CA-FF11AC77481A}</Project>
       <Name>HerkulexManager</Name>
