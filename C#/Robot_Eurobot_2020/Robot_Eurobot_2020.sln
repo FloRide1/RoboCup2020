@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.29326.143
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventArgsLibrary", "..\EventArgsLibrary\EventArgsLibrary.csproj", "{9C46A7C0-4675-41BE-B282-E6F0825AD73E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtendedSerialPort", "..\ExtendedSerialPort\ExtendedSerialPort\ExtendedSerialPort.csproj", "{21AC599E-E3D5-4181-AA0F-7C2E00CCA016}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobotPilot", "..\RobotPilot\RobotPilot.csproj", "{4012F5AF-50E3-40BD-ABF0-4AFE3F30D5E3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobotMessageGenerator", "..\RobotMessageGenerator\RobotMessageGenerator.csproj", "{7F098EE2-A8CD-48CF-B9F4-256EA3DF2BC6}"
@@ -65,8 +63,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfWorldMapDisplay", "..\Wp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfReplayNavigator", "..\WpfReplayNavigator\WpfReplayNavigator.csproj", "{32A52236-C210-40A2-829E-ACB4BB3A1B43}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PositionEstimator", "..\PositionEstimator\PositionEstimator.csproj", "{D668C327-67C7-41BB-B949-311A239B514C}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDPAdapter", "..\UDPAdapter\UDPAdapter.csproj", "{75E25C11-47B1-410E-A6CC-E37A74F7D0F9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Staudt.Engineering.LidaRx", "..\Staudt.Engineering.LidaRx\Staudt.Engineering.LidaRx.csproj", "{A4C17E50-0AE0-469B-B0DF-39F6AC733319}"
@@ -78,8 +74,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KalmanPositioning", "..\KalmanPositioning\KalmanPositioning.csproj", "{825389C5-BF86-419E-8914-FC5A325D4A0B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorSimulator", "..\SensorSimulator\SensorSimulator.csproj", "{BACF7A03-7D22-4C97-83FA-B37561B9EC73}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GPU_DLL_CUDA", "..\GPU_DLL_CUDA\GPU_DLL_CUDA.vcxproj", "{35F710B7-9493-40BD-A4D8-55C751A68BF8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Robot_Eurobot_2020", "Robot_Eurobot_2020.csproj", "{F48FF3AC-50C6-4016-8F67-F5430FED1A2C}"
 EndProject
@@ -100,6 +94,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileManager", "..\FileManager\FileManager.csproj", "{17C540A1-8D13-4CB6-8094-32229E50E031}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfAsservissementDisplay", "..\WpfAsservissementDisplay\WpfAsservissementDisplay.csproj", "{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReliableSerialPort", "..\ReliableSerialPort\ReliableSerialPort.csproj", "{ED8EA38E-A83C-47D7-B220-3B89A2EFA1ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -123,18 +119,6 @@ Global
 		{9C46A7C0-4675-41BE-B282-E6F0825AD73E}.Release|x64.Build.0 = Release|x64
 		{9C46A7C0-4675-41BE-B282-E6F0825AD73E}.Release|x86.ActiveCfg = Release|Any CPU
 		{9C46A7C0-4675-41BE-B282-E6F0825AD73E}.Release|x86.Build.0 = Release|Any CPU
-		{21AC599E-E3D5-4181-AA0F-7C2E00CCA016}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{21AC599E-E3D5-4181-AA0F-7C2E00CCA016}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{21AC599E-E3D5-4181-AA0F-7C2E00CCA016}.Debug|x64.ActiveCfg = Debug|x64
-		{21AC599E-E3D5-4181-AA0F-7C2E00CCA016}.Debug|x64.Build.0 = Debug|x64
-		{21AC599E-E3D5-4181-AA0F-7C2E00CCA016}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{21AC599E-E3D5-4181-AA0F-7C2E00CCA016}.Debug|x86.Build.0 = Debug|Any CPU
-		{21AC599E-E3D5-4181-AA0F-7C2E00CCA016}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{21AC599E-E3D5-4181-AA0F-7C2E00CCA016}.Release|Any CPU.Build.0 = Release|Any CPU
-		{21AC599E-E3D5-4181-AA0F-7C2E00CCA016}.Release|x64.ActiveCfg = Release|x64
-		{21AC599E-E3D5-4181-AA0F-7C2E00CCA016}.Release|x64.Build.0 = Release|x64
-		{21AC599E-E3D5-4181-AA0F-7C2E00CCA016}.Release|x86.ActiveCfg = Release|Any CPU
-		{21AC599E-E3D5-4181-AA0F-7C2E00CCA016}.Release|x86.Build.0 = Release|Any CPU
 		{4012F5AF-50E3-40BD-ABF0-4AFE3F30D5E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4012F5AF-50E3-40BD-ABF0-4AFE3F30D5E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4012F5AF-50E3-40BD-ABF0-4AFE3F30D5E3}.Debug|x64.ActiveCfg = Debug|x64
@@ -483,16 +467,6 @@ Global
 		{32A52236-C210-40A2-829E-ACB4BB3A1B43}.Release|x64.Build.0 = Release|x64
 		{32A52236-C210-40A2-829E-ACB4BB3A1B43}.Release|x86.ActiveCfg = Release|Any CPU
 		{32A52236-C210-40A2-829E-ACB4BB3A1B43}.Release|x86.Build.0 = Release|Any CPU
-		{D668C327-67C7-41BB-B949-311A239B514C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D668C327-67C7-41BB-B949-311A239B514C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D668C327-67C7-41BB-B949-311A239B514C}.Debug|x64.ActiveCfg = Debug|x64
-		{D668C327-67C7-41BB-B949-311A239B514C}.Debug|x64.Build.0 = Debug|x64
-		{D668C327-67C7-41BB-B949-311A239B514C}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{D668C327-67C7-41BB-B949-311A239B514C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D668C327-67C7-41BB-B949-311A239B514C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D668C327-67C7-41BB-B949-311A239B514C}.Release|x64.ActiveCfg = Release|x64
-		{D668C327-67C7-41BB-B949-311A239B514C}.Release|x64.Build.0 = Release|x64
-		{D668C327-67C7-41BB-B949-311A239B514C}.Release|x86.ActiveCfg = Release|Any CPU
 		{75E25C11-47B1-410E-A6CC-E37A74F7D0F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{75E25C11-47B1-410E-A6CC-E37A74F7D0F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75E25C11-47B1-410E-A6CC-E37A74F7D0F9}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -565,14 +539,6 @@ Global
 		{BACF7A03-7D22-4C97-83FA-B37561B9EC73}.Release|x64.Build.0 = Release|Any CPU
 		{BACF7A03-7D22-4C97-83FA-B37561B9EC73}.Release|x86.ActiveCfg = Release|Any CPU
 		{BACF7A03-7D22-4C97-83FA-B37561B9EC73}.Release|x86.Build.0 = Release|Any CPU
-		{35F710B7-9493-40BD-A4D8-55C751A68BF8}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{35F710B7-9493-40BD-A4D8-55C751A68BF8}.Debug|x64.ActiveCfg = Debug|x64
-		{35F710B7-9493-40BD-A4D8-55C751A68BF8}.Debug|x64.Build.0 = Debug|x64
-		{35F710B7-9493-40BD-A4D8-55C751A68BF8}.Debug|x86.ActiveCfg = Debug|x64
-		{35F710B7-9493-40BD-A4D8-55C751A68BF8}.Release|Any CPU.ActiveCfg = Release|x64
-		{35F710B7-9493-40BD-A4D8-55C751A68BF8}.Release|x64.ActiveCfg = Release|x64
-		{35F710B7-9493-40BD-A4D8-55C751A68BF8}.Release|x64.Build.0 = Release|x64
-		{35F710B7-9493-40BD-A4D8-55C751A68BF8}.Release|x86.ActiveCfg = Release|x64
 		{F48FF3AC-50C6-4016-8F67-F5430FED1A2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F48FF3AC-50C6-4016-8F67-F5430FED1A2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F48FF3AC-50C6-4016-8F67-F5430FED1A2C}.Debug|x64.ActiveCfg = Debug|x64
@@ -693,6 +659,18 @@ Global
 		{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}.Release|x64.Build.0 = Release|Any CPU
 		{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}.Release|x86.ActiveCfg = Release|Any CPU
 		{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}.Release|x86.Build.0 = Release|Any CPU
+		{ED8EA38E-A83C-47D7-B220-3B89A2EFA1ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED8EA38E-A83C-47D7-B220-3B89A2EFA1ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED8EA38E-A83C-47D7-B220-3B89A2EFA1ED}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{ED8EA38E-A83C-47D7-B220-3B89A2EFA1ED}.Debug|x64.Build.0 = Debug|Any CPU
+		{ED8EA38E-A83C-47D7-B220-3B89A2EFA1ED}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{ED8EA38E-A83C-47D7-B220-3B89A2EFA1ED}.Debug|x86.Build.0 = Debug|Any CPU
+		{ED8EA38E-A83C-47D7-B220-3B89A2EFA1ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED8EA38E-A83C-47D7-B220-3B89A2EFA1ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED8EA38E-A83C-47D7-B220-3B89A2EFA1ED}.Release|x64.ActiveCfg = Release|Any CPU
+		{ED8EA38E-A83C-47D7-B220-3B89A2EFA1ED}.Release|x64.Build.0 = Release|Any CPU
+		{ED8EA38E-A83C-47D7-B220-3B89A2EFA1ED}.Release|x86.ActiveCfg = Release|Any CPU
+		{ED8EA38E-A83C-47D7-B220-3B89A2EFA1ED}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

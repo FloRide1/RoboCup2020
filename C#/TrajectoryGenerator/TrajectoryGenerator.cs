@@ -39,6 +39,7 @@ namespace TrajectoryGenerator
             PID_X = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5, 5, 1);
             PID_Y = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5, 5, 1);
             PID_Theta = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5*Math.PI, 5*Math.PI, Math.PI); //Validé VG : 20 20 0 2PI 2PI 0..5
+
         }
 
         public TrajectoryPlanner(int id)
@@ -117,7 +118,42 @@ namespace TrajectoryGenerator
                     ghostLocation = currentLocation;
                     InitPositionPID();
                 }
+
+                PIDCorrectionArgs correction = new PIDCorrectionArgs();
+                correction.CorrPx = PID_X.correctionP;
+                correction.CorrIx = PID_X.correctionI;
+                correction.CorrDx = PID_X.correctionD;
+                correction.CorrPy = PID_Y.correctionP;
+                correction.CorrIy = PID_Y.correctionI;
+                correction.CorrDy = PID_Y.correctionD;
+                correction.CorrPTheta = PID_Theta.correctionP;
+                correction.CorrITheta = PID_Theta.correctionI;
+                correction.CorrDTheta = PID_Theta.correctionD;
+                OnMessageToDisplayPositionPidCorrection(correction);
             }
+
+
+            PIDSetupArgs PositionPidSetup = new PIDSetupArgs();
+            PositionPidSetup.P_x = PID_X.Kp;
+            PositionPidSetup.I_x = PID_X.Ki;
+            PositionPidSetup.D_x = PID_X.Kd;
+            PositionPidSetup.P_y = PID_Y.Kp;
+            PositionPidSetup.I_y = PID_Y.Ki;
+            PositionPidSetup.D_y = PID_Y.Kd;
+            PositionPidSetup.P_theta = PID_Theta.Kp;
+            PositionPidSetup.I_theta = PID_Theta.Ki;
+            PositionPidSetup.D_theta = PID_Theta.Kd;
+            PositionPidSetup.P_x_Limit = PID_X.ProportionalLimit;
+            PositionPidSetup.I_x_Limit = PID_X.IntegralLimit;
+            PositionPidSetup.D_x_Limit = PID_X.DerivationLimit;
+            PositionPidSetup.P_y_Limit = PID_Y.ProportionalLimit;
+            PositionPidSetup.I_y_Limit = PID_Y.IntegralLimit;
+            PositionPidSetup.D_y_Limit = PID_Y.DerivationLimit;
+            PositionPidSetup.P_theta_Limit = PID_Theta.ProportionalLimit;
+            PositionPidSetup.I_theta_Limit = PID_Theta.IntegralLimit;
+            PositionPidSetup.D_theta_Limit = PID_Theta.DerivationLimit;
+
+            OnMessageToDisplayPositionPidSetup(PositionPidSetup);
         }
 
         void CalculateGhostPosition()
@@ -289,6 +325,18 @@ namespace TrajectoryGenerator
             {
                 handler(this, new LocationArgs { RobotId = id, Location=loc});
             }
+        }
+
+        public event EventHandler<PIDSetupArgs> OnMessageToDisplayPositionPidSetupEvent;
+        public virtual void OnMessageToDisplayPositionPidSetup(PIDSetupArgs setup)
+        {
+            OnMessageToDisplayPositionPidSetupEvent?.Invoke(this, setup);
+        }
+
+        public event EventHandler<PIDCorrectionArgs> OnMessageToDisplayPositionPidCorrectionEvent;
+        public virtual void OnMessageToDisplayPositionPidCorrection(PIDCorrectionArgs corr)
+        {
+            OnMessageToDisplayPositionPidCorrectionEvent?.Invoke(this, corr);
         }
     }
 }

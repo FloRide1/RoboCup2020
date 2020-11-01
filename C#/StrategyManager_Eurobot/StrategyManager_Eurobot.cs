@@ -54,8 +54,8 @@ namespace StrategyManager
         public TaskPhare taskPhare;
         TaskStrategy taskStrategy;
 
-        //Thread de stratégie
-        Thread TaskStrategyThread;
+
+        System.Timers.Timer configTimer;
 
         public bool isDeplacementFinished
         {
@@ -93,7 +93,6 @@ namespace StrategyManager
             //Initialisation des taches de la stratégie
 
             //Taches de bas niveau
-
             taskBrasGauche = new TaskBrasGauche();
             taskBrasGauche.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
             taskBrasGauche.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
@@ -144,6 +143,7 @@ namespace StrategyManager
             //Thread GameManagementThread = new Thread(ThreadManagementTask);
             //GameManagementThread.IsBackground = true;
             //GameManagementThread.Start();
+
         }
 
 
@@ -156,7 +156,20 @@ namespace StrategyManager
             //taskBrasDrapeau.Init();
             //taskWindFlag.Init();
             //taskFinDeMatch.Init();
+
+            configTimer = new System.Timers.Timer(1000);
+            configTimer.Elapsed += ConfigTimer_Elapsed;
+            configTimer.Start();
+
+
             OnEnableDisableMotorCurrentData(true);
+
+        }
+
+        private void ConfigTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {            
+            //On envoie périodiquement les réglages du PID de vitesse embarqué
+            OnSetRobotVitessePID(1.0, 0, 0, 1.0, 0, 0, 1.0, 0, 0, 10.0, 0, 0, 10.0, 0, 0, 10.0, 0, 0);
         }
 
 
@@ -745,12 +758,12 @@ namespace StrategyManager
         }
 
         //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
-        public event EventHandler<PIDDataArgs> OnSetRobotVitessePIDEvent;
+        public event EventHandler<PIDSetupArgs> OnSetRobotVitessePIDEvent;
         public virtual void OnSetRobotVitessePID(double px, double ix, double dx, double py, double iy, double dy, double ptheta, double itheta, double dtheta,
             double pxLimit, double ixLimit, double dxLimit, double pyLimit, double iyLimit, double dyLimit, double pthetaLimit, double ithetaLimit, double dthetaLimit
             )
         {
-            OnSetRobotVitessePIDEvent?.Invoke(this, new PIDDataArgs {
+            OnSetRobotVitessePIDEvent?.Invoke(this, new PIDSetupArgs {
                 P_x = px, I_x = ix, D_x = dx, P_y = py, I_y = iy, D_y = dy, P_theta = ptheta, I_theta = itheta, D_theta = dtheta,
                 P_x_Limit = px, I_x_Limit = ix, D_x_Limit = dx, P_y_Limit = py, I_y_Limit = iy, D_y_Limit = dy, P_theta_Limit = ptheta, I_theta_Limit = itheta, D_theta_Limit = dtheta
             });

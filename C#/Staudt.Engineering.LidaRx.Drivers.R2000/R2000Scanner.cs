@@ -517,55 +517,6 @@ namespace Staudt.Engineering.LidaRx.Drivers.R2000
             this.MeasurementConfiguration.SamplesPerScan = targetSamplesPerScan;
         }
 
-        /// <summary>
-        /// Display a message on the LED display
-        /// </summary>
-        /// <param name="line">Display line number</param>
-        /// <param name="message">Message to display</param>
-        public void DisplayMessage(int line, string message)
-        {
-            try
-            {
-                DisplayMessageAsync(line, message).Wait();
-            }
-            catch {; }
-        }
-
-        /// <summary>
-        /// Display a message on the LED display
-        /// </summary>
-        /// <param name="line">Display line number</param>
-        /// <param name="message">Message to display</param>
-        /// <returns></returns>
-        public async Task DisplayMessageAsync(int line, string message)
-        {
-            if (!Connected)
-                throw new LidaRxStateException("This instance is not yet connected to the R2000 scanner.");
-
-            // on recent devices we can check the configurable frequency range!
-            if (this.instanceProtocolVersion >= R2000ProtocolVersion.v101)
-            {
-                //if (frequencyHz < SensorCapabilities.ScanFrequencyMin || frequencyHz > SensorCapabilities.ScanFrequencyMax)
-                //    throw new ArgumentOutOfRangeException(
-                //        "frequencyHz",
-                //        $"Acceptable range is [{SensorCapabilities.ScanFrequencyMin}, {SensorCapabilities.ScanFrequencyMax}]");
-            }
-
-            // build the url
-            var request = $"set_parameter?hmi_display_mode=application_text";
-            var result = await commandClient.GetAsAsync<SetParameterResult>(request);
-
-            if (line == 1)
-            {
-                request = @"set_parameter?hmi_application_text_1=" + message;
-                result = await commandClient.GetAsAsync<SetParameterResult>(request);
-            }
-            else if (line == 2)
-            {
-                request = @"set_parameter?hmi_application_text_2=" + message;
-                result = await commandClient.GetAsAsync<SetParameterResult>(request);
-            }
-        }
         #endregion
 
         #region Helpers

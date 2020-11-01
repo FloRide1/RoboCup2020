@@ -39,7 +39,7 @@
                 <s:ModifierGroup>
                     <s:RubberBandXyZoomModifier x:Name="RubberBandXyZoomModifier" IsEnabled="True"/>
                     <s:ZoomPanModifier x:Name="ZoomPanModifier" IsEnabled="False" ClipModeX="None"  />
-                    <s:LegendModifier ShowLegend="True" LegendPlacement="Inside" Margin="10" VerticalAlignment="Top" HorizontalAlignment="Right"/>
+                    <s:LegendModifier ShowLegend="True" LegendPlacement="Inside" Margin="0" Padding="0" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                     <s:RolloverModifier x:Name="RolloverModifier" ShowAxisLabels="False" UseInterpolation="True" ShowTooltipOn="Always"/>
                     <s:XAxisDragModifier />
                     <s:YAxisDragModifier/>

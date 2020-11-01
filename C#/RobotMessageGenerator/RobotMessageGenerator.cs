@@ -138,7 +138,7 @@ namespace RobotMessageGenerator
             OnMessageToRobot((Int16)Commands.EmergencySTOP, 1, payload);
         }
 
-        public void GenerateMessageSetPIDValueToRobot(object sender, PIDDataArgs e)
+        public void GenerateMessageSetupSpeedPIDToRobot(object sender, PIDSetupArgs e)
         {
             byte[] payload = new byte[72];
             payload.SetValueRange(((float)(e.P_x)).GetBytes(), 0);
@@ -160,6 +160,7 @@ namespace RobotMessageGenerator
             payload.SetValueRange(((float)(e.I_theta_Limit)).GetBytes(), 64);
             payload.SetValueRange(((float)(e.D_theta_Limit)).GetBytes(), 68);
             OnMessageToRobot((Int16)Commands.SetPIDValues, 72, payload);
+            OnMessageToDisplaySpeedPidSetup(e);
         }
         //public void GenerateTextMessage(object sender, EventArgsLibrary.SpeedConsigneArgs e)
         //{
@@ -171,11 +172,22 @@ namespace RobotMessageGenerator
         //}
 
         //Output events
-        public delegate void SpeedConsigneEventHandler(object sender, MessageToRobotArgs e);
         public event EventHandler<MessageToRobotArgs> OnMessageToRobotGeneratedEvent;
         public virtual void OnMessageToRobot(Int16 msgFunction, Int16 msgPayloadLength, byte[] msgPayload)
         {
             OnMessageToRobotGeneratedEvent?.Invoke(this, new MessageToRobotArgs { MsgFunction = msgFunction, MsgPayloadLength = msgPayloadLength, MsgPayload = msgPayload });
         }
+
+        public event EventHandler<PIDSetupArgs> OnMessageToDisplaySpeedPidSetupEvent;
+        public virtual void OnMessageToDisplaySpeedPidSetup(PIDSetupArgs setup)
+        {
+            OnMessageToDisplaySpeedPidSetupEvent?.Invoke(this, setup);
+        }
+
+        //public event EventHandler<MessageToRobotArgs> OnMessageToRobotGeneratedEvent;
+        //public virtual void OnMessageToRobot(Int16 msgFunction, Int16 msgPayloadLength, byte[] msgPayload)
+        //{
+        //    OnMessageToRobotGeneratedEvent?.Invoke(this, new MessageToRobotArgs { MsgFunction = msgFunction, MsgPayloadLength = msgPayloadLength, MsgPayload = msgPayload });
+        //}
     }
 }

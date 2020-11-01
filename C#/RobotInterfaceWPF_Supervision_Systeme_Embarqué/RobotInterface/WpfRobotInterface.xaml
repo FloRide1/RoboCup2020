@@ -42,7 +42,7 @@
             <oscillo:WpfOscilloscope x:Name="oscilloTheta" Grid.Column="1" Grid.Row="0" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
         </Grid>
 
-        <Grid Grid.Column="2" Grid.Row="1"  >
+        <Grid Grid.Column="2" Grid.Row="3"  >
             <Grid.RowDefinitions>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
@@ -71,6 +71,9 @@
                 </StackPanel>
             </GroupBox>
         </Grid>
+
+        <AsservDisplay:AsservissementXYThetaControl x:Name="asservPositionDisplay" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="4" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
+
         <!--<GroupBox Grid.Column="2" Header="PID Values" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.RowSpan="3" >
                     <ScrollViewer Name="scrollViewerOption">
                         <Grid>
@@ -140,7 +143,7 @@
         </GroupBox>
 
 
-        <oscillo:WpfOscilloscope x:Name="oscilloLidar" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
+        <oscillo:WpfOscilloscope x:Name="oscilloLidar" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
         <!--<ext:LocalWorldMapDisplay x:Name="worldMapDisplay" Grid.Row="1" Grid.Column="1"  MouseDoubleClick="worldMapDisplay_MouseDoubleClick" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></ext:LocalWorldMapDisplay>-->
         <Viewbox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="1" Stretch="Uniform" MaxWidth="900" MaxHeight="800"   >
             <ext:LocalWorldMapDisplay x:Name="worldMapDisplayStrategy" Width="300" Height="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></ext:LocalWorldMapDisplay>
@@ -157,7 +160,7 @@
                 <ColumnDefinition Width="64"/>
             </Grid.ColumnDefinitions>
 
-            <AsservDisplay:AsservissementXYThetaControl x:Name="asservDisplay" Grid.Row="0" Grid.Column="0" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
+            <AsservDisplay:AsservissementXYThetaControl x:Name="asservSpeedDisplay" Grid.Row="0" Grid.Column="0" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
 
 
             <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="0">

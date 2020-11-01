@@ -165,7 +165,7 @@ namespace EventArgsLibrary
         public double yConsigneFromRobot;
         public double thetaConsigneFromRobot;
     }
-    public class PIDDataArgs : EventArgs
+    public class PIDSetupArgs : EventArgs
     {
         public double P_x;
         public double I_x;
@@ -185,6 +185,18 @@ namespace EventArgsLibrary
         public double P_theta_Limit;
         public double I_theta_Limit;
         public double D_theta_Limit;
+    }
+    public class PIDCorrectionArgs : EventArgs
+    {
+        public double CorrPx;
+        public double CorrIx;
+        public double CorrDx;
+        public double CorrPy;
+        public double CorrIy;
+        public double CorrDy;
+        public double CorrPTheta;
+        public double CorrITheta;
+        public double CorrDTheta;
     }
 
     public class AccelEventArgs : EventArgs
