@@ -337,6 +337,8 @@ namespace RobotInterface
 
         public void UpdatePIDDebugDataOnGraph(object sender, PIDDebugDataArgs e)
         {
+            asservDisplay.UpdateErrorValues(e.xCorrection, e.yCorrection, e.thetaCorrection);
+
             oscilloX.AddPointToLine(3, e.timeStampMS / 1000.0, e.xErreur);
             oscilloX.AddPointToLine(4, e.timeStampMS / 1000.0, e.xCorrection);
 

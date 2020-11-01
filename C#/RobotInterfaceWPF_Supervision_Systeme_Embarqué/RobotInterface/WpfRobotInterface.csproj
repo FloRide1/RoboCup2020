@@ -170,6 +170,10 @@
       <Project>{B2D0126F-8C82-4EAA-87E5-67415F589098}</Project>
       <Name>WorldMap</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\WpfAsservissementDisplay\WpfAsservissementDisplay.csproj">
+      <Project>{f0a887e9-d0a2-47e3-994a-94a0dcae8d4f}</Project>
+      <Name>WpfAsservissementDisplay</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\WpfOscilloscope\WpfOscilloscopeControl.csproj">
       <Project>{88baa407-3fea-4f4b-bb41-5309ce48884e}</Project>
       <Name>WpfOscilloscopeControl</Name>
