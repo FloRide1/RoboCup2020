@@ -80,6 +80,10 @@
       <Project>{dd8fd061-d3b2-43ae-b74d-03d94a2876a3}</Project>
       <Name>Perception</Name>
     </ProjectReference>
+    <ProjectReference Include="..\StrategyManager_Eurobot\StrategyManager_Eurobot.csproj">
+      <Project>{F2D3FB95-F97A-4049-BCA4-71854FD4FAF3}</Project>
+      <Name>StrategyManager_Eurobot</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8E7D0DA4-9A13-4B18-A90E-0243BBCCE40A}</Project>
       <Name>Utilities</Name>

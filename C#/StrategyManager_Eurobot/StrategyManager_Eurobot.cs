@@ -52,6 +52,7 @@ namespace StrategyManager
         public TaskWindFlag taskWindFlag;
         public TaskFinDeMatch taskFinDeMatch;
         public TaskPhare taskPhare;
+        public TaskDistributeur taskDistributeur;
         TaskStrategy taskStrategy;
 
 
@@ -61,7 +62,7 @@ namespace StrategyManager
         {
             get
             {
-                if (robotOrientation - robotCurentLocation.Theta < Toolbox.DegToRad(5.0) &&
+                if (robotOrientation - robotCurentLocation.Theta < Toolbox.DegToRad(1.0) &&
                     Toolbox.Distance(new PointD(robotCurentLocation.X, robotCurentLocation.Y), robotDestination) < 0.05)
                     return true;
                 else
@@ -86,7 +87,18 @@ namespace StrategyManager
             this.robotId = robotId;
             //heatMap = new Heatmap(22.0, 14.0, 22.0/Math.Pow(2,8), 2); //Init HeatMap
             heatMap = new Heatmap(3, 2, (int)Math.Pow(2, 5), 1); //Init HeatMap
-            
+
+            OnSetRobotVitessePID(50, 100, 0, 50, 100, 0, 50, 100, 0,
+            2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 5.0, 5.0, 5.0);
+
+            //OnSetRobotVitessePID(
+            //    200, 200, 0,
+            //    200, 200, 0,
+            //    80, 100, 0,
+            //2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0);
+
+
+
             OnGameStateChanged(robotId, globalWorldMap.gameState);
 
 
@@ -139,6 +151,11 @@ namespace StrategyManager
             taskPhare.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
             OnMotorCurrentReceiveForwardEvent += taskPhare.OnMotorCurrentReceive;
             taskPhare.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+
+            taskDistributeur = new TaskDistributeur(this);
+            taskDistributeur.OnHerkulexPositionRequestEvent += OnHerkulexPositionRequestForwardEvent;
+            taskDistributeur.OnPilotageVentouseEvent += OnPilotageVentouseForwardEvent;
+            OnMotorCurrentReceiveForwardEvent += taskDistributeur.OnMotorCurrentReceive;
 
             //Thread GameManagementThread = new Thread(ThreadManagementTask);
             //GameManagementThread.IsBackground = true;

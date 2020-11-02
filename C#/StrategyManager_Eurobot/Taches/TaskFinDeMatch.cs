@@ -46,7 +46,7 @@ namespace StrategyManager
         }
         enum TaskDrapeauPositionsOpen
         {
-            Drapeau = 602
+            Drapeau = 200
         }
         #endregion
         private void StopSw()
@@ -85,6 +85,9 @@ namespace StrategyManager
                 switch (state)
                 {
                     case TaskFinDeMatchStates.Init:
+                        servoPositionsRequested = new Dictionary<ServoId, int>();
+                        servoPositionsRequested.Add(ServoId.PorteDrapeau, (int)TaskDrapeauPositionsInit.Drapeau);
+                        OnHerkulexPositionRequest(servoPositionsRequested);
                         state = TaskFinDeMatchStates.Attente;
                         break;
                     case TaskFinDeMatchStates.Attente:

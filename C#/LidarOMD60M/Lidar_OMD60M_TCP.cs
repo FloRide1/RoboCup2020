@@ -55,6 +55,8 @@ namespace LidarOMD60M
                 r2000.SetSamplingRate(R2000SamplingRate._8kHz);
                 r2000.SetScanFrequency(freq);
                 r2000.SetSamplingRate(samplingRate);
+                r2000.DisplayMessage(1, "Points :");
+                r2000.DisplayMessage(2, "50 points");
 
                 //angleIncrement = 2 * Math.PI/((double)R2000SamplingRate._252kHz / 20);
 

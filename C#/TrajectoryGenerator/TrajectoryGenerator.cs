@@ -59,6 +59,7 @@ namespace TrajectoryGenerator
                 OnCollision(robotId, currentLocation);
             else if (Toolbox.Distance(new PointD(old_currectLocation.X, old_currectLocation.Y), new PointD(currentLocation.X, currentLocation.Y)) > 0.5)
                 OnCollision(robotId, currentLocation);
+            PIDPositionReset();
         }
         
         //Input Events
@@ -82,6 +83,16 @@ namespace TrajectoryGenerator
             if (e.RobotId == robotId)
             {
                 currentGameState = e.gameState;
+            }
+        }
+
+        void PIDPositionReset()
+        {
+            if (PID_X != null && PID_Y != null && PID_Theta != null)
+            {
+                PID_X.ResetPID(0);
+                PID_Y.ResetPID(0);
+                PID_Theta.ResetPID(0);
             }
         }
 
@@ -116,7 +127,7 @@ namespace TrajectoryGenerator
                     OnCollision(robotId, currentLocation);
                     OnSpeedConsigneToRobot(robotId, 0, 0, 0);
                     ghostLocation = currentLocation;
-                    InitPositionPID();
+                    PIDPositionReset();
                 }
 
                 PIDCorrectionArgs correction = new PIDCorrectionArgs();
