@@ -370,6 +370,13 @@ namespace RobotInterface
             oscilloTheta.AddPointToLine(5, e.timeStampMS / 1000.0, e.thetaConsigneFromRobot);
         }
 
+        public void UpdatePIDCorrectionData(object sender, PIDCorrectionArgs e)
+        {
+            asservSpeedDisplay.UpdateCorrectionValues(e.CorrPx, e.CorrPy, e.CorrPTheta,
+                e.CorrIx, e.CorrIy, e.CorrITheta,
+                e.CorrDx, e.CorrDy, e.CorrDTheta);
+        }
+
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             try
@@ -717,11 +724,14 @@ namespace RobotInterface
         public event EventHandler<BoolEventArgs> OnEnablePIDDebugDataFromInterfaceGeneratedEvent;
         public virtual void OnEnablePIDDebugDataFromInterface(bool val)
         {
-            var handler = OnEnablePIDDebugDataFromInterfaceGeneratedEvent;
-            if (handler != null)
-            {
-                handler(this, new BoolEventArgs { value = val });
-            }
+            OnEnablePIDDebugDataFromInterfaceGeneratedEvent?.Invoke(this, new BoolEventArgs { value = val });
+        }
+
+        //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
+        public event EventHandler<BoolEventArgs> OnEnableSpeedPidCorrectionDataFromInterfaceEvent;
+        public virtual void OnEnableSpeedPidCorrectionDataFromInterface(bool val)
+        {
+            OnEnableSpeedPidCorrectionDataFromInterfaceEvent?.Invoke(this, new BoolEventArgs { value = val });
         }
 
         //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
@@ -965,6 +975,7 @@ namespace RobotInterface
             if (CheckBoxEnablePIDDebugData.IsChecked ?? false)
             {
                 OnEnablePIDDebugDataFromInterface(true);
+                OnEnableSpeedPidCorrectionDataFromInterface(true);
                 oscilloX.AddOrUpdateLine(3, 100, "xErreur");
                 oscilloX.ChangeLineColor(3, Colors.GreenYellow);
                 oscilloY.AddOrUpdateLine(3, 100, "yErreur");
@@ -989,6 +1000,7 @@ namespace RobotInterface
             else
             {
                 OnEnablePIDDebugDataFromInterface(false);
+                OnEnableSpeedPidCorrectionDataFromInterface(false);
                 if (oscilloX.LineExist(3))
                 {
                     oscilloX.RemoveLine(3);

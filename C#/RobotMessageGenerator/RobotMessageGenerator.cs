@@ -102,6 +102,13 @@ namespace RobotMessageGenerator
             OnMessageToRobot((Int16)Commands.EnablePIDDebugData, 1, payload);
         }
 
+        public void GenerateMessageEnableSpeedPidCorrectionData(object sender, BoolEventArgs e)
+        {
+            byte[] payload = new byte[1];
+            payload[0] = Convert.ToByte(e.value);
+            OnMessageToRobot((Int16)Commands.EnableSpeedPidCorrectionData, 1, payload);
+        }
+
         public void GenerateMessageEnableEncoderRawData(object sender, BoolEventArgs e)
         {
             byte[] payload = new byte[1];

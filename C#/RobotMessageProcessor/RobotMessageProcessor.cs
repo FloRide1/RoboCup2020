@@ -233,6 +233,30 @@ namespace RobotMessageProcessor
                     //On envois l'event aux abonnés
                     OnPIDDebugDataFromRobot(timeStamp, xError, yError, thetaError, xCorrection, yCorrection, thetaCorrection, xconsigne,yConsigne,thetaConsigne);
                     break;
+                                       
+                case (short)Commands.SpeedPidCorrectionData:
+                    timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                    tab = payload.GetRange(4, 4);
+                    float CorrPx = tab.GetFloat();
+                    tab = payload.GetRange(8, 4);
+                    float CorrIx = tab.GetFloat();
+                    tab = payload.GetRange(12, 4);
+                    float CorrDx = tab.GetFloat();
+                    tab = payload.GetRange(16, 4);
+                    float CorrPy = tab.GetFloat();
+                    tab = payload.GetRange(20, 4);
+                    float CorrIy = tab.GetFloat();
+                    tab = payload.GetRange(24, 4);
+                    float CorrDy = tab.GetFloat();
+                    tab = payload.GetRange(28, 4);
+                    float CorrPTheta = tab.GetFloat();
+                    tab = payload.GetRange(32, 4);
+                    float CorrITheta = tab.GetFloat();
+                    tab = payload.GetRange(36, 4);
+                    float CorrDTheta = tab.GetFloat();
+                    //On envois l'event aux abonnés
+                    OnSpeedPidCorrectionDataFromRobot(CorrPx, CorrIx, CorrDx, CorrPy, CorrIy, CorrDy, CorrPTheta, CorrITheta, CorrDTheta);
+                    break;
 
                 case (short)Commands.EnableDisableMotors:
                     bool value = Convert.ToBoolean(payload[0]);
@@ -511,23 +535,37 @@ namespace RobotMessageProcessor
         public virtual void OnPIDDebugDataFromRobot(uint timeStamp, double xError, double yError, double thetaError,
                                                                         double xCorrection, double yCorrection, double thetaCorrection, double xConsigneRobot, double yConsigneRobot, double thetaConsigneRobot)
         {
-            var handler = OnPIDDebugDataFromRobotGeneratedEvent;
-            if (handler != null)
+            OnPIDDebugDataFromRobotGeneratedEvent?.Invoke(this, new PIDDebugDataArgs
             {
-                handler(this, new PIDDebugDataArgs
-                {
-                    timeStampMS = timeStamp,
-                    xErreur = xError,
-                    yErreur = yError,
-                    thetaErreur = thetaError,
-                    xCorrection = xCorrection,
-                    yCorrection = yCorrection,
-                    thetaCorrection = thetaCorrection,
-                    xConsigneFromRobot=xConsigneRobot,
-                    yConsigneFromRobot=yConsigneRobot,
-                    thetaConsigneFromRobot=thetaConsigneRobot
-                });
-            }
+                timeStampMS = timeStamp,
+                xErreur = xError,
+                yErreur = yError,
+                thetaErreur = thetaError,
+                xCorrection = xCorrection,
+                yCorrection = yCorrection,
+                thetaCorrection = thetaCorrection,
+                xConsigneFromRobot = xConsigneRobot,
+                yConsigneFromRobot = yConsigneRobot,
+                thetaConsigneFromRobot = thetaConsigneRobot
+            });
+        }
+
+
+        public event EventHandler<PIDCorrectionArgs> OnSpeedPidCorrectionDataFromRobotEvent;
+        public virtual void OnSpeedPidCorrectionDataFromRobot(double corrPx, double corrIx, double corrDx, double corrPy, double corrIy, double corrDy, double corrPTheta, double corrITheta, double corrDTheta)
+        {
+            OnSpeedPidCorrectionDataFromRobotEvent?.Invoke(this, new PIDCorrectionArgs
+            {
+                CorrPx = corrPx,
+                CorrIx = corrIx,
+                CorrDx = corrDx,
+                CorrPy = corrPy,
+                CorrIy = corrIy,
+                CorrDy = corrDy,
+                CorrPTheta = corrPTheta,
+                CorrITheta = corrITheta,
+                CorrDTheta = corrDTheta
+            });
         }
         
         public event EventHandler<MsgCounterArgs> OnMessageCounterEvent;

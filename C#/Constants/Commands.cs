@@ -81,7 +81,12 @@ namespace Constants
         PowerMonitoringValues = 425,    //0x01A9
         SetIOPollingFrequency = 426,    //0x01AA
         SetSpeedConsigne = 427,         //0x01AB
-        PIDDebugData = 428,             //0x01AC
+
+        EnablePIDDebugData = 0x01BB,         //0x01BB
+        PIDDebugData = 0x1AC,           //Trame de données de debug asserv vitesse : Erreur / Correction / Consigne
+        EnableSpeedPidCorrectionData = 0x1C0,
+        SpeedPidCorrectionData = 0x01C1,  //PIDAdvancedData CorrPID sur X Y et Theta - fe = 10Hz
+
         SetPIDValues = 429,             //0x01AD
         SetRobotVariable = 430,
         OdometryData = 431,             //0x01AF
@@ -98,7 +103,6 @@ namespace Constants
         EnableEncoderRawData=440,       //0x01B8
         EnablePositionData=441,         //0x01B9
         EnableMotorSpeedConsigne=442,   //0x01BA
-        EnablePIDDebugData = 443,         //0x01BB
         ForwardHerkulex = 0x3333,        
         GetCamera = 443,
         TirCommand = 444,

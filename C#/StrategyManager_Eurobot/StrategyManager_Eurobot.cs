@@ -186,7 +186,7 @@ namespace StrategyManager
         private void ConfigTimer_Elapsed(object sender, ElapsedEventArgs e)
         {            
             //On envoie périodiquement les réglages du PID de vitesse embarqué
-            OnSetRobotVitessePID(1.0, 0, 0, 1.0, 0, 0, 1.0, 0, 0, 10.0, 0, 0, 10.0, 0, 0, 10.0, 0, 0);
+            OnSetRobotVitessePID(5.0, 0, 0, 5.0, 0, 0, 5.0, 0, 0, 100.0, 0, 0, 100.0, 0, 0, 100.0, 0, 0);
         }
 
 
