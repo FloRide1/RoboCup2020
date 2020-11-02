@@ -58,11 +58,13 @@ namespace StrategyManager
             TaskThread = new Thread(TaskThreadProcess);
             TaskThread.IsBackground = true;
             TaskThread.Start();
+            isFirstRun = true;
         }
 
         public void Init()
         {
             state = TaskStrategyState.InitialPositioning;
+            isFirstRun = true;
         }
 
         List<Location> locsPriseBleue = new List<Location>() {
@@ -95,7 +97,7 @@ namespace StrategyManager
         };
 
         int indexPrise = 0;
-
+        bool isFirstRun = true;
         void TaskThreadProcess()
         {
             while(true)
@@ -138,7 +140,11 @@ namespace StrategyManager
                                 parentStrategyManager.OnRefereeBoxReceivedCommand(message); 
                                 parentStrategyManager.OnCollision(parentStrategyManager.robotId, parentStrategyManager.robotCurentLocation); //On génère artificellement une collision pour resetter Kalman et le reste autour de la position courante.
                                 state = TaskStrategyState.Phare;
-                                StartSw();
+                                if(isFirstRun)
+                                {
+                                    isFirstRun = false;
+                                    StartSw();
+                                }
                             }
                             break;
                         

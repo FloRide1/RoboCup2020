@@ -88,8 +88,17 @@ namespace StrategyManager
             //heatMap = new Heatmap(22.0, 14.0, 22.0/Math.Pow(2,8), 2); //Init HeatMap
             heatMap = new Heatmap(3, 2, (int)Math.Pow(2, 5), 1); //Init HeatMap
 
+            OnSetRobotVitessePID(50, 100, 0, 50, 100, 0, 50, 100, 0,
+            2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 5.0, 5.0, 5.0);
 
-            
+            //OnSetRobotVitessePID(
+            //    200, 200, 0,
+            //    200, 200, 0,
+            //    80, 100, 0,
+            //2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0);
+
+
+
             OnGameStateChanged(robotId, globalWorldMap.gameState);
 
 

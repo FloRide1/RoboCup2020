@@ -151,12 +151,12 @@ namespace StrategyManager
                     case TaskWindFlagStates.PushFirstFlag:
                         if (parentManager.Team == Equipe.Bleue)
                         {
-                            parentManager.robotDestination = new PointD(1.1, 0.90);
+                            parentManager.robotDestination = new PointD(1.0, 0.87);
                             parentManager.robotOrientation = Math.PI / 2;
                         }
                         else if (parentManager.Team == Equipe.Jaune)
                         {
-                            parentManager.robotDestination = new PointD(-1.1, 0.90);
+                            parentManager.robotDestination = new PointD(-1.0, 0.87);
                             parentManager.robotOrientation = Math.PI / 2;
                         }
                         state = TaskWindFlagStates.PushFirstFlagAttente;
@@ -197,12 +197,12 @@ namespace StrategyManager
                     case TaskWindFlagStates.PushSecondFlag:
                         if (parentManager.Team == Equipe.Bleue)
                         {
-                            parentManager.robotDestination = new PointD(0.8, 0.90);
+                            parentManager.robotDestination = new PointD(0.75, 0.87);
                             parentManager.robotOrientation = Math.PI / 2;
                         }
                         else if (parentManager.Team == Equipe.Jaune)
                         {
-                            parentManager.robotDestination = new PointD(-0.8, 0.90);
+                            parentManager.robotDestination = new PointD(-0.75, 0.87);
                             parentManager.robotOrientation = Math.PI / 2;
                         }
                         state = TaskWindFlagStates.PushSecondFlagAttente;
