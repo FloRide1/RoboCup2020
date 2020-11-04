@@ -9,9 +9,16 @@
         xmlns:AsservDisplay="clr-namespace:WpfAsservissementDisplay;assembly=WpfAsservissementDisplay"
         x:Class="RobotInterface.WpfRobotInterface"
         mc:Ignorable="d"
-        Title="Robot Interface" Closing="Window_Closing" SourceInitialized="Window_SourceInitialized"  
-        
+        Title="Robot Interface" Closing="Window_Closing" SourceInitialized="Window_SourceInitialized"        
     >
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="ResourcesWPF.xaml"></ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
 
     <Grid x:Name="GridApplication" Background="#222222">
         <Grid.RowDefinitions>
@@ -64,7 +71,7 @@
             <GroupBox Grid.ColumnSpan="1"  Grid.Column="1" Margin="5" Header="Options" HorizontalAlignment="Stretch" Grid.Row="1" Grid.RowSpan="2" VerticalAlignment="Stretch" Background="Transparent" Foreground="White">
                 <StackPanel Orientation="Vertical">
                     <CheckBox Name="CheckBoxEnableEncRawData" Content="Enable Encoder Raw Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="1" VerticalAlignment="Top" Checked="CheckBoxEnableEncRawData_Checked" Unchecked="CheckBoxEnableEncRawData_Checked" Background="Transparent" Foreground="White"/>
-                    <CheckBox Name="CheckBoxEnableMotorCurrentData" Content="Enable Motor Current Data" Grid.Column="0" HorizontalAlignment="Left" Margin="-1,0,0,0" Grid.Row="2" VerticalAlignment="Top" Checked="CheckBoxEnableMotorCurrentData_Checked" Unchecked="CheckBoxEnableMotorCurrentData_Checked" Background="Transparent" Foreground="White"/>
+                    <CheckBox Name="CheckBoxEnableMotorCurrentData" Content="Enable Motor Current Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Top" Checked="CheckBoxEnableMotorCurrentData_Checked" Unchecked="CheckBoxEnableMotorCurrentData_Checked" Background="Transparent" Foreground="White"/>
                     <CheckBox Name="CheckBoxEnableMotorSpeedConsigneData" Content="Enable Motor Speed Consigne Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="3" VerticalAlignment="Top" Checked="CheckBoxEnableMotorSpeedConsigneData_Checked" Unchecked="CheckBoxEnableMotorSpeedConsigneData_Checked" Background="Transparent" Foreground="White"/>
                     <CheckBox Name="CheckBoxEnableAsservissementDebugData" Content="Enable Asservissement Debug Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="4" VerticalAlignment="Top" Checked="CheckBoxEnableAsservissementDebugData_Checked" Unchecked="CheckBoxEnableAsservissementDebugData_Checked" Background="Transparent" Foreground="White"/>
                 </StackPanel>
@@ -163,15 +170,15 @@
 
 
             <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="0">
-            <Button x:Name="Button_0_0" HorizontalAlignment="Center" Width="60" Margin="1" Content="Go to (0,0)" Click="Button_0_0_Click"/>
-            <Button x:Name="Button_0_1" HorizontalAlignment="Center" Width="60" Margin="1" Content="Go to (0,1)" Click="Button_0_1_Click"/>
-            <Button x:Name="Button_1_0" HorizontalAlignment="Center" Width="60" Margin="1" Content="Go to (1,0)" Click="Button_1_0_Click"/>
-            <Button x:Name="Button_0_m1" HorizontalAlignment="Center" Width="60" Margin="1" Content="Go to (0,-1)" Click="Button_0_m1_Click"/>
-            <Button x:Name="Button_m1_0" HorizontalAlignment="Center" Width="60" Margin="1" Content="Go to (-1,0)" Click="Button_m1_0_Click"/>
-        </StackPanel>
+                <Button x:Name="Button_0_0" HorizontalAlignment="Center" Width="60" Margin="1" Content="Go to (0,0)" Click="Button_0_0_Click"/>
+                <Button x:Name="Button_0_1" HorizontalAlignment="Center" Width="60" Margin="1" Content="Go to (0,1)" Click="Button_0_1_Click"/>
+                <Button x:Name="Button_1_0" HorizontalAlignment="Center" Width="60" Margin="1" Content="Go to (1,0)" Click="Button_1_0_Click"/>
+                <Button x:Name="Button_0_m1" HorizontalAlignment="Center" Width="60" Margin="1" Content="Go to (0,-1)" Click="Button_0_m1_Click"/>
+                <Button x:Name="Button_m1_0" HorizontalAlignment="Center" Width="60" Margin="1" Content="Go to (-1,0)" Click="Button_m1_0_Click"/>
+            </StackPanel>
         </Grid>
 
-        
+
 
         <!--<GroupBox x:Name="groupBox" Header="Reception" Margin="0" Background="#FFDDDDDD" BorderBrush="Black" Grid.Column="1" Grid.Row="1">
             <TextBox x:Name="textBoxReception" Margin="0" Grid.Row="1" TextWrapping="Wrap" Background="{x:Null}" BorderBrush="{x:Null}" IsReadOnly="True" AcceptsReturn="True"/>
