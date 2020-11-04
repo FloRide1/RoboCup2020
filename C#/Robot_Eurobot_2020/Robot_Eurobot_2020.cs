@@ -298,6 +298,7 @@ namespace Robot
             robotMsgProcessor.OnIMURawDataFromRobotGeneratedEvent += imuProcessor.OnIMURawDataReceived;
             robotMsgProcessor.OnIOValuesFromRobotGeneratedEvent += strategyManager.OnIOValuesFromRobotEvent;
             robotMsgProcessor.OnIOValuesFromRobotGeneratedEvent += perceptionManager.OnIOValuesFromRobotEvent;
+            robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += strategyManager.OnMotorCurrentReceive;
 
             //physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             //physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicalObjectListLocationReceived;
@@ -312,7 +313,6 @@ namespace Robot
             strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapStrategyReceived;
             strategyManager.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
             strategyManager.OnMirrorModeForwardEvent += perceptionManager.OnMirrorModeReceived;
-            robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += strategyManager.OnMotorCurrentReceive;
             strategyManager.OnEnableMotorsEvent += robotMsgGenerator.GenerateMessageEnableDisableMotors;
             waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapWaypointReceived;
 

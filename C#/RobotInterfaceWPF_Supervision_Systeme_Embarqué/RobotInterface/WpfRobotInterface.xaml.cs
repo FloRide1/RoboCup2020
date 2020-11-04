@@ -288,6 +288,8 @@ namespace RobotInterface
             oscilloY.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vy);
             oscilloTheta.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vtheta);
             currentTime = e.EmbeddedTimeStampInMs / 1000.0;
+
+            asservSpeedDisplay.UpdateMeasuredValues(e.Vx, e.Vy, e.Vtheta);
         }
         public void ActualizeAccelDataOnGraph(object sender, AccelEventArgs e)
         {
@@ -310,6 +312,7 @@ namespace RobotInterface
             oscilloY.AddPointToLine(0, currentTime, e.Vy);
             oscilloTheta.AddPointToLine(0, currentTime, e.Vtheta);
 
+            //asservSpeedDisplay.UpdateConsigneValues(e.Vx, e.Vy, e.Vtheta);
         }
 
         public void UpdateMotorSpeedConsigneOnGraph(object sender, MotorsVitesseDataEventArgs e)
@@ -354,7 +357,9 @@ namespace RobotInterface
 
         public void UpdatePIDDebugDataOnGraph(object sender, PIDDebugDataArgs e)
         {
-            asservSpeedDisplay.UpdateErrorValues(e.xCorrection, e.yCorrection, e.thetaCorrection);
+            asservSpeedDisplay.UpdateErrorValues(e.xErreur, e.yErreur, e.thetaErreur);
+            asservSpeedDisplay.UpdateCommandValues(e.xCorrection, e.yCorrection, e.thetaCorrection);
+            asservSpeedDisplay.UpdateConsigneValues(e.xConsigneFromRobot, e.yConsigneFromRobot, e.thetaConsigneFromRobot);
 
             oscilloX.AddPointToLine(3, e.timeStampMS / 1000.0, e.xErreur);
             oscilloX.AddPointToLine(4, e.timeStampMS / 1000.0, e.xCorrection);
