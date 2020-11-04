@@ -273,6 +273,10 @@ namespace RobotMessageProcessor
                     //On envois l'event aux abonnés
                     OnEnableAsservissementACKFromRobot(value);
                     break;
+                case (short)Commands.EnableAsservissementDebugData:
+                    value = Convert.ToBoolean(payload[0]);
+                    OnEnableAsservissementDebugDataACKFromRobot(value);
+                    break;
                 case (short)Commands.EnableMotorCurrent:
                     value = Convert.ToBoolean(payload[0]);
                     //On envois l'event aux abonnés
@@ -348,6 +352,16 @@ namespace RobotMessageProcessor
         public virtual void OnEnableAsservissementACKFromRobot(bool isEnabled)
         {
             var handler = OnEnableAsservissementACKFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = isEnabled });
+            }
+        }
+
+        public event EventHandler<BoolEventArgs> OnEnableAsservissementDebugDataACKFromRobotEvent;
+        public virtual void OnEnableAsservissementDebugDataACKFromRobot(bool isEnabled)
+        {
+            var handler = OnEnableAsservissementDebugDataACKFromRobotEvent;
             if (handler != null)
             {
                 handler(this, new BoolEventArgs { value = isEnabled });

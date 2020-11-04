@@ -82,7 +82,7 @@ namespace Constants
         SetIOPollingFrequency = 426,    //0x01AA
         SetSpeedConsigne = 427,         //0x01AB
 
-        EnablePIDDebugData = 0x01BB,         //0x01BB
+        EnableAsservissementDebugData = 0x01BB,         //0x01BB
         PIDDebugData = 0x1AC,           //Trame de données de debug asserv vitesse : Erreur / Correction / Consigne
         EnableSpeedPidCorrectionData = 0x1C0,
         SpeedPidCorrectionData = 0x01C1,  //PIDAdvancedData CorrPID sur X Y et Theta - fe = 10Hz
@@ -97,7 +97,7 @@ namespace Constants
         EnableIOPolling= 432,           //0x01B2
         EnableDisableMotors = 435,      //0x01B3
         EnableDisableTir = 436,         //0x01B4
-        MotorCurrents= 437,             //0x01B5
+        MotorCurrents= 0x01B5,          //0x01B5
         EnableAsservissement=438,       //0x01B6
         EnableMotorCurrent=439,         //0x01B7
         EnableEncoderRawData=440,       //0x01B8

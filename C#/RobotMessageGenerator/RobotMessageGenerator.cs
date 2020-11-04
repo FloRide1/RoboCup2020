@@ -95,11 +95,11 @@ namespace RobotMessageGenerator
             OnMessageToRobot((Int16)Commands.EnableAsservissement, 1, payload);
         }
 
-        public void GenerateMessageEnablePIDDebugData(object sender, BoolEventArgs e)
+        public void GenerateMessageEnableAsservissementDebugData(object sender, BoolEventArgs e)
         {
             byte[] payload = new byte[1];
             payload[0] = Convert.ToByte(e.value);
-            OnMessageToRobot((Int16)Commands.EnablePIDDebugData, 1, payload);
+            OnMessageToRobot((Int16)Commands.EnableAsservissementDebugData, 1, payload);
         }
 
         public void GenerateMessageEnableSpeedPidCorrectionData(object sender, BoolEventArgs e)
