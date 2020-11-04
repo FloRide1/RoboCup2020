@@ -188,7 +188,7 @@ namespace StrategyManager
             //On envoie périodiquement les réglages du PID de vitesse embarqué
             //OnSetRobotVitessePID(5.0, 0, 0, 5.0, 0, 0, 5.0, 0, 0, 100.0, 0, 0, 100.0, 0, 0, 100.0, 0, 0);
             //OnSetRobotVitessePID(Kpx, Kix, Kdx, Kpy, Kiy, Kdy, KpTheta, KiTheta, KdTheta);
-            OnSetRobotVitessePID(px:4.5, ix:500, 0.0, py:4.5, iy:500, 0, ptheta:6, itheta:500, 0, 
+            OnSetRobotVitessePID(px:4.5, ix:200, 0.0, py:4.5, iy:200, 0, ptheta:6, itheta:500, 0, 
                 pxLimit:4.0, ixLimit:4.0, 0, pyLimit:4.0, iyLimit:4.0, 0, pthetaLimit:4.0, ithetaLimit:4.0, 0);
         }
 
