@@ -77,9 +77,20 @@ namespace EventArgsLibrary
         public int RobotId { get; set; }
         public double Vtheta { get; set; }
     }
-    public class SpeedDataEventArgs : SpeedArgs
+    public class PolarSpeedEventArgs : SpeedArgs
     {
         public uint EmbeddedTimeStampInMs;
+        public double Vx { get; set; }
+        public double Vy { get; set; }
+        public double Vtheta { get; set; }
+    }
+    public class IndependantSpeedEventArgs : SpeedArgs
+    {
+        public uint EmbeddedTimeStampInMs;
+        public double VM1 { get; set; }
+        public double VM2 { get; set; }
+        public double VM3 { get; set; }
+        public double VM4 { get; set; }
     }
     public class TirEventArgs : EventArgs
     {
@@ -151,12 +162,13 @@ namespace EventArgsLibrary
         public double vitesseMotor6;
         public double vitesseMotor7;
     }
-    public class PIDDebugDataArgs : EventArgs
+    public class PolarPidDebugDataArgs : EventArgs
     {
         public uint timeStampMS;
         public double xErreur;
         public double yErreur;
         public double thetaErreur;
+
         public double xCorrection;
         public double yCorrection;
         public double thetaCorrection;
@@ -165,7 +177,25 @@ namespace EventArgsLibrary
         public double yConsigneFromRobot;
         public double thetaConsigneFromRobot;
     }
-    public class PIDSetupArgs : EventArgs
+    public class IndependantPidDebugDataArgs : EventArgs
+    {
+        public uint timeStampMS;
+        public double M1Erreur;
+        public double M2Erreur;
+        public double M3Erreur;
+        public double M4Erreur;
+
+        public double M1Correction;
+        public double M2Correction;
+        public double M3Correction;
+        public double M4Correction;
+
+        public double M1ConsigneFromRobot;
+        public double M2ConsigneFromRobot;
+        public double M3ConsigneFromRobot;
+        public double M4ConsigneFromRobot;
+    }
+    public class PolarPIDSetupArgs : EventArgs
     {
         public double P_x;
         public double I_x;
@@ -186,7 +216,36 @@ namespace EventArgsLibrary
         public double I_theta_Limit;
         public double D_theta_Limit;
     }
-    public class PIDCorrectionArgs : EventArgs
+
+    public class IndependantPIDSetupArgs : EventArgs
+    {
+        public double P_M1;
+        public double I_M1;
+        public double D_M1;
+        public double P_M2;
+        public double I_M2;
+        public double D_M2;
+        public double P_M3;
+        public double I_M3;
+        public double D_M3;
+        public double P_M4;
+        public double I_M4;
+        public double D_M4;
+        public double P_M1_Limit;
+        public double I_M1_Limit;
+        public double D_M1_Limit;
+        public double P_M2_Limit;
+        public double I_M2_Limit;
+        public double D_M2_Limit;
+        public double P_M3_Limit;
+        public double I_M3_Limit;
+        public double D_M3_Limit;
+        public double P_M4_Limit;
+        public double I_M4_Limit;
+        public double D_M4_Limit;
+    }
+
+    public class PolarPidCorrectionArgs : EventArgs
     {
         public double CorrPx;
         public double CorrIx;
@@ -197,6 +256,21 @@ namespace EventArgsLibrary
         public double CorrPTheta;
         public double CorrITheta;
         public double CorrDTheta;
+    }
+    public class IndependantPidCorrectionArgs : EventArgs
+    {
+        public double CorrPM1;
+        public double CorrIM1;
+        public double CorrDM1;
+        public double CorrPM2;
+        public double CorrIM2;
+        public double CorrDM2;
+        public double CorrPM3;
+        public double CorrIM3;
+        public double CorrDM3;
+        public double CorrPM4;
+        public double CorrIM4;
+        public double CorrDM4;
     }
 
     public class AccelEventArgs : EventArgs

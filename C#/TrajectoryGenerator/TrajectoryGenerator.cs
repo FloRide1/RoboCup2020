@@ -144,7 +144,7 @@ namespace TrajectoryGenerator
                     PIDPositionReset();
                 }
 
-                PIDCorrectionArgs correction = new PIDCorrectionArgs();
+                PolarPidCorrectionArgs correction = new PolarPidCorrectionArgs();
                 correction.CorrPx = PID_X.correctionP;
                 correction.CorrIx = PID_X.correctionI;
                 correction.CorrDx = PID_X.correctionD;
@@ -158,7 +158,7 @@ namespace TrajectoryGenerator
             }
 
 
-            PIDSetupArgs PositionPidSetup = new PIDSetupArgs();
+            PolarPIDSetupArgs PositionPidSetup = new PolarPIDSetupArgs();
             PositionPidSetup.P_x = PID_X.Kp;
             PositionPidSetup.I_x = PID_X.Ki;
             PositionPidSetup.D_x = PID_X.Kd;
@@ -352,14 +352,14 @@ namespace TrajectoryGenerator
             }
         }
 
-        public event EventHandler<PIDSetupArgs> OnMessageToDisplayPositionPidSetupEvent;
-        public virtual void OnMessageToDisplayPositionPidSetup(PIDSetupArgs setup)
+        public event EventHandler<PolarPIDSetupArgs> OnMessageToDisplayPositionPidSetupEvent;
+        public virtual void OnMessageToDisplayPositionPidSetup(PolarPIDSetupArgs setup)
         {
             OnMessageToDisplayPositionPidSetupEvent?.Invoke(this, setup);
         }
 
-        public event EventHandler<PIDCorrectionArgs> OnMessageToDisplayPositionPidCorrectionEvent;
-        public virtual void OnMessageToDisplayPositionPidCorrection(PIDCorrectionArgs corr)
+        public event EventHandler<PolarPidCorrectionArgs> OnMessageToDisplayPositionPidCorrectionEvent;
+        public virtual void OnMessageToDisplayPositionPidCorrection(PolarPidCorrectionArgs corr)
         {
             OnMessageToDisplayPositionPidCorrectionEvent?.Invoke(this, corr);
         }

@@ -106,7 +106,7 @@ namespace RobotMessageGenerator
         {
             byte[] payload = new byte[1];
             payload[0] = Convert.ToByte(e.value);
-            OnMessageToRobot((Int16)Commands.EnableSpeedPidCorrectionData, 1, payload);
+            OnMessageToRobot((Int16)Commands.SpeedPidEnableCorrectionData, 1, payload);
         }
 
         public void GenerateMessageEnableEncoderRawData(object sender, BoolEventArgs e)
@@ -145,7 +145,7 @@ namespace RobotMessageGenerator
             OnMessageToRobot((Int16)Commands.EmergencySTOP, 1, payload);
         }
 
-        public void GenerateMessageSetupSpeedPIDToRobot(object sender, PIDSetupArgs e)
+        public void GenerateMessageSetupSpeedPIDToRobot(object sender, PolarPIDSetupArgs e)
         {
             byte[] payload = new byte[72];
             payload.SetValueRange(((float)(e.P_x)).GetBytes(), 0);
@@ -185,8 +185,8 @@ namespace RobotMessageGenerator
             OnMessageToRobotGeneratedEvent?.Invoke(this, new MessageToRobotArgs { MsgFunction = msgFunction, MsgPayloadLength = msgPayloadLength, MsgPayload = msgPayload });
         }
 
-        public event EventHandler<PIDSetupArgs> OnMessageToDisplaySpeedPidSetupEvent;
-        public virtual void OnMessageToDisplaySpeedPidSetup(PIDSetupArgs setup)
+        public event EventHandler<PolarPIDSetupArgs> OnMessageToDisplaySpeedPidSetupEvent;
+        public virtual void OnMessageToDisplaySpeedPidSetup(PolarPIDSetupArgs setup)
         {
             OnMessageToDisplaySpeedPidSetupEvent?.Invoke(this, setup);
         }

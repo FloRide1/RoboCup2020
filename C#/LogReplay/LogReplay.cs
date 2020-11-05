@@ -303,13 +303,13 @@ namespace LogReplay
             }
         }
 
-        public event EventHandler<SpeedDataEventArgs> OnSpeedDataEvent;
-        public virtual void OnSpeedData( SpeedDataEventArgs dat)
+        public event EventHandler<PolarSpeedEventArgs> OnSpeedDataEvent;
+        public virtual void OnSpeedData( PolarSpeedEventArgs dat)
         {
             var handler = OnSpeedDataEvent;
             if (handler != null)
             {
-                handler(this, new SpeedDataEventArgs { Vx = dat.Vx, Vy = dat.Vy, Vtheta = dat.Vtheta, RobotId = dat.RobotId, EmbeddedTimeStampInMs=dat.EmbeddedTimeStampInMs});
+                handler(this, new PolarSpeedEventArgs { Vx = dat.Vx, Vy = dat.Vy, Vtheta = dat.Vtheta, RobotId = dat.RobotId, EmbeddedTimeStampInMs=dat.EmbeddedTimeStampInMs});
             }
         }
 

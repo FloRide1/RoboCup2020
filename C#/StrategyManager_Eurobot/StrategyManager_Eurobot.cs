@@ -778,12 +778,12 @@ namespace StrategyManager
         }
 
         //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
-        public event EventHandler<PIDSetupArgs> OnSetRobotVitessePIDEvent;
+        public event EventHandler<PolarPIDSetupArgs> OnSetRobotVitessePIDEvent;
         public virtual void OnSetRobotVitessePID(double px, double ix, double dx, double py, double iy, double dy, double ptheta, double itheta, double dtheta,
             double pxLimit, double ixLimit, double dxLimit, double pyLimit, double iyLimit, double dyLimit, double pthetaLimit, double ithetaLimit, double dthetaLimit
             )
         {
-            OnSetRobotVitessePIDEvent?.Invoke(this, new PIDSetupArgs {
+            OnSetRobotVitessePIDEvent?.Invoke(this, new PolarPIDSetupArgs {
                 P_x = px, I_x = ix, D_x = dx, P_y = py, I_y = iy, D_y = dy, P_theta = ptheta, I_theta = itheta, D_theta = dtheta,
                 P_x_Limit = pxLimit, I_x_Limit = ixLimit, D_x_Limit = dxLimit, P_y_Limit = pyLimit, I_y_Limit = iyLimit, D_y_Limit = dyLimit, P_theta_Limit = pthetaLimit, I_theta_Limit = ithetaLimit, D_theta_Limit = dthetaLimit
             });

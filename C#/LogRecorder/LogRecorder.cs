@@ -95,7 +95,7 @@ namespace LogRecorder
             Log(json);
         }
 
-        public void OnSpeedDataReceived(object sender, SpeedDataEventArgs e)
+        public void OnSpeedDataReceived(object sender, PolarSpeedEventArgs e)
         {
             SpeedDataEventArgsLog data = new SpeedDataEventArgsLog();
             data.Vx = e.Vx;
@@ -151,7 +151,7 @@ namespace LogRecorder
         public double InstantInMs;
     }
 
-    public class SpeedDataEventArgsLog : SpeedDataEventArgs
+    public class SpeedDataEventArgsLog : PolarSpeedEventArgs
     {
         public string Type = "SpeedFromOdometry";
         public double InstantInMs;

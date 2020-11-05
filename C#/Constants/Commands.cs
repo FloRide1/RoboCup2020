@@ -72,7 +72,8 @@ namespace Constants
         Theta = 416,
         XYTheta = 417,
         IMUData = 418,                  //0x01A2
-        XYTheta_Speed = 419,                //0x01A3
+        PolarOdometrySpeed = 0x01A3,
+        IndependantOdometrySpeed = 0x013A,
         MotorsVitesses = 420,              //Ox01A4
         MotorsPositions = 421,          //0x01A5
         MotorsSpeedConsignes = 422,     //0x01A6
@@ -83,9 +84,12 @@ namespace Constants
         SetSpeedConsigne = 427,         //0x01AB
 
         EnableAsservissementDebugData = 0x01BB,         //0x01BB
-        PIDDebugData = 0x1AC,           //Trame de données de debug asserv vitesse : Erreur / Correction / Consigne
-        EnableSpeedPidCorrectionData = 0x1C0,
-        SpeedPidCorrectionData = 0x01C1,  //PIDAdvancedData CorrPID sur X Y et Theta - fe = 10Hz
+        SpeedPidEnableCorrectionData = 0x1C0,
+
+        SpeedPolarPidDebugData = 0x1AC,           //Trame de données de debug asserv vitesse : Erreur / Correction / Consigne
+        SpeedIndependantPidDebugData = 0x1CA,           //Trame de données de debug asserv vitesse : Erreur / Correction / Consigne
+        SpeedPolarPidCorrectionData = 0x01C1,  //PIDAdvancedData CorrPID sur X Y et Theta - fe = 10Hz
+        SpeedIndependantPidCorrectionData = 0x01C2,
 
         SetPIDValues = 429,             //0x01AD
         SetRobotVariable = 430,

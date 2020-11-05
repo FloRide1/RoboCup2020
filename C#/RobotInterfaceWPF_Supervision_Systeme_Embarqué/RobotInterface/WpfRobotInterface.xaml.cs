@@ -214,21 +214,21 @@ namespace RobotInterface
             oscilloLidar.UpdatePointListOfLine(2, ptList2);
         }
 
-        public void OnMessageToDisplaySpeedPidSetupReceived(object sender, PIDSetupArgs e)
+        public void OnMessageToDisplaySpeedPidSetupReceived(object sender, PolarPIDSetupArgs e)
         {
-            asservSpeedDisplay.UpdateCorrectionGains(e.P_x, e.P_y, e.P_theta, e.I_x, e.I_y, e.I_theta, e.D_x, e.D_y, e.D_theta);
-            asservSpeedDisplay.UpdateCorrectionLimits(e.P_x_Limit, e.P_y_Limit, e.P_theta_Limit, e.I_x_Limit, e.I_y_Limit, e.I_theta_Limit, e.D_x_Limit, e.D_y_Limit, e.D_theta_Limit);
+            asservSpeedDisplay.UpdatePolarSpeedCorrectionGains(e.P_x, e.P_y, e.P_theta, e.I_x, e.I_y, e.I_theta, e.D_x, e.D_y, e.D_theta);
+            asservSpeedDisplay.UpdatePolarSpeedCorrectionLimits(e.P_x_Limit, e.P_y_Limit, e.P_theta_Limit, e.I_x_Limit, e.I_y_Limit, e.I_theta_Limit, e.D_x_Limit, e.D_y_Limit, e.D_theta_Limit);
         }
 
-        public void OnMessageToDisplayPositionPidSetupReceived(object sender, PIDSetupArgs e)
+        public void OnMessageToDisplayPositionPidSetupReceived(object sender, PolarPIDSetupArgs e)
         {
-            asservPositionDisplay.UpdateCorrectionGains(e.P_x, e.P_y, e.P_theta, e.I_x, e.I_y, e.I_theta, e.D_x, e.D_y, e.D_theta);
-            asservPositionDisplay.UpdateCorrectionLimits(e.P_x_Limit, e.P_y_Limit, e.P_theta_Limit, e.I_x_Limit, e.I_y_Limit, e.I_theta_Limit, e.D_x_Limit, e.D_y_Limit, e.D_theta_Limit);
+            asservPositionDisplay.UpdatePolarSpeedCorrectionGains(e.P_x, e.P_y, e.P_theta, e.I_x, e.I_y, e.I_theta, e.D_x, e.D_y, e.D_theta);
+            asservPositionDisplay.UpdatePolarSpeedCorrectionLimits(e.P_x_Limit, e.P_y_Limit, e.P_theta_Limit, e.I_x_Limit, e.I_y_Limit, e.I_theta_Limit, e.D_x_Limit, e.D_y_Limit, e.D_theta_Limit);
         }
 
-        public void OnMessageToDisplayPositionPidCorrectionReceived(object sender, PIDCorrectionArgs e)
+        public void OnMessageToDisplayPositionPidCorrectionReceived(object sender, PolarPidCorrectionArgs e)
         {
-            asservPositionDisplay.UpdateCorrectionValues(e.CorrPx, e.CorrPy, e.CorrPTheta, e.CorrIx, e.CorrIy, e.CorrITheta, e.CorrDx, e.CorrDy, e.CorrDTheta);
+            asservPositionDisplay.UpdatePolarSpeedCorrectionValues(e.CorrPx, e.CorrPy, e.CorrPTheta, e.CorrIx, e.CorrIy, e.CorrITheta, e.CorrDx, e.CorrDy, e.CorrDTheta);
         }
 
         Dictionary<ServoId, Servo> HerkulexServos = new Dictionary<ServoId, Servo>();
@@ -276,20 +276,18 @@ namespace RobotInterface
             oscilloM4.ResetGraph();
         }
 
-         public void UpdateSpeedDataOnGraph(object sender, SpeedDataEventArgs e)
+         public void UpdatePolarSpeedOdometryOnInterface(object sender, PolarSpeedEventArgs e)
         {
-            //oscilloX.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, (e.Vx - Vx_T_1) * 50);
-            //Vx_T_1 = e.Vx;
-            //oscilloY.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, (e.Vy - Vy_T_1) * 50);
-            //Vy_T_1 = e.Vy;
-            //oscilloTheta.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vtheta);
-            //Vtheta_T_1 = e.Vtheta;
             oscilloX.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vx);
             oscilloY.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vy);
             oscilloTheta.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vtheta);
             currentTime = e.EmbeddedTimeStampInMs / 1000.0;
 
-            asservSpeedDisplay.UpdateMeasuredValues(e.Vx, e.Vy, e.Vtheta);
+            asservSpeedDisplay.UpdatePolarSpeedMeasuredValues(e.Vx, e.Vy, e.Vtheta);
+        }
+        public void UpdateIndependantSpeedOdometryOnInterface(object sender, IndependantSpeedEventArgs e)
+        {
+            asservSpeedDisplay.UpdateIndependantSpeedMeasuredValues(e.VM1, e.VM2, e.VM3, e.VM4);
         }
         public void ActualizeAccelDataOnGraph(object sender, AccelEventArgs e)
         {
@@ -355,11 +353,11 @@ namespace RobotInterface
             oscilloM4.AddPointToLine(3, e.timeStampMS / 1000.0, e.motor4);
         }
 
-        public void UpdatePIDDebugDataOnGraph(object sender, PIDDebugDataArgs e)
+        public void UpdatePolarPidDebugDataOnGraph(object sender, PolarPidDebugDataArgs e)
         {
-            asservSpeedDisplay.UpdateErrorValues(e.xErreur, e.yErreur, e.thetaErreur);
-            asservSpeedDisplay.UpdateCommandValues(e.xCorrection, e.yCorrection, e.thetaCorrection);
-            asservSpeedDisplay.UpdateConsigneValues(e.xConsigneFromRobot, e.yConsigneFromRobot, e.thetaConsigneFromRobot);
+            asservSpeedDisplay.UpdatePolarSpeedErrorValues(e.xErreur, e.yErreur, e.thetaErreur);
+            asservSpeedDisplay.UpdatePolarSpeedCommandValues(e.xCorrection, e.yCorrection, e.thetaCorrection);
+            asservSpeedDisplay.UpdatePolarSpeedConsigneValues(e.xConsigneFromRobot, e.yConsigneFromRobot, e.thetaConsigneFromRobot);
 
             oscilloX.AddPointToLine(3, e.timeStampMS / 1000.0, e.xErreur);
             oscilloX.AddPointToLine(4, e.timeStampMS / 1000.0, e.xCorrection);
@@ -374,12 +372,25 @@ namespace RobotInterface
             oscilloY.AddPointToLine(5, e.timeStampMS / 1000.0, e.yConsigneFromRobot);
             oscilloTheta.AddPointToLine(5, e.timeStampMS / 1000.0, e.thetaConsigneFromRobot);
         }
-
-        public void UpdatePIDCorrectionData(object sender, PIDCorrectionArgs e)
+        public void UpdateIndependantPidDebugDataOnGraph(object sender, IndependantPidDebugDataArgs e)
         {
-            asservSpeedDisplay.UpdateCorrectionValues(e.CorrPx, e.CorrPy, e.CorrPTheta,
+            asservSpeedDisplay.UpdateIndependantSpeedErrorValues(e.M1Erreur, e.M2Erreur, e.M3Erreur, e.M4Erreur);
+            asservSpeedDisplay.UpdateIndependantSpeedCommandValues(e.M1Correction, e.M2Correction, e.M3Correction, e.M4Correction);
+            asservSpeedDisplay.UpdateIndependantSpeedConsigneValues(e.M1ConsigneFromRobot, e.M2ConsigneFromRobot, e.M3ConsigneFromRobot, e.M4ConsigneFromRobot);
+        }
+
+        public void UpdatePolarPidCorrectionData(object sender, PolarPidCorrectionArgs e)
+        {
+            asservSpeedDisplay.UpdatePolarSpeedCorrectionValues(e.CorrPx, e.CorrPy, e.CorrPTheta,
                 e.CorrIx, e.CorrIy, e.CorrITheta,
                 e.CorrDx, e.CorrDy, e.CorrDTheta);
+        }
+
+        public void UpdateIndependantPidCorrectionData(object sender, IndependantPidCorrectionArgs e)
+        {
+            asservSpeedDisplay.UpdateIndependantSpeedCorrectionValues(e.CorrPM1, e.CorrPM2, e.CorrPM3, e.CorrPM4,
+                e.CorrIM1, e.CorrIM2, e.CorrIM3, e.CorrIM4,
+                e.CorrDM1, e.CorrDM2, e.CorrDM3, e.CorrDM4);
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -910,13 +921,13 @@ namespace RobotInterface
         }
 
         //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
-        public event EventHandler<PIDSetupArgs> OnSetRobotPIDFromInterfaceGeneratedEvent;
+        public event EventHandler<PolarPIDSetupArgs> OnSetRobotPIDFromInterfaceGeneratedEvent;
         public virtual void OnSetRobotPIDFromInterface(double px, double ix, double dx, double py, double iy, double dy, double ptheta, double itheta, double dtheta)
         {
             var handler = OnSetRobotPIDFromInterfaceGeneratedEvent;
             if (handler != null)
             {
-                handler(this, new PIDSetupArgs { P_x = px, I_x=ix, D_x=dx, P_y=py, I_y=iy, D_y=dy, P_theta=ptheta, I_theta=itheta, D_theta=dtheta });
+                handler(this, new PolarPIDSetupArgs { P_x = px, I_x=ix, D_x=dx, P_y=py, I_y=iy, D_y=dy, P_theta=ptheta, I_theta=itheta, D_theta=dtheta });
             }
         }
 
