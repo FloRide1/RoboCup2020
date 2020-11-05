@@ -1,18 +1,12 @@
 ﻿using Microsoft.Win32;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Markup;
 
 namespace FileManager
 {
     public static class JsonSerialize<T>
-    {        
+    {
         /// <summary>
         /// Open save file dialog and Serialize object 
         /// </summary>
@@ -25,8 +19,8 @@ namespace FileManager
             Stream writerS;
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             if (extention.Contains("."))
-                extention = extention.Replace(".","");
-            saveFileDialog.Filter = "template files (*."+extention+")|*."+extention;
+                extention = extention.Replace(".", "");
+            saveFileDialog.Filter = "template files (*." + extention + ")|*." + extention;
             saveFileDialog.FilterIndex = 0;
             saveFileDialog.RestoreDirectory = true;
 
@@ -52,7 +46,7 @@ namespace FileManager
         /// <param name="o">object to serialize</param>
         /// <param name="extention">extension file to save</param>
         /// <returns>1 if serialize is ok else -1</returns>
-        public static int SerializeObjectOnFile(T o,string directoryPath, string fileName, string extention = "json")
+        public static int SerializeObjectOnFile(T o, string directoryPath, string fileName, string extention = "json")
         {
             string path = directoryPath + "\\" + fileName;
             if (Directory.Exists(directoryPath))
@@ -87,7 +81,7 @@ namespace FileManager
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.InitialDirectory = "c:\\";
-            openFileDialog.Filter = "Template files (*."+extention+")|*."+extention+"";
+            openFileDialog.Filter = "Template files (*." + extention + ")|*." + extention + "";
             openFileDialog.RestoreDirectory = true;
 
             if ((bool)openFileDialog.ShowDialog())
@@ -124,10 +118,11 @@ namespace FileManager
                 var fileContent = string.Empty;
                 if (extention.Contains("."))
                     extention = extention.Replace(".", "");
+                path = path + "." + extention;
                 //Read the contents of the file into a stream
-                if(!File.Exists(path))
+                if (!File.Exists(path))
                     SerializeObjectOnFile((T)Activator.CreateInstance(typeof(T)), directoryPath, fileName, extention);
-                var fileStream = new FileStream(path + "." + extention, FileMode.OpenOrCreate);
+                var fileStream = new FileStream(path, FileMode.OpenOrCreate);
                 using (StreamReader reader = new StreamReader(fileStream))
                 {
                     fileContent = reader.ReadToEnd();
