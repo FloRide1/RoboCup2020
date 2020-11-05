@@ -89,11 +89,11 @@ namespace Robot
         }
         #endregion
 
-        static RobotMode robotMode = RobotMode.Standard;
+        static RobotMode robotMode = RobotMode.Nolidar;
 
         static bool usingPhysicalSimulator = true;
         static bool usingXBoxController = false;
-        static bool usingLidar = true;
+        static bool usingLidar = false;
         static bool usingLogging = false;
         static bool usingLogReplay = false;
         
@@ -258,7 +258,8 @@ namespace Robot
             strategyManager.OnRefereeBoxCommandEvent += globalWorldMapManager.OnRefereeBoxCommandReceived;
             strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
             strategyManager.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
-            strategyManager.OnMessageEvent += lidar_OMD60M_TCP.OnMessageReceivedEvent;
+            if(usingLidar)
+                strategyManager.OnMessageEvent += lidar_OMD60M_TCP.OnMessageReceivedEvent;
             strategyManager.OnSetRobotVitessePIDEvent += robotMsgGenerator.GenerateMessageSetupSpeedPIDToRobot;
             strategyManager.OnEnableAsservissementEvent += robotMsgGenerator.GenerateMessageEnableAsservissement;
             strategyManager.OnHerkulexPositionRequestEvent += herkulexManager.OnHerkulexPositionRequestEvent;
@@ -480,8 +481,8 @@ namespace Robot
             //Sur evenement xx        -->>        Action a effectuer
             msgDecoder.OnMessageDecodedEvent += interfaceRobot.DisplayMessageDecoded;
             msgDecoder.OnMessageDecodedErrorEvent += interfaceRobot.DisplayMessageDecodedError;
-
-            lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += interfaceRobot.OnRawLidarDataReceived;
+            if(usingLidar)
+                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += interfaceRobot.OnRawLidarDataReceived;
             perceptionManager.OnLidarBalisePointListForDebugEvent += interfaceRobot.OnRawLidarBalisePointsReceived;
 
             robotMsgGenerator.OnMessageToDisplaySpeedPidSetupEvent += interfaceRobot.OnMessageToDisplaySpeedPidSetupReceived;
