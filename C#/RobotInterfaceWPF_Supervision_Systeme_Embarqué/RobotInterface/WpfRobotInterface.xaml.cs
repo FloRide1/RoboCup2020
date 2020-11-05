@@ -76,22 +76,22 @@ namespace RobotInterface
 
             oscilloM1.SetTitle("Moteur 1");
             oscilloM1.AddOrUpdateLine(0, 100, "Vitesse M1");
-            //oscilloM1.AddOrUpdateLine(1, 100, "Courant M1");
+            oscilloM1.AddOrUpdateLine(1, 100, "Courant M1");
             //oscilloM1.AddOrUpdateLine(2, 100, "Position M1");
             //oscilloM1.ChangeLineColor("Courant M1", Colors.Red);
             oscilloM2.SetTitle("Moteur 2");
             oscilloM2.AddOrUpdateLine(0, 100, "Vitesse M2");
-            //oscilloM2.AddOrUpdateLine(1, 100, "Courant M2");
+            oscilloM2.AddOrUpdateLine(1, 100, "Courant M2");
             //oscilloM2.AddOrUpdateLine(2, 100, "Position M2");
             //oscilloM2.ChangeLineColor("Courant M2", Colors.Red);
             oscilloM3.SetTitle("Moteur 3");
             oscilloM3.AddOrUpdateLine(0, 100, "Vitesse M3");
-            //oscilloM3.AddOrUpdateLine(1, 100, "Courant M3");
+            oscilloM3.AddOrUpdateLine(1, 100, "Courant M3");
             //oscilloM3.AddOrUpdateLine(2, 100, "Position M3");
             //oscilloM3.ChangeLineColor("Courant M3", Colors.Red);
             oscilloM4.SetTitle("Moteur 4");
             oscilloM4.AddOrUpdateLine(0, 100, "Vitesse M4");
-            //oscilloM4.AddOrUpdateLine(1, 100, "Courant M4");
+            oscilloM4.AddOrUpdateLine(1, 100, "Courant M4");
             //oscilloM4.AddOrUpdateLine(2, 100, "Position M4");
             //oscilloM4.ChangeLineColor("Courant M4", Colors.Red);
 
@@ -288,6 +288,8 @@ namespace RobotInterface
             oscilloY.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vy);
             oscilloTheta.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vtheta);
             currentTime = e.EmbeddedTimeStampInMs / 1000.0;
+
+            asservSpeedDisplay.UpdateMeasuredValues(e.Vx, e.Vy, e.Vtheta);
         }
         public void ActualizeAccelDataOnGraph(object sender, AccelEventArgs e)
         {
@@ -310,6 +312,7 @@ namespace RobotInterface
             oscilloY.AddPointToLine(0, currentTime, e.Vy);
             oscilloTheta.AddPointToLine(0, currentTime, e.Vtheta);
 
+            //asservSpeedDisplay.UpdateConsigneValues(e.Vx, e.Vy, e.Vtheta);
         }
 
         public void UpdateMotorSpeedConsigneOnGraph(object sender, MotorsVitesseDataEventArgs e)
@@ -354,7 +357,9 @@ namespace RobotInterface
 
         public void UpdatePIDDebugDataOnGraph(object sender, PIDDebugDataArgs e)
         {
-            asservSpeedDisplay.UpdateErrorValues(e.xCorrection, e.yCorrection, e.thetaCorrection);
+            asservSpeedDisplay.UpdateErrorValues(e.xErreur, e.yErreur, e.thetaErreur);
+            asservSpeedDisplay.UpdateCommandValues(e.xCorrection, e.yCorrection, e.thetaCorrection);
+            asservSpeedDisplay.UpdateConsigneValues(e.xConsigneFromRobot, e.yConsigneFromRobot, e.thetaConsigneFromRobot);
 
             oscilloX.AddPointToLine(3, e.timeStampMS / 1000.0, e.xErreur);
             oscilloX.AddPointToLine(4, e.timeStampMS / 1000.0, e.xCorrection);
@@ -545,6 +550,176 @@ namespace RobotInterface
 
         //Methode appelée sur evenement (event) provenant du port Serie.
         //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
+        public void ActualizeEnableMotorCurrentCheckBox(object sender, BoolEventArgs e)
+        {
+            //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
+            //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
+            //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
+            //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
+            CheckBoxEnableMotorCurrentData.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
+            {
+                if (!e.value)
+                {
+                    if (oscilloM1.LineExist(1))
+                        oscilloM1.RemoveLine(1);
+                    if (oscilloM2.LineExist(1))
+                        oscilloM2.RemoveLine(1);
+                    if (oscilloM3.LineExist(1))
+                        oscilloM3.RemoveLine(1);
+                    if (oscilloM4.LineExist(1))
+                        oscilloM4.RemoveLine(1);
+                }
+                else
+                {
+                    //CheckBoxEnableMotorCurrentData.IsChecked = true;
+                    oscilloM1.AddOrUpdateLine(1, 100, "Courant M1");
+                    oscilloM1.ChangeLineColor(1, Colors.Red);
+                    oscilloM2.AddOrUpdateLine(1, 100, "Courant M2");
+                    oscilloM2.ChangeLineColor(1, Colors.Red);
+                    oscilloM3.AddOrUpdateLine(1, 100, "Courant M3");
+                    oscilloM3.ChangeLineColor(1, Colors.Red);
+                    oscilloM4.AddOrUpdateLine(1, 100, "Courant M4");
+                    oscilloM4.ChangeLineColor(1, Colors.Red);
+                }
+            }));
+        }
+
+
+        //Methode appelée sur evenement (event) provenant du port Serie.
+        //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
+        public void ActualizEnableMotorSpeedConsigneCheckBox(object sender, BoolEventArgs e)
+        {
+            //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
+            //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
+            //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
+            //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
+            CheckBoxEnableMotorSpeedConsigneData.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
+            {
+                if (!e.value)
+                {
+                    if (oscilloM1.LineExist(4))
+                        oscilloM1.RemoveLine(4);
+                    if (oscilloM2.LineExist(4))
+                        oscilloM2.RemoveLine(4);
+                    if (oscilloM3.LineExist(4))
+                        oscilloM3.RemoveLine(4);
+                    if (oscilloM4.LineExist(4))
+                        oscilloM4.RemoveLine(4);
+                }
+                else
+                {
+                    oscilloM1.AddOrUpdateLine(4, 100, "PWM M1");
+                    oscilloM1.ChangeLineColor(4, Colors.GreenYellow);
+                    oscilloM2.AddOrUpdateLine(4, 100, "PWM M2");
+                    oscilloM2.ChangeLineColor(4, Colors.GreenYellow);
+                    oscilloM3.AddOrUpdateLine(4, 100, "PWM M3");
+                    oscilloM3.ChangeLineColor(4, Colors.GreenYellow);
+                    oscilloM4.AddOrUpdateLine(4, 100, "PWM M4");
+                    oscilloM4.ChangeLineColor(4, Colors.GreenYellow);
+                }
+            }));
+        }
+
+        //Methode appelée sur evenement (event) provenant du port Serie.
+        //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
+        public void ActualizeEnableEncoderRawDataCheckBox(object sender, BoolEventArgs e)
+        {
+            //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
+            //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
+            //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
+            //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
+            CheckBoxEnableEncRawData.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
+            {
+                if (!e.value)
+                {
+                    if (oscilloM1.LineExist(3))
+                        oscilloM1.RemoveLine(3);
+                    if (oscilloM2.LineExist(3))
+                        oscilloM2.RemoveLine(3);
+                    if (oscilloM3.LineExist(3))
+                        oscilloM3.RemoveLine(3);
+                    if (oscilloM4.LineExist(3))
+                        oscilloM4.RemoveLine(3);
+                }
+                else
+                {
+                    oscilloM1.AddOrUpdateLine(3, 100, "RAW Val M1");
+                    oscilloM1.ChangeLineColor(3, Colors.GreenYellow);
+                    oscilloM2.AddOrUpdateLine(3, 100, "RAW Val M2");
+                    oscilloM2.ChangeLineColor(3, Colors.GreenYellow);
+                    oscilloM3.AddOrUpdateLine(3, 100, "RAW Val M3");
+                    oscilloM3.ChangeLineColor(3, Colors.GreenYellow);
+                    oscilloM4.AddOrUpdateLine(3, 100, "RAW Val M4");
+                    oscilloM4.ChangeLineColor(3, Colors.GreenYellow);
+                }
+            }));
+        }
+
+        //Methode appelée sur evenement (event) provenant du port Serie.
+        //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
+        public void ActualizeEnableAsservissementDebugDataCheckBox(object sender, BoolEventArgs e)
+        {
+            //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
+            //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
+            //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
+            //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
+            CheckBoxEnableAsservissementDebugData.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
+            {
+                if (!e.value)
+                {
+
+                    if (oscilloX.LineExist(3))   
+                        oscilloX.RemoveLine(3);
+                    if (oscilloX.LineExist(4))
+                        oscilloX.RemoveLine(4);
+                    if (oscilloX.LineExist(5))
+                        oscilloX.RemoveLine(5);
+
+                    if (oscilloY.LineExist(3))
+                        oscilloY.RemoveLine(3);
+                    if (oscilloY.LineExist(4))
+                        oscilloY.RemoveLine(4);
+                    if (oscilloY.LineExist(5))
+                        oscilloY.RemoveLine(5);
+
+                    if (oscilloTheta.LineExist(3))
+                        oscilloTheta.RemoveLine(3);
+                    if (oscilloTheta.LineExist(4))
+                        oscilloTheta.RemoveLine(4);
+                    if (oscilloTheta.LineExist(5))
+                        oscilloTheta.RemoveLine(5);
+                }
+                else
+                {
+                    oscilloX.AddOrUpdateLine(3, 100, "xErreur");
+                    oscilloX.ChangeLineColor(3, Colors.GreenYellow);
+                    oscilloY.AddOrUpdateLine(3, 100, "yErreur");
+                    oscilloY.ChangeLineColor(3, Colors.GreenYellow);
+                    oscilloTheta.AddOrUpdateLine(3, 100, "thetaErreur");
+                    oscilloTheta.ChangeLineColor(3, Colors.GreenYellow);
+
+                    oscilloX.AddOrUpdateLine(4, 100, "xCorrection %");
+                    oscilloX.ChangeLineColor(4, Colors.ForestGreen);
+                    oscilloY.AddOrUpdateLine(4, 100, "yCorrection %");
+                    oscilloY.ChangeLineColor(4, Colors.ForestGreen);
+                    oscilloTheta.AddOrUpdateLine(4, 100, "thetaCorrection %");
+                    oscilloTheta.ChangeLineColor(4, Colors.ForestGreen);
+
+                    oscilloX.AddOrUpdateLine(5, 100, "xConsigne robot");
+                    oscilloX.ChangeLineColor(5, Colors.Yellow);
+                    oscilloY.AddOrUpdateLine(5, 100, "xConsigne robot");
+                    oscilloY.ChangeLineColor(5, Colors.Yellow);
+                    oscilloTheta.AddOrUpdateLine(5, 100, "thetaConsigne robot");
+                    oscilloTheta.ChangeLineColor(5, Colors.Yellow);
+                }
+            }));
+        }
+
+        
+        
+
+        //Methode appelée sur evenement (event) provenant du port Serie.
+        //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
         public void AppendConsole(object sender, StringEventArgs e)
         {
             //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
@@ -721,10 +896,10 @@ namespace RobotInterface
         }
 
         //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
-        public event EventHandler<BoolEventArgs> OnEnablePIDDebugDataFromInterfaceGeneratedEvent;
-        public virtual void OnEnablePIDDebugDataFromInterface(bool val)
+        public event EventHandler<BoolEventArgs> OnEnableAsservissementDebugDataFromInterfaceGeneratedEvent;
+        public virtual void OnEnableAsservissementDebugDataFromInterface(bool val)
         {
-            OnEnablePIDDebugDataFromInterfaceGeneratedEvent?.Invoke(this, new BoolEventArgs { value = val });
+            OnEnableAsservissementDebugDataFromInterfaceGeneratedEvent?.Invoke(this, new BoolEventArgs { value = val });
         }
 
         //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
@@ -831,106 +1006,22 @@ namespace RobotInterface
             if (CheckBoxEnableMotorCurrentData.IsChecked ?? false)
             {
                 OnEnableMotorCurrentDataFromInterface(true);
-                oscilloM1.AddOrUpdateLine(1, 100, "Courant M1");
-                oscilloM1.ChangeLineColor(1, Colors.Red);
-                oscilloM2.AddOrUpdateLine(1, 100, "Courant M2");
-                oscilloM2.ChangeLineColor(1, Colors.Red);
-                oscilloM3.AddOrUpdateLine(1, 100, "Courant M3");
-                oscilloM3.ChangeLineColor(1, Colors.Red);
-                oscilloM4.AddOrUpdateLine(1, 100, "Courant M4");
-                oscilloM4.ChangeLineColor(1, Colors.Red);
             }
             else
             {
                 OnEnableMotorCurrentDataFromInterface(false);
-                if (oscilloM1.LineExist(1))
-                {
-                    oscilloM1.RemoveLine(1);
-                }
-                if (oscilloM2.LineExist(1))
-                {
-                    oscilloM2.RemoveLine(1);
-                }
-                if (oscilloM3.LineExist(1))
-                {
-                    oscilloM3.RemoveLine(1);
-                }
-                if (oscilloM4.LineExist(1))
-                {
-                    oscilloM4.RemoveLine(1);
-                }
             }
         }
-
-        private void CheckBoxEnablePositionData_Checked(object sender, RoutedEventArgs e)
-        {
-            if(CheckBoxEnablePositionData.IsChecked ?? false)
-            {
-                OnEnableEncodersDataFromInterface(true);
-                oscilloM1.AddOrUpdateLine(2, 100, "Position M1");
-                oscilloM1.ChangeLineColor(2, Colors.Blue);
-                oscilloM2.AddOrUpdateLine(2, 100, "Position M2");
-                oscilloM2.ChangeLineColor(2, Colors.Blue);
-                oscilloM3.AddOrUpdateLine(2, 100, "Position M3");
-                oscilloM3.ChangeLineColor(2, Colors.Blue);
-                oscilloM4.AddOrUpdateLine(2, 100, "Position M4");
-                oscilloM4.ChangeLineColor(2, Colors.Blue);
-            }
-            else
-            {
-                OnEnableEncodersDataFromInterface(false);
-                if (oscilloM1.LineExist(2))
-                {
-                    oscilloM1.RemoveLine(2);
-                }
-                if (oscilloM2.LineExist(2))
-                {
-                    oscilloM2.RemoveLine(2);
-                }
-                if (oscilloM3.LineExist(2))
-                {
-                    oscilloM3.RemoveLine(2);
-                }
-                if (oscilloM4.LineExist(2))
-                {
-                    oscilloM4.RemoveLine(2);
-                }
-            }
-        }
-
+        
         private void CheckBoxEnableEncRawData_Checked(object sender, RoutedEventArgs e)
         {
             if (CheckBoxEnableEncRawData.IsChecked ?? false)
             {
                 OnEnableEncodersRawDataFromInterface(true);
-                oscilloM1.AddOrUpdateLine(3, 100, "RAW Val M1");
-                oscilloM1.ChangeLineColor(3, Colors.GreenYellow);
-                oscilloM2.AddOrUpdateLine(3, 100, "RAW Val M2");
-                oscilloM2.ChangeLineColor(3, Colors.GreenYellow);
-                oscilloM3.AddOrUpdateLine(3, 100, "RAW Val M3");
-                oscilloM3.ChangeLineColor(3, Colors.GreenYellow);
-                oscilloM4.AddOrUpdateLine(3, 100, "RAW Val M4");
-                oscilloM4.ChangeLineColor(3, Colors.GreenYellow);
             }
             else
             {
                 OnEnableEncodersRawDataFromInterface(false);
-                if (oscilloM1.LineExist(3))
-                {
-                    oscilloM1.RemoveLine(3);
-                }
-                if (oscilloM2.LineExist(3))
-                {
-                    oscilloM2.RemoveLine(3);
-                }
-                if (oscilloM3.LineExist(3))
-                {
-                    oscilloM3.RemoveLine(3);
-                }
-                if (oscilloM4.LineExist(3))
-                {
-                    oscilloM4.RemoveLine(3);
-                }
             }
         }
 
@@ -939,106 +1030,24 @@ namespace RobotInterface
             if (CheckBoxEnableMotorSpeedConsigneData.IsChecked ?? false)
             {
                 OnEnableMotorSpeedConsigneDataFromInterface(true);
-                oscilloM1.AddOrUpdateLine(4, 100, "PWM M1");
-                oscilloM1.ChangeLineColor(4, Colors.GreenYellow);
-                oscilloM2.AddOrUpdateLine(4, 100, "PWM M2");
-                oscilloM2.ChangeLineColor(4, Colors.GreenYellow);
-                oscilloM3.AddOrUpdateLine(4, 100, "PWM M3");
-                oscilloM3.ChangeLineColor(4, Colors.GreenYellow);
-                oscilloM4.AddOrUpdateLine(4, 100, "PWM M4");
-                oscilloM4.ChangeLineColor(4, Colors.GreenYellow);
             }
             else
             {
                 OnEnableMotorSpeedConsigneDataFromInterface(false);
-                if (oscilloM1.LineExist(4))
-                {
-                    oscilloM1.RemoveLine(4);
-                }
-                if (oscilloM2.LineExist(4))
-                {
-                    oscilloM2.RemoveLine(4);
-                }
-                if (oscilloM3.LineExist(4))
-                {
-                    oscilloM3.RemoveLine(4);
-                }
-                if (oscilloM4.LineExist(4))
-                {
-                    oscilloM4.RemoveLine(4);
-                }
             }
         }
 
-        private void CheckBoxEnablePIDDebugData_Checked(object sender, RoutedEventArgs e)
+        private void CheckBoxEnableAsservissementDebugData_Checked(object sender, RoutedEventArgs e)
         {
-            if (CheckBoxEnablePIDDebugData.IsChecked ?? false)
+            if (CheckBoxEnableAsservissementDebugData.IsChecked ?? false)
             {
-                OnEnablePIDDebugDataFromInterface(true);
+                OnEnableAsservissementDebugDataFromInterface(true);
                 OnEnableSpeedPidCorrectionDataFromInterface(true);
-                oscilloX.AddOrUpdateLine(3, 100, "xErreur");
-                oscilloX.ChangeLineColor(3, Colors.GreenYellow);
-                oscilloY.AddOrUpdateLine(3, 100, "yErreur");
-                oscilloY.ChangeLineColor(3, Colors.GreenYellow);
-                oscilloTheta.AddOrUpdateLine(3, 100, "thetaErreur");
-                oscilloTheta.ChangeLineColor(3, Colors.GreenYellow);
-
-                oscilloX.AddOrUpdateLine(4, 100, "xCorrection %");
-                oscilloX.ChangeLineColor(4, Colors.ForestGreen);
-                oscilloY.AddOrUpdateLine(4, 100, "yCorrection %");
-                oscilloY.ChangeLineColor(4, Colors.ForestGreen);
-                oscilloTheta.AddOrUpdateLine(4, 100, "thetaCorrection %");
-                oscilloTheta.ChangeLineColor(4, Colors.ForestGreen);
-
-                oscilloX.AddOrUpdateLine(5, 100, "xConsigne robot");
-                oscilloX.ChangeLineColor(5, Colors.Yellow);
-                oscilloY.AddOrUpdateLine(5, 100, "xConsigne robot");
-                oscilloY.ChangeLineColor(5, Colors.Yellow);
-                oscilloTheta.AddOrUpdateLine(5, 100, "thetaConsigne robot");
-                oscilloTheta.ChangeLineColor(5, Colors.Yellow);
             }
             else
             {
-                OnEnablePIDDebugDataFromInterface(false);
+                OnEnableAsservissementDebugDataFromInterface(false);
                 OnEnableSpeedPidCorrectionDataFromInterface(false);
-                if (oscilloX.LineExist(3))
-                {
-                    oscilloX.RemoveLine(3);
-                }
-                if (oscilloX.LineExist(4))
-                {
-                    oscilloX.RemoveLine(4);
-                }
-                if (oscilloX.LineExist(5))
-                {
-                    oscilloX.RemoveLine(5);
-                }
-
-                if (oscilloY.LineExist(3))
-                {
-                    oscilloY.RemoveLine(3);
-                }
-                if (oscilloY.LineExist(4))
-                {
-                    oscilloY.RemoveLine(4);
-                }
-                if (oscilloY.LineExist(5))
-                {
-                    oscilloY.RemoveLine(5);
-                }
-
-                if (oscilloTheta.LineExist(3))
-                {
-                    oscilloTheta.RemoveLine(3);
-                }
-                if (oscilloTheta.LineExist(4))
-                {
-                    oscilloTheta.RemoveLine(4);
-                }
-                if (oscilloTheta.LineExist(5))
-                {
-                    oscilloTheta.RemoveLine(5);
-                }
             }
         }
 

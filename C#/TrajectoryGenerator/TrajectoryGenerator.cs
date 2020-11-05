@@ -34,12 +34,26 @@ namespace TrajectoryGenerator
         AsservissementPID PID_X;
         AsservissementPID PID_Y;
         AsservissementPID PID_Theta;
+        
+        System.Timers.Timer PidConfigUpdateTimer;
+
         void InitPositionPID()
         {
             PID_X = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5, 5, 1);
             PID_Y = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5, 5, 1);
             PID_Theta = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5*Math.PI, 5*Math.PI, Math.PI); //Validé VG : 20 20 0 2PI 2PI 0..5
 
+            PidConfigUpdateTimer = new System.Timers.Timer(1000);
+            PidConfigUpdateTimer.Elapsed += PidConfigUpdateTimer_Elapsed;
+            PidConfigUpdateTimer.Start();
+
+        }
+
+        private void PidConfigUpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            PID_X.Init(1.0, 0.0, 0, 5, 5, 5);
+            PID_Y.Init(1.0, 0.0, 0, 5, 5, 5);
+            PID_Theta.Init(1.0, 0.0, 0, 5, 5, 5);
         }
 
         public TrajectoryPlanner(int id)

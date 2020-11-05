@@ -87,7 +87,6 @@ namespace ReliableSerialPortNS
 
         private void StopTryingToConnect()
         {
-            isRequiredToBeClosed = true;
             //Suspension du Thread de Connexion
             serialPortConnexionActivated.Reset(); //On bloque la connexion
         }
@@ -99,6 +98,8 @@ namespace ReliableSerialPortNS
 
         new public void Close()
         {
+            //On annonce la fermeture imminente du port
+            isRequiredToBeClosed = true;
             //On interdit les reconnections
             StopTryingToConnect();
             //On ferme le port
@@ -159,7 +160,7 @@ namespace ReliableSerialPortNS
                     IsSerialPortConnected = false;
                 }
 
-                if (IsSerialPortConnected)
+                if (IsSerialPortConnected && !isRequiredToBeClosed)
                 {
                     //Si on est connecté, on relance l'acquisition en boucle
                     kickoffRead();

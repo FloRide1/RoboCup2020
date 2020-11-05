@@ -88,8 +88,8 @@ namespace StrategyManager
             //heatMap = new Heatmap(22.0, 14.0, 22.0/Math.Pow(2,8), 2); //Init HeatMap
             heatMap = new Heatmap(3, 2, (int)Math.Pow(2, 5), 1); //Init HeatMap
 
-            OnSetRobotVitessePID(50, 100, 0, 50, 100, 0, 50, 100, 0,
-            2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 5.0, 5.0, 5.0);
+            //OnSetRobotVitessePID(50, 100, 0, 50, 100, 0, 50, 100, 0,
+            //2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 5.0, 5.0, 5.0);
 
             //OnSetRobotVitessePID(
             //    200, 200, 0,
@@ -184,9 +184,12 @@ namespace StrategyManager
         }
 
         private void ConfigTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {            
+        {
             //On envoie périodiquement les réglages du PID de vitesse embarqué
-            OnSetRobotVitessePID(5.0, 0, 0, 5.0, 0, 0, 5.0, 0, 0, 100.0, 0, 0, 100.0, 0, 0, 100.0, 0, 0);
+            //OnSetRobotVitessePID(5.0, 0, 0, 5.0, 0, 0, 5.0, 0, 0, 100.0, 0, 0, 100.0, 0, 0, 100.0, 0, 0);
+            //OnSetRobotVitessePID(Kpx, Kix, Kdx, Kpy, Kiy, Kdy, KpTheta, KiTheta, KdTheta);
+            OnSetRobotVitessePID(px:4.0, ix:300, 0.0, py:4.0, iy:300, 0, ptheta:6, itheta:500, 0, 
+                pxLimit:4.0, ixLimit:4.0, 0, pyLimit:4.0, iyLimit:4.0, 0, pthetaLimit:4.0, ithetaLimit:4.0, 0);
         }
 
 
@@ -782,7 +785,7 @@ namespace StrategyManager
         {
             OnSetRobotVitessePIDEvent?.Invoke(this, new PIDSetupArgs {
                 P_x = px, I_x = ix, D_x = dx, P_y = py, I_y = iy, D_y = dy, P_theta = ptheta, I_theta = itheta, D_theta = dtheta,
-                P_x_Limit = px, I_x_Limit = ix, D_x_Limit = dx, P_y_Limit = py, I_y_Limit = iy, D_y_Limit = dy, P_theta_Limit = ptheta, I_theta_Limit = itheta, D_theta_Limit = dtheta
+                P_x_Limit = pxLimit, I_x_Limit = ixLimit, D_x_Limit = dxLimit, P_y_Limit = pyLimit, I_y_Limit = iyLimit, D_y_Limit = dyLimit, P_theta_Limit = pthetaLimit, I_theta_Limit = ithetaLimit, D_theta_Limit = dthetaLimit
             });
         }
 

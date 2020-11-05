@@ -21,21 +21,35 @@ namespace WpfAsservissementDisplay
     /// <summary>
     /// Logique d'interaction pour UserControl1.xaml
     /// </summary>
+    /// 
     public partial class AsservissementXYThetaControl : UserControl
     {
-        FixedSizedQueue<double> errorXList = new Utilities.FixedSizedQueue<double>(50);
-        FixedSizedQueue<double> errorYList = new Utilities.FixedSizedQueue<double>(50);
-        FixedSizedQueue<double> errorThetaList = new Utilities.FixedSizedQueue<double>(50);
+        int queueSize = 1;
+        FixedSizedQueue<double> commandXList;
+        FixedSizedQueue<double> commandYList;
+        FixedSizedQueue<double> commandThetaList;
 
-        FixedSizedQueue<double> corrPXList = new Utilities.FixedSizedQueue<double>(50);
-        FixedSizedQueue<double> corrPYList = new Utilities.FixedSizedQueue<double>(50);
-        FixedSizedQueue<double> corrPThetaList = new Utilities.FixedSizedQueue<double>(50);
-        FixedSizedQueue<double> corrIXList = new Utilities.FixedSizedQueue<double>(50);
-        FixedSizedQueue<double> corrIYList = new Utilities.FixedSizedQueue<double>(50);
-        FixedSizedQueue<double> corrIThetaList = new Utilities.FixedSizedQueue<double>(50);
-        FixedSizedQueue<double> corrDXList = new Utilities.FixedSizedQueue<double>(50);
-        FixedSizedQueue<double> corrDYList = new Utilities.FixedSizedQueue<double>(50);
-        FixedSizedQueue<double> corrDThetaList = new Utilities.FixedSizedQueue<double>(50);
+        FixedSizedQueue<double> consigneXList;
+        FixedSizedQueue<double> consigneYList;
+        FixedSizedQueue<double> consigneThetaList;
+
+        FixedSizedQueue<double> measuredXList;
+        FixedSizedQueue<double> measuredYList;
+        FixedSizedQueue<double> measuredThetaList;
+
+        FixedSizedQueue<double> errorXList;
+        FixedSizedQueue<double> errorYList;
+        FixedSizedQueue<double> errorThetaList;
+
+        FixedSizedQueue<double> corrPXList;
+        FixedSizedQueue<double> corrPYList;
+        FixedSizedQueue<double> corrPThetaList;
+        FixedSizedQueue<double> corrIXList;
+        FixedSizedQueue<double> corrIYList;
+        FixedSizedQueue<double> corrIThetaList;
+        FixedSizedQueue<double> corrDXList;
+        FixedSizedQueue<double> corrDYList;
+        FixedSizedQueue<double> corrDThetaList;
 
         double corrLimitPX, corrLimitPY, corrLimitPTheta;
         double corrLimitIX, corrLimitIY, corrLimitITheta;
@@ -50,6 +64,45 @@ namespace WpfAsservissementDisplay
         public AsservissementXYThetaControl()
         {
             InitializeComponent();
+
+            commandXList = new Utilities.FixedSizedQueue<double>(queueSize);
+            commandYList = new Utilities.FixedSizedQueue<double>(queueSize);
+            commandThetaList = new Utilities.FixedSizedQueue<double>(queueSize);
+
+            consigneXList = new Utilities.FixedSizedQueue<double>(queueSize);
+            consigneYList = new Utilities.FixedSizedQueue<double>(queueSize);
+            consigneThetaList = new Utilities.FixedSizedQueue<double>(queueSize);
+
+            measuredXList = new Utilities.FixedSizedQueue<double>(queueSize);
+            measuredYList = new Utilities.FixedSizedQueue<double>(queueSize);
+            measuredThetaList = new Utilities.FixedSizedQueue<double>(queueSize);
+
+            errorXList = new Utilities.FixedSizedQueue<double>(queueSize);
+            errorYList = new Utilities.FixedSizedQueue<double>(queueSize);
+            errorThetaList = new Utilities.FixedSizedQueue<double>(queueSize);
+
+            corrPXList = new Utilities.FixedSizedQueue<double>(queueSize);
+            corrPYList = new Utilities.FixedSizedQueue<double>(queueSize);
+            corrPThetaList = new Utilities.FixedSizedQueue<double>(queueSize);
+            corrIXList = new Utilities.FixedSizedQueue<double>(queueSize);
+            corrIYList = new Utilities.FixedSizedQueue<double>(queueSize);
+            corrIThetaList = new Utilities.FixedSizedQueue<double>(queueSize);
+            corrDXList = new Utilities.FixedSizedQueue<double>(queueSize);
+            corrDYList = new Utilities.FixedSizedQueue<double>(queueSize);
+            corrDThetaList = new Utilities.FixedSizedQueue<double>(queueSize);
+
+            consigneXList.Enqueue(0);
+            consigneYList.Enqueue(0);
+            consigneThetaList.Enqueue(0);
+
+            commandXList.Enqueue(0);
+            commandYList.Enqueue(0);
+            commandThetaList.Enqueue(0);
+
+            measuredXList.Enqueue(0);
+            measuredYList.Enqueue(0);
+            measuredThetaList.Enqueue(0);
+
             errorXList.Enqueue(0);
             errorYList.Enqueue(0);
             errorThetaList.Enqueue(0);
@@ -74,9 +127,21 @@ namespace WpfAsservissementDisplay
 
         public void UpdateDisplay()
         {
+            LabelConsigneX.Content = consigneXList.Average().ToString("N2");
+            LabelConsigneY.Content = consigneYList.Average().ToString("N2");
+            LabelConsigneTheta.Content = consigneThetaList.Average().ToString("N2");
+
+            LabelMeasureX.Content = measuredXList.Average().ToString("N2");
+            LabelMeasureY.Content = measuredYList.Average().ToString("N2");
+            LabelMeasureTheta.Content = measuredThetaList.Average().ToString("N2");
+
             LabelErreurX.Content = errorXList.Average().ToString("N2");
             LabelErreurY.Content = errorYList.Average().ToString("N2");
             LabelErreurTheta.Content = errorThetaList.Average().ToString("N2");
+
+            LabelCommandX.Content = commandXList.Average().ToString("N2");
+            LabelCommandY.Content = commandYList.Average().ToString("N2");
+            LabelCommandTheta.Content = commandThetaList.Average().ToString("N2");
 
             LabelKpX.Content = KpX.ToString("N2");
             LabelKpY.Content = KpY.ToString("N2");
@@ -111,6 +176,27 @@ namespace WpfAsservissementDisplay
                 LabelCorrDY.Content = corrDYList.Average().ToString("N2");
                 LabelCorrDTheta.Content = corrDThetaList.Average().ToString("N2");
             }
+        }
+
+        public void UpdateConsigneValues(double consigneX, double consigneY, double consigneTheta)
+        {
+            consigneXList.Enqueue(consigneX);
+            consigneYList.Enqueue(consigneY);
+            consigneThetaList.Enqueue(consigneTheta);
+        }
+
+        public void UpdateCommandValues(double commandX, double commandY, double commandTheta)
+        {
+            commandXList.Enqueue(commandX);
+            commandYList.Enqueue(commandY);
+            commandThetaList.Enqueue(commandTheta);
+        }
+
+        public void UpdateMeasuredValues(double valueX, double valueY, double valueTheta)
+        {
+            measuredXList.Enqueue(valueX);
+            measuredYList.Enqueue(valueY);
+            measuredThetaList.Enqueue(valueTheta);
         }
 
         public void UpdateErrorValues(double errorX, double errorY, double errorTheta)
