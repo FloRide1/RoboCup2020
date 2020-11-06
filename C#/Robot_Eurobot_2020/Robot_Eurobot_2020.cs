@@ -103,6 +103,7 @@ namespace Robot
         //static HighFreqTimer highFrequencyTimer;
         static HighFreqTimer timerStrategie;
         static ReliableSerialPort serialPort1;
+        static USBVendor.USBVendor usbDriver;
         static MsgDecoder msgDecoder;
         static MsgEncoder msgEncoder;
         static RobotMsgGenerator robotMsgGenerator;
@@ -198,6 +199,7 @@ namespace Robot
             //ConfigSerialPort cfgSerialPort = FileManager.JsonSerialize<ConfigSerialPort>.DeserializeObjectFromFile(@"Configs", "SerialPort");
             //serialPort1 = new ReliableSerialPort(cfgSerialPort.CommName, cfgSerialPort.ComBaudrate, cfgSerialPort.Parity, cfgSerialPort.DataByte, cfgSerialPort.StopByte);
             serialPort1 = new ReliableSerialPort("COM1", 115200, Parity.None, 8, StopBits.One);
+            usbDriver = new USBVendor.USBVendor();
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
             robotMsgGenerator = new RobotMsgGenerator();
@@ -292,9 +294,11 @@ namespace Robot
             //Gestion des messages envoyé par le robot
             robotMsgGenerator.OnMessageToRobotGeneratedEvent += msgEncoder.EncodeMessageToRobot;
             msgEncoder.OnMessageEncodedEvent += serialPort1.SendMessage;
+            msgEncoder.OnMessageEncodedEvent += usbDriver.SendUSBMessage;
 
             //Gestion des messages reçu par le robot
             serialPort1.OnDataReceivedEvent += msgDecoder.DecodeMsgReceived;
+            usbDriver.OnUSBDataReceivedEvent += msgDecoder.DecodeMsgReceived;
             msgDecoder.OnMessageDecodedEvent += robotMsgProcessor.ProcessRobotDecodedMessage;
             robotMsgProcessor.OnIMURawDataFromRobotGeneratedEvent += imuProcessor.OnIMURawDataReceived;
             robotMsgProcessor.OnIOValuesFromRobotGeneratedEvent += strategyManager.OnIOValuesFromRobotEvent;
