@@ -813,8 +813,8 @@ namespace USBVendor
 		///  
 		///  <returns> true on success, false on failure </returns>
 		///  
-		internal Boolean ReceiveDataViaIsochronousTransfer(SafeWinUsbHandle winUsbHandle, DeviceInfo myDeviceInfo, UInt32 bytesToRead,
-														 ref Byte[] dataInBuffer, ref UInt32 bytesRead, UInt32 numberOfPackets)
+		internal void ReceiveDataViaIsochronousTransfer(SafeWinUsbHandle winUsbHandle, DeviceInfo myDeviceInfo, UInt32 bytesToRead,
+														 ref Byte[] dataInBuffer, ref UInt32 bytesRead, UInt32 numberOfPackets, ref Boolean succcess)
 		{
 			try
 			{
@@ -862,7 +862,7 @@ namespace USBVendor
 							}
 						}
 					}
-					return success;
+					//return success;
 				}
 			}
 			catch (Exception ex)

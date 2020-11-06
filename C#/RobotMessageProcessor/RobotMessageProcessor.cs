@@ -376,6 +376,11 @@ namespace RobotMessageProcessor
                     //On envois l'event aux abonnés
                     OnEnableMotorSpeedConsigneDataACKFromRobot(value);
                     break;
+                case (short)Commands.EnablePowerMonitoring:
+                    value = Convert.ToBoolean(payload[0]);
+                    //On envois l'event aux abonnés
+                    OnEnablePowerMonitoringDataACKFromRobot(value);
+                    break;
                 case (short)Commands.ErrorTextMessage:
                     string errorMsg = Encoding.UTF8.GetString(payload);
                     //On envois l'event aux abonnés
@@ -487,6 +492,15 @@ namespace RobotMessageProcessor
             }
         }
 
+        public event EventHandler<BoolEventArgs> OnEnablePowerMonitoringDataACKFromRobotGeneratedEvent;
+        public virtual void OnEnablePowerMonitoringDataACKFromRobot(bool isEnabled)
+        {
+            var handler = OnEnablePowerMonitoringDataACKFromRobotGeneratedEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = isEnabled });
+            }
+        }
         public event EventHandler<StringEventArgs> OnErrorTextFromRobotGeneratedEvent;
         public virtual void OnErrorTextFromRobot(string str)
         {

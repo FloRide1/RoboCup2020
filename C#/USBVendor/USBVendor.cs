@@ -66,6 +66,7 @@ namespace USBVendor
         ///  </summary>
 
         private delegate void ReceiveFromDeviceDelegate(WinUsbCommunications.SafeWinUsbHandle winUsbHandle, WinUsbCommunications.DeviceInfo myDeviceInfo, UInt32 bytesToRead, ref Byte[] dataBuffer, ref UInt32 bytesRead, ref Boolean success);
+        private delegate void ReceiveFromDeviceDelegateIso(WinUsbCommunications.SafeWinUsbHandle winUsbHandle, WinUsbCommunications.DeviceInfo myDeviceInfo, UInt32 bytesToRead, ref Byte[] dataInBuffer, ref UInt32 bytesRead, UInt32 numberOfPackets, ref Boolean succcess);
 
 
         public USBVendor()
@@ -142,6 +143,7 @@ namespace USBVendor
                         {
                             readSuccess = false;
                             RequestToReceiveDataViaBulkTransfer(cmv8DeviceListeFound[0], bytesToRead, dataBuffer, ref bytesRead, ref readSuccess);
+                            //RequestToReceiveDataViaIsochronousTransfer(cmv8DeviceListeFound[0], bytesToRead,ref dataBuffer, ref bytesRead, ref readSuccess);
                             OnUSBDataReceived(dataBuffer);
                         //    ProcessUSBReceivedMessage(dataBuffer, totalByteReceived);
                             //rcvMessageQueue.Enqueue(dataBuffer);
@@ -152,6 +154,13 @@ namespace USBVendor
                         readSuccess = false;
                         deviceResetted = false;
                         RequestToReceiveDataViaBulkTransfer(cmv8DeviceListeFound[0], bytesToRead, dataBuffer, ref bytesRead, ref success);
+                        //RequestToReceiveDataViaIsochronousTransfer(cmv8DeviceListeFound[0], bytesToRead,ref dataBuffer, ref bytesRead, ref readSuccess);
+                    }
+                    else
+                    {
+                        //RequestToReceiveDataViaBulkTransfer(cmv8DeviceListeFound[0], bytesToRead, dataBuffer, ref bytesRead, ref readSuccess);
+                        //RequestToReceiveDataViaIsochronousTransfer(cmv8DeviceListeFound[0], bytesToRead, ref dataBuffer, ref bytesRead, ref readSuccess);
+                        //Thread.Sleep(2);
                     }
                     Thread.Sleep(2);
                 }
@@ -610,6 +619,51 @@ namespace USBVendor
         }
 
         ///  <summary>
+        ///  Initiates a read operation from a bulk IN endpoint.
+        ///  To enable reading without blocking the main thread, uses an asynchronous delegate.
+        ///  </summary>
+        ///  
+        ///  <param name="bytesToRead"> The number of bytes to read </param>		
+        ///  <param name="dataBuffer"> Buffer to hold the bytes read </param>
+        ///  <param name="bytesRead"> The number of bytes read </param>
+        ///  <param name="success"> True on success </param>		
+
+        private void RequestToReceiveDataViaIsochronousTransfer(Device dev, UInt32 bytesToRead, ref Byte[] dataBuffer, ref UInt32 bytesRead, ref Boolean success)
+        {
+            try
+            {
+                if (dataBuffer == null) throw new ArgumentNullException("dataBuffer");
+
+                //  Define a delegate for the ReadViaBulkTransfer method of WinUsbDevice.
+
+                ReceiveFromDeviceDelegateIso myReceiveFromDeviceDelegateIso = _myWinUsbCommunications.ReceiveDataViaIsochronousTransfer;
+
+                //  The BeginInvoke method calls MyWinUsbDevice.ReceiveViaBulkTransfer to attempt 
+                //  to read data. The method has the same parameters as ReceiveViaBulkTransfer,
+                //  plus two additional parameters:
+                //  GetBulkDataReceived is the callback routine that executes when 
+                //  ReceiveViaBulkTransfer returns.
+                //  MyReceiveFromDeviceDelegate is the asynchronous delegate object.
+
+                myReceiveFromDeviceDelegateIso.BeginInvoke
+                    (dev._winUsbHandle,
+                    dev._myDeviceInfo,
+                     bytesToRead,
+                     ref dataBuffer,
+                     ref bytesRead,
+                     64,
+                     ref success,
+                     GetBulkDataReceived,
+                     myReceiveFromDeviceDelegateIso);
+            }
+            catch (Exception ex)
+            {
+                DisplayException(Name, ex);
+                throw;
+            }
+        }
+
+        ///  <summary>
         ///  Retrieves received data from a bulk endpoint.
         ///  This routine is called automatically when myWinUsbDevice.ReceiveViaBulkTransfer
         ///  returns. The routine calls several marshaling routines to access the main form.       
@@ -635,6 +689,7 @@ namespace USBVendor
                     // Define a delegate using the IAsyncResult object.
 
                     var deleg = ((ReceiveFromDeviceDelegate)(ar.AsyncState));
+                    //var deleg = ((ReceiveFromDeviceDelegateIso)(ar.AsyncState));
 
                     // Get the IAsyncResult object and the values of other paramaters that the
                     // BeginInvoke method passed ByRef.
@@ -650,11 +705,11 @@ namespace USBVendor
                 {
                     Console.WriteLine("bytes read:" + bytesRead.ToString());
                     Console.WriteLine(success);
-                    if (bytesRead >= 1)
-                        for (Int32 i = 0; i <= bytesRead - 1; i++)
-                        {
-                            //Debug.WriteLine(receivedDataBuffer[i].ToString()); ;
-                        }
+                    //if (bytesRead >= 1)
+                    //    for (Int32 i = 0; i <= bytesRead - 1; i++)
+                    //    {
+                    //        //Debug.WriteLine(receivedDataBuffer[i].ToString()); ;
+                    //    }
                     totalByteReceived += bytesRead;
                 }
 

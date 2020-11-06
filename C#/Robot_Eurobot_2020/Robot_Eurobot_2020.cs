@@ -516,10 +516,12 @@ namespace Robot
                 robotMsgProcessor.OnSpeedIndependantPidDebugDataFromRobotGeneratedEvent += interfaceRobot.UpdateIndependantPidDebugDataOnGraph;
                 robotMsgProcessor.OnSpeedPolarPidCorrectionDataFromRobotEvent += interfaceRobot.UpdatePolarPidCorrectionData;
                 robotMsgProcessor.OnErrorTextFromRobotGeneratedEvent += interfaceRobot.AppendConsole;
+                robotMsgProcessor.OnPowerMonitoringValuesFromRobotGeneratedEvent += interfaceRobot.UpdatePowerMonitoringValues;
                 robotMsgProcessor.OnEnableMotorCurrentACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableMotorCurrentCheckBox;
                 robotMsgProcessor.OnEnableEncoderRawDataACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableEncoderRawDataCheckBox;
                 robotMsgProcessor.OnEnableAsservissementDebugDataACKFromRobotEvent += interfaceRobot.ActualizeEnableAsservissementDebugDataCheckBox;
                 robotMsgProcessor.OnEnableMotorSpeedConsigneDataACKFromRobotGeneratedEvent += interfaceRobot.ActualizEnableMotorSpeedConsigneCheckBox;
+                robotMsgProcessor.OnEnablePowerMonitoringDataACKFromRobotGeneratedEvent += interfaceRobot.ActualizEnablePowerMonitoringCheckBox;
 
                 robotMsgProcessor.OnMessageCounterEvent += interfaceRobot.MessageCounterReceived;
             }
@@ -537,6 +539,7 @@ namespace Robot
             interfaceRobot.OnEnableAsservissementDebugDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableAsservissementDebugData;
             interfaceRobot.OnEnableSpeedPidCorrectionDataFromInterfaceEvent += robotMsgGenerator.GenerateMessageEnableSpeedPidCorrectionData;
             interfaceRobot.OnCalibrateGyroFromInterfaceGeneratedEvent += imuProcessor.OnCalibrateGyroFromInterfaceGeneratedEvent;
+            interfaceRobot.OnEnablePowerMonitoringDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnablePowerMonitoring;
 
             localWorldMapManager.OnLocalWorldMapEventForDisplayOnly += interfaceRobot.OnLocalWorldMapStrategyEvent;
             localWorldMapManager.OnLocalWorldMapEventForDisplayOnly += interfaceRobot.OnLocalWorldMapWayPointEvent;

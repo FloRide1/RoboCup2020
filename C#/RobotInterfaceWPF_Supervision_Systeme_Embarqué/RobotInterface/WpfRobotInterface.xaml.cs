@@ -392,6 +392,24 @@ namespace RobotInterface
                 e.CorrIM1, e.CorrIM2, e.CorrIM3, e.CorrIM4,
                 e.CorrDM1, e.CorrDM2, e.CorrDM3, e.CorrDM4);
         }
+        public void UpdatePowerMonitoringValues(object sender, PowerMonitoringValuesEventArgs e)
+        {
+            //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
+            //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
+            //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
+            //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
+            LabelBattCommandVoltage.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
+            {
+                LabelBattCommandVoltage.Content = "BATT COMMAND Voltage : " + e.battCMDVoltage.ToString("F2") + "V" + "  Current : " + e.battCMDCurrent.ToString("F2") + "A" ;
+            }));
+
+
+            LabelBattPowerVoltage.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
+            {
+                LabelBattPowerVoltage.Content = "BATT POWER Voltage : " + e.battPWRVoltage.ToString("F2") + "V" + "  Current : " + e.battPWRCurrent.ToString("F2") + "A";
+            }));
+
+        }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
@@ -726,8 +744,17 @@ namespace RobotInterface
             }));
         }
 
-        
-        
+
+        //Methode appelée sur evenement (event) provenant du port Serie.
+        //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
+        public void ActualizEnablePowerMonitoringCheckBox(object sender, BoolEventArgs e)
+        {
+            //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
+            //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
+            //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
+            //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
+
+        }
 
         //Methode appelée sur evenement (event) provenant du port Serie.
         //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
@@ -911,6 +938,12 @@ namespace RobotInterface
         public virtual void OnEnableAsservissementDebugDataFromInterface(bool val)
         {
             OnEnableAsservissementDebugDataFromInterfaceGeneratedEvent?.Invoke(this, new BoolEventArgs { value = val });
+        }
+
+        public event EventHandler<BoolEventArgs> OnEnablePowerMonitoringDataFromInterfaceGeneratedEvent;
+        public virtual void OnEnablePowerMonitoringDataFromInterface(bool val)
+        {
+            OnEnablePowerMonitoringDataFromInterfaceGeneratedEvent?.Invoke(this, new BoolEventArgs { value = val });
         }
 
         //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
@@ -1121,6 +1154,18 @@ namespace RobotInterface
             if (handler != null)
             {
                 handler(this, new RefBoxMessageArgs { refBoxMsg = msg });
+            }
+        }
+
+        private void CheckBoxEnablePowerMonitoringData_Checked(object sender, RoutedEventArgs e)
+        {
+            if (CheckBoxEnablePowerMonitoringData.IsChecked ?? false)
+            {
+                OnEnablePowerMonitoringDataFromInterface(true);
+            }
+            else
+            {
+                OnEnablePowerMonitoringDataFromInterface(false);
             }
         }
     }

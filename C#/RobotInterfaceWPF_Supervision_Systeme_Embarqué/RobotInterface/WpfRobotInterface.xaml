@@ -74,6 +74,7 @@
                     <CheckBox Name="CheckBoxEnableMotorCurrentData" Content="Enable Motor Current Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Top" Checked="CheckBoxEnableMotorCurrentData_Checked" Unchecked="CheckBoxEnableMotorCurrentData_Checked" Background="Transparent" Foreground="White"/>
                     <CheckBox Name="CheckBoxEnableMotorSpeedConsigneData" Content="Enable Motor Speed Consigne Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="3" VerticalAlignment="Top" Checked="CheckBoxEnableMotorSpeedConsigneData_Checked" Unchecked="CheckBoxEnableMotorSpeedConsigneData_Checked" Background="Transparent" Foreground="White"/>
                     <CheckBox Name="CheckBoxEnableAsservissementDebugData" Content="Enable Asservissement Debug Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="4" VerticalAlignment="Top" Checked="CheckBoxEnableAsservissementDebugData_Checked" Unchecked="CheckBoxEnableAsservissementDebugData_Checked" Background="Transparent" Foreground="White"/>
+                    <CheckBox Name="CheckBoxEnablePowerMonitoringData" Content="Enable Power Monitoring Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="4" VerticalAlignment="Top" Checked="CheckBoxEnablePowerMonitoringData_Checked" Unchecked="CheckBoxEnablePowerMonitoringData_Checked" Background="Transparent" Foreground="White"/>
                 </StackPanel>
             </GroupBox>
         </Grid>
@@ -89,6 +90,8 @@
                     <Label x:Name="LabelNbIMUDataPerSec" Content="Nb IMU data / sec : " Foreground="White"></Label>
                     <Label x:Name="LabelNbSpeedOdometryDataPerSec" Content="Nb odometry data / sec : " Foreground="White"></Label>
                     <Label x:Name="LabelNbLidarProcessedDataPerSec" Content="Nb Lidar data / sec : " Foreground="White"></Label>
+                    <Label x:Name="LabelBattCommandVoltage" Content="BATT COMMAND Voltage : " Foreground="White"></Label>
+                    <Label x:Name="LabelBattPowerVoltage" Content="BATT POWER Voltage : " Foreground="White"></Label>
                 </StackPanel>
                 <ScrollViewer Name="scrollViewerTextBoxConsole" Grid.Column="1">
                     <TextBlock Name="textBoxConsole" HorizontalAlignment="Stretch" Margin="0,0,0,0" TextWrapping="WrapWithOverflow" Text="" VerticalAlignment="Stretch" Background="Transparent" Foreground="White"
