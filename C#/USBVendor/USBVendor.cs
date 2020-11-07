@@ -122,9 +122,9 @@ namespace USBVendor
             }
         }
 
-        Byte[] dataBuffer = new Byte[64];
+        Byte[] dataBuffer = new Byte[128];
         UInt32 bytesRead = 0;
-        UInt32 bytesToRead = Convert.ToUInt32(64);//204810
+        UInt32 bytesToRead = Convert.ToUInt32(128);//204810
         bool readSuccess = true;
         bool success = false;
         bool continueTasks = true;
@@ -177,7 +177,7 @@ namespace USBVendor
             {
                 UInt32 LengthTransferred = 0;
                 Boolean success = false;
-                if(e.Msg.Length<=64)
+                if(e.Msg.Length<= 128)
                     RequestToSendDataViaBulkTransfer(cmv8DeviceListeFound[0], (uint)e.Msg.Length, e.Msg, ref LengthTransferred, ref success);
             }
         }
