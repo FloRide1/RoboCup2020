@@ -89,13 +89,13 @@ namespace Robot
         }
         #endregion
 
-        static RobotMode robotMode = RobotMode.Nolidar;
+        static RobotMode robotMode = RobotMode.Standard;
 
-        static bool usingPhysicalSimulator = true;
-        static bool usingXBoxController = false;
-        static bool usingLidar = false;
-        static bool usingLogging = false;
-        static bool usingLogReplay = false;
+        static bool usingPhysicalSimulator;
+        static bool usingXBoxController;
+        static bool usingLidar;
+        static bool usingLogging;
+        static bool usingLogReplay;
         
         static bool usingRobotInterface = true;
         static bool usingReplayNavigator = true;
