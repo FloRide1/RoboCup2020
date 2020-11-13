@@ -7,8 +7,8 @@
     <ProjectGuid>{446E56F7-4DFC-4B69-85DE-77B7B48DBE44}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LidarOMD60M</RootNamespace>
-    <AssemblyName>LidarOMD60M</AssemblyName>
+    <RootNamespace>LidaRxR2000NS</RootNamespace>
+    <AssemblyName>LidaRxR2000</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -63,8 +63,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Lidar_OMD60M_UDP.cs" />
-    <Compile Include="Lidar_OMD60M_TCP.cs" />
+    <Compile Include="LidaRxR2000.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -87,18 +86,6 @@
     <ProjectReference Include="..\LidaRx\LidaRx.csproj">
       <Project>{D8E0BFBA-4ED8-41C2-8068-F490A5319F43}</Project>
       <Name>LidaRx</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TCPAdapter\TCPAdapter.csproj">
-      <Project>{DEDA47B4-8F22-4A8B-8F18-96981C6B408D}</Project>
-      <Name>TCPAdapter</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TCPClient\TCPClient.csproj">
-      <Project>{54D19BA4-AC57-4A0E-BF19-42A567F28108}</Project>
-      <Name>TCPClient</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\UDPAdapter\UDPAdapter.csproj">
-      <Project>{75E25C11-47B1-410E-A6CC-E37A74F7D0F9}</Project>
-      <Name>UDPAdapter</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8E7D0DA4-9A13-4B18-A90E-0243BBCCE40A}</Project>

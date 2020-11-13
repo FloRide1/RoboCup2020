@@ -7,25 +7,15 @@ using Staudt.Engineering.LidaRx;
 using Staudt.Engineering.LidaRx.Drivers.R2000;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Net.Sockets;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using TCPAdapter;
-using TCPClient;
 using Utilities;
 using Timer = System.Timers.Timer;
 
-namespace LidarOMD60M
+namespace LidaRxR2000NS
 {
-    public class Lidar_OMD60M_TCP
+    public class LidaRxR2000
     {
         R2000Scanner r2000;
 
@@ -33,7 +23,7 @@ namespace LidarOMD60M
         int lastScanNumber;
         bool newLidarDataAvailable = false;
 
-        public Lidar_OMD60M_TCP(double freq = 20, R2000SamplingRate samplingRate = R2000SamplingRate._252kHz)
+        public LidaRxR2000(double freq = 20, R2000SamplingRate samplingRate = R2000SamplingRate._252kHz)
         {
             var threadStartLidar = new Thread(() => LidarStartAndAcquire(freq, samplingRate));
             threadStartLidar.IsBackground = true;

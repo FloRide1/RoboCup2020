@@ -166,9 +166,9 @@
       <Project>{825389C5-BF86-419E-8914-FC5A325D4A0B}</Project>
       <Name>KalmanPositioning</Name>
     </ProjectReference>
-    <ProjectReference Include="..\LidarOMD60M\LidarOMD60M.csproj">
+    <ProjectReference Include="..\LidarOMD60M\LidaRxR2000.csproj">
       <Project>{446e56f7-4dfc-4b69-85de-77b7b48dbe44}</Project>
-      <Name>LidarOMD60M</Name>
+      <Name>LidaRxR2000</Name>
     </ProjectReference>
     <ProjectReference Include="..\LidarProcessor\LidarProcessor.csproj">
       <Project>{3C4270CF-77BA-4100-BBAB-6E2802C49478}</Project>

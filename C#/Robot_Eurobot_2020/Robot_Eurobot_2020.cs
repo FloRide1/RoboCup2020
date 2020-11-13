@@ -1,6 +1,5 @@
 ﻿using AdvancedTimers;
 using Constants;
-using LidarOMD60M;
 using MessageDecoder;
 using MessageEncoder;
 using RobotInterface;
@@ -22,6 +21,7 @@ using HerkulexManagerNS;
 using ReliableSerialPortNS;
 using Staudt.Engineering.LidaRx;
 using Staudt.Engineering.LidaRx.Drivers.R2000;
+using LidaRxR2000NS;
 
 namespace Robot
 {
@@ -126,7 +126,7 @@ namespace Robot
         static ImuProcessor.ImuProcessor imuProcessor;
         static StrategyManager_Eurobot strategyManager;
         static PerceptionManager perceptionManager;        
-        static Lidar_OMD60M_TCP lidar_OMD60M_TCP;
+        static LidaRxR2000 lidar_OMD60M_TCP;
         static XBoxController.XBoxController xBoxManette;
 
         static HerkulexManager herkulexManager;
@@ -237,7 +237,7 @@ namespace Robot
 
             if (usingLidar)
             {
-                lidar_OMD60M_TCP = new LidarOMD60M.Lidar_OMD60M_TCP(50, R2000SamplingRate._72kHz);
+                lidar_OMD60M_TCP = new LidaRxR2000(50, R2000SamplingRate._72kHz);
             }
             
             xBoxManette = new XBoxController.XBoxController(robotId);
