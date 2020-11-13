@@ -17,11 +17,11 @@ using PerceptionManagement;
 using EventArgsLibrary;
 using WpfReplayNavigator;
 using System.Runtime.InteropServices;
-using Staudt.Engineering.LidaRx.Drivers.R2000;
-using Staudt.Engineering.LidaRx;
 using StrategyManager;
 using HerkulexManagerNS;
 using ReliableSerialPortNS;
+using Staudt.Engineering.LidaRx;
+using Staudt.Engineering.LidaRx.Drivers.R2000;
 
 namespace Robot
 {
@@ -237,7 +237,7 @@ namespace Robot
 
             if (usingLidar)
             {
-                lidar_OMD60M_TCP = new Lidar_OMD60M_TCP(50, R2000SamplingRate._72kHz);
+                lidar_OMD60M_TCP = new LidarOMD60M.Lidar_OMD60M_TCP(50, R2000SamplingRate._72kHz);
             }
             
             xBoxManette = new XBoxController.XBoxController(robotId);

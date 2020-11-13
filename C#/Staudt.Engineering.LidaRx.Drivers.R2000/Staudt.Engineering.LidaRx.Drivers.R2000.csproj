@@ -41,7 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Staudt.Engineering.LidaRx\Staudt.Engineering.LidaRx.csproj" />
+    <ProjectReference Include="..\LidaRx\LidaRx.csproj" />
   </ItemGroup>
 
   <ItemGroup>

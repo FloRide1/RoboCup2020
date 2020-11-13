@@ -178,6 +178,14 @@
       <Project>{45A044B5-1D4F-4B6E-964B-3B2FA5E39AB2}</Project>
       <Name>LidarSimulator</Name>
     </ProjectReference>
+    <ProjectReference Include="..\LidaRxDriver\LidaRxDriver.csproj">
+      <Project>{17007EEC-FE2B-4FF7-BDBE-0A300CBD2B7F}</Project>
+      <Name>LidaRxDriver</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LidaRx\LidaRx.csproj">
+      <Project>{D8E0BFBA-4ED8-41C2-8068-F490A5319F43}</Project>
+      <Name>LidaRx</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LogRecorder\LogRecorder.csproj">
       <Project>{128114E9-1A4D-4EBF-BA5C-5C4E136D3F53}</Project>
       <Name>LogRecorder</Name>
@@ -225,14 +233,6 @@
     <ProjectReference Include="..\RobotPilot\RobotPilot.csproj">
       <Project>{4012F5AF-50E3-40BD-ABF0-4AFE3F30D5E3}</Project>
       <Name>RobotPilot</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Staudt.Engineering.LidaRx.Drivers.R2000\Staudt.Engineering.LidaRx.Drivers.R2000.csproj">
-      <Project>{D27503B0-7171-44C0-9E73-EA6CF83A55E9}</Project>
-      <Name>Staudt.Engineering.LidaRx.Drivers.R2000</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Staudt.Engineering.LidaRx\Staudt.Engineering.LidaRx.csproj">
-      <Project>{A4C17E50-0AE0-469B-B0DF-39F6AC733319}</Project>
-      <Name>Staudt.Engineering.LidaRx</Name>
     </ProjectReference>
     <ProjectReference Include="..\StrategyManager_Eurobot\StrategyManager_Eurobot.csproj">
       <Project>{F2D3FB95-F97A-4049-BCA4-71854FD4FAF3}</Project>
