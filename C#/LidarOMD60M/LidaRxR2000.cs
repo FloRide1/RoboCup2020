@@ -48,7 +48,8 @@ namespace LidaRxR2000NS
             horizontalShift += 2;
             if (horizontalShift > 130)
                 horizontalShift = -100;
-            r2000.DisplayRotatingText(horizontalShift);
+            if(r2000!=null)
+                r2000.DisplayRotatingText(horizontalShift);
         }
 
         //double angleIncrement;

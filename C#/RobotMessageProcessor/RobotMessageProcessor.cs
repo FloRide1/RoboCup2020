@@ -347,7 +347,7 @@ namespace RobotMessageProcessor
                     //On envois l'event aux abonnés
                     OnEnableDisableTirACKFromRobot(value);
                     break;
-                case (short)Commands.EnableAsservissement:
+                case (short)Commands.SetAsservissementMode:
                     value = Convert.ToBoolean(payload[0]);
                     //On envois l'event aux abonnés
                     OnEnableAsservissementACKFromRobot(value);
@@ -655,11 +655,11 @@ namespace RobotMessageProcessor
             }
         }
 
-        public event EventHandler<PolarPidDebugDataArgs> OnPolarPidDebugDataFromRobotGeneratedEvent;
+        public event EventHandler<PolarPidDebugDataArgs> OnSpeedPolarPidDebugDataFromRobotGeneratedEvent;
         public virtual void OnPolarPidDebugDataFromRobot(uint timeStamp, double xError, double yError, double thetaError,
                                                                         double xCorrection, double yCorrection, double thetaCorrection, double xConsigneRobot, double yConsigneRobot, double thetaConsigneRobot)
         {
-            OnPolarPidDebugDataFromRobotGeneratedEvent?.Invoke(this, new PolarPidDebugDataArgs
+            OnSpeedPolarPidDebugDataFromRobotGeneratedEvent?.Invoke(this, new PolarPidDebugDataArgs
             {
                 timeStampMS = timeStamp,
                 xErreur = xError,

@@ -83,7 +83,7 @@ namespace Constants
         SetIOPollingFrequency = 426,    //0x01AA
         SetSpeedConsigne = 427,         //0x01AB
 
-        EnableAsservissementDebugData = 0x01BB,         //0x01BB
+        EnableAsservissementDebugData = 0x01BB,         
         SpeedPidEnableCorrectionData = 0x1C0,
 
         SpeedPolarPidDebugData = 0x1AC,           //Trame de données de debug asserv vitesse : Erreur / Correction / Consigne
@@ -91,9 +91,11 @@ namespace Constants
         SpeedPolarPidCorrectionData = 0x01C1,  //PIDAdvancedData CorrPID sur X Y et Theta - fe = 10Hz
         SpeedIndependantPidCorrectionData = 0x01C2,
 
-        SetPIDValues = 429,             //0x01AD
+        SetSpeedPolarPIDValues = 0x01AD,            
+        SetSpeedIndependantPIDValues = 0x01AF,
+        SetAsservissementMode = 0x1B6,       
+
         SetRobotVariable = 430,
-        OdometryData = 431,             //0x01AF
         GetParameter = 432,
         SetParameter = 433,
         SetMotorSpeedConsigne = 0x01AE,    //0x01AE
@@ -102,7 +104,6 @@ namespace Constants
         EnableDisableMotors = 435,      //0x01B3
         EnableDisableTir = 436,         //0x01B4
         MotorCurrents= 0x01B5,          //0x01B5
-        EnableAsservissement=438,       //0x01B6
         EnableMotorCurrent=439,         //0x01B7
         EnableEncoderRawData=440,       //0x01B8
         EnablePositionData=441,         //0x01B9
@@ -240,5 +241,12 @@ namespace Constants
         Motor6,
         None
 #pragma warning restore CS1591
+    }
+
+    public enum AsservissementMode
+    {
+        Disabled = 0,
+        Polar = 1,
+        Independant = 2
     }
 }

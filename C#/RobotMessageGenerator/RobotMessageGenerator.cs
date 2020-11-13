@@ -88,11 +88,11 @@ namespace RobotMessageGenerator
             OnMessageToRobot((Int16)Commands.EnableDisableTir, 1, payload);
         }
 
-        public void GenerateMessageEnableAsservissement(object sender, BoolEventArgs e)
+        public void GenerateMessageSetAsservissementMode(object sender, ByteEventArgs e)
         {
             byte[] payload = new byte[1];
-            payload[0] = Convert.ToByte(e.value);
-            OnMessageToRobot((Int16)Commands.EnableAsservissement, 1, payload);
+            payload[0] = Convert.ToByte(e.Value);
+            OnMessageToRobot((Int16)Commands.SetAsservissementMode, 1, payload);
         }
 
         public void GenerateMessageEnableAsservissementDebugData(object sender, BoolEventArgs e)
@@ -145,7 +145,7 @@ namespace RobotMessageGenerator
             OnMessageToRobot((Int16)Commands.EmergencySTOP, 1, payload);
         }
 
-        public void GenerateMessageSetupSpeedPIDToRobot(object sender, PolarPIDSetupArgs e)
+        public void GenerateMessageSetupSpeedPolarPIDToRobot(object sender, PolarPIDSetupArgs e)
         {
             byte[] payload = new byte[72];
             payload.SetValueRange(((float)(e.P_x)).GetBytes(), 0);
@@ -166,9 +166,42 @@ namespace RobotMessageGenerator
             payload.SetValueRange(((float)(e.P_theta_Limit)).GetBytes(), 60);
             payload.SetValueRange(((float)(e.I_theta_Limit)).GetBytes(), 64);
             payload.SetValueRange(((float)(e.D_theta_Limit)).GetBytes(), 68);
-            OnMessageToRobot((Int16)Commands.SetPIDValues, 72, payload);
-            OnMessageToDisplaySpeedPidSetup(e);
+            OnMessageToRobot((Int16)Commands.SetSpeedPolarPIDValues, 72, payload);
+            OnMessageToDisplaySpeedPolarPidSetup(e);
         }
+
+        public void GenerateMessageSetupSpeedIndependantPIDToRobot(object sender, IndependantPIDSetupArgs e)
+        {
+            byte[] payload = new byte[96];
+            payload.SetValueRange(((float)(e.P_M1)).GetBytes(), 0);
+            payload.SetValueRange(((float)(e.I_M1)).GetBytes(), 4);
+            payload.SetValueRange(((float)(e.D_M1)).GetBytes(), 8);
+            payload.SetValueRange(((float)(e.P_M2)).GetBytes(), 12);
+            payload.SetValueRange(((float)(e.I_M2)).GetBytes(), 16);
+            payload.SetValueRange(((float)(e.D_M2)).GetBytes(), 20);
+            payload.SetValueRange(((float)(e.P_M3)).GetBytes(), 24);
+            payload.SetValueRange(((float)(e.I_M3)).GetBytes(), 28);
+            payload.SetValueRange(((float)(e.D_M3)).GetBytes(), 32);
+            payload.SetValueRange(((float)(e.P_M4)).GetBytes(), 36);
+            payload.SetValueRange(((float)(e.I_M4)).GetBytes(), 40);
+            payload.SetValueRange(((float)(e.D_M4)).GetBytes(), 44);
+            payload.SetValueRange(((float)(e.P_M1_Limit)).GetBytes(), 48);
+            payload.SetValueRange(((float)(e.I_M1_Limit)).GetBytes(), 52);
+            payload.SetValueRange(((float)(e.D_M1_Limit)).GetBytes(), 56);
+            payload.SetValueRange(((float)(e.P_M2_Limit)).GetBytes(), 60);
+            payload.SetValueRange(((float)(e.I_M2_Limit)).GetBytes(), 64);
+            payload.SetValueRange(((float)(e.D_M2_Limit)).GetBytes(), 68);
+            payload.SetValueRange(((float)(e.P_M3_Limit)).GetBytes(), 72);
+            payload.SetValueRange(((float)(e.I_M3_Limit)).GetBytes(), 76);
+            payload.SetValueRange(((float)(e.D_M3_Limit)).GetBytes(), 80);
+            payload.SetValueRange(((float)(e.P_M4_Limit)).GetBytes(), 84);
+            payload.SetValueRange(((float)(e.I_M4_Limit)).GetBytes(), 88);
+            payload.SetValueRange(((float)(e.D_M4_Limit)).GetBytes(), 92);
+            OnMessageToRobot((Int16)Commands.SetSpeedIndependantPIDValues, 96, payload);
+            OnMessageToDisplaySpeedIndependantPidSetup(e);
+        }
+
+
         //public void GenerateTextMessage(object sender, EventArgsLibrary.SpeedConsigneArgs e)
         //{
         //    byte[] payload = new byte[12];
@@ -185,10 +218,16 @@ namespace RobotMessageGenerator
             OnMessageToRobotGeneratedEvent?.Invoke(this, new MessageToRobotArgs { MsgFunction = msgFunction, MsgPayloadLength = msgPayloadLength, MsgPayload = msgPayload });
         }
 
-        public event EventHandler<PolarPIDSetupArgs> OnMessageToDisplaySpeedPidSetupEvent;
-        public virtual void OnMessageToDisplaySpeedPidSetup(PolarPIDSetupArgs setup)
+        public event EventHandler<PolarPIDSetupArgs> OnMessageToDisplaySpeedPolarPidSetupEvent;
+        public virtual void OnMessageToDisplaySpeedPolarPidSetup(PolarPIDSetupArgs setup)
         {
-            OnMessageToDisplaySpeedPidSetupEvent?.Invoke(this, setup);
+            OnMessageToDisplaySpeedPolarPidSetupEvent?.Invoke(this, setup);
+        }
+
+        public event EventHandler<IndependantPIDSetupArgs> OnMessageToDisplaySpeedIndependantPidSetupEvent;
+        public virtual void OnMessageToDisplaySpeedIndependantPidSetup(IndependantPIDSetupArgs setup)
+        {
+            OnMessageToDisplaySpeedIndependantPidSetupEvent?.Invoke(this, setup);
         }
 
         //public event EventHandler<MessageToRobotArgs> OnMessageToRobotGeneratedEvent;

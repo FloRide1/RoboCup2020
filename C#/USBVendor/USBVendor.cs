@@ -703,8 +703,8 @@ namespace USBVendor
 
                 if (ar.IsCompleted)
                 {
-                    Console.WriteLine("bytes read:" + bytesRead.ToString());
-                    Console.WriteLine(success);
+                    //Console.WriteLine("bytes read:" + bytesRead.ToString());
+                    //Console.WriteLine(success);
                     //if (bytesRead >= 1)
                     //    for (Int32 i = 0; i <= bytesRead - 1; i++)
                     //    {

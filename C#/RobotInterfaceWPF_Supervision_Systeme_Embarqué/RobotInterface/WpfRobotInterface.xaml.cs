@@ -214,10 +214,16 @@ namespace RobotInterface
             oscilloLidar.UpdatePointListOfLine(2, ptList2);
         }
 
-        public void OnMessageToDisplaySpeedPidSetupReceived(object sender, PolarPIDSetupArgs e)
+        public void OnMessageToDisplayPolarSpeedPidSetupReceived(object sender, PolarPIDSetupArgs e)
         {
             asservSpeedDisplay.UpdatePolarSpeedCorrectionGains(e.P_x, e.P_y, e.P_theta, e.I_x, e.I_y, e.I_theta, e.D_x, e.D_y, e.D_theta);
             asservSpeedDisplay.UpdatePolarSpeedCorrectionLimits(e.P_x_Limit, e.P_y_Limit, e.P_theta_Limit, e.I_x_Limit, e.I_y_Limit, e.I_theta_Limit, e.D_x_Limit, e.D_y_Limit, e.D_theta_Limit);
+        }
+
+        public void OnMessageToDisplayIndependantSpeedPidSetupReceived(object sender, IndependantPIDSetupArgs e)
+        {
+            asservSpeedDisplay.UpdateIndependantSpeedCorrectionGains(e.P_M1, e.P_M2, e.P_M3, e.P_M4, e.I_M1, e.I_M2, e.I_M3, e.I_M4, e.D_M1, e.D_M2, e.D_M3, e.D_M4);
+            asservSpeedDisplay.UpdateIndependantSpeedCorrectionLimits(e.P_M1_Limit, e.P_M2_Limit, e.P_M3_Limit, e.P_M4_Limit, e.I_M1_Limit, e.I_M2_Limit, e.I_M3_Limit, e.I_M4_Limit, e.D_M1_Limit, e.D_M2_Limit, e.D_M3_Limit, e.D_M4_Limit);
         }
 
         public void OnMessageToDisplayPositionPidSetupReceived(object sender, PolarPIDSetupArgs e)
@@ -869,13 +875,13 @@ namespace RobotInterface
             }
         }
         //public delegate void EnableDisableTirEventHandler(object sender, BoolEventArgs e);
-        public event EventHandler<BoolEventArgs> OnEnableAsservissementFromInterfaceGeneratedEvent;
-        public virtual void OnEnableAsservissementFromInterface(bool val)
+        public event EventHandler<ByteEventArgs> OnSetAsservissementModeFromInterfaceGeneratedEvent;
+        public virtual void OnSetAsservissementModeFromInterface(byte val)
         {
-            var handler = OnEnableAsservissementFromInterfaceGeneratedEvent;
+            var handler = OnSetAsservissementModeFromInterfaceGeneratedEvent;
             if (handler != null)
             {
-                handler(this, new BoolEventArgs { value = val });
+                handler(this, new ByteEventArgs { Value = val });
             }
         }
         //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
@@ -1023,11 +1029,11 @@ namespace RobotInterface
         {
             if (asservissementEnable)
             {
-                OnEnableAsservissementFromInterface(false);
+                OnSetAsservissementModeFromInterface((byte)AsservissementMode.Disabled);
                 
             }
             else
-                OnEnableAsservissementFromInterface(true);
+                OnSetAsservissementModeFromInterface((byte)AsservissementMode.Polar);
         }
 
         //private void ButtonSetPID_Click(object sender, RoutedEventArgs e)
