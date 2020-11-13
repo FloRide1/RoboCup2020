@@ -345,86 +345,119 @@ namespace Staudt.Engineering.LidaRx.Drivers.R2000
             }
         }
 
-        ///// <summary>
-        ///// Display a message on the LED display
-        ///// </summary>
-        ///// <param name="line">Display line number</param>
-        ///// <param name="message">Message to display</param>
-        //public void DisplayRotatingText(int line, string message)
-        //{
-        //    try
-        //    {
-        //        DisplayRotatingTextAsync(line, message).Wait();
-        //    }
-        //    catch {; }
-        //}
+        /// <summary>
+        /// Display a message on the LED display
+        /// </summary>
+        /// <param name="line">Display line number</param>
+        /// <param name="message">Message to display</param>
+        public void DisplayRotatingText(int horizontalShift)
+        {
+            try
+            {
+                DisplayRotatingTextAsync(horizontalShift).Wait();
+            }
+            catch {; }
+        }
 
-        ///// <summary>
-        ///// Display a message on the LED display
-        ///// </summary>
-        ///// <param name="line">Display line number</param>
-        ///// <param name="message">Message to display</param>
-        ///// <returns></returns>
-        //public async Task DisplayRotatingTextAsync(int line, string message)
-        //{
-        //    if (!Connected)
-        //        throw new LidaRxStateException("This instance is not yet connected to the R2000 scanner.");
-                        
-        //    // Go to bitmap mode
-        //    var request = $"set_parameter?hmi_display_mode=application_bitmap";
-        //    var result = await commandClient.GetAsAsync<SetParameterResult>(request);
+        /// <summary>
+        /// Display a message on the LED display
+        /// </summary>
+        /// <param name="line">Display line number</param>
+        /// <param name="message">Message to display</param>
+        /// <returns></returns>
+        public async Task DisplayRotatingTextAsync(int horizontalShift)
+        {
+            if (!Connected)
+                throw new LidaRxStateException("This instance is not yet connected to the R2000 scanner.");
 
-        //    //Image image = DrawText("Merci Pepperl+Fuchs", new Font("Verdana", 12.0f, FontStyle.Bold), -horizontalShift);
+            // Go to bitmap mode
+            var request = $"set_parameter?hmi_display_mode=application_bitmap";
+            var result = await commandClient.GetAsAsync<SetParameterResult>(request);
 
-        //    //var array = ConvertBitmapToArray(new Bitmap(image));
-        //    //    var bitmapString = ConvertToBase64StringForLidar(array);
+            Image image = DrawText("Merci Pepperl+Fuchs", new Font("Verdana", 12.0f, FontStyle.Bold), -horizontalShift);
 
-        //    //    string request = @"http://" + LidarIpAddress + "/cmd/set_parameter?hmi_application_bitmap="+ bitmapString;
-        //    if (line == 1)
-        //    {
-        //        request = @"set_parameter?hmi_application_text_1=" + message;
-        //        result = await commandClient.GetAsAsync<SetParameterResult>(request);
-        //    }
-        //    else if (line == 2)
-        //    {
-        //        request = @"set_parameter?hmi_application_text_2=" + message;
-        //        result = await commandClient.GetAsAsync<SetParameterResult>(request);
-        //    }
-        //}
+            var array = ConvertBitmapToArray(new Bitmap(image));
+            var bitmapString = ConvertToBase64StringForLidar(array);
 
-        //private Image DrawText(String text, Font font, int horizontalShift)
-        //{
-        //    Color textColor = Color.Black;
-        //    Color backColor = Color.White;
+            //string request = @"http://" + LidarIpAddress + "/cmd/set_parameter?hmi_application_bitmap=" + bitmapString;
+            request = $"set_parameter?hmi_application_bitmap=" + bitmapString;
+            result = await commandClient.GetAsAsync<SetParameterResult>(request);
+        }
 
-        //    int width = 252;
-        //    int height = 24;
-        //    //On créé une image de taille réduite par trois pour avoir le vrai affichage
-        //    var img = new Bitmap(width / 3, height);
-        //    Graphics drawing = Graphics.FromImage(img);
+        private Image DrawText(String text, Font font, int horizontalShift)
+        {
+            Color textColor = Color.Black;
+            Color backColor = Color.White;
 
-        //    //measure the string to see how big the image needs to be
-        //    //SizeF textSize = drawing.MeasureString(text, font);
+            int width = 252;
+            int height = 24;
+            //On créé une image de taille réduite par trois pour avoir le vrai affichage
+            var img = new Bitmap(width / 3, height);
+            Graphics drawing = Graphics.FromImage(img);
 
-        //    //paint the background
-        //    drawing.Clear(backColor);
+            //measure the string to see how big the image needs to be
+            //SizeF textSize = drawing.MeasureString(text, font);
 
-        //    //create a brush for the text
-        //    Brush textBrush = new SolidBrush(textColor);
-        //    drawing.DrawString(text, font, textBrush, horizontalShift, 0);
-        //    drawing.Save();
-        //    textBrush.Dispose();
-        //    drawing.Dispose();
+            //paint the background
+            drawing.Clear(backColor);
 
-        //    Bitmap finalImage = new Bitmap(width, height);
-        //    using (Graphics g = Graphics.FromImage(finalImage))
-        //    {
-        //        g.DrawImage(img, 0, 0, width, height);
-        //    }
+            //create a brush for the text
+            Brush textBrush = new SolidBrush(textColor);
+            drawing.DrawString(text, font, textBrush, horizontalShift, 0);
+            drawing.Save();
+            textBrush.Dispose();
+            drawing.Dispose();
 
-        //    return finalImage;
+            Bitmap finalImage = new Bitmap(width, height);
+            using (Graphics g = Graphics.FromImage(finalImage))
+            {
+                g.DrawImage(img, 0, 0, width, height);
+            }
 
-        //}
+            return finalImage;
+
+        }
+
+        public static byte[] ConvertBitmapToArray(Bitmap bmp, int horizontalShift = 0)
+        {
+            var size = bmp.Width * bmp.Height / 8;
+            var buffer = new byte[size];
+
+            var i = 0;
+            for (var x = 0; x < bmp.Width; x++)
+            {
+                for (var y = bmp.Height - 1; y >= 0; y--)
+                {
+                    var color = bmp.GetPixel(x, y);
+                    var intensite = 0.299 * color.R + 0.587 * color.G + 0.114 * color.B; //equation RGB -> YUV
+
+                    if (intensite >= 255 / 2)
+                    {
+                        int index = i + horizontalShift * bmp.Height;
+                        if (index >= bmp.Width * bmp.Height)
+                            index -= bmp.Width * bmp.Height;
+
+                        int pos = index / 8;
+                        var bitInByteIndex = index % 8;
+
+                        //On calcule la position décalée
+
+                        buffer[pos] |= (byte)(1 << 7 - bitInByteIndex);
+                    }
+                    i++;
+                }
+            }
+
+            return buffer;
+        }
+
+        string ConvertToBase64StringForLidar(byte[] bytes)
+        {
+            string s = System.Convert.ToBase64String(bytes);
+            s = s.Replace('+', '-');
+            s = s.Replace('/', '_');
+            return s;
+        }
 
 
         //async Task LidarSetApplicationBitmapMode()

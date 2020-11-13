@@ -23,6 +23,8 @@ namespace LidaRxR2000NS
         int lastScanNumber;
         bool newLidarDataAvailable = false;
 
+        Timer timerDisplayBitmap = new Timer(100);
+
         public LidaRxR2000(double freq = 20, R2000SamplingRate samplingRate = R2000SamplingRate._252kHz)
         {
             var threadStartLidar = new Thread(() => LidarStartAndAcquire(freq, samplingRate));
@@ -34,6 +36,19 @@ namespace LidaRxR2000NS
             threadSendEventLidar.SetApartmentState(ApartmentState.STA);
             threadSendEventLidar.Start();
 
+            timerDisplayBitmap.Elapsed += TimerDisplayBitmap_Elapsed;
+            timerDisplayBitmap.Start();
+
+        }
+
+        int horizontalShift = -50;
+
+        private void TimerDisplayBitmap_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            horizontalShift += 2;
+            if (horizontalShift > 130)
+                horizontalShift = -100;
+            r2000.DisplayRotatingText(horizontalShift);
         }
 
         //double angleIncrement;
