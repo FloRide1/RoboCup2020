@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -71,6 +73,7 @@
     <Compile Include="Taches\TaskBrasDrapeau.cs" />
     <Compile Include="Taches\TaskBrasCentre.cs" />
     <Compile Include="Taches\TaskFinDeMatch.cs" />
+    <Compile Include="Taches\TaskDistributeur.cs" />
     <Compile Include="Taches\TaskPhare.cs" />
     <Compile Include="Taches\TaskWindFlag.cs" />
     <Compile Include="Taches\TaskDepose.cs" />

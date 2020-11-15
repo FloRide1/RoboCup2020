@@ -72,33 +72,44 @@ namespace Constants
         Theta = 416,
         XYTheta = 417,
         IMUData = 418,                  //0x01A2
-        XYTheta_Speed = 419,                //0x01A3
-        MotorsVitesses = 420,              //Ox01A4
+
+        PolarOdometrySpeed = 0x01A3,
+        IndependantOdometrySpeed = 0x013A,
+        AuxiliaryOdometrySpeed = 0x01A4,
+
         MotorsPositions = 421,          //0x01A5
-        MotorsSpeedConsignes = 422,     //0x01A6
+        AuxiliarySpeedConsignes = 0x01A6,
         EncoderRawData = 423,           //0x01A7
         IOValues = 424,                 //0x01A8
         PowerMonitoringValues = 425,    //0x01A9
         SetIOPollingFrequency = 426,    //0x01AA
         SetSpeedConsigne = 427,         //0x01AB
-        PIDDebugData = 428,             //0x01AC
-        SetPIDValues = 429,             //0x01AD
+
+        EnableAsservissementDebugData = 0x01BB,         
+        SpeedPidEnableCorrectionData = 0x1C0,
+
+        SpeedPolarPidErrorCorrectionConsigneData = 0x1AC,           //Trame de données de debug asserv vitesse : Erreur / Correction / Consigne
+        SpeedIndependantPidDebugData = 0x1CA,           //Trame de données de debug asserv vitesse : Erreur / Correction / Consigne
+        SpeedPolarPidCorrectionData = 0x01C1,  //PIDAdvancedData CorrPID sur X Y et Theta - fe = 10Hz
+        SpeedIndependantPidCorrectionData = 0x01C2,
+
+        SetSpeedPolarPIDValues = 0x01AD,            
+        SetSpeedIndependantPIDValues = 0x01AF,
+        SetAsservissementMode = 0x1B6,       
+
         SetRobotVariable = 430,
-        OdometryData = 431,             //0x01AF
         GetParameter = 432,
         SetParameter = 433,
-        SetMotorSpeedConsigne = 430,    //0x01AE
+        SetMotorSpeedConsigne = 0x01AE,    //0x01AE
         EnablePowerMonitoring = 431,    //0x01B1
         EnableIOPolling= 432,           //0x01B2
         EnableDisableMotors = 435,      //0x01B3
         EnableDisableTir = 436,         //0x01B4
-        MotorCurrents= 437,             //0x01B5
-        EnableAsservissement=438,       //0x01B6
+        MotorCurrents= 0x01B5,          //0x01B5
         EnableMotorCurrent=439,         //0x01B7
         EnableEncoderRawData=440,       //0x01B8
         EnablePositionData=441,         //0x01B9
         EnableMotorSpeedConsigne=442,   //0x01BA
-        EnablePIDDebugData = 443,         //0x01BB
         ForwardHerkulex = 0x3333,        
         GetCamera = 443,
         TirCommand = 444,
@@ -232,5 +243,12 @@ namespace Constants
         Motor6,
         None
 #pragma warning restore CS1591
+    }
+
+    public enum AsservissementMode
+    {
+        Disabled = 0,
+        Polar = 1,
+        Independant = 2
     }
 }

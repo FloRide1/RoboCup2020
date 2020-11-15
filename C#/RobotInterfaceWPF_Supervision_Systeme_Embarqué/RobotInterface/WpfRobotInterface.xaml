@@ -9,9 +9,16 @@
         xmlns:AsservDisplay="clr-namespace:WpfAsservissementDisplay;assembly=WpfAsservissementDisplay"
         x:Class="RobotInterface.WpfRobotInterface"
         mc:Ignorable="d"
-        Title="Robot Interface" Closing="Window_Closing" SourceInitialized="Window_SourceInitialized"  
-        
+        Title="Robot Interface" Closing="Window_Closing" SourceInitialized="Window_SourceInitialized"        
     >
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="ResourcesWPF.xaml"></ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
 
     <Grid x:Name="GridApplication" Background="#222222">
         <Grid.RowDefinitions>
@@ -52,94 +59,45 @@
             </Grid.ColumnDefinitions>
             <GroupBox Header="Actions" Margin="5" Grid.Column="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick" Background="Transparent" Foreground="White">
                 <StackPanel Name="ButtonsStackPanelColumn1" Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Orientation="Vertical">
-                    <Button Name="ButtonDisableMotors" Content="Disable Motors" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="2" VerticalAlignment="Top" Height="20" Click="ButtonDisableMotors_Click" Background="Transparent" Foreground="White"/>
-                    <Button Name="ButtonCalibrateGyro" Content="Calibrate Gyro" HorizontalAlignment="Stretch" Margin="2" VerticalAlignment="Top"  Height="20" Click="ButtonCalibrateGyro_Click" Background="Transparent" Foreground="White"/>
-                    <Button Name="ButtonEnableDisableServos" Content="Servos Torque Off" HorizontalAlignment="Stretch"  Margin="2" VerticalAlignment="Top"  Height="20" Click="ButtonEnableDisableServos_Click" Background="Transparent" Foreground="White"/>
-                    <Button Name="ButtonEnableDisableTir" Content="Enable Tir" HorizontalAlignment="Stretch"  Margin="2" VerticalAlignment="Top"  Height="20" Click="ButtonEnableDisableTir_Click" Background="Transparent" Foreground="White"/>
-                    <Button Name="ButtonEnableAsservissement" Content="Enable Asservissement"  HorizontalAlignment="Stretch" Margin="2" VerticalAlignment="Top" Height="20" Click="ButtonEnableAsservissement_Click" Background="Transparent" Foreground="White"/>
+                    <Button Name="ButtonDisableMotors" Content="Disable Motors" Click="ButtonDisableMotors_Click"/>
+                    <Button Name="ButtonCalibrateGyro" Content="Calibrate Gyro" Click="ButtonCalibrateGyro_Click"/>
+                    <Button Name="ButtonEnableDisableServos" Content="Servos Torque Off" Click="ButtonEnableDisableServos_Click" />
+                    <Button Name="ButtonEnableDisableTir" Content="Enable Tir" Click="ButtonEnableDisableTir_Click"/>
+                    <Button Name="ButtonEnableAsservissement" Content="Enable Asservissement" Click="ButtonEnableAsservissement_Click"/>
                     <CheckBox Name="CheckBoxControlManette" Content="Enable Manette"  HorizontalAlignment="Center"  Margin="2" VerticalAlignment="Top" Checked="CheckBox_CheckedChanged" Unchecked="CheckBox_CheckedChanged" Background="Transparent" Foreground="White"/>
                 </StackPanel>
             </GroupBox>
 
             <GroupBox Grid.ColumnSpan="1"  Grid.Column="1" Margin="5" Header="Options" HorizontalAlignment="Stretch" Grid.Row="1" Grid.RowSpan="2" VerticalAlignment="Stretch" Background="Transparent" Foreground="White">
                 <StackPanel Orientation="Vertical">
-                    <CheckBox Name="CheckBoxEnablePositionData" Content="EnablePositionData" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="0" VerticalAlignment="Top" Checked="CheckBoxEnablePositionData_Checked" Unchecked="CheckBoxEnablePositionData_Checked" Background="Transparent" Foreground="White"/>
                     <CheckBox Name="CheckBoxEnableEncRawData" Content="Enable Encoder Raw Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="1" VerticalAlignment="Top" Checked="CheckBoxEnableEncRawData_Checked" Unchecked="CheckBoxEnableEncRawData_Checked" Background="Transparent" Foreground="White"/>
                     <CheckBox Name="CheckBoxEnableMotorCurrentData" Content="Enable Motor Current Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Top" Checked="CheckBoxEnableMotorCurrentData_Checked" Unchecked="CheckBoxEnableMotorCurrentData_Checked" Background="Transparent" Foreground="White"/>
                     <CheckBox Name="CheckBoxEnableMotorSpeedConsigneData" Content="Enable Motor Speed Consigne Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="3" VerticalAlignment="Top" Checked="CheckBoxEnableMotorSpeedConsigneData_Checked" Unchecked="CheckBoxEnableMotorSpeedConsigneData_Checked" Background="Transparent" Foreground="White"/>
-                    <CheckBox Name="CheckBoxEnablePIDDebugData" Content="Enable PID Debug Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="4" VerticalAlignment="Top" Checked="CheckBoxEnablePIDDebugData_Checked" Unchecked="CheckBoxEnablePIDDebugData_Checked" Background="Transparent" Foreground="White"/>
+                    <CheckBox Name="CheckBoxEnableAsservissementDebugData" Content="Enable Asservissement Debug Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="4" VerticalAlignment="Top" Checked="CheckBoxEnableAsservissementDebugData_Checked" Unchecked="CheckBoxEnableAsservissementDebugData_Checked" Background="Transparent" Foreground="White"/>
+                    <CheckBox Name="CheckBoxEnablePowerMonitoringData" Content="Enable Power Monitoring Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="4" VerticalAlignment="Top" Checked="CheckBoxEnablePowerMonitoringData_Checked" Unchecked="CheckBoxEnablePowerMonitoringData_Checked" Background="Transparent" Foreground="White"/>
                 </StackPanel>
             </GroupBox>
         </Grid>
-
         <AsservDisplay:AsservissementXYThetaControl x:Name="asservPositionDisplay" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="4" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
-
-        <!--<GroupBox Grid.Column="2" Header="PID Values" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.RowSpan="3" >
-                    <ScrollViewer Name="scrollViewerOption">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Label Content="Vitesse X PID:" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6"/>
-                            <Label Content="Vitesse Y PID:" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Top" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="6"/>
-                            <Label Content="Vitesse Theta PID:" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Top" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="6"/>
-                            <Label Content="P:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="1" Grid.Column="0"/>
-                            <Label Content="P:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="3" Grid.Column="0"/>
-                            <Label Content="P:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="5" Grid.Column="0"/>
-                            <Label Content="I:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="1" Grid.Column="2"/>
-                            <Label Content="I:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="3" Grid.Column="2"/>
-                            <Label Content="I:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="5" Grid.Column="2"/>
-                            <Label Content="D:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="1" Grid.Column="4"/>
-                            <Label Content="D:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="3" Grid.Column="4"/>
-                            <Label Content="D:" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" Grid.Row="5" Grid.Column="4"/>
-                            <TextBox Name="textBoxPx" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="1" TextWrapping="Wrap" Text="1" VerticalAlignment="Top" Width="120"/>
-                            <TextBox Name="textBoxPy" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="3" TextWrapping="Wrap" Text="1" VerticalAlignment="Top" Width="120"/>
-                            <TextBox Name="textBoxPtheta" Grid.ColumnSpan="1" Grid.Column="1" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="5" TextWrapping="Wrap" Text="1" VerticalAlignment="Top" Width="120"/>
-
-                            <TextBox Name="textBoxIx" Grid.ColumnSpan="1" Grid.Column="3" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="1" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
-                            <TextBox Name="textBoxIy" Grid.ColumnSpan="1" Grid.Column="3" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="3" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
-                            <TextBox Name="textBoxItheta" Grid.ColumnSpan="1" Grid.Column="3" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="5" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
-
-                            <TextBox Name="textBoxDx" Grid.ColumnSpan="1" Grid.Column="5" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="1" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
-                            <TextBox Name="textBoxDy" Grid.ColumnSpan="1" Grid.Column="5" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="3" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
-                            <TextBox Name="textBoxDtheta" Grid.ColumnSpan="1" Grid.Column="5" HorizontalAlignment="Left" Height="22" Margin="0,0,-0,0" Grid.Row="5" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="120"/>
-                            <Button Name="ButtonSetPID" Grid.ColumnSpan="2" Content="Set PID" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="6" VerticalAlignment="Top" Click="ButtonSetPID_Click"/>
-
-                        </Grid>
-                    </ScrollViewer>
-                </GroupBox>-->
 
         <GroupBox Grid.Column="1" Header="Console" Foreground="White" HorizontalAlignment="Stretch" Margin="5" Grid.Row="2" VerticalAlignment="Stretch" Background="Transparent">
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
                     <Label x:Name="LabelNbIMUDataPerSec" Content="Nb IMU data / sec : " Foreground="White"></Label>
                     <Label x:Name="LabelNbSpeedOdometryDataPerSec" Content="Nb odometry data / sec : " Foreground="White"></Label>
                     <Label x:Name="LabelNbLidarProcessedDataPerSec" Content="Nb Lidar data / sec : " Foreground="White"></Label>
+                    <Label x:Name="LabelBattCommandVoltage" Content="BATT COMMAND Voltage : " Foreground="White"></Label>
+                    <Label x:Name="LabelBattPowerVoltage" Content="BATT POWER Voltage : " Foreground="White"></Label>
                 </StackPanel>
                 <ScrollViewer Name="scrollViewerTextBoxConsole" Grid.Column="1">
                     <TextBlock Name="textBoxConsole" HorizontalAlignment="Stretch" Margin="0,0,0,0" TextWrapping="WrapWithOverflow" Text="" VerticalAlignment="Stretch" Background="Transparent" Foreground="White"
                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"/>
                 </ScrollViewer>
             </Grid>
-
         </GroupBox>
 
 
@@ -164,15 +122,15 @@
 
 
             <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="0">
-            <Button x:Name="Button_0_0" HorizontalAlignment="Center" Width="60" Margin="1" Content="Go to (0,0)" Click="Button_0_0_Click"/>
-            <Button x:Name="Button_0_1" HorizontalAlignment="Center" Width="60" Margin="1" Content="Go to (0,1)" Click="Button_0_1_Click"/>
-            <Button x:Name="Button_1_0" HorizontalAlignment="Center" Width="60" Margin="1" Content="Go to (1,0)" Click="Button_1_0_Click"/>
-            <Button x:Name="Button_0_m1" HorizontalAlignment="Center" Width="60" Margin="1" Content="Go to (0,-1)" Click="Button_0_m1_Click"/>
-            <Button x:Name="Button_m1_0" HorizontalAlignment="Center" Width="60" Margin="1" Content="Go to (-1,0)" Click="Button_m1_0_Click"/>
-        </StackPanel>
+                <Button x:Name="Button_0_0" Width="60" Content="Go to (0,0)" Click="Button_0_0_Click"/>
+                <Button x:Name="Button_0_1" Width="60" Margin="1" Content="Go to (0,1)" Click="Button_0_1_Click"/>
+                <Button x:Name="Button_1_0" Width="60" Margin="1" Content="Go to (1,0)" Click="Button_1_0_Click"/>
+                <Button x:Name="Button_0_m1" Width="60" Margin="1" Content="Go to (0,-1)" Click="Button_0_m1_Click"/>
+                <Button x:Name="Button_m1_0" Width="60" Margin="1" Content="Go to (-1,0)" Click="Button_m1_0_Click"/>
+            </StackPanel>
         </Grid>
 
-        
+
 
         <!--<GroupBox x:Name="groupBox" Header="Reception" Margin="0" Background="#FFDDDDDD" BorderBrush="Black" Grid.Column="1" Grid.Row="1">
             <TextBox x:Name="textBoxReception" Margin="0" Grid.Row="1" TextWrapping="Wrap" Background="{x:Null}" BorderBrush="{x:Null}" IsReadOnly="True" AcceptsReturn="True"/>

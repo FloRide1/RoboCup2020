@@ -20,6 +20,14 @@
 
         public AsservissementPID(double fEch, double kp, double ki, double kd, double proportionalLimit, double integralLimit, double derivationLimit)
         {
+            Init(kp, ki, kd, proportionalLimit, integralLimit, derivationLimit);
+
+            //IntegraleErreur = 0;
+            SampleFreq = fEch;
+        }
+
+        public void Init(double kp, double ki, double kd, double proportionalLimit, double integralLimit, double derivationLimit)
+        {
             Kp = kp;
             Ki = ki;
             Kd = kd;
@@ -27,9 +35,6 @@
             ProportionalLimit = proportionalLimit;
             IntegralLimit = integralLimit;
             DerivationLimit = derivationLimit;
-
-            IntegraleErreur = 0;
-            SampleFreq = fEch;
         }
 
         public void ResetPID(double error)

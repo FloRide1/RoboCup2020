@@ -95,14 +95,14 @@ namespace LogRecorder
             Log(json);
         }
 
-        public void OnSpeedDataReceived(object sender, SpeedDataEventArgs e)
+        public void OnSpeedDataReceived(object sender, PolarSpeedEventArgs e)
         {
             SpeedDataEventArgsLog data = new SpeedDataEventArgsLog();
             data.Vx = e.Vx;
             data.Vy = e.Vy;
             data.Vtheta = e.Vtheta;
             data.RobotId = e.RobotId;
-            data.EmbeddedTimeStampInMs = e.EmbeddedTimeStampInMs;
+            data.timeStampMs = e.timeStampMs;
             data.InstantInMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
             string json = JsonConvert.SerializeObject(data);
             Log(json);
@@ -151,7 +151,7 @@ namespace LogRecorder
         public double InstantInMs;
     }
 
-    public class SpeedDataEventArgsLog : SpeedDataEventArgs
+    public class SpeedDataEventArgsLog : PolarSpeedEventArgs
     {
         public string Type = "SpeedFromOdometry";
         public double InstantInMs;

@@ -7,25 +7,15 @@ using Staudt.Engineering.LidaRx;
 using Staudt.Engineering.LidaRx.Drivers.R2000;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Net.Sockets;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using TCPAdapter;
-using TCPClient;
 using Utilities;
 using Timer = System.Timers.Timer;
 
-namespace LidarOMD60M
+namespace LidaRxR2000NS
 {
-    public class Lidar_OMD60M_TCP
+    public class LidaRxR2000
     {
         R2000Scanner r2000;
 
@@ -33,7 +23,9 @@ namespace LidarOMD60M
         int lastScanNumber;
         bool newLidarDataAvailable = false;
 
-        public Lidar_OMD60M_TCP(double freq = 20, R2000SamplingRate samplingRate = R2000SamplingRate._252kHz)
+        Timer timerDisplayBitmap = new Timer(100);
+
+        public LidaRxR2000(double freq = 20, R2000SamplingRate samplingRate = R2000SamplingRate._252kHz)
         {
             var threadStartLidar = new Thread(() => LidarStartAndAcquire(freq, samplingRate));
             threadStartLidar.IsBackground = true;
@@ -44,6 +36,20 @@ namespace LidarOMD60M
             threadSendEventLidar.SetApartmentState(ApartmentState.STA);
             threadSendEventLidar.Start();
 
+            timerDisplayBitmap.Elapsed += TimerDisplayBitmap_Elapsed;
+            timerDisplayBitmap.Start();
+
+        }
+
+        int horizontalShift = -50;
+
+        private void TimerDisplayBitmap_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            horizontalShift += 2;
+            if (horizontalShift > 130)
+                horizontalShift = -100;
+            if(r2000!=null)
+                r2000.DisplayRotatingText(horizontalShift);
         }
 
         //double angleIncrement;
@@ -55,6 +61,8 @@ namespace LidarOMD60M
                 r2000.SetSamplingRate(R2000SamplingRate._8kHz);
                 r2000.SetScanFrequency(freq);
                 r2000.SetSamplingRate(samplingRate);
+                r2000.DisplayMessage(1, "Points :");
+                r2000.DisplayMessage(2, "50 points");
 
                 //angleIncrement = 2 * Math.PI/((double)R2000SamplingRate._252kHz / 20);
 

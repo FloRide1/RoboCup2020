@@ -34,12 +34,26 @@ namespace TrajectoryGenerator
         AsservissementPID PID_X;
         AsservissementPID PID_Y;
         AsservissementPID PID_Theta;
+        
+        System.Timers.Timer PidConfigUpdateTimer;
+
         void InitPositionPID()
         {
             PID_X = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5, 5, 1);
             PID_Y = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5, 5, 1);
             PID_Theta = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5*Math.PI, 5*Math.PI, Math.PI); //Validé VG : 20 20 0 2PI 2PI 0..5
 
+            PidConfigUpdateTimer = new System.Timers.Timer(1000);
+            PidConfigUpdateTimer.Elapsed += PidConfigUpdateTimer_Elapsed;
+            PidConfigUpdateTimer.Start();
+
+        }
+
+        private void PidConfigUpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            PID_X.Init(1.0, 0.0, 0, 5, 5, 5);
+            PID_Y.Init(1.0, 0.0, 0, 5, 5, 5);
+            PID_Theta.Init(1.0, 0.0, 0, 5, 5, 5);
         }
 
         public TrajectoryPlanner(int id)
@@ -59,6 +73,7 @@ namespace TrajectoryGenerator
                 OnCollision(robotId, currentLocation);
             else if (Toolbox.Distance(new PointD(old_currectLocation.X, old_currectLocation.Y), new PointD(currentLocation.X, currentLocation.Y)) > 0.5)
                 OnCollision(robotId, currentLocation);
+            PIDPositionReset();
         }
         
         //Input Events
@@ -82,6 +97,16 @@ namespace TrajectoryGenerator
             if (e.RobotId == robotId)
             {
                 currentGameState = e.gameState;
+            }
+        }
+
+        void PIDPositionReset()
+        {
+            if (PID_X != null && PID_Y != null && PID_Theta != null)
+            {
+                PID_X.ResetPID(0);
+                PID_Y.ResetPID(0);
+                PID_Theta.ResetPID(0);
             }
         }
 
@@ -116,10 +141,10 @@ namespace TrajectoryGenerator
                     OnCollision(robotId, currentLocation);
                     OnSpeedConsigneToRobot(robotId, 0, 0, 0);
                     ghostLocation = currentLocation;
-                    InitPositionPID();
+                    PIDPositionReset();
                 }
 
-                PIDCorrectionArgs correction = new PIDCorrectionArgs();
+                PolarPidCorrectionArgs correction = new PolarPidCorrectionArgs();
                 correction.CorrPx = PID_X.correctionP;
                 correction.CorrIx = PID_X.correctionI;
                 correction.CorrDx = PID_X.correctionD;
@@ -133,7 +158,7 @@ namespace TrajectoryGenerator
             }
 
 
-            PIDSetupArgs PositionPidSetup = new PIDSetupArgs();
+            PolarPIDSetupArgs PositionPidSetup = new PolarPIDSetupArgs();
             PositionPidSetup.P_x = PID_X.Kp;
             PositionPidSetup.I_x = PID_X.Ki;
             PositionPidSetup.D_x = PID_X.Kd;
@@ -296,13 +321,13 @@ namespace TrajectoryGenerator
         }
         
         //Output events
-        public event EventHandler<SpeedArgs> OnSpeedConsigneEvent;
+        public event EventHandler<PolarSpeedArgs> OnSpeedConsigneEvent;
         public virtual void OnSpeedConsigneToRobot(int id, float vx, float vy, float vtheta)
         {
             var handler = OnSpeedConsigneEvent;
             if (handler != null)
             {
-                handler(this, new SpeedArgs { RobotId = id, Vx = vx, Vy = vy, Vtheta = vtheta });
+                handler(this, new PolarSpeedArgs { RobotId = id, Vx = vx, Vy = vy, Vtheta = vtheta });
             }
         }
 
@@ -327,14 +352,14 @@ namespace TrajectoryGenerator
             }
         }
 
-        public event EventHandler<PIDSetupArgs> OnMessageToDisplayPositionPidSetupEvent;
-        public virtual void OnMessageToDisplayPositionPidSetup(PIDSetupArgs setup)
+        public event EventHandler<PolarPIDSetupArgs> OnMessageToDisplayPositionPidSetupEvent;
+        public virtual void OnMessageToDisplayPositionPidSetup(PolarPIDSetupArgs setup)
         {
             OnMessageToDisplayPositionPidSetupEvent?.Invoke(this, setup);
         }
 
-        public event EventHandler<PIDCorrectionArgs> OnMessageToDisplayPositionPidCorrectionEvent;
-        public virtual void OnMessageToDisplayPositionPidCorrection(PIDCorrectionArgs corr)
+        public event EventHandler<PolarPidCorrectionArgs> OnMessageToDisplayPositionPidCorrectionEvent;
+        public virtual void OnMessageToDisplayPositionPidCorrection(PolarPidCorrectionArgs corr)
         {
             OnMessageToDisplayPositionPidCorrectionEvent?.Invoke(this, corr);
         }

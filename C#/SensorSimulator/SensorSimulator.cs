@@ -64,13 +64,13 @@ namespace SensorSimulator
             }
         }
 
-        public event EventHandler<SpeedArgs> OnOdometrySimulatedRobotSpeedEvent;
+        public event EventHandler<PolarSpeedArgs> OnOdometrySimulatedRobotSpeedEvent;
         public virtual void OnOdometrySimulatedRobotSpeed(int id, double vx, double vy, double vtheta)
         {
             var handler = OnOdometrySimulatedRobotSpeedEvent;
             if (handler != null)
             {
-                handler(this, new SpeedArgs { RobotId = id, Vx = vx, Vy = vy, Vtheta = vtheta });
+                handler(this, new PolarSpeedArgs { RobotId = id, Vx = vx, Vy = vy, Vtheta = vtheta });
             }
         }
 

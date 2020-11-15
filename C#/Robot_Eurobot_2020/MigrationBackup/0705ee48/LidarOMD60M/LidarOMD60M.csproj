@@ -57,22 +57,24 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Reactive, Version=4.4.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
-      <HintPath>..\Robot\packages\System.Reactive.4.4.1\lib\net46\System.Reactive.dll</HintPath>
+      <HintPath>..\Robot_Eurobot_2020\packages\System.Reactive.4.4.1\lib\net46\System.Reactive.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Core, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
-      <HintPath>..\Robot\packages\System.Reactive.Core.4.3.2\lib\net46\System.Reactive.Core.dll</HintPath>
+      <HintPath>..\Robot_Eurobot_2020\packages\System.Reactive.Core.3.1.1\lib\net46\System.Reactive.Core.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Interfaces, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
-      <HintPath>..\Robot\packages\System.Reactive.Interfaces.4.3.2\lib\net46\System.Reactive.Interfaces.dll</HintPath>
+      <HintPath>..\Robot_Eurobot_2020\packages\System.Reactive.Interfaces.3.1.1\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Reactive.Linq, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
-      <HintPath>..\Robot\packages\System.Reactive.Linq.4.3.2\lib\net46\System.Reactive.Linq.dll</HintPath>
+      <HintPath>..\Robot_Eurobot_2020\packages\System.Reactive.Linq.3.1.1\lib\net46\System.Reactive.Linq.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.PlatformServices, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
-      <HintPath>..\Robot\packages\System.Reactive.PlatformServices.4.3.2\lib\net46\System.Reactive.PlatformServices.dll</HintPath>
+      <HintPath>..\Robot_Eurobot_2020\packages\System.Reactive.PlatformServices.3.1.1\lib\net46\System.Reactive.PlatformServices.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Windows.Threading, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
-      <HintPath>..\Robot\packages\System.Reactive.Windows.Threading.4.3.2\lib\net46\System.Reactive.Windows.Threading.dll</HintPath>
+      <HintPath>..\Robot_Eurobot_2020\packages\System.Reactive.Windows.Threading.3.1.1\lib\net45\System.Reactive.Windows.Threading.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\Robot\packages\System.Runtime.CompilerServices.Unsafe.4.7.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
@@ -113,13 +115,13 @@
       <Project>{ECC907ED-F9B2-457F-901E-720987934E47}</Project>
       <Name>AdvancedTimers</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Staudt.Engineering.LidaRx.Drivers.R2000\Staudt.Engineering.LidaRx.Drivers.R2000.csproj">
-      <Project>{D27503B0-7171-44C0-9E73-EA6CF83A55E9}</Project>
-      <Name>Staudt.Engineering.LidaRx.Drivers.R2000</Name>
+    <ProjectReference Include="..\LidaRxDriver\LidaRxDriver.csproj">
+      <Project>{17007EEC-FE2B-4FF7-BDBE-0A300CBD2B7F}</Project>
+      <Name>LidaRxDriver</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Staudt.Engineering.LidaRx\Staudt.Engineering.LidaRx.csproj">
-      <Project>{A4C17E50-0AE0-469B-B0DF-39F6AC733319}</Project>
-      <Name>Staudt.Engineering.LidaRx</Name>
+    <ProjectReference Include="..\LidaRx\LidaRx.csproj">
+      <Project>{D8E0BFBA-4ED8-41C2-8068-F490A5319F43}</Project>
+      <Name>LidaRx</Name>
     </ProjectReference>
     <ProjectReference Include="..\TCPAdapter\TCPAdapter.csproj">
       <Project>{DEDA47B4-8F22-4A8B-8F18-96981C6B408D}</Project>

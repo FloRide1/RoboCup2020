@@ -50,7 +50,7 @@ namespace WpfOscilloscopeControl
             if (lineDictionary.ContainsKey(id))
             {
                 
-                sciChart.RenderableSeries.Remove(sciChart.RenderableSeries.Single(x => x.DataSeries == lineDictionary[id]));
+                sciChart.RenderableSeries.Remove(sciChart.RenderableSeries.Single(x => x.DataSeries.SeriesName == lineDictionary[id].SeriesName));
                 lineDictionary.Remove(id);
             }
             else

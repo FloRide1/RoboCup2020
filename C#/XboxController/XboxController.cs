@@ -34,8 +34,8 @@ namespace XBoxController
         bool useRampe = false;
         private void TimerGamepad_Elapsed(object sender, ElapsedEventArgs e)
         {
-            double VLinMax = 5;   //1.2 ~= 0.3m/s
-            double VThetaMax = 2 * 2 * Math.PI;
+            double VLinMax = 1;   //1.2 ~= 0.3m/s
+            double VThetaMax = 1.5* Math.PI;
             double valeurRampe = 0.6;
             double Vx;
             double Vy;
@@ -155,14 +155,14 @@ namespace XBoxController
         }
 
         //Events générés en sortie
-        public delegate void SpeedConsigneEventHandler(object sender, SpeedArgs e);
-        public event EventHandler<SpeedArgs> OnSpeedConsigneEvent;
+        public delegate void SpeedConsigneEventHandler(object sender, PolarSpeedArgs e);
+        public event EventHandler<PolarSpeedArgs> OnSpeedConsigneEvent;
         public virtual void OnSpeedConsigneToRobot(int id, double vx, double vy, double vtheta)
         {
             var handler = OnSpeedConsigneEvent;
             if (handler != null)
             {
-                handler(this, new SpeedArgs { RobotId = id, Vx = vx, Vy = vy, Vtheta = vtheta });
+                handler(this, new PolarSpeedArgs { RobotId = id, Vx = vx, Vy = vy, Vtheta = vtheta });
             }
         }
 
