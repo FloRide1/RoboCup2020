@@ -65,32 +65,44 @@ namespace EventArgsLibrary
         public Int16 MsgPayloadLength { get; set; }
         public byte[] MsgPayload { get; set; }
     }
-    public class SpeedArgs : EventArgs
+    public class PolarSpeedArgs : EventArgs
     {
         public int RobotId { get; set; }
         public double Vx { get; set; }
         public double Vy { get; set; }
         public double Vtheta { get; set; }
+    }
+    public class IndependantSpeedArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+        public double VitesseMoteur1 { get; set; }
+        public double VitesseMoteur2 { get; set; }
+        public double VitesseMoteur3 { get; set; }
+        public double VitesseMoteur4 { get; set; }
+    }
+    public class AuxiliarySpeedArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+        public double VitesseMoteur5 { get; set; }
+        public double VitesseMoteur6 { get; set; }
+        public double VitesseMoteur7 { get; set; }
     }
     public class GyroArgs : EventArgs
     {
         public int RobotId { get; set; }
         public double Vtheta { get; set; }
     }
-    public class PolarSpeedEventArgs : SpeedArgs
+    public class PolarSpeedEventArgs : PolarSpeedArgs
     {
-        public uint EmbeddedTimeStampInMs;
-        public double Vx { get; set; }
-        public double Vy { get; set; }
-        public double Vtheta { get; set; }
+        public uint timeStampMs;
     }
-    public class IndependantSpeedEventArgs : SpeedArgs
+    public class IndependantSpeedEventArgs : IndependantSpeedArgs
     {
-        public uint EmbeddedTimeStampInMs;
-        public double VM1 { get; set; }
-        public double VM2 { get; set; }
-        public double VM3 { get; set; }
-        public double VM4 { get; set; }
+        public uint timeStampMs;
+    }
+    public class AuxiliarySpeedEventArgs : AuxiliarySpeedArgs
+    {
+        public uint timeStampMs;
     }
     public class TirEventArgs : EventArgs
     {
@@ -151,18 +163,26 @@ namespace EventArgsLibrary
 
     }
 
-    public class MotorsVitesseDataEventArgs : EventArgs
+    //public class MotorsVitesseDataEventArgs : EventArgs
+    //{
+    //    public uint timeStampMS;
+    //    public double vitesseMotor1;
+    //    public double vitesseMotor2;
+    //    public double vitesseMotor3;
+    //    public double vitesseMotor4;
+    //    public double vitesseMotor5;
+    //    public double vitesseMotor6;
+    //    public double vitesseMotor7;
+    //}
+
+    public class AuxiliaryMotorsVitesseDataEventArgs : EventArgs
     {
         public uint timeStampMS;
-        public double vitesseMotor1;
-        public double vitesseMotor2;
-        public double vitesseMotor3;
-        public double vitesseMotor4;
         public double vitesseMotor5;
         public double vitesseMotor6;
         public double vitesseMotor7;
     }
-    public class PolarPidDebugDataArgs : EventArgs
+    public class PolarPidErrorCorrectionConsigneDataArgs : EventArgs
     {
         public uint timeStampMS;
         public double xErreur;
@@ -177,7 +197,7 @@ namespace EventArgsLibrary
         public double yConsigneFromRobot;
         public double thetaConsigneFromRobot;
     }
-    public class IndependantPidDebugDataArgs : EventArgs
+    public class IndependantPidErrorCorrectionConsigneDataArgs : EventArgs
     {
         public uint timeStampMS;
         public double M1Erreur;

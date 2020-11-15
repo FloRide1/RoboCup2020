@@ -344,13 +344,13 @@ namespace WpfAsservissementDisplay
             commandM4List.Enqueue(commandM4);
         }
 
-        public void UpdatePolarSpeedMeasuredValues(double valueX, double valueY, double valueTheta)
+        public void UpdatePolarOdometrySpeed(double valueX, double valueY, double valueTheta)
         {
             measuredXList.Enqueue(valueX);
             measuredYList.Enqueue(valueY);
             measuredThetaList.Enqueue(valueTheta);
         }
-        public void UpdateIndependantSpeedMeasuredValues(double valueM1, double valueM2, double valueM3, double valueM4)
+        public void UpdateIndependantOdometrySpeed(double valueM1, double valueM2, double valueM3, double valueM4)
         {
             measuredM1List.Enqueue(valueM1);
             measuredM2List.Enqueue(valueM2);

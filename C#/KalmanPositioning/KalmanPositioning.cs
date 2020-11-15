@@ -165,7 +165,7 @@ namespace KalmanPositioning
                 e.RobotRealPosition.Theta, e.RobotRealPosition.Vtheta, 0);
         }
 
-        public void OnOdometryRobotSpeedReceived(object sender, SpeedArgs e)
+        public void OnOdometryRobotSpeedReceived(object sender, PolarSpeedArgs e)
         {
             currentOdoVxRefRobot = e.Vx;
             currentOdoVyRefRobot = e.Vy;

@@ -203,7 +203,7 @@ namespace PhysicalSimulator
             }
         }
 
-        public void SetRobotSpeed(object sender, SpeedArgs e)
+        public void SetRobotSpeed(object sender, PolarSpeedArgs e)
         {
             //Attention, les vitesses proviennent de l'odométrie et sont donc dans le référentiel robot
             if (robotList.ContainsKey(e.RobotId))

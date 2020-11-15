@@ -106,8 +106,8 @@ namespace Robot
         static USBVendor.USBVendor usbDriver;
         static MsgDecoder msgDecoder;
         static MsgEncoder msgEncoder;
-        static RobotMsgGenerator robotMsgGenerator;
-        static RobotMsgProcessor robotMsgProcessor;
+        static MsgGenerator robotMsgGenerator;
+        static MsgProcessor robotMsgProcessor;
         static WaypointGenerator waypointGenerator;
         static TrajectoryPlanner trajectoryPlanner;
         static KalmanPositioning.KalmanPositioning kalmanPositioning;
@@ -202,8 +202,8 @@ namespace Robot
             usbDriver = new USBVendor.USBVendor();
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
-            robotMsgGenerator = new RobotMsgGenerator();
-            robotMsgProcessor = new RobotMsgProcessor(Competition.Eurobot);
+            robotMsgGenerator = new MsgGenerator();
+            robotMsgProcessor = new MsgProcessor(Competition.Eurobot);
             
             int robotId = (int)TeamId.Team1 + (int)RobotId.Robot1;
             int teamId = (int)TeamId.Team1;
@@ -280,7 +280,7 @@ namespace Robot
 
             //Filtre de Kalman
             perceptionManager.OnAbsolutePositionEvent += kalmanPositioning.OnAbsolutePositionCalculatedEvent;
-            robotMsgProcessor.OnPolarOdometrySpeedFromRobotEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
+            robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
             imuProcessor.OnGyroSpeedEvent += kalmanPositioning.OnGyroRobotSpeedReceived;
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             //trajectoryPlanner.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot; //Configuré dans le gestionnaire de manette
@@ -345,7 +345,7 @@ namespace Robot
                 //lidar_OMD60M_UDP.OnLidarDecodedFrameEvent += logRecorder.OnRawLidarDataReceived;
                 lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += logRecorder.OnRawLidarDataReceived;
                 imuProcessor.OnIMUProcessedDataGeneratedEvent += logRecorder.OnIMURawDataReceived;
-                robotMsgProcessor.OnPolarOdometrySpeedFromRobotEvent += logRecorder.OnSpeedDataReceived;
+                robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += logRecorder.OnSpeedDataReceived;
                 //omniCamera.OpenCvMatImageEvent += logRecorder.OnOpenCVMatImageReceived;
             }
 
@@ -509,16 +509,17 @@ namespace Robot
 
                 robotMsgProcessor.OnEnableDisableMotorsACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableDisableMotorsButton;
                 robotMsgProcessor.OnEnableDisableTirACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableDisableTirButton;
-                robotMsgProcessor.OnMotorVitesseDataFromRobotGeneratedEvent += interfaceRobot.UpdateMotorsSpeedsOnGraph;
-                robotMsgProcessor.OnSpeedConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateMotorSpeedConsigneOnGraph;
-                robotMsgProcessor.OnEnableAsservissementACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableAsservissementButton;
-                robotMsgProcessor.OnPolarOdometrySpeedFromRobotEvent += interfaceRobot.UpdatePolarSpeedOdometryOnInterface;
-                robotMsgProcessor.OnIndependantOdometrySpeedFromRobotEvent += interfaceRobot.UpdateIndependantSpeedOdometryOnInterface;
 
-                robotMsgProcessor.OnSpeedPolarPidDebugDataFromRobotGeneratedEvent += interfaceRobot.UpdatePolarPidDebugDataOnGraph;
-                robotMsgProcessor.OnSpeedIndependantPidDebugDataFromRobotGeneratedEvent += interfaceRobot.UpdateIndependantPidDebugDataOnGraph;
-                robotMsgProcessor.OnSpeedPolarPidCorrectionDataFromRobotEvent += interfaceRobot.UpdatePolarPidCorrectionData;
-                robotMsgProcessor.OnSpeedIndependantPidCorrectionDataFromRobotEvent += interfaceRobot.UpdateIndependantPidCorrectionData;
+                //robotMsgProcessor.OnMotorVitesseDataFromRobotGeneratedEvent += interfaceRobot.UpdateMotorsSpeedsOnGraph;
+                //robotMsgProcessor.OnAuxiliarySpeedConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateAuxiliarySpeedConsigneOnGraph;
+
+                robotMsgProcessor.OnEnableAsservissementACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableAsservissementButton;
+                robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += interfaceRobot.UpdateSpeedPolarOdometryOnInterface;
+                robotMsgProcessor.OnIndependantOdometrySpeedFromRobotEvent += interfaceRobot.UpdateSpeedIndependantOdometryOnInterface;
+                robotMsgProcessor.OnSpeedPolarPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedPolarPidErrorCorrectionConsigneDataOnGraph;
+                robotMsgProcessor.OnSpeedIndependantPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedIndependantPidErrorCorrectionConsigneDataOnGraph;
+                robotMsgProcessor.OnSpeedPolarPidCorrectionDataFromRobotEvent += interfaceRobot.UpdateSpeedPolarPidCorrectionData;
+                robotMsgProcessor.OnSpeedIndependantPidCorrectionDataFromRobotEvent += interfaceRobot.UpdateSpeedIndependantPidCorrectionData;
 
                 robotMsgProcessor.OnErrorTextFromRobotGeneratedEvent += interfaceRobot.AppendConsole;
                 robotMsgProcessor.OnPowerMonitoringValuesFromRobotGeneratedEvent += interfaceRobot.UpdatePowerMonitoringValues;
@@ -531,7 +532,7 @@ namespace Robot
                 robotMsgProcessor.OnMessageCounterEvent += interfaceRobot.MessageCounterReceived;
             }
 
-            robotMsgGenerator.OnSetSpeedConsigneToRobotReceivedEvent += interfaceRobot.UpdateSpeedConsigneOnGraph; //Valable quelque soit la source des consignes vitesse
+            robotMsgGenerator.OnSetSpeedConsigneToRobotReceivedEvent += interfaceRobot.UpdatePolarSpeedConsigneOnGraph; //Valable quelque soit la source des consignes vitesse
             interfaceRobot.OnEnableDisableMotorsFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableMotors;
             interfaceRobot.OnEnableDisableServosFromInterfaceGeneratedEvent += herkulexManager.OnEnableDisableServosRequestEvent;
             interfaceRobot.OnEnableDisableTirFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableTir;
@@ -552,7 +553,7 @@ namespace Robot
             if (usingLogReplay)
             {
                 logReplay.OnIMUEvent += interfaceRobot.UpdateImuDataOnGraph;
-                logReplay.OnSpeedDataEvent += interfaceRobot.UpdatePolarSpeedOdometryOnInterface;
+                logReplay.OnSpeedDataEvent += interfaceRobot.UpdateSpeedPolarOdometryOnInterface;
             }
 
             strategyManager.Init();

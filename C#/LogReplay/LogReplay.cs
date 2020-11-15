@@ -309,7 +309,7 @@ namespace LogReplay
             var handler = OnSpeedDataEvent;
             if (handler != null)
             {
-                handler(this, new PolarSpeedEventArgs { Vx = dat.Vx, Vy = dat.Vy, Vtheta = dat.Vtheta, RobotId = dat.RobotId, EmbeddedTimeStampInMs=dat.EmbeddedTimeStampInMs});
+                handler(this, new PolarSpeedEventArgs { Vx = dat.Vx, Vy = dat.Vy, Vtheta = dat.Vtheta, RobotId = dat.RobotId, timeStampMs=dat.timeStampMs});
             }
         }
 

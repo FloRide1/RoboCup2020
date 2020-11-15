@@ -282,24 +282,23 @@ namespace RobotInterface
             oscilloM4.ResetGraph();
         }
 
-         public void UpdatePolarSpeedOdometryOnInterface(object sender, PolarSpeedEventArgs e)
+         public void UpdateSpeedPolarOdometryOnInterface(object sender, PolarSpeedEventArgs e)
         {
-            oscilloX.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vx);
-            oscilloY.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vy);
-            oscilloTheta.AddPointToLine(1, e.EmbeddedTimeStampInMs / 1000.0, e.Vtheta);
-            currentTime = e.EmbeddedTimeStampInMs / 1000.0;
+            oscilloX.AddPointToLine(1, e.timeStampMs / 1000.0, e.Vx);
+            oscilloY.AddPointToLine(1, e.timeStampMs / 1000.0, e.Vy);
+            oscilloTheta.AddPointToLine(1, e.timeStampMs / 1000.0, e.Vtheta);
+            currentTime = e.timeStampMs / 1000.0;
 
-            asservSpeedDisplay.UpdatePolarSpeedMeasuredValues(e.Vx, e.Vy, e.Vtheta);
+            asservSpeedDisplay.UpdatePolarOdometrySpeed(e.Vx, e.Vy, e.Vtheta);
         }
-        public void UpdateIndependantSpeedOdometryOnInterface(object sender, IndependantSpeedEventArgs e)
+        public void UpdateSpeedIndependantOdometryOnInterface(object sender, IndependantSpeedEventArgs e)
         {
-            asservSpeedDisplay.UpdateIndependantSpeedMeasuredValues(e.VM1, e.VM2, e.VM3, e.VM4);
+            asservSpeedDisplay.UpdateIndependantOdometrySpeed(e.VitesseMoteur1, e.VitesseMoteur2, e.VitesseMoteur3, e.VitesseMoteur4);
         }
         public void ActualizeAccelDataOnGraph(object sender, AccelEventArgs e)
         {
             oscilloX.AddPointToLine(2, e.timeStampMS, e.accelX);
-            oscilloY.AddPointToLine(2, e.timeStampMS, e.accelY);
-            
+            oscilloY.AddPointToLine(2, e.timeStampMS, e.accelY);            
         }
 
         public void UpdateImuDataOnGraph(object sender, IMUDataEventArgs e)
@@ -310,7 +309,7 @@ namespace RobotInterface
             currentTime = e.EmbeddedTimeStampInMs/1000.0;
         }
 
-        public void UpdateSpeedConsigneOnGraph(object sender, SpeedArgs e)
+        public void UpdatePolarSpeedConsigneOnGraph(object sender, PolarSpeedArgs e)
         {
             oscilloX.AddPointToLine(0, currentTime, e.Vx);
             oscilloY.AddPointToLine(0, currentTime, e.Vy);
@@ -319,13 +318,20 @@ namespace RobotInterface
             //asservSpeedDisplay.UpdateConsigneValues(e.Vx, e.Vy, e.Vtheta);
         }
 
-        public void UpdateMotorSpeedConsigneOnGraph(object sender, MotorsVitesseDataEventArgs e)
+        public void UpdateIndependantSpeedConsigneOnGraph(object sender, IndependantSpeedEventArgs e)
         {
-            oscilloM1.AddPointToLine(4, e.timeStampMS / 1000.0, e.vitesseMotor1);
-            oscilloM2.AddPointToLine(4, e.timeStampMS / 1000.0, e.vitesseMotor2);
-            oscilloM3.AddPointToLine(4, e.timeStampMS / 1000.0, e.vitesseMotor3);
-            oscilloM4.AddPointToLine(4, e.timeStampMS / 1000.0, e.vitesseMotor4);
+            oscilloM1.AddPointToLine(4, e.timeStampMs / 1000.0, e.VitesseMoteur1);
+            oscilloM2.AddPointToLine(4, e.timeStampMs / 1000.0, e.VitesseMoteur2);
+            oscilloM3.AddPointToLine(4, e.timeStampMs / 1000.0, e.VitesseMoteur3);
+            oscilloM4.AddPointToLine(4, e.timeStampMs / 1000.0, e.VitesseMoteur4);
         }
+
+        //public void UpdateAuxiliarySpeedConsigneOnGraph(object sender, AuxiliaryMotorsVitesseDataEventArgs e)
+        //{
+        //    oscilloM5.AddPointToLine(4, e.timeStampMS / 1000.0, e.vitesseMotor5);
+        //    oscilloM6.AddPointToLine(4, e.timeStampMS / 1000.0, e.vitesseMotor6);
+        //    oscilloM7.AddPointToLine(4, e.timeStampMS / 1000.0, e.vitesseMotor7);
+        //}
 
         public void UpdateMotorsCurrentsOnGraph(object sender, MotorsCurrentsEventArgs e)
         {
@@ -335,13 +341,13 @@ namespace RobotInterface
             oscilloM4.AddPointToLine(1, e.timeStampMS / 1000.0, e.motor4);
         }
 
-        public void UpdateMotorsSpeedsOnGraph(object sender, MotorsVitesseDataEventArgs e)
-        {
-            oscilloM1.AddPointToLine(0, e.timeStampMS / 1000.0, e.vitesseMotor1);
-            oscilloM2.AddPointToLine(0, e.timeStampMS / 1000.0, e.vitesseMotor2);
-            oscilloM3.AddPointToLine(0, e.timeStampMS / 1000.0, e.vitesseMotor3);
-            oscilloM4.AddPointToLine(0, e.timeStampMS / 1000.0, e.vitesseMotor4);
-        }
+        //public void UpdateMotorsSpeedsOnGraph(object sender, MotorsVitesseDataEventArgs e)
+        //{
+        //    oscilloM1.AddPointToLine(0, e.timeStampMS / 1000.0, e.vitesseMotor1);
+        //    oscilloM2.AddPointToLine(0, e.timeStampMS / 1000.0, e.vitesseMotor2);
+        //    oscilloM3.AddPointToLine(0, e.timeStampMS / 1000.0, e.vitesseMotor3);
+        //    oscilloM4.AddPointToLine(0, e.timeStampMS / 1000.0, e.vitesseMotor4);
+        //}
 
         public void UpdateMotorsPositionOnGraph(object sender, MotorsPositionDataEventArgs e)
         {
@@ -359,7 +365,7 @@ namespace RobotInterface
             oscilloM4.AddPointToLine(3, e.timeStampMS / 1000.0, e.motor4);
         }
 
-        public void UpdatePolarPidDebugDataOnGraph(object sender, PolarPidDebugDataArgs e)
+        public void UpdateSpeedPolarPidErrorCorrectionConsigneDataOnGraph(object sender, PolarPidErrorCorrectionConsigneDataArgs e)
         {
             asservSpeedDisplay.UpdatePolarSpeedErrorValues(e.xErreur, e.yErreur, e.thetaErreur);
             asservSpeedDisplay.UpdatePolarSpeedCommandValues(e.xCorrection, e.yCorrection, e.thetaCorrection);
@@ -378,21 +384,21 @@ namespace RobotInterface
             oscilloY.AddPointToLine(5, e.timeStampMS / 1000.0, e.yConsigneFromRobot);
             oscilloTheta.AddPointToLine(5, e.timeStampMS / 1000.0, e.thetaConsigneFromRobot);
         }
-        public void UpdateIndependantPidDebugDataOnGraph(object sender, IndependantPidDebugDataArgs e)
+        public void UpdateSpeedIndependantPidErrorCorrectionConsigneDataOnGraph(object sender, IndependantPidErrorCorrectionConsigneDataArgs e)
         {
             asservSpeedDisplay.UpdateIndependantSpeedErrorValues(e.M1Erreur, e.M2Erreur, e.M3Erreur, e.M4Erreur);
             asservSpeedDisplay.UpdateIndependantSpeedCommandValues(e.M1Correction, e.M2Correction, e.M3Correction, e.M4Correction);
             asservSpeedDisplay.UpdateIndependantSpeedConsigneValues(e.M1ConsigneFromRobot, e.M2ConsigneFromRobot, e.M3ConsigneFromRobot, e.M4ConsigneFromRobot);
         }
 
-        public void UpdatePolarPidCorrectionData(object sender, PolarPidCorrectionArgs e)
+        public void UpdateSpeedPolarPidCorrectionData(object sender, PolarPidCorrectionArgs e)
         {
             asservSpeedDisplay.UpdatePolarSpeedCorrectionValues(e.CorrPx, e.CorrPy, e.CorrPTheta,
                 e.CorrIx, e.CorrIy, e.CorrITheta,
                 e.CorrDx, e.CorrDy, e.CorrDTheta);
         }
 
-        public void UpdateIndependantPidCorrectionData(object sender, IndependantPidCorrectionArgs e)
+        public void UpdateSpeedIndependantPidCorrectionData(object sender, IndependantPidCorrectionArgs e)
         {
             asservSpeedDisplay.UpdateIndependantSpeedCorrectionValues(e.CorrPM1, e.CorrPM2, e.CorrPM3, e.CorrPM4,
                 e.CorrIM1, e.CorrIM2, e.CorrIM3, e.CorrIM4,

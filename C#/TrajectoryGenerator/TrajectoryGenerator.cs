@@ -321,13 +321,13 @@ namespace TrajectoryGenerator
         }
         
         //Output events
-        public event EventHandler<SpeedArgs> OnSpeedConsigneEvent;
+        public event EventHandler<PolarSpeedArgs> OnSpeedConsigneEvent;
         public virtual void OnSpeedConsigneToRobot(int id, float vx, float vy, float vtheta)
         {
             var handler = OnSpeedConsigneEvent;
             if (handler != null)
             {
-                handler(this, new SpeedArgs { RobotId = id, Vx = vx, Vy = vy, Vtheta = vtheta });
+                handler(this, new PolarSpeedArgs { RobotId = id, Vx = vx, Vy = vy, Vtheta = vtheta });
             }
         }
 

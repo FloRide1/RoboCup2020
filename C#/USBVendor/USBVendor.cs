@@ -177,7 +177,7 @@ namespace USBVendor
             {
                 UInt32 LengthTransferred = 0;
                 Boolean success = false;
-                if(e.Msg.Length<= 128)
+                if(e.Msg.Length<= 128 && cmv8DeviceListeFound.Count>0)
                     RequestToSendDataViaBulkTransfer(cmv8DeviceListeFound[0], (uint)e.Msg.Length, e.Msg, ref LengthTransferred, ref success);
             }
         }
@@ -770,11 +770,11 @@ namespace USBVendor
                     deleg.EndInvoke(ref bytesSent, ref success, ar);
                 }
 
-                if (ar.IsCompleted)
-                {
-                    Console.WriteLine(bytesSent);
-                    Console.WriteLine(success);
-                }
+                //if (ar.IsCompleted)
+                //{
+                //    Console.WriteLine(bytesSent);
+                //    Console.WriteLine(success);
+                //}
 
                 // Display the received data in the form's list box.
 

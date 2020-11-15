@@ -102,7 +102,7 @@ namespace LogRecorder
             data.Vy = e.Vy;
             data.Vtheta = e.Vtheta;
             data.RobotId = e.RobotId;
-            data.EmbeddedTimeStampInMs = e.EmbeddedTimeStampInMs;
+            data.timeStampMs = e.timeStampMs;
             data.InstantInMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
             string json = JsonConvert.SerializeObject(data);
             Log(json);

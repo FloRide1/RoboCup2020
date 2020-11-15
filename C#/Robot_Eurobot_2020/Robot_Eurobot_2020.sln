@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventArgsLibrary", "..\Even
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobotPilot", "..\RobotPilot\RobotPilot.csproj", "{4012F5AF-50E3-40BD-ABF0-4AFE3F30D5E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobotMessageGenerator", "..\RobotMessageGenerator\RobotMessageGenerator.csproj", "{7F098EE2-A8CD-48CF-B9F4-256EA3DF2BC6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageGenerator", "..\RobotMessageGenerator\MessageGenerator.csproj", "{7F098EE2-A8CD-48CF-B9F4-256EA3DF2BC6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "..\Utilities\Utilities.csproj", "{8E7D0DA4-9A13-4B18-A90E-0243BBCCE40A}"
 EndProject
@@ -43,7 +43,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhysicalSimulator", "..\Phy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfOscilloscopeControl", "..\WpfOscilloscope\WpfOscilloscopeControl.csproj", "{88BAA407-3FEA-4F4B-BB41-5309CE48884E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobotMessageProcessor", "..\RobotMessageProcessor\RobotMessageProcessor.csproj", "{12C1DB8F-4309-43E2-B576-FEB50B59EC25}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageProcessor", "..\RobotMessageProcessor\MessageProcessor.csproj", "{12C1DB8F-4309-43E2-B576-FEB50B59EC25}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogRecorder", "..\LogRecorder\LogRecorder.csproj", "{128114E9-1A4D-4EBF-BA5C-5C4E136D3F53}"
 EndProject

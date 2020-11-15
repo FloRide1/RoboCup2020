@@ -12,11 +12,11 @@ namespace RobotMessageProcessor
         RoboCup = 1,
         Eurobot=2,
     }
-    public class RobotMsgProcessor
+    public class MsgProcessor
     {
         Competition chosenCompetition;
         Timer tmrComptageMessage;
-        public RobotMsgProcessor(Competition type)
+        public MsgProcessor(Competition type)
         {
             chosenCompetition = type;
             tmrComptageMessage = new Timer(1000);
@@ -151,44 +151,29 @@ namespace RobotMessageProcessor
                         OnMotorsCurrentsFromRobot(time2, motor1Current, motor2Current, motor3Current, motor4Current, motor5Current, motor6Current, motor7Current);
                     }
                     break;
-                case (short)Commands.MotorsVitesses:
+                case (short)Commands.AuxiliaryOdometrySpeed:
                     uint time = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
                     tab = payload.GetRange(4, 4);
-                    float vitesseMotor1 = tab.GetFloat();
-                    tab = payload.GetRange(8, 4);
-                    float vitesseMotor2 = tab.GetFloat();
-                    tab = payload.GetRange(12, 4);
-                    float vitesseMotor3 = tab.GetFloat();
-                    tab = payload.GetRange(16, 4);
-                    float vitesseMotor4 = tab.GetFloat();
-                    tab = payload.GetRange(20, 4);
                     float vitesseMotor5 = tab.GetFloat();
-                    tab = payload.GetRange(24, 4);
+                    tab = payload.GetRange(8, 4);
                     float vitesseMotor6 = tab.GetFloat();
-                    tab = payload.GetRange(28, 4);
+                    tab = payload.GetRange(12, 4);
                     float vitesseMotor7 = tab.GetFloat();
                     //On envois l'event aux abonnés
-                    OnMotorVitesseDataFromRobot(time, vitesseMotor1, vitesseMotor2, vitesseMotor3, vitesseMotor4, vitesseMotor5, vitesseMotor6, vitesseMotor7);
+                    
+                    OnAuxiliaryOdometrySpeedFromRobot(time, vitesseMotor5, vitesseMotor6, vitesseMotor7);
                     break;
 
-                case (short)Commands.MotorsSpeedConsignes:
+                case (short)Commands.AuxiliarySpeedConsignes:
                     timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
                     tab = payload.GetRange(4, 4);
-                    float consigneMotor1 = tab.GetFloat();
-                    tab = payload.GetRange(8, 4);
-                    float consigneMotor2 = tab.GetFloat();
-                    tab = payload.GetRange(12, 4);
-                    float consigneMotor3 = tab.GetFloat();
-                    tab = payload.GetRange(16, 4);
-                    float consigneMotor4 = tab.GetFloat();
-                    tab = payload.GetRange(20, 4);
                     float consigneMotor5 = tab.GetFloat();
-                    tab = payload.GetRange(24, 4);
+                    tab = payload.GetRange(8, 4);
                     float consigneMotor6 = tab.GetFloat();
-                    tab = payload.GetRange(28, 4);
+                    tab = payload.GetRange(12, 4);
                     float consigneMotor7 = tab.GetFloat();
                     //On envois l'event aux abonnés
-                    OnSpeedConsigneDataFromRobot(timeStamp, consigneMotor1, consigneMotor2, consigneMotor3, consigneMotor4, consigneMotor5, consigneMotor6, consigneMotor7);
+                    OnAuxiliarySpeedConsigneDataFromRobot(timeStamp, consigneMotor5, consigneMotor6, consigneMotor7);
                     break;
 
                 case (short)Commands.EncoderRawData:
@@ -224,7 +209,7 @@ namespace RobotMessageProcessor
                     OnPowerMonitoringValuesFromRobot(timeStamp, battCMDVoltage, battCMDCurrent, battPWRVoltage, battPWRCurrent);
                     break;
 
-                case (short)Commands.SpeedPolarPidDebugData:
+                case (short)Commands.SpeedPolarPidErrorCorrectionConsigneData:
                     timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
                     tab = payload.GetRange(4, 4);
                     float xError = tab.GetFloat();
@@ -246,7 +231,7 @@ namespace RobotMessageProcessor
                     tab = payload.GetRange(36, 4);
                     float thetaConsigne = tab.GetFloat();
                     //On envois l'event aux abonnés
-                    OnPolarPidDebugDataFromRobot(timeStamp, xError, yError, thetaError, xCorrection, yCorrection, thetaCorrection, xconsigne,yConsigne,thetaConsigne);
+                    OnPolarPidErrorCorrectionConsigneDataFromRobot(timeStamp, xError, yError, thetaError, xCorrection, yCorrection, thetaCorrection, xconsigne,yConsigne,thetaConsigne);
                     break;
 
                 case (short)Commands.SpeedIndependantPidDebugData:
@@ -511,15 +496,15 @@ namespace RobotMessageProcessor
             }
         }
 
-        public event EventHandler<PolarSpeedEventArgs> OnPolarOdometrySpeedFromRobotEvent;
+        public event EventHandler<PolarSpeedEventArgs> OnSpeedPolarOdometryFromRobotEvent;
         public virtual void OnPolarOdometrySpeedFromRobot(uint timeStamp, double vX, double vY, double vTheta)
         {
-            var handler = OnPolarOdometrySpeedFromRobotEvent;
+            var handler = OnSpeedPolarOdometryFromRobotEvent;
             if (handler != null)
             {
                 handler(this, new PolarSpeedEventArgs
                 {
-                    EmbeddedTimeStampInMs = timeStamp,
+                    timeStampMs = timeStamp,
                     Vx = (float)vX,
                     Vy = (float)vY,
                     Vtheta = (float)vTheta
@@ -535,11 +520,11 @@ namespace RobotMessageProcessor
             {
                 handler(this, new IndependantSpeedEventArgs
                 {
-                    EmbeddedTimeStampInMs = timeStamp,
-                    VM1 = (float)vM1,
-                    VM2 = (float)vM2,
-                    VM3 = (float)vM3,
-                    VM4 = (float)vM4
+                    timeStampMs = timeStamp,
+                    VitesseMoteur1 = (float)vM1,
+                    VitesseMoteur2 = (float)vM2,
+                    VitesseMoteur3 = (float)vM3,
+                    VitesseMoteur4 = (float)vM4
                 });
             }
         }
@@ -562,22 +547,18 @@ namespace RobotMessageProcessor
             }
         }
 
-        public event EventHandler<MotorsVitesseDataEventArgs> OnMotorVitesseDataFromRobotGeneratedEvent;
-        public virtual void OnMotorVitesseDataFromRobot(uint timeStamp, double m1, double m2, double m3,
-                                                                        double m4, double m5, double m6, double m7)
+        public event EventHandler<AuxiliarySpeedArgs> OnAuxiliaryOdometrySpeedGeneratedEvent;
+        public virtual void OnAuxiliaryOdometrySpeedFromRobot(uint timeStamp, double m5, double m6, double m7)
         {
-            var handler = OnMotorVitesseDataFromRobotGeneratedEvent;
+            var handler = OnAuxiliaryOdometrySpeedGeneratedEvent;
             if (handler != null)
             {
-                handler(this, new MotorsVitesseDataEventArgs {
-                    timeStampMS = timeStamp,
-                    vitesseMotor1 = m1,
-                    vitesseMotor2 = m2,
-                    vitesseMotor3 = m3,
-                    vitesseMotor4 = m4,
-                    vitesseMotor5 = m5,
-                    vitesseMotor6 = m6,
-                    vitesseMotor7 = m7
+                handler(this, new AuxiliarySpeedEventArgs
+                {                    
+                    timeStampMs = timeStamp,
+                    VitesseMoteur5 = m5,
+                    VitesseMoteur6 = m6,
+                    VitesseMoteur7 = m7
                 });
             }
         }
@@ -634,20 +615,15 @@ namespace RobotMessageProcessor
             }
         }
 
-        public event EventHandler<MotorsVitesseDataEventArgs> OnSpeedConsigneDataFromRobotGeneratedEvent;
-        public virtual void OnSpeedConsigneDataFromRobot(uint timeStamp, double m1, double m2, double m3,
-                                                                        double m4, double m5, double m6, double m7)
+        public event EventHandler<AuxiliaryMotorsVitesseDataEventArgs> OnAuxiliarySpeedConsigneDataFromRobotGeneratedEvent;
+        public virtual void OnAuxiliarySpeedConsigneDataFromRobot(uint timeStamp, double m5, double m6, double m7)
         {
-            var handler = OnSpeedConsigneDataFromRobotGeneratedEvent;
+            var handler = OnAuxiliarySpeedConsigneDataFromRobotGeneratedEvent;
             if (handler != null)
             {
-                handler(this, new MotorsVitesseDataEventArgs
+                handler(this, new AuxiliaryMotorsVitesseDataEventArgs
                 {
                     timeStampMS = timeStamp,
-                    vitesseMotor1 = m1,
-                    vitesseMotor2 = m2,
-                    vitesseMotor3 = m3,
-                    vitesseMotor4 = m4,
                     vitesseMotor5 = m5,
                     vitesseMotor6 = m6,
                     vitesseMotor7 = m7
@@ -655,11 +631,11 @@ namespace RobotMessageProcessor
             }
         }
 
-        public event EventHandler<PolarPidDebugDataArgs> OnSpeedPolarPidDebugDataFromRobotGeneratedEvent;
-        public virtual void OnPolarPidDebugDataFromRobot(uint timeStamp, double xError, double yError, double thetaError,
+        public event EventHandler<PolarPidErrorCorrectionConsigneDataArgs> OnSpeedPolarPidErrorCorrectionConsigneDataFromRobotGeneratedEvent;
+        public virtual void OnPolarPidErrorCorrectionConsigneDataFromRobot(uint timeStamp, double xError, double yError, double thetaError,
                                                                         double xCorrection, double yCorrection, double thetaCorrection, double xConsigneRobot, double yConsigneRobot, double thetaConsigneRobot)
         {
-            OnSpeedPolarPidDebugDataFromRobotGeneratedEvent?.Invoke(this, new PolarPidDebugDataArgs
+            OnSpeedPolarPidErrorCorrectionConsigneDataFromRobotGeneratedEvent?.Invoke(this, new PolarPidErrorCorrectionConsigneDataArgs
             {
                 timeStampMS = timeStamp,
                 xErreur = xError,
@@ -674,12 +650,12 @@ namespace RobotMessageProcessor
             });
         }
 
-        public event EventHandler<IndependantPidDebugDataArgs> OnSpeedIndependantPidDebugDataFromRobotGeneratedEvent;
+        public event EventHandler<IndependantPidErrorCorrectionConsigneDataArgs> OnSpeedIndependantPidErrorCorrectionConsigneDataFromRobotGeneratedEvent;
         public virtual void OnSpeedIndependantPidDebugDataFromRobot(uint timeStamp, double M1Error, double M2Error, double M3Error, double M4Error,
                                                                         double M1Correction, double M2Correction, double M3Correction, double M4Correction,
                                                                         double M1ConsigneRobot, double M2ConsigneRobot, double M3ConsigneRobot, double M4ConsigneRobot)
         {
-            OnSpeedIndependantPidDebugDataFromRobotGeneratedEvent?.Invoke(this, new IndependantPidDebugDataArgs
+            OnSpeedIndependantPidErrorCorrectionConsigneDataFromRobotGeneratedEvent?.Invoke(this, new IndependantPidErrorCorrectionConsigneDataArgs
             {
                 timeStampMS = timeStamp,
                 M1Erreur = M1Error,

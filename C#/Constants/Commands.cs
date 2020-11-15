@@ -72,11 +72,13 @@ namespace Constants
         Theta = 416,
         XYTheta = 417,
         IMUData = 418,                  //0x01A2
+
         PolarOdometrySpeed = 0x01A3,
         IndependantOdometrySpeed = 0x013A,
-        MotorsVitesses = 420,              //Ox01A4
+        AuxiliaryOdometrySpeed = 0x01A4,
+
         MotorsPositions = 421,          //0x01A5
-        MotorsSpeedConsignes = 422,     //0x01A6
+        AuxiliarySpeedConsignes = 0x01A6,
         EncoderRawData = 423,           //0x01A7
         IOValues = 424,                 //0x01A8
         PowerMonitoringValues = 425,    //0x01A9
@@ -86,7 +88,7 @@ namespace Constants
         EnableAsservissementDebugData = 0x01BB,         
         SpeedPidEnableCorrectionData = 0x1C0,
 
-        SpeedPolarPidDebugData = 0x1AC,           //Trame de données de debug asserv vitesse : Erreur / Correction / Consigne
+        SpeedPolarPidErrorCorrectionConsigneData = 0x1AC,           //Trame de données de debug asserv vitesse : Erreur / Correction / Consigne
         SpeedIndependantPidDebugData = 0x1CA,           //Trame de données de debug asserv vitesse : Erreur / Correction / Consigne
         SpeedPolarPidCorrectionData = 0x01C1,  //PIDAdvancedData CorrPID sur X Y et Theta - fe = 10Hz
         SpeedIndependantPidCorrectionData = 0x01C2,
