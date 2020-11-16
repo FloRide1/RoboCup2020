@@ -320,6 +320,7 @@ namespace Robot
             strategyManager.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
             strategyManager.OnMirrorModeForwardEvent += perceptionManager.OnMirrorModeReceived;
             strategyManager.OnEnableMotorsEvent += robotMsgGenerator.GenerateMessageEnableDisableMotors;
+            trajectoryPlanner.OnPidSpeedResetEvent += robotMsgGenerator.GenerateMessageResetSpeedPid;
             waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapWaypointReceived;
 
             //Transfert de la local map vers la global world map via UPD en mode Multicast : 

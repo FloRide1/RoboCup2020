@@ -21,6 +21,22 @@ namespace EventArgsLibrary
     {
         public string Value { get; set; }
     }
+    public class BoolEventArgs : EventArgs
+    {
+        public bool value { get; set; }
+    }
+    public class ByteEventArgs : EventArgs
+    {
+        public byte Value { get; set; }
+    }
+    public class IntEventArgs : EventArgs
+    {
+        public int Value { get; set; }
+    }
+    public class RobotIdEventArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+    }
 
     public class LidarMessageArgs : EventArgs
     {
@@ -299,14 +315,6 @@ namespace EventArgsLibrary
         public double accelX;
         public double accelY;
         public double accelZ;
-    }
-    public class BoolEventArgs : EventArgs
-    {
-        public bool value { get; set; }
-    }
-    public class ByteEventArgs : EventArgs
-    {
-        public byte Value { get; set; }
     }
     public class CollisionEventArgs : EventArgs
     {

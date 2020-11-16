@@ -101,6 +101,7 @@ namespace Constants
         GetParameter = 432,
         SetParameter = 433,
         SetMotorSpeedConsigne = 0x01AE,    //0x01AE
+        SpeedPidReset = 0x01B0,
         EnablePowerMonitoring = 431,    //0x01B1
         EnableIOPolling= 432,           //0x01B2
         EnableDisableMotors = 435,      //0x01B3

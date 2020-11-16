@@ -40,6 +40,7 @@
         public void ResetPID(double error)
         {
             IntegraleErreur = 0;
+
             errorT_1 = error;
         }
 

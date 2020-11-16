@@ -51,9 +51,9 @@ namespace TrajectoryGenerator
 
         private void PidConfigUpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            PID_X.Init(1.0, 0.0, 0, 5, 5, 5);
-            PID_Y.Init(1.0, 0.0, 0, 5, 5, 5);
-            PID_Theta.Init(1.0, 0.0, 0, 5, 5, 5);
+            PID_X.Init(kp:5.0, ki:20.0, kd:0, 0.5, 0.5, 0);
+            PID_Y.Init(kp:5.0, ki:20.0, kd:0, 0.5, 0.5, 0);
+            PID_Theta.Init(kp:5.0, ki:20.0, kd:0, 0.5, 0.5, 0);
         }
 
         public TrajectoryPlanner(int id)
@@ -130,7 +130,7 @@ namespace TrajectoryGenerator
 
                 //On regarde si la position du robot est proche de la position du ghost
                 double seuilToleranceEcartGhost = 0.20;
-                if (Math.Sqrt(Math.Pow(erreurXRefTerrain, 2) + Math.Pow(erreurYRefTerrain, 2)) < seuilToleranceEcartGhost)
+                if (Math.Sqrt(Math.Pow(erreurXRefTerrain, 2) + Math.Pow(erreurYRefTerrain, 2)+ Math.Pow(erreurTheta/2,2)) < seuilToleranceEcartGhost)
                 {
                     //Si c'est le cas, le robot n'a pas rencontré de problème, on envoie les vitesses consigne.
                     OnSpeedConsigneToRobot(robotId, (float)vxRefRobot, (float)vyRefRobot, (float)vtheta);
@@ -140,8 +140,10 @@ namespace TrajectoryGenerator
                     //Sinon, le robot a rencontré un obstacle ou eu un problème, on arrête le robot et on réinitialise les correcteurs et la ghostLocation
                     OnCollision(robotId, currentLocation);
                     OnSpeedConsigneToRobot(robotId, 0, 0, 0);
+
                     ghostLocation = currentLocation;
                     PIDPositionReset();
+                    OnPidSpeedReset(robotId);
                 }
 
                 PolarPidCorrectionArgs correction = new PolarPidCorrectionArgs();
@@ -338,6 +340,17 @@ namespace TrajectoryGenerator
             if (handler != null)
             {
                 handler(this, new CollisionEventArgs { RobotId = id, RobotRealPosition = robotLocation });
+            }
+        }
+
+
+        public event EventHandler<RobotIdEventArgs> OnPidSpeedResetEvent;
+        public virtual void OnPidSpeedReset(int id)
+        {
+            var handler = OnPidSpeedResetEvent;
+            if (handler != null)
+            {
+                handler(this, new RobotIdEventArgs {RobotId = id});
             }
         }
 

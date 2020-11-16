@@ -75,6 +75,10 @@ namespace RobotMessageGenerator
             payload[0] = Convert.ToByte(e.value);
             OnMessageToRobot((Int16)Commands.EnableDisableMotors, 1, payload);
         }
+        public void GenerateMessageResetSpeedPid(object sender, RobotIdEventArgs e)
+        {
+            OnMessageToRobot((Int16)Commands.SpeedPidReset, 0, null);
+        }
 
         public void GenerateMessageForwardHerkulex(object sender, DataReceivedArgs e)
         {
