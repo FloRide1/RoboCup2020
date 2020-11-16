@@ -5,7 +5,7 @@ using System.Text;
 using System.Timers;
 using Utilities;
 
-namespace RobotMessageProcessor
+namespace MessageProcessorNS
 {
     public enum Competition
     {

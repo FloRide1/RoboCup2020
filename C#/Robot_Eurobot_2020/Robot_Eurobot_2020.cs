@@ -3,25 +3,23 @@ using Constants;
 using MessageDecoder;
 using MessageEncoder;
 using RobotInterface;
-using RobotMessageGenerator;
 using SciChart.Charting.Visuals;
 using System;
-using System.IO.Ports;
 using System.Threading;
 using TrajectoryGenerator;
 using WayPointGenerator;
 using WorldMapManager;
-using RobotMessageProcessor;
 using PerceptionManagement;
 using EventArgsLibrary;
 using WpfReplayNavigator;
 using System.Runtime.InteropServices;
 using StrategyManager;
+using MessageGeneratorNS;
+using LidaRxR2000NS;
+using MessageProcessorNS;
 using HerkulexManagerNS;
-using ReliableSerialPortNS;
 using Staudt.Engineering.LidaRx;
 using Staudt.Engineering.LidaRx.Drivers.R2000;
-using LidaRxR2000NS;
 
 namespace Robot
 {
@@ -416,6 +414,7 @@ namespace Robot
 
                 //Gestion des events liés à une détection de collision soft
                 trajectoryPlanner.OnCollisionEvent -= kalmanPositioning.OnCollisionReceived;
+                strategyManager.OnCollisionEvent -= kalmanPositioning.OnCollisionReceived;
             }
             else
             {
@@ -510,9 +509,6 @@ namespace Robot
 
                 robotMsgProcessor.OnEnableDisableMotorsACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableDisableMotorsButton;
                 robotMsgProcessor.OnEnableDisableTirACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableDisableTirButton;
-
-                //robotMsgProcessor.OnMotorVitesseDataFromRobotGeneratedEvent += interfaceRobot.UpdateMotorsSpeedsOnGraph;
-                //robotMsgProcessor.OnAuxiliarySpeedConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateAuxiliarySpeedConsigneOnGraph;
 
                 robotMsgProcessor.OnEnableAsservissementACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableAsservissementButton;
                 robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += interfaceRobot.UpdateSpeedPolarOdometryOnInterface;

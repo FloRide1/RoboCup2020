@@ -4,14 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{12C1DB8F-4309-43E2-B576-FEB50B59EC25}</ProjectGuid>
+    <ProjectGuid>{4879C226-9CFC-4D45-87A1-E2F128E33882}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RobotMessageProcessor</RootNamespace>
-    <AssemblyName>RobotMessageProcessor</AssemblyName>
+    <RootNamespace>LidaRxR2000NS</RootNamespace>
+    <AssemblyName>LidaRxR2000</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -51,6 +52,9 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -59,7 +63,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MessageProcessor.cs" />
+    <Compile Include="LidaRxR2000.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -71,10 +75,63 @@
       <Project>{9C46A7C0-4675-41BE-B282-E6F0825AD73E}</Project>
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\HighFreqTimer\AdvancedTimers.csproj">
+      <Project>{ECC907ED-F9B2-457F-901E-720987934E47}</Project>
+      <Name>AdvancedTimers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LidaRxDriver\LidaRxDriver.csproj">
+      <Project>{17007EEC-FE2B-4FF7-BDBE-0A300CBD2B7F}</Project>
+      <Name>LidaRxDriver</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LidaRx\LidaRx.csproj">
+      <Project>{D8E0BFBA-4ED8-41C2-8068-F490A5319F43}</Project>
+      <Name>LidaRx</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8E7D0DA4-9A13-4B18-A90E-0243BBCCE40A}</Project>
       <Name>Utilities</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Reactive.Testing">
+      <Version>3.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>12.0.3</Version>
+    </PackageReference>
+    <PackageReference Include="System.Reactive">
+      <Version>3.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="System.Reactive.Core">
+      <Version>3.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="System.Reactive.Interfaces">
+      <Version>3.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="System.Reactive.Linq">
+      <Version>3.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="System.Reactive.PlatformServices">
+      <Version>3.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="System.Reactive.Windows.Threading">
+      <Version>3.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe">
+      <Version>4.7.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Threading.Tasks.Extensions">
+      <Version>4.5.4</Version>
+    </PackageReference>
+    <PackageReference Include="System.ValueTuple">
+      <Version>4.5.0</Version>
+    </PackageReference>
+    <PackageReference Include="WindowsBase">
+      <Version>4.6.1055</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

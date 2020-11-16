@@ -154,10 +154,6 @@
       <Project>{A8C04138-90DC-42F9-AB39-E71125B805B9}</Project>
       <Name>RefereeBoxAdapter</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\RobotMessageGenerator\MessageGenerator.csproj">
-      <Project>{7f098ee2-a8cd-48cf-b9f4-256ea3df2bc6}</Project>
-      <Name>MessageGenerator</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\RobotPilot\RobotPilot.csproj">
       <Project>{4012f5af-50e3-40bd-abf0-4afe3f30d5e3}</Project>
       <Name>RobotPilot</Name>

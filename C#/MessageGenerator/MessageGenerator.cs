@@ -5,7 +5,7 @@ using Constants;
 using System.Linq;
 using HerkulexManagerNS;
 
-namespace RobotMessageGenerator
+namespace MessageGeneratorNS
 {
     public class MsgGenerator
     {

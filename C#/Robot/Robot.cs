@@ -3,12 +3,9 @@ using CameraAdapter;
 using Constants;
 using ExtendedSerialPort;
 using ImageProcessingOmniCamera;
-using LidarOMD60M;
 using MessageDecoder;
 using MessageEncoder;
-using PhysicalSimulator;
 using RobotInterface;
-using RobotMessageGenerator;
 using RobotMonitor;
 using SciChart.Charting.Visuals;
 using System;
@@ -17,23 +14,16 @@ using System.Threading;
 using TrajectoryGenerator;
 using WayPointGenerator;
 using WorldMapManager;
-using RobotMessageProcessor;
 using PerceptionManagement;
 using EventArgsLibrary;
-using LogRecorder;
-using LogReplay;
-using LidarProcessor;
-using ImageSaver;
 using WpfReplayNavigator;
 using System.Runtime.InteropServices;
-using YoloObjectDetector;
-using Staudt.Engineering.LidaRx.Drivers.R2000;
-using System.Net;
-using Staudt.Engineering.LidaRx;
-using System.Linq;
-using ImuProcessor;
-using KalmanPositioning;
 using AbsolutePositionEstimatorNS;
+using Staudt.Engineering.LidaRx;
+using MessageProcessorNS;
+using MessageGeneratorNS;
+using LidaRxR2000NS;
+using HerkulexManagerNS;
 
 namespace Robot
 {
@@ -129,8 +119,8 @@ namespace Robot
         static ReliableSerialPort serialPort1;
         static MsgDecoder msgDecoder;
         static MsgEncoder msgEncoder;
-        static RobotMsgGenerator robotMsgGenerator;
-        static RobotMsgProcessor robotMsgProcessor;
+        static MsgGenerator robotMsgGenerator;
+        static MsgProcessor robotMsgProcessor;
         static RobotPilot.RobotPilot robotPilot;
         static BaslerCameraAdapter omniCamera;
         //static SimulatedCamera.SimulatedCamera omniCameraSimulator;
@@ -141,13 +131,15 @@ namespace Robot
         static TrajectoryPlanner trajectoryPlanner;
         static KalmanPositioning.KalmanPositioning kalmanPositioning;
 
+        static HerkulexManager herkulexManager;
+
         static LocalWorldMapManager localWorldMapManager;
         //static LidarSimulator.LidarSimulator lidarSimulator;
         static ImuProcessor.ImuProcessor imuProcessor;
         static StrategyManager.StrategyManager strategyManager;
         static PerceptionManager perceptionManager;
         //static Lidar_OMD60M_UDP lidar_OMD60M_UDP;
-        static Lidar_OMD60M_TCP lidar_OMD60M_TCP;
+        static LidaRxR2000 lidar_OMD60M_TCP;
         static LidarProcessor.LidarProcessor lidarProcessor;
         static XBoxController.XBoxController xBoxManette;
         static YoloObjectDetector.YoloObjectDetector yoloDetector;
@@ -213,8 +205,8 @@ namespace Robot
             serialPort1 = new ReliableSerialPort("COM1", 115200, Parity.None, 8, StopBits.One);
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
-            robotMsgGenerator = new RobotMsgGenerator();
-            robotMsgProcessor = new RobotMsgProcessor();
+            robotMsgGenerator = new MsgGenerator();
+            robotMsgProcessor = new MsgProcessor(Competition.RoboCup);
 
             //physicalSimulator = new PhysicalSimulator.PhysicalSimulator();
 
@@ -240,7 +232,7 @@ namespace Robot
 
             if (usingLidar)
             {
-                lidar_OMD60M_TCP = new Lidar_OMD60M_TCP();
+                lidar_OMD60M_TCP = new LidaRxR2000();
             }
 
             if (usingLidar || usingLogReplay)
@@ -293,11 +285,12 @@ namespace Robot
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
 
 
-            //Filtre de Kalman
-            robotMsgProcessor.OnSpeedDataFromRobotGeneratedEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
+            //Filtre de Kalman perceptionManager.OnAbsolutePositionEvent += kalmanPositioning.OnAbsolutePositionCalculatedEvent;
+            robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
             imuProcessor.OnGyroSpeedEvent += kalmanPositioning.OnGyroRobotSpeedReceived;
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             kalmanPositioning.OnKalmanLocationEvent += perceptionManager.OnPhysicalRobotPositionReceived;
+            //kalmanPositioning.OnKalmanLocationEvent += strategyManager.OnPositionRobotReceived;
 
             //L'envoi des commandes dépend du fait qu'on soit en mode manette ou pas. 
             //Il faut donc enregistrer les évènement ou pas en fonction de l'activation
@@ -321,14 +314,19 @@ namespace Robot
             perceptionManager.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
-            strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapReceived;
+            strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapStrategyReceived;
             
+            //if (usingLidar)
+            //{
+            //    lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += lidarProcessor.OnRawLidarDataReceived;
+            //    //lidar_OMD60M.OnLidarDecodedFrameEvent += absolutePositionEstimator.OnRawLidarDataReceived;
+            //    lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
+            //    lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
+            //}
             if (usingLidar)
             {
-                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += lidarProcessor.OnRawLidarDataReceived;
-                //lidar_OMD60M.OnLidarDecodedFrameEvent += absolutePositionEstimator.OnRawLidarDataReceived;
+                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += perceptionManager.OnRawLidarDataReceived;
                 lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
-                lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
             }
 
             //Events de recording
@@ -338,18 +336,16 @@ namespace Robot
                 lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += logRecorder.OnRawLidarDataReceived;
                 omniCamera.BitmapFishEyeImageEvent += logRecorder.OnBitmapImageReceived;
                 imuProcessor.OnIMUProcessedDataGeneratedEvent += logRecorder.OnIMURawDataReceived;
-                robotMsgProcessor.OnSpeedDataFromRobotGeneratedEvent += logRecorder.OnSpeedDataReceived;
+                robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += logRecorder.OnSpeedDataReceived;
                 //omniCamera.OpenCvMatImageEvent += logRecorder.OnOpenCVMatImageReceived;
             }
 
-            //Events de replay
             if (usingLogReplay)
             {
-                logReplay.OnLidarEvent += lidarProcessor.OnRawLidarDataReceived;
+                logReplay.OnLidarEvent += perceptionManager.OnRawLidarDataReceived;
                 //logReplay.OnCameraImageEvent += imageProcessingPositionFromOmniCamera.ProcessOpenCvMatImage;
                 //logReplay.OnCameraImageEvent += absolutePositionEstimator.AbsolutePositionEvaluation;
-                lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
-                lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
+                //lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
             }
 
             //Timer de stratégie
@@ -395,31 +391,38 @@ namespace Robot
             if (usingXBoxController)
             {
                 //xBoxManette.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
+                trajectoryPlanner.OnSpeedConsigneEvent -= robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
                 xBoxManette.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
+                //if (interfaceRobot != null)
+                //{
+                //    xBoxManette.OnSpeedConsigneEvent += interfaceRobot.UpdateSpeedConsigneOnGraph;
+                //}
                 xBoxManette.OnPriseBalleEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
                 xBoxManette.OnMoveTirUpEvent += robotMsgGenerator.GenerateMessageMoveTirUp;
                 xBoxManette.OnMoveTirDownEvent += robotMsgGenerator.GenerateMessageMoveTirDown;
                 xBoxManette.OnTirEvent += robotMsgGenerator.GenerateMessageTir;
                 xBoxManette.OnStopEvent += robotMsgGenerator.GenerateMessageSTOP;
 
-                trajectoryPlanner.OnSpeedConsigneEvent -= robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
                 //Gestion des events liés à une détection de collision soft
                 trajectoryPlanner.OnCollisionEvent -= kalmanPositioning.OnCollisionReceived;
+                //strategyManager.OnCollisionEvent -= kalmanPositioning.OnCollisionReceived;
             }
             else
             {
                 //On se desabonne aux evenements suivants:
                 //xBoxManette.OnSpeedConsigneEvent -= physicalSimulator.SetRobotSpeed;
+                trajectoryPlanner.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
                 xBoxManette.OnSpeedConsigneEvent -= robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
+
                 xBoxManette.OnPriseBalleEvent -= robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
                 xBoxManette.OnMoveTirUpEvent -= robotMsgGenerator.GenerateMessageMoveTirUp;
                 xBoxManette.OnMoveTirDownEvent -= robotMsgGenerator.GenerateMessageMoveTirDown;
                 xBoxManette.OnTirEvent -= robotMsgGenerator.GenerateMessageTir;
                 xBoxManette.OnStopEvent -= robotMsgGenerator.GenerateMessageSTOP;
 
-                trajectoryPlanner.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
                 //Gestion des events liés à une détection de collision soft
                 trajectoryPlanner.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
+                //strategyManager.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
             }
         }
 
@@ -461,35 +464,49 @@ namespace Robot
                 robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += interfaceRobot.UpdateMotorsCurrentsOnGraph;
                 robotMsgProcessor.OnEncoderRawDataFromRobotGeneratedEvent += interfaceRobot.UpdateMotorsEncRawDataOnGraph;
 
-
                 robotMsgProcessor.OnEnableDisableMotorsACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableDisableMotorsButton;
                 robotMsgProcessor.OnEnableDisableTirACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableDisableTirButton;
-                robotMsgProcessor.OnMotorVitesseDataFromRobotGeneratedEvent += interfaceRobot.UpdateMotorsSpeedsOnGraph;
-                robotMsgProcessor.OnSpeedConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateMotorSpeedConsigneOnGraph;
+
                 robotMsgProcessor.OnEnableAsservissementACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableAsservissementButton;
-                robotMsgProcessor.OnSpeedDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedDataOnGraph;
-                robotMsgProcessor.OnPIDDebugDataFromRobotGeneratedEvent += interfaceRobot.UpdatePIDDebugDataOnGraph;
+                robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += interfaceRobot.UpdateSpeedPolarOdometryOnInterface;
+                robotMsgProcessor.OnIndependantOdometrySpeedFromRobotEvent += interfaceRobot.UpdateSpeedIndependantOdometryOnInterface;
+                robotMsgProcessor.OnSpeedPolarPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedPolarPidErrorCorrectionConsigneDataOnGraph;
+                robotMsgProcessor.OnSpeedIndependantPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedIndependantPidErrorCorrectionConsigneDataOnGraph;
+                robotMsgProcessor.OnSpeedPolarPidCorrectionDataFromRobotEvent += interfaceRobot.UpdateSpeedPolarPidCorrectionData;
+                robotMsgProcessor.OnSpeedIndependantPidCorrectionDataFromRobotEvent += interfaceRobot.UpdateSpeedIndependantPidCorrectionData;
+
                 robotMsgProcessor.OnErrorTextFromRobotGeneratedEvent += interfaceRobot.AppendConsole;
+                robotMsgProcessor.OnPowerMonitoringValuesFromRobotGeneratedEvent += interfaceRobot.UpdatePowerMonitoringValues;
+                robotMsgProcessor.OnEnableMotorCurrentACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableMotorCurrentCheckBox;
+                robotMsgProcessor.OnEnableEncoderRawDataACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableEncoderRawDataCheckBox;
+                robotMsgProcessor.OnEnableAsservissementDebugDataACKFromRobotEvent += interfaceRobot.ActualizeEnableAsservissementDebugDataCheckBox;
+                robotMsgProcessor.OnEnableMotorSpeedConsigneDataACKFromRobotGeneratedEvent += interfaceRobot.ActualizEnableMotorSpeedConsigneCheckBox;
+                robotMsgProcessor.OnEnablePowerMonitoringDataACKFromRobotGeneratedEvent += interfaceRobot.ActualizEnablePowerMonitoringCheckBox;
 
                 robotMsgProcessor.OnMessageCounterEvent += interfaceRobot.MessageCounterReceived;
             }
-            xBoxManette.OnSpeedConsigneEvent += interfaceRobot.UpdateSpeedConsigneOnGraph;
+            robotMsgGenerator.OnSetSpeedConsigneToRobotReceivedEvent += interfaceRobot.UpdatePolarSpeedConsigneOnGraph; //Valable quelque soit la source des consignes vitesse
             interfaceRobot.OnEnableDisableMotorsFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableMotors;
+            interfaceRobot.OnEnableDisableServosFromInterfaceGeneratedEvent += herkulexManager.OnEnableDisableServosRequestEvent;
             interfaceRobot.OnEnableDisableTirFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableTir;
             interfaceRobot.OnEnableDisableControlManetteFromInterfaceGeneratedEvent += ChangeUseOfXBoxController;
-            interfaceRobot.OnEnableAsservissementFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableAsservissement;
+            interfaceRobot.OnSetAsservissementModeFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageSetAsservissementMode;
             interfaceRobot.OnEnableEncodersRawDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableEncoderRawData;
             interfaceRobot.OnEnableMotorCurrentDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableMotorCurrentData;
             interfaceRobot.OnEnableMotorsSpeedConsigneDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableMotorSpeedConsigne;
-            interfaceRobot.OnSetRobotPIDFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageSetPIDValueToRobot;
-            interfaceRobot.OnEnablePIDDebugDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnablePIDDebugData;
+            interfaceRobot.OnSetRobotPIDFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageSetupSpeedPolarPIDToRobot;
+            interfaceRobot.OnEnableAsservissementDebugDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableAsservissementDebugData;
+            interfaceRobot.OnEnableSpeedPidCorrectionDataFromInterfaceEvent += robotMsgGenerator.GenerateMessageEnableSpeedPidCorrectionData;
             interfaceRobot.OnCalibrateGyroFromInterfaceGeneratedEvent += imuProcessor.OnCalibrateGyroFromInterfaceGeneratedEvent;
+            interfaceRobot.OnEnablePowerMonitoringDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnablePowerMonitoring;
 
-            localWorldMapManager.OnLocalWorldMapEventForDisplayOnly += interfaceRobot.OnLocalWorldMapEvent;
+            localWorldMapManager.OnLocalWorldMapEventForDisplayOnly += interfaceRobot.OnLocalWorldMapStrategyEvent;
+            localWorldMapManager.OnLocalWorldMapEventForDisplayOnly += interfaceRobot.OnLocalWorldMapWayPointEvent;
+
             if (usingLogReplay)
             {
                 logReplay.OnIMUEvent += interfaceRobot.UpdateImuDataOnGraph;
-                logReplay.OnSpeedDataEvent += interfaceRobot.UpdateSpeedDataOnGraph;
+                logReplay.OnSpeedDataEvent += interfaceRobot.UpdateSpeedPolarOdometryOnInterface;
             }
         }
 
