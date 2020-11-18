@@ -16,16 +16,11 @@ using static HerkulexManagerNS.HerkulexEventArgs;
 
 namespace StrategyManager.StrategyEurobotNS
 {
-    public class StrategyEurobot : StrategyInterface
+    public class StrategyEurobot : StrategyGenerique, StrategyInterface
     {
-        public int robotId = 0;
-        int teamId = 0;
-
         public PointD robotDestination = new PointD(0, 0);
         public double robotOrientation = 0;
         public Location robotCurentLocation = new Location(0, 0, 0, 0, 0, 0);
-        Stopwatch sw = new Stopwatch();
-        Heatmap heatMap;
         System.Timers.Timer configTimer;
 
 
@@ -49,14 +44,14 @@ namespace StrategyManager.StrategyEurobotNS
                 return taskStrategy.playingTeam;
             }
         }
-        
-        
-        public StrategyEurobot(int robotId, int teamId)
-        {
-            this.teamId = teamId;
-            this.robotId = robotId;
-            heatMap = new Heatmap(3, 2, (int)Math.Pow(2, 5), 1); //Init HeatMap
 
+        public override void InitHeatMap()
+        {
+            positioningHeatMap = new Heatmap(3, 2, (int)Math.Pow(2, 5)); //Init HeatMap
+        }
+
+        public StrategyEurobot(int robotId, int teamId) : base(robotId, teamId)
+        {
             //Initialisation des taches de la stratégie
 
             //Taches de bas niveau
@@ -123,42 +118,17 @@ namespace StrategyManager.StrategyEurobotNS
 
         public void EvaluateStrategy()
         {
-            CalculateDestination();
+            //CalculateDestination();
         }
 
-        public void CalculateDestination()
+        public override void DetermineRobotRole()
+        {            
+        }
+        public override void IterateStateMachines()
         {
-            //TestGPU.ActionWithClosure();
-            sw.Reset();
-            sw.Start(); // début de la mesure
-
-            //Génération de la HeatMap
-            heatMap.ReInitHeatMapData();
-
-            double optimizedAreaSize;
-            PointD OptimalPosition = new PointD(0, 0);
-            PointD OptimalPosInBaseHeatMapCoordinates = heatMap.GetBaseHeatMapPosFromFieldCoordinates(0, 0);
-
-            //Réglage des inputs de la heatmap
-            //On set la destination souhaitée
-            heatMap.SetPreferedDestination((float)robotDestination.X, (float)robotDestination.Y);
-            //Génération de la heatmap
-            heatMap.GenerateHeatMap(heatMap.BaseHeatMapData, heatMap.nbCellInBaseHeatMapWidth, heatMap.nbCellInBaseHeatMapHeight, (float)heatMap.FieldLength, (float)heatMap.FieldHeight);
-            OptimalPosition = heatMap.GetOptimalPosition();
-
-            //Si la position optimale est très de la cible théorique, on prend la cible théorique
-            double seuilPositionnementFinal = 0.1;
-            if (Toolbox.Distance(new PointD(robotDestination.X, robotDestination.Y), new PointD(OptimalPosition.X, OptimalPosition.Y)) < seuilPositionnementFinal)
-            {
-                OptimalPosition = robotDestination;
-            }
-
-            OnHeatMap(robotId, heatMap);
-            OnDestination(robotId, new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, (float)robotOrientation, 0, 0, 0));
-
-            sw.Stop();
         }
-        
+
+
         public bool isDeplacementFinished
         {
             get
@@ -345,11 +315,6 @@ namespace StrategyManager.StrategyEurobotNS
             OnCollisionEvent?.Invoke(this, new CollisionEventArgs { RobotId = id, RobotRealPosition = robotLocation });
         }
 
-        public event EventHandler<HeatMapArgs> OnHeatMapEvent;
-        public virtual void OnHeatMap(int id, Heatmap heatMap)
-        {
-            OnHeatMapEvent?.Invoke(this, new HeatMapArgs { RobotId = id, HeatMap = heatMap });
-        }
 
         public event EventHandler<GameStateArgs> OnGameStateChangedEvent;
         public virtual void OnGameStateChanged(int robotId, GameState state)

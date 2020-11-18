@@ -29,6 +29,21 @@ namespace Utilities
         }
     }
 
+    public class RectangleD
+    {
+        public double Xmin;
+        public double Xmax;// { get; set; }
+        public double Ymin;
+        public double Ymax;// { get; set; }
+        public RectangleD(double xMin, double xMax, double yMin, double yMax)
+        {
+            Xmin = xMin;
+            Xmax = xMax;
+            Ymin = yMin;
+            Ymax = yMax;
+        }
+    }
+
     public class PolarPoint
     {
         public double Distance;
@@ -120,6 +135,28 @@ namespace Utilities
         public ObjectType type;
         //public System.Drawing.Color displayColor;
         //public double displayWidth=1;
+    }
+
+    public class Zone
+    {
+        public PointD center;
+        public double radius; //Le rayon correspond à la taille la zone - à noter que l'intensité diminuera avec le rayon
+        public double strength; //La force correspond à l'intensité du point central de la zone
+        public Zone(PointD center, double radius, double strength)
+        {
+            this.radius = radius;
+            this.center = center;
+        }
+    }
+    public class RectangleZone
+    {
+        public RectangleD rectangularZone;
+        public double strength; //La force correspond à l'intensité du point central de la zone
+        public RectangleZone(RectangleD rect, double strength = 0)
+        {
+            this.rectangularZone = rect;
+            this.strength = strength;
+        }
     }
 
     public enum ObjectType

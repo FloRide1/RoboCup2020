@@ -81,7 +81,7 @@ namespace StrategyManagerEurobotNS
             this.teamId = teamId;
             this.robotId = robotId;
             //heatMap = new Heatmap(22.0, 14.0, 22.0/Math.Pow(2,8), 2); //Init HeatMap
-            heatMap = new Heatmap(3, 2, (int)Math.Pow(2, 5), 1); //Init HeatMap
+            heatMap = new Heatmap(3, 2, (int)Math.Pow(2, 5)); //Init HeatMap
 
             //OnSetRobotVitessePID(50, 100, 0, 50, 100, 0, 50, 100, 0,
             //2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 5.0, 5.0, 5.0);
@@ -496,14 +496,14 @@ namespace StrategyManagerEurobotNS
             sw.Start(); // début de la mesure
                         
             //Génération de la HeatMap
-            heatMap.ReInitHeatMapData();
+            heatMap.InitHeatMapData();
             
             //On construit le heatMap en mode multi-résolution :
             //On commence par une heatmap très peu précise, puis on construit une heat map de taille réduite plus précise autour du point chaud,
             //Puis on construit une heatmap très précise au cm autour du point chaud.
             double optimizedAreaSize;
             PointD OptimalPosition = new PointD(0, 0);
-            PointD OptimalPosInBaseHeatMapCoordinates = heatMap.GetBaseHeatMapPosFromFieldCoordinates(0, 0);
+            PointD OptimalPosInBaseHeatMapCoordinates = heatMap.GetBaseHeatMapPosFromFieldCoordinates(new PointD(0, 0));
             
             ParallelCalculateHeatMap(heatMap.BaseHeatMapData, heatMap.nbCellInBaseHeatMapWidth, heatMap.nbCellInBaseHeatMapHeight, (float)heatMap.FieldLength, (float)heatMap.FieldHeight, (float)robotDestination.X, (float)robotDestination.Y);
             //gpuDll.GpuGenerateHeatMap("GPU_DLL_CUDA.dll", heatMap.BaseHeatMapData, heatMap.nbCellInBaseHeatMapWidth, heatMap.nbCellInBaseHeatMapHeight, (float)heatMap.FieldLength, (float)heatMap.FieldHeight, (float)robotDestination.X, (float)robotDestination.Y);

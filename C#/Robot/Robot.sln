@@ -117,6 +117,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StrategyManager_Eurobot", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfTeamInterface", "..\WpfTeamInterface\WpfTeamInterface.csproj", "{6BB34EA2-B1A7-4B68-A467-DEE096BB1A1C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfAsservissementDisplay", "..\WpfAsservissementDisplay\WpfAsservissementDisplay.csproj", "{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -811,6 +813,18 @@ Global
 		{6BB34EA2-B1A7-4B68-A467-DEE096BB1A1C}.Release|x64.Build.0 = Release|Any CPU
 		{6BB34EA2-B1A7-4B68-A467-DEE096BB1A1C}.Release|x86.ActiveCfg = Release|Any CPU
 		{6BB34EA2-B1A7-4B68-A467-DEE096BB1A1C}.Release|x86.Build.0 = Release|Any CPU
+		{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}.Debug|x64.Build.0 = Debug|Any CPU
+		{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}.Debug|x86.Build.0 = Debug|Any CPU
+		{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}.Release|x64.ActiveCfg = Release|Any CPU
+		{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}.Release|x64.Build.0 = Release|Any CPU
+		{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}.Release|x86.ActiveCfg = Release|Any CPU
+		{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -76,6 +76,7 @@
     <Compile Include="StrategyEurobot\TaskPhare.cs" />
     <Compile Include="StrategyEurobot\TaskStrategy.cs" />
     <Compile Include="StrategyEurobot\TaskWindFlag.cs" />
+    <Compile Include="StrategyGenerique.cs" />
     <Compile Include="StrategyRoboCup\StrategyRoboCup.cs" />
     <Compile Include="StrategyInterface.cs" />
     <Compile Include="StrategyManager.cs" />

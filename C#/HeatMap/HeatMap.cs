@@ -10,20 +10,11 @@ namespace HeatMap
     public class Heatmap
     {
         public double FieldLength;
-        public double FieldHeight;
-        
+        public double FieldHeight;        
         double HalfFieldLength;
         double HalfFieldHeight;
 
         public double[,] BaseHeatMapData;
-
-        public int nbIterations;
-
-        public double[] SubSamplingRateList;
-        public double[] SubSamplingCellSizeList;
-        public double[] nbCellInSubSampledHeatMapHeightList;
-        public double[] nbCellInSubSampledHeatMapWidthList;
-
         public double BaseXCellSize;
         public double BaseYCellSize;
         public int nbCellInBaseHeatMapHeight;
@@ -32,7 +23,7 @@ namespace HeatMap
         public float preferedDestinationX;
         public float preferedDestinationY;
 
-        public Heatmap(double length, double height, int lengthCellNumber, int iterations)
+        public Heatmap(double length, double height, int lengthCellNumber)//, int iterations)
         {
             BaseXCellSize = length / lengthCellNumber;
             BaseYCellSize = height / Math.Floor(height / BaseXCellSize);// BaseXCellSize * height / length;
@@ -41,113 +32,127 @@ namespace HeatMap
             FieldHeight = height;
             HalfFieldLength = FieldLength / 2;
             HalfFieldHeight = FieldHeight / 2;
-
-            nbIterations = iterations;
-
-            SubSamplingRateList = new double[nbIterations];
-            SubSamplingCellSizeList = new double[nbIterations];
-            nbCellInSubSampledHeatMapHeightList = new double[nbIterations];
-            nbCellInSubSampledHeatMapWidthList = new double[nbIterations];
-
-            for (int i = 0; i < nbIterations; i++)
-            {
-                double subSamplingRate = Math.Pow(length / BaseXCellSize, (nbIterations-(i+1.0)) / nbIterations);
-                SubSamplingRateList[i]=subSamplingRate;
-                SubSamplingCellSizeList[i] = (double)(BaseXCellSize * subSamplingRate);
-                nbCellInSubSampledHeatMapHeightList[i] = (double)(FieldHeight / BaseXCellSize / subSamplingRate);
-                nbCellInSubSampledHeatMapWidthList[i] = (double)(FieldLength / BaseXCellSize / subSamplingRate);
-            }            
-
-            //BaseCellSize = baseCellSize;
+            
             nbCellInBaseHeatMapHeight = (int)(FieldHeight / BaseYCellSize) +1;
             nbCellInBaseHeatMapWidth = (int)(FieldLength / BaseXCellSize) +1;
             BaseHeatMapData = new double[nbCellInBaseHeatMapHeight, nbCellInBaseHeatMapWidth];
         }
 
-        public void ReInitHeatMapData()
+        public void InitHeatMapData()
         {
             BaseHeatMapData = new double[nbCellInBaseHeatMapHeight, nbCellInBaseHeatMapWidth];
         }
                
-        public PointD GetFieldPosFromBaseHeatMapCoordinates(double x, double y)
+        public PointD GetFieldPosFromBaseHeatMapCoordinates(double xHeatMap, double yHeatMap)
         {
             //return new PointD(-HalfFieldLength + x * BaseCellSize, -HalfFieldHeight + y * BaseCellSize);
-            return new PointD(-HalfFieldLength + x * BaseXCellSize, -HalfFieldHeight + y * BaseYCellSize);
+            double xField = (xHeatMap / (nbCellInBaseHeatMapWidth - 1) - 0.5) * FieldLength;
+            double yField = (yHeatMap / (nbCellInBaseHeatMapHeight - 1) - 0.5) * FieldHeight;
+
+            return new PointD(xField, yField);
+
         }
-        public PointD GetBaseHeatMapPosFromFieldCoordinates(double x, double y)
+        public PointD GetBaseHeatMapPosFromFieldCoordinates(PointD ptTerrain)
         {
-            return new PointD((x + HalfFieldLength) / BaseXCellSize, (y + HalfFieldHeight) / BaseYCellSize);
+            //return new PointD((x + HalfFieldLength) / BaseXCellSize, (y + HalfFieldHeight) / BaseYCellSize);
+
+            float xHeatmap = (float)(ptTerrain.X / FieldLength + 0.5) * (nbCellInBaseHeatMapWidth - 1);
+            float yHeatmap = (float)(ptTerrain.Y / FieldHeight + 0.5) * (nbCellInBaseHeatMapHeight - 1);
+
+            return new PointD(xHeatmap, yHeatmap);
         }
 
-        public PointD GetFieldPosFromSubSampledHeatMapCoordinates(double x, double y, int n)
+        public double GetBaseHeatMapDistanceFromFieldDistance(double distTerrain)
         {
-            return new PointD(-HalfFieldLength + x * SubSamplingCellSizeList[n], -HalfFieldHeight + y * SubSamplingCellSizeList[n]);
+            //return new PointD((x + HalfFieldLength) / BaseXCellSize, (y + HalfFieldHeight) / BaseYCellSize);
+
+            return distTerrain / FieldLength * (nbCellInBaseHeatMapWidth - 1);
         }
 
-        double max = double.NegativeInfinity;
-        int maxPosX = 0;
-        int maxPosY = 0;
+        //public PointD GetFieldPosFromSubSampledHeatMapCoordinates(double x, double y, int n)
+        //{
+        //    return new PointD(-HalfFieldLength + x * BaseXCellSize, -HalfFieldHeight + y * BaseYCellSize);
+        //}
 
-        public PointD GetMaxPositionInBaseHeatMap()
+        //double max = double.NegativeInfinity;
+        //int maxPosX = 0;
+        //int maxPosY = 0;
+
+        ////public PointD GetMaxPositionInBaseHeatMap()
+        ////{
+        ////    //Fonction couteuse en temps : à éviter !
+        ////    max = double.NegativeInfinity;
+        ////    for (int y = 0; y < nbCellInBaseHeatMapHeight; y++)
+        ////    {
+        ////        for (int x = 0; x < nbCellInBaseHeatMapWidth; x++)
+        ////        {
+        ////            if (BaseHeatMapData[y, x] > max)
+        ////            {
+        ////                max = BaseHeatMapData[y, x];
+        ////                maxPosX = x;
+        ////                maxPosY = y;
+        ////            }
+        ////        }
+        ////    }
+        ////    return GetFieldPosFromBaseHeatMapCoordinates(maxPosX, maxPosY);
+        ////}
+        ////public PointD GetMaxPositionInBaseHeatMapCoordinates()
+        ////{
+        ////    //Fonction couteuse en temps : à éviter
+        ////    max = double.NegativeInfinity;
+        ////    for (int y = 0; y < nbCellInBaseHeatMapHeight; y++)
+        ////    {
+        ////        for (int x = 0; x < nbCellInBaseHeatMapWidth; x++)
+        ////        {
+        ////            if (BaseHeatMapData[y, x] > max)
+        ////            {
+        ////                max = BaseHeatMapData[y, x];
+        ////                maxPosX = x;
+        ////                maxPosY = y;
+        ////            }
+        ////        }
+        ////    }
+        ////    return new PointD(maxPosX, maxPosY);
+        ////}
+
+        public void GenerateHeatMap(List<Zone> preferredZonesList, List<Zone> avoidanceZonesList)
         {
-            //Fonction couteuse en temps : à éviter !
-            max = double.NegativeInfinity;
-            for (int y = 0; y < nbCellInBaseHeatMapHeight; y++)
+            lock (preferredZonesList)
             {
-                for (int x = 0; x < nbCellInBaseHeatMapWidth; x++)
+                foreach (var preferredZone in preferredZonesList)
                 {
-                    if (BaseHeatMapData[y, x] > max)
+                    var centerRefHeatMap = GetBaseHeatMapPosFromFieldCoordinates(preferredZone.center);
+                    var radiusRefHeatMap = GetBaseHeatMapDistanceFromFieldDistance(preferredZone.radius);
+
+                    for (int y = (int)Math.Max(0, centerRefHeatMap.Y - radiusRefHeatMap); y < (int)(Math.Min(nbCellInBaseHeatMapHeight, centerRefHeatMap.Y + radiusRefHeatMap)); y++)
                     {
-                        max = BaseHeatMapData[y, x];
-                        maxPosX = x;
-                        maxPosY = y;
+                        for (int x = (int)Math.Max(0, centerRefHeatMap.X - radiusRefHeatMap); x < (int)(Math.Min(nbCellInBaseHeatMapWidth, centerRefHeatMap.X + radiusRefHeatMap)); x++)
+                        {
+                            //Calcul de la fonction de cout de stratégie
+                            BaseHeatMapData[y, x] = Math.Max(0, 1 - Math.Sqrt((centerRefHeatMap.X - x) * (centerRefHeatMap.X - x) + (centerRefHeatMap.Y - y) * (centerRefHeatMap.Y - y)) / radiusRefHeatMap);
+                        }
                     }
                 }
             }
-            return GetFieldPosFromBaseHeatMapCoordinates(maxPosX, maxPosY);
-        }
-        public PointD GetMaxPositionInBaseHeatMapCoordinates()
-        {
-            //Fonction couteuse en temps : à éviter
-            max = double.NegativeInfinity;
-            for (int y = 0; y < nbCellInBaseHeatMapHeight; y++)
-            {
-                for (int x = 0; x < nbCellInBaseHeatMapWidth; x++)
-                {
-                    if (BaseHeatMapData[y, x] > max)
-                    {
-                        max = BaseHeatMapData[y, x];
-                        maxPosX = x;
-                        maxPosY = y;
-                    }
-                }
-            }
-            return new PointD(maxPosX, maxPosY);
         }
 
-        public void SetPreferedDestination(float destinationX, float destinationY)
-        {
-            preferedDestinationX = destinationX;
-            preferedDestinationY = destinationY;
-        }
+        //public void GenerateHeatMap(double[,] heatMap, int width, int height, float widthTerrain, float heightTerrain)
+        //{
+        //    float destXInHeatmap = (float)(preferedDestinationX / widthTerrain + 0.5) * (width - 1);  //-1 car on a augmenté la taille de 1 pour avoir une figure symétrique
+        //    float destYInHeatmap = (float)(preferedDestinationY / heightTerrain + 0.5) * (height - 1);  //-1 car on a augmenté la taille de 1 pour avoir une figure symétrique
 
-        public void GenerateHeatMap(double[,] heatMap, int width, int height, float widthTerrain, float heightTerrain)
-        {
-            float destXInHeatmap = (float)(preferedDestinationX / widthTerrain + 0.5) * (width - 1);  //-1 car on a augmenté la taille de 1 pour avoir une figure symétrique
-            float destYInHeatmap = (float)(preferedDestinationY / heightTerrain + 0.5) * (height - 1);  //-1 car on a augmenté la taille de 1 pour avoir une figure symétrique
+        //    float normalizer = height;
 
-            float normalizer = height;
-
-            Parallel.For(0, height, y =>
-            //for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    //Calcul de la fonction de cout de stratégie
-                    heatMap[y, x] = Math.Max(0, 1 - Math.Sqrt((destXInHeatmap - x) * (destXInHeatmap - x) + (destYInHeatmap - y) * (destYInHeatmap - y)) / normalizer);
-                }
-            });
-        }
+        //    Parallel.For(0, height, y =>
+        //    //for (int y = 0; y < height; y++)
+        //    {
+        //        for (int x = 0; x < width; x++)
+        //        {
+        //            //Calcul de la fonction de cout de stratégie
+        //            heatMap[y, x] = Math.Max(0, 1 - Math.Sqrt((destXInHeatmap - x) * (destXInHeatmap - x) + (destYInHeatmap - y) * (destYInHeatmap - y)) / normalizer);
+        //        }
+        //    });
+        //}
 
         public PointD GetOptimalPosition()
         {
@@ -188,12 +193,5 @@ namespace HeatMap
             return GetFieldPosFromBaseHeatMapCoordinates(maxXpos, maxYpos);
             //return new PointD(maxXpos, maxYpos);
         }
-
-        //public Heatmap Copy()
-        //{
-        //    Heatmap copyHeatmap = new Heatmap(FieldLength, FieldHeight, BaseCellSize, nbIterations);            
-        //    copyHeatmap.BaseHeatMapData = this.BaseHeatMapData;
-        //    return copyHeatmap;
-        //}
     }
 }

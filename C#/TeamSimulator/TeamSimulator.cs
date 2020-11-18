@@ -17,6 +17,7 @@ using SensorSimulator;
 using KalmanPositioning;
 using WpfTeamInterfaceNS;
 using Utilities;
+using EventArgsLibrary;
 
 namespace TeamSimulator
 {
@@ -161,7 +162,7 @@ namespace TeamSimulator
 
             //Liens entre modules
             strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
-            strategyManager.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
+            strategyManager.strategy.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
             strategyManager.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
             trajectoryPlanner.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
@@ -192,7 +193,7 @@ namespace TeamSimulator
             //Update des données de la localWorldMap
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
-            strategyManager.OnHeatMapEvent += localWorldMapManager.OnHeatMapStrategyReceived;
+            strategyManager.strategy.OnHeatMapEvent += localWorldMapManager.OnHeatMapStrategyReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapWaypointReceived;
             trajectoryPlanner.OnGhostLocationEvent += localWorldMapManager.OnGhostLocationReceived;
@@ -201,7 +202,7 @@ namespace TeamSimulator
             robotUdpMulticastReceiver.OnDataReceivedEvent += robotUdpMulticastInterpreter.OnMulticastDataReceived;
 
             //Event d'interprétation d'une globalWorldMap à sa réception dans le robot
-            robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
+            robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += strategyManager.strategy.OnGlobalWorldMapReceived;
             robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
             robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
 
