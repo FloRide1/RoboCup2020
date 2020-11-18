@@ -11,13 +11,13 @@ using System.Threading.Tasks;
 using Utilities;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
-namespace StrategyManager
+namespace StrategyManagerEurobotNS
 {
     class TaskStrategy
     {
         Thread TaskThread;
         TaskStrategyState state = TaskStrategyState.Attente;
-        StrategyManager_Eurobot parentStrategyManager;
+        StrategyManagerEurobot parentStrategyManager;
         public Equipe playingTeam = Equipe.Jaune;
         bool Jack = true;
         Stopwatch timeStamp = new Stopwatch();
@@ -52,7 +52,7 @@ namespace StrategyManager
             Finished
         }
         
-        public TaskStrategy( StrategyManager_Eurobot strategyManager)
+        public TaskStrategy( StrategyManagerEurobot strategyManager)
         {
             parentStrategyManager = strategyManager;
             TaskThread = new Thread(TaskThreadProcess);

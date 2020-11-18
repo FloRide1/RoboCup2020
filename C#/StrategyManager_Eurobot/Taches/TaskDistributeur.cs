@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 using Utilities;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
-namespace StrategyManager
+namespace StrategyManagerEurobotNS
 {
     public class TaskDistributeur
     {
         Thread TaskThread;
         public TaskDistributeurStates state = TaskDistributeurStates.Attente;
         public bool isFinished = false;
-        StrategyManager_Eurobot parentManager;
+        StrategyManagerEurobot parentManager;
         Stopwatch sw = new Stopwatch();
         public enum TaskDistributeurStates
         {
@@ -36,7 +36,7 @@ namespace StrategyManager
             Finished,
         }
 
-        public TaskDistributeur(StrategyManager_Eurobot manager)
+        public TaskDistributeur(StrategyManagerEurobot manager)
         {
             parentManager = manager;
             TaskThread = new Thread(TaskThreadProcess);

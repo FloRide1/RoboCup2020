@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F2D3FB95-F97A-4049-BCA4-71854FD4FAF3}</ProjectGuid>
+    <ProjectGuid>{804BD483-52AA-46E6-8C37-65375552594B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>StrategyManager</RootNamespace>
-    <AssemblyName>StrategyManager</AssemblyName>
+    <RootNamespace>StrategyManagerEurobotNS</RootNamespace>
+    <AssemblyName>StrategyManagerEurobot</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -68,7 +68,7 @@
   <ItemGroup>
     <Compile Include="DescripteurMatch.cs" />
     <Compile Include="EnumsStrategy.cs" />
-    <Compile Include="StrategyManager_Eurobot.cs" />
+    <Compile Include="StrategyManagerEurobot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Taches\TaskBrasDrapeau.cs" />
     <Compile Include="Taches\TaskBrasCentre.cs" />

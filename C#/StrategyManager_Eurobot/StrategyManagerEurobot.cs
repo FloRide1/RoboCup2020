@@ -2,24 +2,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Drawing;
 using Utilities;
 using WorldMap;
 using HeatMap;
 using System.Diagnostics;
-using PerceptionManagement;
 using System.Timers;
 using Constants;
-using System.Threading;
 using static HerkulexManagerNS.HerkulexEventArgs;
 using RefereeBoxAdapter;
 using HerkulexManagerNS;
 
-namespace StrategyManager
+namespace StrategyManagerEurobotNS
 {
-    public class StrategyManager_Eurobot
+    public class StrategyManagerEurobot
     {
         public int robotId = 0;
         int teamId = 0;
@@ -81,7 +77,7 @@ namespace StrategyManager
             Finished
         }
 
-        public StrategyManager_Eurobot(int robotId, int teamId)
+        public StrategyManagerEurobot(int robotId, int teamId)
         {
             this.teamId = teamId;
             this.robotId = robotId;

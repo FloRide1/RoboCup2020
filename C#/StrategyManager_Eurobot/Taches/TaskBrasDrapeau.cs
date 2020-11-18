@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
-namespace StrategyManager
+namespace StrategyManagerEurobotNS
 {
     public class TaskBrasDrapeau
     {

@@ -1,17 +1,14 @@
-﻿<Window
+﻿<Window x:Class="WpfTeamInterfaceNS.WpfTeamInterface"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:s="http://schemas.abtsoftware.co.uk/scichart" 
         xmlns:ext="clr-namespace:WpfWorldMapDisplay;assembly=WpfWorldMapDisplay"
-        xmlns:local="clr-namespace:TeamInterface"
-        xmlns:lcu="http://schemas.arction.com/charting/ultimate/" xmlns:lcub="http://schemas.arction.com/bindablecharting/ultimate/" x:Class="TeamInterface.WpfTeamInterface"
+        xmlns:local="clr-namespace:WpfTeamInterfaceNS"
         mc:Ignorable="d"
-        Title="Team Interface" Closing="Window_Closing" SourceInitialized="Window_SourceInitialized"  
-        xmlns:p="clr-namespace:TeamInterface.Properties"  
-    >
-
+        Title="MainWindow" Height="450" Width="800" Closing="Window_Closing" SourceInitialized="Window_SourceInitialized">
+    
+    
     <Grid x:Name="BaseGrid" Background="#222222">
         <Grid.RowDefinitions>
             <RowDefinition Height="5"/>

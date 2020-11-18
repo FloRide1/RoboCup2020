@@ -226,8 +226,12 @@
       <Project>{4012F5AF-50E3-40BD-ABF0-4AFE3F30D5E3}</Project>
       <Name>RobotPilot</Name>
     </ProjectReference>
-    <ProjectReference Include="..\StrategyManager_Eurobot\StrategyManager_Eurobot.csproj">
+    <ProjectReference Include="..\StrategyManager\StrategyManager.csproj">
       <Project>{F2D3FB95-F97A-4049-BCA4-71854FD4FAF3}</Project>
+      <Name>StrategyManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StrategyManager_Eurobot\StrategyManager_Eurobot.csproj">
+      <Project>{804bd483-52aa-46e6-8c37-65375552594b}</Project>
       <Name>StrategyManager_Eurobot</Name>
     </ProjectReference>
     <ProjectReference Include="..\TrajectoryGenerator\TrajectoryGenerator.csproj">

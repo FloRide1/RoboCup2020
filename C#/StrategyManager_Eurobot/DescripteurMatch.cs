@@ -2,7 +2,7 @@
 using System.Linq;
 using Utilities;
 
-namespace StrategyManager
+namespace StrategyManagerEurobotNS
 {
     class MatchDescriptor
     {
@@ -158,12 +158,6 @@ namespace StrategyManager
         Vert,
         Rouge,
         Neutre
-    }
-
-    public enum Equipe
-    {
-        Jaune,
-        Bleue,
     }
 
     public enum TypeGobelet

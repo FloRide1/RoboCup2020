@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 using Utilities;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
-namespace StrategyManager
+namespace StrategyManagerEurobotNS
 {
     public class TaskBalade
     {
         Thread TaskThread;
         TaskBaladeStates state = TaskBaladeStates.Attente;
         public bool isFinished = false;
-        StrategyManager_Eurobot parentManager;
+        StrategyManagerEurobot parentManager;
         enum TaskBaladeStates
         {
             Init,
@@ -34,7 +34,7 @@ namespace StrategyManager
             Finished,
         }
 
-        public TaskBalade(StrategyManager_Eurobot manager)
+        public TaskBalade(StrategyManagerEurobot manager)
         {
             parentManager = manager;
             TaskThread = new Thread(TaskThreadProcess);

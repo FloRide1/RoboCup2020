@@ -1,7 +1,5 @@
 ﻿using AbsolutePositionEstimatorNS;
 using EventArgsLibrary;
-using LidarProcessor;
-using StrategyManager;
 using System;
 using System.Collections.Generic;
 using Utilities;
