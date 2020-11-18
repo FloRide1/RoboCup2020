@@ -24,6 +24,8 @@ using MessageProcessorNS;
 using MessageGeneratorNS;
 using LidaRxR2000NS;
 using HerkulexManagerNS;
+using StrategyManager;
+using Utilities;
 
 namespace Robot
 {
@@ -215,12 +217,12 @@ namespace Robot
             //physicalSimulator.RegisterRobot(robotId, 0, 0);
 
             robotPilot = new RobotPilot.RobotPilot(robotId);
-            strategyManager = new StrategyManager.StrategyManager(robotId, teamId);
-            waypointGenerator = new WaypointGenerator(robotId, "RoboCup");
+            strategyManager = new StrategyManager.StrategyManager(robotId, teamId, GameMode.RoboCup);
+            waypointGenerator = new WaypointGenerator(robotId, GameMode.RoboCup);
             trajectoryPlanner = new TrajectoryPlanner(robotId);
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
 
-            localWorldMapManager = new LocalWorldMapManager(robotId, teamId);
+            localWorldMapManager = new LocalWorldMapManager(robotId, teamId, bypassMulticast:false);
             //lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             perceptionManager = new PerceptionManager(robotId);
             imuProcessor = new ImuProcessor.ImuProcessor(robotId);
@@ -367,7 +369,7 @@ namespace Robot
         {
             var role = (StrategyManager.PlayerRole)rand.Next((int)(int)StrategyManager.PlayerRole.Centre, (int)StrategyManager.PlayerRole.Centre);
             strategyManager.SetRole(role);
-            strategyManager.ProcessStrategy();
+            strategyManager.CalculateDestination();
         }
 
         //static int nbMsgSent = 0;

@@ -62,6 +62,22 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="StrategyEurobot\DescripteurMatch.cs" />
+    <Compile Include="StrategyEurobot\EnumsStrategy.cs" />
+    <Compile Include="StrategyEurobot\StrategyEurobot.cs" />
+    <Compile Include="StrategyEurobot\TaskBalade.cs" />
+    <Compile Include="StrategyEurobot\TaskBrasCentre.cs" />
+    <Compile Include="StrategyEurobot\TaskBrasDrapeau.cs" />
+    <Compile Include="StrategyEurobot\TaskBrasDroit.cs" />
+    <Compile Include="StrategyEurobot\TaskBrasGauche.cs" />
+    <Compile Include="StrategyEurobot\TaskDepose.cs" />
+    <Compile Include="StrategyEurobot\TaskDistributeur.cs" />
+    <Compile Include="StrategyEurobot\TaskFinDeMatch.cs" />
+    <Compile Include="StrategyEurobot\TaskPhare.cs" />
+    <Compile Include="StrategyEurobot\TaskStrategy.cs" />
+    <Compile Include="StrategyEurobot\TaskWindFlag.cs" />
+    <Compile Include="StrategyRoboCup\StrategyRoboCup.cs" />
+    <Compile Include="StrategyInterface.cs" />
     <Compile Include="StrategyManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -78,9 +94,17 @@
       <Project>{BDF7D4A0-1E8B-4487-862E-2DA58A7BC267}</Project>
       <Name>HeatMap</Name>
     </ProjectReference>
+    <ProjectReference Include="..\HerkulexManager\HerkulexManager.csproj">
+      <Project>{835B8B5A-C248-4443-99CA-FF11AC77481A}</Project>
+      <Name>HerkulexManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Perception\Perception.csproj">
       <Project>{DD8FD061-D3B2-43AE-B74D-03D94A2876A3}</Project>
       <Name>Perception</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RefereeBoxAdapter\RefereeBoxAdapter.csproj">
+      <Project>{A8C04138-90DC-42F9-AB39-E71125B805B9}</Project>
+      <Name>RefereeBoxAdapter</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8e7d0da4-9a13-4b18-a90e-0243bbcce40a}</Project>
@@ -94,6 +118,9 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="StrategyDemo\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

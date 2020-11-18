@@ -51,7 +51,6 @@ namespace StrategyManagerEurobotNS
         public TaskDistributeur taskDistributeur;
         TaskStrategy taskStrategy;
 
-
         System.Timers.Timer configTimer;
 
         public bool isDeplacementFinished
@@ -92,8 +91,6 @@ namespace StrategyManagerEurobotNS
             //    200, 200, 0,
             //    80, 100, 0,
             //2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0);
-
-
 
             OnGameStateChanged(robotId, globalWorldMap.gameState);
 
@@ -749,7 +746,6 @@ namespace StrategyManagerEurobotNS
             OnCollisionEvent?.Invoke(this, new CollisionEventArgs { RobotId = id, RobotRealPosition = robotLocation });
         }
 
-        public delegate void HeatMapEventHandler(object sender, HeatMapArgs e);
         public event EventHandler<HeatMapArgs> OnHeatMapEvent;
         public virtual void OnHeatMap(int id, Heatmap heatMap)
         {

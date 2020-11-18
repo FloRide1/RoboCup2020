@@ -12,12 +12,17 @@ using System.Diagnostics;
 using PerceptionManagement;
 using System.Timers;
 using Constants;
-
+using HerkulexManagerNS;
+using StrategyManager.StrategyRoboCupNS;
+using StrategyManager.StrategyEurobotNS;
 
 namespace StrategyManager
 {
+
     public class StrategyManager
     {
+        GameMode strategyMode = GameMode.RoboCup;
+
         int robotId = 0;
         int teamId = 0;
         
@@ -29,15 +34,28 @@ namespace StrategyManager
         
         Timer timerStrategy;
 
-        
+        StrategyInterface strategy;
 
-
-        public StrategyManager(int robotId, int teamId)
+        public StrategyManager(int robotId, int teamId, GameMode stratMode)
         {
+            strategyMode = stratMode;
             this.teamId = teamId;
             this.robotId = robotId;
-            //heatMap = new Heatmap(22.0, 14.0, 22.0/Math.Pow(2,8), 2); //Init HeatMap
-            heatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 8), 1); //Init HeatMap
+
+            switch(strategyMode)
+            {
+                case GameMode.RoboCup:
+                    //heatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 8), 1);
+                    strategy = new StrategyRoboCup();
+                    break;
+                case GameMode.Eurobot:
+                    //heatMap = new Heatmap(3, 2, (int)Math.Pow(2, 5), 1);
+                    strategy = new StrategyEurobot(robotId, teamId);
+                    break;
+                case GameMode.Demo:
+                    //heatMap = new Heatmap(3, 2, (int)Math.Pow(2, 5), 1);
+                    break;
+            }
 
             timerStrategy = new Timer();
             timerStrategy.Interval = 50;
@@ -49,15 +67,19 @@ namespace StrategyManager
 
         private void TimerStrategy_Elapsed(object sender, ElapsedEventArgs e)
         {
-            ProcessStrategy();
+            strategy.EvaluateStrategy();
+            //strategy.CalculateDestination();
         }
 
+        //************************ Events reçus ************************************************/
+
+        //Event de récupération d'une GlobalWorldMap mise à jour
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
         {
             //On récupère le gameState avant arrivée de la nouvelle worldMap
             GameState gameState_1 = globalWorldMap.gameState;
 
-            //On écupère la nouvelle worldMap
+            //On récupère la nouvelle worldMap
             globalWorldMap = e.GlobalWorldMap;
 
             //On regarde si le gamestate a changé
@@ -66,11 +88,52 @@ namespace StrategyManager
                 //Le gameState a changé, on envoie un event
                 OnGameStateChanged(robotId, globalWorldMap.gameState);
             }
-            
+
             //Le joueur détermine sa stratégie
             SetRobotRole();
             SetRobotDestination(robotRole);
         }
+
+        //************************ Event envoyés par le gestionnaire de strategie ***********************/
+
+        public event EventHandler<ByteEventArgs> OnSetAsservissementModeEvent;
+        public virtual void OnSetAsservissementMode(byte val)
+        {
+            OnSetAsservissementModeEvent?.Invoke(this, new ByteEventArgs { Value = val });
+        }
+
+        public event EventHandler<BoolEventArgs> OnEnableMotorsEvent;
+        public virtual void OnEnableMotors(bool val)
+        {
+            OnEnableMotorsEvent?.Invoke(this, new BoolEventArgs { value = val });
+        }
+
+        public event EventHandler<BoolEventArgs> OnMirrorModeForwardEvent;
+        public virtual void OnMirrorMode(object sender, BoolEventArgs val)
+        {
+            OnMirrorModeForwardEvent?.Invoke(sender, val);
+        }
+
+        public event EventHandler<LocationArgs> OnDestinationEvent;
+        public virtual void OnDestination(int id, Location location)
+        {
+            OnDestinationEvent?.Invoke(this, new LocationArgs { RobotId = id, Location = location });
+        }
+
+        public event EventHandler<HeatMapArgs> OnHeatMapEvent;
+        public virtual void OnHeatMap(int id, Heatmap heatMap)
+        {
+            OnHeatMapEvent?.Invoke(this, new HeatMapArgs { RobotId = id, HeatMap = heatMap });
+        }
+
+        public event EventHandler<GameStateArgs> OnGameStateChangedEvent;
+        public virtual void OnGameStateChanged(int robotId, GameState state)
+        {
+            OnGameStateChangedEvent?.Invoke(this, new GameStateArgs { RobotId = robotId, gameState = state });
+        }
+
+        
+        
 
         void SetRobotRole()
         {
@@ -300,184 +363,7 @@ namespace StrategyManager
             }            
         }
 
-        Heatmap heatMap;
-        Stopwatch sw = new Stopwatch();
 
-
-        public void ProcessStrategy()
-        {
-            //TestGPU.ActionWithClosure();
-            sw.Reset();
-            sw.Start(); // début de la mesure
-                        
-            //Génération de la HeatMap
-            heatMap.ReInitHeatMapData();
-            
-            //On construit le heatMap en mode multi-résolution :
-            //On commence par une heatmap très peu précise, puis on construit une heat map de taille réduite plus précise autour du point chaud,
-            //Puis on construit une heatmap très précise au cm autour du point chaud.
-            double optimizedAreaSize;
-            PointD OptimalPosition = new PointD(0, 0);
-            PointD OptimalPosInBaseHeatMapCoordinates = heatMap.GetBaseHeatMapPosFromFieldCoordinates(0, 0);
-            
-            ParallelCalculateHeatMap(heatMap.BaseHeatMapData, heatMap.nbCellInBaseHeatMapWidth, heatMap.nbCellInBaseHeatMapHeight, (float)heatMap.FieldLength, (float)heatMap.FieldHeight, (float)robotDestination.X, (float)robotDestination.Y);
-            //gpuDll.GpuGenerateHeatMap("GPU_DLL_CUDA.dll", heatMap.BaseHeatMapData, heatMap.nbCellInBaseHeatMapWidth, heatMap.nbCellInBaseHeatMapHeight, (float)heatMap.FieldLength, (float)heatMap.FieldHeight, (float)robotDestination.X, (float)robotDestination.Y);
-            //ParallelCalculateHeatMap(heatMap.BaseHeatMapData, heatMap.nbCellInBaseHeatMapWidth, heatMap.nbCellInBaseHeatMapHeight, (float)heatMap.FieldLength, (float)heatMap.FieldHeight, (float)robotDestination.X, (float)robotDestination.Y);
-
-            double[] tabMax = new double[heatMap.nbCellInBaseHeatMapHeight];
-            int[] tabIndexMax = new int[heatMap.nbCellInBaseHeatMapHeight];
-            Parallel.For(0, heatMap.nbCellInBaseHeatMapHeight, i =>
-            //for (int i =0; i< heatMap.nbCellInBaseHeatMapHeight;i++)
-            {
-                tabMax[i] = 0;
-                tabIndexMax[i] = 0;
-                for (int j = 0; j < heatMap.nbCellInBaseHeatMapWidth; j++)
-                {
-                    if (heatMap.BaseHeatMapData[i, j] > tabMax[i])
-                    {
-                        tabMax[i] = heatMap.BaseHeatMapData[i, j];
-                        tabIndexMax[i] = j;
-                    }
-                }
-            });
-
-            //Recherche du maximum
-            double max = 0;
-            int indexMax = 0;
-            for (int i = 0; i < heatMap.nbCellInBaseHeatMapHeight; i++)
-            {
-                if (tabMax[i] > max)
-                {
-                    max = tabMax[i];
-                    indexMax = i;
-                }
-            }
-
-            int maxYpos = indexMax;// indexMax % heatMap.nbCellInBaseHeatMapWidth;
-            int maxXpos = tabIndexMax[indexMax];// indexMax / heatMap.nbCellInBaseHeatMapWidth;
-
-            OptimalPosInBaseHeatMapCoordinates = new PointD(maxXpos, maxYpos);
-
-            OptimalPosition = heatMap.GetFieldPosFromBaseHeatMapCoordinates(OptimalPosInBaseHeatMapCoordinates.X, OptimalPosInBaseHeatMapCoordinates.Y);
-            
-            OnHeatMap(robotId, heatMap);
-            SetDestination(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, (float)robotOrientation, 0, 0, 0));
-
-            //heatMap.Dispose();
-            sw.Stop(); // Fin de la mesure
-            //for (int n = 0; n < nbComputationsList.Length; n++)
-            //{
-            //    Console.WriteLine("Calcul Strategy - Nb Calculs Etape " + n + " : " + nbComputationsList[n]);
-            //}
-            Console.WriteLine("Temps de calcul de la heatMap de stratégie : " + sw.Elapsed.TotalMilliseconds.ToString("N4")+" ms"); // Affichage de la mesure
-        }
-
-        //public void ProcessStrategy()
-        //{
-        //    //TestGPU.ActionWithClosure();
-        //    sw.Reset();
-        //    sw.Start(); // début de la mesure
-
-        //    //Génération de la HeatMap
-        //    heatMap.ReInitHeatMapData();
-
-        //    int[] nbComputationsList = new int[heatMap.nbIterations];
-
-        //    //On construit le heatMap en mode multi-résolution :
-        //    //On commence par une heatmap très peu précise, puis on construit une heat map de taille réduite plus précise autour du point chaud,
-        //    //Puis on construit une heatmap très précise au cm autour du point chaud.
-        //    double optimizedAreaSize;
-        //    PointD OptimalPosition = new PointD(0, 0);
-        //    PointD OptimalPosInBaseHeatMapCoordinates = heatMap.GetBaseHeatMapPosFromFieldCoordinates(0, 0);
-
-        //    for (int n = 0; n < heatMap.nbIterations; n++)
-        //    {
-        //        double subSamplingRate = heatMap.SubSamplingRateList[n];
-        //        if (n >= 1)
-        //            optimizedAreaSize = heatMap.nbCellInSubSampledHeatMapWidthList[n] / heatMap.nbCellInSubSampledHeatMapWidthList[n - 1];
-        //        else
-        //            optimizedAreaSize = heatMap.nbCellInSubSampledHeatMapWidthList[n];
-
-        //        optimizedAreaSize /= 2;
-
-        //        double minY = Math.Max(OptimalPosInBaseHeatMapCoordinates.Y / subSamplingRate - optimizedAreaSize, 0);
-        //        double maxY = Math.Min(OptimalPosInBaseHeatMapCoordinates.Y / subSamplingRate + optimizedAreaSize, (int)heatMap.nbCellInSubSampledHeatMapHeightList[n]);
-        //        double minX = Math.Max(OptimalPosInBaseHeatMapCoordinates.X / subSamplingRate - optimizedAreaSize, 0);
-        //        double maxX = Math.Min(OptimalPosInBaseHeatMapCoordinates.X / subSamplingRate + optimizedAreaSize, (int)heatMap.nbCellInSubSampledHeatMapWidthList[n]);
-
-        //        double max = double.NegativeInfinity;
-        //        int maxXpos = 0;
-        //        int maxYpos = 0;
-
-        //        Parallel.For((int)minY, (int)maxY, (y) =>
-        //        //for (double y = minY; y < maxY; y += 1)
-        //        {
-        //            Parallel.For((int)minX, (int)maxX, (x) =>
-        //            //for (double x = minX; x < maxX; x += 1)
-        //            {
-        //                //Attention, le remplissage de la HeatMap se fait avec une inversion des coordonnées
-        //                //double value = Math.Max(0, 1 - Toolbox.Distance(theoreticalOptimalPos, heatMap.GetFieldPosFromSubSampledHeatMapCoordinates(x, y)) / 20.0);
-        //                var heatMapPos = heatMap.GetFieldPosFromSubSampledHeatMapCoordinates(x, y, n);
-        //                double value = EvaluateStrategyCostFunction(robotDestination, heatMapPos);
-        //                //heatMap.SubSampledHeatMapData1[y, x] = value;
-        //                int yBase = (int)(y * subSamplingRate);
-        //                int xBase = (int)(x * subSamplingRate);
-        //                heatMap.BaseHeatMapData[yBase, xBase] = value;
-        //                nbComputationsList[n]++;
-
-        //                if (value > max)
-        //                {
-        //                    max = value;
-        //                    maxXpos = xBase;
-        //                    maxYpos = yBase;
-        //                }
-
-        //                ////Code ci-dessous utile si on veut afficher la heatmap complete(video), mais consommateur en temps
-        //                //for (int i = 0; i < heatMap.SubSamplingRateList[n]; i += 1)
-        //                //{
-        //                //    for (int j = 0; j < heatMap.SubSamplingRateList[n]; j += 1)
-        //                //    {
-        //                //        if ((xBase + j < heatMap.nbCellInBaseHeatMapWidth) && (yBase + i < heatMap.nbCellInBaseHeatMapHeight))
-        //                //            heatMap.BaseHeatMapData[yBase + i, xBase + j] = value;
-        //                //    }
-        //                //}
-        //            });
-        //        });
-        //        //OptimalPosInBaseHeatMapCoordinates = heatMap.GetMaxPositionInBaseHeatMapCoordinates();
-        //        OptimalPosInBaseHeatMapCoordinates = new PointD(maxXpos, maxYpos);
-        //    }
-        //    //OptimalPosition = heatMap.GetMaxPositionInBaseHeatMap();
-        //    OptimalPosition = heatMap.GetFieldPosFromBaseHeatMapCoordinates(OptimalPosInBaseHeatMapCoordinates.X, OptimalPosInBaseHeatMapCoordinates.Y);
-
-        //    OnHeatMap(robotId, heatMap);
-        //    SetDestination(new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, (float)robotOrientation, 0, 0, 0));
-
-        //    //heatMap.Dispose();
-        //    sw.Stop(); // Fin de la mesure
-        //    //for (int n = 0; n < nbComputationsList.Length; n++)
-        //    //{
-        //    //    Console.WriteLine("Calcul Strategy - Nb Calculs Etape " + n + " : " + nbComputationsList[n]);
-        //    //}
-        //    //Console.WriteLine("Temps de calcul de la heatMap de stratégie : " + sw.Elapsed.TotalMilliseconds.ToString("N4")+" ms"); // Affichage de la mesure
-        //}
-
-        public void ParallelCalculateHeatMap(double[,] heatMap, int width, int height, float widthTerrain, float heightTerrain, float destinationX, float destinationY)
-        {
-            float destXInHeatmap = (float)((float)destinationX / widthTerrain + 0.5) * (width-1);
-            float destYInHeatmap = (float)((float)destinationY / heightTerrain + 0.5) * (height-1);
-
-            float normalizer = height;
-
-            Parallel.For(0, height, y =>
-            //for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    //Calcul de la fonction de cout de stratégie
-                    heatMap[y, x] = Math.Max(0, 1 - Math.Sqrt((destXInHeatmap - x) * (destXInHeatmap - x) + (destYInHeatmap - y) * (destYInHeatmap - y)) / normalizer);
-                }
-            });
-        }
 
         double EvaluateStrategyCostFunction(PointD destination, PointD fieldPos)
         {
@@ -530,39 +416,9 @@ namespace StrategyManager
         {
             OnDestination(robotId, location);
         }
-
-        public delegate void DestinationEventHandler(object sender, LocationArgs e);
-        public event EventHandler<LocationArgs> OnDestinationEvent;
-        public virtual void OnDestination(int id, Location location)
-        {
-            var handler = OnDestinationEvent;
-            if (handler != null)
-            {
-                handler(this, new LocationArgs { RobotId = id, Location = location });
-            }
-        }
-
-        public delegate void HeatMapEventHandler(object sender, HeatMapArgs e);
-        public event EventHandler<HeatMapArgs> OnHeatMapEvent;
-        public virtual void OnHeatMap(int id, Heatmap heatMap)
-        {
-            var handler = OnHeatMapEvent;
-            if (handler != null)
-            {
-                handler(this, new HeatMapArgs { RobotId = id, HeatMap = heatMap });
-            }
-        }
-
-        public event EventHandler<GameStateArgs> OnGameStateChangedEvent;
-        public virtual void OnGameStateChanged(int robotId, GameState state)
-        {
-            var handler = OnGameStateChangedEvent;
-            if (handler != null)
-            {
-                handler(this, new GameStateArgs { RobotId = robotId, gameState = state });
-            }
-        }
     }
+
+
 
     public enum PlayerRole
     {
@@ -574,6 +430,7 @@ namespace StrategyManager
         AttaquantPlace,
         Centre,
     }
+
 
     
 }

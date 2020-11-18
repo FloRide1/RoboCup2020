@@ -16,6 +16,7 @@ using UdpMulticastInterpreter;
 using SensorSimulator;
 using KalmanPositioning;
 using WpfTeamInterfaceNS;
+using Utilities;
 
 namespace TeamSimulator
 {
@@ -133,8 +134,8 @@ namespace TeamSimulator
         private static void CreatePlayer(int TeamNumber, int RobotNumber)
         {
             int robotId = TeamNumber + RobotNumber;
-            var strategyManager = new StrategyManager.StrategyManager(robotId, TeamNumber);
-            var waypointGenerator = new WaypointGenerator(robotId, "RoboCup");
+            var strategyManager = new StrategyManager.StrategyManager(robotId, TeamNumber, GameMode.RoboCup);
+            var waypointGenerator = new WaypointGenerator(robotId, GameMode.RoboCup);
             var trajectoryPlanner = new TrajectoryPlanner(robotId);
             var sensorSimulator = new SensorSimulator.SensorSimulator(robotId);
             var kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);

@@ -223,7 +223,7 @@ namespace Robot
 
             globalWorldMapManager = new GlobalWorldMapManager(robotId, "0.0.0.0", bypassMulticast: true);
             strategyManager = new StrategyManagerEurobot(robotId, teamId);
-            waypointGenerator = new WaypointGenerator(robotId, "Eurobot");
+            waypointGenerator = new WaypointGenerator(robotId, Utilities.GameMode.Eurobot);
             trajectoryPlanner = new TrajectoryPlanner(robotId);
 
             herkulexManager = new HerkulexManager();

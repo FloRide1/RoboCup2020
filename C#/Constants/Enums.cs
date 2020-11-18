@@ -49,4 +49,11 @@ namespace Utilities
         Jaune,
         Bleue,
     }
+
+    public enum GameMode
+    {
+        RoboCup,
+        Eurobot,
+        Demo
+    }
 }

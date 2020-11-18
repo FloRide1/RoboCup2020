@@ -26,15 +26,18 @@ namespace WayPointGenerator
 
         Heatmap StrategyHeatmap; 
 
-        public WaypointGenerator(int id, string competition)
+        public WaypointGenerator(int id, GameMode competition)
         {
             robotId = id;
             switch(competition)
             {
-                case "RoboCup":
+                case GameMode.RoboCup:
                     waypointHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 8), 2);
                     break;
-                case "Eurobot":
+                case GameMode.Eurobot:
+                    waypointHeatMap = new Heatmap(3.0, 2.0, (int)Math.Pow(2, 5), 1);
+                    break;
+                case GameMode.Demo:
                     waypointHeatMap = new Heatmap(3.0, 2.0, (int)Math.Pow(2, 5), 1);
                     break;
                 default:

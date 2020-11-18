@@ -29,6 +29,9 @@ namespace HeatMap
         public int nbCellInBaseHeatMapHeight;
         public int nbCellInBaseHeatMapWidth;
 
+        public float preferedDestinationX;
+        public float preferedDestinationY;
+
         public Heatmap(double length, double height, int lengthCellNumber, int iterations)
         {
             BaseXCellSize = length / lengthCellNumber;
@@ -120,6 +123,70 @@ namespace HeatMap
                 }
             }
             return new PointD(maxPosX, maxPosY);
+        }
+
+        public void SetPreferedDestination(float destinationX, float destinationY)
+        {
+            preferedDestinationX = destinationX;
+            preferedDestinationY = destinationY;
+        }
+
+        public void GenerateHeatMap(double[,] heatMap, int width, int height, float widthTerrain, float heightTerrain)
+        {
+            float destXInHeatmap = (float)(preferedDestinationX / widthTerrain + 0.5) * (width - 1);  //-1 car on a augmenté la taille de 1 pour avoir une figure symétrique
+            float destYInHeatmap = (float)(preferedDestinationY / heightTerrain + 0.5) * (height - 1);  //-1 car on a augmenté la taille de 1 pour avoir une figure symétrique
+
+            float normalizer = height;
+
+            Parallel.For(0, height, y =>
+            //for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    //Calcul de la fonction de cout de stratégie
+                    heatMap[y, x] = Math.Max(0, 1 - Math.Sqrt((destXInHeatmap - x) * (destXInHeatmap - x) + (destYInHeatmap - y) * (destYInHeatmap - y)) / normalizer);
+                }
+            });
+        }
+
+        public PointD GetOptimalPosition()
+        {
+
+            //Détermination
+            double[] tabMax = new double[nbCellInBaseHeatMapHeight];
+            int[] tabIndexMax = new int[nbCellInBaseHeatMapHeight];
+            Parallel.For(0, nbCellInBaseHeatMapHeight, i =>
+            {
+                tabMax[i] = 0;
+                tabIndexMax[i] = 0;
+                for (int j = 0; j < nbCellInBaseHeatMapWidth; j++)
+                {
+                    if (BaseHeatMapData[i, j] > tabMax[i])
+                    {
+                        tabMax[i] = BaseHeatMapData[i, j];
+                        tabIndexMax[i] = j;
+                    }
+                }
+            });
+
+            //Recherche du maximum
+            double max = 0;
+            int indexMax = 0;
+            for (int i = 0; i < nbCellInBaseHeatMapHeight; i++)
+            {
+                if (tabMax[i] > max)
+                {
+                    max = tabMax[i];
+                    indexMax = i;
+                }
+            }
+
+            int maxYpos = indexMax;// indexMax % heatMap.nbCellInBaseHeatMapWidth;
+            int maxXpos = tabIndexMax[indexMax];// indexMax / heatMap.nbCellInBaseHeatMapWidth;
+
+            //On a le point dans le référentiel de la heatMap, on la passe en référentiel Terrain
+            return GetFieldPosFromBaseHeatMapCoordinates(maxXpos, maxYpos);
+            //return new PointD(maxXpos, maxYpos);
         }
 
         //public Heatmap Copy()

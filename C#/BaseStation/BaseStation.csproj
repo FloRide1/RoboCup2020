@@ -96,6 +96,10 @@
       <Project>{01E89552-13A5-4A24-80B2-9246700F72FD}</Project>
       <Name>WorldMapManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WpfTeamInterface\WpfTeamInterface.csproj">
+      <Project>{6BB34EA2-B1A7-4B68-A467-DEE096BB1A1C}</Project>
+      <Name>WpfTeamInterface</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
