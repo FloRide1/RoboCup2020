@@ -87,7 +87,7 @@ namespace Robot
         }
         #endregion
 
-        static RobotMode robotMode = RobotMode.Standard;
+        static RobotMode robotMode = RobotMode.Nolidar;
 
         static bool usingPhysicalSimulator;
         static bool usingXBoxController;

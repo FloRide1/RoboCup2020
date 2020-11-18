@@ -122,9 +122,9 @@ namespace USBVendor
             }
         }
 
-        Byte[] dataBuffer = new Byte[128];
+        UInt32 bytesToRead = Convert.ToUInt32(2048);//204810
+        Byte[] dataBuffer = new Byte[2048];
         UInt32 bytesRead = 0;
-        UInt32 bytesToRead = Convert.ToUInt32(128);//204810
         bool readSuccess = true;
         bool success = false;
         bool continueTasks = true;
@@ -142,9 +142,20 @@ namespace USBVendor
                         if (cmv8DeviceListeFound.Count > 0)
                         {
                             readSuccess = false;
-                            RequestToReceiveDataViaBulkTransfer(cmv8DeviceListeFound[0], bytesToRead, dataBuffer, ref bytesRead, ref readSuccess);
+                            //RequestToReceiveDataViaBulkTransfer(cmv8DeviceListeFound[0], bytesToRead, dataBuffer, ref bytesRead, ref readSuccess);
                             //RequestToReceiveDataViaIsochronousTransfer(cmv8DeviceListeFound[0], bytesToRead,ref dataBuffer, ref bytesRead, ref readSuccess);
-                            OnUSBDataReceived(dataBuffer);
+                            _myWinUsbCommunications.ReceiveDataViaBulkTransfer(cmv8DeviceListeFound[0]._winUsbHandle,
+                            cmv8DeviceListeFound[0]._myDeviceInfo,
+                             bytesToRead,
+                             ref dataBuffer,
+                             ref bytesRead,
+                             ref readSuccess);
+                            byte[] bufff = new byte[bytesRead];
+                            for(int i=0; i<bytesRead;i++)
+                            {
+                                bufff[i] = dataBuffer[i];
+                            }
+                            OnUSBDataReceived(bufff);
                         //    ProcessUSBReceivedMessage(dataBuffer, totalByteReceived);
                             //rcvMessageQueue.Enqueue(dataBuffer);
                         }
@@ -153,7 +164,13 @@ namespace USBVendor
                     {
                         readSuccess = false;
                         deviceResetted = false;
-                        RequestToReceiveDataViaBulkTransfer(cmv8DeviceListeFound[0], bytesToRead, dataBuffer, ref bytesRead, ref success);
+                        //RequestToReceiveDataViaBulkTransfer(cmv8DeviceListeFound[0], bytesToRead, dataBuffer, ref bytesRead, ref success);
+                        _myWinUsbCommunications.ReceiveDataViaBulkTransfer(cmv8DeviceListeFound[0]._winUsbHandle,
+                           cmv8DeviceListeFound[0]._myDeviceInfo,
+                            bytesToRead,
+                            ref dataBuffer,
+                            ref bytesRead,
+                            ref readSuccess);
                         //RequestToReceiveDataViaIsochronousTransfer(cmv8DeviceListeFound[0], bytesToRead,ref dataBuffer, ref bytesRead, ref readSuccess);
                     }
                     else
@@ -162,7 +179,7 @@ namespace USBVendor
                         //RequestToReceiveDataViaIsochronousTransfer(cmv8DeviceListeFound[0], bytesToRead, ref dataBuffer, ref bytesRead, ref readSuccess);
                         //Thread.Sleep(2);
                     }
-                    Thread.Sleep(2);
+                    Thread.Sleep(1);
                 }
             }
             catch {
@@ -177,8 +194,17 @@ namespace USBVendor
             {
                 UInt32 LengthTransferred = 0;
                 Boolean success = false;
-                if(e.Msg.Length<= 128 && cmv8DeviceListeFound.Count>0)
+                if (e.Msg.Length <= 128 && cmv8DeviceListeFound.Count > 0)
                     RequestToSendDataViaBulkTransfer(cmv8DeviceListeFound[0], (uint)e.Msg.Length, e.Msg, ref LengthTransferred, ref success);
+                else
+                {
+                    Int32 bytesToSend = e.Msg.Length;
+                    while (bytesToSend > 0)
+                    {
+                        RequestToSendDataViaBulkTransfer(cmv8DeviceListeFound[0], (uint)e.Msg.Length, e.Msg, ref LengthTransferred, ref success);
+                        bytesToSend -= (Int32)LengthTransferred;
+                    }
+                }
             }
         }
         //public delegate void DataReceivedEventHandler(object sender, DataReceivedArgs e);
