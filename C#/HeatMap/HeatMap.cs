@@ -187,6 +187,50 @@ namespace HeatMap
             }
         }
 
+        public void ExcludeMaskedZones(List<LocationExtended> obstacleLocationList)
+        {
+            //On calcule la pénalisation sur la liste des obstacles à éviter
+            lock (obstacleLocationList)
+            {
+                foreach (var obstacle in obstacleLocationList)
+                {
+                    //var centerRefHeatMap = GetBaseHeatMapPosFromFieldCoordinates(avoidanceZone.center);
+                    //var radiusRefHeatMap = GetBaseHeatMapDistanceFromFieldDistance(avoidanceZone.radius);
+
+                    //double angleObstacle = Math.Atan2(obstacle.Y - robotLocation.Y, obstacle.X - robotLocation.X);
+                    //double distanceObstacle = Toolbox.Distance(obstacle.X, obstacle.Y, robotLocation.X, robotLocation.Y);
+
+                    //double distancePt = Toolbox.Distance(ptCourant.X, ptCourant.Y, robotLocation.X, robotLocation.Y);
+                    //double anglePtCourant = Math.Atan2(ptCourant.Y - robotLocation.Y, ptCourant.X - robotLocation.X);
+
+                    ////double distancePtObstacle = Toolbox.Distance(ptCourant.X, ptCourant.Y, obstacle.X, obstacle.Y);
+                    ////if (distanceObstacle> 0.3 && distancePtObstacle < 0.2)
+
+                    //anglePtCourant = Toolbox.ModuloByAngle(angleObstacle, anglePtCourant);
+
+                    //double seuilDistance = 0;
+
+                    //switch (obstacle.Type)
+                    //{
+                    //    case ObjectType.Obstacle:
+                    //        seuilDistance = 0.18;
+                    //        break;
+                    //    case ObjectType.Robot:
+                    //        seuilDistance = 0.4;
+                    //        break;
+                    //    default:
+                    //        seuilDistance = 0.2;
+                    //        break;
+                    //}
+
+                    //if (//distanceObstacle > 0.28 && //distance mùinimum pour considérer un objet, en dessous, on a probablment un morceau de notre robot
+                    //    Math.Abs(distanceObstacle * (anglePtCourant - angleObstacle)) < seuilDistance && //Si on est dans le cone de masquage d'un objet
+                    //     distancePt > distanceObstacle - seuilDistance) //Si on est dans le cone de masquage - condition 2
+                    //    penalisation += 1;
+                }
+            }
+        }
+
         //public void GenerateHeatMap(double[,] heatMap, int width, int height, float widthTerrain, float heightTerrain)
         //{
         //    float destXInHeatmap = (float)(preferedDestinationX / widthTerrain + 0.5) * (width - 1);  //-1 car on a augmenté la taille de 1 pour avoir une figure symétrique
