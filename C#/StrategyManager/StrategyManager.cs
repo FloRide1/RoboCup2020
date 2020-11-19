@@ -79,11 +79,11 @@ namespace StrategyManager
             OnMirrorModeForwardEvent?.Invoke(sender, val);
         }
 
-        public event EventHandler<LocationArgs> OnDestinationEvent;
-        public virtual void OnDestination(int id, Location location)
-        {
-            OnDestinationEvent?.Invoke(this, new LocationArgs { RobotId = id, Location = location });
-        }
+        //public event EventHandler<LocationArgs> OnDestinationEvent;
+        //public virtual void OnDestination(int id, Location location)
+        //{
+        //    OnDestinationEvent?.Invoke(this, new LocationArgs { RobotId = id, Location = location });
+        //}
 
         //public event EventHandler<HeatMapArgs> OnHeatMapEvent;
         //public virtual void OnHeatMap(int id, Heatmap heatMap)
@@ -334,10 +334,10 @@ namespace StrategyManager
             robotRole = role;
         }
                      
-        public void SetDestination(Location location)
-        {
-            OnDestination(robotId, location);
-        }
+        //public void SetDestination(Location location)
+        //{
+        //    OnDestination(robotId, location);
+        //}
     }
 
 

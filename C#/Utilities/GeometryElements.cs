@@ -146,16 +146,15 @@ namespace Utilities
         {
             this.radius = radius;
             this.center = center;
+            this.strength = strength;
         }
     }
     public class RectangleZone
     {
         public RectangleD rectangularZone;
-        public double strength; //La force correspond à l'intensité du point central de la zone
         public RectangleZone(RectangleD rect, double strength = 0)
         {
             this.rectangularZone = rect;
-            this.strength = strength;
         }
     }
 

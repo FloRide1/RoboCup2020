@@ -54,12 +54,19 @@ namespace HeatMap
         }
         public PointD GetBaseHeatMapPosFromFieldCoordinates(PointD ptTerrain)
         {
-            //return new PointD((x + HalfFieldLength) / BaseXCellSize, (y + HalfFieldHeight) / BaseYCellSize);
-
-            float xHeatmap = (float)(ptTerrain.X / FieldLength + 0.5) * (nbCellInBaseHeatMapWidth - 1);
-            float yHeatmap = (float)(ptTerrain.Y / FieldHeight + 0.5) * (nbCellInBaseHeatMapHeight - 1);
+            double xHeatmap = (ptTerrain.X / FieldLength + 0.5) * (nbCellInBaseHeatMapWidth - 1);
+            double yHeatmap = (ptTerrain.Y / FieldHeight + 0.5) * (nbCellInBaseHeatMapHeight - 1);
 
             return new PointD(xHeatmap, yHeatmap);
+        }
+
+        public double GetBaseHeatMapXPosFromFieldCoordinates(double posX)
+        {
+            return (posX / FieldLength + 0.5) * (nbCellInBaseHeatMapWidth - 1);
+        }
+        public double GetBaseHeatMapYPosFromFieldCoordinates(double posY)
+        {
+            return (posY / FieldHeight+ 0.5) * (nbCellInBaseHeatMapHeight - 1);
         }
 
         public double GetBaseHeatMapDistanceFromFieldDistance(double distTerrain)
@@ -115,8 +122,28 @@ namespace HeatMap
         ////    return new PointD(maxPosX, maxPosY);
         ////}
 
-        public void GenerateHeatMap(List<Zone> preferredZonesList, List<Zone> avoidanceZonesList)
+        public void GenerateHeatMap(List<Zone> preferredZonesList, List<Zone> avoidanceZonesList, List<RectangleZone> forbiddenRectangleList)
         {
+            //Gestion des zones interdites
+            lock (forbiddenRectangleList)
+            {
+                foreach (var forbiddenRectangle in forbiddenRectangleList)
+                {
+                    var xMinHeatMap = GetBaseHeatMapXPosFromFieldCoordinates(forbiddenRectangle.rectangularZone.Xmin);
+                    var xMaxHeatMap = GetBaseHeatMapXPosFromFieldCoordinates(forbiddenRectangle.rectangularZone.Xmax);
+                    var yMinHeatMap = GetBaseHeatMapYPosFromFieldCoordinates(forbiddenRectangle.rectangularZone.Ymin);
+                    var yMaxHeatMap = GetBaseHeatMapYPosFromFieldCoordinates(forbiddenRectangle.rectangularZone.Ymax);
+
+                    for (int y = (int)Math.Max(0, yMinHeatMap); y < (int)(Math.Min(nbCellInBaseHeatMapHeight, yMaxHeatMap)); y++)
+                    {
+                        for (int x = (int)Math.Max(0, xMinHeatMap); x < (int)(Math.Min(nbCellInBaseHeatMapWidth, xMaxHeatMap)); x++)
+                        {
+                            BaseHeatMapData[y, x] = -1;
+                        }
+                    }
+                }
+            }
+
             lock (preferredZonesList)
             {
                 foreach (var preferredZone in preferredZonesList)
@@ -128,8 +155,10 @@ namespace HeatMap
                     {
                         for (int x = (int)Math.Max(0, centerRefHeatMap.X - radiusRefHeatMap); x < (int)(Math.Min(nbCellInBaseHeatMapWidth, centerRefHeatMap.X + radiusRefHeatMap)); x++)
                         {
-                            //Calcul de la fonction de cout de stratégie
-                            BaseHeatMapData[y, x] = Math.Max(0, 1 - Math.Sqrt((centerRefHeatMap.X - x) * (centerRefHeatMap.X - x) + (centerRefHeatMap.Y - y) * (centerRefHeatMap.Y - y)) / radiusRefHeatMap);
+                            if (BaseHeatMapData[y, x] > -1) //On regarde si on n'est pas dans une zone exclue (valeur -1)
+                            {
+                                BaseHeatMapData[y, x] += preferredZone.strength * Math.Max(0, 1 - Math.Sqrt((centerRefHeatMap.X - x) * (centerRefHeatMap.X - x) + (centerRefHeatMap.Y - y) * (centerRefHeatMap.Y - y)) / radiusRefHeatMap);
+                            }
                         }
                     }
                 }

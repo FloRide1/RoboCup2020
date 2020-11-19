@@ -91,10 +91,13 @@ namespace StrategyManager
             DetermineRobotRole();
             IterateStateMachines();
             PositioningHeatMapGeneration();
-            GetOptimalDestination();
+            var optimalPosition = GetOptimalDestination();
 
             //Renvoi de la HeatMap Stratégie
             OnHeatMap(robotId, positioningHeatMap);
+            //Mise à jour de la destination
+            double robotOrientation = 0;
+            OnDestination(robotId, new Location((float)optimalPosition.X, (float)optimalPosition.Y, (float)robotOrientation, 0, 0, 0));
         }
 
         public abstract void DetermineRobotRole(); //A définir dans les classes héritées
@@ -109,17 +112,17 @@ namespace StrategyManager
 
             //Génération de la HeatMap
             positioningHeatMap.InitHeatMapData();
-            positioningHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList);
+            positioningHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList);
 
             sw.Stop();
         }
 
-        public void GetOptimalDestination()
+        public PointD GetOptimalDestination()
         {
-            PointD OptimalPosition = positioningHeatMap.GetOptimalPosition();
+            PointD optimalPosition = positioningHeatMap.GetOptimalPosition();
 
             //TODO à gérer à partir des coordonnées des centres des zones préférées
-            
+
             //Si la position optimale est très de la cible théorique, on prend la cible théorique
             //double seuilPositionnementFinal = 0.1;
             //if (Toolbox.Distance(new PointD(robotDestination.X, robotDestination.Y), new PointD(OptimalPosition.X, OptimalPosition.Y)) < seuilPositionnementFinal)
@@ -128,46 +131,73 @@ namespace StrategyManager
             //}
 
             //OnDestination(robotId, new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, (float)robotOrientation, 0, 0, 0));
+            return optimalPosition;
         }
 
         //Zones circulaires préférentielles
         List<Zone> preferredZonesList = new List<Zone>();
         public void InitPreferedZones()
         {
-            preferredZonesList = new List<Zone>();
+            lock (preferredZonesList)
+            {
+                preferredZonesList = new List<Zone>();
+            }
         }
         public void AddPreferedZone(PointD location, double radius, double strength)
         {
-            preferredZonesList.Add(new Zone(location, radius, strength));
+            lock (preferredZonesList)
+            {
+                preferredZonesList.Add(new Zone(location, radius, strength));
+            }
         }
 
         //Zones circulaires à éviter
         List<Zone> avoidanceZonesList = new List<Zone>();
         public void InitAvoidanceZones()
         {
-            avoidanceZonesList = new List<Zone>();
+            lock (avoidanceZonesList)
+            {
+                avoidanceZonesList = new List<Zone>();
+            }
         }
         public void AddAvoidanceZone(PointD location, double radius, double strength)
         {
-            avoidanceZonesList.Add(new Zone(location, radius, strength));
+            lock (avoidanceZonesList)
+            {
+                avoidanceZonesList.Add(new Zone(location, radius, strength));
+            }
         }
 
         //Zones rectangulaires interdites
         List<RectangleZone> forbiddenRectangleList = new List<RectangleZone>();
         public void InitForbiddenRectangleList()
         {
-            forbiddenRectangleList = new List<RectangleZone>();
+            lock (forbiddenRectangleList)
+            {
+                forbiddenRectangleList = new List<RectangleZone>();
+            }
         }
-        public void AddForbiddenRectangle(RectangleD rect, double strength)
+        public void AddForbiddenRectangle(RectangleD rect)
         {
-            forbiddenRectangleList.Add(new RectangleZone(rect, strength));
+            lock (forbiddenRectangleList)
+            {
+                forbiddenRectangleList.Add(new RectangleZone(rect));
+            }
         }
 
+
+        /****************************************** Events envoyés ***********************************************/
 
         public event EventHandler<HeatMapArgs> OnHeatMapEvent;
         public virtual void OnHeatMap(int id, Heatmap heatMap)
         {
             OnHeatMapEvent?.Invoke(this, new HeatMapArgs { RobotId = id, HeatMap = heatMap });
+        }
+
+        public event EventHandler<LocationArgs> OnDestinationEvent;
+        public virtual void OnDestination(int id, Location location)
+        {
+            OnDestinationEvent?.Invoke(this, new LocationArgs { RobotId = id, Location = location });
         }
     }
 

@@ -161,7 +161,7 @@ namespace TeamSimulator
             }
 
             //Liens entre modules
-            strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
+            strategyManager.strategy.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
             strategyManager.strategy.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
             strategyManager.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
@@ -192,7 +192,7 @@ namespace TeamSimulator
 
             //Update des données de la localWorldMap
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
-            strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
+            strategyManager.strategy.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             strategyManager.strategy.OnHeatMapEvent += localWorldMapManager.OnHeatMapStrategyReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapWaypointReceived;
