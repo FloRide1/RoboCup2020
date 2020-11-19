@@ -15,7 +15,8 @@ namespace StrategyManager
 {
     /****************************************************************************/
     /// <summary>
-    /// Le Strategy Manager a pour rôle de déterminer le rôle les déplacements et les actions du robot auquel il appartient
+    /// Il y a un Strategy Manager par robot, qui partage la même Global World Map -> les stratégies collaboratives sont possibles
+    /// Le Strategy Manager a pour rôle de déterminer les déplacements et les actions du robot auquel il appartient
     /// 
     /// Il implante implante à minima le schéma de fonctionnement suivant
     /// - Récupération asynchrone de la Global World Map décrivant l'état du monde autour du robot
@@ -24,7 +25,7 @@ namespace StrategyManager
     ///         - simple si Eurobot car les rôles sont figés
     ///         - complexe dans le cas de la RoboCup car les rôles sont changeant en fonction des positions et du contexte.
     /// - Sur Timer Strategy : Itération des machines à état de jeu définissant les déplacements et actions en fonction du temps
-    ///         - implante les les machines à état de jeu à Eurobot, ainsi que les règles spécifiques 
+    ///         - implante les machines à état de jeu à Eurobot, ainsi que les règles spécifiques 
     ///         de jeu (déplacement max en controlant le ballon par exemple à la RoboCup).
     ///         - met à jour la destination théorique de déplacement (par exemple la balle pour le joueur qui la conteste à la RoboCup), 
     ///         les zones interdites (par exemple les zones de départ à Eurobot), 
@@ -45,6 +46,7 @@ namespace StrategyManager
 
         public GlobalWorldMap globalWorldMap;
         public Heatmap positioningHeatMap;
+        public Location robotCurrentLocation = new Location(0, 0, 0, 0, 0, 0);
 
         Stopwatch sw = new Stopwatch();
         Timer timerStrategy;
@@ -92,6 +94,13 @@ namespace StrategyManager
             IterateStateMachines();
             PositioningHeatMapGeneration();
             var optimalPosition = GetOptimalDestination();
+
+            List<LocationExtended> obstacleList = new List<LocationExtended>();
+            obstacleList.Add(new LocationExtended(5, 0, 0, 0, 0, 0, ObjectType.Obstacle));
+            obstacleList.Add(new LocationExtended(-2, 2, 0, 0, 0, 0, ObjectType.Obstacle));
+            obstacleList.Add(new LocationExtended(-3, 0, 0, 0, 0, 0, ObjectType.Obstacle));
+            obstacleList.Add(new LocationExtended(-0, -4, 0, 0, 0, 0, ObjectType.Obstacle));
+            positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, 1.0);
 
             //Renvoi de la HeatMap Stratégie
             OnHeatMap(robotId, positioningHeatMap);

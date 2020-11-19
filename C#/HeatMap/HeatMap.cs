@@ -187,13 +187,231 @@ namespace HeatMap
             }
         }
 
-        public void ExcludeMaskedZones(List<LocationExtended> obstacleLocationList)
+        public void ExcludeMaskedZones(PointD robotLocation, List<LocationExtended> obstacleLocationList, double exclusionRadius)
         {
-            //On calcule la pénalisation sur la liste des obstacles à éviter
+            int nbPolygonPoints = 12;
+            var exclusionRadiusRefHeatMap = GetBaseHeatMapDistanceFromFieldDistance(exclusionRadius);
+            var RobotLocationRefHeatMap = GetBaseHeatMapPosFromFieldCoordinates(new PointD(robotLocation.X, robotLocation.Y));
+
+            /// On calcule la pénalisation sur la liste des obstacles à éviter
             lock (obstacleLocationList)
-            {
+            {                
                 foreach (var obstacle in obstacleLocationList)
                 {
+                    var centerObstacleRefHeatMap = GetBaseHeatMapPosFromFieldCoordinates(new PointD(obstacle.X, obstacle.Y));
+                    double angleCentreObstacle = Math.Atan2(centerObstacleRefHeatMap.Y - RobotLocationRefHeatMap.Y, centerObstacleRefHeatMap.X - RobotLocationRefHeatMap.X);
+
+
+                    /// Pour chaque obstacle, on détermine les points d'un polygone l'entourant à n cotés pour approximer le cercle 
+                    /// d'exclusion du point obstacle considéré.
+                    /// Pour chacun de ces points, on détermine l'angle Robot-Point, et on trouve le plus grand et le plus petit qui forment les
+                    /// angles max et min du cone d'exclusion.
+                    /// 
+
+                    List<PointD> listPtsPolygonExclusion = new List<PointD>();
+                    List<double> listAnglePtsPolygonExclusion = new List<double>();
+                    for (int i=0; i<nbPolygonPoints; i++)
+                    {
+                        listPtsPolygonExclusion.Add(new PointD(centerObstacleRefHeatMap.X + exclusionRadiusRefHeatMap * Math.Cos(2 * Math.PI / nbPolygonPoints * i), centerObstacleRefHeatMap.Y + exclusionRadiusRefHeatMap * Math.Sin(2 * Math.PI / nbPolygonPoints * i)));
+                        /// On détermine l'angle de chacun des points de la zone d'exclusion du polygon centré autour de l'obstacle
+                        double anglePt = Math.Atan2(listPtsPolygonExclusion[i].Y - RobotLocationRefHeatMap.Y, listPtsPolygonExclusion[i].X - RobotLocationRefHeatMap.X);
+                        /// On décale cet angle autour de l'angle du centre de l'obstacle pour éviter les discontinuités 0 / 2*PI
+                        anglePt= Toolbox.ModuloByAngle(angleCentreObstacle, anglePt);
+                        listAnglePtsPolygonExclusion.Add(anglePt);
+                    }
+
+                    double minAngle = listAnglePtsPolygonExclusion.Min();
+                    int indexAngleMin = listAnglePtsPolygonExclusion.IndexOf(minAngle);
+                    PointD ptAngleMin = listPtsPolygonExclusion[indexAngleMin];
+
+                    double maxAngle = listAnglePtsPolygonExclusion.Max();
+                    int indexAngleMax = listAnglePtsPolygonExclusion.IndexOf(maxAngle);
+                    PointD ptAngleMax = listPtsPolygonExclusion[indexAngleMax];
+
+                    /// On connait les deux points de tangence de la zone d'exclusion ptMinAngle et ptMaxAngle
+                    /// On va éliminer les pts masqué par balayage en X uniquement, on veut donc un pt de périmètre 
+                    /// pour chaque valeur de X entre ptAngleMin.X et nbCellInBaseHeatMapWidth si Angle Min est compris entre -PI/2 et PI/2
+                    /// On peut s'arrêter avant si on a atteint le bord supérieur ou inférieur de la HeatMap
+                    /// 
+                    /// pour chaque valeur de X entre ptAngleMin.X et 0 si Angle Min n'est pas compris entre -PI/2 et PI/2
+                    /// On peut s'arrêter avant si on a atteint le bord supérieur ou inférieur de la HeatMap
+                    List<PointD> listPtsPerimetreExclusion = new List<PointD>();
+
+                    int[] listAbscissesZoneExclusionInferieure = new int[nbCellInBaseHeatMapWidth];
+                    int[] listAbscissesZoneExclusionSuperieure = new int[nbCellInBaseHeatMapWidth];
+
+
+                    /// Attention : algo un peu compliqué... 
+                    /// Si les angles min et max sont dans le même demi-plan vertical par rapport au robot 
+                    /// alors on est dans un cas ou il y a une partie supérieure et une partie inférieure au cone d'exclusion
+                    /// Si ce n'est pas le cas, on est de par et d'autre de la verticale : il n'y a donc qu'une partie supérieure OU une partie inférieure
+                    /// 
+
+                    if (((Math.Abs(minAngle) < Math.PI / 2) && (Math.Abs(maxAngle) < Math.PI / 2))
+                        || ((Math.Abs(minAngle) >= Math.PI / 2) && (Math.Abs(maxAngle) >= Math.PI / 2)))
+                    {
+                        ///On est dans la situation classique avec une partie sup et une partie inférieure
+
+                        /// Partie inférieure du périmètre d'exclusion
+                        if (Math.Abs(minAngle) < Math.PI / 2)
+                        {
+                            /// On commence par la portion linéaire du cone
+                            for (int x = (int)ptAngleMin.X; x < nbCellInBaseHeatMapWidth; x++)
+                            {
+                                PointD perimetrePt = new PointD(x, (int)ptAngleMin.Y + (x - ptAngleMin.X) * Math.Tan(minAngle));
+                                if (perimetrePt.Y > nbCellInBaseHeatMapHeight || perimetrePt.Y < 0)
+                                    break;
+                                listPtsPerimetreExclusion.Add(perimetrePt);
+                                listAbscissesZoneExclusionInferieure[x] = (int)perimetrePt.Y;
+                            }
+                            /// On gère la partie circulaire
+                            for (int x = (int)(centerObstacleRefHeatMap.X - exclusionRadiusRefHeatMap); x <= ptAngleMin.X; x++)
+                            {
+                                int y = (int)(centerObstacleRefHeatMap.Y - Math.Sqrt(Math.Max(0, exclusionRadiusRefHeatMap * exclusionRadiusRefHeatMap - (x - centerObstacleRefHeatMap.X) * (x - centerObstacleRefHeatMap.X))));
+
+                                listPtsPerimetreExclusion.Add(new PointD(x, y));
+                                listAbscissesZoneExclusionInferieure[x] = y;
+                            }
+                        }
+                        else
+                        {
+                            /// Si on est dans la partie abs(angle)>Pi/2, le minAngle est en haut, et le maxAngle est en bas ! Attention !!!
+                            for (int x = (int)ptAngleMax.X; x >= 0; x--)
+                            {
+                                PointD perimetrePt = new PointD(x, (int)ptAngleMax.Y + (x - ptAngleMax.X) * Math.Tan(maxAngle));
+                                if (perimetrePt.Y > nbCellInBaseHeatMapHeight || perimetrePt.Y < 0)
+                                    break;
+                                listPtsPerimetreExclusion.Add(perimetrePt);
+                                listAbscissesZoneExclusionInferieure[x] = (int)perimetrePt.Y;
+                            }
+
+                            /// On gère la partie circulaire
+                            for (int x = (int)ptAngleMax.X; x <= (int)(centerObstacleRefHeatMap.X + exclusionRadiusRefHeatMap); x++)
+                            {
+                                int y = (int)(centerObstacleRefHeatMap.Y - Math.Sqrt(Math.Max(0, exclusionRadiusRefHeatMap * exclusionRadiusRefHeatMap - (x - centerObstacleRefHeatMap.X) * (x - centerObstacleRefHeatMap.X))));
+
+                                listPtsPerimetreExclusion.Add(new PointD(x, y));
+                                listAbscissesZoneExclusionInferieure[x] = y;
+                            }
+                        }
+
+                        /// Partie supérieure du périmètre d'exclusion
+                        if (Math.Abs(maxAngle) < Math.PI / 2)
+                        {
+                            for (int x = (int)ptAngleMax.X; x < nbCellInBaseHeatMapWidth; x++)
+                            {
+                                PointD perimetrePt = new PointD(x, (int)ptAngleMax.Y + (x - ptAngleMax.X) * Math.Tan(maxAngle));
+                                if (perimetrePt.Y > nbCellInBaseHeatMapHeight || perimetrePt.Y < 0)
+                                    break;
+                                listPtsPerimetreExclusion.Add(perimetrePt);
+                                listAbscissesZoneExclusionSuperieure[x] = (int)perimetrePt.Y;
+                            }
+                            /// On gère la partie circulaire
+                            for (int x = (int)(centerObstacleRefHeatMap.X - exclusionRadiusRefHeatMap); x <= ptAngleMin.X; x++)
+                            {
+                                int y = (int)(centerObstacleRefHeatMap.Y + Math.Sqrt(Math.Max(0, exclusionRadiusRefHeatMap * exclusionRadiusRefHeatMap - (x - centerObstacleRefHeatMap.X) * (x - centerObstacleRefHeatMap.X))));
+
+                                listPtsPerimetreExclusion.Add(new PointD(x, y));
+                                listAbscissesZoneExclusionSuperieure[x] = y;
+                            }
+                        }
+                        else
+                        {
+                            /// Si on est dans la partie abs(angle)>Pi/2, le minAngle est en haut, et le maxAngle est en bas ! Attention !!!
+                            for (int x = (int)ptAngleMin.X; x >= 0; x--)
+                            {
+                                PointD perimetrePt = new PointD(x, (int)ptAngleMin.Y + (x - ptAngleMin.X) * Math.Tan(minAngle));
+                                if (perimetrePt.Y > nbCellInBaseHeatMapHeight || perimetrePt.Y < 0)
+                                    break;
+                                listPtsPerimetreExclusion.Add(perimetrePt);
+                                listAbscissesZoneExclusionSuperieure[x] = (int)perimetrePt.Y;
+                            }
+
+                            ///// On gère la partie circulaire
+                            for (int x = (int)ptAngleMin.X; x <= (int)(centerObstacleRefHeatMap.X + exclusionRadiusRefHeatMap); x++)
+                            {
+                                int y = (int)(centerObstacleRefHeatMap.Y + Math.Sqrt(Math.Max(0, exclusionRadiusRefHeatMap * exclusionRadiusRefHeatMap - (x - centerObstacleRefHeatMap.X) * (x - centerObstacleRefHeatMap.X))));
+
+                                listPtsPerimetreExclusion.Add(new PointD(x, y));
+                                listAbscissesZoneExclusionSuperieure[x] = y;
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        //On gère les cas où le minAngle et le maxAngle sont dans des cadrans différents
+                        /// Partie inférieure du périmètre d'exclusion
+                        if (Toolbox.Modulo2PiAngleRad(angleCentreObstacle) < 0)
+                        {
+                            //On est dans le demi-plan inférieur, et on n'a que des périmètre supérieur
+                            //Angle Max est forcément supérieur à -Pi/2
+                            for (int x = (int)ptAngleMax.X; x < nbCellInBaseHeatMapWidth; x++)
+                            {
+                                PointD perimetrePt = new PointD(x, (int)ptAngleMax.Y + (x - ptAngleMax.X) * Math.Tan(maxAngle));
+                                if (perimetrePt.Y > nbCellInBaseHeatMapHeight || perimetrePt.Y < 0)
+                                    break;
+                                listPtsPerimetreExclusion.Add(perimetrePt);
+                                listAbscissesZoneExclusionSuperieure[x] = (int)perimetrePt.Y;
+                            }
+                            //Angle Min est forcément inférieur à -Pi/2
+                            for (int x = (int)ptAngleMin.X; x >= 0; x--)
+                            {
+                                PointD perimetrePt = new PointD(x, (int)ptAngleMin.Y + (x - ptAngleMin.X) * Math.Tan(minAngle));
+                                if (perimetrePt.Y > nbCellInBaseHeatMapHeight || perimetrePt.Y < 0)
+                                    break;
+                                listPtsPerimetreExclusion.Add(perimetrePt);
+                                listAbscissesZoneExclusionSuperieure[x] = (int)perimetrePt.Y;
+                            }
+
+                            ///// On gère la partie circulaire
+                            for (int x = (int)ptAngleMin.X; x <= ptAngleMax.X; x++)
+                            {
+                                int y = (int)(centerObstacleRefHeatMap.Y + Math.Sqrt(Math.Max(0, exclusionRadiusRefHeatMap * exclusionRadiusRefHeatMap - (x - centerObstacleRefHeatMap.X) * (x - centerObstacleRefHeatMap.X))));
+
+                                listPtsPerimetreExclusion.Add(new PointD(x, y));
+                                listAbscissesZoneExclusionSuperieure[x] = y;
+                            }
+                        }
+
+                        else
+                        {
+                            //On est dans le demi-plan supérieur, et on n'a que des périmètre supérieur
+                            //Angle Max est forcément inférieur à -Pi/2
+                            /// On commence par la portion linéaire du cone
+                            for (int x = (int)ptAngleMin.X; x < nbCellInBaseHeatMapWidth; x++)
+                            {
+                                PointD perimetrePt = new PointD(x, (int)ptAngleMin.Y + (x - ptAngleMin.X) * Math.Tan(minAngle));
+                                if (perimetrePt.Y > nbCellInBaseHeatMapHeight || perimetrePt.Y < 0)
+                                    break;
+                                listPtsPerimetreExclusion.Add(perimetrePt);
+                                listAbscissesZoneExclusionInferieure[x] = (int)perimetrePt.Y;
+                            }
+                            for (int x = (int)ptAngleMax.X; x >= 0; x--)
+                            {
+                                PointD perimetrePt = new PointD(x, (int)ptAngleMax.Y + (x - ptAngleMax.X) * Math.Tan(maxAngle));
+                                if (perimetrePt.Y > nbCellInBaseHeatMapHeight || perimetrePt.Y < 0)
+                                    break;
+                                listPtsPerimetreExclusion.Add(perimetrePt);
+                                listAbscissesZoneExclusionInferieure[x] = (int)perimetrePt.Y;
+                            }
+                            /// On gère la partie circulaire
+                            for (int x = (int)ptAngleMax.X; x <= (int)ptAngleMin.X; x++)
+                            {
+                                int y = (int)(centerObstacleRefHeatMap.Y - Math.Sqrt(Math.Max(0, exclusionRadiusRefHeatMap * exclusionRadiusRefHeatMap - (x - centerObstacleRefHeatMap.X) * (x - centerObstacleRefHeatMap.X))));
+
+                                listPtsPerimetreExclusion.Add(new PointD(x, y));
+                                listAbscissesZoneExclusionInferieure[x] = y;
+                            }
+                        }
+                    }
+                    
+                    //On affiche les points périmètre exclus
+                    foreach (var pt in listPtsPerimetreExclusion)
+                    {
+                        BaseHeatMapData[(int)pt.Y, (int)pt.X] = -1;
+                    }
+                                        
                     //var centerRefHeatMap = GetBaseHeatMapPosFromFieldCoordinates(avoidanceZone.center);
                     //var radiusRefHeatMap = GetBaseHeatMapDistanceFromFieldDistance(avoidanceZone.radius);
 

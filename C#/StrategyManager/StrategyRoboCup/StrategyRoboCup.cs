@@ -44,6 +44,7 @@ namespace StrategyManager.StrategyRoboCupNS
             AddAvoidanceZone(new PointD(-8, -3), 1.5);
             
             AddForbiddenRectangle(new RectangleD(-5, 3, 4, 6));
+
         }
 
         public void EvaluateStrategy()

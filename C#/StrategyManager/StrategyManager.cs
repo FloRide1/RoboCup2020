@@ -40,7 +40,7 @@ namespace StrategyManager
             this.teamId = teamId;
             this.robotId = robotId;
 
-            switch(strategyMode)
+            switch (strategyMode)
             {
                 case GameMode.RoboCup:
                     //heatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 8), 1);
