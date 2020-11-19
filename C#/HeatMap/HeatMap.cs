@@ -189,7 +189,7 @@ namespace HeatMap
 
         public void ExcludeMaskedZones(PointD robotLocation, List<LocationExtended> obstacleLocationList, double exclusionRadius)
         {
-            int nbPolygonPoints = 12;
+            int nbPolygonPoints = 40;
             var exclusionRadiusRefHeatMap = GetBaseHeatMapDistanceFromFieldDistance(exclusionRadius);
             var RobotLocationRefHeatMap = GetBaseHeatMapPosFromFieldCoordinates(new PointD(robotLocation.X, robotLocation.Y));
 
@@ -239,6 +239,11 @@ namespace HeatMap
 
                     int[] listAbscissesZoneExclusionInferieure = new int[nbCellInBaseHeatMapWidth];
                     int[] listAbscissesZoneExclusionSuperieure = new int[nbCellInBaseHeatMapWidth];
+
+                    for (int i=0; i< nbCellInBaseHeatMapWidth; i++)
+                    {
+                        listAbscissesZoneExclusionInferieure[i] = nbCellInBaseHeatMapHeight - 1;
+                    }
                                         
                     /// Attention : algo un peu compliqué... 
                     /// Si les angles min et max sont dans le même demi-plan vertical par rapport au robot 
@@ -285,8 +290,8 @@ namespace HeatMap
                                 if (perimetrePt.Y > nbCellInBaseHeatMapHeight || perimetrePt.Y < 0)
                                     break;
                                 listPtsPerimetreExclusion.Add(perimetrePt);
-                                listAbscissesZoneExclusionInferieure[x] = (int)perimetrePt.Y;                                
-                                if(listAbscissesZoneExclusionSuperieure[x] == 0)
+                                listAbscissesZoneExclusionInferieure[x] = (int)perimetrePt.Y;
+                                if (listAbscissesZoneExclusionSuperieure[x] == 0)
                                 {
                                     listAbscissesZoneExclusionSuperieure[x] = nbCellInBaseHeatMapHeight;
                                 }
@@ -312,9 +317,13 @@ namespace HeatMap
                                     break;
                                 listPtsPerimetreExclusion.Add(perimetrePt);
                                 listAbscissesZoneExclusionSuperieure[x] = (int)perimetrePt.Y;
+                                if (listAbscissesZoneExclusionInferieure[x] == nbCellInBaseHeatMapHeight - 1)
+                                {
+                                    listAbscissesZoneExclusionInferieure[x] = 0;
+                                }
                             }
                             /// On gère la partie circulaire
-                            for (int x = (int)(centerObstacleRefHeatMap.X - exclusionRadiusRefHeatMap); x <= ptAngleMin.X; x++)
+                            for (int x = (int)(centerObstacleRefHeatMap.X - exclusionRadiusRefHeatMap); x <= ptAngleMax.X; x++)
                             {
                                 int y = (int)(centerObstacleRefHeatMap.Y + Math.Sqrt(Math.Max(0, exclusionRadiusRefHeatMap * exclusionRadiusRefHeatMap - (x - centerObstacleRefHeatMap.X) * (x - centerObstacleRefHeatMap.X))));
 
@@ -332,6 +341,10 @@ namespace HeatMap
                                     break;
                                 listPtsPerimetreExclusion.Add(perimetrePt);
                                 listAbscissesZoneExclusionSuperieure[x] = (int)perimetrePt.Y;
+                                if (listAbscissesZoneExclusionInferieure[x] == nbCellInBaseHeatMapHeight - 1)
+                                {
+                                    listAbscissesZoneExclusionInferieure[x] = 0;
+                                }
                             }
 
                             ///// On gère la partie circulaire
@@ -360,6 +373,10 @@ namespace HeatMap
                                     break;
                                 listPtsPerimetreExclusion.Add(perimetrePt);
                                 listAbscissesZoneExclusionSuperieure[x] = (int)perimetrePt.Y;
+                                if (listAbscissesZoneExclusionInferieure[x] == nbCellInBaseHeatMapHeight - 1)
+                                {
+                                    listAbscissesZoneExclusionInferieure[x] = 0;
+                                }
                             }
                             //Angle Min est forcément inférieur à -Pi/2
                             for (int x = (int)ptAngleMin.X; x >= 0; x--)
@@ -369,6 +386,10 @@ namespace HeatMap
                                     break;
                                 listPtsPerimetreExclusion.Add(perimetrePt);
                                 listAbscissesZoneExclusionSuperieure[x] = (int)perimetrePt.Y;
+                                if (listAbscissesZoneExclusionInferieure[x] == nbCellInBaseHeatMapHeight - 1)
+                                {
+                                    listAbscissesZoneExclusionInferieure[x] = 0;
+                                }
                             }
 
                             ///// On gère la partie circulaire
@@ -378,6 +399,10 @@ namespace HeatMap
 
                                 listPtsPerimetreExclusion.Add(new PointD(x, y));
                                 listAbscissesZoneExclusionSuperieure[x] = y;
+                                if (listAbscissesZoneExclusionInferieure[x] == nbCellInBaseHeatMapHeight - 1)
+                                {
+                                    listAbscissesZoneExclusionInferieure[x] = 0;
+                                }
                             }
                         }
 
@@ -393,6 +418,10 @@ namespace HeatMap
                                     break;
                                 listPtsPerimetreExclusion.Add(perimetrePt);
                                 listAbscissesZoneExclusionInferieure[x] = (int)perimetrePt.Y;
+                                if (listAbscissesZoneExclusionSuperieure[x] == 0)
+                                {
+                                    listAbscissesZoneExclusionSuperieure[x] = nbCellInBaseHeatMapHeight;
+                                }
                             }
                             for (int x = (int)ptAngleMax.X; x >= 0; x--)
                             {
@@ -401,6 +430,10 @@ namespace HeatMap
                                     break;
                                 listPtsPerimetreExclusion.Add(perimetrePt);
                                 listAbscissesZoneExclusionInferieure[x] = (int)perimetrePt.Y;
+                                if (listAbscissesZoneExclusionSuperieure[x] == 0)
+                                {
+                                    listAbscissesZoneExclusionSuperieure[x] = nbCellInBaseHeatMapHeight;
+                                }
                             }
                             /// On gère la partie circulaire
                             for (int x = (int)ptAngleMax.X; x <= (int)ptAngleMin.X; x++)
@@ -409,6 +442,10 @@ namespace HeatMap
 
                                 listPtsPerimetreExclusion.Add(new PointD(x, y));
                                 listAbscissesZoneExclusionInferieure[x] = y;
+                                if (listAbscissesZoneExclusionSuperieure[x] == 0)
+                                {
+                                    listAbscissesZoneExclusionSuperieure[x] = nbCellInBaseHeatMapHeight;
+                                }
                             }
                         }
                     }
@@ -419,14 +456,14 @@ namespace HeatMap
                         BaseHeatMapData[(int)pt.Y, (int)pt.X] = -1;
                     }
 
-                    for (int i=0; i< nbCellInBaseHeatMapWidth; i++)
+                    for (int i = 0; i < nbCellInBaseHeatMapWidth; i++)
                     {
-                        for (int j=listAbscissesZoneExclusionInferieure[i]; j< listAbscissesZoneExclusionSuperieure[i]; j++)
+                        for (int j = listAbscissesZoneExclusionInferieure[i]; j < listAbscissesZoneExclusionSuperieure[i]; j++)
                         {
                             BaseHeatMapData[j, i] = -1;
                         }
                     }
-                                        
+
                     //var centerRefHeatMap = GetBaseHeatMapPosFromFieldCoordinates(avoidanceZone.center);
                     //var radiusRefHeatMap = GetBaseHeatMapDistanceFromFieldDistance(avoidanceZone.radius);
 
