@@ -35,9 +35,15 @@ namespace StrategyManager.StrategyRoboCupNS
         public override void IterateStateMachines()
         {
             InitPreferedZones();
-            AddPreferedZone(new PointD(1, 0), 1, 1.5);
-            AddPreferedZone(new PointD(10, 5), 3.5, 0.8);
-            AddForbiddenRectangle(new RectangleD(0, 9, 4, 6));
+            InitAvoidanceZones();
+            InitForbiddenRectangleList();
+
+            AddPreferedZone(new PointD(1, 0), 1);
+            AddPreferedZone(new PointD(10, 5), 3.5);
+
+            AddAvoidanceZone(new PointD(-8, -3), 1.5);
+            
+            AddForbiddenRectangle(new RectangleD(-5, 3, 4, 6));
         }
 
         public void EvaluateStrategy()

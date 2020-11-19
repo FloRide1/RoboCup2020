@@ -143,7 +143,7 @@ namespace StrategyManager
                 preferredZonesList = new List<Zone>();
             }
         }
-        public void AddPreferedZone(PointD location, double radius, double strength)
+        public void AddPreferedZone(PointD location, double radius, double strength=1)
         {
             lock (preferredZonesList)
             {
@@ -160,7 +160,7 @@ namespace StrategyManager
                 avoidanceZonesList = new List<Zone>();
             }
         }
-        public void AddAvoidanceZone(PointD location, double radius, double strength)
+        public void AddAvoidanceZone(PointD location, double radius, double strength=1)
         {
             lock (avoidanceZonesList)
             {

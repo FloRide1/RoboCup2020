@@ -35,11 +35,12 @@
                 </s:XyScatterRenderableSeries>
                 <s:FastUniformHeatmapRenderableSeries x:Name="heatmapSeries" Opacity="0.6">
                     <s:FastUniformHeatmapRenderableSeries.ColorMap>
-                        <s:HeatmapColorPalette Maximum="1">
+                        <s:HeatmapColorPalette Minimum="-1" Maximum="1">
                             <s:HeatmapColorPalette.GradientStops>
-                                <GradientStop Offset="0" Color="#116699FF" />
-                                <GradientStop Offset="0.2" Color="#4466FFFF" />
-                                <GradientStop Offset="0.4" Color="#77FFFF99" />
+                                <GradientStop Offset="0" Color="#DD3344FF" />
+                                <GradientStop Offset="0.2" Color="#AA5588FF" />
+                                <GradientStop Offset="0.4" Color="#9977AAFF" />
+                                <GradientStop Offset="0.5" Color="#11FFFFFF" />
                                 <GradientStop Offset="0.6" Color="#99FFCC00" />
                                 <GradientStop Offset="0.8" Color="#BBFF6600" />
                                 <GradientStop Offset="1" Color="#DDFF0000" />
