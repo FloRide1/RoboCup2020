@@ -239,8 +239,7 @@ namespace HeatMap
 
                     int[] listAbscissesZoneExclusionInferieure = new int[nbCellInBaseHeatMapWidth];
                     int[] listAbscissesZoneExclusionSuperieure = new int[nbCellInBaseHeatMapWidth];
-
-
+                                        
                     /// Attention : algo un peu compliqué... 
                     /// Si les angles min et max sont dans le même demi-plan vertical par rapport au robot 
                     /// alors on est dans un cas ou il y a une partie supérieure et une partie inférieure au cone d'exclusion
@@ -263,6 +262,10 @@ namespace HeatMap
                                     break;
                                 listPtsPerimetreExclusion.Add(perimetrePt);
                                 listAbscissesZoneExclusionInferieure[x] = (int)perimetrePt.Y;
+                                if (listAbscissesZoneExclusionSuperieure[x] == 0)
+                                {
+                                    listAbscissesZoneExclusionSuperieure[x] = nbCellInBaseHeatMapHeight;
+                                }
                             }
                             /// On gère la partie circulaire
                             for (int x = (int)(centerObstacleRefHeatMap.X - exclusionRadiusRefHeatMap); x <= ptAngleMin.X; x++)
@@ -282,7 +285,11 @@ namespace HeatMap
                                 if (perimetrePt.Y > nbCellInBaseHeatMapHeight || perimetrePt.Y < 0)
                                     break;
                                 listPtsPerimetreExclusion.Add(perimetrePt);
-                                listAbscissesZoneExclusionInferieure[x] = (int)perimetrePt.Y;
+                                listAbscissesZoneExclusionInferieure[x] = (int)perimetrePt.Y;                                
+                                if(listAbscissesZoneExclusionSuperieure[x] == 0)
+                                {
+                                    listAbscissesZoneExclusionSuperieure[x] = nbCellInBaseHeatMapHeight;
+                                }
                             }
 
                             /// On gère la partie circulaire
@@ -410,6 +417,14 @@ namespace HeatMap
                     foreach (var pt in listPtsPerimetreExclusion)
                     {
                         BaseHeatMapData[(int)pt.Y, (int)pt.X] = -1;
+                    }
+
+                    for (int i=0; i< nbCellInBaseHeatMapWidth; i++)
+                    {
+                        for (int j=listAbscissesZoneExclusionInferieure[i]; j< listAbscissesZoneExclusionSuperieure[i]; j++)
+                        {
+                            BaseHeatMapData[j, i] = -1;
+                        }
                     }
                                         
                     //var centerRefHeatMap = GetBaseHeatMapPosFromFieldCoordinates(avoidanceZone.center);

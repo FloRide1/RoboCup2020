@@ -97,9 +97,11 @@ namespace StrategyManager
 
             List<LocationExtended> obstacleList = new List<LocationExtended>();
             obstacleList.Add(new LocationExtended(5, 0, 0, 0, 0, 0, ObjectType.Obstacle));
+            obstacleList.Add(new LocationExtended(-5, 0, 0, 0, 0, 0, ObjectType.Obstacle));
             obstacleList.Add(new LocationExtended(-2, 2, 0, 0, 0, 0, ObjectType.Obstacle));
             obstacleList.Add(new LocationExtended(-3, 0, 0, 0, 0, 0, ObjectType.Obstacle));
             obstacleList.Add(new LocationExtended(-0, -4, 0, 0, 0, 0, ObjectType.Obstacle));
+            obstacleList.Add(new LocationExtended(-0, 4, 0, 0, 0, 0, ObjectType.Obstacle));
             positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, 1.0);
 
             //Renvoi de la HeatMap Stratégie
