@@ -50,8 +50,8 @@ namespace TeamSimulator
 
         static object ExitLock = new object();
 
-        static int nbPlayersTeam1 = 1;
-        static int nbPlayersTeam2 = 0;
+        static int nbPlayersTeam1 = 5;
+        static int nbPlayersTeam2 = 5;
 
 
         [STAThread] //à ajouter au projet initial
@@ -229,13 +229,13 @@ namespace TeamSimulator
             if (TeamNumber == (int)TeamId.Team1)
             {
                 xInit = 2 * RobotNumber + 2;
-                yInit = -7;
+                yInit = -6.5;
                 thetaInit = Math.PI/2;
             }
             else
             {
                 xInit = - (2 * RobotNumber + 2);
-                yInit = -7;
+                yInit = +6.5;
                 thetaInit = 0;
             }
             physicalSimulator.RegisterRobot(robotId, xInit, yInit);

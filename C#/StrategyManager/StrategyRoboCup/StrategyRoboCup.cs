@@ -26,7 +26,7 @@ namespace StrategyManager.StrategyRoboCupNS
 
         public override void InitHeatMap()
         {
-            positioningHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 8)); //Init HeatMap
+            positioningHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 7)); //Init HeatMap
         }
 
         public override void DetermineRobotRole()
@@ -40,6 +40,11 @@ namespace StrategyManager.StrategyRoboCupNS
 
             AddPreferedZone(new PointD(1, 0), 1);
             AddPreferedZone(new PointD(10, 5), 3.5);
+            AddPreferedZone(new PointD(-2, 4), 3.5);
+            AddPreferedZone(new PointD(-7, -4), 2.0);
+            AddPreferedZone(new PointD(-10, 0), 5.0);
+            AddPreferedZone(new PointD(0, 1.5), 3.5);
+            AddPreferedZone(new PointD(3, 5), 1.5);
 
             AddAvoidanceZone(new PointD(-8, -3), 1.5);
             

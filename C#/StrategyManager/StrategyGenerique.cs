@@ -91,13 +91,13 @@ namespace StrategyManager
         }
         public void OnPositionRobotReceived(object sender, LocationArgs location)
         {
-            //robotCurrentLocation.X = location.Location.X;
-            //robotCurrentLocation.Y = location.Location.Y;
-            //robotCurrentLocation.Theta = location.Location.Theta;
+            robotCurrentLocation.X = location.Location.X;
+            robotCurrentLocation.Y = location.Location.Y;
+            robotCurrentLocation.Theta = location.Location.Theta;
 
-            //robotCurrentLocation.Vx = location.Location.Vx;
-            //robotCurrentLocation.Vy = location.Location.Vy;
-            //robotCurrentLocation.Vtheta = location.Location.Vtheta;
+            robotCurrentLocation.Vx = location.Location.Vx;
+            robotCurrentLocation.Vy = location.Location.Vy;
+            robotCurrentLocation.Vtheta = location.Location.Vtheta;
         }
 
         private void TimerStrategy_Elapsed(object sender, ElapsedEventArgs e)
@@ -110,28 +110,26 @@ namespace StrategyManager
 
             List<LocationExtended> obstacleList = new List<LocationExtended>();
 
-            double seuilDetectionObstacle = 0.5;
-
-            robotCurrentLocation.X = 12;
-            robotCurrentLocation.Y = -7.3;
-
+            double seuilDetectionObstacle = 0.1;
 
             //Récupération des obstacles en enlevant le robot lui-même
-            //lock (globalWorldMap)
-            //{
-            //    if (globalWorldMap.obstacleLocationList != null)
-            //    {
-            //        foreach (var obstacle in globalWorldMap.obstacleLocationList)
-            //        {
-            //            if(Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(robotCurrentLocation.X, robotCurrentLocation.Y))>seuilDetectionObstacle)
-            //                obstacleList.Add(obstacle);
-            //        }
-            //    }
-            //}
+            lock (globalWorldMap)
+            {
+                if (globalWorldMap.obstacleLocationList != null)
+                {
+                    foreach (var obstacle in globalWorldMap.obstacleLocationList)
+                    {
+                        if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(robotCurrentLocation.X, robotCurrentLocation.Y)) > seuilDetectionObstacle)
+                            obstacleList.Add(obstacle);
+                    }
+                }
+            }
 
-            //obstacleList.Add(new LocationExtended(5, 0, 0, 0, 0, 0, ObjectType.Obstacle));
+
+            //robotCurrentLocation = new Location(10, 3.5, 0, 0, 0, 0);
+            //obstacleList.Add(new LocationExtended(9.8, 6, 0, 0, 0, 0, ObjectType.Robot));
             //obstacleList.Add(new LocationExtended(-5, 0, 0, 0, 0, 0, ObjectType.Obstacle));
-            obstacleList.Add(new LocationExtended(10, -4, 0, 0, 0, 0, ObjectType.Robot));
+            //obstacleList.Add(new LocationExtended(10, -4, 0, 0, 0, 0, ObjectType.Robot));
             //obstacleList.Add(new LocationExtended(-0.2, -0.2, 0, 0, 0, 0, ObjectType.Obstacle));
             //obstacleList.Add(new LocationExtended(0.2, 0.3, 0, 0, 0, 0, ObjectType.Obstacle));
             //obstacleList.Add(new LocationExtended(2, -2, 0, 0, 0, 0, ObjectType.Obstacle));
@@ -144,7 +142,7 @@ namespace StrategyManager
             OnHeatMapStrategy(robotId, positioningHeatMap);
 
             //Calcul de la HeatMap WayPoint
-            positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, 0.5);
+            positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, 2);
 
             OnHeatMapWayPoint(robotId, positioningHeatMap);
             var optimalWayPoint = GetOptimalDestination();
