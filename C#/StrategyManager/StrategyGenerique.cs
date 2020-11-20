@@ -24,14 +24,17 @@ namespace StrategyManager
     /// - Sur Timer Strategy : détermination si besoin du rôle du robot :
     ///         - simple si Eurobot car les rôles sont figés
     ///         - complexe dans le cas de la RoboCup car les rôles sont changeant en fonction des positions et du contexte.
-    /// - Sur Timer Strategy : Itération des machines à état de jeu définissant les déplacements et actions en fonction du temps
+    /// - Sur Timer Strategy : Itération des machines à état de jeu définissant les déplacements et actions
     ///         - implante les machines à état de jeu à Eurobot, ainsi que les règles spécifiques 
     ///         de jeu (déplacement max en controlant le ballon par exemple à la RoboCup).
-    ///         - met à jour la destination théorique de déplacement (par exemple la balle pour le joueur qui la conteste à la RoboCup), 
-    ///         les zones interdites (par exemple les zones de départ à Eurobot), 
-    ///         les zones préférées (par exemple pour se démarquer à la RoboCup)...
-    /// - Sur Timer Strategy : génération de la HeatMap de positionnement X Y donnant l'indication d'intérêt de chacun des points du terrain
+    ///         - implante les règles de mise à jour 
+    ///             des zones préférentielles de destination (par exemple la balle pour le joueur qui la conteste à la RoboCup), 
+    ///             des zones interdites (par exemple les zones de départ à Eurobot), d
+    ///             es zones à éviter (par exemple pour se démarquer à la RoboCup)...
+    /// - DONE - Sur Timer Strategy : génération de la HeatMap de positionnement X Y donnant l'indication d'intérêt de chacun des points du terrain
     ///     et détermination de la destination théorique (avant inclusion des masquages waypoint)
+    /// - DONE - Sur Timer Strategy : prise en compte de la osition des obstacles pour générer la HeatMap de WayPoint 
+    ///     et trouver le WayPoint courant.
     /// - Sur Timer Strategy : gestion des actions du robot en fonction du contexte
     ///     Il est à noter que la gestion de l'orientation du robot (différente du cap en déplacement de celui-ci)
     ///     est considérée comme une action, et non comme un déplacement car celle-ci dépend avant tout du contexte du jeu

@@ -254,7 +254,7 @@ namespace WorldMapManager
                 {
                     try
                     {
-                        //Fusion des obstacles vus par chacun des robots
+                        //TODO : Fusion des obstacles vus par chacun des robots
                         foreach (var localMap in localWorldMapDictionary)
                         {
                             foreach (var obstacle in localMap.Value.obstaclesLocationList)
