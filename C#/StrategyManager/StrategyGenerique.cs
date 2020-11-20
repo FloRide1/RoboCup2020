@@ -77,14 +77,27 @@ namespace StrategyManager
             GameState gameState_1 = globalWorldMap.gameState;
 
             //On récupère la nouvelle worldMap
-            globalWorldMap = e.GlobalWorldMap;
+            lock (globalWorldMap)
+            {
+                globalWorldMap = e.GlobalWorldMap;
+            }
 
-            ////On regarde si le gamestate a changé
-            //if (globalWorldMap.gameState != gameState_1)
-            //{
-            //    //Le gameState a changé, on envoie un event
-            //    OnGameStateChanged(robotId, globalWorldMap.gameState);
-            //}
+            //On regarde si le gamestate a changé
+            if (globalWorldMap.gameState != gameState_1)
+            {
+                //Le gameState a changé, on envoie un event
+                OnGameStateChanged(robotId, globalWorldMap.gameState);
+            }
+        }
+        public void OnPositionRobotReceived(object sender, LocationArgs location)
+        {
+            robotCurrentLocation.X = location.Location.X;
+            robotCurrentLocation.Y = location.Location.Y;
+            robotCurrentLocation.Theta = location.Location.Theta;
+
+            robotCurrentLocation.Vx = location.Location.Vx;
+            robotCurrentLocation.Vy = location.Location.Vy;
+            robotCurrentLocation.Vtheta = location.Location.Vtheta;
         }
 
         private void TimerStrategy_Elapsed(object sender, ElapsedEventArgs e)
@@ -96,22 +109,46 @@ namespace StrategyManager
             var optimalPosition = GetOptimalDestination();
 
             List<LocationExtended> obstacleList = new List<LocationExtended>();
-            obstacleList.Add(new LocationExtended(5, 0, 0, 0, 0, 0, ObjectType.Obstacle));
-            obstacleList.Add(new LocationExtended(-5, 0, 0, 0, 0, 0, ObjectType.Obstacle));
-            obstacleList.Add(new LocationExtended(-2, 2, 0, 0, 0, 0, ObjectType.Obstacle));
-            obstacleList.Add(new LocationExtended(2, 2, 0, 0, 0, 0, ObjectType.Obstacle));
-            obstacleList.Add(new LocationExtended(2, -2, 0, 0, 0, 0, ObjectType.Obstacle));
-            obstacleList.Add(new LocationExtended(-2, -2, 0, 0, 0, 0, ObjectType.Obstacle));
-            obstacleList.Add(new LocationExtended(-3, 0, 0, 0, 0, 0, ObjectType.Obstacle));
-            obstacleList.Add(new LocationExtended(-0, -4, 0, 0, 0, 0, ObjectType.Obstacle));
-            obstacleList.Add(new LocationExtended(-0, 4, 0, 0, 0, 0, ObjectType.Obstacle));
-            positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, 0.3);
+
+            double seuilDetectionObstacle = 0.5;
+
+            //Récupération des obstacles en enlevant le robot lui-même
+            lock (globalWorldMap)
+            {
+                if (globalWorldMap.obstacleLocationList != null)
+                {
+                    foreach (var obstacle in globalWorldMap.obstacleLocationList)
+                    {
+                        if(Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(robotCurrentLocation.X, robotCurrentLocation.Y))>seuilDetectionObstacle)
+                            obstacleList.Add(obstacle);
+                    }
+                }
+            }
+
+            //obstacleList.Add(new LocationExtended(5, 0, 0, 0, 0, 0, ObjectType.Obstacle));
+            //obstacleList.Add(new LocationExtended(-5, 0, 0, 0, 0, 0, ObjectType.Obstacle));
+            //obstacleList.Add(new LocationExtended(-2, 2, 0, 0, 0, 0, ObjectType.Obstacle));
+            //obstacleList.Add(new LocationExtended(-0.2, -0.2, 0, 0, 0, 0, ObjectType.Obstacle));
+            //obstacleList.Add(new LocationExtended(0.2, 0.3, 0, 0, 0, 0, ObjectType.Obstacle));
+            //obstacleList.Add(new LocationExtended(2, -2, 0, 0, 0, 0, ObjectType.Obstacle));
+            //obstacleList.Add(new LocationExtended(-2, -2, 0, 0, 0, 0, ObjectType.Obstacle));
+            //obstacleList.Add(new LocationExtended(-3, 0, 0, 0, 0, 0, ObjectType.Obstacle));
+            //obstacleList.Add(new LocationExtended(-0, -4, 0, 0, 0, 0, ObjectType.Obstacle));
+            //obstacleList.Add(new LocationExtended(-0, 4, 0, 0, 0, 0, ObjectType.Obstacle));
 
             //Renvoi de la HeatMap Stratégie
-            OnHeatMap(robotId, positioningHeatMap);
+            OnHeatMapStrategy(robotId, positioningHeatMap);
+
+            //Calcul de la HeatMap WayPoint
+            positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, 0.5);
+
+            OnHeatMapWayPoint(robotId, positioningHeatMap);
+            var optimalWayPoint = GetOptimalDestination();
+
             //Mise à jour de la destination
             double robotOrientation = 0;
             OnDestination(robotId, new Location((float)optimalPosition.X, (float)optimalPosition.Y, (float)robotOrientation, 0, 0, 0));
+            OnWaypoint(robotId, new Location((float)optimalWayPoint.X, (float)optimalWayPoint.Y, (float)robotOrientation, 0, 0, 0));
         }
 
         public abstract void DetermineRobotRole(); //A définir dans les classes héritées
@@ -202,10 +239,20 @@ namespace StrategyManager
 
         /****************************************** Events envoyés ***********************************************/
 
-        public event EventHandler<HeatMapArgs> OnHeatMapEvent;
-        public virtual void OnHeatMap(int id, Heatmap heatMap)
+        public event EventHandler<HeatMapArgs> OnHeatMapStrategyEvent;
+        public virtual void OnHeatMapStrategy(int id, Heatmap heatMap)
         {
-            OnHeatMapEvent?.Invoke(this, new HeatMapArgs { RobotId = id, HeatMap = heatMap });
+            OnHeatMapStrategyEvent?.Invoke(this, new HeatMapArgs { RobotId = id, HeatMap = heatMap });
+        }
+
+        public event EventHandler<HeatMapArgs> OnHeatMapWayPointEvent;
+        public virtual void OnHeatMapWayPoint(int id, Heatmap heatMap)
+        {
+            var handler = OnHeatMapWayPointEvent;
+            if (handler != null)
+            {
+                handler(this, new HeatMapArgs { RobotId = id, HeatMap = heatMap });
+            }
         }
 
         public event EventHandler<LocationArgs> OnDestinationEvent;
@@ -213,6 +260,30 @@ namespace StrategyManager
         {
             OnDestinationEvent?.Invoke(this, new LocationArgs { RobotId = id, Location = location });
         }
+
+
+        public delegate void NewWayPointEventHandler(object sender, LocationArgs e);
+        public event EventHandler<LocationArgs> OnWaypointEvent;
+        public virtual void OnWaypoint(int id, Location wayPointlocation)
+        {
+            var handler = OnWaypointEvent;
+            if (handler != null)
+            {
+                handler(this, new LocationArgs { RobotId = id, Location = wayPointlocation });
+            }
+        }
+
+        public event EventHandler<GameStateArgs> OnGameStateChangedEvent;
+        public virtual void OnGameStateChanged(int robotId, GameState state)
+        {
+            var handler = OnGameStateChangedEvent;
+            if (handler != null)
+            {
+                handler(this, new GameStateArgs { RobotId = robotId, gameState = state });
+            }
+        }
+
+
     }
 
     

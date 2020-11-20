@@ -283,7 +283,7 @@ namespace Robot
              
             //Liens entre modules
             strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
-            strategyManager.strategy.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
+            strategyManager.strategy.OnHeatMapStrategyEvent += waypointGenerator.OnStrategyHeatMapReceived;
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
 
 
@@ -316,7 +316,7 @@ namespace Robot
             perceptionManager.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
-            strategyManager.strategy.OnHeatMapEvent += localWorldMapManager.OnHeatMapStrategyReceived;
+            strategyManager.strategy.OnHeatMapStrategyEvent += localWorldMapManager.OnHeatMapStrategyReceived;
             
             //if (usingLidar)
             //{

@@ -61,7 +61,7 @@ namespace TeamSimulator
             // Set this code once in App.xaml.cs or application startup
             SciChartSurface.SetRuntimeLicenseKey("wsCOsvBlAs2dax4o8qBefxMi4Qe5BVWax7TGOMLcwzWFYRNCa/f1rA5VA1ITvLHSULvhDMKVTc+niao6URAUXmGZ9W8jv/4jtziBzFZ6Z15ek6SLU49eIqJxGoQEFWvjANJqzp0asw+zvLV0HMirjannvDRj4i/WoELfYDubEGO1O+oAToiJlgD/e2lVqg3F8JREvC0iqBbNrmfeUCQdhHt6SKS2QpdmOoGbvtCossAezGNxv92oUbog6YIhtpSyGikCEwwKSDrlKlAab6302LLyFsITqogZychLYrVXJTFvFVnDfnkQ9cDi7017vT5flesZwIzeH497lzGp3B8fKWFQyZemD2RzlQkvj5GUWBwxiKAHrYMnQjJ/PsfojF1idPEEconVsh1LoYofNk2v/Up8AzXEAvxWUEcgzANeQggaUNy+OFet8b/yACa/bgYG7QYzFQZzgdng8IK4vCPdtg4/x7g5EdovN2PI9vB76coMuKnNVPnZN60kSjtd/24N8A==");
 
-            waypointGeneratorList = new List<WaypointGenerator>();
+            //waypointGeneratorList = new List<WaypointGenerator>();
             trajectoryPlannerList = new List<TrajectoryPlanner>();
             sensorSimulatorList = new List<SensorSimulator.SensorSimulator>();
             kalmanPositioningList = new List<KalmanPositioning.KalmanPositioning>();
@@ -136,7 +136,7 @@ namespace TeamSimulator
         {
             int robotId = TeamNumber + RobotNumber;
             var strategyManager = new StrategyManager.StrategyManager(robotId, TeamNumber, GameMode.RoboCup);
-            var waypointGenerator = new WaypointGenerator(robotId, GameMode.RoboCup);
+            //var waypointGenerator = new WaypointGenerator(robotId, GameMode.RoboCup);
             var trajectoryPlanner = new TrajectoryPlanner(robotId);
             var sensorSimulator = new SensorSimulator.SensorSimulator(robotId);
             var kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
@@ -161,10 +161,11 @@ namespace TeamSimulator
             }
 
             //Liens entre modules
-            strategyManager.strategy.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
-            strategyManager.strategy.OnHeatMapEvent += waypointGenerator.OnStrategyHeatMapReceived;
-            strategyManager.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
-            waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
+            //strategyManager.strategy.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
+            //strategyManager.strategy.OnHeatMapStrategyEvent += waypointGenerator.OnStrategyHeatMapReceived;
+            strategyManager.strategy.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
+            strategyManager.strategy.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
+            //waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
             trajectoryPlanner.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
 
             //Gestion des events liés à une détection de collision soft
@@ -184,7 +185,8 @@ namespace TeamSimulator
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             //physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived; //ajout
 
-            kalmanPositioning.OnKalmanLocationEvent += perceptionSimulator.OnPhysicalRobotPositionReceived;            
+            kalmanPositioning.OnKalmanLocationEvent += perceptionSimulator.OnPhysicalRobotPositionReceived;
+            kalmanPositioning.OnKalmanLocationEvent += strategyManager.strategy.OnPositionRobotReceived;
             //physicalSimulator.OnPhysicalRobotLocationEvent += perceptionSimulator.OnPhysicalRobotPositionReceived; //ajout
 
             physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicalObjectListLocationReceived;
@@ -193,9 +195,11 @@ namespace TeamSimulator
             //Update des données de la localWorldMap
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
             strategyManager.strategy.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
-            strategyManager.strategy.OnHeatMapEvent += localWorldMapManager.OnHeatMapStrategyReceived;
-            waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
-            waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapWaypointReceived;
+            strategyManager.strategy.OnHeatMapStrategyEvent += localWorldMapManager.OnHeatMapStrategyReceived;
+            strategyManager.strategy.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
+            strategyManager.strategy.OnHeatMapWayPointEvent += localWorldMapManager.OnHeatMapWaypointReceived;
+            //waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
+            //waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapWaypointReceived;
             trajectoryPlanner.OnGhostLocationEvent += localWorldMapManager.OnGhostLocationReceived;
 
             //Event de Réception de data Multicast sur le robot
@@ -203,14 +207,14 @@ namespace TeamSimulator
 
             //Event d'interprétation d'une globalWorldMap à sa réception dans le robot
             robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += strategyManager.strategy.OnGlobalWorldMapReceived;
-            robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
+            //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
             robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
 
             //Event de Transmission des Local World Map du robot vers le multicast
             localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
 
             strategyManagerDictionary.Add(robotId, strategyManager);
-            waypointGeneratorList.Add(waypointGenerator);
+            //waypointGeneratorList.Add(waypointGenerator);
             trajectoryPlannerList.Add(trajectoryPlanner);
             sensorSimulatorList.Add(sensorSimulator);
             kalmanPositioningList.Add(kalmanPositioning);
