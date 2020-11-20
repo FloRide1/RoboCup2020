@@ -138,10 +138,6 @@
       <Project>{a8c04138-90dc-42f9-ab39-e71125b805b9}</Project>
       <Name>RefereeBoxAdapter</Name>
     </ProjectReference>
-    <ProjectReference Include="..\RobotMessageGenerator\RobotMessageGenerator.csproj">
-      <Project>{7f098ee2-a8cd-48cf-b9f4-256ea3df2bc6}</Project>
-      <Name>RobotMessageGenerator</Name>
-    </ProjectReference>
     <ProjectReference Include="..\RobotPilot\RobotPilot.csproj">
       <Project>{4012f5af-50e3-40bd-abf0-4afe3f30d5e3}</Project>
       <Name>RobotPilot</Name>
@@ -187,7 +183,7 @@
       <Name>WorldMap</Name>
     </ProjectReference>
     <ProjectReference Include="..\WpfTeamInterface\WpfTeamInterface.csproj">
-      <Project>{F8837AF6-36A5-4D14-B1FE-E09CAFFA6DAC}</Project>
+      <Project>{6BB34EA2-B1A7-4B68-A467-DEE096BB1A1C}</Project>
       <Name>WpfTeamInterface</Name>
     </ProjectReference>
   </ItemGroup>

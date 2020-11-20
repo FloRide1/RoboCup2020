@@ -15,7 +15,7 @@ namespace TrajectoryGenerator
         Location wayPointLocation;
         Location ghostLocation;
 
-        GameState currentGameState = GameState.STOPPED;
+        GameState currentGameState = GameState.PLAYING;
 
         double FreqEch = 30.0;
 
@@ -51,9 +51,14 @@ namespace TrajectoryGenerator
 
         private void PidConfigUpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            PID_X.Init(kp:5.0, ki:20.0, kd:0, 0.5, 0.5, 0);
-            PID_Y.Init(kp:5.0, ki:20.0, kd:0, 0.5, 0.5, 0);
-            PID_Theta.Init(kp:5.0, ki:20.0, kd:0, 0.5, 0.5, 0);
+            /// Archivage Eurobot
+            //PID_X.Init(kp:5.0, ki:20.0, kd:0, 0.5, 0.5, 0);
+            //PID_Y.Init(kp:5.0, ki:20.0, kd:0, 0.5, 0.5, 0);
+            //PID_Theta.Init(kp:5.0, ki:20.0, kd:0, 0.5, 0.5, 0);
+
+            PID_X.Init(kp: 5.0, ki: 20.0, kd: 0, 5, 5, 0);
+            PID_Y.Init(kp: 5.0, ki: 20.0, kd: 0, 5, 5, 0);
+            PID_Theta.Init(kp: 5.0, ki: 20.0, kd: 0, 5, 5, 0);
         }
 
         public TrajectoryPlanner(int id)

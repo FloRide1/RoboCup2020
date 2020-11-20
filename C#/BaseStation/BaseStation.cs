@@ -1,17 +1,11 @@
 ﻿using Constants;
-using RefereeBoxAdapter;
 using SciChart.Charting.Visuals;
-using StrategyManager;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using TeamInterface;
 using UDPMulticast;
 using UdpMulticastInterpreter;
 using WorldMapManager;
+using WpfTeamInterfaceNS;
 
 namespace BaseStation
 {
@@ -43,7 +37,7 @@ namespace BaseStation
             <KeyCode>lwAAAQEAAACS9FAFUqnVAXkAQ3VzdG9tZXI9VW5pdmVyc2l0ZSBEZSBUb3Vsb247T3JkZXJJZD1FRFVDQVRJT05BTC1VU0UtMDEyODtTdWJzY3JpcHRpb25WYWxpZFRvPTE3LUZlYi0yMDIwO1Byb2R1Y3RDb2RlPVNDLVdQRi0yRC1QUk8tU0lURYcbnXYui4rna7TqbkEmUz1V7oD1EwrO3FhU179M9GNhkL/nkD/SUjwJ/46hJZ31CQ==</KeyCode>
             </LicenseContract>");
 
-            globalWorldMapManagerTeam1 = new GlobalWorldMapManager((int)TeamId.Team1, "224.16.32.79");
+            globalWorldMapManagerTeam1 = new GlobalWorldMapManager((int)TeamId.Team1, "224.16.32.79", bypassMulticast:false);
 
             //BaseStation RCT
             BaseStationUdpMulticastSenderTeam1 = new UDPMulticastSender(0, "224.16.32.79");
@@ -86,9 +80,9 @@ namespace BaseStation
             Thread t1 = new Thread(() =>
             {
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
-                TeamConsole = new WpfTeamInterface();
+                TeamConsole = new WpfTeamInterface("RoboCup");
                 BaseStationUdpMulticastInterpreterTeam1.OnLocalWorldMapEvent += TeamConsole.OnLocalWorldMapReceived; //->version base station
-                globalWorldMapManagerTeam1.OnGlobalWorldMapEvent += TeamConsole.OnGlobalWorldMapReceived;
+                BaseStationUdpMulticastInterpreterTeam1.OnGlobalWorldMapEvent += TeamConsole.OnGlobalWorldMapReceived;                                
                 TeamConsole.ShowDialog();
             });
             t1.SetApartmentState(ApartmentState.STA);

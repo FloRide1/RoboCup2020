@@ -43,4 +43,17 @@ namespace Utilities
         GOTO_0_M1,
         GOTO_M1_0,
     }
+
+    public enum Equipe
+    {
+        Jaune,
+        Bleue,
+    }
+
+    public enum GameMode
+    {
+        RoboCup,
+        Eurobot,
+        Demo
+    }
 }

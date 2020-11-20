@@ -23,12 +23,15 @@ namespace WorldMapManager
 
         GameState currentGameState = GameState.STOPPED;
         StoppedGameAction currentStoppedGameAction = StoppedGameAction.NONE;
+
+        bool bypassMulticastUdp = false;
         
 
-        public GlobalWorldMapManager(int teamId, string ipAddress)
+        public GlobalWorldMapManager(int teamId, string ipAddress, bool bypassMulticast)
         {
             TeamId = teamId;
             TeamIpAddress = ipAddress;
+            bypassMulticastUdp = bypassMulticast;
             globalWorldMapSendTimer = new Timer(1000/freqRafraichissementWorldMap);
             globalWorldMapSendTimer.Elapsed += GlobalWorldMapSendTimer_Elapsed;
             globalWorldMapSendTimer.Start();
@@ -268,11 +271,16 @@ namespace WorldMapManager
             globalWorldMap.gameState = currentGameState;
             globalWorldMap.stoppedGameAction = currentStoppedGameAction;
 
-            //ATTENTION : on bypass l'envoi en Multicast UDP : non utilisable à la ROBOCUP
-            OnGlobalWorldMapBypass(globalWorldMap);
-
-            //string json = JsonConvert.SerializeObject(globalWorldMap, decimalJsonConverter);
-            //OnMulticastSendGlobalWorldMap(json.GetBytes());
+            if (bypassMulticastUdp)
+            {
+                //ATTENTION : on bypass l'envoi en Multicast UDP : non utilisable à la ROBOCUP
+                OnGlobalWorldMapBypass(globalWorldMap);
+            }
+            else
+            {
+                string json = JsonConvert.SerializeObject(globalWorldMap, decimalJsonConverter);
+                OnMulticastSendGlobalWorldMap(json.GetBytes());
+            }
         }
 
         void DefineRolesAndGameState()

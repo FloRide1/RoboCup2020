@@ -11,12 +11,14 @@ namespace WorldMapManager
     public class LocalWorldMapManager
     {
         LocalWorldMap localWorldMap;
+        bool bypassMulticastUdp = false;
 
-        public LocalWorldMapManager(int robotId, int teamId)
+        public LocalWorldMapManager(int robotId, int teamId, bool bypassMulticast)
         {
             localWorldMap = new LocalWorldMap();
             localWorldMap.RobotId = robotId;
             localWorldMap.TeamId = teamId;
+            bypassMulticastUdp = bypassMulticast;
         }
 
         //public void OnPhysicalPositionReceived(object sender, EventArgsLibrary.LocationArgs e)
@@ -53,12 +55,18 @@ namespace WorldMapManager
 
                 if (transferLocalWorldMap.robotLocation != null)
                 {
-                    string json = JsonConvert.SerializeObject(transferLocalWorldMap, decimalJsonConverter);
-                    
-                    //OnMulticastSendLocalWorldMapCommand(json.GetBytes()); Retiré pour test de robustesse, mais nécessaire à la RoboCup
-
-                    OnLocalWorldMapBypass(transferLocalWorldMap); //Pour bypass du multicast
-                    OnLocalWorldMap(localWorldMap); //Pour affichage uniquement, sinon transmission radio en, multicast
+                    if (bypassMulticastUdp)
+                    {
+                        OnLocalWorldMapForDisplayOnly(localWorldMap); //Pour affichage uniquement, sinon transmission radio en, multicast
+                    }
+                    else
+                    {
+                        string json = JsonConvert.SerializeObject(transferLocalWorldMap, decimalJsonConverter);
+                        OnMulticastSendLocalWorldMapCommand(json.GetBytes()); //Retiré pour test de robustesse, mais nécessaire à la RoboCup
+                        
+                        //ATTENTION : appel douteux...
+                        OnLocalWorldMapForDisplayOnly(localWorldMap); //Pour affichage uniquement, sinon transmission radio en, multicast
+                    }
                 }
             }
         }
@@ -159,10 +167,10 @@ namespace WorldMapManager
         }
 
         ////Output event for display only : NO USE for transmitting data !
-        public event EventHandler<LocalWorldMapArgs> OnLocalWorldMapEventForDisplayOnly;
-        public virtual void OnLocalWorldMap(LocalWorldMap map)
+        public event EventHandler<LocalWorldMapArgs> OnLocalWorldMapForDisplayOnlyEvent;
+        public virtual void OnLocalWorldMapForDisplayOnly(LocalWorldMap map)
         {
-            var handler = OnLocalWorldMapEventForDisplayOnly;
+            var handler = OnLocalWorldMapForDisplayOnlyEvent;
             if (handler != null)
             {
                 handler(this, new LocalWorldMapArgs { LocalWorldMap = map });

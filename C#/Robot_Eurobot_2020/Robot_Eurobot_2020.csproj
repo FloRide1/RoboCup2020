@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F48FF3AC-50C6-4016-8F67-F5430FED1A2C}</ProjectGuid>
+    <ProjectGuid>{7AAC58B3-251F-4A84-B891-30EBF7F76701}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>Robot</RootNamespace>
     <AssemblyName>Robot</AssemblyName>
@@ -146,12 +146,8 @@
       <Project>{9c46a7c0-4675-41be-b282-e6f0825ad73e}</Project>
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FileManager\FileManager.csproj">
-      <Project>{17c540a1-8d13-4cb6-8094-32229e50e031}</Project>
-      <Name>FileManager</Name>
-    </ProjectReference>
     <ProjectReference Include="..\HerkulexManager\HerkulexManager.csproj">
-      <Project>{835b8b5a-c248-4443-99ca-ff11ac77481a}</Project>
+      <Project>{835B8B5A-C248-4443-99CA-FF11AC77481A}</Project>
       <Name>HerkulexManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\HighFreqTimer\AdvancedTimers.csproj">
@@ -166,10 +162,6 @@
       <Project>{825389C5-BF86-419E-8914-FC5A325D4A0B}</Project>
       <Name>KalmanPositioning</Name>
     </ProjectReference>
-    <ProjectReference Include="..\LidarOMD60M\LidaRxR2000.csproj">
-      <Project>{446e56f7-4dfc-4b69-85de-77b7b48dbe44}</Project>
-      <Name>LidaRxR2000</Name>
-    </ProjectReference>
     <ProjectReference Include="..\LidarProcessor\LidarProcessor.csproj">
       <Project>{3C4270CF-77BA-4100-BBAB-6E2802C49478}</Project>
       <Name>LidarProcessor</Name>
@@ -181,6 +173,10 @@
     <ProjectReference Include="..\LidaRxDriver\LidaRxDriver.csproj">
       <Project>{17007EEC-FE2B-4FF7-BDBE-0A300CBD2B7F}</Project>
       <Name>LidaRxDriver</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LidaRxR2000\LidaRxR2000.csproj">
+      <Project>{4879c226-9cfc-4d45-87a1-e2f128e33882}</Project>
+      <Name>LidaRxR2000</Name>
     </ProjectReference>
     <ProjectReference Include="..\LidaRx\LidaRx.csproj">
       <Project>{D8E0BFBA-4ED8-41C2-8068-F490A5319F43}</Project>
@@ -202,6 +198,14 @@
       <Project>{EFAFBA95-1787-41A9-8F12-14ECD9FE127A}</Project>
       <Name>MessageEncoder</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MessageGenerator\MessageGenerator.csproj">
+      <Project>{a31f4a19-f674-4776-b597-e92ba3e5061e}</Project>
+      <Name>MessageGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MessageProcessor\MessageProcessor.csproj">
+      <Project>{ad4884ad-631b-42e4-b6bb-f86b16bd6a68}</Project>
+      <Name>MessageProcessor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PerceptionManagement\PerceptionManagement.csproj">
       <Project>{CA5585EB-5C96-4DF3-823C-878C0AD7D739}</Project>
       <Name>PerceptionManagement</Name>
@@ -214,28 +218,20 @@
       <Project>{A8C04138-90DC-42F9-AB39-E71125B805B9}</Project>
       <Name>RefereeBoxAdapter</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ReliableSerialPort\ReliableSerialPort.csproj">
-      <Project>{ED8EA38E-A83C-47D7-B220-3B89A2EFA1ED}</Project>
-      <Name>ReliableSerialPort</Name>
-    </ProjectReference>
     <ProjectReference Include="..\RobotInterfaceWPF_Supervision_Systeme_Embarqué\RobotInterface\WpfRobotInterface.csproj">
       <Project>{1CDC0611-A2E5-42E8-A28B-BA4269343C68}</Project>
       <Name>WpfRobotInterface</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\RobotMessageGenerator\MessageGenerator.csproj">
-      <Project>{7F098EE2-A8CD-48CF-B9F4-256EA3DF2BC6}</Project>
-      <Name>MessageGenerator</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\RobotMessageProcessor\MessageProcessor.csproj">
-      <Project>{12c1db8f-4309-43e2-b576-feb50b59ec25}</Project>
-      <Name>MessageProcessor</Name>
     </ProjectReference>
     <ProjectReference Include="..\RobotPilot\RobotPilot.csproj">
       <Project>{4012F5AF-50E3-40BD-ABF0-4AFE3F30D5E3}</Project>
       <Name>RobotPilot</Name>
     </ProjectReference>
-    <ProjectReference Include="..\StrategyManager_Eurobot\StrategyManager_Eurobot.csproj">
+    <ProjectReference Include="..\StrategyManager\StrategyManager.csproj">
       <Project>{F2D3FB95-F97A-4049-BCA4-71854FD4FAF3}</Project>
+      <Name>StrategyManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StrategyManager_Eurobot\StrategyManager_Eurobot.csproj">
+      <Project>{804bd483-52aa-46e6-8c37-65375552594b}</Project>
       <Name>StrategyManager_Eurobot</Name>
     </ProjectReference>
     <ProjectReference Include="..\TrajectoryGenerator\TrajectoryGenerator.csproj">

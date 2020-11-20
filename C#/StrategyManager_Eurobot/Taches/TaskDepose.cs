@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 using Utilities;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
-namespace StrategyManager
+namespace StrategyManagerEurobotNS
 {
     public class TaskDepose
     {
         Thread TaskThread;
         TaskDeposeStates state = TaskDeposeStates.Attente;
         public bool isFinished = false;
-        StrategyManager_Eurobot parentManager;
+        StrategyManagerEurobot parentManager;
         enum TaskDeposeStates
         {
             Init,
@@ -28,7 +28,7 @@ namespace StrategyManager
             Finished,
         }
 
-        public TaskDepose(StrategyManager_Eurobot manager)
+        public TaskDepose(StrategyManagerEurobot manager)
         {
             parentManager = manager;
             TaskThread = new Thread(TaskThreadProcess);

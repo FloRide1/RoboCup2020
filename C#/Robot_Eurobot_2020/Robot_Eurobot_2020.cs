@@ -3,25 +3,23 @@ using Constants;
 using MessageDecoder;
 using MessageEncoder;
 using RobotInterface;
-using RobotMessageGenerator;
 using SciChart.Charting.Visuals;
 using System;
-using System.IO.Ports;
 using System.Threading;
 using TrajectoryGenerator;
 using WayPointGenerator;
 using WorldMapManager;
-using RobotMessageProcessor;
 using PerceptionManagement;
 using EventArgsLibrary;
 using WpfReplayNavigator;
 using System.Runtime.InteropServices;
-using StrategyManager;
+using MessageGeneratorNS;
+using LidaRxR2000NS;
+using MessageProcessorNS;
 using HerkulexManagerNS;
-using ReliableSerialPortNS;
 using Staudt.Engineering.LidaRx;
 using Staudt.Engineering.LidaRx.Drivers.R2000;
-using LidaRxR2000NS;
+using StrategyManagerEurobotNS;
 
 namespace Robot
 {
@@ -124,7 +122,7 @@ namespace Robot
         static GlobalWorldMapManager globalWorldMapManager;
                 
         static ImuProcessor.ImuProcessor imuProcessor;
-        static StrategyManager_Eurobot strategyManager;
+        static StrategyManagerEurobot strategyManager;
         static PerceptionManager perceptionManager;        
         static LidaRxR2000 lidar_OMD60M_TCP;
         static XBoxController.XBoxController xBoxManette;
@@ -212,7 +210,7 @@ namespace Robot
             imuProcessor = new ImuProcessor.ImuProcessor(robotId);
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
 
-            localWorldMapManager = new LocalWorldMapManager(robotId, teamId);
+            localWorldMapManager = new LocalWorldMapManager(robotId, teamId, bypassMulticast:true);
 
             //On simule une base station en local
             //baseStationUdpMulticastSender = new UDPMulticastSender(0, "224.16.32.79");
@@ -223,9 +221,9 @@ namespace Robot
             //robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, "224.16.32.79");
             //robotUdpMulticastInterpreter = new UDPMulticastInterpreter(robotId);
 
-            globalWorldMapManager = new GlobalWorldMapManager(robotId, "0.0.0.0");
-            strategyManager = new StrategyManager_Eurobot(robotId, teamId);
-            waypointGenerator = new WaypointGenerator(robotId, "Eurobot");
+            globalWorldMapManager = new GlobalWorldMapManager(robotId, "0.0.0.0", bypassMulticast: true);
+            strategyManager = new StrategyManagerEurobot(robotId, teamId);
+            waypointGenerator = new WaypointGenerator(robotId, Utilities.GameMode.Eurobot);
             trajectoryPlanner = new TrajectoryPlanner(robotId);
 
             herkulexManager = new HerkulexManager();
@@ -376,7 +374,7 @@ namespace Robot
         static Random rand = new Random();
         private static void TimerStrategie_Tick(object sender, EventArgs e)
         {
-            var role = (StrategyManager.PlayerRole)rand.Next((int)(int)StrategyManager.PlayerRole.Centre, (int)StrategyManager.PlayerRole.Centre);
+            var role = (StrategyManagerEurobotNS.PlayerRole)rand.Next((int)(int)StrategyManager.PlayerRole.Centre, (int)StrategyManager.PlayerRole.Centre);
             strategyManager.SetRole(role);
             strategyManager.ProcessStrategy();
         }
@@ -416,6 +414,7 @@ namespace Robot
 
                 //Gestion des events liés à une détection de collision soft
                 trajectoryPlanner.OnCollisionEvent -= kalmanPositioning.OnCollisionReceived;
+                strategyManager.OnCollisionEvent -= kalmanPositioning.OnCollisionReceived;
             }
             else
             {
@@ -511,9 +510,6 @@ namespace Robot
                 robotMsgProcessor.OnEnableDisableMotorsACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableDisableMotorsButton;
                 robotMsgProcessor.OnEnableDisableTirACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableDisableTirButton;
 
-                //robotMsgProcessor.OnMotorVitesseDataFromRobotGeneratedEvent += interfaceRobot.UpdateMotorsSpeedsOnGraph;
-                //robotMsgProcessor.OnAuxiliarySpeedConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateAuxiliarySpeedConsigneOnGraph;
-
                 robotMsgProcessor.OnEnableAsservissementACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableAsservissementButton;
                 robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += interfaceRobot.UpdateSpeedPolarOdometryOnInterface;
                 robotMsgProcessor.OnIndependantOdometrySpeedFromRobotEvent += interfaceRobot.UpdateSpeedIndependantOdometryOnInterface;
@@ -548,8 +544,8 @@ namespace Robot
             interfaceRobot.OnCalibrateGyroFromInterfaceGeneratedEvent += imuProcessor.OnCalibrateGyroFromInterfaceGeneratedEvent;
             interfaceRobot.OnEnablePowerMonitoringDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnablePowerMonitoring;
 
-            localWorldMapManager.OnLocalWorldMapEventForDisplayOnly += interfaceRobot.OnLocalWorldMapStrategyEvent;
-            localWorldMapManager.OnLocalWorldMapEventForDisplayOnly += interfaceRobot.OnLocalWorldMapWayPointEvent;
+            localWorldMapManager.OnLocalWorldMapForDisplayOnlyEvent += interfaceRobot.OnLocalWorldMapStrategyEvent;
+            localWorldMapManager.OnLocalWorldMapForDisplayOnlyEvent += interfaceRobot.OnLocalWorldMapWayPointEvent;
 
             if (usingLogReplay)
             {

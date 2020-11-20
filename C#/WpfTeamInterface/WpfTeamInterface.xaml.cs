@@ -2,13 +2,24 @@
 using EventArgsLibrary;
 using RefereeBoxAdapter;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 using System.Windows.Threading;
 using Utilities;
 using WpfWorldMapDisplay;
 
-namespace TeamInterface
+namespace WpfTeamInterfaceNS
 {
     /// <summary>
     /// Logique d'interaction pour MainWindow.xaml
@@ -66,9 +77,9 @@ namespace TeamInterface
 
         public void OnLocalWorldMapReceived(object sender, LocalWorldMapArgs e)
         {
-            switch(e.LocalWorldMap.RobotId)
+            switch (e.LocalWorldMap.RobotId)
             {
-                case (int)TeamId.Team1+ (int)RobotId.Robot1:
+                case (int)TeamId.Team1 + (int)RobotId.Robot1:
                     localWorldMapDisplay1.UpdateLocalWorldMap(e.LocalWorldMap);
                     break;
                 case (int)TeamId.Team1 + (int)RobotId.Robot2:
@@ -90,7 +101,7 @@ namespace TeamInterface
         }
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
         {
-            if(e.GlobalWorldMap.TeamId == (int)TeamId.Team1)
+            if (e.GlobalWorldMap.TeamId == (int)TeamId.Team1)
                 globalWorldMapDisplayTeam1.UpdateGlobalWorldMap(e.GlobalWorldMap);
             else if (e.GlobalWorldMap.TeamId == (int)TeamId.Team2)
                 globalWorldMapDisplayTeam2.UpdateGlobalWorldMap(e.GlobalWorldMap);

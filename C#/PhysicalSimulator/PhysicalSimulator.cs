@@ -194,10 +194,10 @@ namespace PhysicalSimulator
                     OnPhysicalRobotLocation(robot.Key, loc);
                 }                  
 
-                List<Location> objectsLocationList = new List<Location>();
+                List<LocationExtended> objectsLocationList = new List<LocationExtended>();
                 foreach (var robot in robotList)
                 {
-                    objectsLocationList.Add(new Location(robot.Value.X, robot.Value.Y, robot.Value.Theta, robot.Value.VxRefRobot, robot.Value.VyRefRobot, robot.Value.Vtheta));
+                    objectsLocationList.Add(new LocationExtended(robot.Value.X, robot.Value.Y, robot.Value.Theta, robot.Value.VxRefRobot, robot.Value.VyRefRobot, robot.Value.Vtheta, ObjectType.Robot));
                 }
                 OnPhysicicalObjectListLocation(objectsLocationList);
             }
@@ -251,14 +251,14 @@ namespace PhysicalSimulator
             }
         }
 
-        public delegate void ObjectsPositionEventHandler(object sender, LocationListArgs e);
-        public event EventHandler<LocationListArgs> OnPhysicicalObjectListLocationEvent;
-        public virtual void OnPhysicicalObjectListLocation(List<Location> locationList)
+        public delegate void ObjectsPositionEventHandler(object sender, LocationExtendedListArgs e);
+        public event EventHandler<LocationExtendedListArgs> OnPhysicicalObjectListLocationEvent;
+        public virtual void OnPhysicicalObjectListLocation(List<LocationExtended> locationList)
         {
             var handler = OnPhysicicalObjectListLocationEvent;
             if (handler != null)
             {
-                handler(this, new LocationListArgs { LocationList = locationList });
+                handler(this, new LocationExtendedListArgs { LocationExtendedList = locationList });
             }
         }
     }
