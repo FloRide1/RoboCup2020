@@ -91,8 +91,7 @@ namespace WpfWorldMapDisplay
                 textAnnot.HorizontalAnchorPoint = HorizontalAnchorPoint.Center;
                 textAnnot.VerticalAnchorPoint = VerticalAnchorPoint.Bottom;
                 textAnnot.FontSize = 10;
-                Color foreColor = Color.Black;
-                textAnnot.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(foreColor.A, foreColor.R, foreColor.G, foreColor.B));
+                ((TextAnnotation)annot).Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0x88, 0xFF, 0xFF, 0xFF));
                 textAnnot.FontWeight = FontWeights.Bold;
                 sciChart.Annotations.Add(textAnnot);
             }
@@ -101,7 +100,8 @@ namespace WpfWorldMapDisplay
                 ((TextAnnotation)annot).Text = annotationText;
                 ((TextAnnotation)annot).Name = "R" + annotationName + "r";
                 annot.X1 = posX;
-                annot.Y1 = posY+0.02;
+                annot.Y1 = posY+0.5;
+                ((TextAnnotation)annot).Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0x88, 0xFF, 0xFF, 0xFF));
             }
         }
 
