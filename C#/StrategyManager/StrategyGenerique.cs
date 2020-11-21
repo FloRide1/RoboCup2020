@@ -46,6 +46,7 @@ namespace StrategyManager
     {
         public int robotId = 0;
         public int teamId = 0;
+        public string DisplayName;
 
         public GlobalWorldMap globalWorldMap;
         public Heatmap positioningHeatMap;
@@ -113,9 +114,9 @@ namespace StrategyManager
 
             List<LocationExtended> obstacleList = new List<LocationExtended>();
 
-            double seuilDetectionObstacle = 0.1;
+            double seuilDetectionObstacle = 0.4;
 
-            //Récupération des obstacles en enlevant le robot lui-même
+            //Construction de la liste des obstacles en enlevant le robot lui-même
             lock (globalWorldMap)
             {
                 if (globalWorldMap.obstacleLocationList != null)
@@ -126,8 +127,15 @@ namespace StrategyManager
                             obstacleList.Add(obstacle);
                     }
                 }
+                if (globalWorldMap.teammateLocationList != null)
+                {
+                    foreach (var teammate in globalWorldMap.teammateLocationList)
+                    {
+                        if (teammate.Key != robotId)
+                            obstacleList.Add(new LocationExtended(teammate.Value.X, teammate.Value.Y, 0, 0, 0, 0, ObjectType.Robot));
+                    }
+                }
             }
-
 
             //robotCurrentLocation = new Location(10, 3.5, 0, 0, 0, 0);
             //obstacleList.Add(new LocationExtended(9.8, 6, 0, 0, 0, 0, ObjectType.Robot));
@@ -145,7 +153,7 @@ namespace StrategyManager
             OnHeatMapStrategy(robotId, positioningHeatMap);
 
             //Calcul de la HeatMap WayPoint
-            positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, 2);
+            positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, 0.5);
 
             OnHeatMapWayPoint(robotId, positioningHeatMap);
             var optimalWayPoint = GetOptimalDestination();

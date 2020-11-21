@@ -1,9 +1,11 @@
 ﻿using Constants;
+using SciChart.Charting.Visuals.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using System.Linq;
 using Utilities;
 using WorldMap;
 
@@ -56,6 +58,7 @@ namespace WpfWorldMapDisplay
             RobotDisplay rd = new RobotDisplay(robotShape);
             rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
             TeamMatesDisplayDictionary.Add(robotId, rd);
+            AddOrUpdateTextAnnotation(robotId.ToString(), robotId.ToString(), 0, 0);
         }
 
         public void InitOpponent(int robotId)
@@ -74,10 +77,27 @@ namespace WpfWorldMapDisplay
             OpponentDisplayDictionary.Add(robotId, rd);
         }
 
-        //private void TimerAffichage_Tick(object sender, EventArgs e)
-        //{
-        //    UpdateWorldMapDisplay();
-        //}
+        public void AddOrUpdateTextAnnotation(string annotationName, string annotationText, double posX, double posY)
+        {
+            var textAnnotationList = sciChart.Annotations.Where(annotation => annotation.GetType().Name == "TextAnnotation").ToList();
+            var annot = textAnnotationList.FirstOrDefault(c => ((TextAnnotation)c).Name == "R" + annotationName + "r");
+            if (annot == null)
+            {
+                TextAnnotation textAnnot = new TextAnnotation();
+                textAnnot.Text = annotationText;
+                textAnnot.Name = "R"+annotationName+"r";
+                textAnnot.X1 = posX;
+                textAnnot.Y1 = posY;
+                sciChart.Annotations.Add(textAnnot);
+            }
+            else
+            {
+                ((TextAnnotation)annot).Text = annotationText;
+                ((TextAnnotation)annot).Name = "R" + annotationName + "r";
+                annot.X1 = posX;
+                annot.Y1 = posY;
+            }
+        }
 
         public void UpdateWorldMapDisplay()
         {
@@ -169,7 +189,9 @@ namespace WpfWorldMapDisplay
 
                 //On trace le robot en dernier pour l'avoir en couche de dessus
                 RobotShapesSeries.AddOrUpdatePolygonExtended(r.Key, TeamMatesDisplayDictionary[r.Key].GetRobotPolygon());
-                
+
+                AddOrUpdateTextAnnotation(r.Key.ToString(), r.Key.ToString(), TeamMatesDisplayDictionary[r.Key].GetRobotLocation().X, TeamMatesDisplayDictionary[r.Key].GetRobotLocation().Y);
+
                 ////Rendering des objets Lidar
                 //foreach (var polygonObject in TeamMatesDisplayDictionary[r.Key].GetRobotLidarObjects())
                 //    ObjectsPolygonSeries.AddOrUpdatePolygonExtended(ObjectsPolygonSeries.Count(), polygonObject);

@@ -29,7 +29,7 @@ namespace TeamSimulator
         static GlobalWorldMapManager globalWorldMapManagerTeam2;
 
         static Dictionary<int, StrategyManager.StrategyManager> strategyManagerDictionary;
-        static List<WaypointGenerator> waypointGeneratorList;
+        //static List<WaypointGenerator> waypointGeneratorList;
         static List<TrajectoryPlanner> trajectoryPlannerList;
         static List<SensorSimulator.SensorSimulator> sensorSimulatorList;
         static List<KalmanPositioning.KalmanPositioning> kalmanPositioningList;
