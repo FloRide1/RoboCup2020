@@ -11,7 +11,7 @@ using WorldMap;
 
 namespace StrategyManager.StrategyRoboCupNS
 {
-    class StrategyRoboCup : StrategyGenerique, StrategyInterface
+    class StrategyRoboCup : StrategyGenerique
     {
         Stopwatch sw = new Stopwatch();
 
@@ -22,16 +22,18 @@ namespace StrategyManager.StrategyRoboCupNS
         {
             this.teamId = teamId;
             this.robotId = robotId;
+            DisplayName = "T" + teamId + "D" + robotId;
         }
 
         public override void InitHeatMap()
         {
-            positioningHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 8)); //Init HeatMap
+            positioningHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 7)); //Init HeatMap
         }
 
         public override void DetermineRobotRole()
         {
         }
+
         public override void IterateStateMachines()
         {
             InitPreferedZones();
@@ -47,49 +49,12 @@ namespace StrategyManager.StrategyRoboCupNS
             AddPreferedZone(new PointD(3, 5), 1.5);
 
             AddAvoidanceZone(new PointD(0, 0), 5.5);
-            
+
+            //Ajout d'une zone préférée autour du robot lui-même de manière à stabiliser son comportement sur des cartes presques plates
+            AddPreferedZone(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), 2, 0.3);
+
             //AddForbiddenRectangle(new RectangleD(-5, 3, 4, 6));
-
         }
-
-        public void EvaluateStrategy()
-        {
-            //CalculateDestination();
-        }
-
-        //public void CalculateDestination()
-        //{
-        //    //TestGPU.ActionWithClosure();
-        //    sw.Reset();
-        //    sw.Start(); // début de la mesure
-
-        //    //Génération de la HeatMap
-        //    heatMap.InitHeatMapData();
-
-        //    double optimizedAreaSize;
-        //    PointD OptimalPosition = new PointD(0, 0);
-        //    PointD OptimalPosInBaseHeatMapCoordinates = heatMap.GetBaseHeatMapPosFromFieldCoordinates(0, 0);
-
-        //    //Réglage des inputs de la heatmap
-        //    //On set la destination souhaitée
-        //    heatMap.SetPreferedDestination((float)robotDestination.X, (float)robotDestination.Y);
-        //    //Génération de la heatmap
-        //    heatMap.GenerateHeatMap(heatMap.BaseHeatMapData, heatMap.nbCellInBaseHeatMapWidth, heatMap.nbCellInBaseHeatMapHeight, (float)heatMap.FieldLength, (float)heatMap.FieldHeight);
-        //    OptimalPosition = heatMap.GetOptimalPosition();
-
-        //    //Si la position optimale est très de la cible théorique, on prend la cible théorique
-        //    double seuilPositionnementFinal = 0.1;
-        //    if (Toolbox.Distance(new PointD(robotDestination.X, robotDestination.Y), new PointD(OptimalPosition.X, OptimalPosition.Y)) < seuilPositionnementFinal)
-        //    {
-        //        OptimalPosition = robotDestination;
-        //    }
-
-        //    OnHeatMap(robotId, heatMap);
-        //    OnDestination(robotId, new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, (float)robotOrientation, 0, 0, 0));
-
-        //    sw.Stop();
-        //}
-
 
         //void SetRobotRole()
         //{
@@ -135,18 +100,17 @@ namespace StrategyManager.StrategyRoboCupNS
         //    }
         //}
 
-        public event EventHandler<HeatMapArgs> OnHeatMapEvent;
-        public virtual void OnHeatMap(int id, Heatmap heatMap)
-        {
-            OnHeatMapEvent?.Invoke(this, new HeatMapArgs { RobotId = id, HeatMap = heatMap });
-        }
+        //public event EventHandler<HeatMapArgs> OnHeatMapEvent;
+        //public virtual void OnHeatMap(int id, Heatmap heatMap)
+        //{
+        //    OnHeatMapEvent?.Invoke(this, new HeatMapArgs { RobotId = id, HeatMap = heatMap });
+        //}
 
-        public event EventHandler<LocationArgs> OnDestinationEvent;
-        public virtual void OnDestination(int id, Location location)
-        {
-            OnDestinationEvent?.Invoke(this, new LocationArgs { RobotId = id, Location = location });
-        }
+        //public event EventHandler<LocationArgs> OnDestinationEvent;
+        //public virtual void OnDestination(int id, Location location)
+        //{
+        //    OnDestinationEvent?.Invoke(this, new LocationArgs { RobotId = id, Location = location });
+        //}
 
-        public event EventHandler<ByteEventArgs> OnSetAsservissementModeEvent;
     }
 }

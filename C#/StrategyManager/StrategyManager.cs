@@ -25,6 +25,8 @@ namespace StrategyManager
 
         int robotId = 0;
         int teamId = 0;
+
+        string DisplayName;
         
         
         PlayerRole robotRole = PlayerRole.Stop;

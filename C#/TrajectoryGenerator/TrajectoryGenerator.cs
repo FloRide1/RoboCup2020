@@ -19,13 +19,22 @@ namespace TrajectoryGenerator
 
         double FreqEch = 30.0;
 
-        double accelLineaireMax = 0.1; //en m.s-2
-        double accelRotationCapVitesseMax = 2* Math.PI * 0.25; //en rad.s-2
-        double accelRotationOrientationRobotMax = 2 * Math.PI * 0.1; //en rad.s-2
+        //double accelLineaireMax = 0.1; //en m.s-2
+        //double accelRotationCapVitesseMax = 2* Math.PI * 0.25; //en rad.s-2
+        //double accelRotationOrientationRobotMax = 2 * Math.PI * 0.1; //en rad.s-2
 
-        double vitesseLineaireMax = 0.3; //en m.s-1
-        double vitesseRotationCapVitesseMax = 2*Math.PI * 0.4; //en rad.s-1
-        double vitesseRotationOrientationRobotMax = 2*Math.PI * 0.1; //en rad.s-1
+        //double vitesseLineaireMax = 0.3; //en m.s-1
+        //double vitesseRotationCapVitesseMax = 2*Math.PI * 0.4; //en rad.s-1
+        //double vitesseRotationOrientationRobotMax = 2*Math.PI * 0.1; //en rad.s-1
+
+        double accelLineaireMax = 0.3; //en m.s-2
+        double accelRotationCapVitesseMax = 2 * Math.PI * 0.5; //en rad.s-2
+        double accelRotationOrientationRobotMax = 2 * Math.PI * 0.2; //en rad.s-2
+
+        double vitesseLineaireMax = 1.0; //en m.s-1
+        double vitesseRotationCapVitesseMax = 2 * Math.PI * 1.5; //en rad.s-1
+        double vitesseRotationOrientationRobotMax = 2 * Math.PI * 0.5; //en rad.s-1
+
 
         double capVitesseRefTerrain = 0;
         double vitesseRotationCapVitesse = 0;
@@ -39,8 +48,8 @@ namespace TrajectoryGenerator
 
         void InitPositionPID()
         {
-            PID_X = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5, 5, 1);
-            PID_Y = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5, 5, 1);
+            PID_X = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 100, 100, 1);
+            PID_Y = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 100, 100, 1);
             PID_Theta = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5*Math.PI, 5*Math.PI, Math.PI); //Validé VG : 20 20 0 2PI 2PI 0..5
 
             PidConfigUpdateTimer = new System.Timers.Timer(1000);
@@ -134,7 +143,7 @@ namespace TrajectoryGenerator
                 double vtheta = PID_Theta.CalculatePIDoutput(erreurTheta);
 
                 //On regarde si la position du robot est proche de la position du ghost
-                double seuilToleranceEcartGhost = 0.20;
+                double seuilToleranceEcartGhost = 1.0;
                 if (Math.Sqrt(Math.Pow(erreurXRefTerrain, 2) + Math.Pow(erreurYRefTerrain, 2)+ Math.Pow(erreurTheta/2,2)) < seuilToleranceEcartGhost)
                 {
                     //Si c'est le cas, le robot n'a pas rencontré de problème, on envoie les vitesses consigne.
