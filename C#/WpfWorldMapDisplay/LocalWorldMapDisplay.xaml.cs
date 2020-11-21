@@ -2,6 +2,7 @@
 using Constants;
 using SciChart.Charting.Model.DataSeries;
 using SciChart.Charting.Model.DataSeries.Heatmap2DArrayDataSeries;
+using SciChart.Charting.Visuals.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,9 +59,9 @@ namespace WpfWorldMapDisplay
         {
             lwmdType = type;
             if (lwmdType == LocalWorldMapDisplayType.StrategyMap)
-                LocalWorldMapTitle.Content = "Strategy Local World Map";
+                LocalWorldMapTitle.Text = "Strategy Local World Map";
             if (lwmdType == LocalWorldMapDisplayType.WayPointMap)
-                LocalWorldMapTitle.Content = "Waypoint Local World Map";
+                LocalWorldMapTitle.Text = "Waypoint Local World Map";
 
             switch (competition)
             {
@@ -144,7 +145,22 @@ namespace WpfWorldMapDisplay
                     rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
                     TeamMatesDisplayDictionary.Add(robotId, rd);
                     break;
-                    }
+            }
+            AddOrUpdateTextAnnotation(robotId.ToString(), robotId.ToString(), 0,0);
+        }
+
+        public void AddOrUpdateTextAnnotation(string annotationName, string annotationText, double posX, double posY)
+        {
+            var textAnnotationList = sciChart.Annotations.Where(annotation => annotation.GetType().Name=="TextAnnotation").ToList();
+            var annot = textAnnotationList.FirstOrDefault(c => ((TextAnnotation)c).Name == annotationName);
+            if(annot == null)
+            {
+                TextAnnotation textAnnot = new TextAnnotation();
+                textAnnot.Text = annotationText;
+                textAnnot.X1 = posX;
+                textAnnot.Y1 = posY;
+                sciChart.Annotations.Add(textAnnot);
+            }
         }
 
         public void UpdateWorldMapDisplay()

@@ -90,6 +90,12 @@ namespace WpfWorldMapDisplay
             this.ballLocationList = ballLocationList;
         }
 
+        public Location GetRobotLocation()
+        {
+            return robotLocation;
+        }
+
+
         public PolygonExtended GetRobotPolygon()
         {
             PolygonExtended polygonToDisplay = new PolygonExtended();
