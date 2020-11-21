@@ -27,6 +27,8 @@ namespace WpfWorldMapDisplay
     {
         LocalWorldMapDisplayType lwmdType = LocalWorldMapDisplayType.StrategyMap; //Par défaut
 
+        string competition = "";
+
         Random random = new Random();
 
         public bool IsExtended = false;
@@ -57,6 +59,7 @@ namespace WpfWorldMapDisplay
 
         public void Init(string competition, LocalWorldMapDisplayType type)
         {
+            this.competition = competition;
             lwmdType = type;
             if (lwmdType == LocalWorldMapDisplayType.StrategyMap)
                 LocalWorldMapTitle.Text = "Strategy Local World Map";
@@ -99,7 +102,7 @@ namespace WpfWorldMapDisplay
             this.sciChart.YAxis.VisibleRange.SetMinMax(-WidthDisplayArea / 2, WidthDisplayArea / 2);
         }
 
-        public void InitTeamMate(int robotId, string competition)
+        public void InitTeamMate(int robotId, string name)
         {
             switch (competition)
             {
@@ -113,7 +116,7 @@ namespace WpfWorldMapDisplay
                     robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
                     robotShape.borderColor = System.Drawing.Color.Blue;
                     robotShape.backgroundColor = System.Drawing.Color.Red;
-                    RobotDisplay rd = new RobotDisplay(robotShape);
+                    RobotDisplay rd = new RobotDisplay(robotShape, name);
                     rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
                     TeamMatesDisplayDictionary.Add(robotId, rd);
                     break;
@@ -127,7 +130,7 @@ namespace WpfWorldMapDisplay
                     robotShape.polygon.Points.Add(new System.Windows.Point(-0.12, -0.12));
                     robotShape.borderColor = System.Drawing.Color.Blue;
                     robotShape.backgroundColor = System.Drawing.Color.DarkRed;
-                    rd = new RobotDisplay(robotShape);
+                    rd = new RobotDisplay(robotShape, name);
                     rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
                     TeamMatesDisplayDictionary.Add(robotId, rd);
                     break;
@@ -141,12 +144,14 @@ namespace WpfWorldMapDisplay
                     robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
                     robotShape.borderColor = System.Drawing.Color.Blue;
                     robotShape.backgroundColor = System.Drawing.Color.Red;
-                    rd = new RobotDisplay(robotShape);
+                    rd = new RobotDisplay(robotShape, name);
                     rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
                     TeamMatesDisplayDictionary.Add(robotId, rd);
                     break;
             }
-            AddOrUpdateTextAnnotation(robotId.ToString(), robotId.ToString(), 0,0);
+
+            LocalWorldMapTitle.Text = "Local World Map "+robotId.ToString();
+            //AddOrUpdateTextAnnotation(robotId.ToString(), robotId.ToString(), 0,0);
         }
 
         public void AddOrUpdateTextAnnotation(string annotationName, string annotationText, double posX, double posY)

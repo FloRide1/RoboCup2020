@@ -52,7 +52,7 @@
             </s:SciChartSurface.RenderableSeries>
 
             <s:SciChartSurface.Annotations>
-                <s:TextAnnotation x:Name="LocalWorldMapTitle" AnnotationCanvas="AboveChart" CoordinateMode="Relative" FontSize="22" FontWeight="Bold" HorizontalAnchorPoint="Center" Opacity="0.3" Text="Local World Map" VerticalAnchorPoint="Center" X1="0.5" Y1="0.2"/>
+                <s:TextAnnotation x:Name="LocalWorldMapTitle" AnnotationCanvas="AboveChart" CoordinateMode="Relative" FontSize="14" FontWeight="Bold" HorizontalAnchorPoint="Center" Opacity="0.5" Text="Local World Map" VerticalAnchorPoint="Center" X1="0.3" Y1="0.18"/>
             </s:SciChartSurface.Annotations>
         </s:SciChartSurface>
         <!--<Label x:Name="LocalWorldMapTitle" Grid.Row="0" Content="Local World Map" HorizontalContentAlignment="Center" VerticalAlignment="Stretch" Foreground="White" HorizontalAlignment="Stretch">

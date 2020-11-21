@@ -56,7 +56,7 @@
             </s:SciChartSurface.RenderableSeries>
 
             <s:SciChartSurface.Annotations>
-                <s:TextAnnotation AnnotationCanvas="AboveChart" CoordinateMode="Relative" FontSize="32" FontWeight="Bold" HorizontalAnchorPoint="Center" Opacity="0.3" Text="Global World Map" VerticalAnchorPoint="Center" X1="0.5" Y1="0.3"/>
+                <s:TextAnnotation AnnotationCanvas="AboveChart" CoordinateMode="Relative" FontSize="24" FontWeight="Bold" HorizontalAnchorPoint="Center" Opacity="0.3" Text="Global World Map" VerticalAnchorPoint="Center" X1="0.25" Y1="0.16"/>
             </s:SciChartSurface.Annotations>
         </s:SciChartSurface>
         <!--<Label Grid.Row="0" Content="Global World Map" HorizontalContentAlignment="Center" VerticalAlignment="Stretch" Foreground="White" HorizontalAlignment="Stretch">

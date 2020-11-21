@@ -28,39 +28,47 @@ namespace WpfTeamInterfaceNS
     {
         string TeamIpAddress = "224.16.32.79";
         string OpponentTeamIpAddress = "224.16.32.63";
+        string typeTerrain;
 
         DispatcherTimer timerAffichage;
 
-        public WpfTeamInterface(string typeTerrain)
+        public WpfTeamInterface(string typeTerrain, string[] team1PlayerNames, string[] team2PlayerNames)
         {
             InitializeComponent();
 
-            localWorldMapDisplay1.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
-            localWorldMapDisplay2.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
-            localWorldMapDisplay3.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
-            localWorldMapDisplay4.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
-            localWorldMapDisplay5.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
-            localWorldMapDisplay6.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
+            this.typeTerrain = typeTerrain;
 
-            localWorldMapDisplay1.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, "RoboCup");
-            localWorldMapDisplay2.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot2, "RoboCup");
-            localWorldMapDisplay3.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot3, "RoboCup");
-            localWorldMapDisplay4.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot4, "RoboCup");
-            localWorldMapDisplay5.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot5, "RoboCup");
-            localWorldMapDisplay6.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot6, "RoboCup");
-
-            for (int i = 0; i < 5; i++)
-            {
-                globalWorldMapDisplayTeam1.InitTeamMate((int)TeamId.Team1 + i);
-                globalWorldMapDisplayTeam1.InitOpponent((int)TeamId.Team2 + i);
-                globalWorldMapDisplayTeam2.InitTeamMate((int)TeamId.Team2 + i);
-                globalWorldMapDisplayTeam2.InitOpponent((int)TeamId.Team1 + i);
-            }
+            InitPlayers(team1PlayerNames, team2PlayerNames);
 
             timerAffichage = new DispatcherTimer();
             timerAffichage.Interval = new TimeSpan(0, 0, 0, 0, 50);
             timerAffichage.Tick += TimerAffichage_Tick; ;
             timerAffichage.Start();
+        }
+
+        private void InitPlayers(string[] team1PlayerNames, string[] team2PlayerNames)
+        {
+            localWorldMapDisplay1.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
+            localWorldMapDisplay2.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
+            localWorldMapDisplay3.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
+            localWorldMapDisplay4.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
+            localWorldMapDisplay5.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
+            //localWorldMapDisplay6.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
+            
+            localWorldMapDisplay1.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, team1PlayerNames[0]);
+            localWorldMapDisplay2.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot2, team1PlayerNames[1]);
+            localWorldMapDisplay3.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot3, team1PlayerNames[2]);
+            localWorldMapDisplay4.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot4, team1PlayerNames[3]);
+            localWorldMapDisplay5.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot5, team1PlayerNames[4]);
+            //localWorldMapDisplay6.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot6, "RoboCup");
+
+            for (int i = 0; i < 5; i++)
+            {
+                globalWorldMapDisplayTeam1.InitTeamMate((int)TeamId.Team1 + i, team1PlayerNames[i]);
+                globalWorldMapDisplayTeam1.InitOpponent((int)TeamId.Team2 + i, team2PlayerNames[i]);
+                globalWorldMapDisplayTeam2.InitTeamMate((int)TeamId.Team2 + i, team2PlayerNames[i]);
+                globalWorldMapDisplayTeam2.InitOpponent((int)TeamId.Team1 + i, team1PlayerNames[i]);
+            }
         }
 
         private void TimerAffichage_Tick(object sender, EventArgs e)

@@ -17,19 +17,21 @@ namespace WpfWorldMapDisplay
         private Location ghostLocation;
         private Location destinationLocation;
         private Location waypointLocation;
+        public string robotName = "";
         public double[,] heatMapStrategy;
         public double[,] heatMapWaypoint;
         List<PointD> lidarMap;
         List<PolarPointListExtended> lidarObjectList;
         public List<Location> ballLocationList;
 
-        public RobotDisplay(PolygonExtended rbtShape)
+        public RobotDisplay(PolygonExtended rbtShape, string name)
         {
             robotLocation = new Location(0, 0, 0, 0, 0, 0);
             destinationLocation = new Location(0, 0, 0, 0, 0, 0);
             waypointLocation = new Location(0, 0, 0, 0, 0, 0);
             ghostLocation = new Location(0, 0, 0, 0, 0, 0);
             robotShape = rbtShape;
+            robotName = name;
 
             //TODO à définir en dehors
             ghostShape = new PolygonExtended();

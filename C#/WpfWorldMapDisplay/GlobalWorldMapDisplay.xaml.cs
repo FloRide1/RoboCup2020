@@ -8,6 +8,7 @@ using System.Windows.Threading;
 using System.Linq;
 using Utilities;
 using WorldMap;
+using System.Windows;
 
 namespace WpfWorldMapDisplay
 {
@@ -44,7 +45,7 @@ namespace WpfWorldMapDisplay
             InitRoboCupSoccerField();
         }
 
-        public void InitTeamMate(int robotId)
+        public void InitTeamMate(int robotId, string name)
         {
             PolygonExtended robotShape = new PolygonExtended();
             robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
@@ -55,13 +56,12 @@ namespace WpfWorldMapDisplay
             robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
             robotShape.borderColor = Color.Black;
             robotShape.backgroundColor = Color.FromArgb(255, 0, 0, 200);
-            RobotDisplay rd = new RobotDisplay(robotShape);
+            RobotDisplay rd = new RobotDisplay(robotShape, name);
             rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
             TeamMatesDisplayDictionary.Add(robotId, rd);
-            AddOrUpdateTextAnnotation(robotId.ToString(), robotId.ToString(), 0, 0);
         }
 
-        public void InitOpponent(int robotId)
+        public void InitOpponent(int robotId, string name)
         {
             PolygonExtended robotShape = new PolygonExtended();
             robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
@@ -72,7 +72,7 @@ namespace WpfWorldMapDisplay
             robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
             robotShape.borderColor = Color.Black;
             robotShape.backgroundColor = Color.FromArgb(255, 200, 0, 0);
-            RobotDisplay rd = new RobotDisplay(robotShape);
+            RobotDisplay rd = new RobotDisplay(robotShape, name);
             rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
             OpponentDisplayDictionary.Add(robotId, rd);
         }
@@ -88,6 +88,12 @@ namespace WpfWorldMapDisplay
                 textAnnot.Name = "R"+annotationName+"r";
                 textAnnot.X1 = posX;
                 textAnnot.Y1 = posY;
+                textAnnot.HorizontalAnchorPoint = HorizontalAnchorPoint.Center;
+                textAnnot.VerticalAnchorPoint = VerticalAnchorPoint.Bottom;
+                textAnnot.FontSize = 10;
+                Color foreColor = Color.Black;
+                textAnnot.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(foreColor.A, foreColor.R, foreColor.G, foreColor.B));
+                textAnnot.FontWeight = FontWeights.Bold;
                 sciChart.Annotations.Add(textAnnot);
             }
             else
@@ -95,7 +101,7 @@ namespace WpfWorldMapDisplay
                 ((TextAnnotation)annot).Text = annotationText;
                 ((TextAnnotation)annot).Name = "R" + annotationName + "r";
                 annot.X1 = posX;
-                annot.Y1 = posY;
+                annot.Y1 = posY+0.02;
             }
         }
 
@@ -190,7 +196,7 @@ namespace WpfWorldMapDisplay
                 //On trace le robot en dernier pour l'avoir en couche de dessus
                 RobotShapesSeries.AddOrUpdatePolygonExtended(r.Key, TeamMatesDisplayDictionary[r.Key].GetRobotPolygon());
 
-                AddOrUpdateTextAnnotation(r.Key.ToString(), r.Key.ToString(), TeamMatesDisplayDictionary[r.Key].GetRobotLocation().X, TeamMatesDisplayDictionary[r.Key].GetRobotLocation().Y);
+                AddOrUpdateTextAnnotation(r.Key.ToString(), r.Value.robotName, TeamMatesDisplayDictionary[r.Key].GetRobotLocation().X, TeamMatesDisplayDictionary[r.Key].GetRobotLocation().Y);
 
                 ////Rendering des objets Lidar
                 //foreach (var polygonObject in TeamMatesDisplayDictionary[r.Key].GetRobotLidarObjects())

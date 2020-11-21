@@ -53,6 +53,8 @@ namespace TeamSimulator
         static int nbPlayersTeam1 = 5;
         static int nbPlayersTeam2 = 5;
 
+        static string[] team1PlayerNames = new string[5] { "Barthez", "Thuram", "Zidane", "Mbappe", "Papin" };
+        static string[] team2PlayerNames = new string[5] { "Robert", "Marcel", "Roger", "Bertrand", "Victor" };
 
         [STAThread] //à ajouter au projet initial
 
@@ -88,12 +90,12 @@ namespace TeamSimulator
 
             for (int i = 0; i < nbPlayersTeam1; i++)
             {
-                CreatePlayer((int)TeamId.Team1, i);
+                CreatePlayer((int)TeamId.Team1, i, team1PlayerNames[i]);
             }
 
             for (int i = 0; i < nbPlayersTeam2; i++)
             {
-                CreatePlayer((int)TeamId.Team2, i);
+                CreatePlayer((int)TeamId.Team2, i, team2PlayerNames[i]);
             }
 
             DefineRoles();
@@ -132,7 +134,7 @@ namespace TeamSimulator
         }
         
         static Random randomGenerator = new Random();
-        private static void CreatePlayer(int TeamNumber, int RobotNumber)
+        private static void CreatePlayer(int TeamNumber, int RobotNumber, string Name)
         {
             int robotId = TeamNumber + RobotNumber;
             var strategyManager = new StrategyManager.StrategyManager(robotId, TeamNumber, GameMode.RoboCup);
@@ -305,7 +307,7 @@ namespace TeamSimulator
             Thread t1 = new Thread(() =>
             {
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
-                TeamConsole = new WpfTeamInterface("RoboCup");  //RoboCup
+                TeamConsole = new WpfTeamInterface("RoboCup", team1PlayerNames, team2PlayerNames);  //RoboCup
 
                 //On s'abonne aux évènements permettant de visualiser les localWorldMap à leur génération : attention, event réservé à la visualisation car il passe les heat maps et pts lidar
                 for (int i = 0; i < nbPlayersTeam1; i++)
