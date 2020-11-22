@@ -213,7 +213,10 @@ namespace StrategyManager.StrategyRoboCupNS
                         {
                             if(adversaire1!=adversaire2)
                             {
-                                AddPreferedZone(new PointD((adversaire1.X + adversaire2.X) / 2, (adversaire1.Y + adversaire2.Y) / 2), 1.4, 0.5);                                
+                                //AddPreferedZone(new PointD((adversaire1.X + adversaire2.X) / 2, (adversaire1.Y + adversaire2.Y) / 2), 1.4, 0.5);                                
+                                AddPreferredSegmentZoneList(new PointD(adversaire1.X, adversaire1.Y), new PointD(adversaire2.X, adversaire2.Y), 0.4, 0.1);
+                                AddAvoidanceZone(new PointD(adversaire1.X, adversaire1.Y),2, 0.2);
+                                //AddPreferedZone(new PointD((adversaire1.X + adversaire2.X) / 2, (adversaire1.Y + adversaire2.Y) / 2), 1.4, 0.5);
                             }
                         }
                     }
