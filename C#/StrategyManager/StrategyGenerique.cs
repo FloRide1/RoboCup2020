@@ -51,6 +51,7 @@ namespace StrategyManager
         public GlobalWorldMap globalWorldMap;
         public Heatmap positioningHeatMap;
         public Location robotCurrentLocation = new Location(0, 0, 0, 0, 0, 0);
+        public double robotOrientation;
 
         Stopwatch sw = new Stopwatch();
         Timer timerStrategy;
@@ -108,6 +109,7 @@ namespace StrategyManager
         {
             //Le joueur détermine sa stratégie
             DetermineRobotRole();
+
             IterateStateMachines();
             PositioningHeatMapGeneration();
             var optimalPosition = GetOptimalDestination();
@@ -159,7 +161,6 @@ namespace StrategyManager
             var optimalWayPoint = GetOptimalDestination();
 
             //Mise à jour de la destination
-            double robotOrientation = 0;
             OnDestination(robotId, new Location((float)optimalPosition.X, (float)optimalPosition.Y, (float)robotOrientation, 0, 0, 0));
             OnWaypoint(robotId, new Location((float)optimalWayPoint.X, (float)optimalWayPoint.Y, (float)robotOrientation, 0, 0, 0));
         }
@@ -176,7 +177,7 @@ namespace StrategyManager
 
             //Génération de la HeatMap
             positioningHeatMap.InitHeatMapData();
-            positioningHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList, strictlyAllowedRectangleList);
+            positioningHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList, strictlyAllowedRectangleList, avoidanceConicalZoneList);
 
             sw.Stop();
         }
@@ -248,6 +249,25 @@ namespace StrategyManager
                 forbiddenRectangleList.Add(new RectangleZone(rect));
             }
         }
+
+        //Zones coniques déconseillée
+        List<ConicalZone> avoidanceConicalZoneList = new List<ConicalZone>();
+        public void InitAvoidanceConicalZoneList()
+        {
+            lock (avoidanceConicalZoneList)
+            {
+                avoidanceConicalZoneList = new List<ConicalZone>();
+            }
+        }
+        public void AddAvoidanceConicalZoneList(PointD initPt, PointD ciblePt, double radius)
+        {
+            lock (avoidanceConicalZoneList)
+            {
+                avoidanceConicalZoneList.Add(new ConicalZone(initPt, ciblePt, radius));
+            }
+        }
+
+
 
         //Zones rectangulaires interdites
         List<RectangleZone> strictlyAllowedRectangleList = new List<RectangleZone>();

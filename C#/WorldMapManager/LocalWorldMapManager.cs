@@ -48,8 +48,10 @@ namespace WorldMapManager
                 LocalWorldMap transferLocalWorldMap = new LocalWorldMap();
                 transferLocalWorldMap.RobotId = localWorldMap.RobotId;
                 transferLocalWorldMap.TeamId = localWorldMap.TeamId;
-                transferLocalWorldMap.destinationLocation = localWorldMap.destinationLocation;
                 transferLocalWorldMap.robotLocation = localWorldMap.robotLocation;
+                transferLocalWorldMap.destinationLocation = localWorldMap.destinationLocation;
+                transferLocalWorldMap.waypointLocation = localWorldMap.waypointLocation;
+                transferLocalWorldMap.robotGhostLocation = localWorldMap.robotGhostLocation;
                 transferLocalWorldMap.robotRole = localWorldMap.robotRole;
                 transferLocalWorldMap.playingSide = localWorldMap.playingSide;
                 transferLocalWorldMap.obstaclesLocationList = localWorldMap.obstaclesLocationList;

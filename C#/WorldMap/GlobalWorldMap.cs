@@ -75,6 +75,7 @@ namespace WorldMap
     public class GlobalWorldMapStorage
     {
         public Dictionary<int, Location> robotLocationDictionary { get; set; }
+        public Dictionary<int, Location> ghostLocationDictionary { get; set; }
         public Dictionary<int, Location> destinationLocationDictionary { get; set; }
         public Dictionary<int, Location> waypointLocationDictionary { get; set; }
         public Dictionary<int, List<Location>> ballLocationListDictionary { get; set; }
@@ -85,6 +86,7 @@ namespace WorldMap
         public GlobalWorldMapStorage()
         {
             robotLocationDictionary = new Dictionary<int, Location>();
+            ghostLocationDictionary = new Dictionary<int, Location>();
             destinationLocationDictionary = new Dictionary<int, Location>();
             waypointLocationDictionary = new Dictionary<int, Location>();
             ballLocationListDictionary = new Dictionary<int, List<Location>>();
@@ -101,6 +103,16 @@ namespace WorldMap
                     robotLocationDictionary[id] = loc;
                 else
                     robotLocationDictionary.Add(id, loc);
+            }
+        }
+        public void AddOrUpdateGhostLocation(int id, Location loc)
+        {
+            lock (ghostLocationDictionary)
+            {
+                if (ghostLocationDictionary.ContainsKey(id))
+                    ghostLocationDictionary[id] = loc;
+                else
+                    ghostLocationDictionary.Add(id, loc);
             }
         }
 

@@ -80,7 +80,7 @@ namespace WpfTeamInterfaceNS
             localWorldMapDisplay3.UpdateWorldMapDisplay();
             localWorldMapDisplay4.UpdateWorldMapDisplay();
             localWorldMapDisplay5.UpdateWorldMapDisplay();
-            localWorldMapDisplay6.UpdateWorldMapDisplay();
+            //localWorldMapDisplay6.UpdateWorldMapDisplay();
         }
 
         public void OnLocalWorldMapReceived(object sender, LocalWorldMapArgs e)

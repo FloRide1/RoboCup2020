@@ -158,6 +158,19 @@ namespace Utilities
         }
     }
 
+    public class ConicalZone
+    {
+        public PointD InitPoint;
+        public PointD Cible;
+        public double Radius;
+        public ConicalZone(PointD initPt, PointD ciblePt, double radius)
+        {
+            InitPoint = initPt;
+            Cible = ciblePt;
+            Radius = radius;
+        }
+    }
+
     public enum ObjectType
     {
         Balle,

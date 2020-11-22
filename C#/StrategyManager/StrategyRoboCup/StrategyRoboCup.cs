@@ -16,7 +16,6 @@ namespace StrategyManager.StrategyRoboCupNS
         Stopwatch sw = new Stopwatch();
 
         public PointD robotDestination = new PointD(0, 0);
-        public double robotOrientation = 0;
 
         RobotRole role = RobotRole.Stopped;
         PlayingSide playingSide = PlayingSide.Left;
@@ -52,7 +51,7 @@ namespace StrategyManager.StrategyRoboCupNS
                     if (robotId % 10 == 0)
                         role = RobotRole.Gardien;
                     else
-                        role = RobotRole.MilieuDemarque;
+                        role = RobotRole.AttaquantDemarque;
                     break;
                 case GameState.STOPPED_GAME_POSITIONING:
                     role = RobotRole.DefenseurInterception;
@@ -69,21 +68,15 @@ namespace StrategyManager.StrategyRoboCupNS
 
         public void DefinePlayerZones(RobotRole role)
         {
-            /// Défini un multiplieur vala&nt -1 ou 1 pour automatiser le placement de 
-            /// certaines zones d'exclusion en fonction du sens de jeu
-            int playingSideMultiplier = 1;
-            if(playingSide == PlayingSide.Right)
-                playingSideMultiplier = -1;
-            else
-                playingSideMultiplier = 1;
 
             InitPreferedZones();
             InitAvoidanceZones();
             InitForbiddenRectangleList();
             InitStrictlyAllowedRectangleList();
+            InitAvoidanceConicalZoneList();
 
             ///On exclut d'emblée les surface de réparation pour tous les joueurs
-            if(role != RobotRole.Gardien)
+            if (role != RobotRole.Gardien)
             {
                 AddForbiddenRectangle(new RectangleD(-11, -11 + 0.75, -3.9 / 2, 3.9 / 2));
                 AddForbiddenRectangle(new RectangleD(11, 11 - 0.75, -3.9 / 2, 3.9 / 2));
@@ -92,35 +85,64 @@ namespace StrategyManager.StrategyRoboCupNS
             switch (role)
             {
                 case RobotRole.Gardien:
-                    ///Exclusion de tout le terrain sauf la surface de réparation
+                    /// Gestion du cas du gardien
+                    /// Exclusion de tout le terrain sauf la surface de réparation
+                    /// Ajout d'une zone préférentielle centrée sur le but
+                    /// Réglage du cap pour faire toujours face à la balle
                     if (playingSide == PlayingSide.Right)
                     {
                         AddStrictlyAllowedRectangle(new RectangleD(11 - 0.75, 11, -3.9 / 2, 3.9 / 2));
-                        AddPreferedZone(new PointD(11, 0), 1.5);
+                        AddPreferedZone(new PointD(10.6, 0), 1.5);
                     }
                     else
                     {
                         AddStrictlyAllowedRectangle(new RectangleD(-11, -11 + 0.75, -3.9 / 2, 3.9 / 2));
-                        AddPreferedZone(new PointD(-11, 0), 1.5);
+                        AddPreferedZone(new PointD(-10.6, 0), 1.5);
                     }
-                        break;
+
+                    if (globalWorldMap.ballLocationList.Count > 0)
+                        robotOrientation = Math.Atan2(globalWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, globalWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
+                    break;
+                case RobotRole.AttaquantDemarque:
+                    /// Gestion du cas de l'attaquant démarqué
+                    /// Il doit faire en sorte que la ligne de passe entre lui et le porteur du ballon soit libre
+                    ///     Pour cela il faudrait idéalement placer une zone de pénalisation conique de centre le joueur dans l'axe de chaque adversaire
+                    /// Il doit également se placer dans un position de tir possible 
+                    ///     Pour cela il faudrait idéalement placer une zone de pénalisation conique de centre le but dans l'axe de chaque adversaire
+                    ///     
+                    foreach (var adversaire in globalWorldMap.obstacleLocationList)
+                    {
+                        AddAvoidanceConicalZoneList(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), new PointD(adversaire.X, adversaire.Y), 1);
+                        if (playingSide == PlayingSide.Right)
+                        {
+                            AddPreferedZone(new PointD(8, 3), 3);
+                            AddPreferedZone(new PointD(8, -3), 3);
+                        }
+                        else
+                        {
+                            AddPreferedZone(new PointD(-8, 3), 3);
+                            AddPreferedZone(new PointD(-8, -3), 3);
+                        }
+                    }
+                    break;
+
             }
         }
         public override void IterateStateMachines()
         {
 
-            AddPreferedZone(new PointD(5, -3), 1);
-            AddPreferedZone(new PointD(10, 5), 3.5);
-            AddPreferedZone(new PointD(-2, 4), 3.5);
-            AddPreferedZone(new PointD(-7, -4), 2.0);
-            AddPreferedZone(new PointD(-8, 0), 5.0);
-            AddPreferedZone(new PointD(0, 1.5), 3.5);
-            AddPreferedZone(new PointD(3, 5), 1.5);
+            //AddPreferedZone(new PointD(5, -3), 1);
+            //AddPreferedZone(new PointD(10, 5), 3.5);
+            //AddPreferedZone(new PointD(-2, 4), 3.5);
+            //AddPreferedZone(new PointD(-7, -4), 2.0);
+            //AddPreferedZone(new PointD(-8, 0), 5.0);
+            //AddPreferedZone(new PointD(0, 1.5), 3.5);
+            //AddPreferedZone(new PointD(3, 5), 1.5);
 
-            AddAvoidanceZone(new PointD(0, 0), 5.5);
+            //AddAvoidanceZone(new PointD(0, 0), 5.5);
 
             //Ajout d'une zone préférée autour du robot lui-même de manière à stabiliser son comportement sur des cartes presques plates
-            AddPreferedZone(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), 2, 0.3);
+            AddPreferedZone(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), 2, 0.1);
 
             //AddForbiddenRectangle(new RectangleD(-5, 3, 4, 6));
         }

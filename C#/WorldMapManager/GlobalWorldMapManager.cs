@@ -231,6 +231,7 @@ namespace WorldMapManager
                 foreach (var localMap in localWorldMapDictionary)
                 {
                     globalWorldMapStorage.AddOrUpdateRobotLocation(localMap.Key, localMap.Value.robotLocation);
+                    globalWorldMapStorage.AddOrUpdateGhostLocation(localMap.Key, localMap.Value.robotGhostLocation);
                     globalWorldMapStorage.AddOrUpdateRobotDestination(localMap.Key, localMap.Value.destinationLocation);
                     globalWorldMapStorage.AddOrUpdateRobotWayPoint(localMap.Key, localMap.Value.waypointLocation);
                     globalWorldMapStorage.AddOrUpdateBallLocationList(localMap.Key, localMap.Value.ballLocationList);

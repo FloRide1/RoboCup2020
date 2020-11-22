@@ -47,8 +47,6 @@ namespace UdpMulticastInterpreter
                     Console.WriteLine("Exception Message non décodable en json : UdpMulticastInterpreter");
                 }
             }
-
-
         }
 
         //Output events
