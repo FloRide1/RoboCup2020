@@ -166,15 +166,15 @@ namespace WpfWorldMapDisplay
                 }
             }
 
-            lock (globalWorldMap.opponentLocationList)
+            lock (globalWorldMap.obstacleLocationList)
             {
                 int i = 0;
-                foreach (var opponentLocation in globalWorldMap.opponentLocationList)
+                foreach (var opponentLocation in globalWorldMap.obstacleLocationList)
                 {
                     if (globalWorldMap.TeamId == (int)TeamId.Team1)
-                        UpdateOpponentLocation((int)TeamId.Team2 + i, opponentLocation);
+                        UpdateOpponentLocation((int)TeamId.Team2 + i, new Location(opponentLocation.X, opponentLocation.Y, 0, 0, 0, 0));
                     else if (globalWorldMap.TeamId == (int)TeamId.Team2)
-                        UpdateOpponentLocation((int)TeamId.Team1 + i, opponentLocation);
+                        UpdateOpponentLocation((int)TeamId.Team1 + i, new Location(opponentLocation.X, opponentLocation.Y, 0, 0, 0, 0));
                     i++;
                 }
             }

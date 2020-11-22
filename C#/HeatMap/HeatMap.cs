@@ -127,7 +127,8 @@ namespace HeatMap
         ////    return new PointD(maxPosX, maxPosY);
         ////}
 
-        public void GenerateHeatMap(List<Zone> preferredZonesList, List<Zone> avoidanceZonesList, List<RectangleZone> forbiddenRectangleList, List<RectangleZone> strictlyAllowedRectangleList, List<ConicalZone> avoidanceConicalZoneList)
+        public void GenerateHeatMap(List<Zone> preferredZonesList, List<Zone> avoidanceZonesList, List<RectangleZone> forbiddenRectangleList, 
+            List<RectangleZone> strictlyAllowedRectangleList, List<ConicalZone> avoidanceConicalZoneList, List<SegmentZone> preferredSegmentZoneList)
         {
             lock (BaseHeatMapData)
             {
@@ -212,6 +213,31 @@ namespace HeatMap
                             {
                                 if (BaseHeatMapData[y, x] > -1) //On regarde si on n'est pas dans une zone exclue (valeur <= -1)
                                     BaseHeatMapData[y, x] += strength * Math.Max(0, 1 - Math.Sqrt((centerRefHeatMap.X - x) * (centerRefHeatMap.X - x) + (centerRefHeatMap.Y - y) * (centerRefHeatMap.Y - y)) / radiusRefHeatMap);
+                                else
+                                    BaseHeatMapData[y, x] = -1;
+                            }
+                        }
+                    }
+                }
+
+                lock (preferredSegmentZoneList)
+                {
+                    foreach (var segmentZone in preferredSegmentZoneList)
+                    {
+                        var ptARefHeatMap = GetBaseHeatMapPosFromFieldCoordinates(segmentZone.PointA);
+                        var ptBRefHeatMap = GetBaseHeatMapPosFromFieldCoordinates(segmentZone.PointB);
+                        var radiusRefHeatMap = GetBaseHeatMapDistanceFromFieldDistance(segmentZone.Radius);
+                        var strength = segmentZone.Strength;
+
+                        for (int y = (int)Math.Max(0, Math.Min(ptARefHeatMap.Y, ptBRefHeatMap.Y) - radiusRefHeatMap); y < (int)Math.Min(nbCellInBaseHeatMapHeight, Math.Max(ptARefHeatMap.Y, ptBRefHeatMap.Y) + radiusRefHeatMap); y++)
+                        {
+                            for (int x = (int)Math.Max(0, Math.Min(ptARefHeatMap.X, ptBRefHeatMap.X) - radiusRefHeatMap); x < (int)(Math.Min(nbCellInBaseHeatMapWidth, Math.Max(ptARefHeatMap.X, ptBRefHeatMap.X) + radiusRefHeatMap)); x++)
+                            {
+                                if (BaseHeatMapData[y, x] > -1) //On regarde si on n'est pas dans une zone exclue (valeur <= -1)
+                                {
+                                    double distanceRefHeatMap = Toolbox.DistancePointToSegment(new PointD(x, y), ptARefHeatMap, ptBRefHeatMap);
+                                    BaseHeatMapData[y, x] += strength * Math.Max(0, 1 - distanceRefHeatMap  / radiusRefHeatMap);
+                                }
                                 else
                                     BaseHeatMapData[y, x] = -1;
                             }

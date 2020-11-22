@@ -92,15 +92,75 @@ namespace Utilities
             return Math.Sqrt(Math.Pow(xPt2 - xPt1, 2) + Math.Pow(yPt2 - yPt1, 2));
         }
 
-        /// <summary>Calcul le modulo autour d'un angle d'un autre angle donné.</summary>
-        //public static double ModuloAroundAngle(double angleToCenterAround, double angleToCorrect)
-        //{
-        //    // On corrige l'angle obtenu pour le moduloter autour de l'angle Kalman
-        //    int decalageNbTours = (int)Math.Round(angleToCenterAround / (2 * Math.PI));
-        //    double thetaCorrected = angleToCorrect + decalageNbTours * 2 * Math.PI;
+        public static double DistancePointToSegment(PointD pt, PointD ptSeg1, PointD ptSeg2)
+        {
+            var A = pt.X - ptSeg1.X;
+            var B = pt.Y - ptSeg1.Y;
+            var C = ptSeg2.X - ptSeg1.X;
+            var D = ptSeg2.Y - ptSeg1.Y;
 
-        //    return thetaCorrected;
-        //}
+            double dot = A * C + B * D;
+            double len_sq = C * C + D * D;
+            double param = -1;
+            if (len_sq != 0) //in case of 0 length line
+                param = dot / len_sq;
+
+            double xx, yy;
+
+            if (param < 0)
+            {
+                xx = ptSeg1.X;
+                yy = ptSeg1.Y;
+            }
+            else if (param > 1)
+            {
+                xx = ptSeg2.X;
+                yy = ptSeg2.Y;
+            }
+            else
+            {
+                xx = ptSeg1.X + param * C;
+                yy = ptSeg1.Y + param * D;
+            }
+
+            var dx = pt.X - xx;
+            var dy = pt.Y - yy;
+
+            double distance = Math.Sqrt(dx * dx + dy * dy);
+            return distance;
+            //var A = x - x1;
+            //var B = y - y1;
+            //var C = x2 - x1;
+            //var D = y2 - y1;
+
+            //var dot = A * C + B * D;
+            //var len_sq = C * C + D * D;
+            //var param = -1;
+            //if (len_sq != 0) //in case of 0 length line
+            //    param = dot / len_sq;
+
+            //var xx, yy;
+
+            //if (param < 0)
+            //{
+            //    xx = x1;
+            //    yy = y1;
+            //}
+            //else if (param > 1)
+            //{
+            //    xx = x2;
+            //    yy = y2;
+            //}
+            //else
+            //{
+            //    xx = x1 + param * C;
+            //    yy = y1 + param * D;
+            //}
+
+            //var dx = x - xx;
+            //var dy = y - yy;
+            //return Math.sqrt(dx * dx + dy * dy);
+        }
     }
 }
 

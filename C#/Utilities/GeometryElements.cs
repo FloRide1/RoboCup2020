@@ -170,6 +170,20 @@ namespace Utilities
             Radius = radius;
         }
     }
+    public class SegmentZone
+    {
+        public PointD PointA;
+        public PointD PointB;
+        public double Radius;
+        public double Strength;
+        public SegmentZone(PointD ptA, PointD ptB, double radius, double strength)
+        {
+            PointA = ptA;
+            PointB = ptB;
+            Radius = radius;
+            Strength = strength;
+        }
+    }
 
     public enum ObjectType
     {

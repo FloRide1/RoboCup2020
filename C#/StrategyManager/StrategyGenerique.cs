@@ -177,7 +177,7 @@ namespace StrategyManager
 
             //Génération de la HeatMap
             positioningHeatMap.InitHeatMapData();
-            positioningHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList, strictlyAllowedRectangleList, avoidanceConicalZoneList);
+            positioningHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList, strictlyAllowedRectangleList, avoidanceConicalZoneList, preferredSegmentZoneList);
 
             sw.Stop();
         }
@@ -264,6 +264,23 @@ namespace StrategyManager
             lock (avoidanceConicalZoneList)
             {
                 avoidanceConicalZoneList.Add(new ConicalZone(initPt, ciblePt, radius));
+            }
+        }
+
+        //Zones Segment préférentielles
+        List<SegmentZone> preferredSegmentZoneList = new List<SegmentZone>();
+        public void InitPreferredSegmentZoneList()
+        {
+            lock (preferredSegmentZoneList)
+            {
+                preferredSegmentZoneList = new List<SegmentZone>();
+            }
+        }
+        public void AddPreferredSegmentZoneList(PointD ptA, PointD ptB, double radius, double strength = 1)
+        {
+            lock (preferredSegmentZoneList)
+            {
+                preferredSegmentZoneList.Add(new SegmentZone(ptA, ptB, radius, strength));
             }
         }
 
