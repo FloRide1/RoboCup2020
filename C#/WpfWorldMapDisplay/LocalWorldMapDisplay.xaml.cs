@@ -150,7 +150,7 @@ namespace WpfWorldMapDisplay
                     break;
             }
 
-            LocalWorldMapTitle.Text = "Local World Map "+robotId.ToString();
+            LocalWorldMapTitle.Text = "Local World Map " + name;
             //AddOrUpdateTextAnnotation(robotId.ToString(), robotId.ToString(), 0,0);
         }
 

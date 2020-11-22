@@ -56,4 +56,14 @@ namespace Utilities
         Eurobot,
         Demo
     }
+
+    public enum RobotRole
+    {
+        Gardien,
+        ContesteurDeBalle,
+        DefenseurMarquage,
+        DefenseurInterception,
+        MilieuDemarque,
+        AttaquantDemarque
+    }
 }

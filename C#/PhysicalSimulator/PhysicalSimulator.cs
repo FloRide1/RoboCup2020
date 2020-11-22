@@ -40,8 +40,8 @@ namespace PhysicalSimulator
             }
 
             ballSimulatedList.Add(0, new PhysicalBallSimulator(0, 0));
-            ballSimulatedList.Add(1, new PhysicalBallSimulator(3, 0));
-            ballSimulatedList.Add(2, new PhysicalBallSimulator(6, 0));
+            //ballSimulatedList.Add(1, new PhysicalBallSimulator(3, 0));
+            //ballSimulatedList.Add(2, new PhysicalBallSimulator(6, 0));
 
             filterLowPassVx.LowPassFilterInit(fSampling, 10);
             filterLowPassVy.LowPassFilterInit(fSampling, 10);

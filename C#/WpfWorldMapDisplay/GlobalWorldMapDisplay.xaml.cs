@@ -91,7 +91,7 @@ namespace WpfWorldMapDisplay
                 textAnnot.HorizontalAnchorPoint = HorizontalAnchorPoint.Center;
                 textAnnot.VerticalAnchorPoint = VerticalAnchorPoint.Bottom;
                 textAnnot.FontSize = 10;
-                ((TextAnnotation)annot).Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0x88, 0xFF, 0xFF, 0xFF));
+                textAnnot.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0x88, 0xFF, 0xFF, 0xFF));
                 textAnnot.FontWeight = FontWeights.Bold;
                 sciChart.Annotations.Add(textAnnot);
             }

@@ -218,7 +218,7 @@ namespace WorldMapManager
                     globalWorldMapStorage.AddOrUpdateRobotDestination(localMap.Key, localMap.Value.destinationLocation);
                     globalWorldMapStorage.AddOrUpdateRobotWayPoint(localMap.Key, localMap.Value.waypointLocation);
                     globalWorldMapStorage.AddOrUpdateBallLocationList(localMap.Key, localMap.Value.ballLocationList);
-                    globalWorldMapStorage.AddOrUpdateObstaclesList(localMap.Key, localMap.Value.obstaclesLocationList);
+                    globalWorldMapStorage.AddOrUpdateObstaclesList(localMap.Key, localMap.Value.obstaclesLocationList);                    
                 }
 
                 //Génération de la carte fusionnée à partir des perceptions des robots de l'équipe
@@ -236,6 +236,7 @@ namespace WorldMapManager
                 globalWorldMap.teammateWayPointList = new Dictionary<int, Location>();
                 globalWorldMap.opponentLocationList = new List<Location>();
                 globalWorldMap.obstacleLocationList = new List<LocationExtended>();
+                globalWorldMap.teammateRoleList = new Dictionary<int, RobotRole>();
 
                 //On place tous les robots de l'équipe dans la global map
                 lock (localWorldMapDictionary)
@@ -309,6 +310,11 @@ namespace WorldMapManager
             //On ajoute les informations de stratégie utilisant les commandes de la referee box
             globalWorldMap.gameState = currentGameState;
             globalWorldMap.stoppedGameAction = currentStoppedGameAction;
+
+            /// On détermine la situation de jeu : defense / attaque / arret / placement avant remise en jeu / ...
+            
+
+            /// On détermine le rôle de chacun des robots.
 
             if (bypassMulticastUdp)
             {
