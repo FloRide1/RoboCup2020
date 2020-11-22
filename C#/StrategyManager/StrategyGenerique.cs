@@ -176,7 +176,7 @@ namespace StrategyManager
 
             //Génération de la HeatMap
             positioningHeatMap.InitHeatMapData();
-            positioningHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList);
+            positioningHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList, strictlyAllowedRectangleList);
 
             sw.Stop();
         }
@@ -249,6 +249,23 @@ namespace StrategyManager
             }
         }
 
+        //Zones rectangulaires interdites
+        List<RectangleZone> strictlyAllowedRectangleList = new List<RectangleZone>();
+        public void InitStrictlyAllowedRectangleList()
+        {
+            lock (strictlyAllowedRectangleList)
+            {
+                strictlyAllowedRectangleList = new List<RectangleZone>();
+            }
+        }
+        public void AddStrictlyAllowedRectangle(RectangleD rect)
+        {
+            lock (strictlyAllowedRectangleList)
+            {
+                strictlyAllowedRectangleList.Add(new RectangleZone(rect));
+            }
+        }
+
 
         /****************************************** Events envoyés ***********************************************/
 
@@ -279,6 +296,12 @@ namespace StrategyManager
         {
             OnRoleEvent?.Invoke(this, new RoleArgs { RobotId = id, Role = role });
         }
+
+        //public event EventHandler<PlayingSideArgs> OnPlayingSideEvent;
+        //public virtual void OnPlayingSide(int id, PlayingSide playSide)
+        //{
+        //    OnPlayingSideEvent?.Invoke(this, new  PlayingSideArgs { RobotId = id, PlaySide = playSide});
+        //}
 
 
         public delegate void NewWayPointEventHandler(object sender, LocationArgs e);

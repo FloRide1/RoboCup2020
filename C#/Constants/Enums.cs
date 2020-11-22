@@ -42,6 +42,9 @@ namespace Utilities
         GOTO_1_0,
         GOTO_0_M1,
         GOTO_M1_0,
+
+        PLAYLEFT,
+        PLAYRIGHT,
     }
 
     public enum Equipe
@@ -66,5 +69,11 @@ namespace Utilities
         DefenseurInterception,
         MilieuDemarque,
         AttaquantDemarque
+    }
+
+    public enum PlayingSide
+    {
+        Left,
+        Right
     }
 }

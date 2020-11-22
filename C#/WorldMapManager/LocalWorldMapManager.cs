@@ -51,6 +51,7 @@ namespace WorldMapManager
                 transferLocalWorldMap.destinationLocation = localWorldMap.destinationLocation;
                 transferLocalWorldMap.robotLocation = localWorldMap.robotLocation;
                 transferLocalWorldMap.robotRole = localWorldMap.robotRole;
+                transferLocalWorldMap.playingSide = localWorldMap.playingSide;
                 transferLocalWorldMap.obstaclesLocationList = localWorldMap.obstaclesLocationList;
                 transferLocalWorldMap.ballLocationList = localWorldMap.ballLocationList;
 
@@ -109,6 +110,16 @@ namespace WorldMapManager
             if (localWorldMap.RobotId == e.RobotId)
             {
                 localWorldMap.robotRole = e.Role;
+            }
+        }
+
+        public void OnPlayingSideReceived(object sender, EventArgsLibrary.PlayingSideArgs e)
+        {
+            if (localWorldMap == null)
+                return;
+            if (localWorldMap.RobotId == e.RobotId)
+            {
+                localWorldMap.playingSide = e.PlaySide;
             }
         }
 

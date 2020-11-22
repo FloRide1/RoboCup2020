@@ -19,6 +19,7 @@ namespace WpfWorldMapDisplay
         private Location waypointLocation;
         public string robotName = "";
         public RobotRole robotRole = RobotRole.Stopped;
+        public PlayingSide playingSide = PlayingSide.Left;
 
         public double[,] heatMapStrategy;
         public double[,] heatMapWaypoint;
@@ -59,6 +60,12 @@ namespace WpfWorldMapDisplay
         {
             robotRole = role;
         }
+
+        public void SetPlayingSide(PlayingSide playSide)
+        {
+            this.playingSide = playSide;
+        }
+
         public void SetGhostLocation(Location loc)
         {
             ghostLocation = loc;

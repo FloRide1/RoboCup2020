@@ -19,6 +19,7 @@ namespace StrategyManager.StrategyRoboCupNS
         public double robotOrientation = 0;
 
         RobotRole role = RobotRole.Stopped;
+        PlayingSide playingSide = PlayingSide.Left;
 
         public StrategyRoboCup(int robotId, int teamId) : base(robotId, teamId)
         {
@@ -36,6 +37,8 @@ namespace StrategyManager.StrategyRoboCupNS
             /// La détermination des rôles du robot se fait robot par robot, chacun détermine son propre rôle en temps réel. 
             /// Il n'y a pas de centralisation de la détermination dans la Base Station, ce qui permettra ultérieurement de jouer sans base station.
             /// 
+            /// Le Gamestate est donné par la BaseStation via la GlobalWorldMap car il intègre les commandes de la Referee Box
+            /// 
             /// On détermine la situation de jeu : defense / attaque / arret / placement avant remise en jeu / ...
             /// et on détermine le rôle du robot.
             /// 
@@ -46,7 +49,10 @@ namespace StrategyManager.StrategyRoboCupNS
                     role = RobotRole.Stopped;
                     break;
                 case GameState.PLAYING:
-                    role = RobotRole.MilieuDemarque;
+                    if (robotId % 10 == 0)
+                        role = RobotRole.Gardien;
+                    else
+                        role = RobotRole.MilieuDemarque;
                     break;
                 case GameState.STOPPED_GAME_POSITIONING:
                     role = RobotRole.DefenseurInterception;
@@ -54,19 +60,60 @@ namespace StrategyManager.StrategyRoboCupNS
             }
 
             OnRole(robotId, role);
+            playingSide = globalWorldMap.playingSide;
+            //OnPlayingSide(robotId, playingSide);
+
+            /// En fonction du rôle attribué, on définit les zones de préférence, les zones à éviter et les zones d'exclusion
+            DefinePlayerZones(role);
         }
 
-        public override void IterateStateMachines()
+        public void DefinePlayerZones(RobotRole role)
         {
+            /// Défini un multiplieur vala&nt -1 ou 1 pour automatiser le placement de 
+            /// certaines zones d'exclusion en fonction du sens de jeu
+            int playingSideMultiplier = 1;
+            if(playingSide == PlayingSide.Right)
+                playingSideMultiplier = -1;
+            else
+                playingSideMultiplier = 1;
+
             InitPreferedZones();
             InitAvoidanceZones();
             InitForbiddenRectangleList();
+            InitStrictlyAllowedRectangleList();
+
+            ///On exclut d'emblée les surface de réparation pour tous les joueurs
+            if(role != RobotRole.Gardien)
+            {
+                AddForbiddenRectangle(new RectangleD(-11, -11 + 0.75, -3.9 / 2, 3.9 / 2));
+                AddForbiddenRectangle(new RectangleD(11, 11 - 0.75, -3.9 / 2, 3.9 / 2));
+            }
+
+            switch (role)
+            {
+                case RobotRole.Gardien:
+                    ///Exclusion de tout le terrain sauf la surface de réparation
+                    if (playingSide == PlayingSide.Right)
+                    {
+                        AddStrictlyAllowedRectangle(new RectangleD(11 - 0.75, 11, -3.9 / 2, 3.9 / 2));
+                        AddPreferedZone(new PointD(11, 0), 1.5);
+                    }
+                    else
+                    {
+                        AddStrictlyAllowedRectangle(new RectangleD(-11, -11 + 0.75, -3.9 / 2, 3.9 / 2));
+                        AddPreferedZone(new PointD(-11, 0), 1.5);
+                    }
+                        break;
+            }
+        }
+        public override void IterateStateMachines()
+        {
 
             AddPreferedZone(new PointD(5, -3), 1);
             AddPreferedZone(new PointD(10, 5), 3.5);
             AddPreferedZone(new PointD(-2, 4), 3.5);
             AddPreferedZone(new PointD(-7, -4), 2.0);
-            AddPreferedZone(new PointD(-10, 0), 5.0);
+            AddPreferedZone(new PointD(-8, 0), 5.0);
             AddPreferedZone(new PointD(0, 1.5), 3.5);
             AddPreferedZone(new PointD(3, 5), 1.5);
 

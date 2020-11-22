@@ -10,6 +10,9 @@ namespace WorldMap
         public int timeStampMs;
         public GameState gameState = GameState.STOPPED;
         public StoppedGameAction stoppedGameAction = StoppedGameAction.NONE;
+
+        public PlayingSide playingSide = PlayingSide.Left;
+
         public List<Location> ballLocationList { get; set; }
         public Dictionary<int, Location> teammateLocationList { get; set; }
         public Dictionary<int, Location> teammateGhostLocationList { get; set; }
@@ -18,6 +21,7 @@ namespace WorldMap
         public List<Location> opponentLocationList { get; set; }
         public List<LocationExtended> obstacleLocationList { get; set; }
         public Dictionary<int, RobotRole> teammateRoleList { get; set; }
+        public Dictionary<int, PlayingSide> teammatePlayingSideList { get; set; }
 
         public GlobalWorldMap()
         {
@@ -76,6 +80,7 @@ namespace WorldMap
         public Dictionary<int, List<Location>> ballLocationListDictionary { get; set; }
         public Dictionary<int, List<LocationExtended>> ObstaclesLocationListDictionary { get; set; }
         public Dictionary<int, RobotRole> robotRoleDictionary { get; set; }
+        public Dictionary<int, PlayingSide> robotPlayingSideDictionary { get; set; }
 
         public GlobalWorldMapStorage()
         {
@@ -85,6 +90,7 @@ namespace WorldMap
             ballLocationListDictionary = new Dictionary<int, List<Location>>();
             ObstaclesLocationListDictionary = new Dictionary<int, List<LocationExtended>>();
             robotRoleDictionary = new Dictionary<int, RobotRole>();
+            robotPlayingSideDictionary = new Dictionary<int, PlayingSide>();
         }
 
         public void AddOrUpdateRobotLocation(int id, Location loc)
@@ -127,6 +133,17 @@ namespace WorldMap
                     robotRoleDictionary[id] = role;
                 else
                     robotRoleDictionary.Add(id, role);
+            }
+        }
+
+        public void AddOrUpdateRobotPlayingSide(int id, PlayingSide playSide)
+        {
+            lock (robotRoleDictionary)
+            {
+                if (robotPlayingSideDictionary.ContainsKey(id))
+                    robotPlayingSideDictionary[id] = playSide;
+                else
+                    robotPlayingSideDictionary.Add(id, playSide);
             }
         }
 

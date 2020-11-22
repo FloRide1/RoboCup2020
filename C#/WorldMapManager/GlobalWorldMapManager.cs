@@ -23,6 +23,7 @@ namespace WorldMapManager
 
         GameState currentGameState = GameState.STOPPED;
         StoppedGameAction currentStoppedGameAction = StoppedGameAction.NONE;
+        PlayingSide playingSide = PlayingSide.Left;
 
         bool bypassMulticastUdp = false;
         
@@ -54,7 +55,8 @@ namespace WorldMapManager
             var robotId = e.refBoxMsg.robotID;
             var targetTeam = e.refBoxMsg.targetTeam;
 
-            switch (command)
+
+                switch (command)
             {
                 case RefBoxCommand.START:
                     currentGameState = GameState.PLAYING;
@@ -185,6 +187,20 @@ namespace WorldMapManager
                     else
                         currentStoppedGameAction = StoppedGameAction.GOTO_M1_0_OPPONENT;
                     break;
+                case RefBoxCommand.PLAYLEFT:
+                    //currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        playingSide = PlayingSide.Left;
+                    else
+                        playingSide = PlayingSide.Right;
+                    break;
+                case RefBoxCommand.PLAYRIGHT:
+                    //currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        playingSide = PlayingSide.Right;
+                    else
+                        playingSide = PlayingSide.Left;
+                    break;
             }
         }
 
@@ -220,6 +236,7 @@ namespace WorldMapManager
                     globalWorldMapStorage.AddOrUpdateBallLocationList(localMap.Key, localMap.Value.ballLocationList);
                     globalWorldMapStorage.AddOrUpdateObstaclesList(localMap.Key, localMap.Value.obstaclesLocationList);
                     globalWorldMapStorage.AddOrUpdateRobotRole(localMap.Key, localMap.Value.robotRole);
+                    globalWorldMapStorage.AddOrUpdateRobotPlayingSide(localMap.Key, localMap.Value.playingSide);
                 }
 
                 //Génération de la carte fusionnée à partir des perceptions des robots de l'équipe
@@ -238,6 +255,7 @@ namespace WorldMapManager
                 globalWorldMap.opponentLocationList = new List<Location>();
                 globalWorldMap.obstacleLocationList = new List<LocationExtended>();
                 globalWorldMap.teammateRoleList = new Dictionary<int, RobotRole>();
+                globalWorldMap.teammatePlayingSideList = new Dictionary<int, PlayingSide>();
 
                 //On place tous les robots de l'équipe dans la global map
                 lock (localWorldMapDictionary)
@@ -248,6 +266,8 @@ namespace WorldMapManager
                         globalWorldMap.teammateLocationList.Add(localMap.Key, localMap.Value.robotLocation);
                         //On ajoute le rôle des robots de l'équipe dans la WorldMap
                         globalWorldMap.teammateRoleList.Add(localMap.Key, localMap.Value.robotRole);
+                        //On ajoute le playing Side des robots de l'équipe dans la WorldMap
+                        globalWorldMap.teammatePlayingSideList.Add(localMap.Key, localMap.Value.playingSide);
                         //On ajoute le ghost (position théorique) des robots de l'équipe dans la WorldMap
                         globalWorldMap.teammateGhostLocationList.Add(localMap.Key, localMap.Value.robotGhostLocation);
                         //On ajoute la destination des robots de l'équipe dans la WorldMap
@@ -313,6 +333,7 @@ namespace WorldMapManager
             /// On ajoute les informations issues des commandes de la referee box
             globalWorldMap.gameState = currentGameState;
             globalWorldMap.stoppedGameAction = currentStoppedGameAction;
+            globalWorldMap.playingSide = playingSide;
 
             if (bypassMulticastUdp)
             {

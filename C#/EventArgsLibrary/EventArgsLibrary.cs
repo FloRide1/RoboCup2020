@@ -352,6 +352,13 @@ namespace EventArgsLibrary
 
         public RobotRole Role { get; set; }
     }
+
+    public class PlayingSideArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+
+        public PlayingSide PlaySide { get; set; }
+    }
     public class LocationListArgs : EventArgs
     {
         public List<Location> LocationList { get; set; }

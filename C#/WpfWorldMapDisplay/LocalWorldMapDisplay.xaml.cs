@@ -189,6 +189,7 @@ namespace WpfWorldMapDisplay
             int robotId = localWorldMap.RobotId;
             UpdateRobotLocation(robotId, localWorldMap.robotLocation);
             UpdateRobotRole(robotId, localWorldMap.robotRole);
+            UpdatePlayingSide(robotId, localWorldMap.playingSide);
             UpdateRobotGhostLocation(robotId, localWorldMap.robotGhostLocation);
             UpdateRobotDestination(robotId, localWorldMap.destinationLocation);
             UpdateRobotWaypoint(robotId, localWorldMap.waypointLocation);
@@ -348,6 +349,17 @@ namespace WpfWorldMapDisplay
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
             {
                 TeamMatesDisplayDictionary[robotId].SetRole(role);
+            }
+            else
+            {
+                Console.WriteLine("UpdateRobotRole : Robot non trouvé");
+            }
+        }
+        private void UpdatePlayingSide(int robotId, PlayingSide playSide)
+        {
+            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
+            {
+                TeamMatesDisplayDictionary[robotId].SetPlayingSide(playSide);
             }
             else
             {

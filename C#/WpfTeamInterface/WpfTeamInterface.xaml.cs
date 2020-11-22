@@ -381,5 +381,23 @@ namespace WpfTeamInterfaceNS
             msg.robotID = 0;
             OnRefereeBoxReceivedCommand(msg);
         }
+
+        private void Button_PlayLeftT1_Click(object sender, RoutedEventArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.PLAYLEFT;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+
+        private void Button_PlayRightT2_Click(object sender, RoutedEventArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.PLAYRIGHT;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
     }
 }

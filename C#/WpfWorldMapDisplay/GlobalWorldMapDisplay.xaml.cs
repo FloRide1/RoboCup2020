@@ -134,6 +134,14 @@ namespace WpfWorldMapDisplay
                 }
             }
 
+            lock (globalWorldMap.teammatePlayingSideList)
+            {
+                foreach (var playingSide in globalWorldMap.teammatePlayingSideList)
+                {
+                    UpdatePlayingSide(playingSide.Key, playingSide.Value);
+                }
+            }
+
             lock (globalWorldMap.teammateGhostLocationList)
             {
                 foreach (var robotGhostLoc in globalWorldMap.teammateGhostLocationList)
@@ -227,6 +235,17 @@ namespace WpfWorldMapDisplay
             else
             {
                 Console.WriteLine("UpdateRobotRole : Robot non trouvé");
+            }
+        }
+        private void UpdatePlayingSide(int robotId, PlayingSide playSide)
+        {
+            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
+            {
+                TeamMatesDisplayDictionary[robotId].SetPlayingSide(playSide);
+            }
+            else
+            {
+                Console.WriteLine("UpdateRobotPlayingSide : Robot non trouvé");
             }
         }
         private void UpdateRobotLocation(int robotId, Location location)
