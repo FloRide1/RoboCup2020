@@ -173,6 +173,8 @@ namespace WpfWorldMapDisplay
             DrawBalls();
             DrawTeam();
             DrawObstacles();
+            if (TeamMatesDisplayDictionary.Count == 1) //Cas d'un affichage de robot unique (localWorldMap)
+                AnnotRobotRole.Text = TeamMatesDisplayDictionary.First().Value.robotRole.ToString();
             //DrawLidar();
             if (TeamMatesDisplayDictionary.Count == 1) //Cas d'un affichage de robot unique (localWorldMap)
                 DrawHeatMap(TeamMatesDisplayDictionary.First().Key);
@@ -186,6 +188,7 @@ namespace WpfWorldMapDisplay
         {
             int robotId = localWorldMap.RobotId;
             UpdateRobotLocation(robotId, localWorldMap.robotLocation);
+            UpdateRobotRole(robotId, localWorldMap.robotRole);
             UpdateRobotGhostLocation(robotId, localWorldMap.robotGhostLocation);
             UpdateRobotDestination(robotId, localWorldMap.destinationLocation);
             UpdateRobotWaypoint(robotId, localWorldMap.waypointLocation);
@@ -334,12 +337,21 @@ namespace WpfWorldMapDisplay
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
             {
                 TeamMatesDisplayDictionary[robotId].SetLocation(location);
-                //TeamMatesDisplayDictionary[robotId].SetPosition(location.X, location.Y, location.Theta);
-                //TeamMatesDisplayDictionary[robotId].SetSpeed(location.Vx, location.Vy, location.Vtheta);
             }
             else
             {
                 Console.WriteLine("UpdateRobotLocation : Robot non trouvé");
+            }
+        }
+        private void UpdateRobotRole(int robotId, RobotRole role)
+        {
+            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
+            {
+                TeamMatesDisplayDictionary[robotId].SetRole(role);
+            }
+            else
+            {
+                Console.WriteLine("UpdateRobotRole : Robot non trouvé");
             }
         }
 

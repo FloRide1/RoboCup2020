@@ -314,7 +314,7 @@ namespace Robot
             //physicalSimulator.OnPhysicalBallPositionEvent += perceptionSimulator.OnPhysicalBallPositionReceived;
 
             perceptionManager.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
-            strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
+            strategyManager.strategy.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             strategyManager.strategy.OnHeatMapStrategyEvent += localWorldMapManager.OnHeatMapStrategyReceived;
             

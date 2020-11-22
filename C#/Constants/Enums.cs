@@ -59,6 +59,7 @@ namespace Utilities
 
     public enum RobotRole
     {
+        Stopped,
         Gardien,
         ContesteurDeBalle,
         DefenseurMarquage,

@@ -50,6 +50,7 @@ namespace WorldMapManager
                 transferLocalWorldMap.TeamId = localWorldMap.TeamId;
                 transferLocalWorldMap.destinationLocation = localWorldMap.destinationLocation;
                 transferLocalWorldMap.robotLocation = localWorldMap.robotLocation;
+                transferLocalWorldMap.robotRole = localWorldMap.robotRole;
                 transferLocalWorldMap.obstaclesLocationList = localWorldMap.obstaclesLocationList;
                 transferLocalWorldMap.ballLocationList = localWorldMap.ballLocationList;
 
@@ -98,6 +99,16 @@ namespace WorldMapManager
             if (localWorldMap.RobotId == e.RobotId)
             {
                 localWorldMap.destinationLocation = e.Location;
+            }
+        }
+
+        public void OnRoleReceived(object sender, EventArgsLibrary.RoleArgs e)
+        {
+            if (localWorldMap == null)
+                return;
+            if (localWorldMap.RobotId == e.RobotId)
+            {
+                localWorldMap.robotRole = e.Role;
             }
         }
 

@@ -197,6 +197,7 @@ namespace TeamSimulator
             //Update des données de la localWorldMap
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
             strategyManager.strategy.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
+            strategyManager.strategy.OnRoleEvent += localWorldMapManager.OnRoleReceived;
             strategyManager.strategy.OnHeatMapStrategyEvent += localWorldMapManager.OnHeatMapStrategyReceived;
             strategyManager.strategy.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             strategyManager.strategy.OnHeatMapWayPointEvent += localWorldMapManager.OnHeatMapWaypointReceived;

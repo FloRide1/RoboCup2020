@@ -18,20 +18,42 @@ namespace StrategyManager.StrategyRoboCupNS
         public PointD robotDestination = new PointD(0, 0);
         public double robotOrientation = 0;
 
+        RobotRole role = RobotRole.Stopped;
+
         public StrategyRoboCup(int robotId, int teamId) : base(robotId, teamId)
         {
             this.teamId = teamId;
             this.robotId = robotId;
-            DisplayName = "T" + teamId + "D" + robotId;
         }
 
         public override void InitHeatMap()
         {
-            positioningHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 6)); //Init HeatMap
+            positioningHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 7)); //Init HeatMap
         }
 
         public override void DetermineRobotRole()
         {
+            /// La détermination des rôles du robot se fait robot par robot, chacun détermine son propre rôle en temps réel. 
+            /// Il n'y a pas de centralisation de la détermination dans la Base Station, ce qui permettra ultérieurement de jouer sans base station.
+            /// 
+            /// On détermine la situation de jeu : defense / attaque / arret / placement avant remise en jeu / ...
+            /// et on détermine le rôle du robot.
+            /// 
+
+            switch(globalWorldMap.gameState)
+            {
+                case GameState.STOPPED:
+                    role = RobotRole.Stopped;
+                    break;
+                case GameState.PLAYING:
+                    role = RobotRole.MilieuDemarque;
+                    break;
+                case GameState.STOPPED_GAME_POSITIONING:
+                    role = RobotRole.DefenseurInterception;
+                    break;
+            }
+
+            OnRole(robotId, role);
         }
 
         public override void IterateStateMachines()

@@ -45,20 +45,15 @@ namespace StrategyManager
             switch (strategyMode)
             {
                 case GameMode.RoboCup:
-                    //heatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 8), 1);
                     strategy = new StrategyRoboCup(robotId, teamId);
                     break;
                 case GameMode.Eurobot:
-                    //heatMap = new Heatmap(3, 2, (int)Math.Pow(2, 5), 1);
                     strategy = new StrategyEurobot(robotId, teamId);
                     break;
                 case GameMode.Demo:
-                    //heatMap = new Heatmap(3, 2, (int)Math.Pow(2, 5), 1);
                     break;
             }
         }
-
-
         
 
         //************************ Event envoyés par le gestionnaire de strategie ***********************/
@@ -286,15 +281,7 @@ namespace StrategyManager
             //        break;                
             //}            
         }
-
-
-
-        double EvaluateStrategyCostFunction(PointD destination, PointD fieldPos)
-        {
-            return Math.Max(0, 1 - Toolbox.Distance(destination, fieldPos) / 20.0);
-        }
-
-        
+                
 
         public PointD GetInterceptionLocation(Location target, Location hunter, double huntingSpeed)
         {

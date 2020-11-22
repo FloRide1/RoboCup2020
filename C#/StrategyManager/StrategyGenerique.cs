@@ -274,6 +274,12 @@ namespace StrategyManager
             OnDestinationEvent?.Invoke(this, new LocationArgs { RobotId = id, Location = location });
         }
 
+        public event EventHandler<RoleArgs> OnRoleEvent;
+        public virtual void OnRole(int id, RobotRole role)
+        {
+            OnRoleEvent?.Invoke(this, new RoleArgs { RobotId = id, Role = role });
+        }
+
 
         public delegate void NewWayPointEventHandler(object sender, LocationArgs e);
         public event EventHandler<LocationArgs> OnWaypointEvent;

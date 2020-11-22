@@ -218,7 +218,8 @@ namespace WorldMapManager
                     globalWorldMapStorage.AddOrUpdateRobotDestination(localMap.Key, localMap.Value.destinationLocation);
                     globalWorldMapStorage.AddOrUpdateRobotWayPoint(localMap.Key, localMap.Value.waypointLocation);
                     globalWorldMapStorage.AddOrUpdateBallLocationList(localMap.Key, localMap.Value.ballLocationList);
-                    globalWorldMapStorage.AddOrUpdateObstaclesList(localMap.Key, localMap.Value.obstaclesLocationList);                    
+                    globalWorldMapStorage.AddOrUpdateObstaclesList(localMap.Key, localMap.Value.obstaclesLocationList);
+                    globalWorldMapStorage.AddOrUpdateRobotRole(localMap.Key, localMap.Value.robotRole);
                 }
 
                 //Génération de la carte fusionnée à partir des perceptions des robots de l'équipe
@@ -245,6 +246,8 @@ namespace WorldMapManager
                     {
                         //On ajoute la position des robots de l'équipe dans la WorldMap
                         globalWorldMap.teammateLocationList.Add(localMap.Key, localMap.Value.robotLocation);
+                        //On ajoute le rôle des robots de l'équipe dans la WorldMap
+                        globalWorldMap.teammateRoleList.Add(localMap.Key, localMap.Value.robotRole);
                         //On ajoute le ghost (position théorique) des robots de l'équipe dans la WorldMap
                         globalWorldMap.teammateGhostLocationList.Add(localMap.Key, localMap.Value.robotGhostLocation);
                         //On ajoute la destination des robots de l'équipe dans la WorldMap
@@ -306,15 +309,10 @@ namespace WorldMapManager
                     catch { }
                 }
             }
-            
-            //On ajoute les informations de stratégie utilisant les commandes de la referee box
+
+            /// On ajoute les informations issues des commandes de la referee box
             globalWorldMap.gameState = currentGameState;
             globalWorldMap.stoppedGameAction = currentStoppedGameAction;
-
-            /// On détermine la situation de jeu : defense / attaque / arret / placement avant remise en jeu / ...
-            
-
-            /// On détermine le rôle de chacun des robots.
 
             if (bypassMulticastUdp)
             {
@@ -326,11 +324,6 @@ namespace WorldMapManager
                 string json = JsonConvert.SerializeObject(globalWorldMap, decimalJsonConverter);
                 OnMulticastSendGlobalWorldMap(json.GetBytes());
             }
-        }
-
-        void DefineRolesAndGameState()
-        {
-            
         }
         
         //Output events

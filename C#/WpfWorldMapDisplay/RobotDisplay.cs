@@ -18,6 +18,8 @@ namespace WpfWorldMapDisplay
         private Location destinationLocation;
         private Location waypointLocation;
         public string robotName = "";
+        public RobotRole robotRole = RobotRole.Stopped;
+
         public double[,] heatMapStrategy;
         public double[,] heatMapWaypoint;
         List<PointD> lidarMap;
@@ -51,6 +53,11 @@ namespace WpfWorldMapDisplay
         public void SetLocation(Location loc)
         {
             robotLocation = loc;
+        }
+
+        public void SetRole(RobotRole role)
+        {
+            robotRole = role;
         }
         public void SetGhostLocation(Location loc)
         {
