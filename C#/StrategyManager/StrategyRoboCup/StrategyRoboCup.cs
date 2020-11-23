@@ -184,7 +184,7 @@ namespace StrategyManager.StrategyRoboCupNS
                     if (globalWorldMap.ballLocationList.Count > 0)
                         AddPreferedZone(new PointD(globalWorldMap.ballLocationList[0].X, globalWorldMap.ballLocationList[0].Y), 3, 0.5);
                     if (globalWorldMap.ballLocationList.Count > 0)
-                        robotOrientation = Math.Atan2(globalWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, globalWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
+                        robotOrientation = Math.PI + Math.Atan2(globalWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, globalWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
 
                     break;
                 case RobotRole.AttaquantDemarque:

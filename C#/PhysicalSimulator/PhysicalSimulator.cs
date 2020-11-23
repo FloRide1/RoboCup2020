@@ -117,8 +117,10 @@ namespace PhysicalSimulator
                 foreach (var ballSimu in ballSimulatedList)
                 {
                     var ballSimulated = ballSimu.Value;
-                    ballSimulated.newX = ballSimulated.X + (ballSimulated.Vx * Math.Cos(ballSimulated.Theta) - ballSimulated.Vy * Math.Sin(ballSimulated.Theta)) / fSampling;
-                    ballSimulated.newY = ballSimulated.Y + (ballSimulated.Vx * Math.Sin(ballSimulated.Theta) + ballSimulated.Vy * Math.Cos(ballSimulated.Theta)) / fSampling;
+                    ballSimulated.newX = ballSimulated.X + ballSimulated.VxRefTerrain / fSampling;
+                    ballSimulated.newY = ballSimulated.Y + ballSimulated.VyRefTerrain / fSampling;
+                    //ballSimulated.newX = ballSimulated.X + (ballSimulated.Vx * Math.Cos(ballSimulated.Theta) - ballSimulated.Vy * Math.Sin(ballSimulated.Theta)) / fSampling;
+                    //ballSimulated.newY = ballSimulated.Y + (ballSimulated.Vx * Math.Sin(ballSimulated.Theta) + ballSimulated.Vy * Math.Cos(ballSimulated.Theta)) / fSampling;
                 }
 
                 //On Initialisae les collisions balles à false
@@ -156,8 +158,8 @@ namespace PhysicalSimulator
                                 {
                                     Console.WriteLine("Rebond de balle sur un robot");
                                     ballSimu.Value.Collision = true;
-                                    ballSimu.Value.Vx = robot.Value.VxRefRobot - 0.8 * ballSimu.Value.Vx;
-                                    ballSimu.Value.Vy = robot.Value.VyRefRobot - 0.8 * ballSimu.Value.Vy;
+                                    ballSimu.Value.VxRefTerrain = robot.Value.VxRefRobot * Math.Cos(robot.Value.Theta) - robot.Value.VyRefRobot * Math.Sin(robot.Value.Theta) - 0.8 * ballSimu.Value.VxRefTerrain;
+                                    ballSimu.Value.VyRefTerrain = robot.Value.VxRefRobot * Math.Sin(robot.Value.Theta) + robot.Value.VyRefRobot * Math.Cos(robot.Value.Theta) - 0.8 * ballSimu.Value.VyRefTerrain;
                                 }
                             }
                             else
@@ -176,12 +178,12 @@ namespace PhysicalSimulator
                     //Mur haut ou bas
                     if ((ballSimu.Value.newY + ballSimu.Value.radius > WidthAireDeJeu / 2) || (ballSimu.Value.newY + ballSimu.Value.radius < -WidthAireDeJeu / 2))
                     {
-                        ballSimu.Value.Vy = -ballSimu.Value.Vy; //On simule un rebond
+                        ballSimu.Value.VyRefTerrain = -ballSimu.Value.VyRefTerrain; //On simule un rebond
                     }
                     //Mur gauche ou droit
                     if ((ballSimu.Value.newX + ballSimu.Value.radius < -LengthAireDeJeu / 2) || (ballSimu.Value.newX + ballSimu.Value.radius > LengthAireDeJeu / 2))
                     {
-                        ballSimu.Value.Vx = -ballSimu.Value.Vx; //On simule un rebond
+                        ballSimu.Value.VxRefTerrain = -ballSimu.Value.VxRefTerrain; //On simule un rebond
                     }
                 }
 
@@ -217,14 +219,14 @@ namespace PhysicalSimulator
                     if (!ballSimu.Value.isHandledByRobot)
                     {
                         /// La balle n'est pas controlée par le robot
-                        ballSimu.Value.newX = ballSimu.Value.X + (ballSimu.Value.Vx * Math.Cos(ballSimu.Value.Theta) - ballSimu.Value.Vy * Math.Sin(ballSimu.Value.Theta)) / fSampling;
-                        ballSimu.Value.newY = ballSimu.Value.Y + (ballSimu.Value.Vx * Math.Sin(ballSimu.Value.Theta) + ballSimu.Value.Vy * Math.Cos(ballSimu.Value.Theta)) / fSampling;
+                        ballSimu.Value.newX = ballSimu.Value.X + ballSimu.Value.VxRefTerrain / fSampling;
+                        ballSimu.Value.newY = ballSimu.Value.Y + ballSimu.Value.VyRefTerrain / fSampling;
                         ballSimu.Value.X = ballSimu.Value.newX;
                         ballSimu.Value.Y = ballSimu.Value.newY;
 
-                        ballSimu.Value.Vx = ballSimu.Value.Vx * 0.999;
-                        ballSimu.Value.Vy = ballSimu.Value.Vy * 0.999;
-                        newBallLocationList.Add(new Location(ballSimu.Value.X, ballSimu.Value.Y, 0, ballSimu.Value.Vx, ballSimu.Value.Vy, 0));
+                        ballSimu.Value.VxRefTerrain = ballSimu.Value.VxRefTerrain * 0.999;
+                        ballSimu.Value.VyRefTerrain = ballSimu.Value.VyRefTerrain * 0.999;
+                        newBallLocationList.Add(new Location(ballSimu.Value.X, ballSimu.Value.Y, 0, ballSimu.Value.VxRefTerrain, ballSimu.Value.VyRefTerrain, 0));
                     }
                     else
                     {
@@ -233,9 +235,9 @@ namespace PhysicalSimulator
                         var robotControlling = robotList[ballSimu.Value.handlingRobot];
                         ballSimu.Value.X = robotControlling.X + (robotControlling.radius + ballSimu.Value.radius) * Math.Cos(robotControlling.Theta);
                         ballSimu.Value.Y = robotControlling.Y + (robotControlling.radius + ballSimu.Value.radius) * Math.Sin(robotControlling.Theta);
-                        ballSimu.Value.Vx = robotControlling.VxRefRobot;
-                        ballSimu.Value.Vy = robotControlling.VyRefRobot;
-                        newBallLocationList.Add(new Location(ballSimu.Value.X, ballSimu.Value.Y, 0, ballSimu.Value.Vx, ballSimu.Value.Vy, 0));
+                        ballSimu.Value.VxRefTerrain = robotControlling.VxRefRobot * Math.Cos(robotControlling.Theta) - robotControlling.VyRefRobot * Math.Sin(robotControlling.Theta);
+                        ballSimu.Value.VyRefTerrain = robotControlling.VyRefRobot * Math.Sin(robotControlling.Theta) + robotControlling.VyRefRobot * Math.Cos(robotControlling.Theta); ;
+                        newBallLocationList.Add(new Location(ballSimu.Value.X, ballSimu.Value.Y, 0, ballSimu.Value.VxRefTerrain, ballSimu.Value.VyRefTerrain, 0));
                     }
                 }
                 OnPhysicalBallListPosition(newBallLocationList);
@@ -344,15 +346,15 @@ namespace PhysicalSimulator
         public double X;
         public double Y;
         public double Z;
-        public double Theta;
+        //public double Theta;
 
         public double newX;
         public double newY;
-        public double newThetaWithoutCollision;
+        //public double newThetaWithoutCollision;
 
-        public double Vx;
-        public double Vy;
-        public double Vtheta;
+        public double VxRefTerrain;
+        public double VyRefTerrain;
+        //public double Vtheta;
 
         public bool Collision;
         public bool isHandledByRobot = false;
@@ -363,7 +365,6 @@ namespace PhysicalSimulator
         {
             X = xPos;
             Y = yPos;
-            Vy = 0;
         }
     }
 }
