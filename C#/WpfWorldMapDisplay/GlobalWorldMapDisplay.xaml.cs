@@ -221,8 +221,8 @@ namespace WpfWorldMapDisplay
                 RobotShapesSeries.AddOrUpdatePolygonExtended(r.Key, TeamMatesDisplayDictionary[r.Key].GetRobotPolygon());
 
                 AddOrUpdateTextAnnotation(r.Key.ToString(), r.Value.robotName, TeamMatesDisplayDictionary[r.Key].GetRobotLocation().X, TeamMatesDisplayDictionary[r.Key].GetRobotLocation().Y);
-                AddOrUpdateTextAnnotation(r.Key.ToString()+"Role", r.Value.robotRole.ToString(), TeamMatesDisplayDictionary[r.Key].GetRobotLocation().X, TeamMatesDisplayDictionary[r.Key].GetRobotLocation().Y-1);
-                AddOrUpdateTextAnnotation(r.Key.ToString() + "Console", r.Value.DisplayMessage.ToString(), TeamMatesDisplayDictionary[r.Key].GetRobotLocation().X, TeamMatesDisplayDictionary[r.Key].GetRobotLocation().Y - 2);
+                AddOrUpdateTextAnnotation(r.Key.ToString()+"Role", r.Value.robotRole.ToString(), TeamMatesDisplayDictionary[r.Key].GetRobotLocation().X, TeamMatesDisplayDictionary[r.Key].GetRobotLocation().Y-1.4);
+                AddOrUpdateTextAnnotation(r.Key.ToString() + "Console", r.Value.DisplayMessage.ToString(), TeamMatesDisplayDictionary[r.Key].GetRobotLocation().X, TeamMatesDisplayDictionary[r.Key].GetRobotLocation().Y - 1.9);
 
                 ////Rendering des objets Lidar
                 //foreach (var polygonObject in TeamMatesDisplayDictionary[r.Key].GetRobotLidarObjects())

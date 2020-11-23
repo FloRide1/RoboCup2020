@@ -21,14 +21,14 @@ namespace StrategyManagerNS.StrategyRoboCupNS
         public string MessageDisplay = "Debug";
         PlayingSide playingSide = PlayingSide.Left;
 
-        TaskBallHandlingManager taskBallHandlingManager;
+        TaskBallManagement taskBallManagement;
 
         public StrategyRoboCup(int robotId, int teamId) : base(robotId, teamId)
         {
             this.teamId = teamId;
             this.robotId = robotId;
 
-            taskBallHandlingManager = new TaskBallHandlingManager(this);
+            taskBallManagement = new TaskBallManagement(this);
         }
 
         public override void InitHeatMap()

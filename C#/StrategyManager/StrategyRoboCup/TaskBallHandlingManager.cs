@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace StrategyManagerNS.StrategyRoboCupNS
 {
-    enum TaskBallHandlingState
+    enum TaskBallManagementState
     {
         PasDeBalle,
         PasDeBalleEnCours,
@@ -16,7 +16,7 @@ namespace StrategyManagerNS.StrategyRoboCupNS
         PossessionBalleEnCours,
     }
 
-    class TaskBallHandlingManager
+    class TaskBallManagement
     {
         /// <summary>
         /// Une tache est un processus permettant de gérer une partie de code de manière autonome et asynchrone.
@@ -42,10 +42,10 @@ namespace StrategyManagerNS.StrategyRoboCupNS
 
         StrategyRoboCup parent;
         Thread TaskThread;
-        TaskBallHandlingState state = TaskBallHandlingState.PasDeBalle;
+        TaskBallManagementState state = TaskBallManagementState.PasDeBalle;
         Stopwatch sw = new Stopwatch();
         
-        public TaskBallHandlingManager(StrategyRoboCup parent)
+        public TaskBallManagement(StrategyRoboCup parent)
         {
             this.parent = parent;
             TaskThread = new Thread(TaskThreadProcess);
@@ -63,20 +63,20 @@ namespace StrategyManagerNS.StrategyRoboCupNS
             {
                 switch (state)
                 {
-                    case TaskBallHandlingState.PasDeBalle:
+                    case TaskBallManagementState.PasDeBalle:
                         sw.Restart();
-                        state = TaskBallHandlingState.PasDeBalleEnCours;
+                        state = TaskBallManagementState.PasDeBalleEnCours;
                         break;
-                    case TaskBallHandlingState.PasDeBalleEnCours:
+                    case TaskBallManagementState.PasDeBalleEnCours:
                         parent.MessageDisplay = ("No Ball : "+ sw.ElapsedMilliseconds / 1000).ToString();
                         if(parent.isHandlingBall)
-                            state = TaskBallHandlingState.PossessionBalle;
+                            state = TaskBallManagementState.PossessionBalle;
                         break;
-                    case TaskBallHandlingState.PossessionBalle:
+                    case TaskBallManagementState.PossessionBalle:
                         sw.Restart();
-                        state = TaskBallHandlingState.PossessionBalleEnCours;
+                        state = TaskBallManagementState.PossessionBalleEnCours;
                         break;
-                    case TaskBallHandlingState.PossessionBalleEnCours:
+                    case TaskBallManagementState.PossessionBalleEnCours:
                         parent.MessageDisplay = ("Ball : " + sw.ElapsedMilliseconds / 1000).ToString();
                         if (sw.ElapsedMilliseconds>3000)
                         {
