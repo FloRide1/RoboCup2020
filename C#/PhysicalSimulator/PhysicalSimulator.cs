@@ -143,10 +143,10 @@ namespace PhysicalSimulator
                         {
                             if (Toolbox.Distance(robot.Value.newXWithoutCollision, robot.Value.newYWithoutCollision, ballSimu.Value.newX, ballSimu.Value.newY) < 1 * (robot.Value.radius + ballSimu.Value.radius))
                             {
-                                double angleRobotBalle = Math.Atan2(ballSimu.Value.Y - robot.Value.Y, ballSimu.Value.Y - robot.Value.Y);
+                                double angleRobotBalle = Math.Atan2(ballSimu.Value.Y - robot.Value.Y, ballSimu.Value.X - robot.Value.X);
                                 angleRobotBalle = Toolbox.ModuloByAngle(robot.Value.Theta, angleRobotBalle);
 
-                                if (Math.Abs(angleRobotBalle) < Toolbox.DegToRad(50))
+                                if (Math.Abs(angleRobotBalle) < Toolbox.DegToRad(30))
                                 {
                                     Console.WriteLine("Prise de balle par un robot");
                                     //ballSimu.Value.Vx = robot.Value.VxRefRobot;
@@ -159,8 +159,8 @@ namespace PhysicalSimulator
                                 {
                                     Console.WriteLine("Rebond de balle sur un robot");
                                     ballSimu.Value.Collision = true;
-                                    ballSimu.Value.VxRefTerrain = robot.Value.VxRefRobot * Math.Cos(robot.Value.Theta) - robot.Value.VyRefRobot * Math.Sin(robot.Value.Theta) - 0.8 * ballSimu.Value.VxRefTerrain;
-                                    ballSimu.Value.VyRefTerrain = robot.Value.VxRefRobot * Math.Sin(robot.Value.Theta) + robot.Value.VyRefRobot * Math.Cos(robot.Value.Theta) - 0.8 * ballSimu.Value.VyRefTerrain;
+                                    ballSimu.Value.VxRefTerrain = + robot.Value.VxRefRobot * Math.Cos(robot.Value.Theta) - robot.Value.VyRefRobot * Math.Sin(robot.Value.Theta) - 0.8 * ballSimu.Value.VxRefTerrain;
+                                    ballSimu.Value.VyRefTerrain = + robot.Value.VxRefRobot * Math.Sin(robot.Value.Theta) + robot.Value.VyRefRobot * Math.Cos(robot.Value.Theta) - 0.8 * ballSimu.Value.VyRefTerrain;
                                 }
                             }
                             else
@@ -223,11 +223,26 @@ namespace PhysicalSimulator
                         /// La balle n'est pas controlée par le robot
                         ballSimu.Value.newX = ballSimu.Value.X + ballSimu.Value.VxRefTerrain / fSampling;
                         ballSimu.Value.newY = ballSimu.Value.Y + ballSimu.Value.VyRefTerrain / fSampling;
+
+                        /// On vérifie que la balle ne soit pas incluse dans un robot
+                        /// Si c'est le cas, on la décale en périphérie.
+                        /// 
+                        foreach (var robot in robotList)
+                        {
+                            if (Toolbox.Distance(robot.Value.X, robot.Value.Y, ballSimu.Value.newX, ballSimu.Value.newY) < 1 * (robot.Value.radius + ballSimu.Value.radius))
+                            {
+                                double angleRobotBalle = Math.Atan2(ballSimu.Value.newY - robot.Value.Y, ballSimu.Value.newX - robot.Value.X);
+                                ballSimu.Value.newX = robot.Value.X + (robot.Value.radius + ballSimu.Value.radius) * Math.Cos(angleRobotBalle);
+                                ballSimu.Value.newY = robot.Value.Y + (robot.Value.radius + ballSimu.Value.radius) * Math.Sin(angleRobotBalle);
+                            }
+                        }
+
                         ballSimu.Value.X = ballSimu.Value.newX;
                         ballSimu.Value.Y = ballSimu.Value.newY;
 
                         ballSimu.Value.VxRefTerrain = ballSimu.Value.VxRefTerrain * 0.999;
                         ballSimu.Value.VyRefTerrain = ballSimu.Value.VyRefTerrain * 0.999;
+
                         newBallLocationList.Add(new Location(ballSimu.Value.X, ballSimu.Value.Y, 0, ballSimu.Value.VxRefTerrain, ballSimu.Value.VyRefTerrain, 0));
                     }
                     else
