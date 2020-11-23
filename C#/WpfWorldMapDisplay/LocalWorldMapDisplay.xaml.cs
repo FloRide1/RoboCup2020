@@ -174,10 +174,11 @@ namespace WpfWorldMapDisplay
             DrawTeam();
             DrawObstacles();
             if (TeamMatesDisplayDictionary.Count == 1) //Cas d'un affichage de robot unique (localWorldMap)
+            {
                 AnnotRobotRole.Text = TeamMatesDisplayDictionary.First().Value.robotRole.ToString();
-            //DrawLidar();
-            if (TeamMatesDisplayDictionary.Count == 1) //Cas d'un affichage de robot unique (localWorldMap)
+                //DrawLidar();
                 DrawHeatMap(TeamMatesDisplayDictionary.First().Key);
+            }
             PolygonSeries.RedrawAll();
             ObjectsPolygonSeries.RedrawAll();
             BallPolygon.RedrawAll();

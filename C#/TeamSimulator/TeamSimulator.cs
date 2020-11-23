@@ -1,23 +1,15 @@
 ﻿using System;
 using SciChart.Charting.Visuals;
-using WayPointGenerator;
 using System.Collections.Generic;
 using WorldMapManager;
 using System.Threading;
 using PerceptionManagement;
 using Constants;
 using TrajectoryGenerator;
-using PhysicalSimulator;
 using UDPMulticast;
-using System.Text;
-using TCPAdapter;
-using RefereeBoxAdapter;
 using UdpMulticastInterpreter;
-using SensorSimulator;
-using KalmanPositioning;
 using WpfTeamInterfaceNS;
 using Utilities;
-using EventArgsLibrary;
 
 namespace TeamSimulator
 {
@@ -28,7 +20,7 @@ namespace TeamSimulator
         static GlobalWorldMapManager globalWorldMapManagerTeam1;
         static GlobalWorldMapManager globalWorldMapManagerTeam2;
 
-        static Dictionary<int, StrategyManager.StrategyManager> strategyManagerDictionary;
+        static Dictionary<int, StrategyManagerNS.StrategyManager> strategyManagerDictionary;
         //static List<WaypointGenerator> waypointGeneratorList;
         static List<TrajectoryPlanner> trajectoryPlannerList;
         static List<SensorSimulator.SensorSimulator> sensorSimulatorList;
@@ -67,7 +59,7 @@ namespace TeamSimulator
             trajectoryPlannerList = new List<TrajectoryPlanner>();
             sensorSimulatorList = new List<SensorSimulator.SensorSimulator>();
             kalmanPositioningList = new List<KalmanPositioning.KalmanPositioning>();
-            strategyManagerDictionary = new Dictionary<int, StrategyManager.StrategyManager>();
+            strategyManagerDictionary = new Dictionary<int, StrategyManagerNS.StrategyManager>();
             localWorldMapManagerList = new List<LocalWorldMapManager>();
             perceptionManagerList = new List<PerceptionManager>();
             robotUdpMulticastSenderList = new List<UDPMulticastSender>();
@@ -137,7 +129,7 @@ namespace TeamSimulator
         private static void CreatePlayer(int TeamNumber, int RobotNumber, string Name)
         {
             int robotId = TeamNumber + RobotNumber;
-            var strategyManager = new StrategyManager.StrategyManager(robotId, TeamNumber, GameMode.RoboCup);
+            var strategyManager = new StrategyManagerNS.StrategyManager(robotId, TeamNumber, GameMode.RoboCup);
             //var waypointGenerator = new WaypointGenerator(robotId, GameMode.RoboCup);
             var trajectoryPlanner = new TrajectoryPlanner(robotId);
             var sensorSimulator = new SensorSimulator.SensorSimulator(robotId);
@@ -201,6 +193,7 @@ namespace TeamSimulator
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
             strategyManager.strategy.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             strategyManager.strategy.OnRoleEvent += localWorldMapManager.OnRoleReceived; //Utile pour l'affichage
+            strategyManager.strategy.OnMessageDisplayEvent += localWorldMapManager.OnMessageDisplayReceived; //Utile pour l'affichage
             //strategyManager.strategy.OnPlayingSideEvent += localWorldMapManager.OnPlayingSideReceived;  //inutile
             strategyManager.strategy.OnHeatMapStrategyEvent += localWorldMapManager.OnHeatMapStrategyReceived;
             strategyManager.strategy.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
@@ -266,7 +259,7 @@ namespace TeamSimulator
 
             for (int i = 0; i < nbPlayersTeam1; i++)
             {
-                strategyManagerDictionary[(int)TeamId.Team1 + i].SetRole((StrategyManager.PlayerRole)roleList[i]);
+                strategyManagerDictionary[(int)TeamId.Team1 + i].SetRole((StrategyManagerNS.PlayerRole)roleList[i]);
                 //strategyManagerDictionary[(int)TeamId.Team1 + i].ProcessStrategy();
             }
             
@@ -279,7 +272,7 @@ namespace TeamSimulator
 
             for (int i = 0; i < nbPlayersTeam2; i++)
             {
-                strategyManagerDictionary[(int)TeamId.Team2 + i].SetRole((StrategyManager.PlayerRole)roleList[i]);
+                strategyManagerDictionary[(int)TeamId.Team2 + i].SetRole((StrategyManagerNS.PlayerRole)roleList[i]);
                 //strategyManagerDictionary[(int)TeamId.Team2 + i].ProcessStrategy();
             }
         }

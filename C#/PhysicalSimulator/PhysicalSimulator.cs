@@ -146,7 +146,7 @@ namespace PhysicalSimulator
                                 double angleRobotBalle = Math.Atan2(ballSimu.Value.Y - robot.Value.Y, ballSimu.Value.X - robot.Value.X);
                                 angleRobotBalle = Toolbox.ModuloByAngle(robot.Value.Theta, angleRobotBalle);
 
-                                if (Math.Abs(angleRobotBalle) < Toolbox.DegToRad(30))
+                                if (Math.Abs(angleRobotBalle-robot.Value.Theta) < Toolbox.DegToRad(30))
                                 {
                                     Console.WriteLine("Prise de balle par un robot");
                                     //ballSimu.Value.Vx = robot.Value.VxRefRobot;

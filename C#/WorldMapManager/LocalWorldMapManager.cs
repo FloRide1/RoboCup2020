@@ -53,6 +53,7 @@ namespace WorldMapManager
                 transferLocalWorldMap.waypointLocation = localWorldMap.waypointLocation;
                 transferLocalWorldMap.robotGhostLocation = localWorldMap.robotGhostLocation;
                 transferLocalWorldMap.robotRole = localWorldMap.robotRole;
+                transferLocalWorldMap.messageDisplay = localWorldMap.messageDisplay;
                 transferLocalWorldMap.playingSide = localWorldMap.playingSide;
                 transferLocalWorldMap.obstaclesLocationList = localWorldMap.obstaclesLocationList;
                 transferLocalWorldMap.ballLocationList = localWorldMap.ballLocationList;
@@ -112,6 +113,16 @@ namespace WorldMapManager
             if (localWorldMap.RobotId == e.RobotId)
             {
                 localWorldMap.robotRole = e.Role;
+            }
+        }
+
+        public void OnMessageDisplayReceived(object sender, EventArgsLibrary.MessageDisplayArgs e)
+        {
+            if (localWorldMap == null)
+                return;
+            if (localWorldMap.RobotId == e.RobotId)
+            {
+                localWorldMap.messageDisplay = e.Message;
             }
         }
 

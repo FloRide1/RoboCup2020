@@ -3,6 +3,7 @@ using EventArgsLibrary;
 using HeatMap;
 using HerkulexManagerNS;
 using RefereeBoxAdapter;
+using StrategyManagerNS;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

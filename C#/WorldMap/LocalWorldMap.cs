@@ -13,6 +13,7 @@ namespace WorldMap
         public int TeamId = 0;
         public Location robotLocation { get; set; }
         public RobotRole robotRole{ get; set; }
+        public string messageDisplay { get; set; }
 
         public PlayingSide playingSide { get; set; }
         public Location robotGhostLocation { get; set; }

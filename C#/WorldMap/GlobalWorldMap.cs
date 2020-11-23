@@ -21,6 +21,7 @@ namespace WorldMap
         public List<Location> opponentLocationList { get; set; }
         public List<LocationExtended> obstacleLocationList { get; set; }
         public Dictionary<int, RobotRole> teammateRoleList { get; set; }
+        public Dictionary<int, string> teammateDisplayMessageList { get; set; }
         public Dictionary<int, PlayingSide> teammatePlayingSideList { get; set; }
 
         public GlobalWorldMap()
@@ -81,6 +82,7 @@ namespace WorldMap
         public Dictionary<int, List<Location>> ballLocationListDictionary { get; set; }
         public Dictionary<int, List<LocationExtended>> ObstaclesLocationListDictionary { get; set; }
         public Dictionary<int, RobotRole> robotRoleDictionary { get; set; }
+        public Dictionary<int, string> robotMessageDisplayDictionary { get; set; }
         public Dictionary<int, PlayingSide> robotPlayingSideDictionary { get; set; }
 
         public GlobalWorldMapStorage()
@@ -92,6 +94,7 @@ namespace WorldMap
             ballLocationListDictionary = new Dictionary<int, List<Location>>();
             ObstaclesLocationListDictionary = new Dictionary<int, List<LocationExtended>>();
             robotRoleDictionary = new Dictionary<int, RobotRole>();
+            robotMessageDisplayDictionary = new Dictionary<int, string>();
             robotPlayingSideDictionary = new Dictionary<int, PlayingSide>();
         }
 
@@ -145,6 +148,16 @@ namespace WorldMap
                     robotRoleDictionary[id] = role;
                 else
                     robotRoleDictionary.Add(id, role);
+            }
+        }
+        public void AddOrUpdateMessageDisplay(int id, string  message)
+        {
+            lock (robotMessageDisplayDictionary)
+            {
+                if (robotMessageDisplayDictionary.ContainsKey(id))
+                    robotMessageDisplayDictionary[id] = message;
+                else
+                    robotMessageDisplayDictionary.Add(id, message);
             }
         }
 

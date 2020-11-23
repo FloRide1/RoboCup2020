@@ -13,10 +13,10 @@ using PerceptionManagement;
 using System.Timers;
 using Constants;
 using HerkulexManagerNS;
-using StrategyManager.StrategyRoboCupNS;
+using StrategyManagerNS.StrategyRoboCupNS;
 using StrategyManager.StrategyEurobotNS;
 
-namespace StrategyManager
+namespace StrategyManagerNS
 {
 
     public class StrategyManager

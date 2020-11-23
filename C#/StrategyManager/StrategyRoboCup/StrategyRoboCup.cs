@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Utilities;
 using WorldMap;
 
-namespace StrategyManager.StrategyRoboCupNS
+namespace StrategyManagerNS.StrategyRoboCupNS
 {
     class StrategyRoboCup : StrategyGenerique
     {
@@ -18,12 +18,17 @@ namespace StrategyManager.StrategyRoboCupNS
         public PointD robotDestination = new PointD(0, 0);
 
         RobotRole role = RobotRole.Stopped;
+        public string MessageDisplay = "Debug";
         PlayingSide playingSide = PlayingSide.Left;
+
+        TaskBallHandlingManager taskBallHandlingManager;
 
         public StrategyRoboCup(int robotId, int teamId) : base(robotId, teamId)
         {
             this.teamId = teamId;
             this.robotId = robotId;
+
+            taskBallHandlingManager = new TaskBallHandlingManager(this);
         }
 
         public override void InitHeatMap()
@@ -135,6 +140,7 @@ namespace StrategyManager.StrategyRoboCupNS
             }
 
             OnRole(robotId, role);
+            OnMessageDisplay(robotId, MessageDisplay);
             playingSide = globalWorldMap.playingSide;
             //OnPlayingSide(robotId, playingSide);
 
@@ -254,61 +260,6 @@ namespace StrategyManager.StrategyRoboCupNS
             //AddForbiddenRectangle(new RectangleD(-5, 3, 4, 6));
         }
 
-        //void SetRobotRole()
-        //{
-        //    //On détermine les distances des joueurs à la balle
-        //    Dictionary<int, double> DictDistancePlayerBall = new Dictionary<int, double>();
-        //    var ballLocationList = globalWorldMap.ballLocationList;
-        //    foreach (var player in globalWorldMap.teammateLocationList)
-        //    {
-        //        //On exclut le gardien
-        //        if (player.Key != (int)TeamId.Team1 + (int)Constants.RobotId.Robot1 && player.Key != (int)TeamId.Team2 + (int)Constants.RobotId.Robot1)
-        //        {
-        //            DictDistancePlayerBall.Add(player.Key, Toolbox.Distance(new PointD(player.Value.X, player.Value.Y), new PointD(ballLocationList[0].X, ballLocationList[0].Y)));
-        //        }
-        //    }
-
-        //    var OrderedDictDistancePlayerBall = DictDistancePlayerBall.OrderBy(p => p.Value);
-        //    for (int i = 0; i < OrderedDictDistancePlayerBall.Count(); i++)
-        //    {
-        //        if (OrderedDictDistancePlayerBall.ElementAt(i).Key == robotId)
-        //        {
-        //            switch (i)
-        //            {
-        //                case 0:
-        //                    robotRole = PlayerRole.AttaquantAvecBalle;
-        //                    break;
-        //                case 1:
-        //                    robotRole = PlayerRole.AttaquantPlace;
-        //                    break;
-        //                case 2:
-        //                    robotRole = PlayerRole.Centre;
-        //                    break;
-        //                default:
-        //                    robotRole = PlayerRole.Centre;
-        //                    break;
-        //            }
-        //        }
-        //    }
-
-        //    if (robotId == (int)TeamId.Team1 + (int)Constants.RobotId.Robot1 || robotId == (int)TeamId.Team2 + (int)Constants.RobotId.Robot1)
-        //    {
-        //        //Cas du gardien
-        //        robotRole = PlayerRole.Gardien;
-        //    }
-        //}
-
-        //public event EventHandler<HeatMapArgs> OnHeatMapEvent;
-        //public virtual void OnHeatMap(int id, Heatmap heatMap)
-        //{
-        //    OnHeatMapEvent?.Invoke(this, new HeatMapArgs { RobotId = id, HeatMap = heatMap });
-        //}
-
-        //public event EventHandler<LocationArgs> OnDestinationEvent;
-        //public virtual void OnDestination(int id, Location location)
-        //{
-        //    OnDestinationEvent?.Invoke(this, new LocationArgs { RobotId = id, Location = location });
-        //}
 
     }
 

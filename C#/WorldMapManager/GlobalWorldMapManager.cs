@@ -237,6 +237,7 @@ namespace WorldMapManager
                     globalWorldMapStorage.AddOrUpdateBallLocationList(localMap.Key, localMap.Value.ballLocationList);
                     globalWorldMapStorage.AddOrUpdateObstaclesList(localMap.Key, localMap.Value.obstaclesLocationList);
                     globalWorldMapStorage.AddOrUpdateRobotRole(localMap.Key, localMap.Value.robotRole);
+                    globalWorldMapStorage.AddOrUpdateMessageDisplay(localMap.Key, localMap.Value.messageDisplay);
                     globalWorldMapStorage.AddOrUpdateRobotPlayingSide(localMap.Key, localMap.Value.playingSide);
                 }
 
@@ -256,6 +257,7 @@ namespace WorldMapManager
                 globalWorldMap.opponentLocationList = new List<Location>();
                 globalWorldMap.obstacleLocationList = new List<LocationExtended>();
                 globalWorldMap.teammateRoleList = new Dictionary<int, RobotRole>();
+                globalWorldMap.teammateDisplayMessageList = new Dictionary<int, string>();
                 globalWorldMap.teammatePlayingSideList = new Dictionary<int, PlayingSide>();
 
                 //On place tous les robots de l'équipe dans la global map
@@ -267,6 +269,8 @@ namespace WorldMapManager
                         globalWorldMap.teammateLocationList.Add(localMap.Key, localMap.Value.robotLocation);
                         //On ajoute le rôle des robots de l'équipe dans la WorldMap
                         globalWorldMap.teammateRoleList.Add(localMap.Key, localMap.Value.robotRole);
+                        //On ajoute le message à afficher des robots de l'équipe dans la WorldMap
+                        globalWorldMap.teammateDisplayMessageList.Add(localMap.Key, localMap.Value.messageDisplay);
                         //On ajoute le playing Side des robots de l'équipe dans la WorldMap
                         globalWorldMap.teammatePlayingSideList.Add(localMap.Key, localMap.Value.playingSide);
                         //On ajoute le ghost (position théorique) des robots de l'équipe dans la WorldMap

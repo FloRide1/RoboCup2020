@@ -359,6 +359,13 @@ namespace EventArgsLibrary
         public RobotRole Role { get; set; }
     }
 
+    public class MessageDisplayArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+
+        public string Message { get; set; }
+    }
+
     public class PlayingSideArgs : EventArgs
     {
         public int RobotId { get; set; }

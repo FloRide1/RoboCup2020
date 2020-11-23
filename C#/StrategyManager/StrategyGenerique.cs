@@ -11,7 +11,7 @@ using System.Timers;
 using Utilities;
 using WorldMap;
 
-namespace StrategyManager
+namespace StrategyManagerNS
 {
     /****************************************************************************/
     /// <summary>
@@ -347,6 +347,12 @@ namespace StrategyManager
         public virtual void OnRole(int id, RobotRole role)
         {
             OnRoleEvent?.Invoke(this, new RoleArgs { RobotId = id, Role = role });
+        }
+
+        public event EventHandler<MessageDisplayArgs> OnMessageDisplayEvent;
+        public virtual void OnMessageDisplay(int id, string msg)
+        {
+            OnMessageDisplayEvent?.Invoke(this, new MessageDisplayArgs { RobotId = id, Message = msg});
         }
 
         //public event EventHandler<PlayingSideArgs> OnPlayingSideEvent;

@@ -134,6 +134,14 @@ namespace WpfWorldMapDisplay
                 }
             }
 
+            lock (globalWorldMap.teammateDisplayMessageList)
+            {
+                foreach (var messageDisplay in globalWorldMap.teammateDisplayMessageList)
+                {
+                    UpdateDisplayMessage(messageDisplay.Key, messageDisplay.Value);
+                }
+            }
+
             lock (globalWorldMap.teammatePlayingSideList)
             {
                 foreach (var playingSide in globalWorldMap.teammatePlayingSideList)
@@ -214,6 +222,7 @@ namespace WpfWorldMapDisplay
 
                 AddOrUpdateTextAnnotation(r.Key.ToString(), r.Value.robotName, TeamMatesDisplayDictionary[r.Key].GetRobotLocation().X, TeamMatesDisplayDictionary[r.Key].GetRobotLocation().Y);
                 AddOrUpdateTextAnnotation(r.Key.ToString()+"Role", r.Value.robotRole.ToString(), TeamMatesDisplayDictionary[r.Key].GetRobotLocation().X, TeamMatesDisplayDictionary[r.Key].GetRobotLocation().Y-1);
+                AddOrUpdateTextAnnotation(r.Key.ToString() + "Console", r.Value.DisplayMessage.ToString(), TeamMatesDisplayDictionary[r.Key].GetRobotLocation().X, TeamMatesDisplayDictionary[r.Key].GetRobotLocation().Y - 2);
 
                 ////Rendering des objets Lidar
                 //foreach (var polygonObject in TeamMatesDisplayDictionary[r.Key].GetRobotLidarObjects())
@@ -235,6 +244,17 @@ namespace WpfWorldMapDisplay
             else
             {
                 Console.WriteLine("UpdateRobotRole : Robot non trouvé");
+            }
+        }
+        private void UpdateDisplayMessage(int robotId, string message)
+        {
+            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
+            {
+                TeamMatesDisplayDictionary[robotId].SetDisplayMessage(message);
+            }
+            else
+            {
+                Console.WriteLine("UpdateDisplayMessage : Robot non trouvé");
             }
         }
         private void UpdatePlayingSide(int robotId, PlayingSide playSide)
