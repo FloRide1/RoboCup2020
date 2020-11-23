@@ -53,6 +53,8 @@ namespace StrategyManager
         public Location robotCurrentLocation = new Location(0, 0, 0, 0, 0, 0);
         public double robotOrientation;
 
+        public bool isHandlingBall = false;
+
         Stopwatch sw = new Stopwatch();
         Timer timerStrategy;
 
@@ -103,6 +105,18 @@ namespace StrategyManager
             robotCurrentLocation.Vx = location.Location.Vx;
             robotCurrentLocation.Vy = location.Location.Vy;
             robotCurrentLocation.Vtheta = location.Location.Vtheta;
+        }
+
+        public void OnBallHandlingReceived(object sender, BallHandlingArgs e)
+        {
+            if (e.RobotId == robotId)
+            {
+                isHandlingBall = e.IsHandlingBall;
+                if (isHandlingBall == true)
+                    ;
+            }
+            else
+                Console.WriteLine("Probleme d'ID robot");
         }
 
         private void TimerStrategy_Elapsed(object sender, ElapsedEventArgs e)

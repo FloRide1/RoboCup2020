@@ -153,6 +153,7 @@ namespace PhysicalSimulator
                                     //ballSimu.Value.Vy = robot.Value.VyRefRobot;
                                     ballSimu.Value.isHandledByRobot = true;
                                     ballSimu.Value.handlingRobot = robot.Key;
+                                    robot.Value.IsHandlingBall = true;
                                 }
                                 else
                                 {
@@ -210,6 +211,7 @@ namespace PhysicalSimulator
                     //Emission d'un event de position physique 
                     Location loc = new Location(robot.Value.X, robot.Value.Y, robot.Value.Theta, robot.Value.VxRefRobot, robot.Value.VyRefRobot, robot.Value.Vtheta);
                     OnPhysicalRobotLocation(robot.Key, loc);
+                    OnPhysicalBallHandling(robot.Key, robot.Value.IsHandlingBall);
                 }
 
                 //Calcul de la nouvelle location des balles
@@ -242,13 +244,12 @@ namespace PhysicalSimulator
                 }
                 OnPhysicalBallListPosition(newBallLocationList);
 
-
                 List<LocationExtended> objectsLocationList = new List<LocationExtended>();
                 foreach (var robot in robotList)
                 {
                     objectsLocationList.Add(new LocationExtended(robot.Value.X, robot.Value.Y, robot.Value.Theta, robot.Value.VxRefRobot, robot.Value.VyRefRobot, robot.Value.Vtheta, ObjectType.Robot));
                 }
-                OnPhysicicalObjectListLocation(objectsLocationList);
+                OnPhysicalObjectListLocation(objectsLocationList);
             }
         }
 
@@ -290,6 +291,16 @@ namespace PhysicalSimulator
             }
         }
 
+        public event EventHandler<BallHandlingArgs> OnPhysicalBallHandlingEvent;
+        public virtual void OnPhysicalBallHandling(int id, bool isHandling)
+        {
+            var handler = OnPhysicalBallHandlingEvent;
+            if (handler != null)
+            {
+                handler(this, new BallHandlingArgs { RobotId = id,  IsHandlingBall = isHandling});
+            }
+        }
+
         public event EventHandler<LocationListArgs> OnPhysicalBallPositionListEvent;
         public virtual void OnPhysicalBallListPosition(List<Location> locationList)
         {
@@ -302,7 +313,7 @@ namespace PhysicalSimulator
 
         public delegate void ObjectsPositionEventHandler(object sender, LocationExtendedListArgs e);
         public event EventHandler<LocationExtendedListArgs> OnPhysicicalObjectListLocationEvent;
-        public virtual void OnPhysicicalObjectListLocation(List<LocationExtended> locationList)
+        public virtual void OnPhysicalObjectListLocation(List<LocationExtended> locationList)
         {
             var handler = OnPhysicicalObjectListLocationEvent;
             if (handler != null)

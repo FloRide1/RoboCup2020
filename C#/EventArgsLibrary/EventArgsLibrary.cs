@@ -108,6 +108,12 @@ namespace EventArgsLibrary
         public int RobotId { get; set; }
         public double Vtheta { get; set; }
     }
+
+    public class BallHandlingArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+        public bool IsHandlingBall { get; set; }
+    }
     public class PolarSpeedEventArgs : PolarSpeedArgs
     {
         public uint timeStampMs;
