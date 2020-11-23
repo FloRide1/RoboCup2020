@@ -87,19 +87,22 @@ namespace StrategyManager.StrategyRoboCupNS
                         else
                             goalPosition = new PointD(11, 0);
 
-                        ///On ajoute à la liste en premier la distance au robot considéré                        
+                        ///                       
                         for (int i = 0; i < globalWorldMap.teammateLocationList.Count(); i++)
                         {
-                            ///On ajoute à la liste en premier la distance à chacun des coéquipiers
+                            ///
                             teamRoleClassifier.ElementAt(i).Value.DistanceBut = Toolbox.Distance(teamRoleClassifier.ElementAt(i).Value.Position, goalPosition);
                         }
 
                         /// A présent, on filtre la liste de l'équipe de manière à trouver le joueur le plus proche de la balle n'étant pas le gardien
                         var teamSansGardienOrdonnee = teamRoleClassifier.Where(x => x.Value.Role != RobotRole.Gardien).OrderBy(elt => elt.Value.DistanceBalle).ToList();
-                        teamRoleClassifier[teamSansGardienOrdonnee.ElementAt(0).Key].Role = RobotRole.ContesteurDeBalle;
+                        if(playingSide == PlayingSide.Right)
+                            teamRoleClassifier[teamSansGardienOrdonnee.ElementAt(0).Key].Role = RobotRole.ContesteurDeBalle;
+                        else
+                            teamRoleClassifier[teamSansGardienOrdonnee.ElementAt(0).Key].Role = RobotRole.MilieuDemarque;
 
-                        /// A présent, on filtre la liste de l'équipe de manière à trouver le joueur le plus proche de la balle n'étant pas le gardien, ni le contesteur
-                        var teamSansGardienNiContesteurOrdonnee = teamRoleClassifier.Where(x => (x.Value.Role != RobotRole.Gardien)&& (x.Value.Role != RobotRole.ContesteurDeBalle)).OrderBy(elt => elt.Value.DistanceBut).ToList();
+                        /// A présent, on filtre la liste de l'équipe de manière à trouver le joueur le plus proche du but n'étant pas le gardien, ni le contesteur
+                        var teamSansGardienNiContesteurOrdonnee = teamRoleClassifier.Where(x => (x.Value.Role != RobotRole.Gardien) && (x.Value.Role != RobotRole.MilieuDemarque) && (x.Value.Role != RobotRole.ContesteurDeBalle)).OrderBy(elt => elt.Value.DistanceBut).ToList();
                         teamRoleClassifier[teamSansGardienNiContesteurOrdonnee.ElementAt(0).Key].Role = RobotRole.AttaquantDemarque;
 
                         var teamSansGardienNiContesteurNiAttaquantOrdonnee = teamRoleClassifier.Where(x => (x.Value.Role != RobotRole.Gardien) && (x.Value.Role != RobotRole.AttaquantDemarque) && (x.Value.Role != RobotRole.ContesteurDeBalle)).OrderBy(elt => elt.Value.DistanceBut).ToList();
@@ -180,6 +183,9 @@ namespace StrategyManager.StrategyRoboCupNS
                 case RobotRole.ContesteurDeBalle:
                     if (globalWorldMap.ballLocationList.Count > 0)
                         AddPreferedZone(new PointD(globalWorldMap.ballLocationList[0].X, globalWorldMap.ballLocationList[0].Y), 3, 0.5);
+                    if (globalWorldMap.ballLocationList.Count > 0)
+                        robotOrientation = Math.Atan2(globalWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, globalWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
+
                     break;
                 case RobotRole.AttaquantDemarque:
                     /// Gestion du cas de l'attaquant démarqué
@@ -205,6 +211,9 @@ namespace StrategyManager.StrategyRoboCupNS
                     {
                         AddAvoidanceConicalZoneList(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), new PointD(adversaire.X, adversaire.Y), 1);                        
                     }
+                    if (globalWorldMap.ballLocationList.Count > 0)
+                        robotOrientation = Math.Atan2(globalWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, globalWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
+
                     break;
                 case RobotRole.DefenseurInterception:
                     foreach (var adversaire1 in globalWorldMap.obstacleLocationList)
@@ -220,6 +229,9 @@ namespace StrategyManager.StrategyRoboCupNS
                             }
                         }
                     }
+                    if (globalWorldMap.ballLocationList.Count > 0)
+                        robotOrientation = Math.Atan2(globalWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, globalWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
+
                     break;
             }
         }

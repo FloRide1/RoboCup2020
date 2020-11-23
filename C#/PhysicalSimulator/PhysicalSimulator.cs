@@ -18,14 +18,14 @@ namespace PhysicalSimulator
         double fSampling = 50;
 
         HighFreqTimer highFrequencyTimer;
-                
+
         FiltreOrdre1 filterLowPassVx = new FiltreOrdre1();
         FiltreOrdre1 filterLowPassVy = new FiltreOrdre1();
         FiltreOrdre1 filterLowPassVTheta = new FiltreOrdre1();
 
         public PhysicalSimulator(string typeTerrain)
         {
-            switch(typeTerrain)
+            switch (typeTerrain)
             {
                 case "Cachan":
                     LengthAireDeJeu = 8;
@@ -60,7 +60,7 @@ namespace PhysicalSimulator
                 robotList.Add(id, new PhysicalRobotSimulator(xpos, yPos));
             }
         }
-        
+
         private void HighFrequencyTimer_Tick(object sender, EventArgs e)
         {
 
@@ -74,7 +74,7 @@ namespace PhysicalSimulator
                     robot.Value.newYWithoutCollision = robot.Value.Y + (robot.Value.VxRefRobot * Math.Sin(robot.Value.Theta) + robot.Value.VyRefRobot * Math.Cos(robot.Value.Theta)) / fSampling;
                     robot.Value.newThetaWithoutCollision = robot.Value.Theta + robot.Value.Vtheta / fSampling;
                 }
-                               
+
                 //TODO : Gérer les collisions polygoniales en déclenchant l'étude fine à l'aide d'un cercle englobant.
                 //TODO : gérer la balle et les rebonds robots poteaux cages
                 //TODO : gérer la perte d'énergie de la balle : modèle à trouver... mesure précise :) faite sur le terrain : 1m.s-1 -> arrêt à 10m
@@ -92,8 +92,8 @@ namespace PhysicalSimulator
                 foreach (var robot in robotList)
                 {
                     //On check les murs 
-                    if ((robot.Value.newXWithoutCollision + robot.Value.radius > LengthAireDeJeu/2) || (robot.Value.newXWithoutCollision - robot.Value.radius < -LengthAireDeJeu/2)
-                        || (robot.Value.newYWithoutCollision + robot.Value.radius > WidthAireDeJeu / 2) || (robot.Value.newYWithoutCollision - robot.Value.radius < -WidthAireDeJeu/2))
+                    if ((robot.Value.newXWithoutCollision + robot.Value.radius > LengthAireDeJeu / 2) || (robot.Value.newXWithoutCollision - robot.Value.radius < -LengthAireDeJeu / 2)
+                        || (robot.Value.newYWithoutCollision + robot.Value.radius > WidthAireDeJeu / 2) || (robot.Value.newYWithoutCollision - robot.Value.radius < -WidthAireDeJeu / 2))
                     {
                         robot.Value.Collision = true;
                     }
@@ -117,8 +117,8 @@ namespace PhysicalSimulator
                 foreach (var ballSimu in ballSimulatedList)
                 {
                     var ballSimulated = ballSimu.Value;
-                    ballSimulated.newXWithoutCollision = ballSimulated.X + (ballSimulated.Vx * Math.Cos(ballSimulated.Theta) - ballSimulated.Vy * Math.Sin(ballSimulated.Theta)) / fSampling;
-                    ballSimulated.newYWithoutCollision = ballSimulated.Y + (ballSimulated.Vx * Math.Sin(ballSimulated.Theta) + ballSimulated.Vy * Math.Cos(ballSimulated.Theta)) / fSampling;
+                    ballSimulated.newX = ballSimulated.X + (ballSimulated.Vx * Math.Cos(ballSimulated.Theta) - ballSimulated.Vy * Math.Sin(ballSimulated.Theta)) / fSampling;
+                    ballSimulated.newY = ballSimulated.Y + (ballSimulated.Vx * Math.Sin(ballSimulated.Theta) + ballSimulated.Vy * Math.Cos(ballSimulated.Theta)) / fSampling;
                 }
 
                 //On Initialisae les collisions balles à false
@@ -132,11 +132,38 @@ namespace PhysicalSimulator
                 {
                     foreach (var ballSimu in ballSimulatedList)
                     {
-                        if (Toolbox.Distance(robot.Value.newXWithoutCollision, robot.Value.newYWithoutCollision, ballSimu.Value.newXWithoutCollision, ballSimu.Value.newYWithoutCollision) < 1 * (robot.Value.radius + ballSimu.Value.radius))
+                        /// On gère les prises de balles simulées ici : Si la balle touche un robot, soit elle rebondit soit elle est prise
+                        /// Si l'angle entre l'orientation du robot le vecteur robot balle est inférieur en valeur absolue à 30°, le robot prend la balle
+                        /// Sinon elle rebondit
+                        /// 
+
+                        if (!ballSimu.Value.isHandledByRobot)
                         {
-                            ballSimu.Value.Collision = true;
-                            ballSimu.Value.Vx = 1.5 * robot.Value.VxRefRobot;
-                            ballSimu.Value.Vy = 1.5 * robot.Value.VyRefRobot;
+                            if (Toolbox.Distance(robot.Value.newXWithoutCollision, robot.Value.newYWithoutCollision, ballSimu.Value.newX, ballSimu.Value.newY) < 1 * (robot.Value.radius + ballSimu.Value.radius))
+                            {
+                                double angleRobotBalle = Math.Atan2(ballSimu.Value.Y - robot.Value.Y, ballSimu.Value.Y - robot.Value.Y);
+                                angleRobotBalle = Toolbox.ModuloByAngle(robot.Value.Theta, angleRobotBalle);
+
+                                if (Math.Abs(angleRobotBalle) < Toolbox.DegToRad(50))
+                                {
+                                    Console.WriteLine("Prise de balle par un robot");
+                                    //ballSimu.Value.Vx = robot.Value.VxRefRobot;
+                                    //ballSimu.Value.Vy = robot.Value.VyRefRobot;
+                                    ballSimu.Value.isHandledByRobot = true;
+                                    ballSimu.Value.handlingRobot = robot.Key;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Rebond de balle sur un robot");
+                                    ballSimu.Value.Collision = true;
+                                    ballSimu.Value.Vx = robot.Value.VxRefRobot - 0.8 * ballSimu.Value.Vx;
+                                    ballSimu.Value.Vy = robot.Value.VyRefRobot - 0.8 * ballSimu.Value.Vy;
+                                }
+                            }
+                            else
+                            {
+                                ballSimu.Value.isHandledByRobot = false;
+                            }
                         }
                     }
                 }
@@ -147,12 +174,12 @@ namespace PhysicalSimulator
                     //Gestion des collisions balle-murs
                     //On check les murs virtuels
                     //Mur haut ou bas
-                    if ((ballSimu.Value.newYWithoutCollision + ballSimu.Value.radius > WidthAireDeJeu / 2) || (ballSimu.Value.newYWithoutCollision + ballSimu.Value.radius < -WidthAireDeJeu / 2))
+                    if ((ballSimu.Value.newY + ballSimu.Value.radius > WidthAireDeJeu / 2) || (ballSimu.Value.newY + ballSimu.Value.radius < -WidthAireDeJeu / 2))
                     {
                         ballSimu.Value.Vy = -ballSimu.Value.Vy; //On simule un rebond
                     }
                     //Mur gauche ou droit
-                    if ((ballSimu.Value.newXWithoutCollision + ballSimu.Value.radius < -LengthAireDeJeu / 2) || (ballSimu.Value.newXWithoutCollision + ballSimu.Value.radius > LengthAireDeJeu/2))
+                    if ((ballSimu.Value.newX + ballSimu.Value.radius < -LengthAireDeJeu / 2) || (ballSimu.Value.newX + ballSimu.Value.radius > LengthAireDeJeu / 2))
                     {
                         ballSimu.Value.Vx = -ballSimu.Value.Vx; //On simule un rebond
                     }
@@ -161,17 +188,6 @@ namespace PhysicalSimulator
                 //Gestion de la décélération de la balle
                 //double deceleration = 0.5;
 
-                //Calcul de la nouvelle location des balles
-                List<Location> newBallLocationList = new List<Location>();
-                foreach (var ballSimu in ballSimulatedList)
-                {
-                    ballSimu.Value.newXWithoutCollision = ballSimu.Value.X + (ballSimu.Value.Vx * Math.Cos(ballSimu.Value.Theta) - ballSimu.Value.Vy * Math.Sin(ballSimu.Value.Theta)) / fSampling;
-                    ballSimu.Value.newYWithoutCollision = ballSimu.Value.Y + (ballSimu.Value.Vx * Math.Sin(ballSimu.Value.Theta) + ballSimu.Value.Vy * Math.Cos(ballSimu.Value.Theta)) / fSampling;
-                    ballSimu.Value.X = ballSimu.Value.newXWithoutCollision;
-                    ballSimu.Value.Y = ballSimu.Value.newYWithoutCollision;
-                    newBallLocationList.Add(new Location(ballSimu.Value.X, ballSimu.Value.Y, ballSimu.Value.Theta, ballSimu.Value.Vx, ballSimu.Value.Vy, ballSimu.Value.Vtheta));
-                }
-                OnPhysicalBallListPosition(newBallLocationList);
 
                 //Calcul de la nouvelle Location des robots
                 foreach (var robot in robotList)
@@ -188,11 +204,42 @@ namespace PhysicalSimulator
                         robot.Value.VyRefRobot = 0;
                         robot.Value.Vtheta = 0;
                     }
-                
+
                     //Emission d'un event de position physique 
                     Location loc = new Location(robot.Value.X, robot.Value.Y, robot.Value.Theta, robot.Value.VxRefRobot, robot.Value.VyRefRobot, robot.Value.Vtheta);
                     OnPhysicalRobotLocation(robot.Key, loc);
-                }                  
+                }
+
+                //Calcul de la nouvelle location des balles
+                List<Location> newBallLocationList = new List<Location>();
+                foreach (var ballSimu in ballSimulatedList)
+                {
+                    if (!ballSimu.Value.isHandledByRobot)
+                    {
+                        /// La balle n'est pas controlée par le robot
+                        ballSimu.Value.newX = ballSimu.Value.X + (ballSimu.Value.Vx * Math.Cos(ballSimu.Value.Theta) - ballSimu.Value.Vy * Math.Sin(ballSimu.Value.Theta)) / fSampling;
+                        ballSimu.Value.newY = ballSimu.Value.Y + (ballSimu.Value.Vx * Math.Sin(ballSimu.Value.Theta) + ballSimu.Value.Vy * Math.Cos(ballSimu.Value.Theta)) / fSampling;
+                        ballSimu.Value.X = ballSimu.Value.newX;
+                        ballSimu.Value.Y = ballSimu.Value.newY;
+
+                        ballSimu.Value.Vx = ballSimu.Value.Vx * 0.999;
+                        ballSimu.Value.Vy = ballSimu.Value.Vy * 0.999;
+                        newBallLocationList.Add(new Location(ballSimu.Value.X, ballSimu.Value.Y, 0, ballSimu.Value.Vx, ballSimu.Value.Vy, 0));
+                    }
+                    else
+                    {
+                        /// La balle est controlée par le robot
+                        /// Sa position est celle du robot décalée
+                        var robotControlling = robotList[ballSimu.Value.handlingRobot];
+                        ballSimu.Value.X = robotControlling.X + (robotControlling.radius + ballSimu.Value.radius) * Math.Cos(robotControlling.Theta);
+                        ballSimu.Value.Y = robotControlling.Y + (robotControlling.radius + ballSimu.Value.radius) * Math.Sin(robotControlling.Theta);
+                        ballSimu.Value.Vx = robotControlling.VxRefRobot;
+                        ballSimu.Value.Vy = robotControlling.VyRefRobot;
+                        newBallLocationList.Add(new Location(ballSimu.Value.X, ballSimu.Value.Y, 0, ballSimu.Value.Vx, ballSimu.Value.Vy, 0));
+                    }
+                }
+                OnPhysicalBallListPosition(newBallLocationList);
+
 
                 List<LocationExtended> objectsLocationList = new List<LocationExtended>();
                 foreach (var robot in robotList)
@@ -263,29 +310,34 @@ namespace PhysicalSimulator
         }
     }
 
-public class PhysicalRobotSimulator
-{
-    public double radius = 0.25;
-    public double X;
-    public double Y;
-    public double Theta;
-
-    public double newXWithoutCollision;
-    public double newYWithoutCollision;
-    public double newThetaWithoutCollision;
-
-    public double VxRefRobot;
-    public double VyRefRobot;
-    public double Vtheta;
-
-    public bool Collision;
-
-    public PhysicalRobotSimulator(double xPos, double yPos)
+    public class PhysicalRobotSimulator
     {
-        X = xPos;
-        Y = yPos;
+        public double radius = 0.25;
+        public double X;
+        public double Y;
+        public double Theta;
+
+        public double newXWithoutCollision;
+        public double newYWithoutCollision;
+        public double newThetaWithoutCollision;
+
+        public double VxRefRobot;
+        public double VyRefRobot;
+        public double Vtheta;
+
+        public bool Collision;
+        public bool IsHandlingBall;
+
+
+
+        public PhysicalRobotSimulator(double xPos, double yPos)
+        {
+            X = xPos;
+            Y = yPos;
+            IsHandlingBall = false;
+        }
     }
-}
+
     public class PhysicalBallSimulator
     {
         public double radius = 0.115;
@@ -294,8 +346,8 @@ public class PhysicalRobotSimulator
         public double Z;
         public double Theta;
 
-        public double newXWithoutCollision;
-        public double newYWithoutCollision;
+        public double newX;
+        public double newY;
         public double newThetaWithoutCollision;
 
         public double Vx;
@@ -303,12 +355,15 @@ public class PhysicalRobotSimulator
         public double Vtheta;
 
         public bool Collision;
+        public bool isHandledByRobot = false;
+        public int handlingRobot;
+
 
         public PhysicalBallSimulator(double xPos, double yPos)
         {
             X = xPos;
             Y = yPos;
-            Vy = 8;
+            Vy = 0;
         }
     }
 }

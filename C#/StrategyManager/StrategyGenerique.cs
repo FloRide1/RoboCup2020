@@ -177,7 +177,8 @@ namespace StrategyManager
 
             //Génération de la HeatMap
             positioningHeatMap.InitHeatMapData();
-            positioningHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList, strictlyAllowedRectangleList, avoidanceConicalZoneList, preferredSegmentZoneList);
+            positioningHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList, 
+                strictlyAllowedRectangleList, avoidanceConicalZoneList, preferredSegmentZoneList);
 
             sw.Stop();
         }
