@@ -81,7 +81,10 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                         if (sw.ElapsedMilliseconds>3000)
                         {
                             /// On demande un tir ou une passe
+                            parent.OnShootRequest(parent.robotId, 2);
                         }
+                        if (!parent.isHandlingBall)
+                            state = TaskBallManagementState.PasDeBalle;
                         break;
 
                     default:

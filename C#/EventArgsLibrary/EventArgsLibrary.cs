@@ -322,11 +322,19 @@ namespace EventArgsLibrary
         public double accelY;
         public double accelZ;
     }
+
     public class CollisionEventArgs : EventArgs
     {
         public int RobotId { get; set; }
         public Location RobotRealPosition { get; set; }
     }
+
+    public class ShootEventArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+        public double shootingSpeed { get; set; }
+    }
+
     public class StringEventArgs : EventArgs
     {
         public string value { get; set; }

@@ -159,6 +159,7 @@ namespace TeamSimulator
             //strategyManager.strategy.OnHeatMapStrategyEvent += waypointGenerator.OnStrategyHeatMapReceived;
             strategyManager.strategy.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
             strategyManager.strategy.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
+            strategyManager.strategy.OnShootRequestEvent += physicalSimulator.OnShootOrderReceived;
             //waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
             trajectoryPlanner.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
 

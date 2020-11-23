@@ -362,7 +362,17 @@ namespace StrategyManagerNS
         //}
 
 
-        public delegate void NewWayPointEventHandler(object sender, LocationArgs e);
+        public event EventHandler<ShootEventArgs> OnShootRequestEvent;
+        public virtual void OnShootRequest(int id, double speed)
+        {
+            var handler = OnShootRequestEvent;
+            if (handler != null)
+            {
+                handler(this, new  ShootEventArgs { RobotId = id, shootingSpeed = speed});
+            }
+        }
+
+
         public event EventHandler<LocationArgs> OnWaypointEvent;
         public virtual void OnWaypoint(int id, Location wayPointlocation)
         {

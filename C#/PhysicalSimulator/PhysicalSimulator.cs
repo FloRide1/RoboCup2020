@@ -139,8 +139,27 @@ namespace PhysicalSimulator
                         /// Sinon elle rebondit
                         /// 
 
-                        if (!ballSimu.Value.isHandledByRobot)
+                        /// Si un tir est demandé
+                        if (robot.Value.IsShootRequested)
                         {
+                            robot.Value.IsShootRequested = false;
+                            if (ballSimu.Value.isHandledByRobot)
+                            {
+                                ballSimu.Value.VxRefTerrain = robot.Value.VxRefRobot * Math.Cos(robot.Value.Theta) - robot.Value.VyRefRobot * Math.Sin(robot.Value.Theta)
+                                    + robot.Value.ShootingSpeed * Math.Cos(robot.Value.Theta);
+                                ballSimu.Value.VyRefTerrain = robot.Value.VxRefRobot * Math.Sin(robot.Value.Theta) + robot.Value.VyRefRobot * Math.Cos(robot.Value.Theta)
+                                    + robot.Value.ShootingSpeed * Math.Sin(robot.Value.Theta);
+                                ballSimu.Value.isHandledByRobot = false;
+                                ballSimu.Value.handlingRobot = -1;
+                                robot.Value.IsHandlingBall = false;
+                            }
+                        }
+
+                        //Sinon, si la balle n'est pas en possession d'un robot
+                        else if (!ballSimu.Value.isHandledByRobot)
+                        {
+
+                            //SI la balle est en contact avec un robot
                             if (Toolbox.Distance(robot.Value.newXWithoutCollision, robot.Value.newYWithoutCollision, ballSimu.Value.newX, ballSimu.Value.newY) < 1 * (robot.Value.radius + ballSimu.Value.radius))
                             {
                                 double angleRobotBalle = Math.Atan2(ballSimu.Value.Y - robot.Value.Y, ballSimu.Value.X - robot.Value.X);
@@ -290,9 +309,22 @@ namespace PhysicalSimulator
             }
         }
 
+        public void RequestRobotShoot(int id, double shootingSpeed)
+        {
+            if (robotList.ContainsKey(id))
+            {
+                robotList[id].IsShootRequested = true;
+                robotList[id].ShootingSpeed = shootingSpeed;
+            }
+        }
+
         public void OnCollisionReceived(object sender, EventArgsLibrary.CollisionEventArgs e)
         {
             SetRobotPosition(e.RobotId, e.RobotRealPosition.X, e.RobotRealPosition.Y, e.RobotRealPosition.Theta);
+        }
+        public void OnShootOrderReceived(object sender, EventArgsLibrary.ShootEventArgs e)
+        {
+            RequestRobotShoot(e.RobotId, e.shootingSpeed);
         }
 
         //Output events
@@ -355,6 +387,8 @@ namespace PhysicalSimulator
 
         public bool Collision;
         public bool IsHandlingBall;
+        public bool IsShootRequested;
+        public double ShootingSpeed;
 
 
 
