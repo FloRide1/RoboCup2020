@@ -20,6 +20,7 @@ using HerkulexManagerNS;
 using Staudt.Engineering.LidaRx;
 using Staudt.Engineering.LidaRx.Drivers.R2000;
 using StrategyManagerEurobotNS;
+using Utilities;
 
 namespace Robot
 {
@@ -122,7 +123,8 @@ namespace Robot
         static GlobalWorldMapManager globalWorldMapManager;
                 
         static ImuProcessor.ImuProcessor imuProcessor;
-        static StrategyManagerEurobot strategyManager;
+        //static StrategyManagerEurobot strategyManager;
+        static new StrategyManagerNS.StrategyManager strategyManager;
         static PerceptionManager perceptionManager;        
         static LidaRxR2000 lidar_OMD60M_TCP;
         static XBoxController.XBoxController xBoxManette;
@@ -222,7 +224,8 @@ namespace Robot
             //robotUdpMulticastInterpreter = new UDPMulticastInterpreter(robotId);
 
             globalWorldMapManager = new GlobalWorldMapManager(robotId, "0.0.0.0", bypassMulticast: true);
-            strategyManager = new StrategyManagerEurobot(robotId, teamId);
+            //strategyManager = new StrategyManagerEurobot(robotId, teamId);
+            strategyManager = new StrategyManagerNS.StrategyManager(robotId, teamId, GameMode.Eurobot);
             waypointGenerator = new WaypointGenerator(robotId, Utilities.GameMode.Eurobot);
             trajectoryPlanner = new TrajectoryPlanner(robotId);
 
