@@ -22,6 +22,8 @@ using Staudt.Engineering.LidaRx.Drivers.R2000;
 using StrategyManagerEurobotNS;
 using Utilities;
 using System.Collections.Generic;
+using UdpMulticastInterpreter;
+using UDPMulticast;
 
 namespace Robot
 {
@@ -89,7 +91,7 @@ namespace Robot
         }
         #endregion
 
-        static RobotMode robotMode = RobotMode.NoLidar;
+        static RobotMode robotMode = RobotMode.Standard;
 
         static bool usingXBoxController;
         static bool usingLidar;
@@ -107,7 +109,7 @@ namespace Robot
         static MsgEncoder msgEncoder;
         static MsgGenerator robotMsgGenerator;
         static MsgProcessor robotMsgProcessor;
-        static WaypointGenerator waypointGenerator;
+        //static WaypointGenerator waypointGenerator;
         static TrajectoryPlanner trajectoryPlanner;
         static KalmanPositioning.KalmanPositioning kalmanPositioning;
 
@@ -119,9 +121,9 @@ namespace Robot
         //static UDPMulticastSender baseStationUdpMulticastSender = null;
         //static UDPMulticastReceiver baseStationUdpMulticastReceiver = null;
         //static UDPMulticastInterpreter baseStationUdpMulticastInterpreter = null;
-        //static UDPMulticastSender robotUdpMulticastSender = null;
-        //static UDPMulticastReceiver robotUdpMulticastReceiver = null;
-        //static UDPMulticastInterpreter robotUdpMulticastInterpreter = null;
+        static UDPMulticastSender robotUdpMulticastSender = null;
+        static UDPMulticastReceiver robotUdpMulticastReceiver = null;
+        static UDPMulticastInterpreter robotUdpMulticastInterpreter = null;
 
         static GlobalWorldMapManager globalWorldMapManager;
                 
@@ -212,14 +214,14 @@ namespace Robot
             robotMsgGenerator = new MsgGenerator();
             robotMsgProcessor = new MsgProcessor(Competition.Eurobot);
             
-            int robotId =  (int)RobotId.Robot1;
+            
             int teamId = (int)TeamId.Team1;
-
+            int robotId =  (int)RobotId.Robot1 + teamId;
             perceptionManager = new PerceptionManager(robotId);
             imuProcessor = new ImuProcessor.ImuProcessor(robotId);
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
 
-            localWorldMapManager = new LocalWorldMapManager(robotId, teamId, bypassMulticast:true);
+            localWorldMapManager = new LocalWorldMapManager(robotId, teamId, bypassMulticast:false);
             strategyManagerDictionary = new Dictionary<int, StrategyManagerNS.StrategyManager>();
 
 
@@ -228,16 +230,16 @@ namespace Robot
             //baseStationUdpMulticastReceiver = new UDPMulticastReceiver(0, "224.16.32.79");
             //baseStationUdpMulticastInterpreter = new UDPMulticastInterpreter(0);
 
-            //robotUdpMulticastSender = new UDPMulticastSender(robotId, "224.16.32.79");
-            //robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, "224.16.32.79");
-            //robotUdpMulticastInterpreter = new UDPMulticastInterpreter(robotId);
+            robotUdpMulticastSender = new UDPMulticastSender(robotId, "224.16.32.79");
+            robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, "224.16.32.79");
+            robotUdpMulticastInterpreter = new UDPMulticastInterpreter(robotId);
 
             globalWorldMapManager = new GlobalWorldMapManager(robotId, "0.0.0.0", bypassMulticast: true);
             //strategyManager = new StrategyManagerEurobot(robotId, teamId);
             strategyManager = new StrategyManagerNS.StrategyManager(robotId, teamId, GameMode.Eurobot);
             //On effectue un cast explicite afin d'utiliser les methodes d'extension definies dans StrategyEurobots2021
             strategyEurobot = strategyManager.strategy as StrategyManagerNS.StrategyEurobot2021;
-            waypointGenerator = new WaypointGenerator(robotId, Utilities.GameMode.Eurobot);
+            //waypointGenerator = new WaypointGenerator(robotId, Utilities.GameMode.Eurobot);
             trajectoryPlanner = new TrajectoryPlanner(robotId);
 
             herkulexManager = new HerkulexManager();
@@ -270,10 +272,10 @@ namespace Robot
 
             //Liens entre modules
             //strategyManager.strategy.OnRefereeBoxCommandEvent += globalWorldMapManager.OnRefereeBoxCommandReceived;
-            strategyManager.strategy.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
+            //trategyManager.strategy.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
             strategyManager.strategy.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
             strategyManager.strategy.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
-            strategyManager.strategy.OnHeatMapStrategyEvent += waypointGenerator.OnStrategyHeatMapReceived;
+            //strategyManager.strategy.OnHeatMapStrategyEvent += waypointGenerator.OnStrategyHeatMapReceived;
 
             //Kalman
             perceptionManager.OnAbsolutePositionEvent += kalmanPositioning.OnAbsolutePositionCalculatedEvent;
@@ -347,18 +349,18 @@ namespace Robot
             trajectoryPlanner.OnPidSpeedResetEvent += robotMsgGenerator.GenerateMessageResetSpeedPid;
 
             ////Event d'interprétation d'une globalWorldMap à sa réception dans le robot
-            //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += strategyManager.strategy.OnGlobalWorldMapReceived;
-            ////robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
+            robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += strategyManager.strategy.OnGlobalWorldMapReceived;
+            //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
             //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
 
             ////Event de Transmission des Local World Map du robot vers le multicast
-            //localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
+            localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
 
             //On essaie d'enlever la communication UDP interne
-            localWorldMapManager.OnLocalWorldMapBypassEvent += globalWorldMapManager.OnLocalWorldMapReceived;
-            globalWorldMapManager.OnGlobalWorldMapBypassEvent += strategyManager.strategy.OnGlobalWorldMapReceived;
-            globalWorldMapManager.OnGlobalWorldMapBypassEvent += waypointGenerator.OnGlobalWorldMapReceived;
-            globalWorldMapManager.OnGlobalWorldMapBypassEvent += perceptionManager.OnGlobalWorldMapReceived;
+            //localWorldMapManager.OnLocalWorldMapBypassEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+            //globalWorldMapManager.OnGlobalWorldMapBypassEvent += strategyManager.strategy.OnGlobalWorldMapReceived;
+            //globalWorldMapManager.OnGlobalWorldMapBypassEvent += waypointGenerator.OnGlobalWorldMapReceived;
+            //globalWorldMapManager.OnGlobalWorldMapBypassEvent += perceptionManager.OnGlobalWorldMapReceived;
 
             //Events de recording
             if (usingLogging)
@@ -411,7 +413,7 @@ namespace Robot
 
             for (int i = 0; i < 1; i++)
             {
-                strategyManagerDictionary[(int)0].SetRole((RobotRole)roleList[i]);
+                strategyManagerDictionary[(int)10].SetRole((RobotRole)roleList[i]);
                 //strategyManagerDictionary[(int)TeamId.Team1 + i].ProcessStrategy();
             }
 

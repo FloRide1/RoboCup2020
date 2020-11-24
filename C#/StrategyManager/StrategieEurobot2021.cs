@@ -57,7 +57,7 @@ namespace StrategyManagerNS
 
 
         Stopwatch sw = new Stopwatch();
-        Timer timerStrategy;
+        //Timer timerStrategy;
 
         public TaskBrasGauche taskBrasGauche;
         public TaskBrasDroit taskBrasDroit;
@@ -86,11 +86,11 @@ namespace StrategyManagerNS
             globalWorldMap = new GlobalWorldMap();
 
             InitHeatMap();
+            //timerStrategy = new Timer();
+            //timerStrategy.Interval = 50;
+            //timerStrategy.Elapsed += TimerStrategy_Elapsed;
+            //timerStrategy.Start();
 
-            timerStrategy = new Timer();
-            timerStrategy.Interval = 50;
-            timerStrategy.Elapsed += TimerStrategy_Elapsed;
-            timerStrategy.Start();
         }
         public void  InitStrategy(int robotId, int teamId)
         {
@@ -199,19 +199,143 @@ namespace StrategyManagerNS
             InitAvoidanceConicalZoneList();
             InitPreferredSegmentZoneList();
 
-            switch (role)
+            switch (globalWorldMap.gameState)
             {
-                case RobotRole.Eurobot_gros_robot:
-                    /// Gestion du cas du gros robot
-                    /// Exclusion de tout le terrain sauf la surface de réparation
-                    /// Ajout d'une zone préférentielle centrée sur le but
-                    /// Réglage du cap pour faire toujours face à la balle
-                    
-
-                    
+                case GameState.STOPPED:
+                    //if (globalWorldMap.teammateLocationList.ContainsKey(robotId))
+                    //    robotDestination = new PointD(globalWorldMap.teammateLocationList[robotId].X, globalWorldMap.teammateLocationList[robotId].Y);
                     break;
+                case GameState.PLAYING:
+                    //C'est ici qu'il faut calculer les fonctions de cout pour chacun des roles.
 
+                    break;
+                case GameState.STOPPED_GAME_POSITIONING:
+                    switch (globalWorldMap.stoppedGameAction)
+                    {
+                        case StoppedGameAction.KICKOFF:
+                            switch (robotId)
+                            {
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
+                                    robotDestination = new PointD(10, 0);
+                                    break;
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot2:
+                                    robotDestination = new PointD(-1, 2);
+                                    break;
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot3:
+                                    robotDestination = new PointD(1, -2);
+                                    break;
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot4:
+                                    robotDestination = new PointD(6, -3);
+                                    break;
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot5:
+                                    robotDestination = new PointD(6, 3);
+                                    break;
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot1:
+                                    robotDestination = new PointD(-10, 0);
+                                    break;
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot2:
+                                    robotDestination = new PointD(1, 2);
+                                    break;
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot3:
+                                    robotDestination = new PointD(-1, -2);
+                                    break;
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot4:
+                                    robotDestination = new PointD(-6, -3);
+                                    break;
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot5:
+                                    robotDestination = new PointD(-6, 3);
+                                    break;
+                            }
+                            break;
+
+                        case StoppedGameAction.GOTO_0_1:
+                            switch (robotId)
+                            {
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
+                                    AddPreferedZone(new PointD(0, 1), 0.2);
+                                    break;
+                            }
+                            break;
+
+                        case StoppedGameAction.GOTO_1_0:
+                            switch (robotId)
+                            {
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
+                                    AddPreferedZone(new PointD(1, 0), 0.2);
+                                    robotOrientation = 0;
+                                    break;
+                            }
+                            break;
+
+                        case StoppedGameAction.GOTO_0_M1:
+                            switch (robotId)
+                            {
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
+                                    AddPreferedZone(new PointD(0, -0), 0.2);
+                                    robotOrientation = Math.PI;
+                                    break;
+                            }
+                            break;
+
+                        case StoppedGameAction.GOTO_M1_0:
+                            switch (robotId)
+                            {
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
+                                    AddPreferedZone(new PointD(-1, 0), 0.2);
+                                    robotOrientation = 3 * Math.PI / 2;
+                                    break;
+                            }
+                            break;
+
+                        case StoppedGameAction.GOTO_0_0:
+                            switch (robotId)
+                            {
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
+                                    AddPreferedZone(new PointD(0, 0), 0.2);
+                                    robotOrientation = 0;
+                                    break;
+                            }
+                            break;
+
+                        case StoppedGameAction.KICKOFF_OPPONENT:
+                            switch (robotId)
+                            {
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot1:
+                                    robotDestination = new PointD(10, 0);
+                                    break;
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot2:
+                                    robotDestination = new PointD(1, 2);
+                                    break;
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot3:
+                                    robotDestination = new PointD(1, -2);
+                                    break;
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot4:
+                                    robotDestination = new PointD(6, -3);
+                                    break;
+                                case (int)TeamId.Team1 + (int)Constants.RobotId.Robot5:
+                                    robotDestination = new PointD(6, 3);
+                                    break;
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot1:
+                                    robotDestination = new PointD(-10, 0);
+                                    break;
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot2:
+                                    robotDestination = new PointD(-1, 2);
+                                    break;
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot3:
+                                    robotDestination = new PointD(-1, -2);
+                                    break;
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot4:
+                                    robotDestination = new PointD(-6, -3);
+                                    break;
+                                case (int)TeamId.Team2 + (int)Constants.RobotId.Robot5:
+                                    robotDestination = new PointD(-6, 3);
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
             }
+
         }
 
 
@@ -248,68 +372,68 @@ namespace StrategyManagerNS
         }
 
 
-        private void TimerStrategy_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            //Le joueur détermine sa stratégie
-            DetermineRobotRole();
+        //private void TimerStrategy_Elapsed(object sender, ElapsedEventArgs e)
+        //{
+        //    //Le joueur détermine sa stratégie
+        //    DetermineRobotRole();
 
-            IterateStateMachines();
-            var optimalPosition = GetOptimalDestination();
+        //    IterateStateMachines();
+        //    var optimalPosition = GetOptimalDestination();
 
-            List<LocationExtended> obstacleList = new List<LocationExtended>();
+        //    List<LocationExtended> obstacleList = new List<LocationExtended>();
 
-            double seuilDetectionObstacle = 0.4;
+        //    double seuilDetectionObstacle = 0.4;
 
-            //Construction de la liste des obstacles en enlevant le robot lui-même
-            lock (globalWorldMap)
-            {
-                if (globalWorldMap.obstacleLocationList != null)
-                {
-                    foreach (var obstacle in globalWorldMap.obstacleLocationList)
-                    {
-                        if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(robotCurrentLocation.X, robotCurrentLocation.Y)) > seuilDetectionObstacle)
-                            obstacleList.Add(obstacle);
-                    }
-                }
-                if (globalWorldMap.teammateLocationList != null)
-                {
-                    foreach (var teammate in globalWorldMap.teammateLocationList)
-                    {
-                        if (teammate.Key != robotId)
-                            obstacleList.Add(new LocationExtended(teammate.Value.X, teammate.Value.Y, 0, 0, 0, 0, ObjectType.Robot));
-                    }
-                }
-            }
+        //    //Construction de la liste des obstacles en enlevant le robot lui-même
+        //    lock (globalWorldMap)
+        //    {
+        //        if (globalWorldMap.obstacleLocationList != null)
+        //        {
+        //            foreach (var obstacle in globalWorldMap.obstacleLocationList)
+        //            {
+        //                if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(robotCurrentLocation.X, robotCurrentLocation.Y)) > seuilDetectionObstacle)
+        //                    obstacleList.Add(obstacle);
+        //            }
+        //        }
+        //        if (globalWorldMap.teammateLocationList != null)
+        //        {
+        //            foreach (var teammate in globalWorldMap.teammateLocationList)
+        //            {
+        //                if (teammate.Key != robotId)
+        //                    obstacleList.Add(new LocationExtended(teammate.Value.X, teammate.Value.Y, 0, 0, 0, 0, ObjectType.Robot));
+        //            }
+        //        }
+        //    }
 
-            //robotCurrentLocation = new Location(10, 3.5, 0, 0, 0, 0);
-            //obstacleList.Add(new LocationExtended(9.8, 6, 0, 0, 0, 0, ObjectType.Robot));
-            //obstacleList.Add(new LocationExtended(-5, 0, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(10, -4, 0, 0, 0, 0, ObjectType.Robot));
-            //obstacleList.Add(new LocationExtended(-0.2, -0.2, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(0.2, 0.3, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(2, -2, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(-2, -2, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(-3, 0, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(-0, -4, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(-0, 4, 0, 0, 0, 0, ObjectType.Obstacle));
+        //    //robotCurrentLocation = new Location(10, 3.5, 0, 0, 0, 0);
+        //    //obstacleList.Add(new LocationExtended(9.8, 6, 0, 0, 0, 0, ObjectType.Robot));
+        //    //obstacleList.Add(new LocationExtended(-5, 0, 0, 0, 0, 0, ObjectType.Obstacle));
+        //    //obstacleList.Add(new LocationExtended(10, -4, 0, 0, 0, 0, ObjectType.Robot));
+        //    //obstacleList.Add(new LocationExtended(-0.2, -0.2, 0, 0, 0, 0, ObjectType.Obstacle));
+        //    //obstacleList.Add(new LocationExtended(0.2, 0.3, 0, 0, 0, 0, ObjectType.Obstacle));
+        //    //obstacleList.Add(new LocationExtended(2, -2, 0, 0, 0, 0, ObjectType.Obstacle));
+        //    //obstacleList.Add(new LocationExtended(-2, -2, 0, 0, 0, 0, ObjectType.Obstacle));
+        //    //obstacleList.Add(new LocationExtended(-3, 0, 0, 0, 0, 0, ObjectType.Obstacle));
+        //    //obstacleList.Add(new LocationExtended(-0, -4, 0, 0, 0, 0, ObjectType.Obstacle));
+        //    //obstacleList.Add(new LocationExtended(-0, 4, 0, 0, 0, 0, ObjectType.Obstacle));
 
-            //Renvoi de la HeatMap Stratégie
-            OnHeatMapStrategy(robotId, positioningHeatMap);
+        //    //Renvoi de la HeatMap Stratégie
+        //    OnHeatMapStrategy(robotId, positioningHeatMap);
 
-            //Calcul de la HeatMap WayPoint
-            positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, 0.5);
+        //    //Calcul de la HeatMap WayPoint
+        //    positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, 0.5);
 
-            OnHeatMapWayPoint(robotId, positioningHeatMap);
-            var optimalWayPoint = GetOptimalDestination();
+        //    OnHeatMapWayPoint(robotId, positioningHeatMap);
+        //    var optimalWayPoint = GetOptimalDestination();
 
-            //Mise à jour de la destination
-            OnDestination(robotId, new Location((float)optimalPosition.X, (float)optimalPosition.Y, (float)robotOrientation, 0, 0, 0));
-            OnWaypoint(robotId, new Location((float)optimalWayPoint.X, (float)optimalWayPoint.Y, (float)robotOrientation, 0, 0, 0));
-        }
+        //    //Mise à jour de la destination
+        //    OnDestination(robotId, new Location((float)optimalPosition.X, (float)optimalPosition.Y, (float)robotOrientation, 0, 0, 0));
+        //    OnWaypoint(robotId, new Location((float)optimalWayPoint.X, (float)optimalWayPoint.Y, (float)robotOrientation, 0, 0, 0));
+        //}
 
         public override void DetermineRobotRole() //A définir dans les classes héritées
         {
-            ;
+            DefinePlayerZones(RobotRole.Eurobot_gros_robot);
         }
 
         public override void IterateStateMachines() //A définir dans les classes héritées
@@ -318,9 +442,8 @@ namespace StrategyManagerNS
         }
         public override void InitHeatMap()
         {
-            positioningHeatMap = new Heatmap(3.0, 2.0, (int)Math.Pow(2, 7)); //Init HeatMap Eurobot
-        }
-       
+            positioningHeatMap = new Heatmap(3.0, 2.0, (int)Math.Pow(2, 9)); //Init HeatMap Eurobot
+        }       
         public PointD GetOptimalDestination()
         {
             PointD optimalPosition = positioningHeatMap.GetOptimalPosition();

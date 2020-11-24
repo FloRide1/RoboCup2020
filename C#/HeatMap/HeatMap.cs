@@ -81,52 +81,6 @@ namespace HeatMap
             return distTerrain / FieldLength * (nbCellInBaseHeatMapWidth - 1);
         }
 
-        //public PointD GetFieldPosFromSubSampledHeatMapCoordinates(double x, double y, int n)
-        //{
-        //    return new PointD(-HalfFieldLength + x * BaseXCellSize, -HalfFieldHeight + y * BaseYCellSize);
-        //}
-
-        //double max = double.NegativeInfinity;
-        //int maxPosX = 0;
-        //int maxPosY = 0;
-
-        ////public PointD GetMaxPositionInBaseHeatMap()
-        ////{
-        ////    //Fonction couteuse en temps : à éviter !
-        ////    max = double.NegativeInfinity;
-        ////    for (int y = 0; y < nbCellInBaseHeatMapHeight; y++)
-        ////    {
-        ////        for (int x = 0; x < nbCellInBaseHeatMapWidth; x++)
-        ////        {
-        ////            if (BaseHeatMapData[y, x] > max)
-        ////            {
-        ////                max = BaseHeatMapData[y, x];
-        ////                maxPosX = x;
-        ////                maxPosY = y;
-        ////            }
-        ////        }
-        ////    }
-        ////    return GetFieldPosFromBaseHeatMapCoordinates(maxPosX, maxPosY);
-        ////}
-        ////public PointD GetMaxPositionInBaseHeatMapCoordinates()
-        ////{
-        ////    //Fonction couteuse en temps : à éviter
-        ////    max = double.NegativeInfinity;
-        ////    for (int y = 0; y < nbCellInBaseHeatMapHeight; y++)
-        ////    {
-        ////        for (int x = 0; x < nbCellInBaseHeatMapWidth; x++)
-        ////        {
-        ////            if (BaseHeatMapData[y, x] > max)
-        ////            {
-        ////                max = BaseHeatMapData[y, x];
-        ////                maxPosX = x;
-        ////                maxPosY = y;
-        ////            }
-        ////        }
-        ////    }
-        ////    return new PointD(maxPosX, maxPosY);
-        ////}
-
         public void GenerateHeatMap(List<Zone> preferredZonesList, List<Zone> avoidanceZonesList, List<RectangleZone> forbiddenRectangleList, 
             List<RectangleZone> strictlyAllowedRectangleList, List<ConicalZone> avoidanceConicalZoneList, List<SegmentZone> preferredSegmentZoneList)
         {
@@ -592,8 +546,33 @@ namespace HeatMap
 
             //Détermination
             double[] tabMax = new double[nbCellInBaseHeatMapHeight];
+            //double[] tabMin = new double[nbCellInBaseHeatMapHeight];
             int[] tabIndexMax = new int[nbCellInBaseHeatMapHeight];
+            //int[] tabIndexMin = new int[nbCellInBaseHeatMapHeight];
+
+            //double max = Double.NegativeInfinity;
+            //double min = 0;
+            //int xMax = 0;
+            //int yMax = 0;
+            //for (int i = 0; i < nbCellInBaseHeatMapHeight; i++)
+            //{
+            //    for (int j = 0; j < nbCellInBaseHeatMapWidth; j++)
+            //    {
+            //        if (BaseHeatMapData[i, j] > max)
+            //        {
+            //            max = BaseHeatMapData[i, j];
+            //            yMax = i;
+            //            xMax = j;
+            //        }
+            //    }
+            //}
+
+            ////On a le point dans le référentiel de la heatMap, on la passe en référentiel Terrain
+            //return GetFieldPosFromBaseHeatMapCoordinates(xMax, yMax);
+
+
             Parallel.For(0, nbCellInBaseHeatMapHeight, i =>
+            //for (int i = 0; i < nbCellInBaseHeatMapHeight; i++)
             {
                 tabMax[i] = 0;
                 tabIndexMax[i] = 0;
@@ -605,11 +584,13 @@ namespace HeatMap
                         tabIndexMax[i] = j;
                     }
                 }
-            });
+            }
+            );
 
             //Recherche du maximum
             double max = 0;
             int indexMax = 0;
+
             for (int i = 0; i < nbCellInBaseHeatMapHeight; i++)
             {
                 if (tabMax[i] > max)
@@ -619,23 +600,17 @@ namespace HeatMap
                 }
             }
 
-            if (max > minimumPossibleValue)
-            {
-                int maxYpos = indexMax;// indexMax % heatMap.nbCellInBaseHeatMapWidth;
-                int maxXpos = tabIndexMax[indexMax];// indexMax / heatMap.nbCellInBaseHeatMapWidth;
-
-                if (maxXpos == 0 && maxYpos == 0)
-                {
-                    int toto = 0;
-                }
-                //On a le point dans le référentiel de la heatMap, on la passe en référentiel Terrain
-                return GetFieldPosFromBaseHeatMapCoordinates(maxXpos, maxYpos);
-            }
+            int maxYpos = indexMax;// indexMax % heatMap.nbCellInBaseHeatMapWidth;
+            int maxXpos = tabIndexMax[indexMax];// indexMax / heatMap.nbCellInBaseHeatMapWidth;
+            if (maxXpos == 0 && maxYpos == 0 && ((max == 0) || (max == -1)))
+                return null;
             else
             {
-                return null;
+                //On a le point dans le référentiel de la heatMap, on la passe en référentiel Terrain
+                //return new PointD(maxXpos, maxYpos);
+                return GetFieldPosFromBaseHeatMapCoordinates(maxXpos, maxYpos);
             }
-            //return new PointD(maxXpos, maxYpos);
+
         }
     }
 }

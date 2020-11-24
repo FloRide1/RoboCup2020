@@ -166,42 +166,42 @@ namespace PerceptionManagement
                         }
                     }
 
-                    double borderAvoidanceZone = 0.05;
-                    //On rajoute les bordures du terrain à la main :
-                    physicalObjectList.Add(new LocationExtended(0, -1+ borderAvoidanceZone, 0, 0, 0, 0, ObjectType.LimiteHorizontaleBasse));
-                    physicalObjectList.Add(new LocationExtended(0, 1- borderAvoidanceZone, 0, 0, 0, 0, ObjectType.LimiteHorizontaleHaute));
-                    physicalObjectList.Add(new LocationExtended(-1.5+ borderAvoidanceZone, 0, 0, 0, 0, 0, ObjectType.LimiteVerticaleGauche));
-                    physicalObjectList.Add(new LocationExtended(1.5- borderAvoidanceZone, 0, 0, 0, 0, 0, ObjectType.LimiteVerticaleDroite));
+                    //double borderAvoidanceZone = 0.05;
+                    ////On rajoute les bordures du terrain à la main :
+                    //physicalObjectList.Add(new LocationExtended(0, -1+ borderAvoidanceZone, 0, 0, 0, 0, ObjectType.LimiteHorizontaleBasse));
+                    //physicalObjectList.Add(new LocationExtended(0, 1- borderAvoidanceZone, 0, 0, 0, 0, ObjectType.LimiteHorizontaleHaute));
+                    //physicalObjectList.Add(new LocationExtended(-1.5+ borderAvoidanceZone, 0, 0, 0, 0, 0, ObjectType.LimiteVerticaleGauche));
+                    //physicalObjectList.Add(new LocationExtended(1.5- borderAvoidanceZone, 0, 0, 0, 0, 0, ObjectType.LimiteVerticaleDroite));
 
-                    if (playingTeam == Equipe.Jaune)
-                    {
-                        physicalObjectList.Add(new LocationExtended(1.05, 0.08, 0, 0, 0, 0, ObjectType.Obstacle));
-                        physicalObjectList.Add(new LocationExtended(1.05, -0.49, 0, 0, 0, 0, ObjectType.Obstacle));
-                        physicalObjectList.Add(new LocationExtended(1.3, 0.08, 0, 0, 0, 0, ObjectType.Obstacle));
-                        physicalObjectList.Add(new LocationExtended(1.3, -0.49, 0, 0, 0, 0, ObjectType.Obstacle));
-                        physicalObjectList.Add(new LocationExtended(1.05, (0.08 - 0.49) / 2.0, 0, 0, 0, 0, ObjectType.Obstacle));
-                    }
-                    else if (playingTeam == Equipe.Bleue)
-                    {
-                        physicalObjectList.Add(new LocationExtended(-1.05, 0.08, 0, 0, 0, 0, ObjectType.Obstacle));
-                        physicalObjectList.Add(new LocationExtended(-1.3, 0.08, 0, 0, 0, 0, ObjectType.Obstacle));
-                        physicalObjectList.Add(new LocationExtended(-1.05, -0.49, 0, 0, 0, 0, ObjectType.Obstacle));
-                        physicalObjectList.Add(new LocationExtended(-1.3, -0.49, 0, 0, 0, 0, ObjectType.Obstacle));
-                        physicalObjectList.Add(new LocationExtended(-1.05, (0.08-0.49)/2.0, 0, 0, 0, 0, ObjectType.Obstacle));
-                    }
-                    physicalObjectList.Add(new LocationExtended(0, 0.7, 0, 0, 0, 0, ObjectType.Obstacle));
-                    physicalObjectList.Add(new LocationExtended(-0.611, 0.85, 0, 0, 0, 0, ObjectType.Obstacle));
-                    physicalObjectList.Add(new LocationExtended(0.611, 0.85, 0, 0, 0, 0, ObjectType.Obstacle));
-                    //for (double x = -1.5; x <= 1.5; x += 0.35)
+                    //if (playingTeam == Equipe.Jaune)
                     //{
-                    //    physicalObjectList.Add(new LocationExtended(x, -1, 0, 0, 0, 0, ObjectType.Obstacle));
-                    //    physicalObjectList.Add(new LocationExtended(x, 1, 0, 0, 0, 0, ObjectType.Obstacle));
+                    //    physicalObjectList.Add(new LocationExtended(1.05, 0.08, 0, 0, 0, 0, ObjectType.Obstacle));
+                    //    physicalObjectList.Add(new LocationExtended(1.05, -0.49, 0, 0, 0, 0, ObjectType.Obstacle));
+                    //    physicalObjectList.Add(new LocationExtended(1.3, 0.08, 0, 0, 0, 0, ObjectType.Obstacle));
+                    //    physicalObjectList.Add(new LocationExtended(1.3, -0.49, 0, 0, 0, 0, ObjectType.Obstacle));
+                    //    physicalObjectList.Add(new LocationExtended(1.05, (0.08 - 0.49) / 2.0, 0, 0, 0, 0, ObjectType.Obstacle));
                     //}
-                    //for (double y = -0.8; y <= 0.8; y += 0.35)
+                    //else if (playingTeam == Equipe.Bleue)
                     //{
-                    //    physicalObjectList.Add(new LocationExtended(-1.5, y, 0, 0, 0, 0, ObjectType.Obstacle));
-                    //    physicalObjectList.Add(new LocationExtended(1.5, y, 0, 0, 0, 0, ObjectType.Obstacle));
+                    //    physicalObjectList.Add(new LocationExtended(-1.05, 0.08, 0, 0, 0, 0, ObjectType.Obstacle));
+                    //    physicalObjectList.Add(new LocationExtended(-1.3, 0.08, 0, 0, 0, 0, ObjectType.Obstacle));
+                    //    physicalObjectList.Add(new LocationExtended(-1.05, -0.49, 0, 0, 0, 0, ObjectType.Obstacle));
+                    //    physicalObjectList.Add(new LocationExtended(-1.3, -0.49, 0, 0, 0, 0, ObjectType.Obstacle));
+                    //    physicalObjectList.Add(new LocationExtended(-1.05, (0.08-0.49)/2.0, 0, 0, 0, 0, ObjectType.Obstacle));
                     //}
+                    //physicalObjectList.Add(new LocationExtended(0, 0.7, 0, 0, 0, 0, ObjectType.Obstacle));
+                    //physicalObjectList.Add(new LocationExtended(-0.611, 0.85, 0, 0, 0, 0, ObjectType.Obstacle));
+                    //physicalObjectList.Add(new LocationExtended(0.611, 0.85, 0, 0, 0, 0, ObjectType.Obstacle));
+                    ////for (double x = -1.5; x <= 1.5; x += 0.35)
+                    ////{
+                    ////    physicalObjectList.Add(new LocationExtended(x, -1, 0, 0, 0, 0, ObjectType.Obstacle));
+                    ////    physicalObjectList.Add(new LocationExtended(x, 1, 0, 0, 0, 0, ObjectType.Obstacle));
+                    ////}
+                    ////for (double y = -0.8; y <= 0.8; y += 0.35)
+                    ////{
+                    ////    physicalObjectList.Add(new LocationExtended(-1.5, y, 0, 0, 0, 0, ObjectType.Obstacle));
+                    ////    physicalObjectList.Add(new LocationExtended(1.5, y, 0, 0, 0, 0, ObjectType.Obstacle));
+                    ////}
                 }
             }
         }

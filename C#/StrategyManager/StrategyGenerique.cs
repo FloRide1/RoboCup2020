@@ -56,6 +56,7 @@ namespace StrategyManagerNS
         public bool isHandlingBall = false;
 
         Stopwatch sw = new Stopwatch();
+        Stopwatch swGlobal = new Stopwatch();
         Timer timerStrategy;
 
         public StrategyGenerique(int robotId, int teamId)
@@ -119,21 +120,37 @@ namespace StrategyManagerNS
                 Console.WriteLine("Probleme d'ID robot");
         }
 
+        bool displayConsole = false;
         private void TimerStrategy_Elapsed(object sender, ElapsedEventArgs e)
         {
+            swGlobal.Restart();
             //Le joueur détermine sa stratégie
+            sw.Restart();
             DetermineRobotRole();
+            if(displayConsole)
+                Console.WriteLine("Tps calcul détermination des rôles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
 
+            sw.Restart();
             IterateStateMachines();
+            if (displayConsole)
+                Console.WriteLine("Tps calcul State machines : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
 
 
+            sw.Restart();
             PositioningHeatMapGeneration();
+            if (displayConsole)
+                Console.WriteLine("Tps calcul Heatmap Destination : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
+
+            sw.Restart();
             var optimalPosition = GetOptimalDestination();
+            if (displayConsole)
+                Console.WriteLine("Tps calcul Get Optimal Destination : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
 
             List<LocationExtended> obstacleList = new List<LocationExtended>();
 
             double seuilDetectionObstacle = 0.4;
 
+            sw.Restart();
             //Construction de la liste des obstacles en enlevant le robot lui-même
             lock (globalWorldMap)
             {
@@ -154,31 +171,49 @@ namespace StrategyManagerNS
                     }
                 }
             }
-
-            //robotCurrentLocation = new Location(10, 3.5, 0, 0, 0, 0);
-            //obstacleList.Add(new LocationExtended(9.8, 6, 0, 0, 0, 0, ObjectType.Robot));
-            //obstacleList.Add(new LocationExtended(-5, 0, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(10, -4, 0, 0, 0, 0, ObjectType.Robot));
-            //obstacleList.Add(new LocationExtended(-0.2, -0.2, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(0.2, 0.3, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(2, -2, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(-2, -2, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(-3, 0, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(-0, -4, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(-0, 4, 0, 0, 0, 0, ObjectType.Obstacle));
+            if (displayConsole)
+                Console.WriteLine("Tps calcul Génération obstacles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
 
             //Renvoi de la HeatMap Stratégie
+            sw.Restart();
             OnHeatMapStrategy(robotId, positioningHeatMap);
+            if (displayConsole)
+                Console.WriteLine("Tps envoi strat Heatmap : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
 
-            //Calcul de la HeatMap WayPoint
+            /// Calcul de la HeatMap WayPoint
+            sw.Restart();
             positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, 0.5);
+            if (displayConsole)
+                Console.WriteLine("Tps calcul zones exclusion obstacles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
 
+            sw.Restart();
             OnHeatMapWayPoint(robotId, positioningHeatMap);
+            if (displayConsole)
+                Console.WriteLine("Tps calcul HeatMap WayPoint : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
+
+            sw.Restart();
             var optimalWayPoint = GetOptimalDestination();
+            if (displayConsole)
+                Console.WriteLine("Tps calcul Get Optimal Waypoint : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure mesure
 
             //Mise à jour de la destination
-            OnDestination(robotId, new Location((float)optimalPosition.X, (float)optimalPosition.Y, (float)robotOrientation, 0, 0, 0));
-            OnWaypoint(robotId, new Location((float)optimalWayPoint.X, (float)optimalWayPoint.Y, (float)robotOrientation, 0, 0, 0));
+            sw.Restart();
+            if (optimalPosition==null)
+                OnDestination(robotId, new Location((float)robotCurrentLocation.X, (float)robotCurrentLocation.Y, (float)robotOrientation, 0, 0, 0));
+            else
+                OnDestination(robotId, new Location((float)optimalPosition.X, (float)optimalPosition.Y, (float)robotOrientation, 0, 0, 0));
+
+            if(optimalWayPoint==null)
+                OnWaypoint(robotId, new Location((float)robotCurrentLocation.X, (float)robotCurrentLocation.Y, (float)robotOrientation, 0, 0, 0));
+            else
+                OnWaypoint(robotId, new Location((float)optimalWayPoint.X, (float)optimalWayPoint.Y, (float)robotOrientation, 0, 0, 0));
+
+            if (displayConsole)
+                Console.WriteLine("Tps events waypoint et destination : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
+            
+            
+            Console.WriteLine("Tps calcul Global Stratégie : " + swGlobal.Elapsed.TotalMilliseconds.ToString("N4") + " ms \n\n"); // Affichage de la mesure globale
+
         }
 
         public abstract void DetermineRobotRole(); //A définir dans les classes héritées
