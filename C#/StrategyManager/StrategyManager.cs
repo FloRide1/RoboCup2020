@@ -14,7 +14,7 @@ using System.Timers;
 using Constants;
 using HerkulexManagerNS;
 using StrategyManagerNS.StrategyRoboCupNS;
-using StrategyManager.StrategyEurobotNS;
+
 
 namespace StrategyManagerNS
 {
@@ -27,9 +27,9 @@ namespace StrategyManagerNS
         int teamId = 0;
 
         string DisplayName;
-        
-        
-        PlayerRole robotRole = PlayerRole.Stop;
+
+
+        RobotRole robotRole = RobotRole.Stopped;
         PointD robotDestination = new PointD(0, 0);
         double robotOrientation = 0;
         
@@ -48,7 +48,7 @@ namespace StrategyManagerNS
                     strategy = new StrategyRoboCup(robotId, teamId);
                     break;
                 case GameMode.Eurobot:
-                    strategy = new StrategyEurobot(robotId, teamId);
+                    strategy = new StrategyEurobot2021(robotId, teamId);
                     break;
                 case GameMode.Demo:
                     break;
@@ -97,7 +97,7 @@ namespace StrategyManagerNS
         
         
 
-        void SetRobotDestination(PlayerRole role)
+        void SetRobotDestination(RobotRole role)
         {
             //switch (globalWorldMap.gameState)
             //{
@@ -318,7 +318,7 @@ namespace StrategyManagerNS
             else
                 return null;
         }
-        public void SetRole(PlayerRole role)
+        public void SetRole(RobotRole role)
         {
             robotRole = role;
         }
@@ -331,16 +331,19 @@ namespace StrategyManagerNS
 
 
 
-    public enum PlayerRole
-    {
-        Stop,
-        Gardien,
-        DefenseurPlace,
-        DefenseurActif,
-        AttaquantAvecBalle,
-        AttaquantPlace,
-        Centre,
-    }
+    //public enum PlayerRole
+    //{
+    //    Stop,
+    //    Gardien,
+    //    DefenseurPlace,
+    //    DefenseurActif,
+    //    AttaquantAvecBalle,
+    //    AttaquantPlace,
+    //    Centre,
+
+    //    Eurobot_petit_robot,
+    //    Eurobot_gros_robot,
+    //}
 
 
     

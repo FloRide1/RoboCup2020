@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
-namespace StrategyManager.StrategyEurobotNS
+namespace StrategyManagerNS
 {
     public class TaskBrasDroit
     {

@@ -125,6 +125,8 @@ namespace StrategyManagerNS
             DetermineRobotRole();
 
             IterateStateMachines();
+
+
             PositioningHeatMapGeneration();
             var optimalPosition = GetOptimalDestination();
 

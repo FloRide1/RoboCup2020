@@ -260,7 +260,7 @@ namespace TeamSimulator
 
             for (int i = 0; i < nbPlayersTeam1; i++)
             {
-                strategyManagerDictionary[(int)TeamId.Team1 + i].SetRole((StrategyManagerNS.PlayerRole)roleList[i]);
+                strategyManagerDictionary[(int)TeamId.Team1 + i].SetRole((RobotRole)roleList[i]);
                 //strategyManagerDictionary[(int)TeamId.Team1 + i].ProcessStrategy();
             }
             
@@ -273,7 +273,7 @@ namespace TeamSimulator
 
             for (int i = 0; i < nbPlayersTeam2; i++)
             {
-                strategyManagerDictionary[(int)TeamId.Team2 + i].SetRole((StrategyManagerNS.PlayerRole)roleList[i]);
+                strategyManagerDictionary[(int)TeamId.Team2 + i].SetRole((RobotRole)roleList[i]);
                 //strategyManagerDictionary[(int)TeamId.Team2 + i].ProcessStrategy();
             }
         }

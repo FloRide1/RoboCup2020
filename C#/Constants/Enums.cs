@@ -64,11 +64,17 @@ namespace Utilities
     {
         Stopped,
         Gardien,
+        DefenseurPlace,
+        DefenseurActif,
+        AttaquantAvecBalle,
+        AttaquantPlace,
         ContesteurDeBalle,
         DefenseurMarquage,
         DefenseurInterception,
         MilieuDemarque,
-        AttaquantDemarque
+        AttaquantDemarque,
+        Eurobot_petit_robot,
+        Eurobot_gros_robot,
     }
 
     public enum PlayingSide

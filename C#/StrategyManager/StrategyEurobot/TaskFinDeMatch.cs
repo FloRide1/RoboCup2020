@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 using Utilities;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
-namespace StrategyManager.StrategyEurobotNS
+namespace StrategyManagerNS
 {
     public class TaskFinDeMatch
     {
         Thread TaskThread;
         TaskFinDeMatchStates state = TaskFinDeMatchStates.Attente;
         public bool isFinished = false;
-        StrategyEurobot parentManager;
+        StrategyEurobot2021 parentManager;
         Stopwatch sw = new Stopwatch();
         enum TaskFinDeMatchStates
         {
@@ -28,7 +28,7 @@ namespace StrategyManager.StrategyEurobotNS
             Finished,
         }
 
-        public TaskFinDeMatch(StrategyEurobot manager)
+        public TaskFinDeMatch(StrategyEurobot2021 manager)
         {
             parentManager = manager;
             TaskThread = new Thread(TaskThreadProcess);
