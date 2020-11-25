@@ -92,7 +92,7 @@ namespace PerceptionManagement
                 //On génère la perception
                 GeneratePerception();
 
-                PerceptionMonitor.PerceptionReceived();
+                //PerceptionMonitor.PerceptionReceived();
             }
         }
         

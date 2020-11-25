@@ -408,6 +408,7 @@ namespace EventArgsLibrary
 
     public class GlobalWorldMapArgs : EventArgs
     {
+        public int SentByRobotId { get; set; }
         public GlobalWorldMap GlobalWorldMap { get; set; }
     }
     public class RawLidarArgs : EventArgs

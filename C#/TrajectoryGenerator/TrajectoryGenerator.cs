@@ -27,8 +27,8 @@ namespace TrajectoryGenerator
         //double vitesseRotationCapVitesseMax = 2*Math.PI * 0.4; //en rad.s-1
         //double vitesseRotationOrientationRobotMax = 2*Math.PI * 0.1; //en rad.s-1
 
-        double accelLineaireMax = 0.3; //en m.s-2
-        double accelRotationCapVitesseMax = 2 * Math.PI * 0.5; //en rad.s-2
+        double accelLineaireMax = 2.0; //en m.s-2
+        double accelRotationCapVitesseMax = 2 * Math.PI * 1.5; //en rad.s-2
         double accelRotationOrientationRobotMax = 2 * Math.PI * 0.2; //en rad.s-2
 
         double vitesseLineaireMax = 1.0; //en m.s-1
@@ -65,9 +65,9 @@ namespace TrajectoryGenerator
             //PID_Y.Init(kp:5.0, ki:20.0, kd:0, 0.5, 0.5, 0);
             //PID_Theta.Init(kp:5.0, ki:20.0, kd:0, 0.5, 0.5, 0);
 
-            PID_X.Init(kp: 5.0, ki: 20.0, kd: 0, 5, 5, 0);
-            PID_Y.Init(kp: 5.0, ki: 20.0, kd: 0, 5, 5, 0);
-            PID_Theta.Init(kp: 5.0, ki: 20.0, kd: 0, 5, 5, 0);
+            PID_X.Init(kp: 20.0, ki: 80.0, kd: 0.0, 1000, 1000, 1000);
+            PID_Y.Init(kp: 20.0, ki: 80.0, kd: 0.0, 1000, 1000, 1000);
+            PID_Theta.Init(kp: 20.0, ki: 80.0, kd: 0.0, 1000, 1000, 1000);
         }
 
         public TrajectoryPlanner(int id)

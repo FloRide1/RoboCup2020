@@ -29,8 +29,11 @@ namespace UdpMulticastInterpreter
                 {
                     case WorldMapType.LocalWM:
                         LocalWorldMap lwm = (LocalWorldMap)deserialzation;
-                        OnLocalWorldMap(lwm);
-                        UdpMonitor.LWMReceived(e.Data.Length);
+                        //if (Id == lwm.RobotId)
+                        {
+                            OnLocalWorldMap(lwm);
+                            UdpMonitor.LWMReceived(e.Data.Length);
+                        }
                         break;
                     case WorldMapType.GlobalWM:
                         GlobalWorldMap gwm = (GlobalWorldMap)deserialzation;

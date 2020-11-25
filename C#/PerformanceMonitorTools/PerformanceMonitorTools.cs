@@ -7,6 +7,29 @@ using System.Threading.Tasks;
 
 namespace PerformanceMonitorTools
 {
+    public static class KalmanMonitor
+    {
+        public static Stopwatch swKalman = new Stopwatch();
+        public static int nbKalmanReceived = 0;
+        static Object lockDiagKalman = new object();
+
+        public static void KalmanReceived()
+        {
+            lock (lockDiagKalman)
+            {
+                if (!swKalman.IsRunning)
+                    swKalman.Start();
+                nbKalmanReceived++;
+                if (swKalman.ElapsedMilliseconds > 1000)
+                {
+                    Console.WriteLine(nbKalmanReceived + " Kalman calculs en 1 s");
+                    swKalman.Restart();
+                    nbKalmanReceived = 0;
+                }
+            }
+        }
+    }
+
     public static class PhysicalSimulatorMonitor
     {
         public static Stopwatch swPhysicalSimulator = new Stopwatch();
@@ -74,7 +97,7 @@ namespace PerformanceMonitorTools
                 nbByteGWMReceived += size;
                 if (swGWM.ElapsedMilliseconds > 1000)
                 {
-                    Console.WriteLine(nbMessageGWMReceived + " GWM reçues en 1 s : " + nbByteGWMReceived + " octets");
+                    Console.WriteLine(nbMessageGWMReceived + " GWM reçues en 1 s : " + nbByteGWMReceived + " octets\n");
                     swGWM.Restart();
                     nbMessageGWMReceived = 0;
                     nbByteGWMReceived = 0;
@@ -95,6 +118,57 @@ namespace PerformanceMonitorTools
                     swLWM.Restart();
                     nbMessageLWMReceived = 0;
                     nbByteLWMReceived = 0;
+                }
+            }
+        }
+    }
+
+    public static class LWMEmiseMonitoring
+    {
+        public static Stopwatch swLWMEmise = new Stopwatch();
+        public static int nbLWMEmiseReceived = 0;
+        public static int nbByteLWMEmis = 0;
+        static Object lockDiagLWMEmise = new object();
+
+        public static void LWMEmiseMonitor(int size)
+        {
+            lock (lockDiagLWMEmise)
+            {
+                if (!swLWMEmise.IsRunning)
+                    swLWMEmise.Start();
+                nbLWMEmiseReceived++;
+                nbByteLWMEmis += size;
+                if (swLWMEmise.ElapsedMilliseconds > 1000)
+                {
+                    Console.WriteLine(nbLWMEmiseReceived + " LWM Emises en 1 s : " + nbByteLWMEmis + " octets");
+                    swLWMEmise.Restart();
+                    nbLWMEmiseReceived = 0;
+                    nbByteLWMEmis = 0;
+                }
+            }
+        }
+    }
+    public static class GWMEmiseMonitoring
+    {
+        public static Stopwatch swGWMEmise = new Stopwatch();
+        public static int nbGWMEmiseReceived = 0;
+        public static int nbByteGWMEmis = 0;
+        static Object lockDiagGWMEmise = new object();
+
+        public static void GWMEmiseMonitor(int size)
+        {
+            lock (lockDiagGWMEmise)
+            {
+                if (!swGWMEmise.IsRunning)
+                    swGWMEmise.Start();
+                nbGWMEmiseReceived++;
+                nbByteGWMEmis += size;
+                if (swGWMEmise.ElapsedMilliseconds > 1000)
+                {
+                    Console.WriteLine(nbGWMEmiseReceived + " GWM Emises en 1 s : " + nbByteGWMEmis + " octets");
+                    swGWMEmise.Restart();
+                    nbGWMEmiseReceived = 0;
+                    nbByteGWMEmis = 0;
                 }
             }
         }

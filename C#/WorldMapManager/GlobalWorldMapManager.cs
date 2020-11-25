@@ -1,5 +1,7 @@
-﻿using EventArgsLibrary;
+﻿using AdvancedTimers;
+using EventArgsLibrary;
 using Newtonsoft.Json;
+using PerformanceMonitorTools;
 using RefereeBoxAdapter;
 using System;
 using System.Collections.Concurrent;
@@ -21,7 +23,8 @@ namespace WorldMapManager
         ConcurrentDictionary<int, LocalWorldMap> localWorldMapDictionary = new ConcurrentDictionary<int, LocalWorldMap>();
         GlobalWorldMapStorage globalWorldMapStorage = new GlobalWorldMapStorage();
         GlobalWorldMap globalWorldMap = new GlobalWorldMap();
-        Timer globalWorldMapSendTimer;
+        //Timer globalWorldMapSendTimer;
+        HighFreqTimer globalWorldMapSendTimer;
 
         GameState currentGameState = GameState.STOPPED;
         StoppedGameAction currentStoppedGameAction = StoppedGameAction.NONE;
@@ -35,12 +38,12 @@ namespace WorldMapManager
             TeamId = teamId;
             TeamIpAddress = ipAddress;
             bypassMulticastUdp = bypassMulticast;
-            globalWorldMapSendTimer = new Timer(1000/freqRafraichissementWorldMap);
-            globalWorldMapSendTimer.Elapsed += GlobalWorldMapSendTimer_Elapsed;
+            globalWorldMapSendTimer = new HighFreqTimer(freqRafraichissementWorldMap);
+            globalWorldMapSendTimer.Tick += GlobalWorldMapSendTimer_Tick; 
             globalWorldMapSendTimer.Start();
         }
 
-        private void GlobalWorldMapSendTimer_Elapsed(object sender, ElapsedEventArgs e)
+        private void GlobalWorldMapSendTimer_Tick(object sender, EventArgs e)
         {
             //ATTENTION : Starting point temporel pour beaucoup de processing, car cela envoie la GlobalWorldMap aux robots.
             MergeLocalWorldMaps();
@@ -356,10 +359,12 @@ namespace WorldMapManager
                 //    default:
                 //        break;
                 //}
-                
+
                 //string json = JsonConvert.SerializeObject(globalWorldMap, decimalJsonConverter);
                 //OnMulticastSendGlobalWorldMap(json.GetBytes());
+
                 OnMulticastSendGlobalWorldMap(s);
+                GWMEmiseMonitoring.GWMEmiseMonitor(s.Length);
             }
         }
         
