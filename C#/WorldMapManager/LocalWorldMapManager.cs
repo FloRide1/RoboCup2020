@@ -85,8 +85,8 @@ namespace WorldMapManager
 
                         //OnMulticastSendLocalWorldMapCommand(json.GetBytes()); //Retiré pour test de robustesse, mais nécessaire à la RoboCup
 
-                        for (int i = 0; i < s.Length; i++)
-                            s[i] = (byte)i;
+                        //for (int i = 0; i < s.Length; i++)
+                        //    s[i] = (byte)i;
                         OnMulticastSendLocalWorldMapCommand(s); //Retiré pour test de robustesse, mais nécessaire à la RoboCup
 
                         //ATTENTION : appel douteux...
