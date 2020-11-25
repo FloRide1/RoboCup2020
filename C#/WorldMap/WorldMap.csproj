@@ -72,6 +72,7 @@
     <Compile Include="GlobalWorldMap.cs" />
     <Compile Include="LocalWorldMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WorldMap.cs" />
     <Compile Include="WorldStateMessage.cs" />
   </ItemGroup>
   <ItemGroup>

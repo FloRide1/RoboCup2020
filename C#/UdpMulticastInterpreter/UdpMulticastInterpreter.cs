@@ -27,13 +27,13 @@ namespace UdpMulticastInterpreter
                 JObject obj = JObject.Parse(Encoding.Default.GetString(e.Data));
                 try
                 {
-                    switch ((string)obj["Type"])
+                    switch ((int)obj["Type"])
                     {
-                        case "LocalWorldMap":
+                        case (int)WorldMapType.LocalWM:
                             LocalWorldMap lwm = obj.ToObject<LocalWorldMap>();
                             OnLocalWorldMap(lwm);
                             break;
-                        case "GlobalWorldMap":
+                        case (int)WorldMapType.GlobalWM:
                             GlobalWorldMap gwm = obj.ToObject<GlobalWorldMap>();
                             OnGlobalWorldMap(gwm);
                             break;

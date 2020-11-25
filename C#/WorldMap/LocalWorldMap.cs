@@ -8,10 +8,16 @@ using ZeroFormatter;
 namespace WorldMap
 {
     [ZeroFormattable]
-    public class LocalWorldMap
-    {
-        [Index(0)]
-        public virtual string Type { get; set; }
+    public class LocalWorldMap:WorldMap
+    {// UnionKey value must return constant value(Type is free, you can use int, string, enum, etc...)
+        public override WorldMapType Type
+        {
+            get
+            {
+                return WorldMapType.LocalWM;
+            }
+        }
+
         [Index(1)]
         public virtual int RobotId { get; set; }
         [Index(2)]
@@ -50,7 +56,7 @@ namespace WorldMap
 
         public LocalWorldMap()
         {
-            Type = "LocalWorldMap";
+            //Type = "LocalWorldMap";
         }
     }
 
