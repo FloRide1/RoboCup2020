@@ -346,18 +346,18 @@ namespace WorldMapManager
             {
                 var s = ZeroFormatterSerializer.Serialize<WorldMap.WorldMap>(globalWorldMap);
 
-                var deserialzation = ZeroFormatterSerializer.Deserialize<WorldMap.WorldMap>(s);
+                //var deserialzation = ZeroFormatterSerializer.Deserialize<WorldMap.WorldMap>(s);
 
-                switch(deserialzation.Type)
-                {
-                    case WorldMapType.GlobalWM:
-                        globalWorldMap = (GlobalWorldMap)deserialzation;
-                        break;
-                    default:
-                        break;
-                }
+                //switch(deserialzation.Type)
+                //{
+                //    case WorldMapType.GlobalWM:
+                //        globalWorldMap = (GlobalWorldMap)deserialzation;
+                //        break;
+                //    default:
+                //        break;
+                //}
                 
-                string json = JsonConvert.SerializeObject(globalWorldMap, decimalJsonConverter);
+                //string json = JsonConvert.SerializeObject(globalWorldMap, decimalJsonConverter);
                 //OnMulticastSendGlobalWorldMap(json.GetBytes());
                 OnMulticastSendGlobalWorldMap(s);
             }

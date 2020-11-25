@@ -341,7 +341,7 @@ namespace WpfWorldMapDisplay
             }
             else
             {
-                Console.WriteLine("UpdateOpponentsLocation : Robot non trouvé");
+                //Console.WriteLine("UpdateOpponentsLocation : Robot non trouvé");
             }
         }
         

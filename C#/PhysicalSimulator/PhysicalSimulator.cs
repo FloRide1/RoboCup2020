@@ -1,6 +1,7 @@
 ﻿using AdvancedTimers;
 using EventArgsLibrary;
 using PerceptionManagement;
+using PerformanceMonitorTools;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -228,6 +229,9 @@ namespace PhysicalSimulator
                 Location loc = new Location(robot.Value.X, robot.Value.Y, robot.Value.Theta, robot.Value.VxRefRobot, robot.Value.VyRefRobot, robot.Value.Vtheta);
                 OnPhysicalRobotLocation(robot.Key, loc);
                 OnPhysicalBallHandling(robot.Key, robot.Value.IsHandlingBall);
+
+                /// Pour le debug
+                PhysicalSimulatorMonitor.PhysicalSimulatorReceived();
             }
 
             //Calcul de la nouvelle location des balles

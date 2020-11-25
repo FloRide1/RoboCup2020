@@ -1,5 +1,6 @@
 ﻿using AbsolutePositionEstimatorNS;
 using EventArgsLibrary;
+using PerformanceMonitorTools;
 using System;
 using System.Collections.Generic;
 using Utilities;
@@ -36,6 +37,8 @@ namespace PerceptionManagement
             lidarProcessor.OnLidarObjectProcessedEvent += OnLidarObjectsReceived; 
 
             absolutePositionEstimator.OnAbsolutePositionCalculatedEvent += OnAbsolutePositionCalculatedEvent;
+
+            PerceptionMonitor.swPerception.Start();
 
         }
 
@@ -88,6 +91,8 @@ namespace PerceptionManagement
                 absolutePositionEstimator.OnPhysicalPositionReceived(sender, e);
                 //On génère la perception
                 GeneratePerception();
+
+                PerceptionMonitor.PerceptionReceived();
             }
         }
         

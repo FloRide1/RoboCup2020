@@ -1,5 +1,6 @@
 ﻿using EventArgsLibrary;
 using Newtonsoft.Json.Linq;
+using PerformanceMonitorTools;
 using System;
 using System.Diagnostics;
 using System.Text;
@@ -10,16 +11,6 @@ using ZeroFormatter;
 
 namespace UdpMulticastInterpreter
 {
-    static public class UdpMonitor
-    {
-        static public int nbMessageLWMReceived = 0;
-        static public int nbMessageGWMReceived = 0;
-        static public int nbByteLWMReceived = 0;
-        static public int nbByteGWMReceived = 0;
-        static public Stopwatch swGWM = new Stopwatch();
-        static public Stopwatch swLWM = new Stopwatch();
-    }
-
     public class UDPMulticastInterpreter
     {
         int Id;
@@ -39,27 +30,11 @@ namespace UdpMulticastInterpreter
                     case WorldMapType.LocalWM:
                         LocalWorldMap lwm = (LocalWorldMap)deserialzation;
                         OnLocalWorldMap(lwm);
-                        UdpMonitor.nbMessageLWMReceived += 1;
-                        UdpMonitor.nbByteLWMReceived += e.Data.Length;
-                        if (UdpMonitor.nbMessageLWMReceived % 1000 == 0)
-                        {
-                            UdpMonitor.swLWM.Stop();
-                            Console.WriteLine("1000 messages LWM reçu en : " + UdpMonitor.swLWM.ElapsedMilliseconds + " ms - "+ UdpMonitor.nbByteLWMReceived+ " octets" );
-                            UdpMonitor.swLWM.Restart();
-                            UdpMonitor.nbByteLWMReceived = 0;
-                        }
+                        UdpMonitor.LWMReceived(e.Data.Length);
                         break;
                     case WorldMapType.GlobalWM:
                         GlobalWorldMap gwm = (GlobalWorldMap)deserialzation;
-                        UdpMonitor.nbMessageGWMReceived += 1;
-                        UdpMonitor.nbByteGWMReceived += e.Data.Length;
-                        if (UdpMonitor.nbMessageGWMReceived % 1000 == 0)
-                        {
-                            UdpMonitor.swGWM.Stop();
-                            Console.WriteLine("1000 messages GWM reçu en : " + UdpMonitor.swGWM.ElapsedMilliseconds + " ms - " + UdpMonitor.nbByteGWMReceived + " octets");
-                            UdpMonitor.swGWM.Restart();
-                            UdpMonitor.nbByteGWMReceived = 0;
-                        }
+                        UdpMonitor.GWMReceived(e.Data.Length);
                         OnGlobalWorldMap(gwm);
                         break;
                     default:
