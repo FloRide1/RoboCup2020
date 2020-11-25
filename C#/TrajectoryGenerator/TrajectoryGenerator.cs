@@ -27,13 +27,13 @@ namespace TrajectoryGenerator
         //double vitesseRotationCapVitesseMax = 2*Math.PI * 0.4; //en rad.s-1
         //double vitesseRotationOrientationRobotMax = 2*Math.PI * 0.1; //en rad.s-1
 
-        double accelLineaireMax = 2.0; //en m.s-2
-        double accelRotationCapVitesseMax = 2 * Math.PI * 1.5; //en rad.s-2
-        double accelRotationOrientationRobotMax = 2 * Math.PI * 0.2; //en rad.s-2
+        double accelLineaireMax = 1; //en m.s-2
+        double accelRotationCapVitesseMax = 2 * Math.PI * 1.0; //en rad.s-2
+        double accelRotationOrientationRobotMax = 2 * Math.PI * 1.0; //en rad.s-2
 
-        double vitesseLineaireMax = 1.0; //en m.s-1
-        double vitesseRotationCapVitesseMax = 2 * Math.PI * 1.5; //en rad.s-1
-        double vitesseRotationOrientationRobotMax = 2 * Math.PI * 0.5; //en rad.s-1
+        double vitesseLineaireMax = 2; //en m.s-1
+        double vitesseRotationCapVitesseMax = 2 * Math.PI * 2.0; //en rad.s-1
+        double vitesseRotationOrientationRobotMax = 2 * Math.PI * 2.0; //en rad.s-1
 
 
         double capVitesseRefTerrain = 0;
@@ -65,9 +65,9 @@ namespace TrajectoryGenerator
             //PID_Y.Init(kp:5.0, ki:20.0, kd:0, 0.5, 0.5, 0);
             //PID_Theta.Init(kp:5.0, ki:20.0, kd:0, 0.5, 0.5, 0);
 
-            PID_X.Init(kp: 20.0, ki: 80.0, kd: 0.0, 1000, 1000, 1000);
-            PID_Y.Init(kp: 20.0, ki: 80.0, kd: 0.0, 1000, 1000, 1000);
-            PID_Theta.Init(kp: 20.0, ki: 80.0, kd: 0.0, 1000, 1000, 1000);
+            PID_X.Init(kp: 20.0, ki: 80.0, kd: 0.0, 10000, 10000, 10000);
+            PID_Y.Init(kp: 20.0, ki: 80.0, kd: 0.0, 10000, 10000, 10000);
+            PID_Theta.Init(kp: 20.0, ki: 80.0, kd: 0.0, 10000, 10000, 10000);
         }
 
         public TrajectoryPlanner(int id)
@@ -137,6 +137,16 @@ namespace TrajectoryGenerator
                 //Changement de repère car les asservissements se font dans le référentiel du robot
                 double erreurXRefRobot = erreurXRefTerrain * Math.Cos(currentLocation.Theta) + erreurYRefTerrain * Math.Sin(currentLocation.Theta);
                 double erreurYRefRobot = -erreurXRefTerrain * Math.Sin(currentLocation.Theta) + erreurYRefTerrain * Math.Cos(currentLocation.Theta);
+
+                //double vxGhostRefRobot = ghostLocation.Vx * Math.Cos(currentLocation.Theta) + ghostLocation.Vy * Math.Sin(currentLocation.Theta);
+                //double vyGhostRefRobot = -ghostLocation.Vx * Math.Sin(currentLocation.Theta) + ghostLocation.Vy * Math.Cos(currentLocation.Theta); 
+                //double vxRefRobot = vxGhostRefRobot;
+                //double vyRefRobot = vyGhostRefRobot;
+                //double vtheta = ghostLocation.Vtheta;
+
+                /// Problème probable : si on met la vitesse du ghost sur les moteurs, on n'a pas le même comportement... 
+                /// Ca ne peut pas marcher correctement ce genre de chose...
+                /// Il faut le corriger impérativement !
 
                 double vxRefRobot = PID_X.CalculatePIDoutput(erreurXRefRobot);
                 double vyRefRobot = PID_Y.CalculatePIDoutput(erreurYRefRobot);
