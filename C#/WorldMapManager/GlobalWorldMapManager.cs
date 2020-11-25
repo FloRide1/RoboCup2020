@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using RefereeBoxAdapter;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
@@ -16,7 +17,7 @@ namespace WorldMapManager
         string TeamIpAddress = "";
         double freqRafraichissementWorldMap = 20;
 
-        Dictionary<int, LocalWorldMap> localWorldMapDictionary = new Dictionary<int, LocalWorldMap>();
+        ConcurrentDictionary<int, LocalWorldMap> localWorldMapDictionary = new ConcurrentDictionary<int, LocalWorldMap>();
         GlobalWorldMapStorage globalWorldMapStorage = new GlobalWorldMapStorage();
         GlobalWorldMap globalWorldMap = new GlobalWorldMap();
         Timer globalWorldMapSendTimer;
@@ -209,12 +210,13 @@ namespace WorldMapManager
         {
             int robotId = localWorldMap.RobotId;
             int teamId = localWorldMap.TeamId;
-            lock (localWorldMapDictionary)
+            //lock (localWorldMapDictionary)
             {
-                if (localWorldMapDictionary.ContainsKey(robotId))
-                    localWorldMapDictionary[robotId] = localWorldMap;
-                else
-                    localWorldMapDictionary.Add(robotId, localWorldMap);
+                localWorldMapDictionary.AddOrUpdate(robotId, localWorldMap, (key, value) => localWorldMap);
+                //if (localWorldMapDictionary.ContainsKey(robotId))
+                //    localWorldMapDictionary[robotId] = localWorldMap;
+                //else
+                //    localWorldMapDictionary.Add(robotId, localWorldMap);
             }
         }
 
@@ -225,7 +227,7 @@ namespace WorldMapManager
         private void MergeLocalWorldMaps()
         {
             //Fusion des World Map locales pour construire la world map globale
-            lock (localWorldMapDictionary)
+            //lock (localWorldMapDictionary)
             {
                 //On rassemble les infos issues des cartes locales de chacun des robots
                 foreach (var localMap in localWorldMapDictionary)
@@ -261,78 +263,72 @@ namespace WorldMapManager
                 globalWorldMap.teammatePlayingSideList = new Dictionary<int, PlayingSide>();
 
                 //On place tous les robots de l'équipe dans la global map
-                lock (localWorldMapDictionary)
+                foreach (var localMap in localWorldMapDictionary)
                 {
-                    foreach (var localMap in localWorldMapDictionary)
-                    {
-                        //On ajoute la position des robots de l'équipe dans la WorldMap
-                        globalWorldMap.teammateLocationList.Add(localMap.Key, localMap.Value.robotLocation);
-                        //On ajoute le rôle des robots de l'équipe dans la WorldMap
-                        globalWorldMap.teammateRoleList.Add(localMap.Key, localMap.Value.robotRole);
-                        //On ajoute le message à afficher des robots de l'équipe dans la WorldMap
-                        globalWorldMap.teammateDisplayMessageList.Add(localMap.Key, localMap.Value.messageDisplay);
-                        //On ajoute le playing Side des robots de l'équipe dans la WorldMap
-                        globalWorldMap.teammatePlayingSideList.Add(localMap.Key, localMap.Value.playingSide);
-                        //On ajoute le ghost (position théorique) des robots de l'équipe dans la WorldMap
-                        globalWorldMap.teammateGhostLocationList.Add(localMap.Key, localMap.Value.robotGhostLocation);
-                        //On ajoute la destination des robots de l'équipe dans la WorldMap
-                        globalWorldMap.teammateDestinationLocationList.Add(localMap.Key, localMap.Value.destinationLocation);
-                        //On ajoute le waypoint courant des robots de l'équipe dans la WorldMap
-                        globalWorldMap.teammateWayPointList.Add(localMap.Key, localMap.Value.waypointLocation);
-                    }
+                    //On ajoute la position des robots de l'équipe dans la WorldMap
+                    globalWorldMap.teammateLocationList.Add(localMap.Key, localMap.Value.robotLocation);
+                    //On ajoute le rôle des robots de l'équipe dans la WorldMap
+                    globalWorldMap.teammateRoleList.Add(localMap.Key, localMap.Value.robotRole);
+                    //On ajoute le message à afficher des robots de l'équipe dans la WorldMap
+                    globalWorldMap.teammateDisplayMessageList.Add(localMap.Key, localMap.Value.messageDisplay);
+                    //On ajoute le playing Side des robots de l'équipe dans la WorldMap
+                    globalWorldMap.teammatePlayingSideList.Add(localMap.Key, localMap.Value.playingSide);
+                    //On ajoute le ghost (position théorique) des robots de l'équipe dans la WorldMap
+                    globalWorldMap.teammateGhostLocationList.Add(localMap.Key, localMap.Value.robotGhostLocation);
+                    //On ajoute la destination des robots de l'équipe dans la WorldMap
+                    globalWorldMap.teammateDestinationLocationList.Add(localMap.Key, localMap.Value.destinationLocation);
+                    //On ajoute le waypoint courant des robots de l'équipe dans la WorldMap
+                    globalWorldMap.teammateWayPointList.Add(localMap.Key, localMap.Value.waypointLocation);
                 }
 
-                lock (localWorldMapDictionary)
+                try
                 {
-                    try
+                    //TODO : Fusion des obstacles vus par chacun des robots
+                    foreach (var localMap in localWorldMapDictionary)
                     {
-                        //TODO : Fusion des obstacles vus par chacun des robots
-                        foreach (var localMap in localWorldMapDictionary)
+                        foreach (var obstacle in localMap.Value.obstaclesLocationList)
                         {
-                            foreach (var obstacle in localMap.Value.obstaclesLocationList)
+                            bool skipNext = false;
+                            /// On itère sur chacun des obstacles perçus par chacun des robots
+                            /// On commence regarde pour chaque obstacle perçu si il ne correspond pas à une position de robot de l'équipe
+                            ///     Si c'est le cas, on abandonne cet obstacle
+                            ///     Si ce n'est pas le cas, on regarde si il ne correspond pas à un obstacle déjà présent dans la liste des obstacles
+                            ///         Si ce n'est pas le cas, on l'ajoute à la liste des obtacles
+                            ///         Si c'est le cas, on le fusionne en moyennant ses coordonnées de manière pondérée 
+                            ///             et on renforce le poids de cet obstacle
+                            foreach (var teamMateRobot in globalWorldMap.teammateLocationList)
                             {
-                                bool skipNext = false;
-                                /// On itère sur chacun des obstacles perçus par chacun des robots
-                                /// On commence regarde pour chaque obstacle perçu si il ne correspond pas à une position de robot de l'équipe
-                                ///     Si c'est le cas, on abandonne cet obstacle
-                                ///     Si ce n'est pas le cas, on regarde si il ne correspond pas à un obstacle déjà présent dans la liste des obstacles
-                                ///         Si ce n'est pas le cas, on l'ajoute à la liste des obtacles
-                                ///         Si c'est le cas, on le fusionne en moyennant ses coordonnées de manière pondérée 
-                                ///             et on renforce le poids de cet obstacle
-                                foreach(var teamMateRobot in globalWorldMap.teammateLocationList)
+                                if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(teamMateRobot.Value.X, teamMateRobot.Value.Y)) < distanceMaxFusionTeamMate)
                                 {
-                                    if(Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(teamMateRobot.Value.X, teamMateRobot.Value.Y))< distanceMaxFusionTeamMate)
+                                    /// L'obstacle est un robot, on abandonne
+                                    skipNext = true;
+                                    break;
+                                }
+                            }
+                            if (skipNext == false)
+                            {
+                                /// Si on arrive ici c'est que l'obstacle n'est pas un robot de l'équipe
+                                foreach (var obstacleConnu in globalWorldMap.obstacleLocationList)
+                                {
+                                    if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(obstacleConnu.X, obstacleConnu.Y)) < distanceMaxFusionObstacle)
                                     {
-                                        /// L'obstacle est un robot, on abandonne
+                                        //L'obstacle est déjà connu, on le fusionne /TODO : améliorer la fusion avec pondération
+                                        obstacleConnu.X = (obstacleConnu.X + obstacle.X) / 2;
+                                        obstacleConnu.Y = (obstacleConnu.Y + obstacle.Y) / 2;
                                         skipNext = true;
                                         break;
                                     }
                                 }
-                                if (skipNext == false)
-                                {
-                                    /// Si on arrive ici c'est que l'obstacle n'est pas un robot de l'équipe
-                                    foreach (var obstacleConnu in globalWorldMap.obstacleLocationList)
-                                    {
-                                        if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(obstacleConnu.X, obstacleConnu.Y)) < distanceMaxFusionObstacle)
-                                        {
-                                            //L'obstacle est déjà connu, on le fusionne /TODO : améliorer la fusion avec pondération
-                                            obstacleConnu.X = (obstacleConnu.X + obstacle.X) / 2;
-                                            obstacleConnu.Y = (obstacleConnu.Y + obstacle.Y) / 2;
-                                            skipNext = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (skipNext == false)
-                                {
-                                    /// Si on arrive ici, c'est que l'obstacle n'était pas connu, on l'ajoute
-                                    globalWorldMap.obstacleLocationList.Add(obstacle);
-                                }
+                            }
+                            if (skipNext == false)
+                            {
+                                /// Si on arrive ici, c'est que l'obstacle n'était pas connu, on l'ajoute
+                                globalWorldMap.obstacleLocationList.Add(obstacle);
                             }
                         }
                     }
-                    catch { }
                 }
+                catch { }
             }
 
             /// On ajoute les informations issues des commandes de la referee box

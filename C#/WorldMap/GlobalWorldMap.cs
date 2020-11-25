@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using Utilities;
 
 namespace WorldMap
@@ -75,123 +76,69 @@ namespace WorldMap
 
     public class GlobalWorldMapStorage
     {
-        public Dictionary<int, Location> robotLocationDictionary { get; set; }
-        public Dictionary<int, Location> ghostLocationDictionary { get; set; }
-        public Dictionary<int, Location> destinationLocationDictionary { get; set; }
-        public Dictionary<int, Location> waypointLocationDictionary { get; set; }
-        public Dictionary<int, List<Location>> ballLocationListDictionary { get; set; }
-        public Dictionary<int, List<LocationExtended>> ObstaclesLocationListDictionary { get; set; }
-        public Dictionary<int, RobotRole> robotRoleDictionary { get; set; }
-        public Dictionary<int, string> robotMessageDisplayDictionary { get; set; }
-        public Dictionary<int, PlayingSide> robotPlayingSideDictionary { get; set; }
+        public ConcurrentDictionary<int, Location> robotLocationDictionary { get; set; }
+        public ConcurrentDictionary<int, Location> ghostLocationDictionary { get; set; }
+        public ConcurrentDictionary<int, Location> destinationLocationDictionary { get; set; }
+        public ConcurrentDictionary<int, Location> waypointLocationDictionary { get; set; }
+        public ConcurrentDictionary<int, List<Location>> ballLocationListDictionary { get; set; }
+        public ConcurrentDictionary<int, List<LocationExtended>> ObstaclesLocationListDictionary { get; set; }
+        public ConcurrentDictionary<int, RobotRole> robotRoleDictionary { get; set; }
+        public ConcurrentDictionary<int, string> robotMessageDisplayDictionary { get; set; }
+        public ConcurrentDictionary<int, PlayingSide> robotPlayingSideDictionary { get; set; }
 
         public GlobalWorldMapStorage()
         {
-            robotLocationDictionary = new Dictionary<int, Location>();
-            ghostLocationDictionary = new Dictionary<int, Location>();
-            destinationLocationDictionary = new Dictionary<int, Location>();
-            waypointLocationDictionary = new Dictionary<int, Location>();
-            ballLocationListDictionary = new Dictionary<int, List<Location>>();
-            ObstaclesLocationListDictionary = new Dictionary<int, List<LocationExtended>>();
-            robotRoleDictionary = new Dictionary<int, RobotRole>();
-            robotMessageDisplayDictionary = new Dictionary<int, string>();
-            robotPlayingSideDictionary = new Dictionary<int, PlayingSide>();
+            robotLocationDictionary = new ConcurrentDictionary<int, Location>();
+            ghostLocationDictionary = new ConcurrentDictionary<int, Location>();
+            destinationLocationDictionary = new ConcurrentDictionary<int, Location>();
+            waypointLocationDictionary = new ConcurrentDictionary<int, Location>();
+            ballLocationListDictionary = new ConcurrentDictionary<int, List<Location>>();
+            ObstaclesLocationListDictionary = new ConcurrentDictionary<int, List<LocationExtended>>();
+            robotRoleDictionary = new ConcurrentDictionary<int, RobotRole>();
+            robotMessageDisplayDictionary = new ConcurrentDictionary<int, string>();
+            robotPlayingSideDictionary = new ConcurrentDictionary<int, PlayingSide>();
         }
 
         public void AddOrUpdateRobotLocation(int id, Location loc)
         {
-            lock (robotLocationDictionary)
-            {
-                if (robotLocationDictionary.ContainsKey(id))
-                    robotLocationDictionary[id] = loc;
-                else
-                    robotLocationDictionary.Add(id, loc);
-            }
+            robotLocationDictionary.AddOrUpdate(id, loc, (key, value) => loc);
         }
         public void AddOrUpdateGhostLocation(int id, Location loc)
         {
-            lock (ghostLocationDictionary)
-            {
-                if (ghostLocationDictionary.ContainsKey(id))
-                    ghostLocationDictionary[id] = loc;
-                else
-                    ghostLocationDictionary.Add(id, loc);
-            }
+            ghostLocationDictionary.AddOrUpdate(id, loc, (key, value) => loc);
         }
 
         public void AddOrUpdateRobotDestination(int id, Location loc)
         {
-            lock (destinationLocationDictionary)
-            {
-                if (destinationLocationDictionary.ContainsKey(id))
-                    destinationLocationDictionary[id] = loc;
-                else
-                    destinationLocationDictionary.Add(id, loc);
-            }
+            destinationLocationDictionary.AddOrUpdate(id, loc, (key, value) => loc);           
         }
 
         public void AddOrUpdateRobotWayPoint(int id, Location loc)
         {
-            lock (waypointLocationDictionary)
-            {
-                if (waypointLocationDictionary.ContainsKey(id))
-                    waypointLocationDictionary[id] = loc;
-                else
-                    waypointLocationDictionary.Add(id, loc);
-            }
+            waypointLocationDictionary.AddOrUpdate(id, loc, (key, value) => loc);
         }
         public void AddOrUpdateRobotRole(int id, RobotRole role)
         {
-            lock (robotRoleDictionary)
-            {
-                if (robotRoleDictionary.ContainsKey(id))
-                    robotRoleDictionary[id] = role;
-                else
-                    robotRoleDictionary.Add(id, role);
-            }
+            robotRoleDictionary.AddOrUpdate(id, role, (key, value) => role);
         }
         public void AddOrUpdateMessageDisplay(int id, string  message)
         {
-            lock (robotMessageDisplayDictionary)
-            {
-                if (robotMessageDisplayDictionary.ContainsKey(id))
-                    robotMessageDisplayDictionary[id] = message;
-                else
-                    robotMessageDisplayDictionary.Add(id, message);
-            }
+            robotMessageDisplayDictionary.AddOrUpdate(id, message, (key, value) => message);
         }
 
         public void AddOrUpdateRobotPlayingSide(int id, PlayingSide playSide)
         {
-            lock (robotRoleDictionary)
-            {
-                if (robotPlayingSideDictionary.ContainsKey(id))
-                    robotPlayingSideDictionary[id] = playSide;
-                else
-                    robotPlayingSideDictionary.Add(id, playSide);
-            }
+            robotPlayingSideDictionary.AddOrUpdate(id, playSide, (key, value) => playSide);
         }
 
         public void AddOrUpdateBallLocationList(int id, List<Location> ballLocationList)
         {
-            lock (ballLocationListDictionary)
-            {
-                if (ballLocationListDictionary.ContainsKey(id))
-                    ballLocationListDictionary[id] = ballLocationList;
-                else
-                    ballLocationListDictionary.Add(id, ballLocationList);
-            }
+            ballLocationListDictionary.AddOrUpdate(id, ballLocationList, (key, value) => ballLocationList);
         }
 
         public void AddOrUpdateObstaclesList(int id, List<LocationExtended> locList)
         {
-            lock (ObstaclesLocationListDictionary)
-            {
-                if (ObstaclesLocationListDictionary.ContainsKey(id))
-                    ObstaclesLocationListDictionary[id] = locList;
-                else
-                    ObstaclesLocationListDictionary.Add(id, locList);
-            }
+            ObstaclesLocationListDictionary.AddOrUpdate(id, locList, (key, value) => locList);
         }
     }
 }

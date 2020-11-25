@@ -67,6 +67,8 @@ namespace WorldMapManager
                     else
                     {
                         string json = JsonConvert.SerializeObject(transferLocalWorldMap, decimalJsonConverter);
+
+
                         OnMulticastSendLocalWorldMapCommand(json.GetBytes()); //Retiré pour test de robustesse, mais nécessaire à la RoboCup
                         
                         //ATTENTION : appel douteux...

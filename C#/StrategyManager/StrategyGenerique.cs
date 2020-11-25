@@ -210,9 +210,9 @@ namespace StrategyManagerNS
 
             if (displayConsole)
                 Console.WriteLine("Tps events waypoint et destination : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
-            
-            
-            Console.WriteLine("Tps calcul Global Stratégie : " + swGlobal.Elapsed.TotalMilliseconds.ToString("N4") + " ms \n\n"); // Affichage de la mesure globale
+
+            if (displayConsole)
+                Console.WriteLine("Tps calcul Global Stratégie : " + swGlobal.Elapsed.TotalMilliseconds.ToString("N4") + " ms \n\n"); // Affichage de la mesure globale
 
         }
 
@@ -227,7 +227,7 @@ namespace StrategyManagerNS
             sw.Start(); // début de la mesure
 
             //Génération de la HeatMap
-            positioningHeatMap.InitHeatMapData();
+            
             positioningHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList, 
                 strictlyAllowedRectangleList, avoidanceConicalZoneList, preferredSegmentZoneList);
 

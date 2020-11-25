@@ -1,36 +1,56 @@
 ﻿using HeatMap;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using Utilities;
+using ZeroFormatter;
 
 namespace WorldMap
 {
-
+    [ZeroFormattable]
     public class LocalWorldMap
     {
-        public string Type = "LocalWorldMap";
-        public int RobotId = 0;
-        public int TeamId = 0;
-        public Location robotLocation { get; set; }
-        public RobotRole robotRole{ get; set; }
-        public string messageDisplay { get; set; }
+        [Index(0)]
+        public virtual string Type { get; set; }
+        [Index(1)]
+        public virtual int RobotId { get; set; }
+        [Index(2)]
+        public virtual int TeamId { get; set; }
+        [Index(3)]
+        public virtual Location robotLocation { get; set; }
+        [Index(4)]
+        public virtual RobotRole robotRole { get; set; }
+        [Index(5)]
+        public virtual string messageDisplay { get; set; }
 
-        public PlayingSide playingSide { get; set; }
-        public Location robotGhostLocation { get; set; }
-        public Location destinationLocation { get; set; }
-        public Location waypointLocation { get; set; }
-        public List<Location> ballLocationList { get; set; }
-        public List<LocationExtended> obstaclesLocationList { get; set; }
-        public List<PolarPointListExtended> lidarObjectList { get; set; }
+        [Index(6)]
+        public virtual PlayingSide playingSide { get; set; }
+        [Index(7)]
+        public virtual Location robotGhostLocation { get; set; }
+        [Index(8)]
+        public virtual Location destinationLocation { get; set; }
+        [Index(9)]
+        public virtual Location waypointLocation { get; set; }
+        [Index(10)]
+        public virtual List<Location> ballLocationList { get; set; }
+        [Index(11)]
+        public virtual List<LocationExtended> obstaclesLocationList { get; set; }
+        [Index(12)]
+        public virtual List<PolarPointListExtended> lidarObjectList { get; set; }
 
         [JsonIgnore]
-        public List<PointD> lidarMap { get; set; }
+        [IgnoreFormat]
+        public virtual List<PointD> lidarMap { get; set; }
         [JsonIgnore]
-        public Heatmap heatMapStrategy { get; set; }
-        public Heatmap heatMapWaypoint { get; set; }
+        [IgnoreFormat]
+        public virtual Heatmap heatMapStrategy { get; set; }
+        [JsonIgnore]
+        [IgnoreFormat]
+        public virtual Heatmap heatMapWaypoint { get; set; }
 
         public LocalWorldMap()
         {
+            Type = "LocalWorldMap";
         }
     }
 

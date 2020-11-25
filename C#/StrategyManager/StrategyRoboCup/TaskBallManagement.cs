@@ -68,7 +68,7 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                         state = TaskBallManagementState.PasDeBalleEnCours;
                         break;
                     case TaskBallManagementState.PasDeBalleEnCours:
-                        parent.MessageDisplay = ("No Ball : "+ sw.ElapsedMilliseconds / 1000).ToString();
+                        parent.MessageDisplay = "No Ball : " + (sw.ElapsedMilliseconds / 1000).ToString();
                         if(parent.isHandlingBall)
                             state = TaskBallManagementState.PossessionBalle;
                         break;
@@ -77,7 +77,7 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                         state = TaskBallManagementState.PossessionBalleEnCours;
                         break;
                     case TaskBallManagementState.PossessionBalleEnCours:
-                        parent.MessageDisplay = ("Ball : " + sw.ElapsedMilliseconds / 1000).ToString();
+                        parent.MessageDisplay = "Ball : " + (sw.ElapsedMilliseconds / 1000).ToString();
                         if (sw.ElapsedMilliseconds>3000)
                         {
                             /// On demande un tir ou une passe

@@ -40,13 +40,13 @@ namespace HeatMap
             BaseHeatMapData = new double[nbCellInBaseHeatMapHeight, nbCellInBaseHeatMapWidth];
         }
 
-        public void InitHeatMapData()
-        {
-            lock (BaseHeatMapData)
-            {
-                BaseHeatMapData = new double[nbCellInBaseHeatMapHeight, nbCellInBaseHeatMapWidth];
-            }
-        }
+        //public void InitHeatMapData()
+        //{
+        //    lock (BaseHeatMapData)
+        //    {
+        //        BaseHeatMapData = new double[nbCellInBaseHeatMapHeight, nbCellInBaseHeatMapWidth];
+        //    }
+        //}
                
         public PointD GetFieldPosFromBaseHeatMapCoordinates(double xHeatMap, double yHeatMap)
         {
@@ -81,166 +81,172 @@ namespace HeatMap
             return distTerrain / FieldLength * (nbCellInBaseHeatMapWidth - 1);
         }
 
-        public void GenerateHeatMap(List<Zone> preferredZonesList, List<Zone> avoidanceZonesList, List<RectangleZone> forbiddenRectangleList, 
+        public void GenerateHeatMap(List<Zone> preferredZonesList, List<Zone> avoidanceZonesList, List<RectangleZone> forbiddenRectangleList,
             List<RectangleZone> strictlyAllowedRectangleList, List<ConicalZone> avoidanceConicalZoneList, List<SegmentZone> preferredSegmentZoneList)
         {
-            lock (BaseHeatMapData)
+
+            /// Initialisation de la HeatMap à 0
+            for (int y = 0; y < nbCellInBaseHeatMapHeight; y++)
             {
-                /// Gestion des zones strictement autorisées (cela signifie que le rectangle est ok, mais pas l'extérieur du rectangle
-                lock (strictlyAllowedRectangleList)
+                for (int x = 0; x < nbCellInBaseHeatMapWidth; x++)
                 {
-                    foreach (var allowedRectangle in strictlyAllowedRectangleList)
-                    {
-                        var xMinHeatMap = GetBaseHeatMapXPosFromFieldCoordinates(allowedRectangle.rectangularZone.Xmin);
-                        var xMaxHeatMap = GetBaseHeatMapXPosFromFieldCoordinates(allowedRectangle.rectangularZone.Xmax);
-                        var yMinHeatMap = GetBaseHeatMapYPosFromFieldCoordinates(allowedRectangle.rectangularZone.Ymin);
-                        var yMaxHeatMap = GetBaseHeatMapYPosFromFieldCoordinates(allowedRectangle.rectangularZone.Ymax);
+                    BaseHeatMapData[y, x] = 0;
+                }
+            }
 
-                        for (int y = 0; y < nbCellInBaseHeatMapHeight; y++)
+            /// Gestion des zones strictement autorisées (cela signifie que le rectangle est ok, mais pas l'extérieur du rectangle
+            lock (strictlyAllowedRectangleList)
+            {
+                foreach (var allowedRectangle in strictlyAllowedRectangleList)
+                {
+                    var xMinHeatMap = GetBaseHeatMapXPosFromFieldCoordinates(allowedRectangle.rectangularZone.Xmin);
+                    var xMaxHeatMap = GetBaseHeatMapXPosFromFieldCoordinates(allowedRectangle.rectangularZone.Xmax);
+                    var yMinHeatMap = GetBaseHeatMapYPosFromFieldCoordinates(allowedRectangle.rectangularZone.Ymin);
+                    var yMaxHeatMap = GetBaseHeatMapYPosFromFieldCoordinates(allowedRectangle.rectangularZone.Ymax);
+
+                    for (int y = 0; y < nbCellInBaseHeatMapHeight; y++)
+                    {
+                        for (int x = 0; x < nbCellInBaseHeatMapWidth; x++)
                         {
-                            for (int x = 0; x < nbCellInBaseHeatMapWidth; x++)
-                            {
-                                BaseHeatMapData[y, x] = -1;
-                            }
-                        }
-                        for (int y = (int)Math.Max(0, yMinHeatMap); y < (int)(Math.Min(nbCellInBaseHeatMapHeight, yMaxHeatMap)); y++)
-                        {
-                            for (int x = (int)Math.Max(0, xMinHeatMap); x < (int)(Math.Min(nbCellInBaseHeatMapWidth, xMaxHeatMap)); x++)
-                            {
-                                BaseHeatMapData[y, x] = 0;
-                            }
+                            BaseHeatMapData[y, x] = -1;
                         }
                     }
-                }
-                //Gestion des zones interdites
-                lock (forbiddenRectangleList)
-                {
-                    foreach (var forbiddenRectangle in forbiddenRectangleList)
+                    for (int y = (int)Math.Max(0, yMinHeatMap); y < (int)(Math.Min(nbCellInBaseHeatMapHeight, yMaxHeatMap)); y++)
                     {
-                        var xMinHeatMap = GetBaseHeatMapXPosFromFieldCoordinates(forbiddenRectangle.rectangularZone.Xmin);
-                        var xMaxHeatMap = GetBaseHeatMapXPosFromFieldCoordinates(forbiddenRectangle.rectangularZone.Xmax);
-                        var yMinHeatMap = GetBaseHeatMapYPosFromFieldCoordinates(forbiddenRectangle.rectangularZone.Ymin);
-                        var yMaxHeatMap = GetBaseHeatMapYPosFromFieldCoordinates(forbiddenRectangle.rectangularZone.Ymax);
-
-                        for (int y = (int)Math.Max(0, yMinHeatMap); y < (int)(Math.Min(nbCellInBaseHeatMapHeight, yMaxHeatMap)); y++)
+                        for (int x = (int)Math.Max(0, xMinHeatMap); x < (int)(Math.Min(nbCellInBaseHeatMapWidth, xMaxHeatMap)); x++)
                         {
-                            for (int x = (int)Math.Max(0, xMinHeatMap); x < (int)(Math.Min(nbCellInBaseHeatMapWidth, xMaxHeatMap)); x++)
-                            {
-                                BaseHeatMapData[y, x] = -1;
-                            }
+                            BaseHeatMapData[y, x] = 0;
                         }
-                    }
-                }
-
-                lock (avoidanceZonesList)
-                {
-                    foreach (var avoidanceZone in avoidanceZonesList)
-                    {
-                        var centerRefHeatMap = GetBaseHeatMapPosFromFieldCoordinates(avoidanceZone.center);
-                        var radiusRefHeatMap = GetBaseHeatMapDistanceFromFieldDistance(avoidanceZone.radius);
-                        var strength = avoidanceZone.strength;
-
-                        for (int y = (int)Math.Max(0, centerRefHeatMap.Y - radiusRefHeatMap); y < (int)(Math.Min(nbCellInBaseHeatMapHeight, centerRefHeatMap.Y + radiusRefHeatMap)); y++)
-                        {
-                            for (int x = (int)Math.Max(0, centerRefHeatMap.X - radiusRefHeatMap); x < (int)(Math.Min(nbCellInBaseHeatMapWidth, centerRefHeatMap.X + radiusRefHeatMap)); x++)
-                            {
-                                if (BaseHeatMapData[y, x] > -1) //On regarde si on n'est pas dans une zone exclue (valeur <= -1)
-                                    BaseHeatMapData[y, x] -= strength * Math.Max(0, 1 - Math.Sqrt((centerRefHeatMap.X - x) * (centerRefHeatMap.X - x) + (centerRefHeatMap.Y - y) * (centerRefHeatMap.Y - y)) / radiusRefHeatMap);
-                                else
-                                    BaseHeatMapData[y, x] = -1;
-                            }
-                        }
-                    }
-                }
-
-                lock (preferredZonesList)
-                {
-                    foreach (var preferredZone in preferredZonesList)
-                    {
-                        var centerRefHeatMap = GetBaseHeatMapPosFromFieldCoordinates(preferredZone.center);
-                        var radiusRefHeatMap = GetBaseHeatMapDistanceFromFieldDistance(preferredZone.radius);
-                        var strength = preferredZone.strength;
-
-                        for (int y = (int)Math.Max(0, centerRefHeatMap.Y - radiusRefHeatMap); y < (int)(Math.Min(nbCellInBaseHeatMapHeight, centerRefHeatMap.Y + radiusRefHeatMap)); y++)
-                        {
-                            for (int x = (int)Math.Max(0, centerRefHeatMap.X - radiusRefHeatMap); x < (int)(Math.Min(nbCellInBaseHeatMapWidth, centerRefHeatMap.X + radiusRefHeatMap)); x++)
-                            {
-                                if (BaseHeatMapData[y, x] > -1) //On regarde si on n'est pas dans une zone exclue (valeur <= -1)
-                                    BaseHeatMapData[y, x] += strength * Math.Max(0, 1 - Math.Sqrt((centerRefHeatMap.X - x) * (centerRefHeatMap.X - x) + (centerRefHeatMap.Y - y) * (centerRefHeatMap.Y - y)) / radiusRefHeatMap);
-                                else
-                                    BaseHeatMapData[y, x] = -1;
-                            }
-                        }
-                    }
-                }
-
-                lock (preferredSegmentZoneList)
-                {
-                    foreach (var segmentZone in preferredSegmentZoneList)
-                    {
-                        var ptARefHeatMap = GetBaseHeatMapPosFromFieldCoordinates(segmentZone.PointA);
-                        var ptBRefHeatMap = GetBaseHeatMapPosFromFieldCoordinates(segmentZone.PointB);
-                        var radiusRefHeatMap = GetBaseHeatMapDistanceFromFieldDistance(segmentZone.Radius);
-                        var strength = segmentZone.Strength;
-
-                        for (int y = (int)Math.Max(0, Math.Min(ptARefHeatMap.Y, ptBRefHeatMap.Y) - radiusRefHeatMap); y < (int)Math.Min(nbCellInBaseHeatMapHeight, Math.Max(ptARefHeatMap.Y, ptBRefHeatMap.Y) + radiusRefHeatMap); y++)
-                        {
-                            for (int x = (int)Math.Max(0, Math.Min(ptARefHeatMap.X, ptBRefHeatMap.X) - radiusRefHeatMap); x < (int)(Math.Min(nbCellInBaseHeatMapWidth, Math.Max(ptARefHeatMap.X, ptBRefHeatMap.X) + radiusRefHeatMap)); x++)
-                            {
-                                if (BaseHeatMapData[y, x] > -1) //On regarde si on n'est pas dans une zone exclue (valeur <= -1)
-                                {
-                                    double distanceRefHeatMap = Toolbox.DistancePointToSegment(new PointD(x, y), ptARefHeatMap, ptBRefHeatMap);
-                                    BaseHeatMapData[y, x] += strength * Math.Max(0, 1 - distanceRefHeatMap  / radiusRefHeatMap);
-                                }
-                                else
-                                    BaseHeatMapData[y, x] = -1;
-                            }
-                        }
-                    }
-                }
-
-                lock (avoidanceConicalZoneList)
-                {
-                    foreach (var conicalZone in avoidanceConicalZoneList)
-                    {
-                        int[] listAbscissesZoneExclusionInferieure, listAbscissesZoneExclusionSuperieure;
-                        DefineZoneConique(conicalZone.InitPoint, conicalZone.Cible, conicalZone.Radius, out listAbscissesZoneExclusionInferieure, out listAbscissesZoneExclusionSuperieure);
-                        Parallel.For(0, nbCellInBaseHeatMapWidth, i =>
-                        {
-                            for (int j = Math.Max(0, listAbscissesZoneExclusionInferieure[i]); j <= Math.Min(nbCellInBaseHeatMapHeight - 1, listAbscissesZoneExclusionSuperieure[i]); j++)
-                            {
-                                BaseHeatMapData[j, i] -= 0.5;
-                            }
-                        }
-                        );
                     }
                 }
             }
+            //Gestion des zones interdites
+            lock (forbiddenRectangleList)
+            {
+                foreach (var forbiddenRectangle in forbiddenRectangleList)
+                {
+                    var xMinHeatMap = GetBaseHeatMapXPosFromFieldCoordinates(forbiddenRectangle.rectangularZone.Xmin);
+                    var xMaxHeatMap = GetBaseHeatMapXPosFromFieldCoordinates(forbiddenRectangle.rectangularZone.Xmax);
+                    var yMinHeatMap = GetBaseHeatMapYPosFromFieldCoordinates(forbiddenRectangle.rectangularZone.Ymin);
+                    var yMaxHeatMap = GetBaseHeatMapYPosFromFieldCoordinates(forbiddenRectangle.rectangularZone.Ymax);
+
+                    for (int y = (int)Math.Max(0, yMinHeatMap); y < (int)(Math.Min(nbCellInBaseHeatMapHeight, yMaxHeatMap)); y++)
+                    {
+                        for (int x = (int)Math.Max(0, xMinHeatMap); x < (int)(Math.Min(nbCellInBaseHeatMapWidth, xMaxHeatMap)); x++)
+                        {
+                            BaseHeatMapData[y, x] = -1;
+                        }
+                    }
+                }
+            }
+
+            lock (avoidanceZonesList)
+            {
+                foreach (var avoidanceZone in avoidanceZonesList)
+                {
+                    var centerRefHeatMap = GetBaseHeatMapPosFromFieldCoordinates(avoidanceZone.center);
+                    var radiusRefHeatMap = GetBaseHeatMapDistanceFromFieldDistance(avoidanceZone.radius);
+                    var strength = avoidanceZone.strength;
+
+                    for (int y = (int)Math.Max(0, centerRefHeatMap.Y - radiusRefHeatMap); y < (int)(Math.Min(nbCellInBaseHeatMapHeight, centerRefHeatMap.Y + radiusRefHeatMap)); y++)
+                    {
+                        for (int x = (int)Math.Max(0, centerRefHeatMap.X - radiusRefHeatMap); x < (int)(Math.Min(nbCellInBaseHeatMapWidth, centerRefHeatMap.X + radiusRefHeatMap)); x++)
+                        {
+                            if (BaseHeatMapData[y, x] > -1) //On regarde si on n'est pas dans une zone exclue (valeur <= -1)
+                                BaseHeatMapData[y, x] -= strength * Math.Max(0, 1 - Math.Sqrt((centerRefHeatMap.X - x) * (centerRefHeatMap.X - x) + (centerRefHeatMap.Y - y) * (centerRefHeatMap.Y - y)) / radiusRefHeatMap);
+                            else
+                                BaseHeatMapData[y, x] = -1;
+                        }
+                    }
+                }
+            }
+
+            lock (preferredZonesList)
+            {
+                foreach (var preferredZone in preferredZonesList)
+                {
+                    var centerRefHeatMap = GetBaseHeatMapPosFromFieldCoordinates(preferredZone.center);
+                    var radiusRefHeatMap = GetBaseHeatMapDistanceFromFieldDistance(preferredZone.radius);
+                    var strength = preferredZone.strength;
+
+                    for (int y = (int)Math.Max(0, centerRefHeatMap.Y - radiusRefHeatMap); y < (int)(Math.Min(nbCellInBaseHeatMapHeight, centerRefHeatMap.Y + radiusRefHeatMap)); y++)
+                    {
+                        for (int x = (int)Math.Max(0, centerRefHeatMap.X - radiusRefHeatMap); x < (int)(Math.Min(nbCellInBaseHeatMapWidth, centerRefHeatMap.X + radiusRefHeatMap)); x++)
+                        {
+                            if (BaseHeatMapData[y, x] > -1) //On regarde si on n'est pas dans une zone exclue (valeur <= -1)
+                                BaseHeatMapData[y, x] += strength * Math.Max(0, 1 - Math.Sqrt((centerRefHeatMap.X - x) * (centerRefHeatMap.X - x) + (centerRefHeatMap.Y - y) * (centerRefHeatMap.Y - y)) / radiusRefHeatMap);
+                            else
+                                BaseHeatMapData[y, x] = -1;
+                        }
+                    }
+                }
+            }
+
+            lock (preferredSegmentZoneList)
+            {
+                foreach (var segmentZone in preferredSegmentZoneList)
+                {
+                    var ptARefHeatMap = GetBaseHeatMapPosFromFieldCoordinates(segmentZone.PointA);
+                    var ptBRefHeatMap = GetBaseHeatMapPosFromFieldCoordinates(segmentZone.PointB);
+                    var radiusRefHeatMap = GetBaseHeatMapDistanceFromFieldDistance(segmentZone.Radius);
+                    var strength = segmentZone.Strength;
+
+                    for (int y = (int)Math.Max(0, Math.Min(ptARefHeatMap.Y, ptBRefHeatMap.Y) - radiusRefHeatMap); y < (int)Math.Min(nbCellInBaseHeatMapHeight, Math.Max(ptARefHeatMap.Y, ptBRefHeatMap.Y) + radiusRefHeatMap); y++)
+                    {
+                        for (int x = (int)Math.Max(0, Math.Min(ptARefHeatMap.X, ptBRefHeatMap.X) - radiusRefHeatMap); x < (int)(Math.Min(nbCellInBaseHeatMapWidth, Math.Max(ptARefHeatMap.X, ptBRefHeatMap.X) + radiusRefHeatMap)); x++)
+                        {
+                            if (BaseHeatMapData[y, x] > -1) //On regarde si on n'est pas dans une zone exclue (valeur <= -1)
+                            {
+                                double distanceRefHeatMap = Toolbox.DistancePointToSegment(new PointD(x, y), ptARefHeatMap, ptBRefHeatMap);
+                                BaseHeatMapData[y, x] += strength * Math.Max(0, 1 - distanceRefHeatMap / radiusRefHeatMap);
+                            }
+                            else
+                                BaseHeatMapData[y, x] = -1;
+                        }
+                    }
+                }
+            }
+
+            lock (avoidanceConicalZoneList)
+            {
+                foreach (var conicalZone in avoidanceConicalZoneList)
+                {
+                    int[] listAbscissesZoneExclusionInferieure, listAbscissesZoneExclusionSuperieure;
+                    DefineZoneConique(conicalZone.InitPoint, conicalZone.Cible, conicalZone.Radius, out listAbscissesZoneExclusionInferieure, out listAbscissesZoneExclusionSuperieure);
+                    Parallel.For(0, nbCellInBaseHeatMapWidth, i =>
+                    {
+                        for (int j = Math.Max(0, listAbscissesZoneExclusionInferieure[i]); j <= Math.Min(nbCellInBaseHeatMapHeight - 1, listAbscissesZoneExclusionSuperieure[i]); j++)
+                        {
+                            BaseHeatMapData[j, i] -= 0.5;
+                        }
+                    }
+                    );
+                }
+            }
+
         }
 
         public void ExcludeMaskedZones(PointD robotLocation, List<LocationExtended> obstacleLocationList, double exclusionRadius)
         {
-            lock (BaseHeatMapData)
+
+            int nbPolygonPoints = 40;
+
+            /// On calcule la pénalisation sur la liste des obstacles à éviter
+            lock (obstacleLocationList)
             {
-                int nbPolygonPoints = 40;
-
-                /// On calcule la pénalisation sur la liste des obstacles à éviter
-                lock (obstacleLocationList)
+                foreach (var obstacle in obstacleLocationList)
                 {
-                    foreach (var obstacle in obstacleLocationList)
-                    {
-                        int[] listAbscissesZoneExclusionInferieure, listAbscissesZoneExclusionSuperieure;
+                    int[] listAbscissesZoneExclusionInferieure, listAbscissesZoneExclusionSuperieure;
 
-                        DefineZoneConique(robotLocation, new PointD(obstacle.X, obstacle.Y), exclusionRadius, out listAbscissesZoneExclusionInferieure, out listAbscissesZoneExclusionSuperieure);
-                        Parallel.For(0, nbCellInBaseHeatMapWidth, i =>
+                    DefineZoneConique(robotLocation, new PointD(obstacle.X, obstacle.Y), exclusionRadius, out listAbscissesZoneExclusionInferieure, out listAbscissesZoneExclusionSuperieure);
+                    Parallel.For(0, nbCellInBaseHeatMapWidth, i =>
+                    {
+                        for (int j = Math.Max(0, listAbscissesZoneExclusionInferieure[i]); j <= Math.Min(nbCellInBaseHeatMapHeight - 1, listAbscissesZoneExclusionSuperieure[i]); j++)
                         {
-                            for (int j = Math.Max(0, listAbscissesZoneExclusionInferieure[i]); j <= Math.Min(nbCellInBaseHeatMapHeight - 1, listAbscissesZoneExclusionSuperieure[i]); j++)
-                            {
-                                BaseHeatMapData[j, i] = -1;
-                            }
+                            BaseHeatMapData[j, i] = -1;
                         }
-                        );
                     }
+                    );
                 }
             }
         }

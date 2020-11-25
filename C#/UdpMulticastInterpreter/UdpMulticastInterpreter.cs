@@ -15,7 +15,6 @@ namespace UdpMulticastInterpreter
             Id = id;
         }
         
-        DecimalJsonConverter decimalJsonConverter = new DecimalJsonConverter();
         public void OnMulticastDataReceived(object sender, EventArgsLibrary.DataReceivedArgs e)
         {
             lock (e.Data)
