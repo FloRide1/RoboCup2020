@@ -68,8 +68,18 @@ namespace WorldMapManager
                     else
                     {
                         var s = ZeroFormatterSerializer.Serialize<WorldMap.WorldMap>(transferLocalWorldMap);
-                        transferLocalWorldMap = (LocalWorldMap)ZeroFormatterSerializer.Deserialize<WorldMap.WorldMap>(s);
 
+
+                        var deserialzation = ZeroFormatterSerializer.Deserialize<WorldMap.WorldMap>(s);
+
+                        switch (deserialzation.Type)
+                        {
+                            case WorldMapType.LocalWM:
+                                transferLocalWorldMap = (LocalWorldMap)deserialzation;
+                                break;
+                            default:
+                                break;
+                        }
                         string json = JsonConvert.SerializeObject(transferLocalWorldMap, decimalJsonConverter);
 
 
