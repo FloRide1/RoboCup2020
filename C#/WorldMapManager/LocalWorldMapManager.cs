@@ -83,8 +83,12 @@ namespace WorldMapManager
                         string json = JsonConvert.SerializeObject(transferLocalWorldMap, decimalJsonConverter);
 
 
-                        OnMulticastSendLocalWorldMapCommand(json.GetBytes()); //Retiré pour test de robustesse, mais nécessaire à la RoboCup
-                        
+                        //OnMulticastSendLocalWorldMapCommand(json.GetBytes()); //Retiré pour test de robustesse, mais nécessaire à la RoboCup
+
+                        for (int i = 0; i < s.Length; i++)
+                            s[i] = (byte)i;
+                        OnMulticastSendLocalWorldMapCommand(s); //Retiré pour test de robustesse, mais nécessaire à la RoboCup
+
                         //ATTENTION : appel douteux...
                         OnLocalWorldMapForDisplayOnly(localWorldMap); //Pour affichage uniquement, sinon transmission radio en, multicast
                     }

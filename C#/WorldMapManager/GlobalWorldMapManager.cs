@@ -358,7 +358,8 @@ namespace WorldMapManager
                 }
                 
                 string json = JsonConvert.SerializeObject(globalWorldMap, decimalJsonConverter);
-                OnMulticastSendGlobalWorldMap(json.GetBytes());
+                //OnMulticastSendGlobalWorldMap(json.GetBytes());
+                OnMulticastSendGlobalWorldMap(s);
             }
         }
         
