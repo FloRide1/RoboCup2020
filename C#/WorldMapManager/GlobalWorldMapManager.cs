@@ -8,6 +8,7 @@ using System.Linq;
 using System.Timers;
 using Utilities;
 using WorldMap;
+using ZeroFormatter;
 
 namespace WorldMapManager
 {
@@ -343,6 +344,9 @@ namespace WorldMapManager
             }
             else
             {
+                var s = ZeroFormatterSerializer.Serialize<WorldMap.WorldMap>(globalWorldMap);
+                globalWorldMap = (GlobalWorldMap)ZeroFormatterSerializer.Deserialize<WorldMap.WorldMap>(s);
+
                 string json = JsonConvert.SerializeObject(globalWorldMap, decimalJsonConverter);
                 OnMulticastSendGlobalWorldMap(json.GetBytes());
             }
