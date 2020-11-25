@@ -41,7 +41,7 @@ namespace WorldMap
         public virtual List<Location> ballLocationList { get; set; }
         [Index(11)]
         public virtual List<LocationExtended> obstaclesLocationList { get; set; }
-        [Index(12)]
+        [IgnoreFormat]
         public virtual List<PolarPointListExtended> lidarObjectList { get; set; }
 
         [JsonIgnore]

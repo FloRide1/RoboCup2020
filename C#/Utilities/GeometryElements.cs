@@ -114,19 +114,19 @@ namespace Utilities
     public class LocationExtended
     {
         [Index(0)]
-        public double X { get; set; }
+        public virtual double X { get; set; }
         [Index(1)]
-        public double Y { get; set; }
+        public virtual double Y { get; set; }
         [Index(2)]
-        public double Theta { get; set; }
+        public virtual double Theta { get; set; }
         [Index(3)]
-        public double Vx { get; set; }
+        public virtual double Vx { get; set; }
         [Index(4)]
-        public double Vy { get; set; }
+        public virtual double Vy { get; set; }
         [Index(5)]
-        public double Vtheta { get; set; }
+        public virtual double Vtheta { get; set; }
         [Index(6)]
-        public ObjectType Type { get; set; }
+        public virtual ObjectType Type { get; set; }
 
         public LocationExtended()
         {

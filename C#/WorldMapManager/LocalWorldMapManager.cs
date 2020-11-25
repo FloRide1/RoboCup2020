@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Utilities;
 using WorldMap;
+using ZeroFormatter;
 
 namespace WorldMapManager
 {
@@ -66,6 +67,8 @@ namespace WorldMapManager
                     }
                     else
                     {
+                        var s = ZeroFormatterSerializer.Serialize<WorldMap.WorldMap>(transferLocalWorldMap);
+
                         string json = JsonConvert.SerializeObject(transferLocalWorldMap, decimalJsonConverter);
 
 
