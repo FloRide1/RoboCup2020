@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Shapes;
+using ZeroFormatter;
 
 namespace Utilities
 {
@@ -77,15 +78,26 @@ namespace Utilities
         public ObjectType type;
     }
 
+    [ZeroFormattable]
     public class Location
     {
-        public double X;
-        public double Y;
-        public double Theta;
-        public double Vx;
-        public double Vy;
-        public double Vtheta;
+        [Index(0)]
+        public virtual double X { get; set; }
+        [Index(1)]
+        public virtual double Y { get; set; }
+        [Index(2)]
+        public virtual double Theta { get; set; }
+        [Index(3)]
+        public virtual double Vx { get; set; }
+        [Index(4)]
+        public virtual double Vy { get; set; }
+        [Index(5)]
+        public virtual double Vtheta { get; set; }
 
+        public Location()
+        {
+
+        }
         public Location(double x, double y, double theta, double vx, double vy, double vtheta)
         {
             X = x;
@@ -97,16 +109,29 @@ namespace Utilities
         }
     }
 
+    //Pose probleme
+    [ZeroFormattable]
     public class LocationExtended
     {
-        public double X;
-        public double Y;
-        public double Theta;
-        public double Vx;
-        public double Vy;
-        public double Vtheta;
-        public ObjectType Type;
+        [Index(0)]
+        public double X { get; set; }
+        [Index(1)]
+        public double Y { get; set; }
+        [Index(2)]
+        public double Theta { get; set; }
+        [Index(3)]
+        public double Vx { get; set; }
+        [Index(4)]
+        public double Vy { get; set; }
+        [Index(5)]
+        public double Vtheta { get; set; }
+        [Index(6)]
+        public ObjectType Type { get; set; }
 
+        public LocationExtended()
+        {
+
+        }
         public LocationExtended(double x, double y, double theta, double vx, double vy, double vtheta, ObjectType type)
         {
             X = x;

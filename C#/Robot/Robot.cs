@@ -165,6 +165,8 @@ namespace Robot
         }
         static void Main(string[] args)
         {
+
+
             SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
 
             // Set this code once in App.xaml.cs or application startup
