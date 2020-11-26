@@ -81,7 +81,7 @@
     <Compile Include="StrategyInterface.cs" />
     <Compile Include="StrategyManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StrategyRoboCup\TaskBallManagement.cs" />
+    <Compile Include="StrategyRoboCup\TaskBallHandlingManagement.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Constants\Constants.csproj">

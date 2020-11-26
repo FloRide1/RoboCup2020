@@ -53,7 +53,6 @@ namespace StrategyManagerNS
         public Location robotCurrentLocation = new Location(0, 0, 0, 0, 0, 0);
         public double robotOrientation;
 
-        public bool isHandlingBall = false;
 
         Stopwatch sw = new Stopwatch();
         Stopwatch swGlobal = new Stopwatch();
@@ -109,18 +108,7 @@ namespace StrategyManagerNS
         }
 
 
-        public void OnBallHandlingSensorInfoReceived(object sender, BallHandlingSensorArgs e)
-        {
-            if (e.RobotId == robotId)
-            {
-                //Force l'état balle prise dans la machine à état de gestion de la prise tir de balle
-                isHandlingBall = e.IsHandlingBall;
-                if (isHandlingBall == true)
-                    ;
-            }
-            else
-                Console.WriteLine("Probleme d'ID robot");
-        }
+        
 
         bool displayConsole = false;
         private void TimerStrategy_Elapsed(object sender, ElapsedEventArgs e)
@@ -406,16 +394,6 @@ namespace StrategyManagerNS
         //    OnPlayingSideEvent?.Invoke(this, new  PlayingSideArgs { RobotId = id, PlaySide = playSide});
         //}
 
-
-        public event EventHandler<ShootEventArgs> OnShootRequestEvent;
-        public virtual void OnShootRequest(int id, double speed)
-        {
-            var handler = OnShootRequestEvent;
-            if (handler != null)
-            {
-                handler(this, new  ShootEventArgs { RobotId = id, shootingSpeed = speed});
-            }
-        }
 
 
         public event EventHandler<LocationArgs> OnWaypointEvent;

@@ -62,19 +62,19 @@ namespace Utilities
 
     public enum RobotRole
     {
+        Unassigned,
         Stopped,
+        Stones,
         Gardien,
-        DefenseurPlace,
-        DefenseurActif,
-        AttaquantAvecBalle,
-        AttaquantPlace,
-        ContesteurDeBalle,
+        DefenseurContesteur,
         DefenseurMarquage,
-        DefenseurInterception,
-        MilieuDemarque,
+        DefenseurIntercepteur,
+        AttaquantAvecBalle,
+        AttaquantIntercepteur,
         AttaquantDemarque,
         Eurobot_petit_robot,
         Eurobot_gros_robot,
+        Adversaire
     }
 
     public enum BallHandlingState

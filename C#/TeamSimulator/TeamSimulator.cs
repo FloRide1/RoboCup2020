@@ -10,6 +10,7 @@ using UDPMulticast;
 using UdpMulticastInterpreter;
 using WpfTeamInterfaceNS;
 using Utilities;
+using StrategyManagerNS.StrategyRoboCupNS;
 
 namespace TeamSimulator
 {
@@ -159,7 +160,7 @@ namespace TeamSimulator
             //strategyManager.strategy.OnHeatMapStrategyEvent += waypointGenerator.OnStrategyHeatMapReceived;
             strategyManager.strategy.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
             strategyManager.strategy.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
-            strategyManager.strategy.OnShootRequestEvent += physicalSimulator.OnShootOrderReceived;
+            ((StrategyRoboCup)strategyManager.strategy).OnShootRequestEvent += physicalSimulator.OnShootOrderReceived;
             //waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
             trajectoryPlanner.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
 
@@ -173,7 +174,8 @@ namespace TeamSimulator
             sensorSimulator.OnCamLidarSimulatedRobotPositionEvent += kalmanPositioning.OnCamLidarSimulatedRobotPositionReceived;
             sensorSimulator.OnGyroSimulatedRobotSpeedEvent += kalmanPositioning.OnGyroRobotSpeedReceived;
             sensorSimulator.OnOdometrySimulatedRobotSpeedEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
-            sensorSimulator.OnBallHandlingSimulatedEvent += strategyManager.strategy.OnBallHandlingSensorInfoReceived;
+            sensorSimulator.OnBallHandlingSimulatedEvent += ((StrategyRoboCup)strategyManager.strategy).OnBallHandlingSensorInfoReceived;
+
 
 
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;

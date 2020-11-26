@@ -20,15 +20,18 @@ namespace StrategyManagerNS.StrategyRoboCupNS
         RobotRole role = RobotRole.Stopped;
         public string MessageDisplay = "Debug";
         PlayingSide playingSide = PlayingSide.Left;
+        BallHandlingState ballHandlingState = BallHandlingState.NoBall;
 
-        TaskBallManagement taskBallManagement;
+        //public bool isHandlingBall = false;
+
+        TaskBallHandlingManagement taskBallHandlingManagement;
 
         public StrategyRoboCup(int robotId, int teamId) : base(robotId, teamId)
         {
             this.teamId = teamId;
             this.robotId = robotId;
 
-            taskBallManagement = new TaskBallManagement(this);
+            taskBallHandlingManagement = new TaskBallHandlingManagement(this);
         }
 
         public override void InitHeatMap()
@@ -62,12 +65,11 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                         /// 
                         /// On regarde si une des équipe a la balle
                         /// 
-
-
+                        
                         Dictionary<int, TeamMateRoleClassifier> teamRoleClassifier = new Dictionary<int, TeamMateRoleClassifier>();
                         foreach (var teammate in globalWorldMap.teammateLocationList)
                         {
-                            TeamMateRoleClassifier player = new TeamMateRoleClassifier(new PointD(teammate.Value.X, teammate.Value.Y), RobotRole.Stopped);
+                            TeamMateRoleClassifier player = new TeamMateRoleClassifier(new PointD(teammate.Value.X, teammate.Value.Y), RobotRole.Unassigned);
                             teamRoleClassifier.Add(teammate.Key, player);
                         }
 
@@ -79,91 +81,146 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                             }
                         }
 
-                        /// On détermine le rang du joueur dans l'équipe en fonction de sa distance au ballon                        
-                        int rangDistanceBalle = -1;
-                        if (globalWorldMap.ballLocationList.Count > 0)
-                        {
-                            var ballPosition = new PointD(globalWorldMap.ballLocationList[0].X, globalWorldMap.ballLocationList[0].Y);
-                            for (int i = 0; i < teamRoleClassifier.Count(); i++)
-                            {
-                                ///On ajoute à la liste en premier la distance à chacun des coéquipiers
-                                teamRoleClassifier.ElementAt(i).Value.DistanceBalle = Toolbox.Distance(teamRoleClassifier.ElementAt(i).Value.Position, ballPosition);
-                            }
-                        }
-
-                        /// On détermine le rang du joueur dans l'équipe en fonction de sa distance au but 
-                        /// Pour cela il faut d'abord définir la position du but.
-                        PointD goalPosition;
                         if (playingSide == PlayingSide.Right)
-                            goalPosition = new PointD(-11, 0);
-                        else
-                            goalPosition = new PointD(11, 0);
-
-                        for (int i = 0; i < globalWorldMap.teammateLocationList.Count(); i++)
                         {
-                            teamRoleClassifier.ElementAt(i).Value.DistanceBut = Toolbox.Distance(teamRoleClassifier.ElementAt(i).Value.Position, goalPosition);
-                        }
-
-                        ///On détermine à présent si l'équipe à la balle et quel joueur la possède
-                        ///
-                        var teamBallHandlingState = BallHandlingState.NoBall;
-                        int IdplayerHandlingBall = -1;
-                        foreach (var teammate in globalWorldMap.teammateBallHandlingStateList)
-                        {
-                            if (teammate.Value != BallHandlingState.NoBall)
+                            foreach (var teammate in teamRoleClassifier)
                             {
-                                teamBallHandlingState = teammate.Value;
-                                IdplayerHandlingBall = teammate.Key;
+                                if (teammate.Key % 10 != 0)
+                                {
+                                    teamRoleClassifier[teammate.Key].Role = RobotRole.Stones;
+                                }
                             }
                         }
-
-                        /// A présent, on filtre la liste de l'équipe de manière à trouver le joueur le plus proche de la balle n'étant pas le gardien
-                        var teamSansGardienOrdonnee = teamRoleClassifier.Where(x => x.Value.Role != RobotRole.Gardien).OrderBy(elt => elt.Value.DistanceBalle).ToList();
-
-                        if (teamSansGardienOrdonnee.Count > 0)
+                        else
                         {
+                            /// On détermine le rang du joueur dans l'équipe en fonction de sa distance au ballon                        
+                            int rangDistanceBalle = -1;
+                            if (globalWorldMap.ballLocationList.Count > 0)
+                            {
+                                var ballPosition = new PointD(globalWorldMap.ballLocationList[0].X, globalWorldMap.ballLocationList[0].Y);
+                                for (int i = 0; i < teamRoleClassifier.Count(); i++)
+                                {
+                                    ///On ajoute à la liste en premier la distance à chacun des coéquipiers
+                                    teamRoleClassifier.ElementAt(i).Value.DistanceBalle = Toolbox.Distance(teamRoleClassifier.ElementAt(i).Value.Position, ballPosition);
+                                }
+                            }
+
+                            /// On détermine le rang du joueur dans l'équipe en fonction de sa distance au but 
+                            /// Pour cela il faut d'abord définir la position du but.
+                            PointD offensiveGoalPosition;
+                            PointD defensiveGoalPosition;
                             if (playingSide == PlayingSide.Right)
-                                teamRoleClassifier[teamSansGardienOrdonnee.ElementAt(0).Key].Role = RobotRole.ContesteurDeBalle;
+                            {
+                                offensiveGoalPosition = new PointD(-11, 0);
+                                defensiveGoalPosition = new PointD(11, 0);
+                            }
                             else
-                                teamRoleClassifier[teamSansGardienOrdonnee.ElementAt(0).Key].Role = RobotRole.MilieuDemarque;
-                        }
+                            {
+                                defensiveGoalPosition = new PointD(-11, 0);
+                                offensiveGoalPosition = new PointD(11, 0);
+                            }
 
-                        /// A présent, on filtre la liste de l'équipe de manière à trouver le joueur le plus proche du but n'étant pas le gardien, ni le contesteur
-                        var teamSansGardienNiContesteurOrdonnee = teamRoleClassifier.Where(x => (x.Value.Role != RobotRole.Gardien) && (x.Value.Role != RobotRole.MilieuDemarque) && (x.Value.Role != RobotRole.ContesteurDeBalle)).OrderBy(elt => elt.Value.DistanceBut).ToList();
-                        if (teamSansGardienNiContesteurOrdonnee.Count > 0)
-                        {
-                            teamRoleClassifier[teamSansGardienNiContesteurOrdonnee.ElementAt(0).Key].Role = RobotRole.AttaquantDemarque;
-                        }
+                            for (int i = 0; i < globalWorldMap.teammateLocationList.Count(); i++)
+                            {
+                                teamRoleClassifier.ElementAt(i).Value.DistanceButOffensif = Toolbox.Distance(teamRoleClassifier.ElementAt(i).Value.Position, offensiveGoalPosition);
+                            }
 
-                        var teamSansGardienNiContesteurNiAttaquantOrdonnee = teamRoleClassifier.Where(x => (x.Value.Role != RobotRole.Gardien) && (x.Value.Role != RobotRole.AttaquantDemarque) && (x.Value.Role != RobotRole.ContesteurDeBalle)).OrderBy(elt => elt.Value.DistanceBut).ToList();
-                        if (teamSansGardienNiContesteurOrdonnee.Count > 0)
-                        {
-                            teamRoleClassifier[teamSansGardienNiContesteurNiAttaquantOrdonnee.ElementAt(0).Key].Role = RobotRole.DefenseurInterception;
-                            teamRoleClassifier[teamSansGardienNiContesteurNiAttaquantOrdonnee.ElementAt(1).Key].Role = RobotRole.DefenseurInterception;
-                        }
+                            ///On détermine à présent si l'équipe à la balle et quel joueur la possède
+                            ///
+                            var teamBallHandlingState = BallHandlingState.NoBall;
+                            int IdplayerHandlingBall = -1;
+                            foreach (var teammate in globalWorldMap.teammateBallHandlingStateList)
+                            {
+                                if (teammate.Value != BallHandlingState.NoBall)
+                                {
+                                    teamBallHandlingState = teammate.Value;
+                                    IdplayerHandlingBall = teammate.Key;
+                                }
+                            }
 
+                            /// Les indicateurs principaux nécessaire à la stratégie ont été déterminés : 
+                            /// Possession de balle, distance au but de chacun des coéquipiers et
+                            /// distance à la balle de chacun des équipiers.
+                            /// Il est donc posssible de prendre des décisions stratégiques de jeu
+                            /// On commence par choisir le mode défense ou attaque selon que l'on a la balle ou pas
+                            /// 
+
+                            if (teamBallHandlingState == BallHandlingState.NoBall)
+                            {
+                                /// L'équipe n'a pas la balle, elle se place en mode défense
+                                /// On veut deux joueurs en défense placée qui marquent les deux joueurs les plus en avant de l'équipe adverse
+                                /// On veut un joueur en contestation de balle
+                                /// On veut un joueur en défense d'interception qui coupe les lignes de passe adverses
+
+                                /// A présent, on filtre la liste de l'équipe de manière à trouver les deux joueurs 
+                                /// les plus proches du but n'étant pas le gardien
+                                var teamFiltered1 = teamRoleClassifier.Where(x => x.Value.Role == RobotRole.Unassigned).OrderBy(elt => elt.Value.DistanceButDefensif).ToList();
+
+                                if (teamFiltered1.Count > 1)
+                                {
+                                    teamRoleClassifier[teamFiltered1.ElementAt(0).Key].Role = RobotRole.DefenseurMarquage;
+                                    teamRoleClassifier[teamFiltered1.ElementAt(1).Key].Role = RobotRole.DefenseurMarquage;
+                                    //if (playingSide == PlayingSide.Right)
+                                    //    teamRoleClassifier[teamSansGardienOrdonnee.ElementAt(0).Key].Role = RobotRole.ContesteurDeBalle;
+                                    //else
+                                    //    teamRoleClassifier[teamSansGardienOrdonnee.ElementAt(0).Key].Role = RobotRole.MilieuDemarque;
+                                }
+
+                                /// A présent, on filtre la liste de l'équipe de manière à trouver le joueur le plus proche du but à défendre
+                                /// n'étant pas gardien, ni défenseur au marquage
+                                /// Il devient contesteur de balle
+                                var teamFiltered2 = teamRoleClassifier.Where(x => (x.Value.Role == RobotRole.Unassigned))
+                                                                      .OrderBy(elt => elt.Value.DistanceButDefensif).ToList();
+                                if (teamFiltered2.Count > 0)
+                                {
+                                    teamRoleClassifier[teamFiltered2.ElementAt(0).Key].Role = RobotRole.DefenseurContesteur;
+                                }
+
+                                /// A présent, on filtre la liste de l'équipe de manière à trouver le joueur le plus proche du but à défendre
+                                /// n'étant pas gardien, ni défenseur au marquage, ni contesteur
+                                /// Il devient défenseur intercepteur
+                                var teamFiltered3 = teamRoleClassifier.Where(x => (x.Value.Role == RobotRole.Unassigned))
+                                                                      .OrderBy(elt => elt.Value.DistanceButDefensif).ToList();
+                                if (teamFiltered3.Count > 0)
+                                {
+                                    teamRoleClassifier[teamFiltered3.ElementAt(0).Key].Role = RobotRole.DefenseurIntercepteur;
+                                }
+                            }
+
+                            else
+                            {
+                                /// L'équipe a la balle, elle se place en mode attaque
+                                /// On a un joueur ayant le ballon qui est l'attaquant avec balle
+                                /// On veut deux joueurs attaquants démarqués avec lignes de passes ouvertes
+                                /// On veut un attaquant placé entre un défenseur et l'attaquant ayant la balle
+                                /// 
+                                teamRoleClassifier[IdplayerHandlingBall].Role = RobotRole.AttaquantAvecBalle;
+
+                                var teamFiltered1 = teamRoleClassifier.Where(x => (x.Value.Role == RobotRole.Unassigned))
+                                                                      .OrderBy(elt => elt.Value.DistanceButOffensif).ToList();
+
+                                if (teamFiltered1.Count > 1)
+                                {
+                                    teamRoleClassifier[teamFiltered1.ElementAt(0).Key].Role = RobotRole.AttaquantDemarque;
+                                    teamRoleClassifier[teamFiltered1.ElementAt(1).Key].Role = RobotRole.AttaquantDemarque;
+                                }
+
+                                /// A présent, on filtre la liste de l'équipe de manière à trouver le joueur le plus proche du but en attaque
+                                /// n'étant pas gardien, ni attaquant avec le ballon ni attaquant Démarqué 
+                                /// Il devient attaquant intercepteur
+                                var teamFiltered2 = teamRoleClassifier.Where(x => (x.Value.Role == RobotRole.Unassigned))
+                                                                      .OrderBy(elt => elt.Value.DistanceButOffensif).ToList();
+                                if (teamFiltered2.Count > 0)
+                                {
+                                    teamRoleClassifier[teamFiltered2.ElementAt(0).Key].Role = RobotRole.AttaquantIntercepteur;
+                                }
+                            }
+                        }
                         role = teamRoleClassifier[robotId].Role;
-                        //int rangDistanceBut = -1;
-
-                        ///// En fonction de la distance au but et de la distance à la balle
-                        ///// on prend la décision d'attribution des rôles dans l'équipe
-                        ///// Le plus proche de la balle est COn
-
-                        //if (rangDistanceBalle == 0)
-                        //    role = RobotRole.ContesteurDeBalle;
-                        //else
-                        //{
-                        //    if (rangDistanceBut <= 1)
-                        //        role = RobotRole.AttaquantDemarque;
-                        //    else
-                        //        role = RobotRole.DefenseurInterception;
-                        //}
-
                     }
-
                     break;
                 case GameState.STOPPED_GAME_POSITIONING:
-                    role = RobotRole.DefenseurInterception;
+                    role = RobotRole.DefenseurIntercepteur;
                     break;
             }
 
@@ -197,6 +254,21 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                 AddForbiddenRectangle(new RectangleD(11, 11 - 0.75, -3.9 / 2, 3.9 / 2));
             }
 
+            /// On a besoin du rang des adversaires en fonction de leur distance au but 
+            /// Pour cela il faut d'abord définir la position du but.
+            PointD offensiveGoalPosition;
+            PointD defensiveGoalPosition;
+            if (playingSide == PlayingSide.Right)
+            {
+                offensiveGoalPosition = new PointD(-11, 0);
+                defensiveGoalPosition = new PointD(11, 0);
+            }
+            else
+            {
+                defensiveGoalPosition = new PointD(-11, 0);
+                offensiveGoalPosition = new PointD(11, 0);
+            }
+
             switch (role)
             {
                 case RobotRole.Gardien:
@@ -218,12 +290,90 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                     if (globalWorldMap.ballLocationList.Count > 0)
                         robotOrientation = Math.Atan2(globalWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, globalWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
                     break;
-                case RobotRole.ContesteurDeBalle:
+                case RobotRole.Stones:
+                    AddPreferedZone(new PointD(-5, 4), 1.5);
+                    AddPreferedZone(new PointD(-5, -4), 1.5);
+                    AddPreferedZone(new PointD(5, -4), 1.5);
+                    AddPreferedZone(new PointD(5, 4), 1.5);
+                    break;
+
+                case RobotRole.DefenseurContesteur:
                     if (globalWorldMap.ballLocationList.Count > 0)
                         AddPreferedZone(new PointD(globalWorldMap.ballLocationList[0].X, globalWorldMap.ballLocationList[0].Y), 3, 0.5);
                     if (globalWorldMap.ballLocationList.Count > 0)
                         robotOrientation = Math.Atan2(globalWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, globalWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
 
+                    break;
+                case RobotRole.DefenseurMarquage:
+                    {
+                        /// On va placer un défenseur à une distance définie de l'attaquant, sur la ligne attaquant but
+                        /// Les zones d'intérêt sont devant les deux attaquants les plus en pointe
+                        /// Il faut donc commencer par les trouver
+                        Dictionary<int, TeamMateRoleClassifier> adversaireClassifier = new Dictionary<int, TeamMateRoleClassifier>();
+                        int i = 0;
+                        foreach (var adversaire in globalWorldMap.obstacleLocationList)
+                        {
+                            var adv = new TeamMateRoleClassifier(new PointD(adversaire.X, adversaire.Y), RobotRole.Adversaire);
+                            adv.DistanceButDefensif = Toolbox.Distance(new PointD(adversaire.X, adversaire.Y), defensiveGoalPosition);
+                            adversaireClassifier.Add(i++, adv);
+                        }
+
+                        /// A présent, on filtre la liste des adversaires de manière à trouver les joueurs les plus proches du but en défense
+                        /// 
+                        var teamFiltered1 = adversaireClassifier.OrderBy(elt => elt.Value.DistanceButDefensif).ToList();
+
+                        if (teamFiltered1.Count > 1)
+                        {
+                            if (playingSide == PlayingSide.Right)
+                            {
+                                AddPreferedZone(new PointD(teamFiltered1[0].Value.Position.X + 2, teamFiltered1[0].Value.Position.Y), 1.5);
+                                AddPreferedZone(new PointD(teamFiltered1[1].Value.Position.X + 2, teamFiltered1[1].Value.Position.Y), 1.5);
+                            }
+                            else
+                            {
+                                AddPreferedZone(new PointD(teamFiltered1[0].Value.Position.X - 2, teamFiltered1[0].Value.Position.Y), 1.5);
+                                AddPreferedZone(new PointD(teamFiltered1[1].Value.Position.X - 2, teamFiltered1[1].Value.Position.Y), 1.5);
+                            }
+                        }
+
+                        if (globalWorldMap.ballLocationList.Count > 0)
+                            robotOrientation = Math.Atan2(globalWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, globalWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
+
+                    }
+                    break;
+
+                case RobotRole.DefenseurIntercepteur:
+                    {
+                        /// On va placer un défenseur à une distance définie de l'attaquant, sur la ligne attaquant but
+                        /// Les zones d'intérêt sont devant les deux attaquants les plus en pointe
+                        /// Il faut donc commencer par les trouver
+                        Dictionary<int, TeamMateRoleClassifier> adversaireClassifier = new Dictionary<int, TeamMateRoleClassifier>();
+                        int i = 0;
+                        foreach (var adversaire in globalWorldMap.obstacleLocationList)
+                        {
+                            var adv = new TeamMateRoleClassifier(new PointD(adversaire.X, adversaire.Y), RobotRole.Adversaire);
+                            adv.DistanceButDefensif = Toolbox.Distance(new PointD(adversaire.X, adversaire.Y), defensiveGoalPosition);
+                            adversaireClassifier.Add(i++, adv);
+                        }
+
+                        /// A présent, on filtre la liste des adversaires de manière à trouver les joueurs les plus proches du but en défense
+                        /// 
+                        var teamFiltered1 = adversaireClassifier.OrderBy(elt => elt.Value.DistanceButDefensif).ToList();
+
+                        if (teamFiltered1.Count > 1)
+                        {
+                            var adversaire1 = teamFiltered1[0].Value.Position;
+                            var adversaire2 = teamFiltered1[1].Value.Position;
+                            AddPreferredSegmentZoneList(new PointD(adversaire1.X, adversaire1.Y), new PointD(adversaire2.X, adversaire2.Y), 0.4, 0.1);
+                            AddAvoidanceZone(new PointD(adversaire1.X, adversaire1.Y), 2, 0.5);
+
+                            //AddPreferedZone(new PointD((teamFiltered1[0].Value.Position.X + teamFiltered1[1].Value.Position.X) / 2, (teamFiltered1[0].Value.Position.Y + teamFiltered1[0].Value.Position.Y) / 2), 2.5);
+                        }
+
+                        if (globalWorldMap.ballLocationList.Count > 0)
+                            robotOrientation = Math.Atan2(globalWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, globalWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
+
+                    }
                     break;
                 case RobotRole.AttaquantDemarque:
                     /// Gestion du cas de l'attaquant démarqué
@@ -253,25 +403,71 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                         robotOrientation = Math.Atan2(globalWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, globalWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
 
                     break;
-                case RobotRole.DefenseurInterception:
-                    foreach (var adversaire1 in globalWorldMap.obstacleLocationList)
+
+                case RobotRole.AttaquantAvecBalle:
                     {
-                        foreach (var adversaire2 in globalWorldMap.obstacleLocationList)
+                        /// L'attaquant avec balle doit aller vers le but si il a de l'espace
+                        /// Il peut faire des passes à ses coéquipiers démarqués si il est dans une zone un peu dense
+                        /// 
+                        /// On va placer un défenseur à une distance définie de l'attaquant, sur la ligne attaquant but
+                        /// Les zones d'intérêt sont devant les deux attaquants les plus en pointe
+                        /// Il faut donc commencer par les trouver
+                        
+                        Dictionary<int, TeamMateRoleClassifier> adversaireClassifier = new Dictionary<int, TeamMateRoleClassifier>();
+                        int i = 0;
+                        foreach (var adversaire in globalWorldMap.obstacleLocationList)
                         {
-                            if(adversaire1!=adversaire2)
+                            var adv = new TeamMateRoleClassifier(new PointD(adversaire.X, adversaire.Y), RobotRole.Adversaire);
+                            adv.DistanceRobotConsidere = Toolbox.Distance(new PointD(adversaire.X, adversaire.Y), new PointD(robotCurrentLocation.X, robotCurrentLocation.Y));
+                            adversaireClassifier.Add(i++, adv);
+                        }
+
+                        /// A présent, on filtre la liste des adversaires de manière à trouver les joueurs les plus proches du robot considéré
+                        /// 
+                        var teamFiltered1 = adversaireClassifier.OrderBy(elt => elt.Value.DistanceRobotConsidere).ToList();
+
+                        if (teamFiltered1.Count > 0)
+                        {
+                            var adversaireLePlusProche = teamFiltered1[0].Value.Position;
+                            if (teamFiltered1[0].Value.DistanceRobotConsidere > 2)
                             {
-                                //AddPreferedZone(new PointD((adversaire1.X + adversaire2.X) / 2, (adversaire1.Y + adversaire2.Y) / 2), 1.4, 0.5);                                
-                                AddPreferredSegmentZoneList(new PointD(adversaire1.X, adversaire1.Y), new PointD(adversaire2.X, adversaire2.Y), 0.4, 0.1);
-                                AddAvoidanceZone(new PointD(adversaire1.X, adversaire1.Y),2, 0.2);
-                                //AddPreferedZone(new PointD((adversaire1.X + adversaire2.X) / 2, (adversaire1.Y + adversaire2.Y) / 2), 1.4, 0.5);
+                                ///On a au moins 2m devant nous, on va vers le but
+                                ///TODO : raffiner pour ne prendre en compte que les robots entre le but et nous...
+                                AddPreferedZone(offensiveGoalPosition, 5);
+                                robotOrientation = Math.Atan2(offensiveGoalPosition.Y - robotCurrentLocation.Y, offensiveGoalPosition.X - robotCurrentLocation.X);
+                                /// Si on est suffisament proche du but, on tire
+                                if(Toolbox.Distance(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), offensiveGoalPosition) < 4)
+                                    {
+                                    ///On tire !
+                                    OnShootRequest(robotId, 6);
+                                }
                             }
+                            else
+                            {
+                                ///Il y a du monde en face, on prépare une passe
+                                Dictionary<int, TeamMateRoleClassifier> teamMateClassifier = new Dictionary<int, TeamMateRoleClassifier>();
+                                int j = 0;
+                                //foreach (var teamMateLoc in globalWorldMap.teammateLocationList)
+                                //{
+                                //    var adv = new TeamMateRoleClassifier(new PointD(adversaire.X, adversaire.Y), RobotRole.Adversaire);
+                                //    adv.DistanceRobotConsidere = Toolbox.Distance(new PointD(adversaire.X, adversaire.Y), new PointD(robotCurrentLocation.X, robotCurrentLocation.Y));
+                                //    adversaireClassifier.Add(i++, adv);
+                                //}
+                                AddPreferedZone(offensiveGoalPosition, 2);
+
+
+                            }
+                            //AddPreferredSegmentZoneList(new PointD(adversaire1.X, adversaire1.Y), new PointD(adversaire2.X, adversaire2.Y), 0.4, 0.1);
+                            //AddAvoidanceZone(new PointD(adversaire1.X, adversaire1.Y), 2, 0.5);
+
+                            //AddPreferedZone(new PointD((teamFiltered1[0].Value.Position.X + teamFiltered1[1].Value.Position.X) / 2, (teamFiltered1[0].Value.Position.Y + teamFiltered1[0].Value.Position.Y) / 2), 2.5);
                         }
                     }
-                    if (globalWorldMap.ballLocationList.Count > 0)
-                        robotOrientation = Math.Atan2(globalWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, globalWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
 
                     break;
-            }
+
+
+                                }
         }
         public override void IterateStateMachines()
         {
@@ -291,9 +487,32 @@ namespace StrategyManagerNS.StrategyRoboCupNS
 
             //AddForbiddenRectangle(new RectangleD(-5, 3, 4, 6));
         }
+        
 
+        /*********************************** Events reçus **********************************************/
+        public void OnBallHandlingSensorInfoReceived(object sender, BallHandlingSensorArgs e)
+        {
+            if (e.RobotId == robotId)
+            {
+                if (e.IsHandlingBall && taskBallHandlingManagement.state != TaskBallHandlingManagementState.PossessionBalleEnCours)
+                    //Force l'état balle prise dans la machine à état de gestion de la prise tir de 
+                    taskBallHandlingManagement.SetTaskState(TaskBallHandlingManagementState.PossessionBalle);
 
+            }
+            else
+                Console.WriteLine("Probleme d'ID robot");
+        }
 
+        /*********************************** Events de sortie **********************************************/
+        public event EventHandler<ShootEventArgs> OnShootRequestEvent;
+        public virtual void OnShootRequest(int id, double speed)
+        {
+            var handler = OnShootRequestEvent;
+            if (handler != null)
+            {
+                handler(this, new ShootEventArgs { RobotId = id, shootingSpeed = speed });
+            }
+        }
     }
 
     public class TeamMateRoleClassifier
@@ -301,7 +520,9 @@ namespace StrategyManagerNS.StrategyRoboCupNS
         public PointD Position;
         public RobotRole Role;
         public double DistanceBalle;
-        public double DistanceBut;
+        public double DistanceRobotConsidere;
+        public double DistanceButOffensif;
+        public double DistanceButDefensif;
 
         public TeamMateRoleClassifier(PointD position, RobotRole role)
         {
