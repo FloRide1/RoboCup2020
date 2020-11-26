@@ -364,7 +364,7 @@ namespace WorldMapManager
                 //OnMulticastSendGlobalWorldMap(json.GetBytes());
 
                 OnMulticastSendGlobalWorldMap(s);
-                GWMEmiseMonitoring.GWMEmiseMonitor(s.Length);
+                //GWMEmiseMonitoring.GWMEmiseMonitor(s.Length);
             }
         }
         

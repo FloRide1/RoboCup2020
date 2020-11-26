@@ -211,7 +211,7 @@ namespace KalmanPositioning
                                                             kalmanLocationRefRobotVx, kalmanLocationRefRobotVy, kalmanLocationRefTerrain.Vtheta);
 
                 OnKalmanLocation(robotId, kalmanOutputLocation);
-                KalmanMonitor.KalmanReceived();
+                //KalmanMonitor.KalmanReceived();
             }
         }
 

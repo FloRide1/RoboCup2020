@@ -37,7 +37,7 @@ namespace WorldMapManager
         DecimalJsonConverter decimalJsonConverter = new DecimalJsonConverter();
         public void OnPerceptionReceived(object sender, EventArgsLibrary.PerceptionArgs e)
         {
-            PerceptionMonitor.PerceptionReceived();
+            //PerceptionMonitor.PerceptionReceived();
             if (localWorldMap == null)
                 return;
             if (localWorldMap.RobotId == e.RobotId)
@@ -94,7 +94,7 @@ namespace WorldMapManager
                         //ATTENTION : appel douteux...
                         OnLocalWorldMapForDisplayOnly(localWorldMap); //Pour affichage uniquement, sinon transmission radio en, multicast
 
-                        LWMEmiseMonitoring.LWMEmiseMonitor(s.Length);
+                        //LWMEmiseMonitoring.LWMEmiseMonitor(s.Length);
                     }
                 }
             }

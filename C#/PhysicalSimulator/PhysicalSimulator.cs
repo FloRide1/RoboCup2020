@@ -231,7 +231,7 @@ namespace PhysicalSimulator
                 OnPhysicalBallHandling(robot.Key, robot.Value.IsHandlingBall);
 
                 /// Pour le debug
-                PhysicalSimulatorMonitor.PhysicalSimulatorReceived();
+                //PhysicalSimulatorMonitor.PhysicalSimulatorReceived();
             }
 
             //Calcul de la nouvelle location des balles
