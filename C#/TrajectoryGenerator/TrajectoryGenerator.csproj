@@ -80,6 +80,10 @@
       <Project>{DD8FD061-D3B2-43AE-B74D-03D94A2876A3}</Project>
       <Name>Perception</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PerformanceMonitorTools\PerformanceMonitorTools.csproj">
+      <Project>{E43FD01A-2803-412C-8B33-256D3F681029}</Project>
+      <Name>PerformanceMonitorTools</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8e7d0da4-9a13-4b18-a90e-0243bbcce40a}</Project>
       <Name>Utilities</Name>

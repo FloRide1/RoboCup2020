@@ -1,7 +1,9 @@
 ﻿using AdvancedTimers;
 using EventArgsLibrary;
 using PerceptionManagement;
+using PerformanceMonitorTools;
 using System;
+using System.Diagnostics;
 using Utilities;
 using WorldMap;
 
@@ -11,13 +13,13 @@ namespace TrajectoryGenerator
     {
         int robotId = 0;
 
-        Location currentLocation;
+        Location currentLocationRefTerrain;
         Location wayPointLocation;
-        Location ghostLocation;
+        Location ghostLocationRefTerrain;
 
         GameState currentGameState = GameState.PLAYING;
 
-        double FreqEch = 30.0;
+        //double FreqEch = 30.0;
 
         //double accelLineaireMax = 0.1; //en m.s-2
         //double accelRotationCapVitesseMax = 2* Math.PI * 0.25; //en rad.s-2
@@ -27,7 +29,7 @@ namespace TrajectoryGenerator
         //double vitesseRotationCapVitesseMax = 2*Math.PI * 0.4; //en rad.s-1
         //double vitesseRotationOrientationRobotMax = 2*Math.PI * 0.1; //en rad.s-1
 
-        double accelLineaireMax = 1; //en m.s-2
+        double accelLineaireMax = 4; //en m.s-2
         double accelRotationCapVitesseMax = 2 * Math.PI * 1.0; //en rad.s-2
         double accelRotationOrientationRobotMax = 2 * Math.PI * 1.0; //en rad.s-2
 
@@ -48,9 +50,9 @@ namespace TrajectoryGenerator
 
         void InitPositionPID()
         {
-            PID_X = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 100, 100, 1);
-            PID_Y = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 100, 100, 1);
-            PID_Theta = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5*Math.PI, 5*Math.PI, Math.PI); //Validé VG : 20 20 0 2PI 2PI 0..5
+            PID_X = new AsservissementPID(20.0, 10.0, 0, 100, 100, 1);
+            PID_Y = new AsservissementPID(20.0, 10.0, 0, 100, 100, 1);
+            PID_Theta = new AsservissementPID(20.0, 10.0, 0, 5*Math.PI, 5*Math.PI, Math.PI); 
 
             PidConfigUpdateTimer = new System.Timers.Timer(1000);
             PidConfigUpdateTimer.Elapsed += PidConfigUpdateTimer_Elapsed;
@@ -60,14 +62,13 @@ namespace TrajectoryGenerator
 
         private void PidConfigUpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            /// Archivage Eurobot
-            //PID_X.Init(kp:5.0, ki:20.0, kd:0, 0.5, 0.5, 0);
-            //PID_Y.Init(kp:5.0, ki:20.0, kd:0, 0.5, 0.5, 0);
-            //PID_Theta.Init(kp:5.0, ki:20.0, kd:0, 0.5, 0.5, 0);
+            PID_X.Init(kp: 50.0, ki: 0.0, kd: 4.0, 10000, 10000, 10000);
+            PID_Y.Init(kp: 50.0, ki: 0.0, kd: 4.0, 10000, 10000, 10000);
+            PID_Theta.Init(kp: 12.0, ki: 0.0, kd: 1.0, 10000, 10000, 10000);
 
-            PID_X.Init(kp: 20.0, ki: 80.0, kd: 0.0, 10000, 10000, 10000);
-            PID_Y.Init(kp: 20.0, ki: 80.0, kd: 0.0, 10000, 10000, 10000);
-            PID_Theta.Init(kp: 20.0, ki: 80.0, kd: 0.0, 10000, 10000, 10000);
+            //PID_X.Init(kp: 0, ki: 0.0, kd: 4.0, 10000, 10000, 10000);
+            //PID_Y.Init(kp: 0, ki: 0.0, kd: 4.0, 10000, 10000, 10000);
+            //PID_Theta.Init(kp: 0, ki: 0.0, kd: 1.0, 10000, 10000, 10000);
         }
 
         public TrajectoryPlanner(int id)
@@ -79,14 +80,14 @@ namespace TrajectoryGenerator
 
         public void InitRobotPosition(double x, double y, double theta)
         {
-            Location old_currectLocation = currentLocation;
-            currentLocation = new Location(x, y, theta, 0, 0, 0);
+            Location old_currectLocation = currentLocationRefTerrain;
+            currentLocationRefTerrain = new Location(x, y, theta, 0, 0, 0);
             wayPointLocation = new Location(x, y, theta, 0, 0, 0);
-            ghostLocation = new Location(x, y, theta, 0, 0, 0);
+            ghostLocationRefTerrain = new Location(x, y, theta, 0, 0, 0);
             if(old_currectLocation == null)
-                OnCollision(robotId, currentLocation);
-            else if (Toolbox.Distance(new PointD(old_currectLocation.X, old_currectLocation.Y), new PointD(currentLocation.X, currentLocation.Y)) > 0.5)
-                OnCollision(robotId, currentLocation);
+                OnCollision(robotId, currentLocationRefTerrain);
+            else if (Toolbox.Distance(new PointD(old_currectLocation.X, old_currectLocation.Y), new PointD(currentLocationRefTerrain.X, currentLocationRefTerrain.Y)) > 0.5)
+                OnCollision(robotId, currentLocationRefTerrain);
             PIDPositionReset();
         }
         
@@ -96,13 +97,23 @@ namespace TrajectoryGenerator
             wayPointLocation = e.Location;
         }
 
+
+        Stopwatch swTimeInterPhysicalPositionReceived = new Stopwatch();
+        double InstantPhysicalPositionReceived_1 = 0;
         public void OnPhysicalPositionReceived(object sender, EventArgsLibrary.LocationArgs e)
         {
+            if (!swTimeInterPhysicalPositionReceived.IsRunning)
+                swTimeInterPhysicalPositionReceived.Start();
+
+            double InstantPhysicalPositionReceived = swTimeInterPhysicalPositionReceived.ElapsedMilliseconds;
+            double elapsedTimeBetweenSamples = (InstantPhysicalPositionReceived - InstantPhysicalPositionReceived_1)/1000;
+            InstantPhysicalPositionReceived_1 = InstantPhysicalPositionReceived;
+
             if (robotId == e.RobotId)
             {
-                currentLocation = e.Location;
-                CalculateGhostPosition();
-                PIDPosition();
+                currentLocationRefTerrain = e.Location;
+                CalculateGhostPosition(elapsedTimeBetweenSamples);
+                PIDPosition(elapsedTimeBetweenSamples);
             }
         }
 
@@ -125,32 +136,34 @@ namespace TrajectoryGenerator
         }
 
 
-        void PIDPosition()
+        void PIDPosition(double elapsedTimeBetweenSamples)
         {
-            if (ghostLocation != null)
+            if (ghostLocationRefTerrain != null)
             {
-                double erreurXRefTerrain = ghostLocation.X - currentLocation.X;
-                double erreurYRefTerrain = ghostLocation.Y - currentLocation.Y;
-                currentLocation.Theta = Toolbox.ModuloByAngle(ghostLocation.Theta, currentLocation.Theta);
-                double erreurTheta = ghostLocation.Theta - currentLocation.Theta;
+                double erreurXRefTerrain = ghostLocationRefTerrain.X - currentLocationRefTerrain.X;
+                double erreurYRefTerrain = ghostLocationRefTerrain.Y - currentLocationRefTerrain.Y;
+                currentLocationRefTerrain.Theta = Toolbox.ModuloByAngle(ghostLocationRefTerrain.Theta, currentLocationRefTerrain.Theta);
+                double erreurTheta = ghostLocationRefTerrain.Theta - currentLocationRefTerrain.Theta;
 
                 //Changement de repère car les asservissements se font dans le référentiel du robot
-                double erreurXRefRobot = erreurXRefTerrain * Math.Cos(currentLocation.Theta) + erreurYRefTerrain * Math.Sin(currentLocation.Theta);
-                double erreurYRefRobot = -erreurXRefTerrain * Math.Sin(currentLocation.Theta) + erreurYRefTerrain * Math.Cos(currentLocation.Theta);
+                double erreurXRefRobot = erreurXRefTerrain * Math.Cos(currentLocationRefTerrain.Theta) + erreurYRefTerrain * Math.Sin(currentLocationRefTerrain.Theta);
+                double erreurYRefRobot = -erreurXRefTerrain * Math.Sin(currentLocationRefTerrain.Theta) + erreurYRefTerrain * Math.Cos(currentLocationRefTerrain.Theta);
 
-                //double vxGhostRefRobot = ghostLocation.Vx * Math.Cos(currentLocation.Theta) + ghostLocation.Vy * Math.Sin(currentLocation.Theta);
-                //double vyGhostRefRobot = -ghostLocation.Vx * Math.Sin(currentLocation.Theta) + ghostLocation.Vy * Math.Cos(currentLocation.Theta); 
+                ////For testing purpose only
+                //double vxGhostRefRobot = ghostLocationRefTerrain.Vx * Math.Cos(currentLocationRefTerrain.Theta) + ghostLocationRefTerrain.Vy * Math.Sin(currentLocationRefTerrain.Theta);
+                //double vyGhostRefRobot = -ghostLocationRefTerrain.Vx * Math.Sin(currentLocationRefTerrain.Theta) + ghostLocationRefTerrain.Vy * Math.Cos(currentLocationRefTerrain.Theta);
                 //double vxRefRobot = vxGhostRefRobot;
                 //double vyRefRobot = vyGhostRefRobot;
-                //double vtheta = ghostLocation.Vtheta;
+                //double vtheta = ghostLocationRefTerrain.Vtheta;
 
                 /// Problème probable : si on met la vitesse du ghost sur les moteurs, on n'a pas le même comportement... 
                 /// Ca ne peut pas marcher correctement ce genre de chose...
                 /// Il faut le corriger impérativement !
+                elapsedTimeBetweenSamples = 1 / 50.0;
 
-                double vxRefRobot = PID_X.CalculatePIDoutput(erreurXRefRobot);
-                double vyRefRobot = PID_Y.CalculatePIDoutput(erreurYRefRobot);
-                double vtheta = PID_Theta.CalculatePIDoutput(erreurTheta);
+                double vxRefRobot = PID_X.CalculatePIDoutput(erreurXRefRobot, elapsedTimeBetweenSamples);
+                double vyRefRobot = PID_Y.CalculatePIDoutput(erreurYRefRobot, elapsedTimeBetweenSamples);
+                double vtheta = PID_Theta.CalculatePIDoutput(erreurTheta, elapsedTimeBetweenSamples);
 
                 //On regarde si la position du robot est proche de la position du ghost
                 double seuilToleranceEcartGhost = 1.0;
@@ -162,10 +175,10 @@ namespace TrajectoryGenerator
                 else
                 {
                     //Sinon, le robot a rencontré un obstacle ou eu un problème, on arrête le robot et on réinitialise les correcteurs et la ghostLocation
-                    OnCollision(robotId, currentLocation);
+                    OnCollision(robotId, currentLocationRefTerrain);
                     OnSpeedConsigneToRobot(robotId, 0, 0, 0);
 
-                    ghostLocation = currentLocation;
+                    ghostLocationRefTerrain = currentLocationRefTerrain;
                     PIDPositionReset();
                     OnPidSpeedReset(robotId);
                 }
@@ -207,21 +220,23 @@ namespace TrajectoryGenerator
             OnMessageToDisplayPositionPidSetup(PositionPidSetup);
         }
 
-        void CalculateGhostPosition()
+        void CalculateGhostPosition(double ElapsedTimeBetweenCalculation)
         {
+
+            TrajectoryGeneratorMonitor.TrajectoryGeneratorReceived();
             if (wayPointLocation == null)
                 return;
-            if (ghostLocation == null)
+            if (ghostLocationRefTerrain == null)
                 return;
 
             /************************* Début du calcul préliminaire des infos utilisées ensuite ****************************/
             
             //Calcul du cap du Waypoint dans les référentiel terrain et robot
             double CapWayPointRefTerrain;
-            if (wayPointLocation.X - ghostLocation.X != 0)
-                CapWayPointRefTerrain = Math.Atan2(wayPointLocation.Y - ghostLocation.Y, wayPointLocation.X - ghostLocation.X);
+            if (wayPointLocation.X - ghostLocationRefTerrain.X != 0)
+                CapWayPointRefTerrain = Math.Atan2(wayPointLocation.Y - ghostLocationRefTerrain.Y, wayPointLocation.X - ghostLocationRefTerrain.X);
             else
-                CapWayPointRefTerrain = Math.Atan2(wayPointLocation.Y - ghostLocation.Y, 0.0001);
+                CapWayPointRefTerrain = Math.Atan2(wayPointLocation.Y - ghostLocationRefTerrain.Y, 0.0001);
 
             //double CapWayPointRefRobot = CapWayPointRefTerrain - ghostLocation.Theta;
             CapWayPointRefTerrain = Toolbox.ModuloByAngle(capVitesseRefTerrain, CapWayPointRefTerrain);
@@ -229,16 +244,16 @@ namespace TrajectoryGenerator
             //Calcul de l'écart de cap
             double ecartCapVitesse = CapWayPointRefTerrain - capVitesseRefTerrain;
 
-            ghostLocation.Theta = Toolbox.ModuloByAngle(wayPointLocation.Theta, ghostLocation.Theta);
-            double ecartOrientationRobot = wayPointLocation.Theta - ghostLocation.Theta;
+            ghostLocationRefTerrain.Theta = Toolbox.ModuloByAngle(wayPointLocation.Theta, ghostLocationRefTerrain.Theta);
+            double ecartOrientationRobot = wayPointLocation.Theta - ghostLocationRefTerrain.Theta;
             
             //Calcul de la distance au WayPoint
-            double distanceWayPoint = Math.Sqrt(Math.Pow(wayPointLocation.Y - ghostLocation.Y, 2) + Math.Pow(wayPointLocation.X - ghostLocation.X, 2));
+            double distanceWayPoint = Math.Sqrt(Math.Pow(wayPointLocation.Y - ghostLocationRefTerrain.Y, 2) + Math.Pow(wayPointLocation.X - ghostLocationRefTerrain.X, 2));
             if (distanceWayPoint < 0.05)
                 distanceWayPoint = 0;
 
             //Calcul de la vitesse linéaire du robot
-            double vitesseLineaireRobot = Math.Sqrt(Math.Pow(ghostLocation.Vx, 2) + Math.Pow(ghostLocation.Vy, 2));
+            double vitesseLineaireRobot = Math.Sqrt(Math.Pow(ghostLocationRefTerrain.Vx, 2) + Math.Pow(ghostLocationRefTerrain.Vy, 2));
 
             //Calacul de la distance de freinage 
             double distanceFreinageLineaire = Math.Pow(vitesseLineaireRobot, 2) / (2 * accelLineaireMax);
@@ -254,18 +269,18 @@ namespace TrajectoryGenerator
             if (Math.Abs(ecartCapVitesse) < Math.PI / 2) //Le WayPoint est devant
             {
                 if (distanceWayPoint > distanceFreinageLineaire)
-                    nouvelleVitesseLineaire = Math.Min(vitesseLineaireMax, vitesseLineaireRobot + accelLineaireMax / FreqEch); //On accélère
+                    nouvelleVitesseLineaire = Math.Min(vitesseLineaireMax, vitesseLineaireRobot + accelLineaireMax * ElapsedTimeBetweenCalculation); //On accélère
                 else
                     //On détermine la valeur du freinage en fonction des conditions
-                    nouvelleVitesseLineaire = Math.Max(0, vitesseLineaireRobot - accelLineaireMax / FreqEch); //On freine
+                    nouvelleVitesseLineaire = Math.Max(0, vitesseLineaireRobot - accelLineaireMax * ElapsedTimeBetweenCalculation); //On freine
             }
             else //Le WayPoint est derrière
             {
                 if (distanceWayPoint > distanceFreinageLineaire)
-                    nouvelleVitesseLineaire = Math.Max(-vitesseLineaireMax, vitesseLineaireRobot - accelLineaireMax / FreqEch); //On accélère
+                    nouvelleVitesseLineaire = Math.Max(-vitesseLineaireMax, vitesseLineaireRobot - accelLineaireMax * ElapsedTimeBetweenCalculation); //On accélère
                 else
                     //On détermine la valeur du freinage en fonction des conditions
-                    nouvelleVitesseLineaire = Math.Min(0, vitesseLineaireRobot + accelLineaireMax / FreqEch); //On freine
+                    nouvelleVitesseLineaire = Math.Min(0, vitesseLineaireRobot + accelLineaireMax * ElapsedTimeBetweenCalculation); //On freine
             }
 
             double ecartCapModuloPi = Toolbox.ModuloPiAngleRadian(ecartCapVitesse);
@@ -276,23 +291,23 @@ namespace TrajectoryGenerator
             if (ecartCapModuloPi > 0)
             {
                 if (ecartCapModuloPi > angleArretRotationCapVitesse)
-                    vitesseRotationCapVitesse = Math.Min(vitesseRotationCapVitesseMax, vitesseRotationCapVitesse + accelRotationCapVitesseMax / FreqEch); //on accélère
+                    vitesseRotationCapVitesse = Math.Min(vitesseRotationCapVitesseMax, vitesseRotationCapVitesse + accelRotationCapVitesseMax * ElapsedTimeBetweenCalculation); //on accélère
                 else
-                    vitesseRotationCapVitesse = Math.Max(0, vitesseRotationCapVitesse - accelRotationCapVitesseMax / FreqEch); //On freine
+                    vitesseRotationCapVitesse = Math.Max(0, vitesseRotationCapVitesse - accelRotationCapVitesseMax * ElapsedTimeBetweenCalculation); //On freine
             }
             else
             {
                 if (ecartCapModuloPi < -angleArretRotationCapVitesse)
-                    vitesseRotationCapVitesse = Math.Max(-vitesseRotationCapVitesseMax, vitesseRotationCapVitesse - accelRotationCapVitesseMax / FreqEch); //On accélère en négatif
+                    vitesseRotationCapVitesse = Math.Max(-vitesseRotationCapVitesseMax, vitesseRotationCapVitesse - accelRotationCapVitesseMax * ElapsedTimeBetweenCalculation); //On accélère en négatif
                 else
-                    vitesseRotationCapVitesse = Math.Min(0, vitesseRotationCapVitesse + accelRotationCapVitesseMax / FreqEch); //On freine en négatif
+                    vitesseRotationCapVitesse = Math.Min(0, vitesseRotationCapVitesse + accelRotationCapVitesseMax * ElapsedTimeBetweenCalculation); //On freine en négatif
             }
 
             //On regarde si la vitesse linéaire est élevée ou pas. 
             //Si c'est le cas, on update le cap vitesse normalement en rampe
             //Sinon, on set le capvitesse à la valeur du cap WayPoint directement
             if (vitesseLineaireRobot > 0.5)
-                capVitesseRefTerrain += vitesseRotationCapVitesse / FreqEch;
+                capVitesseRefTerrain += vitesseRotationCapVitesse * ElapsedTimeBetweenCalculation;
             else
             {
                 capVitesseRefTerrain = CapWayPointRefTerrain; //Si la vitesse linéaire est faible, on tourne instantanément
@@ -308,42 +323,47 @@ namespace TrajectoryGenerator
             }
 
             /************************ Orientation angulaire du robot *******************************/
-            double angleArretRotationOrientationRobot = Math.Pow(ghostLocation.Vtheta, 2) / (2 * accelRotationOrientationRobotMax);
+            double angleArretRotationOrientationRobot = Math.Pow(ghostLocationRefTerrain.Vtheta, 2) / (2 * accelRotationOrientationRobotMax);
             double nouvelleVitesseRotationOrientationRobot = 0;
             if (ecartOrientationRobot > 0)
             {
                 if (ecartOrientationRobot > angleArretRotationOrientationRobot)
-                    nouvelleVitesseRotationOrientationRobot = Math.Min(vitesseRotationOrientationRobotMax, ghostLocation.Vtheta + accelRotationOrientationRobotMax / FreqEch); //on accélère
+                    nouvelleVitesseRotationOrientationRobot = Math.Min(vitesseRotationOrientationRobotMax, ghostLocationRefTerrain.Vtheta + accelRotationOrientationRobotMax * ElapsedTimeBetweenCalculation); //on accélère
                 else
-                    nouvelleVitesseRotationOrientationRobot = Math.Max(0, ghostLocation.Vtheta - accelRotationOrientationRobotMax / FreqEch); //On freine
+                    nouvelleVitesseRotationOrientationRobot = Math.Max(0, ghostLocationRefTerrain.Vtheta - accelRotationOrientationRobotMax * ElapsedTimeBetweenCalculation); //On freine
             }
             else
             {
                 if (ecartOrientationRobot < -angleArretRotationOrientationRobot)
-                    nouvelleVitesseRotationOrientationRobot = Math.Max(-vitesseRotationOrientationRobotMax, ghostLocation.Vtheta - accelRotationOrientationRobotMax / FreqEch); //On accélère en négatif
+                    nouvelleVitesseRotationOrientationRobot = Math.Max(-vitesseRotationOrientationRobotMax, ghostLocationRefTerrain.Vtheta - accelRotationOrientationRobotMax * ElapsedTimeBetweenCalculation); //On accélère en négatif
                 else
-                    nouvelleVitesseRotationOrientationRobot = Math.Min(0, ghostLocation.Vtheta + accelRotationOrientationRobotMax / FreqEch); //On freine en négatif
+                    nouvelleVitesseRotationOrientationRobot = Math.Min(0, ghostLocationRefTerrain.Vtheta + accelRotationOrientationRobotMax * ElapsedTimeBetweenCalculation); //On freine en négatif
             }
 
             /************************ Gestion des ordres d'arrêt global des robots *******************************/
             if (currentGameState != GameState.STOPPED)
             {
                 //On génère les vitesses dans le référentiel du robot.
-                ghostLocation.Vx = nouvelleVitesseLineaire * Math.Cos(capVitesseRefTerrain);
-                ghostLocation.Vy = nouvelleVitesseLineaire * Math.Sin(capVitesseRefTerrain);
-                ghostLocation.Vtheta = nouvelleVitesseRotationOrientationRobot;
+                ghostLocationRefTerrain.Vx = nouvelleVitesseLineaire * Math.Cos(capVitesseRefTerrain);
+                ghostLocationRefTerrain.Vy = nouvelleVitesseLineaire * Math.Sin(capVitesseRefTerrain);
+                ghostLocationRefTerrain.Vtheta = nouvelleVitesseRotationOrientationRobot;
+
+                ////Test : à supprimer ensuite
+                //ghostLocationRefTerrain.Vx = 1.0;
+                //ghostLocationRefTerrain.Vy = 0.0;
+                //ghostLocationRefTerrain.Vtheta = 1.0;
 
                 //Nouvelle orientation du robot
-                ghostLocation.X += ghostLocation.Vx / FreqEch;
-                ghostLocation.Y += ghostLocation.Vy / FreqEch;
-                ghostLocation.Theta += ghostLocation.Vtheta / FreqEch;
+                ghostLocationRefTerrain.X += ghostLocationRefTerrain.Vx * ElapsedTimeBetweenCalculation;
+                ghostLocationRefTerrain.Y += ghostLocationRefTerrain.Vy * ElapsedTimeBetweenCalculation;
+                ghostLocationRefTerrain.Theta += ghostLocationRefTerrain.Vtheta * ElapsedTimeBetweenCalculation;
             }
             else
             {
                 //Si on est à l'arrêt, on ne change rien
             }
 
-            OnGhostLocation(robotId, ghostLocation);
+            OnGhostLocation(robotId, ghostLocationRefTerrain);
         }
         
         //Output events
@@ -358,12 +378,12 @@ namespace TrajectoryGenerator
         }
 
         public event EventHandler<CollisionEventArgs> OnCollisionEvent;
-        public virtual void OnCollision(int id, Location robotLocation)
+        public virtual void OnCollision(int id, Location robotLocationRefTerrain)
         {
             var handler = OnCollisionEvent;
             if (handler != null)
             {
-                handler(this, new CollisionEventArgs { RobotId = id, RobotRealPosition = robotLocation });
+                handler(this, new CollisionEventArgs { RobotId = id, RobotRealPositionRefTerrain = robotLocationRefTerrain });
             }
         }
 

@@ -1,31 +1,35 @@
 ﻿namespace Utilities
 {
 
-    //Reference intéressante pour la génération de filtres : http://www-users.cs.york.ac.uk/~fisher/mkfilter/
+    /// Reference intéressante pour la génération de filtres : http://www-users.cs.york.ac.uk/~fisher/mkfilter/
+    /// Sinon, faire les calculs soit même, ça fait pas de mal non plus...
     public enum TrigState { Waiting, TriggeredHigh, TriggeredLow, TriggeredHighAndLow };
 
     public class FiltreOrdre1
     {
-        //Filter coefficient
-        //sn*dn + sn-1 * d_1 = en*n_0 + en-1 * n_1
-        //sn-1 = s_1 // en-1 = e_1 // en = e_0
-        public double n_0;
-        public double n_1;
-        public double d_0;
-        public double _d_0;                      //Correspond a 1/d0
-        public double d_1;
+        /// <summary>
+        /// On a filtre d'ordre 1 générique :
+        /// S_n = E_n * a_n + E_n_1 * a_n + S_n_1 * b_n_1
+        /// </summary>
+        double a_n;
+        double a_n_1;
+        double b_n_1;
 
-        public double e_1;
-        public double s_1;
+        double E_n_1;
+        double S_n_1;
 
         bool internalVariablesInitRequired = false;
 
         public void LowPassFilterInit(double freqEch, double freqCoupure)
         {
-            d_0 = 1 / freqCoupure + 1 / freqEch;
-            d_1 = 1 / freqCoupure;
-            n_0 = 1 / (2 * freqEch);
-            n_1 = 1 / (2 * freqEch);
+            /// On utilise les formules de la transformée bilinéaire
+            /// p=2/Te*(1-z-1)/(1+z-1)
+            /// Elle introduit un délai plus réduit qu'avec la transformée d'Euler
+            double Te = 1 / freqEch;
+            double Tau = 1 / freqCoupure;
+            a_n = Te / (Te + 2 * Tau);
+            a_n_1 = Te / (Te + 2 * Tau);
+            b_n_1 = (2 * Tau - Te) / (2 * Tau + Te);            
             internalVariablesInitRequired = true;
         }
 
@@ -33,12 +37,14 @@
         {
             if(internalVariablesInitRequired)
             {
-                e_1 = input;
-                s_1 = 0;
+                internalVariablesInitRequired = false;
+                E_n_1 = input;
+                S_n_1 = 0;
             }
 
-            double output = 1.0 / d_0 * (input * n_0 + e_1 * n_1 - s_1 * d_1);
-            s_1 = output;
+            double output = input * a_n + E_n_1 * a_n + S_n_1 * b_n_1;
+            S_n_1 = output;
+            E_n_1 = input;
             return output;
         }
 

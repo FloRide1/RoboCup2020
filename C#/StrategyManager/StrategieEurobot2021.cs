@@ -572,7 +572,7 @@ namespace StrategyManagerNS
         public event EventHandler<CollisionEventArgs> OnCollisionEvent;
         public virtual void OnCollision(int id, Location robotLocation)
         {
-            OnCollisionEvent?.Invoke(this, new CollisionEventArgs { RobotId = id, RobotRealPosition = robotLocation });
+            OnCollisionEvent?.Invoke(this, new CollisionEventArgs { RobotId = id, RobotRealPositionRefTerrain = robotLocation });
         }
 
         public event EventHandler<LidarMessageArgs> OnMessageEvent;

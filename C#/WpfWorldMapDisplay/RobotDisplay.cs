@@ -19,7 +19,7 @@ namespace WpfWorldMapDisplay
         private Location waypointLocation;
         public string robotName = "";
         public RobotRole robotRole = RobotRole.Stopped;
-        public string DisplayMessage = "toto";
+        public string DisplayMessage = "";
         public PlayingSide playingSide = PlayingSide.Left;
 
         public double[,] heatMapStrategy;
