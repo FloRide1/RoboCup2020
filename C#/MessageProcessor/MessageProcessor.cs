@@ -64,7 +64,7 @@ namespace MessageProcessorNS
                         float vY = tab.GetFloat();
                         tab = payload.GetRange(12, 4);
                         float vTheta = tab.GetFloat();
-                        OnPolarOdometrySpeedFromRobot(timeStamp, vX, vY, vTheta);
+                        OnPolarOdometrySpeedFromRobot(robotID,timeStamp, vX, vY, vTheta);
                     }
                     break;
 
@@ -499,13 +499,14 @@ namespace MessageProcessorNS
         }
 
         public event EventHandler<PolarSpeedEventArgs> OnSpeedPolarOdometryFromRobotEvent;
-        public virtual void OnPolarOdometrySpeedFromRobot(uint timeStamp, double vX, double vY, double vTheta)
+        public virtual void OnPolarOdometrySpeedFromRobot(int robotID,uint timeStamp, double vX, double vY, double vTheta)
         {
             var handler = OnSpeedPolarOdometryFromRobotEvent;
             if (handler != null)
             {
                 handler(this, new PolarSpeedEventArgs
                 {
+                    RobotId=robotID,
                     timeStampMs = timeStamp,
                     Vx = (float)vX,
                     Vy = (float)vY,
