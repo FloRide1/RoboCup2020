@@ -326,7 +326,7 @@ namespace EventArgsLibrary
     public class CollisionEventArgs : EventArgs
     {
         public int RobotId { get; set; }
-        public Location RobotRealPosition { get; set; }
+        public Location RobotRealPositionRefTerrain { get; set; }
     }
 
     public class ShootEventArgs : EventArgs

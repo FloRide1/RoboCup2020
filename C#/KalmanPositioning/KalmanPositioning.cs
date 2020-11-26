@@ -101,10 +101,10 @@ namespace KalmanPositioning
         private Matrix<double> K;
         private Matrix<double> Inx;
 
-        public void InitFilter(double x, double vx, double ax, double y, double vy, double ay, double theta, double vtheta, double atheta)
+        public void InitFilter(double xRefTerrain, double vxRefTerrain, double axRefTerrain, double yRefTerrain, double vyRefTerrain, double ayRefTerrain, double theta, double vtheta, double atheta)
         {
             //Initi des variables internes du filtre
-            Vector<double> xInit = Vector<double>.Build.DenseOfArray(new double[] { x, vx, ax, y, vy, ay, theta, vtheta, atheta });
+            Vector<double> xInit = Vector<double>.Build.DenseOfArray(new double[] { xRefTerrain, vxRefTerrain, axRefTerrain, yRefTerrain, vyRefTerrain, ayRefTerrain, theta, vtheta, atheta });
 
             Matrix<double> pInit = Matrix<double>.Build.DenseDiagonal(MatrixQ.RowCount, MatrixQ.RowCount, 0.1);
 
@@ -122,12 +122,12 @@ namespace KalmanPositioning
 
             // Init des positions stockées localement pour que le filtre itère 
             // correctement si ces variables ne sont pas mises à jour
-            currentGpsXRefTerrain = x;
-            currentGpsYRefTerrain = y;
+            currentGpsXRefTerrain = xRefTerrain;
+            currentGpsYRefTerrain = yRefTerrain;
             currentGpsTheta = theta;
         }
 
-        public void IterateFilter(double GPS_X, double GPS_Y, double GPS_Theta, double Odo_VX, double Odo_VY, double Odo_Theta, double Gyro_Theta)
+        public void IterateFilter(double GPS_X_Ref_Terrain, double GPS_Y_Ref_Terrain, double GPS_Theta, double Odo_VX, double Odo_VY, double Odo_Theta, double Gyro_Theta)
         {
             // Prédiction
             xPred = MatrixA.Multiply(xEst);
@@ -136,8 +136,8 @@ namespace KalmanPositioning
             // Estimation
             Vector<double> observation = Vector<double>.Build.DenseOfArray(new double[]
             {
-                GPS_X,
-                GPS_Y,
+                GPS_X_Ref_Terrain,
+                GPS_Y_Ref_Terrain,
                 GPS_Theta,
                 Odo_VX,
                 Odo_VY,
@@ -161,9 +161,9 @@ namespace KalmanPositioning
         //Input events
         public void OnCollisionReceived(object sender, EventArgsLibrary.CollisionEventArgs e)
         {
-            InitFilter(e.RobotRealPosition.X, e.RobotRealPosition.Vx, 0,
-                e.RobotRealPosition.Y, e.RobotRealPosition.Vy, 0,
-                e.RobotRealPosition.Theta, e.RobotRealPosition.Vtheta, 0);
+            InitFilter(e.RobotRealPositionRefTerrain.X, e.RobotRealPositionRefTerrain.Vx, 0,
+                e.RobotRealPositionRefTerrain.Y, e.RobotRealPositionRefTerrain.Vy, 0,
+                e.RobotRealPositionRefTerrain.Theta, e.RobotRealPositionRefTerrain.Vtheta, 0);
         }
 
         public void OnOdometryRobotSpeedReceived(object sender, PolarSpeedArgs e)
@@ -210,6 +210,9 @@ namespace KalmanPositioning
                 Location kalmanOutputLocation = new Location(kalmanLocationRefTerrain.X, kalmanLocationRefTerrain.Y, kalmanLocationRefTerrain.Theta,
                                                             kalmanLocationRefRobotVx, kalmanLocationRefRobotVy, kalmanLocationRefTerrain.Vtheta);
 
+                //Location kalmanOutputLocationRefTerrain = new Location(kalmanLocationRefTerrain.X, kalmanLocationRefTerrain.Y, kalmanLocationRefTerrain.Theta,
+                //                                            kalmanLocationRefTerrain.Vx, kalmanLocationRefTerrain.Vy, kalmanLocationRefTerrain.Vtheta);
+
                 OnKalmanLocation(robotId, kalmanOutputLocation);
                 //KalmanMonitor.KalmanReceived();
             }
@@ -239,12 +242,12 @@ namespace KalmanPositioning
 
         //Output events
         public event EventHandler<LocationArgs> OnKalmanLocationEvent;
-        public virtual void OnKalmanLocation(int id, Location location)
+        public virtual void OnKalmanLocation(int id, Location locationRefTerrain)
         {
             var handler = OnKalmanLocationEvent;
             if (handler != null)
             {
-                handler(this, new LocationArgs { RobotId = id, Location = location });
+                handler(this, new LocationArgs { RobotId = id, Location = locationRefTerrain });
             }
         }
     }

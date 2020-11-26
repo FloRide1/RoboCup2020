@@ -101,18 +101,28 @@ namespace StrategyManagerNS.StrategyRoboCupNS
 
                         /// A présent, on filtre la liste de l'équipe de manière à trouver le joueur le plus proche de la balle n'étant pas le gardien
                         var teamSansGardienOrdonnee = teamRoleClassifier.Where(x => x.Value.Role != RobotRole.Gardien).OrderBy(elt => elt.Value.DistanceBalle).ToList();
-                        if(playingSide == PlayingSide.Right)
-                            teamRoleClassifier[teamSansGardienOrdonnee.ElementAt(0).Key].Role = RobotRole.ContesteurDeBalle;
-                        else
-                            teamRoleClassifier[teamSansGardienOrdonnee.ElementAt(0).Key].Role = RobotRole.MilieuDemarque;
+
+                        if (teamSansGardienOrdonnee.Count > 0)
+                        {
+                            if (playingSide == PlayingSide.Right)
+                                teamRoleClassifier[teamSansGardienOrdonnee.ElementAt(0).Key].Role = RobotRole.ContesteurDeBalle;
+                            else
+                                teamRoleClassifier[teamSansGardienOrdonnee.ElementAt(0).Key].Role = RobotRole.MilieuDemarque;
+                        }
 
                         /// A présent, on filtre la liste de l'équipe de manière à trouver le joueur le plus proche du but n'étant pas le gardien, ni le contesteur
                         var teamSansGardienNiContesteurOrdonnee = teamRoleClassifier.Where(x => (x.Value.Role != RobotRole.Gardien) && (x.Value.Role != RobotRole.MilieuDemarque) && (x.Value.Role != RobotRole.ContesteurDeBalle)).OrderBy(elt => elt.Value.DistanceBut).ToList();
-                        teamRoleClassifier[teamSansGardienNiContesteurOrdonnee.ElementAt(0).Key].Role = RobotRole.AttaquantDemarque;
+                        if (teamSansGardienNiContesteurOrdonnee.Count > 0)
+                        {
+                            teamRoleClassifier[teamSansGardienNiContesteurOrdonnee.ElementAt(0).Key].Role = RobotRole.AttaquantDemarque;
+                        }
 
                         var teamSansGardienNiContesteurNiAttaquantOrdonnee = teamRoleClassifier.Where(x => (x.Value.Role != RobotRole.Gardien) && (x.Value.Role != RobotRole.AttaquantDemarque) && (x.Value.Role != RobotRole.ContesteurDeBalle)).OrderBy(elt => elt.Value.DistanceBut).ToList();
-                        teamRoleClassifier[teamSansGardienNiContesteurNiAttaquantOrdonnee.ElementAt(0).Key].Role = RobotRole.DefenseurInterception;
-                        teamRoleClassifier[teamSansGardienNiContesteurNiAttaquantOrdonnee.ElementAt(1).Key].Role = RobotRole.DefenseurInterception;
+                        if (teamSansGardienNiContesteurOrdonnee.Count > 0)
+                        {
+                            teamRoleClassifier[teamSansGardienNiContesteurNiAttaquantOrdonnee.ElementAt(0).Key].Role = RobotRole.DefenseurInterception;
+                            teamRoleClassifier[teamSansGardienNiContesteurNiAttaquantOrdonnee.ElementAt(1).Key].Role = RobotRole.DefenseurInterception;
+                        }
 
                         role = teamRoleClassifier[robotId].Role;
                         //int rangDistanceBut = -1;

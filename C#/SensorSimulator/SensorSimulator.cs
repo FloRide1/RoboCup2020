@@ -35,8 +35,15 @@ namespace SensorSimulator
                 double xCamLidarSimu = e.Location.X + (rand.NextDouble() - 0.5) * 2* erreurPositionCamLidarMax;
                 double yCamLidarSimu = e.Location.Y + (rand.NextDouble() - 0.5) * 2* erreurPositionCamLidarMax;
                 double thetaCamLidarSimu = e.Location.Theta + (rand.NextDouble() - 0.5) * erreurAngleCamLidarMax;
+                
+                double VxRefRobot = e.Location.Vx * Math.Cos(e.Location.Theta) - e.Location.Vy * Math.Sin(e.Location.Theta);
+                double VyRefRobot = e.Location.Vx * Math.Sin(e.Location.Theta) + e.Location.Vy * Math.Cos(e.Location.Theta);
+                double vxOdoSimu2 = VxRefRobot + (rand.NextDouble() - 0.5) * 2 * erreurVitesseLineaireOdoMax;
+                double vyOdoSimu2 = VyRefRobot + (rand.NextDouble() - 0.5) * 2 * erreurVitesseLineaireOdoMax;
+
                 double vxOdoSimu = e.Location.Vx + (rand.NextDouble() - 0.5) * 2 * erreurVitesseLineaireOdoMax;
                 double vyOdoSimu = e.Location.Vy + (rand.NextDouble() - 0.5) * 2 * erreurVitesseLineaireOdoMax;
+
                 double vthetaOdoSimu = e.Location.Vtheta + (rand.NextDouble() - 0.5) * 2 * erreurVitesseAngulaireOdoMax;
                 double vthetaGyroSimu = e.Location.Vtheta + (rand.NextDouble() - 0.5) * 2 * erreurVitesseAngulaireGyroMax; 
                 

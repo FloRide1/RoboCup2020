@@ -21,9 +21,9 @@ namespace PhysicalSimulator
 
         HighFreqTimer highFrequencyTimer;
 
-        FiltreOrdre1 filterLowPassVx = new FiltreOrdre1();
-        FiltreOrdre1 filterLowPassVy = new FiltreOrdre1();
-        FiltreOrdre1 filterLowPassVTheta = new FiltreOrdre1();
+        ConcurrentDictionary<int, FiltreOrdre1> filterLowPassVxList = new ConcurrentDictionary<int, FiltreOrdre1>();
+        ConcurrentDictionary<int, FiltreOrdre1> filterLowPassVyList = new ConcurrentDictionary<int, FiltreOrdre1>();
+        ConcurrentDictionary<int, FiltreOrdre1> filterLowPassVThetaList = new ConcurrentDictionary<int, FiltreOrdre1>();
 
         public PhysicalSimulator(string typeTerrain)
         {
@@ -45,9 +45,6 @@ namespace PhysicalSimulator
             //ballSimulatedList.Add(1, new PhysicalBallSimulator(3, 0));
             //ballSimulatedList.Add(2, new PhysicalBallSimulator(6, 0));
 
-            filterLowPassVx.LowPassFilterInit(fSampling, 10);
-            filterLowPassVy.LowPassFilterInit(fSampling, 10);
-            filterLowPassVTheta.LowPassFilterInit(fSampling, 10);
 
             highFrequencyTimer = new HighFreqTimer(fSampling);
             highFrequencyTimer.Tick += HighFrequencyTimer_Tick;
@@ -59,6 +56,17 @@ namespace PhysicalSimulator
         {
             var physicalRobotSimu = new PhysicalRobotSimulator(xpos, yPos);
             robotList.AddOrUpdate(id, physicalRobotSimu, (key, value) => physicalRobotSimu);
+
+            var filterLowPassVx = new FiltreOrdre1();
+            filterLowPassVx.LowPassFilterInit(fSampling, 10);
+            var filterLowPassVy = new FiltreOrdre1();
+            filterLowPassVy.LowPassFilterInit(fSampling, 10);
+            var filterLowPassVTheta = new FiltreOrdre1();
+            filterLowPassVTheta.LowPassFilterInit(fSampling, 10);
+
+            filterLowPassVxList.AddOrUpdate(id, filterLowPassVx, (key, value) => filterLowPassVx);
+            filterLowPassVyList.AddOrUpdate(id, filterLowPassVy, (key, value) => filterLowPassVy);
+            filterLowPassVThetaList.AddOrUpdate(id, filterLowPassVTheta, (key, value) => filterLowPassVTheta);
         }
 
         private void HighFrequencyTimer_Tick(object sender, EventArgs e)
@@ -231,7 +239,7 @@ namespace PhysicalSimulator
                 OnPhysicalBallHandling(robot.Key, robot.Value.IsHandlingBall);
 
                 /// Pour le debug
-                //PhysicalSimulatorMonitor.PhysicalSimulatorReceived();
+                PhysicalSimulatorMonitor.PhysicalSimulatorReceived();
             }
 
             //Calcul de la nouvelle location des balles
@@ -293,9 +301,9 @@ namespace PhysicalSimulator
             //Attention, les vitesses proviennent de l'odométrie et sont donc dans le référentiel robot
             if (robotList.ContainsKey(e.RobotId))
             {
-                robotList[e.RobotId].VxRefRobot = filterLowPassVx.Filter(e.Vx);
-                robotList[e.RobotId].VyRefRobot = filterLowPassVy.Filter(e.Vy);
-                robotList[e.RobotId].Vtheta = filterLowPassVTheta.Filter(e.Vtheta);
+                robotList[e.RobotId].VxRefRobot = filterLowPassVxList[e.RobotId].Filter(e.Vx);
+                robotList[e.RobotId].VyRefRobot = filterLowPassVyList[e.RobotId].Filter(e.Vy);
+                robotList[e.RobotId].Vtheta = filterLowPassVThetaList[e.RobotId].Filter(e.Vtheta);
             }
         }
 
@@ -321,7 +329,7 @@ namespace PhysicalSimulator
 
         public void OnCollisionReceived(object sender, EventArgsLibrary.CollisionEventArgs e)
         {
-            SetRobotPosition(e.RobotId, e.RobotRealPosition.X, e.RobotRealPosition.Y, e.RobotRealPosition.Theta);
+            SetRobotPosition(e.RobotId, e.RobotRealPositionRefTerrain.X, e.RobotRealPositionRefTerrain.Y, e.RobotRealPositionRefTerrain.Theta);
         }
         public void OnShootOrderReceived(object sender, EventArgsLibrary.ShootEventArgs e)
         {

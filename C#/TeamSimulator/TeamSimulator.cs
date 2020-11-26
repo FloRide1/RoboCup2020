@@ -45,7 +45,7 @@ namespace TeamSimulator
         static int nbPlayersTeam1 = 5;
         static int nbPlayersTeam2 = 5;
 
-        static string[] team1PlayerNames = new string[5] { "Fabien", "Lilian", "Zinedine", "Kylian", "N'Golo" };
+        static string[] team1PlayerNames = new string[5] { "Fabien", "Lilian", "Zinedine", "Kylian", "Diego" };
         static string[] team2PlayerNames = new string[5] { "VB", "JM", "SM", "VG", "QR" };
 
         [STAThread] //à ajouter au projet initial

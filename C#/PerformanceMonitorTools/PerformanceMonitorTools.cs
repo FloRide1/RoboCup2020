@@ -52,6 +52,28 @@ namespace PerformanceMonitorTools
             }
         }
     }
+    public static class TrajectoryGeneratorMonitor
+    {
+        public static Stopwatch swTrajectoryGenerator = new Stopwatch();
+        public static int nbTrajectoryGeneratorReceived = 0;
+        static Object lockDiagTrajectoryGenerator = new object();
+
+        public static void TrajectoryGeneratorReceived()
+        {
+            lock (lockDiagTrajectoryGenerator)
+            {
+                if (!swTrajectoryGenerator.IsRunning)
+                    swTrajectoryGenerator.Start();
+                nbTrajectoryGeneratorReceived++;
+                if (swTrajectoryGenerator.ElapsedMilliseconds > 1000)
+                {
+                    Console.WriteLine(nbTrajectoryGeneratorReceived + " Trajectory Ghost Updates générées en 1 s");
+                    swTrajectoryGenerator.Restart();
+                    nbTrajectoryGeneratorReceived = 0;
+                }
+            }
+        }
+    }
     public static class PerceptionMonitor
     {
         public static Stopwatch swPerception = new Stopwatch();
