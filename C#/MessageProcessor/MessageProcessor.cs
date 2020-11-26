@@ -16,8 +16,10 @@ namespace MessageProcessorNS
     {
         Competition chosenCompetition;
         Timer tmrComptageMessage;
-        public MsgProcessor(Competition type)
+        int robotID;
+        public MsgProcessor(int robotId,Competition type)
         {
+            robotID = robotId;
             chosenCompetition = type;
             tmrComptageMessage = new Timer(1000);
             tmrComptageMessage.Elapsed += TmrComptageMessage_Elapsed;

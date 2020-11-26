@@ -208,15 +208,16 @@ namespace Robot
             //ConfigSerialPort cfgSerialPort = FileManager.JsonSerialize<ConfigSerialPort>.DeserializeObjectFromFile(@"Configs", "SerialPort");
             //serialPort1 = new ReliableSerialPort(cfgSerialPort.CommName, cfgSerialPort.ComBaudrate, cfgSerialPort.Parity, cfgSerialPort.DataByte, cfgSerialPort.StopByte);
             //serialPort1 = new ReliableSerialPort("COM1", 115200, Parity.None, 8, StopBits.One);
+            int teamId = (int)TeamId.Team1;
+            int robotId = (int)RobotId.Robot1 + teamId;
             usbDriver = new USBVendor.USBVendor();
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
             robotMsgGenerator = new MsgGenerator();
-            robotMsgProcessor = new MsgProcessor(Competition.Eurobot);
+            robotMsgProcessor = new MsgProcessor(robotId,Competition.Eurobot);
             
             
-            int teamId = (int)TeamId.Team1;
-            int robotId =  (int)RobotId.Robot1 + teamId;
+
             perceptionManager = new PerceptionManager(robotId);
             imuProcessor = new ImuProcessor.ImuProcessor(robotId);
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
