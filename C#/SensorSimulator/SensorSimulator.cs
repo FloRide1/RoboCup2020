@@ -49,6 +49,17 @@ namespace SensorSimulator
             }
         }
 
+
+        public void OnPhysicalBallHandlingReceived(object sender, BallHandlingArgs e)
+        {
+            //On transmet la sortie de capteur de présence de balle simulée
+            if (robotId == e.RobotId)
+            {
+                OnBallHandlingSimulated(robotId, e.IsHandlingBall);
+            }
+        }
+
+
         //Output events
         public event EventHandler<PositionArgs> OnCamLidarSimulatedRobotPositionEvent;
         public virtual void OnCamLidarSimulatedRobotPosition(int id, double x, double y, double theta)
@@ -77,6 +88,16 @@ namespace SensorSimulator
             if (handler != null)
             {
                 handler(this, new GyroArgs { RobotId = id, Vtheta = vtheta });
+            }
+        }
+
+        public event EventHandler<BallHandlingArgs> OnBallHandlingSimulatedEvent;
+        public virtual void OnBallHandlingSimulated(int id, bool isHandling)
+        {
+            var handler = OnBallHandlingSimulatedEvent;
+            if (handler != null)
+            {
+                handler(this, new BallHandlingArgs { RobotId = id,  IsHandlingBall = isHandling});
             }
         }
     }

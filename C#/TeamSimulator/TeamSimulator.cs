@@ -1,23 +1,15 @@
 ﻿using System;
 using SciChart.Charting.Visuals;
-using WayPointGenerator;
 using System.Collections.Generic;
 using WorldMapManager;
 using System.Threading;
 using PerceptionManagement;
 using Constants;
 using TrajectoryGenerator;
-using PhysicalSimulator;
 using UDPMulticast;
-using System.Text;
-using TCPAdapter;
-using RefereeBoxAdapter;
 using UdpMulticastInterpreter;
-using SensorSimulator;
-using KalmanPositioning;
 using WpfTeamInterfaceNS;
 using Utilities;
-using EventArgsLibrary;
 
 namespace TeamSimulator
 {
@@ -28,8 +20,8 @@ namespace TeamSimulator
         static GlobalWorldMapManager globalWorldMapManagerTeam1;
         static GlobalWorldMapManager globalWorldMapManagerTeam2;
 
-        static Dictionary<int, StrategyManager.StrategyManager> strategyManagerDictionary;
-        static List<WaypointGenerator> waypointGeneratorList;
+        static Dictionary<int, StrategyManagerNS.StrategyManager> strategyManagerDictionary;
+        //static List<WaypointGenerator> waypointGeneratorList;
         static List<TrajectoryPlanner> trajectoryPlannerList;
         static List<SensorSimulator.SensorSimulator> sensorSimulatorList;
         static List<KalmanPositioning.KalmanPositioning> kalmanPositioningList;
@@ -53,6 +45,8 @@ namespace TeamSimulator
         static int nbPlayersTeam1 = 5;
         static int nbPlayersTeam2 = 5;
 
+        static string[] team1PlayerNames = new string[5] { "Fabien", "Lilian", "Zinedine", "Kylian", "N'Golo" };
+        static string[] team2PlayerNames = new string[5] { "VB", "JM", "SM", "VG", "QR" };
 
         [STAThread] //à ajouter au projet initial
 
@@ -65,7 +59,7 @@ namespace TeamSimulator
             trajectoryPlannerList = new List<TrajectoryPlanner>();
             sensorSimulatorList = new List<SensorSimulator.SensorSimulator>();
             kalmanPositioningList = new List<KalmanPositioning.KalmanPositioning>();
-            strategyManagerDictionary = new Dictionary<int, StrategyManager.StrategyManager>();
+            strategyManagerDictionary = new Dictionary<int, StrategyManagerNS.StrategyManager>();
             localWorldMapManagerList = new List<LocalWorldMapManager>();
             perceptionManagerList = new List<PerceptionManager>();
             robotUdpMulticastSenderList = new List<UDPMulticastSender>();
@@ -88,12 +82,12 @@ namespace TeamSimulator
 
             for (int i = 0; i < nbPlayersTeam1; i++)
             {
-                CreatePlayer((int)TeamId.Team1, i);
+                CreatePlayer((int)TeamId.Team1, i, team1PlayerNames[i]);
             }
 
             for (int i = 0; i < nbPlayersTeam2; i++)
             {
-                CreatePlayer((int)TeamId.Team2, i);
+                CreatePlayer((int)TeamId.Team2, i, team2PlayerNames[i]);
             }
 
             DefineRoles();
@@ -132,10 +126,10 @@ namespace TeamSimulator
         }
         
         static Random randomGenerator = new Random();
-        private static void CreatePlayer(int TeamNumber, int RobotNumber)
+        private static void CreatePlayer(int TeamNumber, int RobotNumber, string Name)
         {
             int robotId = TeamNumber + RobotNumber;
-            var strategyManager = new StrategyManager.StrategyManager(robotId, TeamNumber, GameMode.RoboCup);
+            var strategyManager = new StrategyManagerNS.StrategyManager(robotId, TeamNumber, GameMode.RoboCup);
             //var waypointGenerator = new WaypointGenerator(robotId, GameMode.RoboCup);
             var trajectoryPlanner = new TrajectoryPlanner(robotId);
             var sensorSimulator = new SensorSimulator.SensorSimulator(robotId);
@@ -165,6 +159,7 @@ namespace TeamSimulator
             //strategyManager.strategy.OnHeatMapStrategyEvent += waypointGenerator.OnStrategyHeatMapReceived;
             strategyManager.strategy.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
             strategyManager.strategy.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
+            strategyManager.strategy.OnShootRequestEvent += physicalSimulator.OnShootOrderReceived;
             //waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
             trajectoryPlanner.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
 
@@ -178,10 +173,13 @@ namespace TeamSimulator
 
             ////physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived; //replacé par les 5 lignes suivantes
             physicalSimulator.OnPhysicalRobotLocationEvent += sensorSimulator.OnPhysicalRobotPositionReceived;
+            physicalSimulator.OnPhysicalBallHandlingEvent += sensorSimulator.OnPhysicalBallHandlingReceived;
             sensorSimulator.OnCamLidarSimulatedRobotPositionEvent += kalmanPositioning.OnCamLidarSimulatedRobotPositionReceived;
             sensorSimulator.OnGyroSimulatedRobotSpeedEvent += kalmanPositioning.OnGyroRobotSpeedReceived;
             sensorSimulator.OnOdometrySimulatedRobotSpeedEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
-            
+            sensorSimulator.OnBallHandlingSimulatedEvent += strategyManager.strategy.OnBallHandlingReceived;
+
+
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             //physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived; //ajout
 
@@ -195,6 +193,9 @@ namespace TeamSimulator
             //Update des données de la localWorldMap
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
             strategyManager.strategy.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
+            strategyManager.strategy.OnRoleEvent += localWorldMapManager.OnRoleReceived; //Utile pour l'affichage
+            strategyManager.strategy.OnMessageDisplayEvent += localWorldMapManager.OnMessageDisplayReceived; //Utile pour l'affichage
+            //strategyManager.strategy.OnPlayingSideEvent += localWorldMapManager.OnPlayingSideReceived;  //inutile
             strategyManager.strategy.OnHeatMapStrategyEvent += localWorldMapManager.OnHeatMapStrategyReceived;
             strategyManager.strategy.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
             strategyManager.strategy.OnHeatMapWayPointEvent += localWorldMapManager.OnHeatMapWaypointReceived;
@@ -259,7 +260,7 @@ namespace TeamSimulator
 
             for (int i = 0; i < nbPlayersTeam1; i++)
             {
-                strategyManagerDictionary[(int)TeamId.Team1 + i].SetRole((StrategyManager.PlayerRole)roleList[i]);
+                strategyManagerDictionary[(int)TeamId.Team1 + i].SetRole((RobotRole)roleList[i]);
                 //strategyManagerDictionary[(int)TeamId.Team1 + i].ProcessStrategy();
             }
             
@@ -272,7 +273,7 @@ namespace TeamSimulator
 
             for (int i = 0; i < nbPlayersTeam2; i++)
             {
-                strategyManagerDictionary[(int)TeamId.Team2 + i].SetRole((StrategyManager.PlayerRole)roleList[i]);
+                strategyManagerDictionary[(int)TeamId.Team2 + i].SetRole((RobotRole)roleList[i]);
                 //strategyManagerDictionary[(int)TeamId.Team2 + i].ProcessStrategy();
             }
         }
@@ -305,7 +306,7 @@ namespace TeamSimulator
             Thread t1 = new Thread(() =>
             {
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
-                TeamConsole = new WpfTeamInterface("RoboCup");  //RoboCup
+                TeamConsole = new WpfTeamInterface("RoboCup", team1PlayerNames, team2PlayerNames);  //RoboCup
 
                 //On s'abonne aux évènements permettant de visualiser les localWorldMap à leur génération : attention, event réservé à la visualisation car il passe les heat maps et pts lidar
                 for (int i = 0; i < nbPlayersTeam1; i++)

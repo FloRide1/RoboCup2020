@@ -19,13 +19,22 @@ namespace TrajectoryGenerator
 
         double FreqEch = 30.0;
 
-        double accelLineaireMax = 0.1; //en m.s-2
-        double accelRotationCapVitesseMax = 2* Math.PI * 0.25; //en rad.s-2
-        double accelRotationOrientationRobotMax = 2 * Math.PI * 0.1; //en rad.s-2
+        //double accelLineaireMax = 0.1; //en m.s-2
+        //double accelRotationCapVitesseMax = 2* Math.PI * 0.25; //en rad.s-2
+        //double accelRotationOrientationRobotMax = 2 * Math.PI * 0.1; //en rad.s-2
 
-        double vitesseLineaireMax = 0.3; //en m.s-1
-        double vitesseRotationCapVitesseMax = 2*Math.PI * 0.4; //en rad.s-1
-        double vitesseRotationOrientationRobotMax = 2*Math.PI * 0.1; //en rad.s-1
+        //double vitesseLineaireMax = 0.3; //en m.s-1
+        //double vitesseRotationCapVitesseMax = 2*Math.PI * 0.4; //en rad.s-1
+        //double vitesseRotationOrientationRobotMax = 2*Math.PI * 0.1; //en rad.s-1
+
+        double accelLineaireMax = 1; //en m.s-2
+        double accelRotationCapVitesseMax = 2 * Math.PI * 1.0; //en rad.s-2
+        double accelRotationOrientationRobotMax = 2 * Math.PI * 1.0; //en rad.s-2
+
+        double vitesseLineaireMax = 2; //en m.s-1
+        double vitesseRotationCapVitesseMax = 2 * Math.PI * 2.0; //en rad.s-1
+        double vitesseRotationOrientationRobotMax = 2 * Math.PI * 2.0; //en rad.s-1
+
 
         double capVitesseRefTerrain = 0;
         double vitesseRotationCapVitesse = 0;
@@ -39,8 +48,8 @@ namespace TrajectoryGenerator
 
         void InitPositionPID()
         {
-            PID_X = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5, 5, 1);
-            PID_Y = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5, 5, 1);
+            PID_X = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 100, 100, 1);
+            PID_Y = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 100, 100, 1);
             PID_Theta = new AsservissementPID(FreqEch, 20.0, 10.0, 0, 5*Math.PI, 5*Math.PI, Math.PI); //Validé VG : 20 20 0 2PI 2PI 0..5
 
             PidConfigUpdateTimer = new System.Timers.Timer(1000);
@@ -56,9 +65,9 @@ namespace TrajectoryGenerator
             //PID_Y.Init(kp:5.0, ki:20.0, kd:0, 0.5, 0.5, 0);
             //PID_Theta.Init(kp:5.0, ki:20.0, kd:0, 0.5, 0.5, 0);
 
-            PID_X.Init(kp: 5.0, ki: 20.0, kd: 0, 5, 5, 0);
-            PID_Y.Init(kp: 5.0, ki: 20.0, kd: 0, 5, 5, 0);
-            PID_Theta.Init(kp: 5.0, ki: 20.0, kd: 0, 5, 5, 0);
+            PID_X.Init(kp: 20.0, ki: 80.0, kd: 0.0, 10000, 10000, 10000);
+            PID_Y.Init(kp: 20.0, ki: 80.0, kd: 0.0, 10000, 10000, 10000);
+            PID_Theta.Init(kp: 20.0, ki: 80.0, kd: 0.0, 10000, 10000, 10000);
         }
 
         public TrajectoryPlanner(int id)
@@ -129,12 +138,22 @@ namespace TrajectoryGenerator
                 double erreurXRefRobot = erreurXRefTerrain * Math.Cos(currentLocation.Theta) + erreurYRefTerrain * Math.Sin(currentLocation.Theta);
                 double erreurYRefRobot = -erreurXRefTerrain * Math.Sin(currentLocation.Theta) + erreurYRefTerrain * Math.Cos(currentLocation.Theta);
 
+                //double vxGhostRefRobot = ghostLocation.Vx * Math.Cos(currentLocation.Theta) + ghostLocation.Vy * Math.Sin(currentLocation.Theta);
+                //double vyGhostRefRobot = -ghostLocation.Vx * Math.Sin(currentLocation.Theta) + ghostLocation.Vy * Math.Cos(currentLocation.Theta); 
+                //double vxRefRobot = vxGhostRefRobot;
+                //double vyRefRobot = vyGhostRefRobot;
+                //double vtheta = ghostLocation.Vtheta;
+
+                /// Problème probable : si on met la vitesse du ghost sur les moteurs, on n'a pas le même comportement... 
+                /// Ca ne peut pas marcher correctement ce genre de chose...
+                /// Il faut le corriger impérativement !
+
                 double vxRefRobot = PID_X.CalculatePIDoutput(erreurXRefRobot);
                 double vyRefRobot = PID_Y.CalculatePIDoutput(erreurYRefRobot);
                 double vtheta = PID_Theta.CalculatePIDoutput(erreurTheta);
 
                 //On regarde si la position du robot est proche de la position du ghost
-                double seuilToleranceEcartGhost = 0.20;
+                double seuilToleranceEcartGhost = 1.0;
                 if (Math.Sqrt(Math.Pow(erreurXRefTerrain, 2) + Math.Pow(erreurYRefTerrain, 2)+ Math.Pow(erreurTheta/2,2)) < seuilToleranceEcartGhost)
                 {
                     //Si c'est le cas, le robot n'a pas rencontré de problème, on envoie les vitesses consigne.

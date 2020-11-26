@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Shapes;
+using ZeroFormatter;
 
 namespace Utilities
 {
@@ -77,15 +78,26 @@ namespace Utilities
         public ObjectType type;
     }
 
+    [ZeroFormattable]
     public class Location
     {
-        public double X;
-        public double Y;
-        public double Theta;
-        public double Vx;
-        public double Vy;
-        public double Vtheta;
+        [Index(0)]
+        public virtual double X { get; set; }
+        [Index(1)]
+        public virtual double Y { get; set; }
+        [Index(2)]
+        public virtual double Theta { get; set; }
+        [Index(3)]
+        public virtual double Vx { get; set; }
+        [Index(4)]
+        public virtual double Vy { get; set; }
+        [Index(5)]
+        public virtual double Vtheta { get; set; }
 
+        public Location()
+        {
+
+        }
         public Location(double x, double y, double theta, double vx, double vy, double vtheta)
         {
             X = x;
@@ -97,16 +109,29 @@ namespace Utilities
         }
     }
 
+    //Pose probleme
+    [ZeroFormattable]
     public class LocationExtended
     {
-        public double X;
-        public double Y;
-        public double Theta;
-        public double Vx;
-        public double Vy;
-        public double Vtheta;
-        public ObjectType Type;
+        [Index(0)]
+        public virtual double X { get; set; }
+        [Index(1)]
+        public virtual double Y { get; set; }
+        [Index(2)]
+        public virtual double Theta { get; set; }
+        [Index(3)]
+        public virtual double Vx { get; set; }
+        [Index(4)]
+        public virtual double Vy { get; set; }
+        [Index(5)]
+        public virtual double Vtheta { get; set; }
+        [Index(6)]
+        public virtual ObjectType Type { get; set; }
 
+        public LocationExtended()
+        {
+
+        }
         public LocationExtended(double x, double y, double theta, double vx, double vy, double vtheta, ObjectType type)
         {
             X = x;
@@ -155,6 +180,33 @@ namespace Utilities
         public RectangleZone(RectangleD rect, double strength = 0)
         {
             this.rectangularZone = rect;
+        }
+    }
+
+    public class ConicalZone
+    {
+        public PointD InitPoint;
+        public PointD Cible;
+        public double Radius;
+        public ConicalZone(PointD initPt, PointD ciblePt, double radius)
+        {
+            InitPoint = initPt;
+            Cible = ciblePt;
+            Radius = radius;
+        }
+    }
+    public class SegmentZone
+    {
+        public PointD PointA;
+        public PointD PointB;
+        public double Radius;
+        public double Strength;
+        public SegmentZone(PointD ptA, PointD ptB, double radius, double strength)
+        {
+            PointA = ptA;
+            PointB = ptB;
+            Radius = radius;
+            Strength = strength;
         }
     }
 

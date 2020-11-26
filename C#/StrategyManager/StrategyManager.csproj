@@ -7,7 +7,7 @@
     <ProjectGuid>{F2D3FB95-F97A-4049-BCA4-71854FD4FAF3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>StrategyManager</RootNamespace>
+    <RootNamespace>StrategyManagerNS</RootNamespace>
     <AssemblyName>StrategyManager</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -62,9 +62,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="StrategieEurobot2021.cs" />
     <Compile Include="StrategyEurobot\DescripteurMatch.cs" />
     <Compile Include="StrategyEurobot\EnumsStrategy.cs" />
-    <Compile Include="StrategyEurobot\StrategyEurobot.cs" />
     <Compile Include="StrategyEurobot\TaskBalade.cs" />
     <Compile Include="StrategyEurobot\TaskBrasCentre.cs" />
     <Compile Include="StrategyEurobot\TaskBrasDrapeau.cs" />
@@ -81,6 +81,7 @@
     <Compile Include="StrategyInterface.cs" />
     <Compile Include="StrategyManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StrategyRoboCup\TaskBallManagement.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Constants\Constants.csproj">

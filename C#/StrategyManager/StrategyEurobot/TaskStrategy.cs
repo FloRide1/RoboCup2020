@@ -11,13 +11,13 @@ using System.Threading.Tasks;
 using Utilities;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
-namespace StrategyManager.StrategyEurobotNS
+namespace StrategyManagerNS
 {
     class TaskStrategy
     {
         Thread TaskThread;
         TaskStrategyState state = TaskStrategyState.Attente;
-        StrategyEurobot parentStrategyManager;
+        StrategyEurobot2021 parentStrategyManager;
         public Equipe playingTeam = Equipe.Jaune;
         bool Jack = true;
         Stopwatch timeStamp = new Stopwatch();
@@ -52,7 +52,7 @@ namespace StrategyManager.StrategyEurobotNS
             Finished
         }
         
-        public TaskStrategy( StrategyEurobot strategyManager)
+        public TaskStrategy( StrategyEurobot2021 strategyManager)
         {
             parentStrategyManager = strategyManager;
             TaskThread = new Thread(TaskThreadProcess);
@@ -275,5 +275,7 @@ namespace StrategyManager.StrategyEurobotNS
         {
             OnMirrorModeEvent?.Invoke(this, new BoolEventArgs { value = isMirroredMode });
         }
+
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using EventArgsLibrary;
 using MathNet.Numerics.LinearAlgebra;
+using PerformanceMonitorTools;
 using System;
 using Utilities;
 
@@ -167,47 +168,51 @@ namespace KalmanPositioning
 
         public void OnOdometryRobotSpeedReceived(object sender, PolarSpeedArgs e)
         {
-            currentOdoVxRefRobot = e.Vx;
-            currentOdoVyRefRobot = e.Vy;
+            if (robotId == e.RobotId)
+            {
+                currentOdoVxRefRobot = e.Vx;
+                currentOdoVyRefRobot = e.Vy;
 
-            currentOdoVxRefTerrain = currentOdoVxRefRobot * Math.Cos(currentGpsTheta) - currentOdoVyRefRobot * Math.Sin(currentGpsTheta);
-            currentOdoVyRefTerrain = currentOdoVxRefRobot * Math.Sin(currentGpsTheta) + currentOdoVyRefRobot * Math.Cos(currentGpsTheta);
-            currentOdoVtheta = e.Vtheta;
-            
-            //double VxRefTerrain = currentOdoVx * Math.Cos(-kalmanLocationRefTerrain.Theta) - currentOdoVy * Math.Sin(-kalmanLocationRefTerrain.Theta);
-            //double VyRefRobot = currentOdoVx * Math.Sin(-kalmanLocationRefTerrain.Theta) + currentOdoVy * Math.Cos(-kalmanLocationRefTerrain.Theta);
-            
-            //On extrapole les valeurs de position Gps en utilisant les vitesses mesurées
-            currentGpsXRefTerrain += currentOdoVxRefTerrain / fEch;
-            currentGpsYRefTerrain += currentOdoVyRefTerrain / fEch;
-            currentGpsTheta += currentOdoVtheta / fEch;
+                currentOdoVxRefTerrain = currentOdoVxRefRobot * Math.Cos(currentGpsTheta) - currentOdoVyRefRobot * Math.Sin(currentGpsTheta);
+                currentOdoVyRefTerrain = currentOdoVxRefRobot * Math.Sin(currentGpsTheta) + currentOdoVyRefRobot * Math.Cos(currentGpsTheta);
+                currentOdoVtheta = e.Vtheta;
 
-            IterateFilter(currentGpsXRefTerrain, currentGpsYRefTerrain, currentGpsTheta, currentOdoVxRefTerrain, currentOdoVyRefTerrain, currentOdoVtheta, currentGyroVtheta);
+                //double VxRefTerrain = currentOdoVx * Math.Cos(-kalmanLocationRefTerrain.Theta) - currentOdoVy * Math.Sin(-kalmanLocationRefTerrain.Theta);
+                //double VyRefRobot = currentOdoVx * Math.Sin(-kalmanLocationRefTerrain.Theta) + currentOdoVy * Math.Cos(-kalmanLocationRefTerrain.Theta);
 
-            //IterateFilter(1, 0, 0, 0, 0, 0, 0);
+                //On extrapole les valeurs de position Gps en utilisant les vitesses mesurées
+                currentGpsXRefTerrain += currentOdoVxRefTerrain / fEch;
+                currentGpsYRefTerrain += currentOdoVyRefTerrain / fEch;
+                currentGpsTheta += currentOdoVtheta / fEch;
 
-            var output = GetEstimation();
+                IterateFilter(currentGpsXRefTerrain, currentGpsYRefTerrain, currentGpsTheta, currentOdoVxRefTerrain, currentOdoVyRefTerrain, currentOdoVtheta, currentGyroVtheta);
 
-            kalmanLocationRefTerrain.X = output[0];
-            kalmanLocationRefTerrain.Vx = output[1];
-            double AxKalman = output[2];
+                //IterateFilter(1, 0, 0, 0, 0, 0, 0);
 
-            kalmanLocationRefTerrain.Y = output[3];
-            kalmanLocationRefTerrain.Vy = output[4];
-            double AyKalman = output[5];
+                var output = GetEstimation();
 
-            kalmanLocationRefTerrain.Theta = output[6];
-            kalmanLocationRefTerrain.Vtheta = output[7];
-            double AthetaKalman = output[8];
+                kalmanLocationRefTerrain.X = output[0];
+                kalmanLocationRefTerrain.Vx = output[1];
+                double AxKalman = output[2];
 
-            //Attention la location a renvoyer est dans le ref terrain pour les positions et dans le ref robot pour les vitesses
-            double kalmanLocationRefRobotVx = kalmanLocationRefTerrain.Vx * Math.Cos(-kalmanLocationRefTerrain.Theta) - kalmanLocationRefTerrain.Vy * Math.Sin(-kalmanLocationRefTerrain.Theta);
-            double kalmanLocationRefRobotVy = kalmanLocationRefTerrain.Vx * Math.Sin(-kalmanLocationRefTerrain.Theta) + kalmanLocationRefTerrain.Vy * Math.Cos(-kalmanLocationRefTerrain.Theta);
+                kalmanLocationRefTerrain.Y = output[3];
+                kalmanLocationRefTerrain.Vy = output[4];
+                double AyKalman = output[5];
 
-            Location kalmanOutputLocation = new Location(kalmanLocationRefTerrain.X, kalmanLocationRefTerrain.Y, kalmanLocationRefTerrain.Theta,
-                                                        kalmanLocationRefRobotVx, kalmanLocationRefRobotVy, kalmanLocationRefTerrain.Vtheta);
+                kalmanLocationRefTerrain.Theta = output[6];
+                kalmanLocationRefTerrain.Vtheta = output[7];
+                double AthetaKalman = output[8];
 
-            OnKalmanLocation(robotId, kalmanOutputLocation);
+                //Attention la location a renvoyer est dans le ref terrain pour les positions et dans le ref robot pour les vitesses
+                double kalmanLocationRefRobotVx = kalmanLocationRefTerrain.Vx * Math.Cos(-kalmanLocationRefTerrain.Theta) - kalmanLocationRefTerrain.Vy * Math.Sin(-kalmanLocationRefTerrain.Theta);
+                double kalmanLocationRefRobotVy = kalmanLocationRefTerrain.Vx * Math.Sin(-kalmanLocationRefTerrain.Theta) + kalmanLocationRefTerrain.Vy * Math.Cos(-kalmanLocationRefTerrain.Theta);
+
+                Location kalmanOutputLocation = new Location(kalmanLocationRefTerrain.X, kalmanLocationRefTerrain.Y, kalmanLocationRefTerrain.Theta,
+                                                            kalmanLocationRefRobotVx, kalmanLocationRefRobotVy, kalmanLocationRefTerrain.Vtheta);
+
+                OnKalmanLocation(robotId, kalmanOutputLocation);
+                //KalmanMonitor.KalmanReceived();
+            }
         }
 
         public void OnGyroRobotSpeedReceived(object sender, GyroArgs e)

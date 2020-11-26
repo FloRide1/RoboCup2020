@@ -42,6 +42,9 @@ namespace Utilities
         GOTO_1_0,
         GOTO_0_M1,
         GOTO_M1_0,
+
+        PLAYLEFT,
+        PLAYRIGHT,
     }
 
     public enum Equipe
@@ -55,5 +58,28 @@ namespace Utilities
         RoboCup,
         Eurobot,
         Demo
+    }
+
+    public enum RobotRole
+    {
+        Stopped,
+        Gardien,
+        DefenseurPlace,
+        DefenseurActif,
+        AttaquantAvecBalle,
+        AttaquantPlace,
+        ContesteurDeBalle,
+        DefenseurMarquage,
+        DefenseurInterception,
+        MilieuDemarque,
+        AttaquantDemarque,
+        Eurobot_petit_robot,
+        Eurobot_gros_robot,
+    }
+
+    public enum PlayingSide
+    {
+        Left,
+        Right
     }
 }

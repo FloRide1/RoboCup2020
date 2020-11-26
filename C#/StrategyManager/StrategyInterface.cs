@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WorldMap;
 
-namespace StrategyManager
+namespace StrategyManagerNS
 {
     interface StrategyInterface
     {

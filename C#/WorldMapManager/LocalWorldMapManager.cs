@@ -1,10 +1,12 @@
 ﻿using EventArgsLibrary;
 using Newtonsoft.Json;
+using PerformanceMonitorTools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Utilities;
 using WorldMap;
+using ZeroFormatter;
 
 namespace WorldMapManager
 {
@@ -35,6 +37,7 @@ namespace WorldMapManager
         DecimalJsonConverter decimalJsonConverter = new DecimalJsonConverter();
         public void OnPerceptionReceived(object sender, EventArgsLibrary.PerceptionArgs e)
         {
+            //PerceptionMonitor.PerceptionReceived();
             if (localWorldMap == null)
                 return;
             if (localWorldMap.RobotId == e.RobotId)
@@ -48,8 +51,13 @@ namespace WorldMapManager
                 LocalWorldMap transferLocalWorldMap = new LocalWorldMap();
                 transferLocalWorldMap.RobotId = localWorldMap.RobotId;
                 transferLocalWorldMap.TeamId = localWorldMap.TeamId;
-                transferLocalWorldMap.destinationLocation = localWorldMap.destinationLocation;
                 transferLocalWorldMap.robotLocation = localWorldMap.robotLocation;
+                transferLocalWorldMap.destinationLocation = localWorldMap.destinationLocation;
+                transferLocalWorldMap.waypointLocation = localWorldMap.waypointLocation;
+                transferLocalWorldMap.robotGhostLocation = localWorldMap.robotGhostLocation;
+                transferLocalWorldMap.robotRole = localWorldMap.robotRole;
+                transferLocalWorldMap.messageDisplay = localWorldMap.messageDisplay;
+                transferLocalWorldMap.playingSide = localWorldMap.playingSide;
                 transferLocalWorldMap.obstaclesLocationList = localWorldMap.obstaclesLocationList;
                 transferLocalWorldMap.ballLocationList = localWorldMap.ballLocationList;
 
@@ -61,11 +69,32 @@ namespace WorldMapManager
                     }
                     else
                     {
-                        string json = JsonConvert.SerializeObject(transferLocalWorldMap, decimalJsonConverter);
-                        OnMulticastSendLocalWorldMapCommand(json.GetBytes()); //Retiré pour test de robustesse, mais nécessaire à la RoboCup
-                        
+                        var s = ZeroFormatterSerializer.Serialize<WorldMap.WorldMap>(transferLocalWorldMap);
+
+
+                        var deserialzation = ZeroFormatterSerializer.Deserialize<WorldMap.WorldMap>(s);
+
+                        switch (deserialzation.Type)
+                        {
+                            case WorldMapType.LocalWM:
+                                transferLocalWorldMap = (LocalWorldMap)deserialzation;
+                                break;
+                            default:
+                                break;
+                        }
+                        //string json = JsonConvert.SerializeObject(transferLocalWorldMap, decimalJsonConverter);
+
+
+                        //OnMulticastSendLocalWorldMapCommand(json.GetBytes()); //Retiré pour test de robustesse, mais nécessaire à la RoboCup
+
+                        //for (int i = 0; i < s.Length; i++)
+                        //    s[i] = (byte)i;
+                        OnMulticastSendLocalWorldMapCommand(s); //Retiré pour test de robustesse, mais nécessaire à la RoboCup
+
                         //ATTENTION : appel douteux...
                         OnLocalWorldMapForDisplayOnly(localWorldMap); //Pour affichage uniquement, sinon transmission radio en, multicast
+
+                        //LWMEmiseMonitoring.LWMEmiseMonitor(s.Length);
                     }
                 }
             }
@@ -98,6 +127,36 @@ namespace WorldMapManager
             if (localWorldMap.RobotId == e.RobotId)
             {
                 localWorldMap.destinationLocation = e.Location;
+            }
+        }
+
+        public void OnRoleReceived(object sender, EventArgsLibrary.RoleArgs e)
+        {
+            if (localWorldMap == null)
+                return;
+            if (localWorldMap.RobotId == e.RobotId)
+            {
+                localWorldMap.robotRole = e.Role;
+            }
+        }
+
+        public void OnMessageDisplayReceived(object sender, EventArgsLibrary.MessageDisplayArgs e)
+        {
+            if (localWorldMap == null)
+                return;
+            if (localWorldMap.RobotId == e.RobotId)
+            {
+                localWorldMap.messageDisplay = e.Message;
+            }
+        }
+
+        public void OnPlayingSideReceived(object sender, EventArgsLibrary.PlayingSideArgs e)
+        {
+            if (localWorldMap == null)
+                return;
+            if (localWorldMap.RobotId == e.RobotId)
+            {
+                localWorldMap.playingSide = e.PlaySide;
             }
         }
 

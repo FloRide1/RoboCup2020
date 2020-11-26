@@ -20,20 +20,20 @@ namespace WpfOscilloscopeControl
             InitializeComponent();
         }
 
-        public void AddOrUpdateLine(int id, int maxNumberOfPoints, string lineName, bool useYAxisRight = true)
+        public void AddOrUpdateLine(int lineId, int maxNumberOfPoints, string lineName, bool useYAxisRight = true)
         {
-            if (lineDictionary.ContainsKey(id))
+            if (LineExist(lineId))
             {
-                lineDictionary[id] = new XyDataSeries<double, double>(maxNumberOfPoints) { SeriesName = lineName };
+                lineDictionary[lineId] = new XyDataSeries<double, double>(maxNumberOfPoints) { SeriesName = lineName };
                 //sciChart.RenderableSeries.RemoveAt(id);
             }
             else
             {
-                lineDictionary.Add(id, new XyDataSeries<double, double>(maxNumberOfPoints) { SeriesName = lineName });
+                lineDictionary.Add(lineId, new XyDataSeries<double, double>(maxNumberOfPoints) { SeriesName = lineName });
            
                 var lineRenderableSerie = new FastLineRenderableSeries();
-                lineRenderableSerie.Name = "lineRenderableSerie"+id.ToString();
-                lineRenderableSerie.DataSeries = lineDictionary[id];
+                lineRenderableSerie.Name = "lineRenderableSerie"+lineId.ToString();
+                lineRenderableSerie.DataSeries = lineDictionary[lineId];
                 lineRenderableSerie.DataSeries.AcceptsUnsortedData = true;
                 if(useYAxisRight)
                     lineRenderableSerie.YAxisId = "RightYAxis";
@@ -45,17 +45,12 @@ namespace WpfOscilloscopeControl
             }             
         }
 
-        public void RemoveLine(int id)
+        public void RemoveLine(int lineId)
         {
-            if (lineDictionary.ContainsKey(id))
+            if (LineExist(lineId))
             {
-                
-                sciChart.RenderableSeries.Remove(sciChart.RenderableSeries.Single(x => x.DataSeries.SeriesName == lineDictionary[id].SeriesName));
-                lineDictionary.Remove(id);
-            }
-            else
-            {
-
+                sciChart.RenderableSeries.Remove(sciChart.RenderableSeries.Single(x => x.DataSeries.SeriesName == lineDictionary[lineId].SeriesName));
+                lineDictionary.Remove(lineId);
             }
         }
 
@@ -66,17 +61,16 @@ namespace WpfOscilloscopeControl
                 serie.DataSeries.Clear();
             }
         }
-        public void ResetLine(int id)
+        public void ResetLine(int lineId)
         {
-
-            if (lineDictionary.ContainsKey(id))
-                sciChart.RenderableSeries.Single(x => x.DataSeries.SeriesName == lineDictionary[id].SeriesName).DataSeries.Clear();
+            if (LineExist(lineId))
+            {
+                sciChart.RenderableSeries.Single(x => x.DataSeries.SeriesName == lineDictionary[lineId].SeriesName).DataSeries.Clear();
+            }
         }
-        public bool LineExist(int id)
+        public bool LineExist(int lineId)
         {
-            if (lineDictionary.ContainsKey(id))
-                return true;
-            return false;
+            return lineDictionary.ContainsKey(lineId);
         }
 
 
@@ -84,10 +78,12 @@ namespace WpfOscilloscopeControl
         {
             titleText.Text = title;
         }
-        public void SetSerieName(int serieID, string name)
+        public void SetSerieName(int lineId, string name)
         {
-            if(lineDictionary.ContainsKey(serieID))
-                lineDictionary[serieID].SeriesName = name;
+            if (LineExist(lineId))
+            {
+                lineDictionary[lineId].SeriesName = name;
+            }
         }
 
         public void ChangeLineColor(string lineName, Color color)
@@ -95,15 +91,20 @@ namespace WpfOscilloscopeControl
             sciChart.RenderableSeries.Single(x => x.DataSeries.SeriesName == lineName).Stroke = color;
         }
 
-        public void ChangeLineColor(int serieID, Color color)
+        public void ChangeLineColor(int lineId, Color color)
         {
-
-            sciChart.RenderableSeries.Single(x => x.DataSeries.SeriesName == lineDictionary[serieID].SeriesName).Stroke=color;
+            if (LineExist(lineId))
+            {
+                sciChart.RenderableSeries.Single(x => x.DataSeries.SeriesName == lineDictionary[lineId].SeriesName).Stroke = color;
+            }
         }
 
-        public void DrawOnlyPoints(int serieID)
+        public void DrawOnlyPoints(int lineId)
         {
-            sciChart.RenderableSeries.Single(x => x.DataSeries.SeriesName == lineDictionary[serieID].SeriesName).Stroke = Color.FromArgb(0, 255, 255, 255);
+            if (LineExist(lineId))
+            {
+                sciChart.RenderableSeries.Single(x => x.DataSeries.SeriesName == lineDictionary[lineId].SeriesName).Stroke = Color.FromArgb(0, 255, 255, 255);
+            }
         }
 
         public void AddPointToLine(int lineId, double x, double y)
@@ -118,21 +119,30 @@ namespace WpfOscilloscopeControl
 
         public void AddPointToLine(int lineId, Point point)
         {
-            lineDictionary[lineId].Append(point.X, point.Y);
-            if (lineDictionary[lineId].Count > lineDictionary[lineId].Capacity)
-                lineDictionary[lineId].RemoveAt(0);
+            if (LineExist(lineId))
+            {
+                lineDictionary[lineId].Append(point.X, point.Y);
+                if (lineDictionary[lineId].Count > lineDictionary[lineId].Capacity)
+                    lineDictionary[lineId].RemoveAt(0);
+            }
         }
 
         public void AddPointListToLine(int lineId, List<Point> pointList)
         {
-            lineDictionary[lineId].Append( pointList.Select(e=>e.X).ToList(), pointList.Select(e2=> e2.Y).ToList());
-            if (lineDictionary[lineId].Count > lineDictionary[lineId].Capacity)
-                lineDictionary[lineId].RemoveAt(0);
+            if (LineExist(lineId))
+            {
+                lineDictionary[lineId].Append(pointList.Select(e => e.X).ToList(), pointList.Select(e2 => e2.Y).ToList());
+                if (lineDictionary[lineId].Count > lineDictionary[lineId].Capacity)
+                    lineDictionary[lineId].RemoveAt(0);
+            }
         }
         public void UpdatePointListOfLine(int lineId, List<Point> pointList)
         {
-            lineDictionary[lineId].Clear();
-            lineDictionary[lineId].Append(pointList.Select(e => e.X).ToList(), pointList.Select(e2 => e2.Y).ToList());            
+            if (LineExist(lineId))
+            {
+                lineDictionary[lineId].Clear();
+                lineDictionary[lineId].Append(pointList.Select(e => e.X).ToList(), pointList.Select(e2 => e2.Y).ToList());
+            }
         }
     }
 }

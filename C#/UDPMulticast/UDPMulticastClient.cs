@@ -82,12 +82,14 @@ namespace UDPMulticast
 
             if (read > 0)
             {
-                string receivedString = Encoding.ASCII.GetString(so.buffer, 0, read);
+                byte[] bytesRead = new byte[read];
+                Array.Copy(so.buffer, bytesRead, read);
+                //string receivedString = Encoding.ASCII.GetString(so.buffer, 0, read);
                 //so.sb.Append(Encoding.ASCII.GetString(so.buffer, 0, read));
                 s.BeginReceive(so.buffer, 0, StateObject.BUFFER_SIZE, 0,
                                          new AsyncCallback(ReceiveCallback), so);
-
-                OnDataReceived(ASCIIEncoding.ASCII.GetBytes(receivedString));
+                OnDataReceived(bytesRead);
+                //OnDataReceived(ASCIIEncoding.ASCII.GetBytes(receivedString));
             }
             else
             {

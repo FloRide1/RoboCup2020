@@ -2,6 +2,7 @@
 using Constants;
 using SciChart.Charting.Model.DataSeries;
 using SciChart.Charting.Model.DataSeries.Heatmap2DArrayDataSeries;
+using SciChart.Charting.Visuals.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,8 @@ namespace WpfWorldMapDisplay
     public partial class LocalWorldMapDisplay : UserControl
     {
         LocalWorldMapDisplayType lwmdType = LocalWorldMapDisplayType.StrategyMap; //Par défaut
+
+        string competition = "";
 
         Random random = new Random();
 
@@ -56,11 +59,12 @@ namespace WpfWorldMapDisplay
 
         public void Init(string competition, LocalWorldMapDisplayType type)
         {
+            this.competition = competition;
             lwmdType = type;
             if (lwmdType == LocalWorldMapDisplayType.StrategyMap)
-                LocalWorldMapTitle.Content = "Strategy Local World Map";
+                LocalWorldMapTitle.Text = "Strategy Local World Map";
             if (lwmdType == LocalWorldMapDisplayType.WayPointMap)
-                LocalWorldMapTitle.Content = "Waypoint Local World Map";
+                LocalWorldMapTitle.Text = "Waypoint Local World Map";
 
             switch (competition)
             {
@@ -98,7 +102,7 @@ namespace WpfWorldMapDisplay
             this.sciChart.YAxis.VisibleRange.SetMinMax(-WidthDisplayArea / 2, WidthDisplayArea / 2);
         }
 
-        public void InitTeamMate(int robotId, string competition)
+        public void InitTeamMate(int robotId, string name)
         {
             switch (competition)
             {
@@ -112,7 +116,7 @@ namespace WpfWorldMapDisplay
                     robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
                     robotShape.borderColor = System.Drawing.Color.Blue;
                     robotShape.backgroundColor = System.Drawing.Color.Red;
-                    RobotDisplay rd = new RobotDisplay(robotShape);
+                    RobotDisplay rd = new RobotDisplay(robotShape, name);
                     rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
                     TeamMatesDisplayDictionary.Add(robotId, rd);
                     break;
@@ -126,7 +130,7 @@ namespace WpfWorldMapDisplay
                     robotShape.polygon.Points.Add(new System.Windows.Point(-0.12, -0.12));
                     robotShape.borderColor = System.Drawing.Color.Blue;
                     robotShape.backgroundColor = System.Drawing.Color.DarkRed;
-                    rd = new RobotDisplay(robotShape);
+                    rd = new RobotDisplay(robotShape, name);
                     rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
                     TeamMatesDisplayDictionary.Add(robotId, rd);
                     break;
@@ -140,11 +144,28 @@ namespace WpfWorldMapDisplay
                     robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
                     robotShape.borderColor = System.Drawing.Color.Blue;
                     robotShape.backgroundColor = System.Drawing.Color.Red;
-                    rd = new RobotDisplay(robotShape);
+                    rd = new RobotDisplay(robotShape, name);
                     rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
                     TeamMatesDisplayDictionary.Add(robotId, rd);
                     break;
-                    }
+            }
+
+            LocalWorldMapTitle.Text = "Local World Map " + name;
+            //AddOrUpdateTextAnnotation(robotId.ToString(), robotId.ToString(), 0,0);
+        }
+
+        public void AddOrUpdateTextAnnotation(string annotationName, string annotationText, double posX, double posY)
+        {
+            var textAnnotationList = sciChart.Annotations.Where(annotation => annotation.GetType().Name=="TextAnnotation").ToList();
+            var annot = textAnnotationList.FirstOrDefault(c => ((TextAnnotation)c).Name == annotationName);
+            if(annot == null)
+            {
+                TextAnnotation textAnnot = new TextAnnotation();
+                textAnnot.Text = annotationText;
+                textAnnot.X1 = posX;
+                textAnnot.Y1 = posY;
+                sciChart.Annotations.Add(textAnnot);
+            }
         }
 
         public void UpdateWorldMapDisplay()
@@ -152,9 +173,12 @@ namespace WpfWorldMapDisplay
             DrawBalls();
             DrawTeam();
             DrawObstacles();
-            //DrawLidar();
             if (TeamMatesDisplayDictionary.Count == 1) //Cas d'un affichage de robot unique (localWorldMap)
+            {
+                AnnotRobotRole.Text = TeamMatesDisplayDictionary.First().Value.robotRole.ToString();
+                //DrawLidar();
                 DrawHeatMap(TeamMatesDisplayDictionary.First().Key);
+            }
             PolygonSeries.RedrawAll();
             ObjectsPolygonSeries.RedrawAll();
             BallPolygon.RedrawAll();
@@ -165,6 +189,8 @@ namespace WpfWorldMapDisplay
         {
             int robotId = localWorldMap.RobotId;
             UpdateRobotLocation(robotId, localWorldMap.robotLocation);
+            UpdateRobotRole(robotId, localWorldMap.robotRole);
+            UpdatePlayingSide(robotId, localWorldMap.playingSide);
             UpdateRobotGhostLocation(robotId, localWorldMap.robotGhostLocation);
             UpdateRobotDestination(robotId, localWorldMap.destinationLocation);
             UpdateRobotWaypoint(robotId, localWorldMap.waypointLocation);
@@ -313,12 +339,32 @@ namespace WpfWorldMapDisplay
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
             {
                 TeamMatesDisplayDictionary[robotId].SetLocation(location);
-                //TeamMatesDisplayDictionary[robotId].SetPosition(location.X, location.Y, location.Theta);
-                //TeamMatesDisplayDictionary[robotId].SetSpeed(location.Vx, location.Vy, location.Vtheta);
             }
             else
             {
                 Console.WriteLine("UpdateRobotLocation : Robot non trouvé");
+            }
+        }
+        private void UpdateRobotRole(int robotId, RobotRole role)
+        {
+            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
+            {
+                TeamMatesDisplayDictionary[robotId].SetRole(role);
+            }
+            else
+            {
+                Console.WriteLine("UpdateRobotRole : Robot non trouvé");
+            }
+        }
+        private void UpdatePlayingSide(int robotId, PlayingSide playSide)
+        {
+            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
+            {
+                TeamMatesDisplayDictionary[robotId].SetPlayingSide(playSide);
+            }
+            else
+            {
+                Console.WriteLine("UpdateRobotRole : Robot non trouvé");
             }
         }
 

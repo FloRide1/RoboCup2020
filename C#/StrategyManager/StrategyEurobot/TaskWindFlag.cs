@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 using Utilities;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
-namespace StrategyManager.StrategyEurobotNS
+namespace StrategyManagerNS
 {
     public class TaskWindFlag
     {
         Thread TaskThread;
         TaskWindFlagStates state = TaskWindFlagStates.Attente;
         public bool isFinished = false;
-        StrategyEurobot parentManager;
+        StrategyEurobot2021 parentManager;
         Stopwatch sw = new Stopwatch();
         enum TaskWindFlagStates
         {
@@ -38,7 +38,7 @@ namespace StrategyManager.StrategyEurobotNS
             Finished,
         }
 
-        public TaskWindFlag(StrategyEurobot manager)
+        public TaskWindFlag(StrategyEurobot2021 manager)
         {
             parentManager = manager;
             TaskThread = new Thread(TaskThreadProcess);

@@ -11,7 +11,7 @@ using System.Timers;
 using Utilities;
 using WorldMap;
 
-namespace StrategyManager
+namespace StrategyManagerNS
 {
     /****************************************************************************/
     /// <summary>
@@ -24,14 +24,17 @@ namespace StrategyManager
     /// - Sur Timer Strategy : détermination si besoin du rôle du robot :
     ///         - simple si Eurobot car les rôles sont figés
     ///         - complexe dans le cas de la RoboCup car les rôles sont changeant en fonction des positions et du contexte.
-    /// - Sur Timer Strategy : Itération des machines à état de jeu définissant les déplacements et actions en fonction du temps
+    /// - Sur Timer Strategy : Itération des machines à état de jeu définissant les déplacements et actions
     ///         - implante les machines à état de jeu à Eurobot, ainsi que les règles spécifiques 
     ///         de jeu (déplacement max en controlant le ballon par exemple à la RoboCup).
-    ///         - met à jour la destination théorique de déplacement (par exemple la balle pour le joueur qui la conteste à la RoboCup), 
-    ///         les zones interdites (par exemple les zones de départ à Eurobot), 
-    ///         les zones préférées (par exemple pour se démarquer à la RoboCup)...
-    /// - Sur Timer Strategy : génération de la HeatMap de positionnement X Y donnant l'indication d'intérêt de chacun des points du terrain
+    ///         - implante les règles de mise à jour 
+    ///             des zones préférentielles de destination (par exemple la balle pour le joueur qui la conteste à la RoboCup), 
+    ///             des zones interdites (par exemple les zones de départ à Eurobot), d
+    ///             es zones à éviter (par exemple pour se démarquer à la RoboCup)...
+    /// - DONE - Sur Timer Strategy : génération de la HeatMap de positionnement X Y donnant l'indication d'intérêt de chacun des points du terrain
     ///     et détermination de la destination théorique (avant inclusion des masquages waypoint)
+    /// - DONE - Sur Timer Strategy : prise en compte de la osition des obstacles pour générer la HeatMap de WayPoint 
+    ///     et trouver le WayPoint courant.
     /// - Sur Timer Strategy : gestion des actions du robot en fonction du contexte
     ///     Il est à noter que la gestion de l'orientation du robot (différente du cap en déplacement de celui-ci)
     ///     est considérée comme une action, et non comme un déplacement car celle-ci dépend avant tout du contexte du jeu
@@ -43,12 +46,17 @@ namespace StrategyManager
     {
         public int robotId = 0;
         public int teamId = 0;
+        public string DisplayName;
 
         public GlobalWorldMap globalWorldMap;
         public Heatmap positioningHeatMap;
         public Location robotCurrentLocation = new Location(0, 0, 0, 0, 0, 0);
+        public double robotOrientation;
+
+        public bool isHandlingBall = false;
 
         Stopwatch sw = new Stopwatch();
+        Stopwatch swGlobal = new Stopwatch();
         Timer timerStrategy;
 
         public StrategyGenerique(int robotId, int teamId)
@@ -100,19 +108,50 @@ namespace StrategyManager
             robotCurrentLocation.Vtheta = location.Location.Vtheta;
         }
 
+        public void OnBallHandlingReceived(object sender, BallHandlingArgs e)
+        {
+            if (e.RobotId == robotId)
+            {
+                isHandlingBall = e.IsHandlingBall;
+                if (isHandlingBall == true)
+                    ;
+            }
+            else
+                Console.WriteLine("Probleme d'ID robot");
+        }
+
+        bool displayConsole = false;
         private void TimerStrategy_Elapsed(object sender, ElapsedEventArgs e)
         {
+            swGlobal.Restart();
             //Le joueur détermine sa stratégie
+            sw.Restart();
             DetermineRobotRole();
+            if(displayConsole)
+                Console.WriteLine("Tps calcul détermination des rôles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
+
+            sw.Restart();
             IterateStateMachines();
+            if (displayConsole)
+                Console.WriteLine("Tps calcul State machines : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
+
+
+            sw.Restart();
             PositioningHeatMapGeneration();
+            if (displayConsole)
+                Console.WriteLine("Tps calcul Heatmap Destination : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
+
+            sw.Restart();
             var optimalPosition = GetOptimalDestination();
+            if (displayConsole)
+                Console.WriteLine("Tps calcul Get Optimal Destination : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
 
             List<LocationExtended> obstacleList = new List<LocationExtended>();
 
-            double seuilDetectionObstacle = 0.1;
+            double seuilDetectionObstacle = 0.4;
 
-            //Récupération des obstacles en enlevant le robot lui-même
+            sw.Restart();
+            //Construction de la liste des obstacles en enlevant le robot lui-même
             lock (globalWorldMap)
             {
                 if (globalWorldMap.obstacleLocationList != null)
@@ -123,34 +162,58 @@ namespace StrategyManager
                             obstacleList.Add(obstacle);
                     }
                 }
+                if (globalWorldMap.teammateLocationList != null)
+                {
+                    foreach (var teammate in globalWorldMap.teammateLocationList)
+                    {
+                        if (teammate.Key != robotId)
+                            obstacleList.Add(new LocationExtended(teammate.Value.X, teammate.Value.Y, 0, 0, 0, 0, ObjectType.Robot));
+                    }
+                }
             }
-
-
-            //robotCurrentLocation = new Location(10, 3.5, 0, 0, 0, 0);
-            //obstacleList.Add(new LocationExtended(9.8, 6, 0, 0, 0, 0, ObjectType.Robot));
-            //obstacleList.Add(new LocationExtended(-5, 0, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(10, -4, 0, 0, 0, 0, ObjectType.Robot));
-            //obstacleList.Add(new LocationExtended(-0.2, -0.2, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(0.2, 0.3, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(2, -2, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(-2, -2, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(-3, 0, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(-0, -4, 0, 0, 0, 0, ObjectType.Obstacle));
-            //obstacleList.Add(new LocationExtended(-0, 4, 0, 0, 0, 0, ObjectType.Obstacle));
+            if (displayConsole)
+                Console.WriteLine("Tps calcul Génération obstacles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
 
             //Renvoi de la HeatMap Stratégie
+            sw.Restart();
             OnHeatMapStrategy(robotId, positioningHeatMap);
+            if (displayConsole)
+                Console.WriteLine("Tps envoi strat Heatmap : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
 
-            //Calcul de la HeatMap WayPoint
-            positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, 2);
+            /// Calcul de la HeatMap WayPoint
+            sw.Restart();
+            positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, 0.5);
+            if (displayConsole)
+                Console.WriteLine("Tps calcul zones exclusion obstacles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
 
+            sw.Restart();
             OnHeatMapWayPoint(robotId, positioningHeatMap);
+            if (displayConsole)
+                Console.WriteLine("Tps calcul HeatMap WayPoint : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
+
+            sw.Restart();
             var optimalWayPoint = GetOptimalDestination();
+            if (displayConsole)
+                Console.WriteLine("Tps calcul Get Optimal Waypoint : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure mesure
 
             //Mise à jour de la destination
-            double robotOrientation = 0;
-            OnDestination(robotId, new Location((float)optimalPosition.X, (float)optimalPosition.Y, (float)robotOrientation, 0, 0, 0));
-            OnWaypoint(robotId, new Location((float)optimalWayPoint.X, (float)optimalWayPoint.Y, (float)robotOrientation, 0, 0, 0));
+            sw.Restart();
+            if (optimalPosition==null)
+                OnDestination(robotId, new Location((float)robotCurrentLocation.X, (float)robotCurrentLocation.Y, (float)robotOrientation, 0, 0, 0));
+            else
+                OnDestination(robotId, new Location((float)optimalPosition.X, (float)optimalPosition.Y, (float)robotOrientation, 0, 0, 0));
+
+            if(optimalWayPoint==null)
+                OnWaypoint(robotId, new Location((float)robotCurrentLocation.X, (float)robotCurrentLocation.Y, (float)robotOrientation, 0, 0, 0));
+            else
+                OnWaypoint(robotId, new Location((float)optimalWayPoint.X, (float)optimalWayPoint.Y, (float)robotOrientation, 0, 0, 0));
+
+            if (displayConsole)
+                Console.WriteLine("Tps events waypoint et destination : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
+
+            if (displayConsole)
+                Console.WriteLine("Tps calcul Global Stratégie : " + swGlobal.Elapsed.TotalMilliseconds.ToString("N4") + " ms \n\n"); // Affichage de la mesure globale
+
         }
 
         public abstract void DetermineRobotRole(); //A définir dans les classes héritées
@@ -164,8 +227,9 @@ namespace StrategyManager
             sw.Start(); // début de la mesure
 
             //Génération de la HeatMap
-            positioningHeatMap.InitHeatMapData();
-            positioningHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList);
+            
+            positioningHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList, 
+                strictlyAllowedRectangleList, avoidanceConicalZoneList, preferredSegmentZoneList);
 
             sw.Stop();
         }
@@ -238,6 +302,59 @@ namespace StrategyManager
             }
         }
 
+        //Zones coniques déconseillée
+        List<ConicalZone> avoidanceConicalZoneList = new List<ConicalZone>();
+        public void InitAvoidanceConicalZoneList()
+        {
+            lock (avoidanceConicalZoneList)
+            {
+                avoidanceConicalZoneList = new List<ConicalZone>();
+            }
+        }
+        public void AddAvoidanceConicalZoneList(PointD initPt, PointD ciblePt, double radius)
+        {
+            lock (avoidanceConicalZoneList)
+            {
+                avoidanceConicalZoneList.Add(new ConicalZone(initPt, ciblePt, radius));
+            }
+        }
+
+        //Zones Segment préférentielles
+        List<SegmentZone> preferredSegmentZoneList = new List<SegmentZone>();
+        public void InitPreferredSegmentZoneList()
+        {
+            lock (preferredSegmentZoneList)
+            {
+                preferredSegmentZoneList = new List<SegmentZone>();
+            }
+        }
+        public void AddPreferredSegmentZoneList(PointD ptA, PointD ptB, double radius, double strength = 1)
+        {
+            lock (preferredSegmentZoneList)
+            {
+                preferredSegmentZoneList.Add(new SegmentZone(ptA, ptB, radius, strength));
+            }
+        }
+
+
+
+        //Zones rectangulaires interdites
+        List<RectangleZone> strictlyAllowedRectangleList = new List<RectangleZone>();
+        public void InitStrictlyAllowedRectangleList()
+        {
+            lock (strictlyAllowedRectangleList)
+            {
+                strictlyAllowedRectangleList = new List<RectangleZone>();
+            }
+        }
+        public void AddStrictlyAllowedRectangle(RectangleD rect)
+        {
+            lock (strictlyAllowedRectangleList)
+            {
+                strictlyAllowedRectangleList.Add(new RectangleZone(rect));
+            }
+        }
+
 
         /****************************************** Events envoyés ***********************************************/
 
@@ -263,8 +380,36 @@ namespace StrategyManager
             OnDestinationEvent?.Invoke(this, new LocationArgs { RobotId = id, Location = location });
         }
 
+        public event EventHandler<RoleArgs> OnRoleEvent;
+        public virtual void OnRole(int id, RobotRole role)
+        {
+            OnRoleEvent?.Invoke(this, new RoleArgs { RobotId = id, Role = role });
+        }
 
-        public delegate void NewWayPointEventHandler(object sender, LocationArgs e);
+        public event EventHandler<MessageDisplayArgs> OnMessageDisplayEvent;
+        public virtual void OnMessageDisplay(int id, string msg)
+        {
+            OnMessageDisplayEvent?.Invoke(this, new MessageDisplayArgs { RobotId = id, Message = msg});
+        }
+
+        //public event EventHandler<PlayingSideArgs> OnPlayingSideEvent;
+        //public virtual void OnPlayingSide(int id, PlayingSide playSide)
+        //{
+        //    OnPlayingSideEvent?.Invoke(this, new  PlayingSideArgs { RobotId = id, PlaySide = playSide});
+        //}
+
+
+        public event EventHandler<ShootEventArgs> OnShootRequestEvent;
+        public virtual void OnShootRequest(int id, double speed)
+        {
+            var handler = OnShootRequestEvent;
+            if (handler != null)
+            {
+                handler(this, new  ShootEventArgs { RobotId = id, shootingSpeed = speed});
+            }
+        }
+
+
         public event EventHandler<LocationArgs> OnWaypointEvent;
         public virtual void OnWaypoint(int id, Location wayPointlocation)
         {

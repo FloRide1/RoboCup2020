@@ -55,7 +55,7 @@ namespace WpfWorldMapDisplay
             if (location != null)
             {
                 int nbSegments = 10;
-                double radius = 0.4;
+                double radius = 0.15;
                 for (double theta = 0; theta <= Math.PI * 2; theta += Math.PI * 2 / nbSegments)
                 {
                     Point pt = new Point(radius * Math.Cos(theta), radius * Math.Sin(theta));

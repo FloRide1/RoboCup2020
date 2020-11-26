@@ -119,6 +119,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfTeamInterface", "..\WpfT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfAsservissementDisplay", "..\WpfAsservissementDisplay\WpfAsservissementDisplay.csproj", "{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceMonitorTools", "..\PerformanceMonitorTools\PerformanceMonitorTools.csproj", "{E43FD01A-2803-412C-8B33-256D3F681029}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -825,6 +827,18 @@ Global
 		{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}.Release|x64.Build.0 = Release|Any CPU
 		{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}.Release|x86.ActiveCfg = Release|Any CPU
 		{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}.Release|x86.Build.0 = Release|Any CPU
+		{E43FD01A-2803-412C-8B33-256D3F681029}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E43FD01A-2803-412C-8B33-256D3F681029}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E43FD01A-2803-412C-8B33-256D3F681029}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E43FD01A-2803-412C-8B33-256D3F681029}.Debug|x64.Build.0 = Debug|Any CPU
+		{E43FD01A-2803-412C-8B33-256D3F681029}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E43FD01A-2803-412C-8B33-256D3F681029}.Debug|x86.Build.0 = Debug|Any CPU
+		{E43FD01A-2803-412C-8B33-256D3F681029}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E43FD01A-2803-412C-8B33-256D3F681029}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E43FD01A-2803-412C-8B33-256D3F681029}.Release|x64.ActiveCfg = Release|Any CPU
+		{E43FD01A-2803-412C-8B33-256D3F681029}.Release|x64.Build.0 = Release|Any CPU
+		{E43FD01A-2803-412C-8B33-256D3F681029}.Release|x86.ActiveCfg = Release|Any CPU
+		{E43FD01A-2803-412C-8B33-256D3F681029}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

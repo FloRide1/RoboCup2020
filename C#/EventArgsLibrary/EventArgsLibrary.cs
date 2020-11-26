@@ -108,6 +108,12 @@ namespace EventArgsLibrary
         public int RobotId { get; set; }
         public double Vtheta { get; set; }
     }
+
+    public class BallHandlingArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+        public bool IsHandlingBall { get; set; }
+    }
     public class PolarSpeedEventArgs : PolarSpeedArgs
     {
         public uint timeStampMs;
@@ -316,11 +322,19 @@ namespace EventArgsLibrary
         public double accelY;
         public double accelZ;
     }
+
     public class CollisionEventArgs : EventArgs
     {
         public int RobotId { get; set; }
         public Location RobotRealPosition { get; set; }
     }
+
+    public class ShootEventArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+        public double shootingSpeed { get; set; }
+    }
+
     public class StringEventArgs : EventArgs
     {
         public string value { get; set; }
@@ -344,6 +358,27 @@ namespace EventArgsLibrary
         public int RobotId { get; set; }
 
         public Location Location { get; set; }
+    }
+
+    public class RoleArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+
+        public RobotRole Role { get; set; }
+    }
+
+    public class MessageDisplayArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+
+        public string Message { get; set; }
+    }
+
+    public class PlayingSideArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+
+        public PlayingSide PlaySide { get; set; }
     }
     public class LocationListArgs : EventArgs
     {
@@ -373,6 +408,7 @@ namespace EventArgsLibrary
 
     public class GlobalWorldMapArgs : EventArgs
     {
+        public int SentByRobotId { get; set; }
         public GlobalWorldMap GlobalWorldMap { get; set; }
     }
     public class RawLidarArgs : EventArgs

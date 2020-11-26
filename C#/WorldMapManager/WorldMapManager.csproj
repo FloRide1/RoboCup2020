@@ -65,6 +65,12 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
+    <Reference Include="ZeroFormatter, Version=1.6.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\Robot\packages\ZeroFormatter.1.6.4\lib\net45\ZeroFormatter.dll</HintPath>
+    </Reference>
+    <Reference Include="ZeroFormatter.Interfaces, Version=1.6.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\Robot\packages\ZeroFormatter.Interfaces.1.6.4\lib\net45\ZeroFormatter.Interfaces.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GlobalWorldMapManager.cs" />
@@ -84,9 +90,17 @@
       <Project>{BDF7D4A0-1E8B-4487-862E-2DA58A7BC267}</Project>
       <Name>HeatMap</Name>
     </ProjectReference>
+    <ProjectReference Include="..\HighFreqTimer\AdvancedTimers.csproj">
+      <Project>{ecc907ed-f9b2-457f-901e-720987934e47}</Project>
+      <Name>AdvancedTimers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Perception\Perception.csproj">
       <Project>{dd8fd061-d3b2-43ae-b74d-03d94a2876a3}</Project>
       <Name>Perception</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PerformanceMonitorTools\PerformanceMonitorTools.csproj">
+      <Project>{e43fd01a-2803-412c-8b33-256d3f681029}</Project>
+      <Name>PerformanceMonitorTools</Name>
     </ProjectReference>
     <ProjectReference Include="..\RefereeBoxAdapter\RefereeBoxAdapter.csproj">
       <Project>{A8C04138-90DC-42F9-AB39-E71125B805B9}</Project>

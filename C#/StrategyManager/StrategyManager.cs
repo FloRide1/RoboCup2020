@@ -13,10 +13,10 @@ using PerceptionManagement;
 using System.Timers;
 using Constants;
 using HerkulexManagerNS;
-using StrategyManager.StrategyRoboCupNS;
-using StrategyManager.StrategyEurobotNS;
+using StrategyManagerNS.StrategyRoboCupNS;
 
-namespace StrategyManager
+
+namespace StrategyManagerNS
 {
 
     public class StrategyManager
@@ -25,9 +25,11 @@ namespace StrategyManager
 
         int robotId = 0;
         int teamId = 0;
-        
-        
-        PlayerRole robotRole = PlayerRole.Stop;
+
+        string DisplayName;
+
+
+        RobotRole robotRole = RobotRole.Stopped;
         PointD robotDestination = new PointD(0, 0);
         double robotOrientation = 0;
         
@@ -43,20 +45,15 @@ namespace StrategyManager
             switch (strategyMode)
             {
                 case GameMode.RoboCup:
-                    //heatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 8), 1);
                     strategy = new StrategyRoboCup(robotId, teamId);
                     break;
                 case GameMode.Eurobot:
-                    //heatMap = new Heatmap(3, 2, (int)Math.Pow(2, 5), 1);
-                    strategy = new StrategyEurobot(robotId, teamId);
+                    strategy = new StrategyEurobot2021(robotId, teamId);
                     break;
                 case GameMode.Demo:
-                    //heatMap = new Heatmap(3, 2, (int)Math.Pow(2, 5), 1);
                     break;
             }
         }
-
-
         
 
         //************************ Event envoyés par le gestionnaire de strategie ***********************/
@@ -100,7 +97,7 @@ namespace StrategyManager
         
         
 
-        void SetRobotDestination(PlayerRole role)
+        void SetRobotDestination(RobotRole role)
         {
             //switch (globalWorldMap.gameState)
             //{
@@ -284,15 +281,7 @@ namespace StrategyManager
             //        break;                
             //}            
         }
-
-
-
-        double EvaluateStrategyCostFunction(PointD destination, PointD fieldPos)
-        {
-            return Math.Max(0, 1 - Toolbox.Distance(destination, fieldPos) / 20.0);
-        }
-
-        
+                
 
         public PointD GetInterceptionLocation(Location target, Location hunter, double huntingSpeed)
         {
@@ -329,7 +318,7 @@ namespace StrategyManager
             else
                 return null;
         }
-        public void SetRole(PlayerRole role)
+        public void SetRole(RobotRole role)
         {
             robotRole = role;
         }
@@ -342,16 +331,19 @@ namespace StrategyManager
 
 
 
-    public enum PlayerRole
-    {
-        Stop,
-        Gardien,
-        DefenseurPlace,
-        DefenseurActif,
-        AttaquantAvecBalle,
-        AttaquantPlace,
-        Centre,
-    }
+    //public enum PlayerRole
+    //{
+    //    Stop,
+    //    Gardien,
+    //    DefenseurPlace,
+    //    DefenseurActif,
+    //    AttaquantAvecBalle,
+    //    AttaquantPlace,
+    //    Centre,
+
+    //    Eurobot_petit_robot,
+    //    Eurobot_gros_robot,
+    //}
 
 
     

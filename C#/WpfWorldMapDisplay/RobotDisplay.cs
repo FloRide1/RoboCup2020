@@ -17,19 +17,25 @@ namespace WpfWorldMapDisplay
         private Location ghostLocation;
         private Location destinationLocation;
         private Location waypointLocation;
+        public string robotName = "";
+        public RobotRole robotRole = RobotRole.Stopped;
+        public string DisplayMessage = "toto";
+        public PlayingSide playingSide = PlayingSide.Left;
+
         public double[,] heatMapStrategy;
         public double[,] heatMapWaypoint;
         List<PointD> lidarMap;
         List<PolarPointListExtended> lidarObjectList;
         public List<Location> ballLocationList;
 
-        public RobotDisplay(PolygonExtended rbtShape)
+        public RobotDisplay(PolygonExtended rbtShape, string name)
         {
             robotLocation = new Location(0, 0, 0, 0, 0, 0);
             destinationLocation = new Location(0, 0, 0, 0, 0, 0);
             waypointLocation = new Location(0, 0, 0, 0, 0, 0);
             ghostLocation = new Location(0, 0, 0, 0, 0, 0);
             robotShape = rbtShape;
+            robotName = name;
 
             //TODO à définir en dehors
             ghostShape = new PolygonExtended();
@@ -50,6 +56,21 @@ namespace WpfWorldMapDisplay
         {
             robotLocation = loc;
         }
+
+        public void SetRole(RobotRole role)
+        {
+            robotRole = role;
+        }
+        public void SetDisplayMessage(string displayMessage)
+        {
+            DisplayMessage = displayMessage;
+        }
+
+        public void SetPlayingSide(PlayingSide playSide)
+        {
+            this.playingSide = playSide;
+        }
+
         public void SetGhostLocation(Location loc)
         {
             ghostLocation = loc;
@@ -89,6 +110,12 @@ namespace WpfWorldMapDisplay
         {
             this.ballLocationList = ballLocationList;
         }
+
+        public Location GetRobotLocation()
+        {
+            return robotLocation;
+        }
+
 
         public PolygonExtended GetRobotPolygon()
         {

@@ -1,12 +1,16 @@
-﻿using EventArgsLibrary;
+﻿using AdvancedTimers;
+using EventArgsLibrary;
 using Newtonsoft.Json;
+using PerformanceMonitorTools;
 using RefereeBoxAdapter;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
 using Utilities;
 using WorldMap;
+using ZeroFormatter;
 
 namespace WorldMapManager
 {
@@ -16,13 +20,15 @@ namespace WorldMapManager
         string TeamIpAddress = "";
         double freqRafraichissementWorldMap = 20;
 
-        Dictionary<int, LocalWorldMap> localWorldMapDictionary = new Dictionary<int, LocalWorldMap>();
+        ConcurrentDictionary<int, LocalWorldMap> localWorldMapDictionary = new ConcurrentDictionary<int, LocalWorldMap>();
         GlobalWorldMapStorage globalWorldMapStorage = new GlobalWorldMapStorage();
         GlobalWorldMap globalWorldMap = new GlobalWorldMap();
-        Timer globalWorldMapSendTimer;
+        //Timer globalWorldMapSendTimer;
+        HighFreqTimer globalWorldMapSendTimer;
 
         GameState currentGameState = GameState.STOPPED;
         StoppedGameAction currentStoppedGameAction = StoppedGameAction.NONE;
+        PlayingSide playingSide = PlayingSide.Left;
 
         bool bypassMulticastUdp = false;
         
@@ -32,12 +38,12 @@ namespace WorldMapManager
             TeamId = teamId;
             TeamIpAddress = ipAddress;
             bypassMulticastUdp = bypassMulticast;
-            globalWorldMapSendTimer = new Timer(1000/freqRafraichissementWorldMap);
-            globalWorldMapSendTimer.Elapsed += GlobalWorldMapSendTimer_Elapsed;
+            globalWorldMapSendTimer = new HighFreqTimer(freqRafraichissementWorldMap);
+            globalWorldMapSendTimer.Tick += GlobalWorldMapSendTimer_Tick; 
             globalWorldMapSendTimer.Start();
         }
 
-        private void GlobalWorldMapSendTimer_Elapsed(object sender, ElapsedEventArgs e)
+        private void GlobalWorldMapSendTimer_Tick(object sender, EventArgs e)
         {
             //ATTENTION : Starting point temporel pour beaucoup de processing, car cela envoie la GlobalWorldMap aux robots.
             MergeLocalWorldMaps();
@@ -54,7 +60,8 @@ namespace WorldMapManager
             var robotId = e.refBoxMsg.robotID;
             var targetTeam = e.refBoxMsg.targetTeam;
 
-            switch (command)
+
+                switch (command)
             {
                 case RefBoxCommand.START:
                     currentGameState = GameState.PLAYING;
@@ -185,6 +192,20 @@ namespace WorldMapManager
                     else
                         currentStoppedGameAction = StoppedGameAction.GOTO_M1_0_OPPONENT;
                     break;
+                case RefBoxCommand.PLAYLEFT:
+                    //currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        playingSide = PlayingSide.Left;
+                    else
+                        playingSide = PlayingSide.Right;
+                    break;
+                case RefBoxCommand.PLAYRIGHT:
+                    //currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == TeamIpAddress)
+                        playingSide = PlayingSide.Right;
+                    else
+                        playingSide = PlayingSide.Left;
+                    break;
             }
         }
 
@@ -193,29 +214,37 @@ namespace WorldMapManager
         {
             int robotId = localWorldMap.RobotId;
             int teamId = localWorldMap.TeamId;
-            lock (localWorldMapDictionary)
+            //lock (localWorldMapDictionary)
             {
-                if (localWorldMapDictionary.ContainsKey(robotId))
-                    localWorldMapDictionary[robotId] = localWorldMap;
-                else
-                    localWorldMapDictionary.Add(robotId, localWorldMap);
+                localWorldMapDictionary.AddOrUpdate(robotId, localWorldMap, (key, value) => localWorldMap);
+                //if (localWorldMapDictionary.ContainsKey(robotId))
+                //    localWorldMapDictionary[robotId] = localWorldMap;
+                //else
+                //    localWorldMapDictionary.Add(robotId, localWorldMap);
             }
         }
 
         DecimalJsonConverter decimalJsonConverter = new DecimalJsonConverter();
+
+        double distanceMaxFusionObstacle = 0.2;
+        double distanceMaxFusionTeamMate = 0.2;
         private void MergeLocalWorldMaps()
         {
             //Fusion des World Map locales pour construire la world map globale
-            lock (localWorldMapDictionary)
+            //lock (localWorldMapDictionary)
             {
                 //On rassemble les infos issues des cartes locales de chacun des robots
                 foreach (var localMap in localWorldMapDictionary)
                 {
                     globalWorldMapStorage.AddOrUpdateRobotLocation(localMap.Key, localMap.Value.robotLocation);
+                    globalWorldMapStorage.AddOrUpdateGhostLocation(localMap.Key, localMap.Value.robotGhostLocation);
                     globalWorldMapStorage.AddOrUpdateRobotDestination(localMap.Key, localMap.Value.destinationLocation);
                     globalWorldMapStorage.AddOrUpdateRobotWayPoint(localMap.Key, localMap.Value.waypointLocation);
                     globalWorldMapStorage.AddOrUpdateBallLocationList(localMap.Key, localMap.Value.ballLocationList);
                     globalWorldMapStorage.AddOrUpdateObstaclesList(localMap.Key, localMap.Value.obstaclesLocationList);
+                    globalWorldMapStorage.AddOrUpdateRobotRole(localMap.Key, localMap.Value.robotRole);
+                    globalWorldMapStorage.AddOrUpdateMessageDisplay(localMap.Key, localMap.Value.messageDisplay);
+                    globalWorldMapStorage.AddOrUpdateRobotPlayingSide(localMap.Key, localMap.Value.playingSide);
                 }
 
                 //Génération de la carte fusionnée à partir des perceptions des robots de l'équipe
@@ -233,43 +262,83 @@ namespace WorldMapManager
                 globalWorldMap.teammateWayPointList = new Dictionary<int, Location>();
                 globalWorldMap.opponentLocationList = new List<Location>();
                 globalWorldMap.obstacleLocationList = new List<LocationExtended>();
+                globalWorldMap.teammateRoleList = new Dictionary<int, RobotRole>();
+                globalWorldMap.teammateDisplayMessageList = new Dictionary<int, string>();
+                globalWorldMap.teammatePlayingSideList = new Dictionary<int, PlayingSide>();
 
                 //On place tous les robots de l'équipe dans la global map
-                lock (localWorldMapDictionary)
+                foreach (var localMap in localWorldMapDictionary)
                 {
-                    foreach (var localMap in localWorldMapDictionary)
-                    {
-                        //On ajoute la position des robots de l'équipe dans la WorldMap
-                        globalWorldMap.teammateLocationList.Add(localMap.Key, localMap.Value.robotLocation);
-                        //On ajoute le ghost (position théorique) des robots de l'équipe dans la WorldMap
-                        globalWorldMap.teammateGhostLocationList.Add(localMap.Key, localMap.Value.robotGhostLocation);
-                        //On ajoute la destination des robots de l'équipe dans la WorldMap
-                        globalWorldMap.teammateDestinationLocationList.Add(localMap.Key, localMap.Value.destinationLocation);
-                        //On ajoute le waypoint courant des robots de l'équipe dans la WorldMap
-                        globalWorldMap.teammateWayPointList.Add(localMap.Key, localMap.Value.waypointLocation);
-                    }
+                    //On ajoute la position des robots de l'équipe dans la WorldMap
+                    globalWorldMap.teammateLocationList.Add(localMap.Key, localMap.Value.robotLocation);
+                    //On ajoute le rôle des robots de l'équipe dans la WorldMap
+                    globalWorldMap.teammateRoleList.Add(localMap.Key, localMap.Value.robotRole);
+                    //On ajoute le message à afficher des robots de l'équipe dans la WorldMap
+                    globalWorldMap.teammateDisplayMessageList.Add(localMap.Key, localMap.Value.messageDisplay);
+                    //On ajoute le playing Side des robots de l'équipe dans la WorldMap
+                    globalWorldMap.teammatePlayingSideList.Add(localMap.Key, localMap.Value.playingSide);
+                    //On ajoute le ghost (position théorique) des robots de l'équipe dans la WorldMap
+                    globalWorldMap.teammateGhostLocationList.Add(localMap.Key, localMap.Value.robotGhostLocation);
+                    //On ajoute la destination des robots de l'équipe dans la WorldMap
+                    globalWorldMap.teammateDestinationLocationList.Add(localMap.Key, localMap.Value.destinationLocation);
+                    //On ajoute le waypoint courant des robots de l'équipe dans la WorldMap
+                    globalWorldMap.teammateWayPointList.Add(localMap.Key, localMap.Value.waypointLocation);
                 }
 
-                lock (localWorldMapDictionary)
+                try
                 {
-                    try
+                    //TODO : Fusion des obstacles vus par chacun des robots
+                    foreach (var localMap in localWorldMapDictionary)
                     {
-                        //Fusion des obstacles vus par chacun des robots
-                        foreach (var localMap in localWorldMapDictionary)
+                        foreach (var obstacle in localMap.Value.obstaclesLocationList)
                         {
-                            foreach (var obstacle in localMap.Value.obstaclesLocationList)
+                            bool skipNext = false;
+                            /// On itère sur chacun des obstacles perçus par chacun des robots
+                            /// On commence regarde pour chaque obstacle perçu si il ne correspond pas à une position de robot de l'équipe
+                            ///     Si c'est le cas, on abandonne cet obstacle
+                            ///     Si ce n'est pas le cas, on regarde si il ne correspond pas à un obstacle déjà présent dans la liste des obstacles
+                            ///         Si ce n'est pas le cas, on l'ajoute à la liste des obtacles
+                            ///         Si c'est le cas, on le fusionne en moyennant ses coordonnées de manière pondérée 
+                            ///             et on renforce le poids de cet obstacle
+                            foreach (var teamMateRobot in globalWorldMap.teammateLocationList)
                             {
+                                if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(teamMateRobot.Value.X, teamMateRobot.Value.Y)) < distanceMaxFusionTeamMate)
+                                {
+                                    /// L'obstacle est un robot, on abandonne
+                                    skipNext = true;
+                                    break;
+                                }
+                            }
+                            if (skipNext == false)
+                            {
+                                /// Si on arrive ici c'est que l'obstacle n'est pas un robot de l'équipe
+                                foreach (var obstacleConnu in globalWorldMap.obstacleLocationList)
+                                {
+                                    if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(obstacleConnu.X, obstacleConnu.Y)) < distanceMaxFusionObstacle)
+                                    {
+                                        //L'obstacle est déjà connu, on le fusionne /TODO : améliorer la fusion avec pondération
+                                        obstacleConnu.X = (obstacleConnu.X + obstacle.X) / 2;
+                                        obstacleConnu.Y = (obstacleConnu.Y + obstacle.Y) / 2;
+                                        skipNext = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (skipNext == false)
+                            {
+                                /// Si on arrive ici, c'est que l'obstacle n'était pas connu, on l'ajoute
                                 globalWorldMap.obstacleLocationList.Add(obstacle);
                             }
                         }
                     }
-                    catch { }
                 }
+                catch { }
             }
-            
-            //On ajoute les informations de stratégie utilisant les commandes de la referee box
+
+            /// On ajoute les informations issues des commandes de la referee box
             globalWorldMap.gameState = currentGameState;
             globalWorldMap.stoppedGameAction = currentStoppedGameAction;
+            globalWorldMap.playingSide = playingSide;
 
             if (bypassMulticastUdp)
             {
@@ -278,14 +347,25 @@ namespace WorldMapManager
             }
             else
             {
-                string json = JsonConvert.SerializeObject(globalWorldMap, decimalJsonConverter);
-                OnMulticastSendGlobalWorldMap(json.GetBytes());
-            }
-        }
+                var s = ZeroFormatterSerializer.Serialize<WorldMap.WorldMap>(globalWorldMap);
 
-        void DefineRolesAndGameState()
-        {
-            
+                //var deserialzation = ZeroFormatterSerializer.Deserialize<WorldMap.WorldMap>(s);
+
+                //switch(deserialzation.Type)
+                //{
+                //    case WorldMapType.GlobalWM:
+                //        globalWorldMap = (GlobalWorldMap)deserialzation;
+                //        break;
+                //    default:
+                //        break;
+                //}
+
+                //string json = JsonConvert.SerializeObject(globalWorldMap, decimalJsonConverter);
+                //OnMulticastSendGlobalWorldMap(json.GetBytes());
+
+                OnMulticastSendGlobalWorldMap(s);
+                //GWMEmiseMonitoring.GWMEmiseMonitor(s.Length);
+            }
         }
         
         //Output events
@@ -311,3 +391,4 @@ namespace WorldMapManager
         }
     }
 }
+

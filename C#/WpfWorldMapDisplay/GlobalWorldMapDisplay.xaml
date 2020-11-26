@@ -8,11 +8,10 @@
              d:DesignHeight="2000" d:DesignWidth="2600"
              xmlns:s="http://schemas.abtsoftware.co.uk/scichart" >
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
+        <Grid.RowDefinitions>            
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
-         <s:SciChartSurface x:Name="sciChart" Padding="0" BorderThickness="0" Grid.Row="1">
+         <s:SciChartSurface x:Name="sciChart" Padding="0" BorderThickness="0" Grid.Row="0">
              
             <!--  Create a X Axis  -->
             <s:SciChartSurface.XAxis>
@@ -55,8 +54,10 @@
                 <local:PolygonRenderableSeries x:Name="ObjectsPolygonSeries" Opacity="1" >
                 </local:PolygonRenderableSeries>
             </s:SciChartSurface.RenderableSeries>
+
+            <s:SciChartSurface.Annotations>
+                <s:TextAnnotation AnnotationCanvas="AboveChart" CoordinateMode="Relative" FontSize="18" FontWeight="Bold" HorizontalAnchorPoint="Left" Opacity="0.5" Text="Global World Map" VerticalAnchorPoint="Center" X1="0.08" Y1="0.12"/>
+            </s:SciChartSurface.Annotations>
         </s:SciChartSurface>
-        <Label Grid.Row="0" Content="Global World Map" HorizontalContentAlignment="Center" VerticalAlignment="Stretch" Foreground="White" HorizontalAlignment="Stretch">
-        </Label>
     </Grid>
 </UserControl>
