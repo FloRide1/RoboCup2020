@@ -57,7 +57,7 @@ namespace SensorSimulator
         }
 
 
-        public void OnPhysicalBallHandlingReceived(object sender, BallHandlingArgs e)
+        public void OnPhysicalBallHandlingReceived(object sender, BallHandlingSensorArgs e)
         {
             //On transmet la sortie de capteur de présence de balle simulée
             if (robotId == e.RobotId)
@@ -98,13 +98,13 @@ namespace SensorSimulator
             }
         }
 
-        public event EventHandler<BallHandlingArgs> OnBallHandlingSimulatedEvent;
+        public event EventHandler<BallHandlingSensorArgs> OnBallHandlingSimulatedEvent;
         public virtual void OnBallHandlingSimulated(int id, bool isHandling)
         {
             var handler = OnBallHandlingSimulatedEvent;
             if (handler != null)
             {
-                handler(this, new BallHandlingArgs { RobotId = id,  IsHandlingBall = isHandling});
+                handler(this, new BallHandlingSensorArgs { RobotId = id,  IsHandlingBall = isHandling});
             }
         }
     }

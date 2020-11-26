@@ -167,17 +167,13 @@ namespace TeamSimulator
             trajectoryPlanner.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
             trajectoryPlanner.OnCollisionEvent += physicalSimulator.OnCollisionReceived;
             
-            //trajectoryPlanner.InitRobotPosition(xInit, yInit, thetaInit);
-            //physicalSimulator.SetRobotPosition(robotId, xInit, yInit, thetaInit);
-            //kalmanPositioning.InitFilter(xInit, 0, 0, yInit, 0, 0, thetaInit, 0, 0);
-
             ////physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived; //replacé par les 5 lignes suivantes
             physicalSimulator.OnPhysicalRobotLocationEvent += sensorSimulator.OnPhysicalRobotPositionReceived;
             physicalSimulator.OnPhysicalBallHandlingEvent += sensorSimulator.OnPhysicalBallHandlingReceived;
             sensorSimulator.OnCamLidarSimulatedRobotPositionEvent += kalmanPositioning.OnCamLidarSimulatedRobotPositionReceived;
             sensorSimulator.OnGyroSimulatedRobotSpeedEvent += kalmanPositioning.OnGyroRobotSpeedReceived;
             sensorSimulator.OnOdometrySimulatedRobotSpeedEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
-            sensorSimulator.OnBallHandlingSimulatedEvent += strategyManager.strategy.OnBallHandlingReceived;
+            sensorSimulator.OnBallHandlingSimulatedEvent += strategyManager.strategy.OnBallHandlingSensorInfoReceived;
 
 
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
@@ -194,6 +190,7 @@ namespace TeamSimulator
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
             strategyManager.strategy.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             strategyManager.strategy.OnRoleEvent += localWorldMapManager.OnRoleReceived; //Utile pour l'affichage
+            strategyManager.strategy.OnBallHandlingStateEvent += localWorldMapManager.OnBallHandlingStateReceived;
             strategyManager.strategy.OnMessageDisplayEvent += localWorldMapManager.OnMessageDisplayReceived; //Utile pour l'affichage
             //strategyManager.strategy.OnPlayingSideEvent += localWorldMapManager.OnPlayingSideReceived;  //inutile
             strategyManager.strategy.OnHeatMapStrategyEvent += localWorldMapManager.OnHeatMapStrategyReceived;

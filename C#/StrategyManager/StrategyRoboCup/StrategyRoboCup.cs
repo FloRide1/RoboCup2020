@@ -11,7 +11,7 @@ using WorldMap;
 
 namespace StrategyManagerNS.StrategyRoboCupNS
 {
-    class StrategyRoboCup : StrategyGenerique
+    public class StrategyRoboCup : StrategyGenerique
     {
         Stopwatch sw = new Stopwatch();
 
@@ -55,8 +55,15 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                     break;
                 case GameState.PLAYING:
                     {
-                        /// On commence par créer une liste de TeamMateRoleClassifier qui va permettre de trier intelligemment 
+                        /// On commence par créer une liste de TeamMateRoleClassifier qui va permettre de trier intelligemment                         /// 
                         /// 
+                        /// On détermine le rang du joueur dans l'équipe en fonction de sa distance au ballon   
+                        /// On détermine le rang du joueur dans l'équipe en fonction de sa distance au but   
+                        /// 
+                        /// On regarde si une des équipe a la balle
+                        /// 
+
+
                         Dictionary<int, TeamMateRoleClassifier> teamRoleClassifier = new Dictionary<int, TeamMateRoleClassifier>();
                         foreach (var teammate in globalWorldMap.teammateLocationList)
                         {
@@ -74,7 +81,6 @@ namespace StrategyManagerNS.StrategyRoboCupNS
 
                         /// On détermine le rang du joueur dans l'équipe en fonction de sa distance au ballon                        
                         int rangDistanceBalle = -1;
-
                         if (globalWorldMap.ballLocationList.Count > 0)
                         {
                             var ballPosition = new PointD(globalWorldMap.ballLocationList[0].X, globalWorldMap.ballLocationList[0].Y);
@@ -86,17 +92,29 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                         }
 
                         /// On détermine le rang du joueur dans l'équipe en fonction de sa distance au but 
+                        /// Pour cela il faut d'abord définir la position du but.
                         PointD goalPosition;
                         if (playingSide == PlayingSide.Right)
                             goalPosition = new PointD(-11, 0);
                         else
                             goalPosition = new PointD(11, 0);
 
-                        ///                       
                         for (int i = 0; i < globalWorldMap.teammateLocationList.Count(); i++)
                         {
-                            ///
                             teamRoleClassifier.ElementAt(i).Value.DistanceBut = Toolbox.Distance(teamRoleClassifier.ElementAt(i).Value.Position, goalPosition);
+                        }
+
+                        ///On détermine à présent si l'équipe à la balle et quel joueur la possède
+                        ///
+                        var teamBallHandlingState = BallHandlingState.NoBall;
+                        int IdplayerHandlingBall = -1;
+                        foreach (var teammate in globalWorldMap.teammateBallHandlingStateList)
+                        {
+                            if (teammate.Value != BallHandlingState.NoBall)
+                            {
+                                teamBallHandlingState = teammate.Value;
+                                IdplayerHandlingBall = teammate.Key;
+                            }
                         }
 
                         /// A présent, on filtre la liste de l'équipe de manière à trouver le joueur le plus proche de la balle n'étant pas le gardien
@@ -150,6 +168,10 @@ namespace StrategyManagerNS.StrategyRoboCupNS
             }
 
             OnRole(robotId, role);
+            
+            OnBallHandlingState(robotId, BallHandlingState.NoBall);
+
+
             OnMessageDisplay(robotId, MessageDisplay);
             playingSide = globalWorldMap.playingSide;
             //OnPlayingSide(robotId, playingSide);
@@ -269,6 +291,7 @@ namespace StrategyManagerNS.StrategyRoboCupNS
 
             //AddForbiddenRectangle(new RectangleD(-5, 3, 4, 6));
         }
+
 
 
     }

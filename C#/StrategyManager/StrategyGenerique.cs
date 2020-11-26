@@ -108,10 +108,12 @@ namespace StrategyManagerNS
             robotCurrentLocation.Vtheta = location.Location.Vtheta;
         }
 
-        public void OnBallHandlingReceived(object sender, BallHandlingArgs e)
+
+        public void OnBallHandlingSensorInfoReceived(object sender, BallHandlingSensorArgs e)
         {
             if (e.RobotId == robotId)
             {
+                //Force l'état balle prise dans la machine à état de gestion de la prise tir de balle
                 isHandlingBall = e.IsHandlingBall;
                 if (isHandlingBall == true)
                     ;
@@ -384,6 +386,12 @@ namespace StrategyManagerNS
         public virtual void OnRole(int id, RobotRole role)
         {
             OnRoleEvent?.Invoke(this, new RoleArgs { RobotId = id, Role = role });
+        }
+
+        public event EventHandler<BallHandlingStateArgs> OnBallHandlingStateEvent;
+        public virtual void OnBallHandlingState(int id, BallHandlingState state)
+        {
+            OnBallHandlingStateEvent?.Invoke(this, new BallHandlingStateArgs { RobotId = id, State = state });
         }
 
         public event EventHandler<MessageDisplayArgs> OnMessageDisplayEvent;

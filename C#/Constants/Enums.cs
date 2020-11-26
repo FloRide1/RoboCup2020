@@ -77,6 +77,14 @@ namespace Utilities
         Eurobot_gros_robot,
     }
 
+    public enum BallHandlingState
+    {
+        NoBall,
+        HasBall,
+        PassInProgress,
+        ShootInProgress,
+    }
+
     public enum PlayingSide
     {
         Left,

@@ -21,7 +21,7 @@ namespace WorldMapManager
         double freqRafraichissementWorldMap = 20;
 
         ConcurrentDictionary<int, LocalWorldMap> localWorldMapDictionary = new ConcurrentDictionary<int, LocalWorldMap>();
-        GlobalWorldMapStorage globalWorldMapStorage = new GlobalWorldMapStorage();
+        //GlobalWorldMapStorage globalWorldMapStorage = new GlobalWorldMapStorage();
         GlobalWorldMap globalWorldMap = new GlobalWorldMap();
         //Timer globalWorldMapSendTimer;
         HighFreqTimer globalWorldMapSendTimer;
@@ -233,19 +233,20 @@ namespace WorldMapManager
             //Fusion des World Map locales pour construire la world map globale
             //lock (localWorldMapDictionary)
             {
-                //On rassemble les infos issues des cartes locales de chacun des robots
-                foreach (var localMap in localWorldMapDictionary)
-                {
-                    globalWorldMapStorage.AddOrUpdateRobotLocation(localMap.Key, localMap.Value.robotLocation);
-                    globalWorldMapStorage.AddOrUpdateGhostLocation(localMap.Key, localMap.Value.robotGhostLocation);
-                    globalWorldMapStorage.AddOrUpdateRobotDestination(localMap.Key, localMap.Value.destinationLocation);
-                    globalWorldMapStorage.AddOrUpdateRobotWayPoint(localMap.Key, localMap.Value.waypointLocation);
-                    globalWorldMapStorage.AddOrUpdateBallLocationList(localMap.Key, localMap.Value.ballLocationList);
-                    globalWorldMapStorage.AddOrUpdateObstaclesList(localMap.Key, localMap.Value.obstaclesLocationList);
-                    globalWorldMapStorage.AddOrUpdateRobotRole(localMap.Key, localMap.Value.robotRole);
-                    globalWorldMapStorage.AddOrUpdateMessageDisplay(localMap.Key, localMap.Value.messageDisplay);
-                    globalWorldMapStorage.AddOrUpdateRobotPlayingSide(localMap.Key, localMap.Value.playingSide);
-                }
+                ////On rassemble les infos issues des cartes locales de chacun des robots
+                //foreach (var localMap in localWorldMapDictionary)
+                //{
+                //    globalWorldMapStorage.AddOrUpdateRobotLocation(localMap.Key, localMap.Value.robotLocation);
+                //    globalWorldMapStorage.AddOrUpdateGhostLocation(localMap.Key, localMap.Value.robotGhostLocation);
+                //    globalWorldMapStorage.AddOrUpdateRobotDestination(localMap.Key, localMap.Value.destinationLocation);
+                //    globalWorldMapStorage.AddOrUpdateRobotWayPoint(localMap.Key, localMap.Value.waypointLocation);
+                //    globalWorldMapStorage.AddOrUpdateBallLocationList(localMap.Key, localMap.Value.ballLocationList);
+                //    globalWorldMapStorage.AddOrUpdateObstaclesList(localMap.Key, localMap.Value.obstaclesLocationList);
+                //    globalWorldMapStorage.AddOrUpdateRobotRole(localMap.Key, localMap.Value.robotRole);
+                //    globalWorldMapStorage.AddOrUpdateBallHandlingState(localMap.Key, localMap.Value.ballHandlingState);
+                //    globalWorldMapStorage.AddOrUpdateMessageDisplay(localMap.Key, localMap.Value.messageDisplay);
+                //    globalWorldMapStorage.AddOrUpdateRobotPlayingSide(localMap.Key, localMap.Value.playingSide);
+                //}
 
                 //Génération de la carte fusionnée à partir des perceptions des robots de l'équipe
                 //La fusion porte avant tout sur la balle et sur les adversaires.
@@ -259,6 +260,7 @@ namespace WorldMapManager
                 globalWorldMap.teammateLocationList = new Dictionary<int, Location>();
                 globalWorldMap.teammateGhostLocationList = new Dictionary<int, Location>();
                 globalWorldMap.teammateDestinationLocationList = new Dictionary<int, Location>();
+                globalWorldMap.teammateBallHandlingStateList = new Dictionary<int, BallHandlingState>();
                 globalWorldMap.teammateWayPointList = new Dictionary<int, Location>();
                 globalWorldMap.opponentLocationList = new List<Location>();
                 globalWorldMap.obstacleLocationList = new List<LocationExtended>();
@@ -273,6 +275,8 @@ namespace WorldMapManager
                     globalWorldMap.teammateLocationList.Add(localMap.Key, localMap.Value.robotLocation);
                     //On ajoute le rôle des robots de l'équipe dans la WorldMap
                     globalWorldMap.teammateRoleList.Add(localMap.Key, localMap.Value.robotRole);
+                    //On ajoute l'état de Ball Handling des robots de l'équipe dans la WorldMap
+                    globalWorldMap.teammateBallHandlingStateList.Add(localMap.Key, localMap.Value.ballHandlingState);
                     //On ajoute le message à afficher des robots de l'équipe dans la WorldMap
                     globalWorldMap.teammateDisplayMessageList.Add(localMap.Key, localMap.Value.messageDisplay);
                     //On ajoute le playing Side des robots de l'équipe dans la WorldMap

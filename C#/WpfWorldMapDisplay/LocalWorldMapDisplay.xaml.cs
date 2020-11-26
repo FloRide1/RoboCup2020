@@ -364,7 +364,7 @@ namespace WpfWorldMapDisplay
             }
             else
             {
-                Console.WriteLine("UpdateRobotRole : Robot non trouvé");
+                Console.WriteLine("UpdatePlayingSide : Robot non trouvé");
             }
         }
 

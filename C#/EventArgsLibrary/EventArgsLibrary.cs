@@ -109,7 +109,7 @@ namespace EventArgsLibrary
         public double Vtheta { get; set; }
     }
 
-    public class BallHandlingArgs : EventArgs
+    public class BallHandlingSensorArgs : EventArgs
     {
         public int RobotId { get; set; }
         public bool IsHandlingBall { get; set; }
@@ -365,6 +365,13 @@ namespace EventArgsLibrary
         public int RobotId { get; set; }
 
         public RobotRole Role { get; set; }
+    }
+
+    public class BallHandlingStateArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+
+        public BallHandlingState State { get; set; }
     }
 
     public class MessageDisplayArgs : EventArgs

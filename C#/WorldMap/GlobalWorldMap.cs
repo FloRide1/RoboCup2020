@@ -46,8 +46,10 @@ namespace WorldMap
         [Index(13)]
         public virtual Dictionary<int, RobotRole> teammateRoleList { get; set; }
         [Index(14)]
-        public virtual Dictionary<int, string> teammateDisplayMessageList { get; set; }
+        public virtual Dictionary<int, BallHandlingState> teammateBallHandlingStateList { get; set; }
         [Index(15)]
+        public virtual Dictionary<int, string> teammateDisplayMessageList { get; set; }
+        [Index(16)]
         public virtual Dictionary<int, PlayingSide> teammatePlayingSideList { get; set; }
 
         public GlobalWorldMap()
@@ -99,71 +101,77 @@ namespace WorldMap
         }
     }
 
-    public class GlobalWorldMapStorage
-    {
-        public ConcurrentDictionary<int, Location> robotLocationDictionary { get; set; }
-        public ConcurrentDictionary<int, Location> ghostLocationDictionary { get; set; }
-        public ConcurrentDictionary<int, Location> destinationLocationDictionary { get; set; }
-        public ConcurrentDictionary<int, Location> waypointLocationDictionary { get; set; }
-        public ConcurrentDictionary<int, List<Location>> ballLocationListDictionary { get; set; }
-        public ConcurrentDictionary<int, List<LocationExtended>> ObstaclesLocationListDictionary { get; set; }
-        public ConcurrentDictionary<int, RobotRole> robotRoleDictionary { get; set; }
-        public ConcurrentDictionary<int, string> robotMessageDisplayDictionary { get; set; }
-        public ConcurrentDictionary<int, PlayingSide> robotPlayingSideDictionary { get; set; }
+    //public class GlobalWorldMapStorage
+    //{
+    //    public ConcurrentDictionary<int, Location> robotLocationDictionary { get; set; }
+    //    public ConcurrentDictionary<int, Location> ghostLocationDictionary { get; set; }
+    //    public ConcurrentDictionary<int, Location> destinationLocationDictionary { get; set; }
+    //    public ConcurrentDictionary<int, Location> waypointLocationDictionary { get; set; }
+    //    public ConcurrentDictionary<int, List<Location>> ballLocationListDictionary { get; set; }
+    //    public ConcurrentDictionary<int, List<LocationExtended>> ObstaclesLocationListDictionary { get; set; }
+    //    public ConcurrentDictionary<int, RobotRole> robotRoleDictionary { get; set; }
+    //    public ConcurrentDictionary<int, BallHandlingState> ballHandlingStateDictionary { get; set; }
+    //    public ConcurrentDictionary<int, string> robotMessageDisplayDictionary { get; set; }
+    //    public ConcurrentDictionary<int, PlayingSide> robotPlayingSideDictionary { get; set; }
 
-        public GlobalWorldMapStorage()
-        {
-            robotLocationDictionary = new ConcurrentDictionary<int, Location>();
-            ghostLocationDictionary = new ConcurrentDictionary<int, Location>();
-            destinationLocationDictionary = new ConcurrentDictionary<int, Location>();
-            waypointLocationDictionary = new ConcurrentDictionary<int, Location>();
-            ballLocationListDictionary = new ConcurrentDictionary<int, List<Location>>();
-            ObstaclesLocationListDictionary = new ConcurrentDictionary<int, List<LocationExtended>>();
-            robotRoleDictionary = new ConcurrentDictionary<int, RobotRole>();
-            robotMessageDisplayDictionary = new ConcurrentDictionary<int, string>();
-            robotPlayingSideDictionary = new ConcurrentDictionary<int, PlayingSide>();
-        }
+    //    public GlobalWorldMapStorage()
+    //    {
+    //        robotLocationDictionary = new ConcurrentDictionary<int, Location>();
+    //        ghostLocationDictionary = new ConcurrentDictionary<int, Location>();
+    //        destinationLocationDictionary = new ConcurrentDictionary<int, Location>();
+    //        waypointLocationDictionary = new ConcurrentDictionary<int, Location>();
+    //        ballLocationListDictionary = new ConcurrentDictionary<int, List<Location>>();
+    //        ObstaclesLocationListDictionary = new ConcurrentDictionary<int, List<LocationExtended>>();
+    //        robotRoleDictionary = new ConcurrentDictionary<int, RobotRole>();
+    //        ballHandlingStateDictionary = new ConcurrentDictionary<int, BallHandlingState>();
+    //        robotMessageDisplayDictionary = new ConcurrentDictionary<int, string>();
+    //        robotPlayingSideDictionary = new ConcurrentDictionary<int, PlayingSide>();
+    //    }
 
-        public void AddOrUpdateRobotLocation(int id, Location loc)
-        {
-            robotLocationDictionary.AddOrUpdate(id, loc, (key, value) => loc);
-        }
-        public void AddOrUpdateGhostLocation(int id, Location loc)
-        {
-            ghostLocationDictionary.AddOrUpdate(id, loc, (key, value) => loc);
-        }
+    //    public void AddOrUpdateRobotLocation(int id, Location loc)
+    //    {
+    //        robotLocationDictionary.AddOrUpdate(id, loc, (key, value) => loc);
+    //    }
+    //    public void AddOrUpdateGhostLocation(int id, Location loc)
+    //    {
+    //        ghostLocationDictionary.AddOrUpdate(id, loc, (key, value) => loc);
+    //    }
 
-        public void AddOrUpdateRobotDestination(int id, Location loc)
-        {
-            destinationLocationDictionary.AddOrUpdate(id, loc, (key, value) => loc);           
-        }
+    //    public void AddOrUpdateRobotDestination(int id, Location loc)
+    //    {
+    //        destinationLocationDictionary.AddOrUpdate(id, loc, (key, value) => loc);           
+    //    }
 
-        public void AddOrUpdateRobotWayPoint(int id, Location loc)
-        {
-            waypointLocationDictionary.AddOrUpdate(id, loc, (key, value) => loc);
-        }
-        public void AddOrUpdateRobotRole(int id, RobotRole role)
-        {
-            robotRoleDictionary.AddOrUpdate(id, role, (key, value) => role);
-        }
-        public void AddOrUpdateMessageDisplay(int id, string  message)
-        {
-            robotMessageDisplayDictionary.AddOrUpdate(id, message, (key, value) => message);
-        }
+    //    public void AddOrUpdateRobotWayPoint(int id, Location loc)
+    //    {
+    //        waypointLocationDictionary.AddOrUpdate(id, loc, (key, value) => loc);
+    //    }
+    //    public void AddOrUpdateRobotRole(int id, RobotRole role)
+    //    {
+    //        robotRoleDictionary.AddOrUpdate(id, role, (key, value) => role);
+    //    }
+    //    public void AddOrUpdateBallHandlingState(int id, BallHandlingState state)
+    //    {
+    //        ballHandlingStateDictionary.AddOrUpdate(id, state, (key, value) => state);
+    //    }
+    //    public void AddOrUpdateMessageDisplay(int id, string  message)
+    //    {
+    //        robotMessageDisplayDictionary.AddOrUpdate(id, message, (key, value) => message);
+    //    }
 
-        public void AddOrUpdateRobotPlayingSide(int id, PlayingSide playSide)
-        {
-            robotPlayingSideDictionary.AddOrUpdate(id, playSide, (key, value) => playSide);
-        }
+    //    public void AddOrUpdateRobotPlayingSide(int id, PlayingSide playSide)
+    //    {
+    //        robotPlayingSideDictionary.AddOrUpdate(id, playSide, (key, value) => playSide);
+    //    }
 
-        public void AddOrUpdateBallLocationList(int id, List<Location> ballLocationList)
-        {
-            ballLocationListDictionary.AddOrUpdate(id, ballLocationList, (key, value) => ballLocationList);
-        }
+    //    public void AddOrUpdateBallLocationList(int id, List<Location> ballLocationList)
+    //    {
+    //        ballLocationListDictionary.AddOrUpdate(id, ballLocationList, (key, value) => ballLocationList);
+    //    }
 
-        public void AddOrUpdateObstaclesList(int id, List<LocationExtended> locList)
-        {
-            ObstaclesLocationListDictionary.AddOrUpdate(id, locList, (key, value) => locList);
-        }
-    }
+    //    public void AddOrUpdateObstaclesList(int id, List<LocationExtended> locList)
+    //    {
+    //        ObstaclesLocationListDictionary.AddOrUpdate(id, locList, (key, value) => locList);
+    //    }
+    //}
 }

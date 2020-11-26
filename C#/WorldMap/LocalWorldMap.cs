@@ -27,19 +27,21 @@ namespace WorldMap
         [Index(4)]
         public virtual RobotRole robotRole { get; set; }
         [Index(5)]
+        public virtual BallHandlingState ballHandlingState { get; set; }
+        [Index(6)]
         public virtual string messageDisplay { get; set; }
 
-        [Index(6)]
-        public virtual PlayingSide playingSide { get; set; }
         [Index(7)]
-        public virtual Location robotGhostLocation { get; set; }
+        public virtual PlayingSide playingSide { get; set; }
         [Index(8)]
-        public virtual Location destinationLocation { get; set; }
+        public virtual Location robotGhostLocation { get; set; }
         [Index(9)]
-        public virtual Location waypointLocation { get; set; }
+        public virtual Location destinationLocation { get; set; }
         [Index(10)]
-        public virtual List<Location> ballLocationList { get; set; }
+        public virtual Location waypointLocation { get; set; }
         [Index(11)]
+        public virtual List<Location> ballLocationList { get; set; }
+        [Index(12)]
         public virtual List<LocationExtended> obstaclesLocationList { get; set; }
         [IgnoreFormat]
         public virtual List<PolarPointListExtended> lidarObjectList { get; set; }

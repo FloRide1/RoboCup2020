@@ -347,13 +347,13 @@ namespace PhysicalSimulator
             }
         }
 
-        public event EventHandler<BallHandlingArgs> OnPhysicalBallHandlingEvent;
+        public event EventHandler<BallHandlingSensorArgs> OnPhysicalBallHandlingEvent;
         public virtual void OnPhysicalBallHandling(int id, bool isHandling)
         {
             var handler = OnPhysicalBallHandlingEvent;
             if (handler != null)
             {
-                handler(this, new BallHandlingArgs { RobotId = id,  IsHandlingBall = isHandling});
+                handler(this, new BallHandlingSensorArgs { RobotId = id,  IsHandlingBall = isHandling});
             }
         }
 
