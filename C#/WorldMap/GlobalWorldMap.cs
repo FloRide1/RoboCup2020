@@ -6,50 +6,47 @@ using ZeroFormatter;
 namespace WorldMap
 {
     [ZeroFormattable]
-    public class GlobalWorldMap : WorldMap
+    public class GlobalWorldMap : ZeroFormatterMsg
     {
-        public override WorldMapType Type
+        public override ZeroFormatterMsgType Type
         {
             get
             {
-                return WorldMapType.GlobalWM;
+                return ZeroFormatterMsgType.GlobalWM;
             }
         }
-        //public string Type = "GlobalWorldMap";
 
-        [Index(1)]
+        [Index(0)]
         public virtual int TeamId { get; set; }
-        [Index(2)]
+        [Index(1)]
         public virtual int timeStampMs { get; set; }
-        [Index(3)]
+        [Index(2)]
         public virtual GameState gameState { get; set; } // = GameState.STOPPED;
-        [Index(4)]
+        [Index(3)]
         public virtual StoppedGameAction stoppedGameAction { get; set; } // = StoppedGameAction.NONE;
-
+        [Index(4)]
+        public virtual PlayingSide playingSide { get; set; } // = PlayingSide.Left        
         [Index(5)]
-        public virtual PlayingSide playingSide { get; set; } // = PlayingSide.Left
-        
-        [Index(6)]
         public virtual List<Location> ballLocationList { get; set; }
-        [Index(7)]
+        [Index(6)]
         public virtual Dictionary<int, Location> teammateLocationList { get; set; }
-        [Index(8)]
+        [Index(7)]
         public virtual Dictionary<int, Location> teammateGhostLocationList { get; set; }
-        [Index(9)]
+        [Index(8)]
         public virtual Dictionary<int, Location> teammateDestinationLocationList { get; set; }
-        [Index(10)]
+        [Index(9)]
         public virtual Dictionary<int, Location> teammateWayPointList { get; set; }
-        [Index(11)]
+        [Index(10)]
         public virtual List<Location> opponentLocationList { get; set; }
-        [Index(12)]
+        [Index(11)]
         public virtual List<LocationExtended> obstacleLocationList { get; set; }
-        [Index(13)]
+        [Index(12)]
         public virtual Dictionary<int, RobotRole> teammateRoleList { get; set; }
-        [Index(14)]
+        [Index(13)]
         public virtual Dictionary<int, BallHandlingState> teammateBallHandlingStateList { get; set; }
-        [Index(15)]
+        [Index(14)]
         public virtual Dictionary<int, string> teammateDisplayMessageList { get; set; }
-        [Index(16)]
+        [Index(15)]
         public virtual Dictionary<int, PlayingSide> teammatePlayingSideList { get; set; }
 
         public GlobalWorldMap()

@@ -70,26 +70,8 @@ namespace WorldMapManager
                     }
                     else
                     {
-                        var s = ZeroFormatterSerializer.Serialize<WorldMap.WorldMap>(transferLocalWorldMap);
+                        var s = ZeroFormatterSerializer.Serialize<WorldMap.ZeroFormatterMsg>(transferLocalWorldMap);
 
-
-                        //var deserialzation = ZeroFormatterSerializer.Deserialize<WorldMap.WorldMap>(s);
-
-                        //switch (deserialzation.Type)
-                        //{
-                        //    case WorldMapType.LocalWM:
-                        //        transferLocalWorldMap = (LocalWorldMap)deserialzation;
-                        //        break;
-                        //    default:
-                        //        break;
-                        //}
-                        //string json = JsonConvert.SerializeObject(transferLocalWorldMap, decimalJsonConverter);
-
-
-                        //OnMulticastSendLocalWorldMapCommand(json.GetBytes()); //Retiré pour test de robustesse, mais nécessaire à la RoboCup
-
-                        //for (int i = 0; i < s.Length; i++)
-                        //    s[i] = (byte)i;
                         OnMulticastSendLocalWorldMapCommand(s); //Retiré pour test de robustesse, mais nécessaire à la RoboCup
 
                         //ATTENTION : appel douteux...

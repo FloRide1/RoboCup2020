@@ -360,6 +360,11 @@ namespace StrategyManagerNS
                 OnGameStateChanged(robotId, globalWorldMap.gameState);
             }
         }
+
+        public override void OnRefBoxMsgReceived(object sender, WorldMap.RefBoxMessageArgs e)
+        {
+        }
+
         public void OnPositionRobotReceived(object sender, LocationArgs location)
         {
             robotCurrentLocation.X = location.Location.X;

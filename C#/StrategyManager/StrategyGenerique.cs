@@ -76,6 +76,7 @@ namespace StrategyManagerNS
         public abstract void InitHeatMap();
 
         //************************ Events reçus ************************************************/
+        public abstract void OnRefBoxMsgReceived(object sender, WorldMap.RefBoxMessageArgs e);
 
         //Event de récupération d'une GlobalWorldMap mise à jour
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)

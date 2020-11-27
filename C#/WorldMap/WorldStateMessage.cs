@@ -5,7 +5,6 @@ using System.Globalization;
 
 namespace WorldMap
 {
-
     public class WorldStateMessage
     {
         [JsonProperty("type")]

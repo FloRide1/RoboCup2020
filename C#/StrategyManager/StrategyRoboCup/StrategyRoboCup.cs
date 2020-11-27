@@ -501,6 +501,10 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                 Console.WriteLine("Probleme d'ID robot");
         }
 
+        public override void OnRefBoxMsgReceived(object sender, WorldMap.RefBoxMessageArgs e)
+        {
+        }
+
         /*********************************** Events de sortie **********************************************/
         public event EventHandler<ShootEventArgs> OnShootRequestEvent;
         public virtual void OnShootRequest(int id, double speed)

@@ -23,23 +23,29 @@ namespace UdpMulticastInterpreter
         {
             lock (e.Data)
             {
-                var deserialzation = ZeroFormatterSerializer.Deserialize<WorldMap.WorldMap>(e.Data);
+                var deserialization = ZeroFormatterSerializer.Deserialize<ZeroFormatterMsg>(e.Data);
 
-                switch (deserialzation.Type)
+                switch (deserialization.Type)
                 {
-                    case WorldMapType.LocalWM:
-                        LocalWorldMap lwm = (LocalWorldMap)deserialzation;
+                    case ZeroFormatterMsgType.LocalWM:
+                        LocalWorldMap lwm = (LocalWorldMap)deserialization;
                         //if (Id == lwm.RobotId)
                         {
                             OnLocalWorldMap(lwm);
                             //UdpMonitor.LWMReceived(e.Data.Length);
                         }
                         break;
-                    case WorldMapType.GlobalWM:
-                        GlobalWorldMap gwm = (GlobalWorldMap)deserialzation;
+                    case ZeroFormatterMsgType.GlobalWM:
+                        GlobalWorldMap gwm = (GlobalWorldMap)deserialization;
                         //UdpMonitor.GWMReceived(e.Data.Length);
                         OnGlobalWorldMap(gwm);
                         break;
+                    case ZeroFormatterMsgType.RefBoxMsg:
+                        RefBoxMessage refBoxMsg = (RefBoxMessage)deserialization;
+                        OnRefBoxMessage(refBoxMsg);
+                        break;
+
+
                     default:
                         break;
                 }
@@ -84,7 +90,6 @@ namespace UdpMulticastInterpreter
             }
         }
 
-        //Output events
         public event EventHandler<GlobalWorldMapArgs> OnGlobalWorldMapEvent;
         public virtual void OnGlobalWorldMap(GlobalWorldMap globalWorldMap)
         {
@@ -92,6 +97,16 @@ namespace UdpMulticastInterpreter
             if (handler != null)
             {
                 handler(this, new GlobalWorldMapArgs { GlobalWorldMap = globalWorldMap });
+            }
+        }
+
+        public event EventHandler<RefBoxMessageArgs> OnRefBoxMessageEvent;
+        public virtual void OnRefBoxMessage(RefBoxMessage refBoxMessage)
+        {
+            var handler = OnRefBoxMessageEvent;
+            if (handler != null)
+            {
+                handler(this, new RefBoxMessageArgs {  refBoxMsg = refBoxMessage });
             }
         }
     }

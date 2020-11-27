@@ -8,40 +8,40 @@ using ZeroFormatter;
 namespace WorldMap
 {
     [ZeroFormattable]
-    public class LocalWorldMap:WorldMap
+    public class LocalWorldMap:ZeroFormatterMsg
     {// UnionKey value must return constant value(Type is free, you can use int, string, enum, etc...)
-        public override WorldMapType Type
+        public override ZeroFormatterMsgType Type
         {
             get
             {
-                return WorldMapType.LocalWM;
+                return ZeroFormatterMsgType.LocalWM;
             }
         }
 
-        [Index(1)]
+        [Index(0)]
         public virtual int RobotId { get; set; }
-        [Index(2)]
+        [Index(1)]
         public virtual int TeamId { get; set; }
-        [Index(3)]
+        [Index(2)]
         public virtual Location robotLocation { get; set; }
-        [Index(4)]
+        [Index(3)]
         public virtual RobotRole robotRole { get; set; }
-        [Index(5)]
+        [Index(4)]
         public virtual BallHandlingState ballHandlingState { get; set; }
-        [Index(6)]
+        [Index(5)]
         public virtual string messageDisplay { get; set; }
 
-        [Index(7)]
+        [Index(6)]
         public virtual PlayingSide playingSide { get; set; }
-        [Index(8)]
+        [Index(7)]
         public virtual Location robotGhostLocation { get; set; }
-        [Index(9)]
+        [Index(8)]
         public virtual Location destinationLocation { get; set; }
-        [Index(10)]
+        [Index(9)]
         public virtual Location waypointLocation { get; set; }
-        [Index(11)]
+        [Index(10)]
         public virtual List<Location> ballLocationList { get; set; }
-        [Index(12)]
+        [Index(11)]
         public virtual List<LocationExtended> obstaclesLocationList { get; set; }
         [IgnoreFormat]
         public virtual List<PolarPointListExtended> lidarObjectList { get; set; }

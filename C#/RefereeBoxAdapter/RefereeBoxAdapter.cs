@@ -13,6 +13,8 @@ using System.Text;
 using Newtonsoft.Json.Converters;
 using System.Globalization;
 using Utilities;
+using ZeroFormatter;
+using WorldMap;
 
 namespace RefereeBoxAdapter
 {
@@ -38,26 +40,32 @@ namespace RefereeBoxAdapter
             //On deserialize le message JSON en provenance de la Referee Box
             string s = Encoding.ASCII.GetString(e.Data);
             var refBoxCommand = JsonConvert.DeserializeObject<RefBoxMessage>(s);
-            OnRefereeBoxReceivedCommand(refBoxCommand);
+
+            var msg = ZeroFormatterSerializer.Serialize<ZeroFormatterMsg>(refBoxCommand);
+            OnMulticastSendRefBoxCommand(msg);
         }
 
         //Output events
-        public event EventHandler<RefBoxMessageArgs> OnRefereeBoxCommandEvent;
-        public virtual void OnRefereeBoxReceivedCommand(RefBoxMessage msg)
+        public event EventHandler<DataReceivedArgs> OnMulticastSendRefBoxCommandEvent;
+        public virtual void OnMulticastSendRefBoxCommand(byte[] data)
         {
-            OnRefereeBoxCommandEvent?.Invoke(this, new RefBoxMessageArgs { refBoxMsg = msg });
+            var handler = OnMulticastSendRefBoxCommandEvent;
+            if (handler != null)
+            {
+                handler(this, new DataReceivedArgs { Data = data });
+            }
         }
     }
 
-    public class RefBoxMessage 
-    {
-        public RefBoxCommand command { get; set; }
-        public string targetTeam { get; set; }
-        public int robotID { get; set; }
-    }
+    //public class RefBoxMessage 
+    //{
+    //    public RefBoxCommand command { get; set; }
+    //    public string targetTeam { get; set; }
+    //    public int robotID { get; set; }
+    //}
 
-    public class RefBoxMessageArgs : EventArgs
-    {
-        public RefBoxMessage refBoxMsg { get; set; }
-    }
+    //public class RefBoxMessageArgs : EventArgs
+    //{
+    //    public RefBoxMessage refBoxMsg { get; set; }
+    //}
 }

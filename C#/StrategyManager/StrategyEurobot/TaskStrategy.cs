@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Utilities;
+using WorldMap;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
 namespace StrategyManagerNS

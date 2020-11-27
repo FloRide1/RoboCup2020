@@ -97,8 +97,10 @@ namespace TeamSimulator
             refBoxAdapter = new RefereeBoxAdapter.RefereeBoxAdapter();
 
             //Event de réception d'une commande de la réferee box
-            refBoxAdapter.OnRefereeBoxCommandEvent += globalWorldMapManagerTeam1.OnRefereeBoxCommandReceived;
-            refBoxAdapter.OnRefereeBoxCommandEvent += globalWorldMapManagerTeam2.OnRefereeBoxCommandReceived;
+            //refBoxAdapter.OnRefereeBoxCommandEvent += globalWorldMapManagerTeam1.OnRefereeBoxCommandReceived;
+            //refBoxAdapter.OnRefereeBoxCommandEvent += globalWorldMapManagerTeam2.OnRefereeBoxCommandReceived;
+            refBoxAdapter.OnMulticastSendRefBoxCommandEvent += BaseStationUdpMulticastSenderTeam1.OnMulticastMessageToSendReceived;
+            refBoxAdapter.OnMulticastSendRefBoxCommandEvent += BaseStationUdpMulticastSenderTeam2.OnMulticastMessageToSendReceived;
 
             //Event de réception de data Multicast sur la base Station Team X
             BaseStationUdpMulticastReceiverTeam1.OnDataReceivedEvent += BaseStationUdpMulticastInterpreterTeam1.OnMulticastDataReceived;
@@ -176,8 +178,6 @@ namespace TeamSimulator
             sensorSimulator.OnOdometrySimulatedRobotSpeedEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
             sensorSimulator.OnBallHandlingSimulatedEvent += ((StrategyRoboCup)strategyManager.strategy).OnBallHandlingSensorInfoReceived;
 
-
-
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             //physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived; //ajout
 
@@ -207,6 +207,7 @@ namespace TeamSimulator
 
             //Event d'interprétation d'une globalWorldMap à sa réception dans le robot
             robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += strategyManager.strategy.OnGlobalWorldMapReceived;
+            robotUdpMulticastInterpreter.OnRefBoxMessageEvent += strategyManager.strategy.OnRefBoxMsgReceived;
             //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
             robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
 
@@ -324,8 +325,11 @@ namespace TeamSimulator
                 }
 
                 //Event de simulation de ref box sur le simulateur
-                TeamConsole.OnRefereeBoxCommandEvent += globalWorldMapManagerTeam1.OnRefereeBoxCommandReceived;
-                TeamConsole.OnRefereeBoxCommandEvent += globalWorldMapManagerTeam2.OnRefereeBoxCommandReceived;
+                //TeamConsole.OnRefereeBoxCommandEvent += globalWorldMapManagerTeam1.OnRefereeBoxCommandReceived;
+                //TeamConsole.OnRefereeBoxCommandEvent += globalWorldMapManagerTeam2.OnRefereeBoxCommandReceived;
+
+                TeamConsole.OnMulticastSendRefBoxCommandEvent += BaseStationUdpMulticastSenderTeam1.OnMulticastMessageToSendReceived;
+                TeamConsole.OnMulticastSendRefBoxCommandEvent += BaseStationUdpMulticastSenderTeam2.OnMulticastMessageToSendReceived;
 
 
 
