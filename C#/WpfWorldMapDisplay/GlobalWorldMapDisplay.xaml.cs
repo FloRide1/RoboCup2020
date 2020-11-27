@@ -9,6 +9,7 @@ using System.Linq;
 using Utilities;
 using WorldMap;
 using System.Windows;
+using System.Windows.Input;
 
 namespace WpfWorldMapDisplay
 {
@@ -519,6 +520,21 @@ namespace WpfWorldMapDisplay
             p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.PtAvantSurfaceDroit, p);
 
+        }
+
+        private void sciChart_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            
+        }
+
+        private void heatmapSeries_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            {
+                // Perform the hit test relative to the GridLinesPanel
+                var hitTestPoint = e.GetPosition(sciChart.GridLinesPanel as UIElement);
+                
+            }
         }
     }    
 }

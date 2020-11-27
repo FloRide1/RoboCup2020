@@ -24,6 +24,12 @@ namespace WorldMap
         public virtual string targetTeam { get; set; }
         [Index(2)]
         public virtual int robotID { get; set; }
+        [Index(3)]
+        public virtual double posX { get; set; }
+        [Index(4)]
+        public virtual double posY { get; set; }
+        [Index(5)]
+        public virtual double posTheta { get; set; }
     }
 
     public class RefBoxMessageArgs : EventArgs

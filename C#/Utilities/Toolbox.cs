@@ -127,39 +127,43 @@ namespace Utilities
             var dy = pt.Y - yy;
 
             double distance = Math.Sqrt(dx * dx + dy * dy);
-            return distance;
-            //var A = x - x1;
-            //var B = y - y1;
-            //var C = x2 - x1;
-            //var D = y2 - y1;
+            return distance;            
+        }
 
-            //var dot = A * C + B * D;
-            //var len_sq = C * C + D * D;
-            //var param = -1;
-            //if (len_sq != 0) //in case of 0 length line
-            //    param = dot / len_sq;
+        public static PointD GetInterceptionLocation(Location target, Location hunter, double huntingSpeed)
+        {
+            //D'après Al-Kashi, si d est la distance entre le pt target et le pt chasseur, que les vitesses sont constantes 
+            //et égales à Vtarget et Vhunter
+            //Rappel Al Kashi : A² = B²+C²-2BCcos(alpha) , alpha angle opposé au segment A
+            //On a au moment de l'interception à l'instant Tinter: 
+            //A = Vh * Tinter
+            //B = VT * Tinter
+            //C = initialDistance;
+            //alpha = Pi - capCible - angleCible
 
-            //var xx, yy;
+            double targetSpeed = Math.Sqrt(Math.Pow(target.Vx, 2) + Math.Pow(target.Vy, 2));
+            double initialDistance = Toolbox.Distance(new PointD(hunter.X, hunter.Y), new PointD(target.X, target.Y));
+            double capCible = Math.Atan2(target.Vy, target.Vx);
+            double angleCible = Math.Atan2(target.Y - hunter.Y, target.X - hunter.X);
+            double angleCapCibleDirectionCibleChasseur = Math.PI - capCible + angleCible;
 
-            //if (param < 0)
-            //{
-            //    xx = x1;
-            //    yy = y1;
-            //}
-            //else if (param > 1)
-            //{
-            //    xx = x2;
-            //    yy = y2;
-            //}
-            //else
-            //{
-            //    xx = x1 + param * C;
-            //    yy = y1 + param * D;
-            //}
+            //Résolution de ax²+bx+c=0 pour trouver Tinter
+            double a = Math.Pow(huntingSpeed, 2) - Math.Pow(targetSpeed, 2);
+            double b = 2 * initialDistance * targetSpeed * Math.Cos(angleCapCibleDirectionCibleChasseur);
+            double c = -Math.Pow(initialDistance, 2);
 
-            //var dx = x - xx;
-            //var dy = y - yy;
-            //return Math.sqrt(dx * dx + dy * dy);
+            double delta = b * b - 4 * a * c;
+            double t1 = (-b - Math.Sqrt(delta)) / (2 * a);
+            double t2 = (-b + Math.Sqrt(delta)) / (2 * a);
+
+            if (delta > 0 && t2 < 10)
+            {
+                double xInterception = target.X + targetSpeed * Math.Cos(capCible) * t2;
+                double yInterception = target.Y + targetSpeed * Math.Sin(capCible) * t2;
+                return new PointD(xInterception, yInterception);
+            }
+            else
+                return null;
         }
     }
 }
