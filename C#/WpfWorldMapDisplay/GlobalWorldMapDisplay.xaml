@@ -11,7 +11,7 @@
         <Grid.RowDefinitions>            
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
-         <s:SciChartSurface x:Name="sciChart" Padding="0" BorderThickness="0" Grid.Row="0">
+        <s:SciChartSurface x:Name="sciChart" Padding="0" BorderThickness="0" Grid.Row="0">
              
             <!--  Create a X Axis  -->
             <s:SciChartSurface.XAxis>
@@ -37,7 +37,7 @@
                         <s:EllipsePointMarker Width="2" Height="2" Fill="SteelBlue" Stroke="LightSteelBlue" StrokeThickness="1"/>
                     </s:XyScatterRenderableSeries.PointMarker>
                 </s:XyScatterRenderableSeries>                
-                <s:FastUniformHeatmapRenderableSeries x:Name="heatmapSeries" Opacity="0.6">
+                <s:FastUniformHeatmapRenderableSeries x:Name="heatmapSeries" Opacity="0.6" MouseLeftButtonUp="heatmapSeries_MouseLeftButtonUp" >
                     <s:FastUniformHeatmapRenderableSeries.ColorMap>
                         <s:HeatmapColorPalette Maximum="1">
                             <s:HeatmapColorPalette.GradientStops>

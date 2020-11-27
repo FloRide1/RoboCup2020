@@ -113,8 +113,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LidaRxDriver", "..\LidaRxDr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HerkulexManager", "..\HerkulexManager\HerkulexManager.csproj", "{835B8B5A-C248-4443-99CA-FF11AC77481A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StrategyManager_Eurobot", "..\StrategyManager_Eurobot\StrategyManager_Eurobot.csproj", "{804BD483-52AA-46E6-8C37-65375552594B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfTeamInterface", "..\WpfTeamInterface\WpfTeamInterface.csproj", "{6BB34EA2-B1A7-4B68-A467-DEE096BB1A1C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfAsservissementDisplay", "..\WpfAsservissementDisplay\WpfAsservissementDisplay.csproj", "{F0A887E9-D0A2-47E3-994A-94A0DCAE8D4F}"
@@ -791,18 +789,6 @@ Global
 		{835B8B5A-C248-4443-99CA-FF11AC77481A}.Release|x64.Build.0 = Release|Any CPU
 		{835B8B5A-C248-4443-99CA-FF11AC77481A}.Release|x86.ActiveCfg = Release|Any CPU
 		{835B8B5A-C248-4443-99CA-FF11AC77481A}.Release|x86.Build.0 = Release|Any CPU
-		{804BD483-52AA-46E6-8C37-65375552594B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{804BD483-52AA-46E6-8C37-65375552594B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{804BD483-52AA-46E6-8C37-65375552594B}.Debug|x64.ActiveCfg = Debug|x64
-		{804BD483-52AA-46E6-8C37-65375552594B}.Debug|x64.Build.0 = Debug|x64
-		{804BD483-52AA-46E6-8C37-65375552594B}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{804BD483-52AA-46E6-8C37-65375552594B}.Debug|x86.Build.0 = Debug|Any CPU
-		{804BD483-52AA-46E6-8C37-65375552594B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{804BD483-52AA-46E6-8C37-65375552594B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{804BD483-52AA-46E6-8C37-65375552594B}.Release|x64.ActiveCfg = Release|x64
-		{804BD483-52AA-46E6-8C37-65375552594B}.Release|x64.Build.0 = Release|x64
-		{804BD483-52AA-46E6-8C37-65375552594B}.Release|x86.ActiveCfg = Release|Any CPU
-		{804BD483-52AA-46E6-8C37-65375552594B}.Release|x86.Build.0 = Release|Any CPU
 		{6BB34EA2-B1A7-4B68-A467-DEE096BB1A1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6BB34EA2-B1A7-4B68-A467-DEE096BB1A1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6BB34EA2-B1A7-4B68-A467-DEE096BB1A1C}.Debug|x64.ActiveCfg = Debug|Any CPU

@@ -37,11 +37,12 @@ namespace Utilities
 
 
         //Added commands for debug
-        GOTO_0_0,
-        GOTO_0_1,
-        GOTO_1_0,
-        GOTO_0_M1,
-        GOTO_M1_0,
+        GOTO,
+        //GOTO_0_0,
+        //GOTO_0_1,
+        //GOTO_1_0,
+        //GOTO_0_M1,
+        //GOTO_M1_0,
 
         PLAYLEFT,
         PLAYRIGHT,
@@ -64,7 +65,8 @@ namespace Utilities
     {
         Unassigned,
         Stopped,
-        Stones,
+        Positioning,
+        Stone,
         Gardien,
         DefenseurContesteur,
         DefenseurMarquage,

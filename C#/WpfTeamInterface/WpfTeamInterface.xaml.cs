@@ -62,6 +62,13 @@ namespace WpfTeamInterfaceNS
             localWorldMapDisplay3.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot3, team1PlayerNames[2]);
             localWorldMapDisplay4.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot4, team1PlayerNames[3]);
             localWorldMapDisplay5.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot5, team1PlayerNames[4]);
+
+            localWorldMapDisplay1.OnCtrlClickOnHeatMapEvent += LocalWorldMapDisplay1_OnCtrlClickOnHeatMapEvent;
+            localWorldMapDisplay2.OnCtrlClickOnHeatMapEvent += LocalWorldMapDisplay2_OnCtrlClickOnHeatMapEvent;
+            localWorldMapDisplay3.OnCtrlClickOnHeatMapEvent += LocalWorldMapDisplay3_OnCtrlClickOnHeatMapEvent;
+            localWorldMapDisplay4.OnCtrlClickOnHeatMapEvent += LocalWorldMapDisplay4_OnCtrlClickOnHeatMapEvent;
+            localWorldMapDisplay5.OnCtrlClickOnHeatMapEvent += LocalWorldMapDisplay5_OnCtrlClickOnHeatMapEvent;
+
             //localWorldMapDisplay6.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot6, "RoboCup");
 
             for (int i = 0; i < 5; i++)
@@ -71,6 +78,62 @@ namespace WpfTeamInterfaceNS
                 globalWorldMapDisplayTeam2.InitTeamMate((int)TeamId.Team2 + i, team2PlayerNames[i]);
                 globalWorldMapDisplayTeam2.InitOpponent((int)TeamId.Team1 + i, team1PlayerNames[i]);
             }
+        }
+
+        private void LocalWorldMapDisplay1_OnCtrlClickOnHeatMapEvent(object sender, PositionArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.GOTO;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
+            msg.posX = e.X;
+            msg.posY = e.Y;
+            msg.posTheta = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+        private void LocalWorldMapDisplay2_OnCtrlClickOnHeatMapEvent(object sender, PositionArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.GOTO;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot2;
+            msg.posX = e.X;
+            msg.posY = e.Y;
+            msg.posTheta = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+        private void LocalWorldMapDisplay3_OnCtrlClickOnHeatMapEvent(object sender, PositionArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.GOTO;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot3;
+            msg.posX = e.X;
+            msg.posY = e.Y;
+            msg.posTheta = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+        private void LocalWorldMapDisplay4_OnCtrlClickOnHeatMapEvent(object sender, PositionArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.GOTO;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot4;
+            msg.posX = e.X;
+            msg.posY = e.Y;
+            msg.posTheta = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+        private void LocalWorldMapDisplay5_OnCtrlClickOnHeatMapEvent(object sender, PositionArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.GOTO;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot5;
+            msg.posX = e.X;
+            msg.posY = e.Y;
+            msg.posTheta = 0;
+            OnRefereeBoxReceivedCommand(msg);
         }
 
         private void TimerAffichage_Tick(object sender, EventArgs e)
@@ -358,45 +421,60 @@ namespace WpfTeamInterfaceNS
         private void Button_0_0_Click(object sender, RoutedEventArgs e)
         {
             RefBoxMessage msg = new RefBoxMessage();
-            msg.command = RefBoxCommand.GOTO_0_0;
+            msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress;
-            msg.robotID = 0;
+            msg.robotID = 10;
+            msg.posX = 0;
+            msg.posY = 0;
+            msg.posTheta = 0;
             OnRefereeBoxReceivedCommand(msg);
         }
 
         private void Button_0_1_Click(object sender, RoutedEventArgs e)
         {
             RefBoxMessage msg = new RefBoxMessage();
-            msg.command = RefBoxCommand.GOTO_0_1;
+            msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress;
-            msg.robotID = 0;
+            msg.robotID = 10;
+            msg.posX = 0;
+            msg.posY = 1;
+            msg.posTheta = Math.PI/2;
             OnRefereeBoxReceivedCommand(msg);
         }
 
         private void Button_1_0_Click(object sender, RoutedEventArgs e)
         {
             RefBoxMessage msg = new RefBoxMessage();
-            msg.command = RefBoxCommand.GOTO_1_0;
+            msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress;
-            msg.robotID = 0;
+            msg.robotID = 10;
+            msg.posX = 1;
+            msg.posY = 0;
+            msg.posTheta = 0;
             OnRefereeBoxReceivedCommand(msg);
         }
 
         private void Button_0_m1_Click(object sender, RoutedEventArgs e)
         {
             RefBoxMessage msg = new RefBoxMessage();
-            msg.command = RefBoxCommand.GOTO_0_M1;
+            msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress;
-            msg.robotID = 0;
+            msg.robotID = 10;
+            msg.posX = 0;
+            msg.posY = -1;
+            msg.posTheta = -Math.PI / 2;
             OnRefereeBoxReceivedCommand(msg);
         }
 
         private void Button_m1_0_Click(object sender, RoutedEventArgs e)
         {
             RefBoxMessage msg = new RefBoxMessage();
-            msg.command = RefBoxCommand.GOTO_M1_0;
+            msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress;
-            msg.robotID = 0;
+            msg.robotID = 10;
+            msg.posX = -1;
+            msg.posY = 0;
+            msg.posTheta = Math.PI;
             OnRefereeBoxReceivedCommand(msg);
         }
 

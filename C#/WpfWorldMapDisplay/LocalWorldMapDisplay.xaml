@@ -11,7 +11,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
-        <s:SciChartSurface x:Name="sciChart" Padding="0" BorderThickness="0" Grid.Row="0">
+        <s:SciChartSurface x:Name="sciChart" Padding="0" BorderThickness="0" Grid.Row="0" MouseLeftButtonUp="sciChart_MouseLeftButtonUp">
             <!--  Create a X Axis  -->
             <s:SciChartSurface.XAxis>
                 <s:NumericAxis VisibleRange="-12,12" IsCenterAxis="False" AutoRange="Never" Visibility="Hidden"/>
