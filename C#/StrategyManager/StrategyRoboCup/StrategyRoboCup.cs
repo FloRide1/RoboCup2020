@@ -15,21 +15,22 @@ namespace StrategyManagerNS.StrategyRoboCupNS
     {
         Stopwatch sw = new Stopwatch();
 
-        public PointD robotDestination = new PointD(0, 0);
+        public GameState gameState = GameState.STOPPED;
+        public StoppedGameAction stoppedGameAction = StoppedGameAction.NONE;
 
         RobotRole role = RobotRole.Stopped;
-        public string MessageDisplay = "Debug";
         PlayingSide playingSide = PlayingSide.Left;
-        BallHandlingState ballHandlingState = BallHandlingState.NoBall;
-
-        //public bool isHandlingBall = false;
+        public PointD robotDestination = new PointD(0, 0);
+        public BallHandlingState ballHandlingState = BallHandlingState.NoBall;
+        public string MessageDisplay = "Debug";
 
         TaskBallHandlingManagement taskBallHandlingManagement;
 
-        public StrategyRoboCup(int robotId, int teamId) : base(robotId, teamId)
+        public StrategyRoboCup(int robotId, int teamId, string multicastIpAddress) : base(robotId, teamId, multicastIpAddress)
         {
-            this.teamId = teamId;
-            this.robotId = robotId;
+            //this.teamId = teamId;
+            //this.robotId = robotId;
+            //this. = multicastIpAddress;
 
             taskBallHandlingManagement = new TaskBallHandlingManagement(this);
         }
@@ -51,7 +52,7 @@ namespace StrategyManagerNS.StrategyRoboCupNS
             /// 
 
 
-            switch (globalWorldMap.gameState)
+            switch (gameState)
             {
                 case GameState.STOPPED:
                     role = RobotRole.Stopped;
@@ -221,14 +222,9 @@ namespace StrategyManagerNS.StrategyRoboCupNS
             }
 
             OnRole(robotId, role);
-            
             OnBallHandlingState(robotId, BallHandlingState.NoBall);
-
-
             OnMessageDisplay(robotId, MessageDisplay);
-            playingSide = globalWorldMap.playingSide;
-            //OnPlayingSide(robotId, playingSide);
-
+            
             /// En fonction du rôle attribué, on définit les zones de préférence, les zones à éviter et les zones d'exclusion
             DefinePlayerZones(role);
         }
@@ -503,6 +499,157 @@ namespace StrategyManagerNS.StrategyRoboCupNS
 
         public override void OnRefBoxMsgReceived(object sender, WorldMap.RefBoxMessageArgs e)
         {
+            var command = e.refBoxMsg.command;
+            var robotId = e.refBoxMsg.robotID;
+            var targetTeam = e.refBoxMsg.targetTeam;
+
+            switch (command)
+            {
+                case RefBoxCommand.START:
+                    gameState = GameState.PLAYING;
+                    stoppedGameAction = StoppedGameAction.NONE;
+                    break;
+                case RefBoxCommand.STOP:
+                    gameState = GameState.STOPPED;
+                    break;
+                case RefBoxCommand.DROP_BALL:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    stoppedGameAction = StoppedGameAction.DROPBALL;
+                    break;
+                case RefBoxCommand.HALF_TIME:
+                    break;
+                case RefBoxCommand.END_GAME:
+                    break;
+                case RefBoxCommand.GAME_OVER:
+                    break;
+                case RefBoxCommand.PARK:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    stoppedGameAction = StoppedGameAction.PARK;
+                    break;
+                case RefBoxCommand.FIRST_HALF:
+                    break;
+                case RefBoxCommand.SECOND_HALF:
+                    break;
+                case RefBoxCommand.FIRST_HALF_OVER_TIME:
+                    break;
+                case RefBoxCommand.RESET:
+                    break;
+                case RefBoxCommand.WELCOME:
+                    break;
+                case RefBoxCommand.KICKOFF:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.KICKOFF;
+                    else
+                        stoppedGameAction = StoppedGameAction.KICKOFF_OPPONENT;
+                    break;
+                case RefBoxCommand.FREEKICK:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.FREEKICK;
+                    else
+                        stoppedGameAction = StoppedGameAction.FREEKICK_OPPONENT;
+                    break;
+                case RefBoxCommand.GOALKICK:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.GOALKICK;
+                    else
+                        stoppedGameAction = StoppedGameAction.GOALKICK_OPPONENT;
+                    break;
+                case RefBoxCommand.THROWIN:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.THROWIN;
+                    else
+                        stoppedGameAction = StoppedGameAction.THROWIN_OPPONENT;
+                    break;
+                case RefBoxCommand.CORNER:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.CORNER;
+                    else
+                        stoppedGameAction = StoppedGameAction.CORNER_OPPONENT;
+                    break;
+                case RefBoxCommand.PENALTY:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.PENALTY;
+                    else
+                        stoppedGameAction = StoppedGameAction.PENALTY_OPPONENT;
+                    break;
+                case RefBoxCommand.GOAL:
+                    break;
+                case RefBoxCommand.SUBGOAL:
+                    break;
+                case RefBoxCommand.REPAIR:
+                    break;
+                case RefBoxCommand.YELLOW_CARD:
+                    break;
+                case RefBoxCommand.DOUBLE_YELLOW:
+                    break;
+                case RefBoxCommand.RED_CARD:
+                    break;
+                case RefBoxCommand.SUBSTITUTION:
+                    break;
+                case RefBoxCommand.IS_ALIVE:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.KICKOFF;
+                    else
+                        stoppedGameAction = StoppedGameAction.KICKOFF_OPPONENT;
+                    break;
+                case RefBoxCommand.GOTO_0_0:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.GOTO_0_0;
+                    else
+                        stoppedGameAction = StoppedGameAction.GOTO_0_0_OPPONENT;
+                    break;
+                case RefBoxCommand.GOTO_0_1:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.GOTO_0_1;
+                    else
+                        stoppedGameAction = StoppedGameAction.GOTO_0_1_OPPONENT;
+                    break;
+                case RefBoxCommand.GOTO_1_0:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.GOTO_1_0;
+                    else
+                        stoppedGameAction = StoppedGameAction.GOTO_1_0_OPPONENT;
+                    break;
+                case RefBoxCommand.GOTO_0_M1:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.GOTO_0_M1;
+                    else
+                        stoppedGameAction = StoppedGameAction.GOTO_0_M1_OPPONENT;
+                    break;
+                case RefBoxCommand.GOTO_M1_0:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.GOTO_M1_0;
+                    else
+                        stoppedGameAction = StoppedGameAction.GOTO_M1_0_OPPONENT;
+                    break;
+                case RefBoxCommand.PLAYLEFT:
+                    //currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        playingSide = PlayingSide.Left;
+                    else
+                        playingSide = PlayingSide.Right;
+                    break;
+                case RefBoxCommand.PLAYRIGHT:
+                    //currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        playingSide = PlayingSide.Right;
+                    else
+                        playingSide = PlayingSide.Left;
+                    break;
+            }
+            
         }
 
         /*********************************** Events de sortie **********************************************/

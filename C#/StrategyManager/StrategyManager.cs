@@ -22,33 +22,33 @@ namespace StrategyManagerNS
     public class StrategyManager
     {
         GameMode strategyMode = GameMode.RoboCup;
+        //string teamIpAddress = "";
 
-        int robotId = 0;
-        int teamId = 0;
+        //int robotId = 0;
+        //int teamId = 0;
 
-        string DisplayName;
+        //string DisplayName;
 
 
-        RobotRole robotRole = RobotRole.Stopped;
-        PointD robotDestination = new PointD(0, 0);
-        double robotOrientation = 0;
+        //RobotRole robotRole = RobotRole.Stopped;
+        //PointD robotDestination = new PointD(0, 0);
+        //double robotOrientation = 0;
+
         
 
         public StrategyGenerique strategy;
 
-        public StrategyManager(int robotId, int teamId, GameMode stratMode)
+        public StrategyManager(int robotId, int teamId, string multicastIpAddress, GameMode stratMode)
         {
             strategyMode = stratMode;
-            this.teamId = teamId;
-            this.robotId = robotId;
 
             switch (strategyMode)
             {
                 case GameMode.RoboCup:
-                    strategy = new StrategyRoboCup(robotId, teamId);
+                    strategy = new StrategyRoboCup(robotId, teamId, multicastIpAddress);
                     break;
                 case GameMode.Eurobot:
-                    strategy = new StrategyEurobot2021(robotId, teamId);
+                    strategy = new StrategyEurobot2021(robotId, teamId, multicastIpAddress);
                     break;
                 case GameMode.Demo:
                     break;
@@ -318,10 +318,10 @@ namespace StrategyManagerNS
             else
                 return null;
         }
-        public void SetRole(RobotRole role)
-        {
-            robotRole = role;
-        }
+        //public void SetRole(RobotRole role)
+        //{
+        //    robotRole = role;
+        //}
                      
         //public void SetDestination(Location location)
         //{

@@ -46,6 +46,7 @@ namespace StrategyManagerNS
     {
         public int robotId = 0;
         public int teamId = 0;
+        public string teamIpAddress = "";
         public string DisplayName;
 
         public GlobalWorldMap globalWorldMap;
@@ -58,10 +59,11 @@ namespace StrategyManagerNS
         Stopwatch swGlobal = new Stopwatch();
         Timer timerStrategy;
 
-        public StrategyGenerique(int robotId, int teamId)
+        public StrategyGenerique(int robotId, int teamId, string teamIpAddress)
         {
             this.teamId = teamId;
             this.robotId = robotId;
+            this.teamIpAddress = teamIpAddress;
 
             globalWorldMap = new GlobalWorldMap();
 
@@ -82,7 +84,7 @@ namespace StrategyManagerNS
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
         {
             //On récupère le gameState avant arrivée de la nouvelle worldMap
-            GameState gameState_1 = globalWorldMap.gameState;
+            //GameState gameState_1 = globalWorldMap.gameState;
 
             //On récupère la nouvelle worldMap
             lock (globalWorldMap)
@@ -91,11 +93,11 @@ namespace StrategyManagerNS
             }
 
             //On regarde si le gamestate a changé
-            if (globalWorldMap.gameState != gameState_1)
-            {
-                //Le gameState a changé, on envoie un event
-                OnGameStateChanged(robotId, globalWorldMap.gameState);
-            }
+            //if (globalWorldMap.gameState != gameState_1)
+            //{
+            //    //Le gameState a changé, on envoie un event
+            //    OnGameStateChanged(robotId, globalWorldMap.gameState);
+            //}
         }
         public void OnPositionRobotReceived(object sender, LocationArgs location)
         {

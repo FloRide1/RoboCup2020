@@ -48,7 +48,7 @@ namespace StrategyManagerNS.StrategyRoboCupNS
         StrategyRoboCup parent;
         Thread TaskThread;
         public TaskBallHandlingManagementState state = TaskBallHandlingManagementState.PasDeBalle;
-        BallHandlingState ballHandlingState = BallHandlingState.NoBall;
+        //BallHandlingState ballHandlingState = BallHandlingState.NoBall;
 
         Stopwatch sw = new Stopwatch();
         
@@ -76,7 +76,7 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                 {
                     case TaskBallHandlingManagementState.PasDeBalle:
                         sw.Restart();
-                        ballHandlingState = BallHandlingState.NoBall;
+                        parent.ballHandlingState = BallHandlingState.NoBall;
                         state = TaskBallHandlingManagementState.PasDeBalleEnCours;
                         break;
                     case TaskBallHandlingManagementState.PasDeBalleEnCours:
@@ -86,7 +86,7 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                         break;
                     case TaskBallHandlingManagementState.PossessionBalle:
                         sw.Restart();
-                        ballHandlingState = BallHandlingState.HasBall;
+                        parent.ballHandlingState = BallHandlingState.HasBall;
                         state = TaskBallHandlingManagementState.PossessionBalleEnCours;
                         break;
                     case TaskBallHandlingManagementState.PossessionBalleEnCours:
@@ -100,7 +100,7 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                         break;
                     case TaskBallHandlingManagementState.Passe:
                         sw.Restart();
-                        ballHandlingState = BallHandlingState.PassInProgress;
+                        parent.ballHandlingState = BallHandlingState.PassInProgress;
                         state = TaskBallHandlingManagementState.PasseEnCours;
                         break;
                     case TaskBallHandlingManagementState.PasseEnCours:
@@ -110,7 +110,7 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                         break;
                     case TaskBallHandlingManagementState.Tir:
                         sw.Restart();
-                        ballHandlingState = BallHandlingState.ShootInProgress;
+                        parent.ballHandlingState = BallHandlingState.ShootInProgress;
                         state = TaskBallHandlingManagementState.TirEnCours;
                         break;
                     case TaskBallHandlingManagementState.TirEnCours:
@@ -123,7 +123,7 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                         break;
                 }
 
-                parent.OnBallHandlingState(parent.robotId, ballHandlingState);
+                parent.OnBallHandlingState(parent.robotId, parent.ballHandlingState);
                 Thread.Sleep(20);
             }
         }

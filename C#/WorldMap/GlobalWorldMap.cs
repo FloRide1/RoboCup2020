@@ -21,12 +21,12 @@ namespace WorldMap
         [Index(1)]
         public virtual int timeStampMs { get; set; }
         [Index(2)]
-        public virtual GameState gameState { get; set; } // = GameState.STOPPED;
-        [Index(3)]
-        public virtual StoppedGameAction stoppedGameAction { get; set; } // = StoppedGameAction.NONE;
-        [Index(4)]
-        public virtual PlayingSide playingSide { get; set; } // = PlayingSide.Left        
-        [Index(5)]
+        //public virtual GameState gameState { get; set; } // = GameState.STOPPED;
+        //[Index(3)]
+        //public virtual StoppedGameAction stoppedGameAction { get; set; } // = StoppedGameAction.NONE;
+        //[Index(4)]
+        //public virtual PlayingSide playingSide { get; set; } // = PlayingSide.Left        
+        //[Index(5)]
         public virtual List<Location> ballLocationList { get; set; }
         [Index(6)]
         public virtual Dictionary<int, Location> teammateLocationList { get; set; }
