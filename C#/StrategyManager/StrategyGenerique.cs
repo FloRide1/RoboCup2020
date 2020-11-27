@@ -116,6 +116,7 @@ namespace StrategyManagerNS
         bool displayConsole = false;
         private void TimerStrategy_Elapsed(object sender, ElapsedEventArgs e)
         {
+            InitRobotRoleDeterminationZones();
             swGlobal.Restart();
             //Le joueur détermine sa stratégie
             sw.Restart();
@@ -207,6 +208,17 @@ namespace StrategyManagerNS
             if (displayConsole)
                 Console.WriteLine("Tps calcul Global Stratégie : " + swGlobal.Elapsed.TotalMilliseconds.ToString("N4") + " ms \n\n"); // Affichage de la mesure globale
 
+        }
+
+        private void InitRobotRoleDeterminationZones()
+        {
+            InitPreferedZones();
+            InitAvoidanceZones();
+            InitForbiddenRectangleList();
+            InitStrictlyAllowedRectangleList();
+            InitPreferredRectangleList();
+            InitAvoidanceConicalZoneList();
+            InitPreferredSegmentZoneList();
         }
 
         public abstract void DetermineRobotRole(); //A définir dans les classes héritées

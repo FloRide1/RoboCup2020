@@ -1,5 +1,6 @@
 ﻿
 using Constants;
+using EventArgsLibrary;
 using SciChart.Charting.Model.DataSeries;
 using SciChart.Charting.Model.DataSeries.Heatmap2DArrayDataSeries;
 using SciChart.Charting.Visuals.Annotations;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Utilities;
 using WorldMap;
 
@@ -329,6 +331,16 @@ namespace WpfWorldMapDisplay
                 var lidarData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints();
                 lidarPts.Append(lidarData.XValues, lidarData.YValues);
                 LidarPoints.DataSeries = lidarPts;
+            }
+        }
+
+        private void heatmapSeries_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            {
+                // Perform the hit test relative to the GridLinesPanel
+                var hitTestPoint = e.GetPosition(sciChart.GridLinesPanel as UIElement);
+
             }
         }
 
@@ -842,6 +854,38 @@ namespace WpfWorldMapDisplay
             p.borderColor = System.Drawing.Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF);
             p.backgroundColor = System.Drawing.Color.FromArgb(0xFF, 0xA0, 0xA0, 0xA0);
             PolygonSeries.AddOrUpdatePolygonExtended((int)Terrain.BaliseDroiteBas, p);
+        }
+
+
+        //Récupération de la position cliquée sur la heatmap
+        private void sciChart_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            {
+                // Perform the hit test relative to the GridLinesPanel
+                var hitTestPoint = e.GetPosition(sciChart.GridLinesPanel as UIElement);
+                foreach (var renderableSeries in sciChart.RenderableSeries)
+                {                    
+                    // Get hit-test the RenderableSeries using interpolation
+                    var hitTestInfo = renderableSeries.HitTestProvider.HitTest(hitTestPoint, true);
+                    if (hitTestInfo.DataSeriesType == DataSeriesType.Heatmap)
+                    {
+                        Console.WriteLine(hitTestInfo.DataSeriesType.ToString() + " Click on : x=" + hitTestInfo.XValue + " - y=" + hitTestInfo.YValue);
+                        OnCtrlClickOnHeatMap((double)hitTestInfo.XValue, (double)hitTestInfo.YValue);
+                    }
+                }
+            }
+        }
+
+        //Event en cas de CTRL+click dans une heatmap
+        public event EventHandler<PositionArgs> OnCtrlClickOnHeatMapEvent;
+        public virtual void OnCtrlClickOnHeatMap(double x, double y)
+        {
+            var handler = OnCtrlClickOnHeatMapEvent;
+            if (handler != null)
+            {
+                handler(this, new PositionArgs {  X = x, Y=y });
+            }
         }
     }
 }
