@@ -20,6 +20,8 @@ using RefereeBoxAdapter;
 using Utilities;
 using SciChart.Charting.Visuals.Axes;
 using HerkulexManagerNS;
+using WorldMap;
+using ZeroFormatter;
 
 namespace RobotInterface
 {
@@ -60,10 +62,10 @@ namespace RobotInterface
             }
             
             worldMapDisplayStrategy.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, "Eurobot");
-            worldMapDisplayStrategy.Init("Eurobot", LocalWorldMapDisplayType.StrategyMap);
+            worldMapDisplayStrategy.Init("Eurobot", LocalWorldMapDisplayType.StrategyMap, "C://Eurobot2020.png");
 
             worldMapDisplayWaypoint.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, "Eurobot");
-            worldMapDisplayWaypoint.Init("Eurobot", LocalWorldMapDisplayType.WayPointMap);
+            worldMapDisplayWaypoint.Init("Eurobot", LocalWorldMapDisplayType.WayPointMap, "C://Eurobot2020.png");
 
             foreach (string s in SerialPort.GetPortNames())
             {
@@ -1116,56 +1118,88 @@ namespace RobotInterface
         private void Button_0_0_Click(object sender, RoutedEventArgs e)
         {
             RefBoxMessage msg = new RefBoxMessage();
-            msg.command = RefBoxCommand.GOTO_0_0;
+            msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress; //Ici on est en local, pas de transmission, on remplis pour rien.
             msg.robotID = 0;
+            msg.posX = 0;
+            msg.posY = 0;
+            msg.posTheta = 0;
             OnRefereeBoxReceivedCommand(msg);
         }
 
         private void Button_0_1_Click(object sender, RoutedEventArgs e)
         {
             RefBoxMessage msg = new RefBoxMessage();
-            msg.command = RefBoxCommand.GOTO_0_1;
+            msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress;
             msg.robotID = 0;
+            msg.posX = 0;
+            msg.posY = 1;
+            msg.posTheta = Math.PI/2;
             OnRefereeBoxReceivedCommand(msg);
         }
 
         private void Button_1_0_Click(object sender, RoutedEventArgs e)
         {
             RefBoxMessage msg = new RefBoxMessage();
-            msg.command = RefBoxCommand.GOTO_1_0;
+            msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress;
             msg.robotID = 0;
+            msg.posX = 1;
+            msg.posY = 0;
+            msg.posTheta = 0;
             OnRefereeBoxReceivedCommand(msg);
         }
 
         private void Button_0_m1_Click(object sender, RoutedEventArgs e)
         {
             RefBoxMessage msg = new RefBoxMessage();
-            msg.command = RefBoxCommand.GOTO_0_M1;
+            msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress;
             msg.robotID = 0;
+            msg.posX = 0;
+            msg.posY = -1;
+            msg.posTheta = -Math.PI/2;
             OnRefereeBoxReceivedCommand(msg);
         }
 
         private void Button_m1_0_Click(object sender, RoutedEventArgs e)
         {
             RefBoxMessage msg = new RefBoxMessage();
-            msg.command = RefBoxCommand.GOTO_M1_0;
+            msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress;
             msg.robotID = 0;
+            msg.posX = -1;
+            msg.posY = 0;
+            msg.posTheta = Math.PI;
             OnRefereeBoxReceivedCommand(msg);
         }
 
-        //Output events
-        public event EventHandler<RefBoxMessageArgs> OnRefereeBoxCommandEvent;
-        public virtual void OnRefereeBoxReceivedCommand(RefBoxMessage msg)
+
+        private void OnRefereeBoxReceivedCommand(RefBoxMessage rbMsg)
         {
-            var handler = OnRefereeBoxCommandEvent;
+            var msg = ZeroFormatterSerializer.Serialize<ZeroFormatterMsg>(rbMsg);
+            OnMulticastSendRefBoxCommand(msg);
+        }
+
+        //Output events
+        //public event EventHandler<RefBoxMessageArgs> OnRefereeBoxCommandEvent;
+        //public virtual void OnRefereeBoxReceivedCommand(RefBoxMessage msg)
+        //{
+        //    var handler = OnRefereeBoxCommandEvent;
+        //    if (handler != null)
+        //    {
+        //        handler(this, new RefBoxMessageArgs { refBoxMsg = msg });
+        //    }
+        //}
+
+        public event EventHandler<DataReceivedArgs> OnMulticastSendRefBoxCommandEvent;
+        public virtual void OnMulticastSendRefBoxCommand(byte[] data)
+        {
+            var handler = OnMulticastSendRefBoxCommandEvent;
             if (handler != null)
             {
-                handler(this, new RefBoxMessageArgs { refBoxMsg = msg });
+                handler(this, new DataReceivedArgs { Data = data });
             }
         }
 

@@ -60,7 +60,7 @@ namespace Robot
         NoLidar,
         NoCamera
     }
-    class Robot_Eurobot_2020
+    class Robot_Eurobot_2021
     {
         #region Gestion Arret Console (Do not Modify)
         // Declare the SetConsoleCtrlHandler function 
@@ -235,9 +235,9 @@ namespace Robot
             robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, "224.16.32.79");
             robotUdpMulticastInterpreter = new UDPMulticastInterpreter(robotId);
 
-            globalWorldMapManager = new GlobalWorldMapManager(robotId, "0.0.0.0", bypassMulticast: true);
+            globalWorldMapManager = new GlobalWorldMapManager(robotId);
             //strategyManager = new StrategyManagerEurobot(robotId, teamId);
-            strategyManager = new StrategyManagerNS.StrategyManager(robotId, teamId, GameMode.Eurobot);
+            strategyManager = new StrategyManagerNS.StrategyManager(robotId, teamId, "224.16.32.79", GameMode.Eurobot);
             //On effectue un cast explicite afin d'utiliser les methodes d'extension definies dans StrategyEurobots2021
             strategyEurobot = strategyManager.strategy as StrategyManagerNS.StrategyEurobot2021;
             //waypointGenerator = new WaypointGenerator(robotId, Utilities.GameMode.Eurobot);
@@ -345,8 +345,8 @@ namespace Robot
 
             //Le local Manager n'est là que pour assurer le stockage de ma local world map avant affichage et transmission des infos, il ne doit pas calculer quoique ce soit, 
             //c'est le perception manager qui le fait.
-            strategyManager.OnMirrorModeForwardEvent += perceptionManager.OnMirrorModeReceived;
-            strategyManager.OnEnableMotorsEvent += robotMsgGenerator.GenerateMessageEnableDisableMotors;
+            //strategyManager.OnMirrorModeForwardEvent += perceptionManager.OnMirrorModeReceived;
+            //strategyManager.strategy.OnEnableMotorsEvent += robotMsgGenerator.GenerateMessageEnableDisableMotors;
             trajectoryPlanner.OnPidSpeedResetEvent += robotMsgGenerator.GenerateMessageResetSpeedPid;
 
             ////Event d'interprétation d'une globalWorldMap à sa réception dans le robot
@@ -385,12 +385,7 @@ namespace Robot
 
             //strategyManagerDictionary.Add(robotId, strategyManager);
             trajectoryPlanner.InitRobotPosition(0, 0, 0);
-
-            //Timer de stratégie
-            timerStrategie = new HighFreqTimer(0.5);
-            timerStrategie.Tick += TimerStrategie_Tick;
-            timerStrategie.Start();
-
+            
             strategyEurobot.InitStrategy( robotId,  teamId);
             while (!exitSystem)
             {
@@ -399,27 +394,7 @@ namespace Robot
 
         }
 
-        static Random rand = new Random();
-        private static void TimerStrategie_Tick(object sender, EventArgs e)
-        {
-            DefineRoles();
-        }
-
-        private static void DefineRoles()
-        {
-            List<int> roleList = new List<int>();
-
-            roleList.Add((int)RobotRole.Eurobot_gros_robot);
-            //roleList.Add((int)StrategyManagerNS.PlayerRole.Eurobot_petit_robot);
-
-            for (int i = 0; i < 1; i++)
-            {
-                strategyManagerDictionary[(int)10].SetRole((RobotRole)roleList[i]);
-                //strategyManagerDictionary[(int)TeamId.Team1 + i].ProcessStrategy();
-            }
-
-        }
-
+        
         static void ChangeUseOfXBoxController(object sender, BoolEventArgs e)
         {
             ConfigControlEvents(e.value);
@@ -530,7 +505,8 @@ namespace Robot
 
 
             //On récupère les évènements de type refbox, qui sont ici des tests manuels dans le globalManager pour lancer à la main des actions ou stratégies
-            interfaceRobot.OnRefereeBoxCommandEvent += globalWorldMapManager.OnRefereeBoxCommandReceived;
+            //interfaceRobot.OnRefereeBoxCommandEvent +=  globalWorldMapManager.OnRefereeBoxCommandReceived;
+            interfaceRobot.OnMulticastSendRefBoxCommandEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
 
             if (!usingLogReplay)
             {

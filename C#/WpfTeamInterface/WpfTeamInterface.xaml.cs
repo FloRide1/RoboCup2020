@@ -50,11 +50,11 @@ namespace WpfTeamInterfaceNS
 
         private void InitPlayers(string[] team1PlayerNames, string[] team2PlayerNames)
         {
-            localWorldMapDisplay1.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
-            localWorldMapDisplay2.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
-            localWorldMapDisplay3.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
-            localWorldMapDisplay4.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
-            localWorldMapDisplay5.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
+            localWorldMapDisplay1.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap, "C:/Eurobot2020.png");
+            localWorldMapDisplay2.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap, "C:/Eurobot2019.png");
+            localWorldMapDisplay3.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap, "");
+            localWorldMapDisplay4.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap, "");
+            localWorldMapDisplay5.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap, "");
             //localWorldMapDisplay6.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
             
             localWorldMapDisplay1.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, team1PlayerNames[0]);
