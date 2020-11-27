@@ -7,6 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="2000" d:DesignWidth="2600"
              xmlns:s="http://schemas.abtsoftware.co.uk/scichart" >
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
@@ -51,10 +52,38 @@
                 </local:PolygonRenderableSeries>
             </s:SciChartSurface.RenderableSeries>
 
+            <!--https://support.scichart.com/index.php?/Knowledgebase/Article/View/17209/33/custom-annotations-adding-a-watermark-to-a-chart-->
             <s:SciChartSurface.Annotations>
                 <s:TextAnnotation x:Name="LocalWorldMapTitle" AnnotationCanvas="AboveChart" CoordinateMode="Relative" FontSize="14" FontWeight="Bold" HorizontalAnchorPoint="Left" Opacity="0.5" Text="Local World Map" VerticalAnchorPoint="Center" X1="0.15" Y1="0.18"/>
                 <s:TextAnnotation x:Name="AnnotRobotRole" AnnotationCanvas="AboveChart" CoordinateMode="Relative" FontSize="14" FontWeight="Bold" HorizontalAnchorPoint="Right" Opacity="0.5" Text="Role" VerticalAnchorPoint="Center" X1="0.8" Y1="0.18"/>
+                <s:BoxAnnotation x:Name="boxAnnotation"
+                    AnnotationCanvas="AboveChart"
+                    Background="Red"
+                    CoordinateMode="Absolute"
+                    ContentTemplate="{Binding AnnotationTemplate}"
+                    Opacity="0.45"
+                    X1="0"
+                    Y1="0"
+                    X2="10"
+                    Y2="10">
+                    <DataTemplate>
+                        <Image Source="C:/image.png" />
+                    </DataTemplate>
+                </s:BoxAnnotation>
             </s:SciChartSurface.Annotations>
+
+            <s:SciChartSurface.Resources>
+                <Style x:Key="ChartWatermarkTextStyle" TargetType="TextBlock">
+                    <Setter Property="VerticalAlignment" Value="Center" />
+                    <Setter Property="HorizontalAlignment" Value="Center" />
+                    <Setter Property="Foreground" Value="Black" />
+                </Style>
+                <DataTemplate x:Key="AnnotationTemplate">
+                    <Image Source="C:/image.png" HorizontalAlignment="Stretch" />                    
+                </DataTemplate>
+            </s:SciChartSurface.Resources>
+
+
         </s:SciChartSurface>
         <!--<Label x:Name="LocalWorldMapTitle" Grid.Row="0" Content="Local World Map" HorizontalContentAlignment="Center" VerticalAlignment="Stretch" Foreground="White" HorizontalAlignment="Stretch">
         </Label>-->

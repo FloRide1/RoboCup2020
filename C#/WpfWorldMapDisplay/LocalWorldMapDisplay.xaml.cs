@@ -6,10 +6,12 @@ using SciChart.Charting.Model.DataSeries.Heatmap2DArrayDataSeries;
 using SciChart.Charting.Visuals.Annotations;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using Utilities;
 using WorldMap;
 
@@ -102,6 +104,38 @@ namespace WpfWorldMapDisplay
 
             this.sciChart.XAxis.VisibleRange.SetMinMax(-LengthDisplayArea / 2, LengthDisplayArea / 2);
             this.sciChart.YAxis.VisibleRange.SetMinMax(-WidthDisplayArea / 2, WidthDisplayArea / 2);
+
+            //boxAnnotation.ContentTemplate = (DataTemplate)sciChart.Resources["AnnotationTemplate"];
+
+            var annotation = new CustomAnnotation()
+            {
+                X1 = -LengthGameArea / 2,
+                Y1 = WidthGameArea / 2,
+                X2 = 0*LengthGameArea / 2,
+                Y2 = -0*WidthGameArea / 2,
+                Opacity = 0.25,
+                CoordinateMode = AnnotationCoordinateMode.Absolute,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                ContentTemplate = (DataTemplate)sciChart.Resources["AnnotationTemplate"]
+            };
+            this.sciChart.Annotations.Add(annotation);
+
+            //Image image = new Image();
+            //BitmapImage icon = new BitmapImage();
+            //icon.UriSource = new Uri(@".\image.png", UriKind.Absolute);
+            //BoxAnnotation imageAnnotation = new BoxAnnotation();
+            //imageAnnotation.CoordinateMode = AnnotationCoordinateMode.Absolute;
+            //imageAnnotation.X1 = -LengthDisplayArea / 2;
+            //imageAnnotation.X2 = +LengthDisplayArea / 2;
+            //imageAnnotation.Y1 = -WidthDisplayArea / 2;
+            //imageAnnotation.Y2 = +WidthDisplayArea / 2;
+            //imageAnnotation.Template = new ControlTemplate();
+            ////imageAnnotation.Template.
+
+            //TextAnnotation textAnnot = new TextAnnotation();
+
+            //this.sciChart.Annotations.Add()
         }
 
         public void InitTeamMate(int robotId, string name)
@@ -181,10 +215,10 @@ namespace WpfWorldMapDisplay
                 //DrawLidar();
                 DrawHeatMap(TeamMatesDisplayDictionary.First().Key);
             }
-            PolygonSeries.RedrawAll();
-            ObjectsPolygonSeries.RedrawAll();
-            BallPolygon.RedrawAll();
-            ObstaclePolygons.RedrawAll();
+            //PolygonSeries.RedrawAll();
+            //ObjectsPolygonSeries.RedrawAll();
+            //BallPolygon.RedrawAll();
+            //ObstaclePolygons.RedrawAll();
         }
 
         public void UpdateLocalWorldMap(LocalWorldMap localWorldMap)
@@ -331,16 +365,6 @@ namespace WpfWorldMapDisplay
                 var lidarData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints();
                 lidarPts.Append(lidarData.XValues, lidarData.YValues);
                 LidarPoints.DataSeries = lidarPts;
-            }
-        }
-
-        private void heatmapSeries_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
-            {
-                // Perform the hit test relative to the GridLinesPanel
-                var hitTestPoint = e.GetPosition(sciChart.GridLinesPanel as UIElement);
-
             }
         }
 
@@ -886,6 +910,48 @@ namespace WpfWorldMapDisplay
             {
                 handler(this, new PositionArgs {  X = x, Y=y });
             }
+        }
+    }
+
+    public class CustomAnnotationViewModel : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+        private string _logo;
+        private string _text;
+
+        // Provides a text for the watermark
+        public string Text
+        {
+            get { return _text; }
+            set
+            {
+                if (value != _text)
+                {
+                    _text = value;
+                    OnPropertyChanged("Text");
+                }
+            }
+        }
+
+        // Provides the path to the image
+        public string Logo
+        {
+            get { return _logo; }
+            set
+            {
+                if (value != _logo)
+                {
+                    _logo = value;
+                    OnPropertyChanged("Logo");
+                }
+            }
+        }
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+                handler(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
