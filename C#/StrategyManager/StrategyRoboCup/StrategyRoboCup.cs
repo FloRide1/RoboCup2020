@@ -152,18 +152,13 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                                 /// On veut un joueur en contestation de balle
                                 /// On veut un joueur en défense d'interception qui coupe les lignes de passe adverses
 
-                                /// A présent, on filtre la liste de l'équipe de manière à trouver les deux joueurs 
-                                /// les plus proches du but n'étant pas le gardien
-                                var teamFiltered1 = teamRoleClassifier.Where(x => x.Value.Role == RobotRole.Unassigned).OrderBy(elt => elt.Value.DistanceButDefensif).ToList();
+                                /// A présent, on filtre la liste de l'équipe de manière à trouver le joueur 
+                                /// le plus proches de la balle n'étant pas le gardien
+                                var teamFiltered1 = teamRoleClassifier.Where(x => x.Value.Role == RobotRole.Unassigned).OrderBy(elt => elt.Value.DistanceBalle).ToList();
 
-                                if (teamFiltered1.Count > 1)
+                                if (teamFiltered1.Count > 0)
                                 {
-                                    teamRoleClassifier[teamFiltered1.ElementAt(0).Key].Role = RobotRole.DefenseurMarquage;
-                                    teamRoleClassifier[teamFiltered1.ElementAt(1).Key].Role = RobotRole.DefenseurMarquage;
-                                    //if (playingSide == PlayingSide.Right)
-                                    //    teamRoleClassifier[teamSansGardienOrdonnee.ElementAt(0).Key].Role = RobotRole.ContesteurDeBalle;
-                                    //else
-                                    //    teamRoleClassifier[teamSansGardienOrdonnee.ElementAt(0).Key].Role = RobotRole.MilieuDemarque;
+                                    teamRoleClassifier[teamFiltered1.ElementAt(0).Key].Role = RobotRole.DefenseurContesteur;
                                 }
 
                                 /// A présent, on filtre la liste de l'équipe de manière à trouver le joueur le plus proche du but à défendre
@@ -171,9 +166,10 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                                 /// Il devient contesteur de balle
                                 var teamFiltered2 = teamRoleClassifier.Where(x => (x.Value.Role == RobotRole.Unassigned))
                                                                       .OrderBy(elt => elt.Value.DistanceButDefensif).ToList();
-                                if (teamFiltered2.Count > 0)
+                                if (teamFiltered2.Count > 1)
                                 {
-                                    teamRoleClassifier[teamFiltered2.ElementAt(0).Key].Role = RobotRole.DefenseurContesteur;
+                                    teamRoleClassifier[teamFiltered2.ElementAt(1).Key].Role = RobotRole.DefenseurMarquage;
+                                    teamRoleClassifier[teamFiltered2.ElementAt(2).Key].Role = RobotRole.DefenseurMarquage;
                                 }
 
                                 /// A présent, on filtre la liste de l'équipe de manière à trouver le joueur le plus proche du but à défendre
@@ -244,14 +240,15 @@ namespace StrategyManagerNS.StrategyRoboCupNS
             InitAvoidanceZones();
             InitForbiddenRectangleList();
             InitStrictlyAllowedRectangleList();
+            InitPreferredRectangleList();
             InitAvoidanceConicalZoneList();
             InitPreferredSegmentZoneList();
 
             ///On exclut d'emblée les surface de réparation pour tous les joueurs
             if (role != RobotRole.Gardien)
             {
-                AddForbiddenRectangle(new RectangleD(-11, -11 + 0.75, -3.9 / 2, 3.9 / 2));
-                AddForbiddenRectangle(new RectangleD(11, 11 - 0.75, -3.9 / 2, 3.9 / 2));
+                AddForbiddenRectangle(new RectangleD(-11, -11 + 0.75 + 0.2, -3.9 / 2 - 0.2, 3.9 / 2 + 0.2));
+                AddForbiddenRectangle(new RectangleD(+11 - 0.75 + 0.2, +11, -3.9 / 2 - 0.2, 3.9 / 2 + 0.2));
             }
 
             /// On a besoin du rang des adversaires en fonction de leur distance au but 
@@ -278,23 +275,23 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                     /// Réglage du cap pour faire toujours face à la balle
                     if (playingSide == PlayingSide.Right)
                     {
-                        AddStrictlyAllowedRectangle(new RectangleD(11 - 0.75, 11, -3.9 / 2, 3.9 / 2));
-                        AddPreferedZone(new PointD(10.6, 0), 1.5);
+                        AddPreferredRectangle(new RectangleD(11 - 0.75, 11, -3.9 / 2, 3.9 / 2));
+                        AddPreferedZone(new PointD(10.6, 0), 4.5, 0.2);
                     }
                     else
                     {
-                        AddStrictlyAllowedRectangle(new RectangleD(-11, -11 + 0.75, -3.9 / 2, 3.9 / 2));
-                        AddPreferedZone(new PointD(-10.6, 0), 1.5);
+                        AddPreferredRectangle(new RectangleD(-11, -11 + 0.75, -3.9 / 2, 3.9 / 2));
+                        AddPreferedZone(new PointD(-10.6, 0), 4.5, 0.2);
                     }
 
                     if (globalWorldMap.ballLocationList.Count > 0)
                         robotOrientation = Math.Atan2(globalWorldMap.ballLocationList[0].Y - robotCurrentLocation.Y, globalWorldMap.ballLocationList[0].X - robotCurrentLocation.X);
                     break;
                 case RobotRole.Stones:
-                    AddPreferedZone(new PointD(-5, 4), 1.5);
-                    AddPreferedZone(new PointD(-5, -4), 1.5);
-                    AddPreferedZone(new PointD(5, -4), 1.5);
-                    AddPreferedZone(new PointD(5, 4), 1.5);
+                    AddPreferedZone(new PointD(-5, 4), 2.5);
+                    AddPreferedZone(new PointD(-5, -4), 2.5);
+                    AddPreferedZone(new PointD(5, -4), 2.5);
+                    AddPreferedZone(new PointD(5, 4), 2.5);
                     break;
 
                 case RobotRole.DefenseurContesteur:
@@ -365,6 +362,7 @@ namespace StrategyManagerNS.StrategyRoboCupNS
                             var adversaire1 = teamFiltered1[0].Value.Position;
                             var adversaire2 = teamFiltered1[1].Value.Position;
                             AddPreferredSegmentZoneList(new PointD(adversaire1.X, adversaire1.Y), new PointD(adversaire2.X, adversaire2.Y), 0.4, 0.1);
+                            AddPreferedZone(new PointD((adversaire1.X + adversaire2.X) / 2, (adversaire1.Y + adversaire2.Y) / 2), 0.4, 0.3);
                             AddAvoidanceZone(new PointD(adversaire1.X, adversaire1.Y), 2, 0.5);
 
                             //AddPreferedZone(new PointD((teamFiltered1[0].Value.Position.X + teamFiltered1[1].Value.Position.X) / 2, (teamFiltered1[0].Value.Position.Y + teamFiltered1[0].Value.Position.Y) / 2), 2.5);

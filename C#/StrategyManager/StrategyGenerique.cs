@@ -219,7 +219,7 @@ namespace StrategyManagerNS
             //Génération de la HeatMap
             
             positioningHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList, 
-                strictlyAllowedRectangleList, avoidanceConicalZoneList, preferredSegmentZoneList);
+                strictlyAllowedRectangleList, preferredRectangleList, avoidanceConicalZoneList, preferredSegmentZoneList);
 
             sw.Stop();
         }
@@ -342,6 +342,23 @@ namespace StrategyManagerNS
             lock (strictlyAllowedRectangleList)
             {
                 strictlyAllowedRectangleList.Add(new RectangleZone(rect));
+            }
+        }
+
+        //Zones rectangulaires interdites
+        List<RectangleZone> preferredRectangleList = new List<RectangleZone>();
+        public void InitPreferredRectangleList()
+        {
+            lock (preferredRectangleList)
+            {
+                preferredRectangleList = new List<RectangleZone>();
+            }
+        }
+        public void AddPreferredRectangle(RectangleD rect)
+        {
+            lock (preferredRectangleList)
+            {
+                preferredRectangleList.Add(new RectangleZone(rect));
             }
         }
 
