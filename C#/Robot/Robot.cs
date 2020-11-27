@@ -24,8 +24,8 @@ using MessageProcessorNS;
 using MessageGeneratorNS;
 using LidaRxR2000NS;
 using HerkulexManagerNS;
-using StrategyManager;
 using Utilities;
+using StrategyManagerNS;
 
 namespace Robot
 {
@@ -138,7 +138,7 @@ namespace Robot
         static LocalWorldMapManager localWorldMapManager;
         //static LidarSimulator.LidarSimulator lidarSimulator;
         static ImuProcessor.ImuProcessor imuProcessor;
-        static StrategyManager.StrategyManager strategyManager;
+        static StrategyManager strategyManager;
         static PerceptionManager perceptionManager;
         //static Lidar_OMD60M_UDP lidar_OMD60M_UDP;
         static LidaRxR2000 lidar_OMD60M_TCP;
@@ -206,20 +206,18 @@ namespace Robot
                     break;
             }
 
+
+            int robotId = (int)TeamId.Team1 + (int)RobotId.Robot1;
+            int teamId = (int)TeamId.Team1;
+
             serialPort1 = new ReliableSerialPort("COM1", 115200, Parity.None, 8, StopBits.One);
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
             robotMsgGenerator = new MsgGenerator();
-            robotMsgProcessor = new MsgProcessor(Competition.RoboCup);
-
-            //physicalSimulator = new PhysicalSimulator.PhysicalSimulator();
-
-            int robotId = (int)TeamId.Team1 + (int)RobotId.Robot1;
-            int teamId = (int)TeamId.Team1;
-            //physicalSimulator.RegisterRobot(robotId, 0, 0);
+            robotMsgProcessor = new MsgProcessor(robotId, Competition.RoboCup);
 
             robotPilot = new RobotPilot.RobotPilot(robotId);
-            strategyManager = new StrategyManager.StrategyManager(robotId, teamId, GameMode.RoboCup);
+            strategyManager = new StrategyManager(robotId, teamId, GameMode.RoboCup);
             waypointGenerator = new WaypointGenerator(robotId, GameMode.RoboCup);
             trajectoryPlanner = new TrajectoryPlanner(robotId);
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
@@ -284,7 +282,7 @@ namespace Robot
                 logReplay = new LogReplay.LogReplay();
              
             //Liens entre modules
-            strategyManager.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
+            strategyManager.strategy.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
             strategyManager.strategy.OnHeatMapStrategyEvent += waypointGenerator.OnStrategyHeatMapReceived;
             waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
 
@@ -369,8 +367,8 @@ namespace Robot
         static Random rand = new Random();
         private static void TimerStrategie_Tick(object sender, EventArgs e)
         {
-            var role = (StrategyManager.PlayerRole)rand.Next((int)(int)StrategyManager.PlayerRole.Centre, (int)StrategyManager.PlayerRole.Centre);
-            strategyManager.SetRole(role);
+            //var role = (StrategyManager.PlayerRole)rand.Next((int)(int)StrategyManager.PlayerRole.Centre, (int)StrategyManager.PlayerRole.Centre);
+            //strategyManager.SetRole(role);
             //strategyManager.CalculateDestination();
         }
 

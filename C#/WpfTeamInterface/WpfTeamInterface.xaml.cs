@@ -17,7 +17,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using Utilities;
+using WorldMap;
 using WpfWorldMapDisplay;
+using ZeroFormatter;
 
 namespace WpfTeamInterfaceNS
 {
@@ -236,14 +238,30 @@ namespace WpfTeamInterfaceNS
             }
         }
 
-        //Output events
-        public event EventHandler<RefBoxMessageArgs> OnRefereeBoxCommandEvent;
-        public virtual void OnRefereeBoxReceivedCommand(RefBoxMessage msg)
+        private void OnRefereeBoxReceivedCommand(RefBoxMessage rbMsg)
         {
-            var handler = OnRefereeBoxCommandEvent;
+            var msg = ZeroFormatterSerializer.Serialize<ZeroFormatterMsg>(rbMsg);
+            OnMulticastSendRefBoxCommand(msg);
+        }
+
+        //Output events
+        //public event EventHandler<RefBoxMessageArgs> OnRefereeBoxCommandEvent;
+        //public virtual void OnRefereeBoxReceivedCommand(RefBoxMessage msg)
+        //{
+        //    var handler = OnRefereeBoxCommandEvent;
+        //    if (handler != null)
+        //    {
+        //        handler(this, new RefBoxMessageArgs { refBoxMsg = msg });
+        //    }
+        //}
+
+        public event EventHandler<DataReceivedArgs> OnMulticastSendRefBoxCommandEvent;
+        public virtual void OnMulticastSendRefBoxCommand(byte[] data)
+        {
+            var handler = OnMulticastSendRefBoxCommandEvent;
             if (handler != null)
             {
-                handler(this, new RefBoxMessageArgs { refBoxMsg = msg });
+                handler(this, new DataReceivedArgs { Data = data });
             }
         }
         private void Button_Start_Click(object sender, RoutedEventArgs e)

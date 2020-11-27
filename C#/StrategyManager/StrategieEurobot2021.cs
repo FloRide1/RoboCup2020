@@ -50,6 +50,10 @@ namespace StrategyManagerNS
         public string DisplayName;
 
         public PointD robotDestination = new PointD(0, 0);
+
+        public GameState gameState = GameState.STOPPED;
+        public StoppedGameAction stoppedGameAction = StoppedGameAction.NONE;
+
         public double robotOrientation;
         public Location robotCurentLocation = new Location(0, 0, 0, 0, 0, 0);
         RobotRole role = RobotRole.Stopped;
@@ -78,10 +82,10 @@ namespace StrategyManagerNS
             }
         }
 
-        public StrategyEurobot2021(int robotId, int teamId) : base(robotId, teamId)
+        public StrategyEurobot2021(int robotId, int teamId, string teamIpAddress) : base(robotId, teamId, teamIpAddress)
         {
-            this.teamId = teamId;
-            this.robotId = robotId;
+            //this.teamId = teamId;
+            //this.robotId = robotId;
 
             globalWorldMap = new GlobalWorldMap();
 
@@ -199,7 +203,7 @@ namespace StrategyManagerNS
             InitAvoidanceConicalZoneList();
             InitPreferredSegmentZoneList();
 
-            switch (globalWorldMap.gameState)
+            switch (gameState)
             {
                 case GameState.STOPPED:
                     //if (globalWorldMap.teammateLocationList.ContainsKey(robotId))
@@ -210,7 +214,7 @@ namespace StrategyManagerNS
 
                     break;
                 case GameState.STOPPED_GAME_POSITIONING:
-                    switch (globalWorldMap.stoppedGameAction)
+                    switch (stoppedGameAction)
                     {
                         case StoppedGameAction.KICKOFF:
                             switch (robotId)
@@ -344,22 +348,24 @@ namespace StrategyManagerNS
         //Event de récupération d'une GlobalWorldMap mise à jour
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
         {
-            //On récupère le gameState avant arrivée de la nouvelle worldMap
-            GameState gameState_1 = globalWorldMap.gameState;
-
             //On récupère la nouvelle worldMap
             lock (globalWorldMap)
             {
                 globalWorldMap = e.GlobalWorldMap;
             }
 
-            //On regarde si le gamestate a changé
-            if (globalWorldMap.gameState != gameState_1)
-            {
-                //Le gameState a changé, on envoie un event
-                OnGameStateChanged(robotId, globalWorldMap.gameState);
-            }
+            ////On regarde si le gamestate a changé
+            //if (globalWorldMap.gameState != gameState_1)
+            //{
+            //    //Le gameState a changé, on envoie un event
+            //    OnGameStateChanged(robotId, globalWorldMap.gameState);
+            //}
         }
+
+        public override void OnRefBoxMsgReceived(object sender, WorldMap.RefBoxMessageArgs e)
+        {
+        }
+
         public void OnPositionRobotReceived(object sender, LocationArgs location)
         {
             robotCurrentLocation.X = location.Location.X;

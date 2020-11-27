@@ -56,6 +56,7 @@ namespace WorldMapManager
                 transferLocalWorldMap.waypointLocation = localWorldMap.waypointLocation;
                 transferLocalWorldMap.robotGhostLocation = localWorldMap.robotGhostLocation;
                 transferLocalWorldMap.robotRole = localWorldMap.robotRole;
+                transferLocalWorldMap.ballHandlingState = localWorldMap.ballHandlingState;
                 transferLocalWorldMap.messageDisplay = localWorldMap.messageDisplay;
                 transferLocalWorldMap.playingSide = localWorldMap.playingSide;
                 transferLocalWorldMap.obstaclesLocationList = localWorldMap.obstaclesLocationList;
@@ -69,26 +70,8 @@ namespace WorldMapManager
                     }
                     else
                     {
-                        var s = ZeroFormatterSerializer.Serialize<WorldMap.WorldMap>(transferLocalWorldMap);
+                        var s = ZeroFormatterSerializer.Serialize<WorldMap.ZeroFormatterMsg>(transferLocalWorldMap);
 
-
-                        var deserialzation = ZeroFormatterSerializer.Deserialize<WorldMap.WorldMap>(s);
-
-                        switch (deserialzation.Type)
-                        {
-                            case WorldMapType.LocalWM:
-                                transferLocalWorldMap = (LocalWorldMap)deserialzation;
-                                break;
-                            default:
-                                break;
-                        }
-                        //string json = JsonConvert.SerializeObject(transferLocalWorldMap, decimalJsonConverter);
-
-
-                        //OnMulticastSendLocalWorldMapCommand(json.GetBytes()); //Retiré pour test de robustesse, mais nécessaire à la RoboCup
-
-                        //for (int i = 0; i < s.Length; i++)
-                        //    s[i] = (byte)i;
                         OnMulticastSendLocalWorldMapCommand(s); //Retiré pour test de robustesse, mais nécessaire à la RoboCup
 
                         //ATTENTION : appel douteux...
@@ -137,6 +120,16 @@ namespace WorldMapManager
             if (localWorldMap.RobotId == e.RobotId)
             {
                 localWorldMap.robotRole = e.Role;
+            }
+        }
+
+        public void OnBallHandlingStateReceived(object sender, EventArgsLibrary.BallHandlingStateArgs e)
+        {
+            if (localWorldMap == null)
+                return;
+            if (localWorldMap.RobotId == e.RobotId)
+            {
+                localWorldMap.ballHandlingState = e.State;
             }
         }
 

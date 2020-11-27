@@ -177,9 +177,11 @@ namespace Utilities
     public class RectangleZone
     {
         public RectangleD rectangularZone;
-        public RectangleZone(RectangleD rect, double strength = 0)
+        public double strength; //La force correspond à l'intensité du point central de la zone
+        public RectangleZone(RectangleD rect, double strength = 1)
         {
             this.rectangularZone = rect;
+            this.strength = strength;
         }
     }
 

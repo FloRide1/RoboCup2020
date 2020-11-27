@@ -150,7 +150,7 @@ namespace WpfWorldMapDisplay
                     break;
             }
 
-            LocalWorldMapTitle.Text = "Local World Map " + name;
+            LocalWorldMapTitle.Text = "LWM " + name;
             //AddOrUpdateTextAnnotation(robotId.ToString(), robotId.ToString(), 0,0);
         }
 
@@ -364,7 +364,7 @@ namespace WpfWorldMapDisplay
             }
             else
             {
-                Console.WriteLine("UpdateRobotRole : Robot non trouvé");
+                Console.WriteLine("UpdatePlayingSide : Robot non trouvé");
             }
         }
 

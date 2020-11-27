@@ -134,8 +134,6 @@ namespace TrajectoryGenerator
                 PID_Theta.ResetPID(0);
             }
         }
-
-
         void PIDPosition(double elapsedTimeBetweenSamples)
         {
             if (ghostLocationRefTerrain != null)
@@ -155,11 +153,6 @@ namespace TrajectoryGenerator
                 //double vxRefRobot = vxGhostRefRobot;
                 //double vyRefRobot = vyGhostRefRobot;
                 //double vtheta = ghostLocationRefTerrain.Vtheta;
-
-                /// Problème probable : si on met la vitesse du ghost sur les moteurs, on n'a pas le même comportement... 
-                /// Ca ne peut pas marcher correctement ce genre de chose...
-                /// Il faut le corriger impérativement !
-                elapsedTimeBetweenSamples = 1 / 50.0;
 
                 double vxRefRobot = PID_X.CalculatePIDoutput(erreurXRefRobot, elapsedTimeBetweenSamples);
                 double vyRefRobot = PID_Y.CalculatePIDoutput(erreurYRefRobot, elapsedTimeBetweenSamples);

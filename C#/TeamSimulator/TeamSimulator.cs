@@ -10,18 +10,17 @@ using UDPMulticast;
 using UdpMulticastInterpreter;
 using WpfTeamInterfaceNS;
 using Utilities;
+using StrategyManagerNS.StrategyRoboCupNS;
 
 namespace TeamSimulator
 {
     static class TeamSimulator
     {
-        static System.Timers.Timer timerStrategie;
         static PhysicalSimulator.PhysicalSimulator physicalSimulator;
         static GlobalWorldMapManager globalWorldMapManagerTeam1;
         static GlobalWorldMapManager globalWorldMapManagerTeam2;
 
         static Dictionary<int, StrategyManagerNS.StrategyManager> strategyManagerDictionary;
-        //static List<WaypointGenerator> waypointGeneratorList;
         static List<TrajectoryPlanner> trajectoryPlannerList;
         static List<SensorSimulator.SensorSimulator> sensorSimulatorList;
         static List<KalmanPositioning.KalmanPositioning> kalmanPositioningList;
@@ -67,8 +66,8 @@ namespace TeamSimulator
             robotUdpMulticastInterpreterList = new List<UDPMulticastInterpreter>();
 
             physicalSimulator = new PhysicalSimulator.PhysicalSimulator("RoboCup");
-            globalWorldMapManagerTeam1 = new GlobalWorldMapManager((int)TeamId.Team1, "224.16.32.79", bypassMulticast: false);
-            globalWorldMapManagerTeam2 = new GlobalWorldMapManager((int)TeamId.Team2, "224.16.32.63", bypassMulticast: false);
+            globalWorldMapManagerTeam1 = new GlobalWorldMapManager((int)TeamId.Team1);
+            globalWorldMapManagerTeam2 = new GlobalWorldMapManager((int)TeamId.Team2);
 
             //BaseStation RCT
             BaseStationUdpMulticastSenderTeam1 = new UDPMulticastSender(0, "224.16.32.79");
@@ -82,22 +81,22 @@ namespace TeamSimulator
 
             for (int i = 0; i < nbPlayersTeam1; i++)
             {
-                CreatePlayer((int)TeamId.Team1, i, team1PlayerNames[i]);
+                CreatePlayer((int)TeamId.Team1, i, team1PlayerNames[i], "224.16.32.79");
             }
 
             for (int i = 0; i < nbPlayersTeam2; i++)
             {
-                CreatePlayer((int)TeamId.Team2, i, team2PlayerNames[i]);
+                CreatePlayer((int)TeamId.Team2, i, team2PlayerNames[i], "224.16.32.63");
             }
 
-            DefineRoles();
+            //DefineRoles();
             StartInterfaces();
 
             refBoxAdapter = new RefereeBoxAdapter.RefereeBoxAdapter();
 
             //Event de réception d'une commande de la réferee box
-            refBoxAdapter.OnRefereeBoxCommandEvent += globalWorldMapManagerTeam1.OnRefereeBoxCommandReceived;
-            refBoxAdapter.OnRefereeBoxCommandEvent += globalWorldMapManagerTeam2.OnRefereeBoxCommandReceived;
+            refBoxAdapter.OnMulticastSendRefBoxCommandEvent += BaseStationUdpMulticastSenderTeam1.OnMulticastMessageToSendReceived;
+            refBoxAdapter.OnMulticastSendRefBoxCommandEvent += BaseStationUdpMulticastSenderTeam2.OnMulticastMessageToSendReceived;
 
             //Event de réception de data Multicast sur la base Station Team X
             BaseStationUdpMulticastReceiverTeam1.OnDataReceivedEvent += BaseStationUdpMulticastInterpreterTeam1.OnMulticastDataReceived;
@@ -111,11 +110,6 @@ namespace TeamSimulator
             globalWorldMapManagerTeam1.OnMulticastSendGlobalWorldMapEvent += BaseStationUdpMulticastSenderTeam1.OnMulticastMessageToSendReceived;
             globalWorldMapManagerTeam2.OnMulticastSendGlobalWorldMapEvent += BaseStationUdpMulticastSenderTeam2.OnMulticastMessageToSendReceived;
             
-            //Timer de stratégie
-            timerStrategie = new System.Timers.Timer(20000);
-            timerStrategie.Elapsed += TimerStrategie_Tick;
-            timerStrategie.Start();
-            
 
             lock (ExitLock)
             {
@@ -126,10 +120,10 @@ namespace TeamSimulator
         }
         
         static Random randomGenerator = new Random();
-        private static void CreatePlayer(int TeamNumber, int RobotNumber, string Name)
+        private static void CreatePlayer(int TeamNumber, int RobotNumber, string Name, string multicastIpAddress)
         {
             int robotId = TeamNumber + RobotNumber;
-            var strategyManager = new StrategyManagerNS.StrategyManager(robotId, TeamNumber, GameMode.RoboCup);
+            var strategyManager = new StrategyManagerNS.StrategyManager(robotId, TeamNumber, multicastIpAddress, GameMode.RoboCup);
             //var waypointGenerator = new WaypointGenerator(robotId, GameMode.RoboCup);
             var trajectoryPlanner = new TrajectoryPlanner(robotId);
             var sensorSimulator = new SensorSimulator.SensorSimulator(robotId);
@@ -155,30 +149,22 @@ namespace TeamSimulator
             }
 
             //Liens entre modules
-            //strategyManager.strategy.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
-            //strategyManager.strategy.OnHeatMapStrategyEvent += waypointGenerator.OnStrategyHeatMapReceived;
             strategyManager.strategy.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
             strategyManager.strategy.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
-            strategyManager.strategy.OnShootRequestEvent += physicalSimulator.OnShootOrderReceived;
-            //waypointGenerator.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
+            ((StrategyRoboCup)strategyManager.strategy).OnShootRequestEvent += physicalSimulator.OnShootOrderReceived;
             trajectoryPlanner.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
 
             //Gestion des events liés à une détection de collision soft
             trajectoryPlanner.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
             trajectoryPlanner.OnCollisionEvent += physicalSimulator.OnCollisionReceived;
             
-            //trajectoryPlanner.InitRobotPosition(xInit, yInit, thetaInit);
-            //physicalSimulator.SetRobotPosition(robotId, xInit, yInit, thetaInit);
-            //kalmanPositioning.InitFilter(xInit, 0, 0, yInit, 0, 0, thetaInit, 0, 0);
-
             ////physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived; //replacé par les 5 lignes suivantes
             physicalSimulator.OnPhysicalRobotLocationEvent += sensorSimulator.OnPhysicalRobotPositionReceived;
             physicalSimulator.OnPhysicalBallHandlingEvent += sensorSimulator.OnPhysicalBallHandlingReceived;
             sensorSimulator.OnCamLidarSimulatedRobotPositionEvent += kalmanPositioning.OnCamLidarSimulatedRobotPositionReceived;
             sensorSimulator.OnGyroSimulatedRobotSpeedEvent += kalmanPositioning.OnGyroRobotSpeedReceived;
             sensorSimulator.OnOdometrySimulatedRobotSpeedEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
-            sensorSimulator.OnBallHandlingSimulatedEvent += strategyManager.strategy.OnBallHandlingReceived;
-
+            sensorSimulator.OnBallHandlingSimulatedEvent += ((StrategyRoboCup)strategyManager.strategy).OnBallHandlingSensorInfoReceived;
 
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             //physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived; //ajout
@@ -194,6 +180,7 @@ namespace TeamSimulator
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
             strategyManager.strategy.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             strategyManager.strategy.OnRoleEvent += localWorldMapManager.OnRoleReceived; //Utile pour l'affichage
+            strategyManager.strategy.OnBallHandlingStateEvent += localWorldMapManager.OnBallHandlingStateReceived;
             strategyManager.strategy.OnMessageDisplayEvent += localWorldMapManager.OnMessageDisplayReceived; //Utile pour l'affichage
             //strategyManager.strategy.OnPlayingSideEvent += localWorldMapManager.OnPlayingSideReceived;  //inutile
             strategyManager.strategy.OnHeatMapStrategyEvent += localWorldMapManager.OnHeatMapStrategyReceived;
@@ -208,6 +195,7 @@ namespace TeamSimulator
 
             //Event d'interprétation d'une globalWorldMap à sa réception dans le robot
             robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += strategyManager.strategy.OnGlobalWorldMapReceived;
+            robotUdpMulticastInterpreter.OnRefBoxMessageEvent += strategyManager.strategy.OnRefBoxMsgReceived;
             //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
             robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
 
@@ -231,11 +219,11 @@ namespace TeamSimulator
             {
                 xInit = 2 * RobotNumber + 2;
                 yInit = -6.5;
-                thetaInit = Math.PI/2;
+                thetaInit = Math.PI / 2;
             }
             else
             {
-                xInit = - (2 * RobotNumber + 2);
+                xInit = -(2 * RobotNumber + 2);
                 yInit = +6.5;
                 thetaInit = 0;
             }
@@ -244,52 +232,52 @@ namespace TeamSimulator
         }
 
 
-        private static void TimerStrategie_Tick(object sender, EventArgs e)
-        {
-            DefineRoles();
-        }
+        //private static void TimerStrategie_Tick(object sender, EventArgs e)
+        //{
+        //    DefineRoles();
+        //}
 
-        private static void DefineRoles()
-        {
-            List<int> roleList = new List<int>();
+        //private static void DefineRoles()
+        //{
+        //    List<int> roleList = new List<int>();
 
-            for (int i = 0; i < nbPlayersTeam1; i++)
-                roleList.Add(i + 1);
+        //    for (int i = 0; i < nbPlayersTeam1; i++)
+        //        roleList.Add(i + 1);
 
-            Shuffle(roleList);
+        //    Shuffle(roleList);
 
-            for (int i = 0; i < nbPlayersTeam1; i++)
-            {
-                strategyManagerDictionary[(int)TeamId.Team1 + i].SetRole((RobotRole)roleList[i]);
-                //strategyManagerDictionary[(int)TeamId.Team1 + i].ProcessStrategy();
-            }
+        //    for (int i = 0; i < nbPlayersTeam1; i++)
+        //    {
+        //        strategyManagerDictionary[(int)TeamId.Team1 + i].SetRole((RobotRole)roleList[i]);
+        //        //strategyManagerDictionary[(int)TeamId.Team1 + i].ProcessStrategy();
+        //    }
             
-            roleList = new List<int>();
+        //    roleList = new List<int>();
 
-            for (int i = 0; i < nbPlayersTeam2; i++)
-                roleList.Add(i + 1);
+        //    for (int i = 0; i < nbPlayersTeam2; i++)
+        //        roleList.Add(i + 1);
 
-            Shuffle(roleList);
+        //    Shuffle(roleList);
 
-            for (int i = 0; i < nbPlayersTeam2; i++)
-            {
-                strategyManagerDictionary[(int)TeamId.Team2 + i].SetRole((RobotRole)roleList[i]);
-                //strategyManagerDictionary[(int)TeamId.Team2 + i].ProcessStrategy();
-            }
-        }
+        //    for (int i = 0; i < nbPlayersTeam2; i++)
+        //    {
+        //        strategyManagerDictionary[(int)TeamId.Team2 + i].SetRole((RobotRole)roleList[i]);
+        //        //strategyManagerDictionary[(int)TeamId.Team2 + i].ProcessStrategy();
+        //    }
+        //}
 
-        public static void Shuffle<T>(this IList<T> list)
-        { 
-            int n = list.Count; 
-            while (n > 1) 
-            { 
-                n--; 
-                int k = randomGenerator.Next(n + 1); 
-                T value = list[k]; 
-                list[k] = list[n]; 
-                list[n] = value; 
-            } 
-        }        
+        //public static void Shuffle<T>(this IList<T> list)
+        //{ 
+        //    int n = list.Count; 
+        //    while (n > 1) 
+        //    { 
+        //        n--; 
+        //        int k = randomGenerator.Next(n + 1); 
+        //        T value = list[k]; 
+        //        list[k] = list[n]; 
+        //        list[n] = value; 
+        //    } 
+        //}        
         
         static void ExitProgram()
         {
@@ -325,8 +313,8 @@ namespace TeamSimulator
                 }
 
                 //Event de simulation de ref box sur le simulateur
-                TeamConsole.OnRefereeBoxCommandEvent += globalWorldMapManagerTeam1.OnRefereeBoxCommandReceived;
-                TeamConsole.OnRefereeBoxCommandEvent += globalWorldMapManagerTeam2.OnRefereeBoxCommandReceived;
+                TeamConsole.OnMulticastSendRefBoxCommandEvent += BaseStationUdpMulticastSenderTeam1.OnMulticastMessageToSendReceived;
+                TeamConsole.OnMulticastSendRefBoxCommandEvent += BaseStationUdpMulticastSenderTeam2.OnMulticastMessageToSendReceived;
 
 
 

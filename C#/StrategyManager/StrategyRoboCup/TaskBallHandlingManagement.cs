@@ -5,18 +5,23 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Utilities;
 
 namespace StrategyManagerNS.StrategyRoboCupNS
 {
-    enum TaskBallManagementState
+    public enum TaskBallHandlingManagementState
     {
         PasDeBalle,
         PasDeBalleEnCours,
         PossessionBalle,
         PossessionBalleEnCours,
+        Passe, 
+        PasseEnCours,
+        Tir, 
+        TirEnCours
     }
 
-    class TaskBallManagement
+    public class TaskBallHandlingManagement
     {
         /// <summary>
         /// Une tache est un processus permettant de gérer une partie de code de manière autonome et asynchrone.
@@ -42,10 +47,12 @@ namespace StrategyManagerNS.StrategyRoboCupNS
 
         StrategyRoboCup parent;
         Thread TaskThread;
-        TaskBallManagementState state = TaskBallManagementState.PasDeBalle;
+        public TaskBallHandlingManagementState state = TaskBallHandlingManagementState.PasDeBalle;
+        //BallHandlingState ballHandlingState = BallHandlingState.NoBall;
+
         Stopwatch sw = new Stopwatch();
         
-        public TaskBallManagement(StrategyRoboCup parent)
+        public TaskBallHandlingManagement(StrategyRoboCup parent)
         {
             this.parent = parent;
             TaskThread = new Thread(TaskThreadProcess);
@@ -55,7 +62,11 @@ namespace StrategyManagerNS.StrategyRoboCupNS
             sw.Reset();
         }
 
-     
+        public void SetTaskState(TaskBallHandlingManagementState state)
+        {
+            this.state = state;
+        }
+             
 
         void TaskThreadProcess()
         {
@@ -63,34 +74,57 @@ namespace StrategyManagerNS.StrategyRoboCupNS
             {
                 switch (state)
                 {
-                    case TaskBallManagementState.PasDeBalle:
+                    case TaskBallHandlingManagementState.PasDeBalle:
                         sw.Restart();
-                        state = TaskBallManagementState.PasDeBalleEnCours;
+                        parent.ballHandlingState = BallHandlingState.NoBall;
+                        state = TaskBallHandlingManagementState.PasDeBalleEnCours;
                         break;
-                    case TaskBallManagementState.PasDeBalleEnCours:
+                    case TaskBallHandlingManagementState.PasDeBalleEnCours:
                         parent.MessageDisplay = "No Ball : " + (sw.ElapsedMilliseconds / 1000).ToString();
-                        if(parent.isHandlingBall)
-                            state = TaskBallManagementState.PossessionBalle;
+                        //if(parent.isHandlingBall)
+                        //    state = TaskBallHandlingManagementState.PossessionBalle;
                         break;
-                    case TaskBallManagementState.PossessionBalle:
+                    case TaskBallHandlingManagementState.PossessionBalle:
                         sw.Restart();
-                        state = TaskBallManagementState.PossessionBalleEnCours;
+                        parent.ballHandlingState = BallHandlingState.HasBall;
+                        state = TaskBallHandlingManagementState.PossessionBalleEnCours;
                         break;
-                    case TaskBallManagementState.PossessionBalleEnCours:
+                    case TaskBallHandlingManagementState.PossessionBalleEnCours:
                         parent.MessageDisplay = "Ball : " + (sw.ElapsedMilliseconds / 1000).ToString();
                         if (sw.ElapsedMilliseconds>3000)
                         {
                             /// On demande un tir ou une passe
                             parent.OnShootRequest(parent.robotId, 2);
-                        }
-                        if (!parent.isHandlingBall)
-                            state = TaskBallManagementState.PasDeBalle;
+                            state = TaskBallHandlingManagementState.Tir;
+                        }                            
+                        break;
+                    case TaskBallHandlingManagementState.Passe:
+                        sw.Restart();
+                        parent.ballHandlingState = BallHandlingState.PassInProgress;
+                        state = TaskBallHandlingManagementState.PasseEnCours;
+                        break;
+                    case TaskBallHandlingManagementState.PasseEnCours:
+                        parent.MessageDisplay = "Passe";
+                        if (sw.ElapsedMilliseconds > 2000)
+                            state = TaskBallHandlingManagementState.PasDeBalle;
+                        break;
+                    case TaskBallHandlingManagementState.Tir:
+                        sw.Restart();
+                        parent.ballHandlingState = BallHandlingState.ShootInProgress;
+                        state = TaskBallHandlingManagementState.TirEnCours;
+                        break;
+                    case TaskBallHandlingManagementState.TirEnCours:
+                        parent.MessageDisplay = "Tir";
+                        if (sw.ElapsedMilliseconds > 2000)
+                            state = TaskBallHandlingManagementState.PasDeBalle;
                         break;
 
                     default:
                         break;
                 }
-                Thread.Sleep(100);
+
+                parent.OnBallHandlingState(parent.robotId, parent.ballHandlingState);
+                Thread.Sleep(20);
             }
         }
     }

@@ -46,6 +46,7 @@ namespace StrategyManagerNS
     {
         public int robotId = 0;
         public int teamId = 0;
+        public string teamIpAddress = "";
         public string DisplayName;
 
         public GlobalWorldMap globalWorldMap;
@@ -53,16 +54,16 @@ namespace StrategyManagerNS
         public Location robotCurrentLocation = new Location(0, 0, 0, 0, 0, 0);
         public double robotOrientation;
 
-        public bool isHandlingBall = false;
 
         Stopwatch sw = new Stopwatch();
         Stopwatch swGlobal = new Stopwatch();
         Timer timerStrategy;
 
-        public StrategyGenerique(int robotId, int teamId)
+        public StrategyGenerique(int robotId, int teamId, string teamIpAddress)
         {
             this.teamId = teamId;
             this.robotId = robotId;
+            this.teamIpAddress = teamIpAddress;
 
             globalWorldMap = new GlobalWorldMap();
 
@@ -77,12 +78,13 @@ namespace StrategyManagerNS
         public abstract void InitHeatMap();
 
         //************************ Events reçus ************************************************/
+        public abstract void OnRefBoxMsgReceived(object sender, WorldMap.RefBoxMessageArgs e);
 
         //Event de récupération d'une GlobalWorldMap mise à jour
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
         {
             //On récupère le gameState avant arrivée de la nouvelle worldMap
-            GameState gameState_1 = globalWorldMap.gameState;
+            //GameState gameState_1 = globalWorldMap.gameState;
 
             //On récupère la nouvelle worldMap
             lock (globalWorldMap)
@@ -91,11 +93,11 @@ namespace StrategyManagerNS
             }
 
             //On regarde si le gamestate a changé
-            if (globalWorldMap.gameState != gameState_1)
-            {
-                //Le gameState a changé, on envoie un event
-                OnGameStateChanged(robotId, globalWorldMap.gameState);
-            }
+            //if (globalWorldMap.gameState != gameState_1)
+            //{
+            //    //Le gameState a changé, on envoie un event
+            //    OnGameStateChanged(robotId, globalWorldMap.gameState);
+            //}
         }
         public void OnPositionRobotReceived(object sender, LocationArgs location)
         {
@@ -108,17 +110,8 @@ namespace StrategyManagerNS
             robotCurrentLocation.Vtheta = location.Location.Vtheta;
         }
 
-        public void OnBallHandlingReceived(object sender, BallHandlingArgs e)
-        {
-            if (e.RobotId == robotId)
-            {
-                isHandlingBall = e.IsHandlingBall;
-                if (isHandlingBall == true)
-                    ;
-            }
-            else
-                Console.WriteLine("Probleme d'ID robot");
-        }
+
+        
 
         bool displayConsole = false;
         private void TimerStrategy_Elapsed(object sender, ElapsedEventArgs e)
@@ -229,7 +222,7 @@ namespace StrategyManagerNS
             //Génération de la HeatMap
             
             positioningHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList, 
-                strictlyAllowedRectangleList, avoidanceConicalZoneList, preferredSegmentZoneList);
+                strictlyAllowedRectangleList, preferredRectangleList, avoidanceConicalZoneList, preferredSegmentZoneList);
 
             sw.Stop();
         }
@@ -355,6 +348,23 @@ namespace StrategyManagerNS
             }
         }
 
+        //Zones rectangulaires interdites
+        List<RectangleZone> preferredRectangleList = new List<RectangleZone>();
+        public void InitPreferredRectangleList()
+        {
+            lock (preferredRectangleList)
+            {
+                preferredRectangleList = new List<RectangleZone>();
+            }
+        }
+        public void AddPreferredRectangle(RectangleD rect)
+        {
+            lock (preferredRectangleList)
+            {
+                preferredRectangleList.Add(new RectangleZone(rect));
+            }
+        }
+
 
         /****************************************** Events envoyés ***********************************************/
 
@@ -386,6 +396,12 @@ namespace StrategyManagerNS
             OnRoleEvent?.Invoke(this, new RoleArgs { RobotId = id, Role = role });
         }
 
+        public event EventHandler<BallHandlingStateArgs> OnBallHandlingStateEvent;
+        public virtual void OnBallHandlingState(int id, BallHandlingState state)
+        {
+            OnBallHandlingStateEvent?.Invoke(this, new BallHandlingStateArgs { RobotId = id, State = state });
+        }
+
         public event EventHandler<MessageDisplayArgs> OnMessageDisplayEvent;
         public virtual void OnMessageDisplay(int id, string msg)
         {
@@ -398,16 +414,6 @@ namespace StrategyManagerNS
         //    OnPlayingSideEvent?.Invoke(this, new  PlayingSideArgs { RobotId = id, PlaySide = playSide});
         //}
 
-
-        public event EventHandler<ShootEventArgs> OnShootRequestEvent;
-        public virtual void OnShootRequest(int id, double speed)
-        {
-            var handler = OnShootRequestEvent;
-            if (handler != null)
-            {
-                handler(this, new  ShootEventArgs { RobotId = id, shootingSpeed = speed});
-            }
-        }
 
 
         public event EventHandler<LocationArgs> OnWaypointEvent;

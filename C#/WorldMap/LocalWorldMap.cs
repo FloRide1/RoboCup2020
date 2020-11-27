@@ -8,24 +8,26 @@ using ZeroFormatter;
 namespace WorldMap
 {
     [ZeroFormattable]
-    public class LocalWorldMap:WorldMap
+    public class LocalWorldMap:ZeroFormatterMsg
     {// UnionKey value must return constant value(Type is free, you can use int, string, enum, etc...)
-        public override WorldMapType Type
+        public override ZeroFormatterMsgType Type
         {
             get
             {
-                return WorldMapType.LocalWM;
+                return ZeroFormatterMsgType.LocalWM;
             }
         }
 
-        [Index(1)]
+        [Index(0)]
         public virtual int RobotId { get; set; }
-        [Index(2)]
+        [Index(1)]
         public virtual int TeamId { get; set; }
-        [Index(3)]
+        [Index(2)]
         public virtual Location robotLocation { get; set; }
-        [Index(4)]
+        [Index(3)]
         public virtual RobotRole robotRole { get; set; }
+        [Index(4)]
+        public virtual BallHandlingState ballHandlingState { get; set; }
         [Index(5)]
         public virtual string messageDisplay { get; set; }
 

@@ -81,8 +81,9 @@ namespace HeatMap
             return distTerrain / FieldLength * (nbCellInBaseHeatMapWidth - 1);
         }
 
-        public void GenerateHeatMap(List<Zone> preferredZonesList, List<Zone> avoidanceZonesList, List<RectangleZone> forbiddenRectangleList,
-            List<RectangleZone> strictlyAllowedRectangleList, List<ConicalZone> avoidanceConicalZoneList, List<SegmentZone> preferredSegmentZoneList)
+        public void GenerateHeatMap(List<Zone> preferredZonesList, List<Zone> avoidanceZonesList, 
+            List<RectangleZone> forbiddenRectangleList,  List<RectangleZone> strictlyAllowedRectangleList,
+            List<RectangleZone> preferredRectangleList, List<ConicalZone> avoidanceConicalZoneList, List<SegmentZone> preferredSegmentZoneList)
         {
 
             /// Initialisation de la HeatMap à 0
@@ -135,6 +136,26 @@ namespace HeatMap
                         for (int x = (int)Math.Max(0, xMinHeatMap); x < (int)(Math.Min(nbCellInBaseHeatMapWidth, xMaxHeatMap)); x++)
                         {
                             BaseHeatMapData[y, x] = -1;
+                        }
+                    }
+                }
+            }
+
+            //Gestion des zones rectangulaires préférées
+            lock (preferredRectangleList)
+            {
+                foreach (var rectangle in preferredRectangleList)
+                {
+                    var xMinHeatMap = GetBaseHeatMapXPosFromFieldCoordinates(rectangle.rectangularZone.Xmin);
+                    var xMaxHeatMap = GetBaseHeatMapXPosFromFieldCoordinates(rectangle.rectangularZone.Xmax);
+                    var yMinHeatMap = GetBaseHeatMapYPosFromFieldCoordinates(rectangle.rectangularZone.Ymin);
+                    var yMaxHeatMap = GetBaseHeatMapYPosFromFieldCoordinates(rectangle.rectangularZone.Ymax);
+
+                    for (int y = (int)Math.Max(0, yMinHeatMap); y < (int)(Math.Min(nbCellInBaseHeatMapHeight, yMaxHeatMap)); y++)
+                    {
+                        for (int x = (int)Math.Max(0, xMinHeatMap); x < (int)(Math.Min(nbCellInBaseHeatMapWidth, xMaxHeatMap)); x++)
+                        {
+                            BaseHeatMapData[y, x] += rectangle.strength;
                         }
                     }
                 }
