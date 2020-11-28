@@ -22,6 +22,7 @@ using SciChart.Charting.Visuals.Axes;
 using HerkulexManagerNS;
 using WorldMap;
 using ZeroFormatter;
+using System.IO;
 
 namespace RobotInterface
 {
@@ -30,10 +31,12 @@ namespace RobotInterface
     /// </summary>
     public partial class WpfRobotInterface : Window
     {
+        GameMode gameMode;
         DispatcherTimer timerAffichage = new DispatcherTimer();
 
-        public WpfRobotInterface()
+        public WpfRobotInterface(GameMode gamemode)
         {
+            gameMode = gamemode;
             InitializeComponent();
             
             //Among other settings, this code may be used
@@ -61,11 +64,20 @@ namespace RobotInterface
                 PreviewKeyDown += new KeyEventHandler(MainWindow_PreviewKeyDown);
             }
             
-            worldMapDisplayStrategy.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, "Eurobot");
-            worldMapDisplayStrategy.Init("Eurobot", LocalWorldMapDisplayType.StrategyMap, "C://Eurobot2020.png");
+            var currentDir = Directory.GetCurrentDirectory();
+            var racineProjets = Directory.GetParent(currentDir);
+            var imagePath = racineProjets.Parent.Parent.Parent.FullName.ToString() + "\\Images\\";
+            worldMapDisplayStrategy.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, GameMode.Eurobot,  "Wally");
+            worldMapDisplayWaypoint.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, GameMode.Eurobot,  "Wally");
+            if (gameMode == GameMode.Eurobot)
+            {
+                worldMapDisplayStrategy.Init(gameMode, LocalWorldMapDisplayType.StrategyMap, imagePath + "Eurobot2020.png");
+                worldMapDisplayWaypoint.Init(gameMode, LocalWorldMapDisplayType.WayPointMap, imagePath + "Eurobot2020.png");
+            }
+            else if (gameMode == GameMode.RoboCup)
+                worldMapDisplayStrategy.Init(gameMode, LocalWorldMapDisplayType.StrategyMap, imagePath + "RoboCup.png");
+                worldMapDisplayWaypoint.Init(gameMode, LocalWorldMapDisplayType.WayPointMap, imagePath + "RoboCup.png");
 
-            worldMapDisplayWaypoint.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, "Eurobot");
-            worldMapDisplayWaypoint.Init("Eurobot", LocalWorldMapDisplayType.WayPointMap, "C://Eurobot2020.png");
 
             foreach (string s in SerialPort.GetPortNames())
             {

@@ -285,6 +285,7 @@ namespace StrategyManagerNS.StrategyRoboCupNS
 
                 case RobotRole.Positioning:
                     AddPreferedZone(new PointD(externalRefBoxPosition.X, externalRefBoxPosition.Y), 5);
+                    robotOrientation = 0;
                     break;
 
                 case RobotRole.DefenseurContesteur:

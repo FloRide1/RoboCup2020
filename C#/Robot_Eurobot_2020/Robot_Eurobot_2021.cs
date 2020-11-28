@@ -91,7 +91,7 @@ namespace Robot
         }
         #endregion
 
-        static RobotMode robotMode = RobotMode.Standard;
+        static RobotMode robotMode = RobotMode.NoLidar;
 
         static bool usingXBoxController;
         static bool usingLidar;
@@ -350,12 +350,15 @@ namespace Robot
             trajectoryPlanner.OnPidSpeedResetEvent += robotMsgGenerator.GenerateMessageResetSpeedPid;
 
             ////Event d'interprétation d'une globalWorldMap à sa réception dans le robot
+            robotUdpMulticastInterpreter.OnRefBoxMessageEvent += strategyManager.strategy.OnRefBoxMsgReceived;
             robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += strategyManager.strategy.OnGlobalWorldMapReceived;
             //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
             //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
 
             ////Event de Transmission des Local World Map du robot vers le multicast
             localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
+            //Event de Réception de data Multicast sur le robot
+            robotUdpMulticastReceiver.OnDataReceivedEvent += robotUdpMulticastInterpreter.OnMulticastDataReceived;
 
             //On essaie d'enlever la communication UDP interne
             //localWorldMapManager.OnLocalWorldMapBypassEvent += globalWorldMapManager.OnLocalWorldMapReceived;
@@ -479,7 +482,7 @@ namespace Robot
             t1 = new Thread(() =>
             {
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
-                interfaceRobot = new RobotInterface.WpfRobotInterface();
+                interfaceRobot = new RobotInterface.WpfRobotInterface(GameMode.Eurobot);
                 interfaceRobot.Loaded += RegisterRobotInterfaceEvents;
                 interfaceRobot.ShowDialog();
             });

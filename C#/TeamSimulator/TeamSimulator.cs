@@ -294,7 +294,7 @@ namespace TeamSimulator
             Thread t1 = new Thread(() =>
             {
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
-                TeamConsole = new WpfTeamInterface("RoboCup", team1PlayerNames, team2PlayerNames);  //RoboCup
+                TeamConsole = new WpfTeamInterface(GameMode.RoboCup, team1PlayerNames, team2PlayerNames);  //RoboCup
 
                 //On s'abonne aux évènements permettant de visualiser les localWorldMap à leur génération : attention, event réservé à la visualisation car il passe les heat maps et pts lidar
                 for (int i = 0; i < nbPlayersTeam1; i++)

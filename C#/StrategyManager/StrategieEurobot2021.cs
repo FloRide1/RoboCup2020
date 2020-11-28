@@ -55,8 +55,8 @@ namespace StrategyManagerNS
         public StoppedGameAction stoppedGameAction = StoppedGameAction.NONE;
         public Location externalRefBoxPosition = new Location();
 
-        public double robotOrientation;
-        public Location robotCurentLocation = new Location(0, 0, 0, 0, 0, 0);
+        PlayingSide playingSide = PlayingSide.Left;
+
         RobotRole role = RobotRole.Stopped;
         System.Timers.Timer configTimer;
 
@@ -167,8 +167,8 @@ namespace StrategyManagerNS
         {
             get
             {
-                if (robotOrientation - robotCurentLocation.Theta < Toolbox.DegToRad(1.0) &&
-                    Toolbox.Distance(new PointD(robotCurentLocation.X, robotCurentLocation.Y), robotDestination) < 0.05)
+                if (robotOrientation - robotCurrentLocation.Theta < Toolbox.DegToRad(1.0) &&
+                    Toolbox.Distance(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), robotDestination) < 0.05)
                     return true;
                 else
                     return false;
@@ -196,7 +196,13 @@ namespace StrategyManagerNS
         }
         public void DefinePlayerZones(RobotRole role)
         {
-
+            switch (role)
+            {
+                case RobotRole.Positioning:
+                    AddPreferedZone(new PointD(externalRefBoxPosition.X, externalRefBoxPosition.Y), 5);
+                    robotOrientation = 0;
+                    break;
+            }
         }
 
 
@@ -219,16 +225,151 @@ namespace StrategyManagerNS
             //}
         }
 
+        //public override void OnRefBoxMsgReceived(object sender, WorldMap.RefBoxMessageArgs e)
+        //{
+        //    var command = e.refBoxMsg.command;
+        //    var robotId = e.refBoxMsg.robotID;
+        //    var targetTeam = e.refBoxMsg.targetTeam;
+
+        //    switch (command)
+        //    {
+        //        case RefBoxCommand.GOTO:
+        //            externalRefBoxPosition = new Location(e.refBoxMsg.posX, e.refBoxMsg.posY, e.refBoxMsg.posTheta, 0, 0, 0);
+        //            break;
+        //    }
+        //}
+
         public override void OnRefBoxMsgReceived(object sender, WorldMap.RefBoxMessageArgs e)
         {
             var command = e.refBoxMsg.command;
-            var robotId = e.refBoxMsg.robotID;
+            //var robotId = e.refBoxMsg.robotID;
             var targetTeam = e.refBoxMsg.targetTeam;
+
 
             switch (command)
             {
+                case RefBoxCommand.START:
+                    gameState = GameState.PLAYING;
+                    stoppedGameAction = StoppedGameAction.NONE;
+                    break;
+                case RefBoxCommand.STOP:
+                    gameState = GameState.STOPPED;
+                    break;
+                case RefBoxCommand.DROP_BALL:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    stoppedGameAction = StoppedGameAction.DROPBALL;
+                    break;
+                case RefBoxCommand.HALF_TIME:
+                    break;
+                case RefBoxCommand.END_GAME:
+                    break;
+                case RefBoxCommand.GAME_OVER:
+                    break;
+                case RefBoxCommand.PARK:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    stoppedGameAction = StoppedGameAction.PARK;
+                    break;
+                case RefBoxCommand.FIRST_HALF:
+                    break;
+                case RefBoxCommand.SECOND_HALF:
+                    break;
+                case RefBoxCommand.FIRST_HALF_OVER_TIME:
+                    break;
+                case RefBoxCommand.RESET:
+                    break;
+                case RefBoxCommand.WELCOME:
+                    break;
+                case RefBoxCommand.KICKOFF:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.KICKOFF;
+                    else
+                        stoppedGameAction = StoppedGameAction.KICKOFF_OPPONENT;
+                    break;
+                case RefBoxCommand.FREEKICK:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.FREEKICK;
+                    else
+                        stoppedGameAction = StoppedGameAction.FREEKICK_OPPONENT;
+                    break;
+                case RefBoxCommand.GOALKICK:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.GOALKICK;
+                    else
+                        stoppedGameAction = StoppedGameAction.GOALKICK_OPPONENT;
+                    break;
+                case RefBoxCommand.THROWIN:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.THROWIN;
+                    else
+                        stoppedGameAction = StoppedGameAction.THROWIN_OPPONENT;
+                    break;
+                case RefBoxCommand.CORNER:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.CORNER;
+                    else
+                        stoppedGameAction = StoppedGameAction.CORNER_OPPONENT;
+                    break;
+                case RefBoxCommand.PENALTY:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.PENALTY;
+                    else
+                        stoppedGameAction = StoppedGameAction.PENALTY_OPPONENT;
+                    break;
+                case RefBoxCommand.GOAL:
+                    break;
+                case RefBoxCommand.SUBGOAL:
+                    break;
+                case RefBoxCommand.REPAIR:
+                    break;
+                case RefBoxCommand.YELLOW_CARD:
+                    break;
+                case RefBoxCommand.DOUBLE_YELLOW:
+                    break;
+                case RefBoxCommand.RED_CARD:
+                    break;
+                case RefBoxCommand.SUBSTITUTION:
+                    break;
+                case RefBoxCommand.IS_ALIVE:
+                    gameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        stoppedGameAction = StoppedGameAction.KICKOFF;
+                    else
+                        stoppedGameAction = StoppedGameAction.KICKOFF_OPPONENT;
+                    break;
                 case RefBoxCommand.GOTO:
-                    externalRefBoxPosition = new Location(e.refBoxMsg.posX, e.refBoxMsg.posY, e.refBoxMsg.posTheta, 0, 0, 0);
+                    if (e.refBoxMsg.robotID == robotId)
+                    {
+                        gameState = GameState.STOPPED_GAME_POSITIONING;
+                        externalRefBoxPosition = new Location(e.refBoxMsg.posX, e.refBoxMsg.posY, e.refBoxMsg.posTheta, 0, 0, 0);
+                        if (targetTeam == teamIpAddress)
+                            stoppedGameAction = StoppedGameAction.GOTO;
+                        else
+                            stoppedGameAction = StoppedGameAction.GOTO_OPPONENT;
+                    }
+                    else
+                    {
+
+                    }
+                    break;
+                case RefBoxCommand.PLAYLEFT:
+                    //currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        playingSide = PlayingSide.Left;
+                    else
+                        playingSide = PlayingSide.Right;
+                    break;
+                case RefBoxCommand.PLAYRIGHT:
+                    //currentGameState = GameState.STOPPED_GAME_POSITIONING;
+                    if (targetTeam == teamIpAddress)
+                        playingSide = PlayingSide.Right;
+                    else
+                        playingSide = PlayingSide.Left;
                     break;
             }
         }
@@ -236,7 +377,20 @@ namespace StrategyManagerNS
         public override void DetermineRobotRole() //A définir dans les classes héritées
         {
             DefinePlayerZones(RobotRole.Eurobot_gros_robot);
-        }
+            switch (gameState)
+            {
+                case GameState.STOPPED:
+                    role = RobotRole.Stopped;
+                    break;
+                case GameState.PLAYING:
+                    {
+                    }
+                    break;
+                case GameState.STOPPED_GAME_POSITIONING:
+                    role = RobotRole.Positioning;
+                    break;
+            }
+        }            
 
         public override void IterateStateMachines() //A définir dans les classes héritées
         {

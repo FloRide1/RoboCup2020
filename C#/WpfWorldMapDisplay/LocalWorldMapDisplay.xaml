@@ -7,21 +7,22 @@
              mc:Ignorable="d" 
              d:DesignHeight="2000" d:DesignWidth="2600"
              xmlns:s="http://schemas.abtsoftware.co.uk/scichart" >
-    
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
-        </Grid.RowDefinitions>
+
+    <Grid>        
         <s:SciChartSurface x:Name="sciChart" Padding="0" BorderThickness="0" Grid.Row="0" MouseLeftButtonUp="sciChart_MouseLeftButtonUp">
             <!--  Create a X Axis  -->
             <s:SciChartSurface.XAxis>
-                <s:NumericAxis VisibleRange="-12,12" IsCenterAxis="False" AutoRange="Never" Visibility="Hidden"/>
+                <s:NumericAxis VisibleRange="-12,12" IsCenterAxis="False" AutoRange="Never" Visibility="Hidden" DrawMajorGridLines="False" DrawMinorGridLines="False"
+                               DrawMajorTicks="False" DrawMinorTicks="False" DrawMajorBands="False"/>
             </s:SciChartSurface.XAxis>
             <!--  Create a Y Axis  -->
             <s:SciChartSurface.YAxis>
-                <s:NumericAxis VisibleRange="-8,8" IsCenterAxis="False" AutoRange="Never" Visibility="Hidden"/>
-            </s:SciChartSurface.YAxis>            
+                <s:NumericAxis VisibleRange="-8,8" IsCenterAxis="False" AutoRange="Never" Visibility="Hidden" DrawMajorGridLines="False" DrawMinorGridLines="False"
+                               DrawMajorTicks="False" DrawMinorTicks="False" DrawMajorBands="False"/>
+            </s:SciChartSurface.YAxis>
             <s:SciChartSurface.RenderableSeries >
+                <local:PolygonRenderableSeries x:Name="PolygonTerrainSeries" Opacity="0.5">
+                </local:PolygonRenderableSeries>
                 <local:PolygonRenderableSeries x:Name="PolygonSeries" Opacity="0.5">
                 </local:PolygonRenderableSeries>
                 <local:PolygonRenderableSeries x:Name="BallPolygon" Opacity="1" >
@@ -56,31 +57,16 @@
             <s:SciChartSurface.Annotations>
                 <s:TextAnnotation x:Name="LocalWorldMapTitle" AnnotationCanvas="AboveChart" CoordinateMode="Relative" FontSize="14" FontWeight="Bold" HorizontalAnchorPoint="Left" Opacity="0.5" Text="Local World Map" VerticalAnchorPoint="Center" X1="0.15" Y1="0.18"/>
                 <s:TextAnnotation x:Name="AnnotRobotRole" AnnotationCanvas="AboveChart" CoordinateMode="Relative" FontSize="14" FontWeight="Bold" HorizontalAnchorPoint="Right" Opacity="0.5" Text="Role" VerticalAnchorPoint="Center" X1="0.8" Y1="0.18"/>
-                <s:BoxAnnotation x:Name="AnnotationFond" AnnotationCanvas="ModifierSurface"  CoordinateMode="Absolute" X1="{Binding X1}" X2="{Binding X2}" Y1="{Binding Y1}" Y2="{Binding Y2}" HorizontalContentAlignment="Stretch" Background="#55FFFF00">
+                <s:BoxAnnotation x:Name="AnnotationFond" AnnotationCanvas="BelowChart"  CoordinateMode="Absolute" X1="{Binding X1}" X2="{Binding X2}" Y1="{Binding Y1}" Y2="{Binding Y2}" HorizontalContentAlignment="Stretch" Background="#55FFFF00">
                     <s:BoxAnnotation.Template>
                         <ControlTemplate TargetType="s:BoxAnnotation">
                             <Border x:Name="PART_BoxAnnotationRoot">
-                                <Image Name="BackGroundImage" Source="{Binding ImagePath}" Stretch="Fill" Opacity="0.3" />
+                                <Image Name="BackGroundImage" Source="{Binding ImagePath}" Stretch="Fill" Opacity="0.2" />
                             </Border>
                         </ControlTemplate>
                     </s:BoxAnnotation.Template>
                 </s:BoxAnnotation>
             </s:SciChartSurface.Annotations>
-
-            <s:SciChartSurface.Resources>
-                <Style x:Key="ChartWatermarkTextStyle" TargetType="TextBlock">
-                    <Setter Property="VerticalAlignment" Value="Center" />
-                    <Setter Property="HorizontalAlignment" Value="Center" />
-                    <Setter Property="Foreground" Value="Black" />
-                </Style>
-                <DataTemplate x:Key="AnnotationTemplate">
-                    <Image Source="C:/image.png" HorizontalAlignment="Stretch" />                    
-                </DataTemplate>
-            </s:SciChartSurface.Resources>
-
-
         </s:SciChartSurface>
-        <!--<Label x:Name="LocalWorldMapTitle" Grid.Row="0" Content="Local World Map" HorizontalContentAlignment="Center" VerticalAlignment="Stretch" Foreground="White" HorizontalAlignment="Stretch">
-        </Label>-->
     </Grid>
 </UserControl>
