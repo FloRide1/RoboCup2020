@@ -125,7 +125,7 @@ namespace TeamSimulator
             int robotId = TeamNumber + RobotNumber;
             var strategyManager = new StrategyManagerNS.StrategyManager(robotId, TeamNumber, multicastIpAddress, GameMode.RoboCup);
             //var waypointGenerator = new WaypointGenerator(robotId, GameMode.RoboCup);
-            var trajectoryPlanner = new TrajectoryPlanner(robotId);
+            var trajectoryPlanner = new TrajectoryPlanner(robotId, GameMode.RoboCup);
             var sensorSimulator = new SensorSimulator.SensorSimulator(robotId);
             var kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
             var localWorldMapManager = new LocalWorldMapManager(robotId, TeamNumber, bypassMulticast: false);
@@ -230,55 +230,7 @@ namespace TeamSimulator
             physicalSimulator.RegisterRobot(robotId, xInit, yInit);
             trajectoryPlanner.InitRobotPosition(xInit, yInit, thetaInit);
         }
-
-
-        //private static void TimerStrategie_Tick(object sender, EventArgs e)
-        //{
-        //    DefineRoles();
-        //}
-
-        //private static void DefineRoles()
-        //{
-        //    List<int> roleList = new List<int>();
-
-        //    for (int i = 0; i < nbPlayersTeam1; i++)
-        //        roleList.Add(i + 1);
-
-        //    Shuffle(roleList);
-
-        //    for (int i = 0; i < nbPlayersTeam1; i++)
-        //    {
-        //        strategyManagerDictionary[(int)TeamId.Team1 + i].SetRole((RobotRole)roleList[i]);
-        //        //strategyManagerDictionary[(int)TeamId.Team1 + i].ProcessStrategy();
-        //    }
-            
-        //    roleList = new List<int>();
-
-        //    for (int i = 0; i < nbPlayersTeam2; i++)
-        //        roleList.Add(i + 1);
-
-        //    Shuffle(roleList);
-
-        //    for (int i = 0; i < nbPlayersTeam2; i++)
-        //    {
-        //        strategyManagerDictionary[(int)TeamId.Team2 + i].SetRole((RobotRole)roleList[i]);
-        //        //strategyManagerDictionary[(int)TeamId.Team2 + i].ProcessStrategy();
-        //    }
-        //}
-
-        //public static void Shuffle<T>(this IList<T> list)
-        //{ 
-        //    int n = list.Count; 
-        //    while (n > 1) 
-        //    { 
-        //        n--; 
-        //        int k = randomGenerator.Next(n + 1); 
-        //        T value = list[k]; 
-        //        list[k] = list[n]; 
-        //        list[n] = value; 
-        //    } 
-        //}        
-        
+                
         static void ExitProgram()
         {
             lock (ExitLock)
@@ -294,7 +246,7 @@ namespace TeamSimulator
             Thread t1 = new Thread(() =>
             {
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
-                TeamConsole = new WpfTeamInterface("RoboCup", team1PlayerNames, team2PlayerNames);  //RoboCup
+                TeamConsole = new WpfTeamInterface(GameMode.RoboCup, team1PlayerNames, team2PlayerNames);  //RoboCup
 
                 //On s'abonne aux évènements permettant de visualiser les localWorldMap à leur génération : attention, event réservé à la visualisation car il passe les heat maps et pts lidar
                 for (int i = 0; i < nbPlayersTeam1; i++)

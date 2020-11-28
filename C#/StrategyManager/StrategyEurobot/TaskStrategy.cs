@@ -139,7 +139,7 @@ namespace StrategyManagerNS
                                 message.targetTeam = "224.16.32.79";
                                 message.robotID = 0;
                                 parentStrategyManager.OnRefereeBoxReceivedCommand(message); 
-                                parentStrategyManager.OnCollision(parentStrategyManager.robotId, parentStrategyManager.robotCurentLocation); //On génère artificellement une collision pour resetter Kalman et le reste autour de la position courante.
+                                parentStrategyManager.OnCollision(parentStrategyManager.robotId, parentStrategyManager.robotCurrentLocation); //On génère artificellement une collision pour resetter Kalman et le reste autour de la position courante.
                                 state = TaskStrategyState.Phare;
                                 if(isFirstRun)
                                 {

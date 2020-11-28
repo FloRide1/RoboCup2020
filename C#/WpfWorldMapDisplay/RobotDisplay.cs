@@ -28,26 +28,17 @@ namespace WpfWorldMapDisplay
         List<PolarPointListExtended> lidarObjectList;
         public List<Location> ballLocationList;
 
-        public RobotDisplay(PolygonExtended rbtShape, string name)
+        public RobotDisplay(PolygonExtended rbtShape, PolygonExtended ghstShape, string name)
         {
             robotLocation = new Location(0, 0, 0, 0, 0, 0);
             destinationLocation = new Location(0, 0, 0, 0, 0, 0);
             waypointLocation = new Location(0, 0, 0, 0, 0, 0);
             ghostLocation = new Location(0, 0, 0, 0, 0, 0);
+
             robotShape = rbtShape;
+            ghostShape = ghstShape;
             robotName = name;
-
-            //TODO à définir en dehors
-            ghostShape = new PolygonExtended();
-            ghostShape.polygon.Points.Add(new Point(-0.35, -0.35));
-            ghostShape.polygon.Points.Add(new Point(0.35, -0.35));
-            ghostShape.polygon.Points.Add(new Point(0.7, 0));
-            ghostShape.polygon.Points.Add(new Point(0.35, 0.35));
-            ghostShape.polygon.Points.Add(new Point(-0.35, 0.35));
-            ghostShape.polygon.Points.Add(new Point(-0.35, -0.35));
-            ghostShape.backgroundColor = System.Drawing.Color.FromArgb(20, 0, 255, 0);
-            ghostShape.borderColor = System.Drawing.Color.Black;
-
+                        
             lidarMap = new List<PointD>();
             ballLocationList = new List<Location>();
         }

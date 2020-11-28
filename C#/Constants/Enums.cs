@@ -58,6 +58,7 @@ namespace Utilities
     {
         RoboCup,
         Eurobot,
+        Cachan,
         Demo
     }
 

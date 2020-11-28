@@ -22,6 +22,7 @@ using SciChart.Charting.Visuals.Axes;
 using HerkulexManagerNS;
 using WorldMap;
 using ZeroFormatter;
+using System.IO;
 
 namespace RobotInterface
 {
@@ -30,10 +31,12 @@ namespace RobotInterface
     /// </summary>
     public partial class WpfRobotInterface : Window
     {
+        GameMode gameMode;
         DispatcherTimer timerAffichage = new DispatcherTimer();
 
-        public WpfRobotInterface()
+        public WpfRobotInterface(GameMode gamemode)
         {
+            gameMode = gamemode;
             InitializeComponent();
             
             //Among other settings, this code may be used
@@ -61,11 +64,26 @@ namespace RobotInterface
                 PreviewKeyDown += new KeyEventHandler(MainWindow_PreviewKeyDown);
             }
             
-            worldMapDisplayStrategy.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, "Eurobot");
-            worldMapDisplayStrategy.Init("Eurobot", LocalWorldMapDisplayType.StrategyMap, "C://Eurobot2020.png");
+            var currentDir = Directory.GetCurrentDirectory();
+            var racineProjets = Directory.GetParent(currentDir);
+            var imagePath = racineProjets.Parent.Parent.Parent.FullName.ToString() + "\\Images\\";
+            if (gameMode == GameMode.Eurobot)
+            {
+                worldMapDisplayStrategy.Init(gameMode, LocalWorldMapDisplayType.StrategyMap, imagePath + "Eurobot2020.png");
+                worldMapDisplayWaypoint.Init(gameMode, LocalWorldMapDisplayType.WayPointMap, imagePath + "Eurobot2020.png");
+            }
+            else if (gameMode == GameMode.RoboCup)
+            {
+                worldMapDisplayStrategy.Init(gameMode, LocalWorldMapDisplayType.StrategyMap, imagePath + "RoboCup.png");
+                worldMapDisplayWaypoint.Init(gameMode, LocalWorldMapDisplayType.WayPointMap, imagePath + "RoboCup.png");
+            }
 
-            worldMapDisplayWaypoint.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, "Eurobot");
-            worldMapDisplayWaypoint.Init("Eurobot", LocalWorldMapDisplayType.WayPointMap, "C://Eurobot2020.png");
+            worldMapDisplayStrategy.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, GameMode.Eurobot,  "Wally");
+            worldMapDisplayWaypoint.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, GameMode.Eurobot,  "Wally");
+
+            worldMapDisplayStrategy.OnCtrlClickOnHeatMapEvent += WorldMapDisplay_OnCtrlClickOnHeatMapEvent;
+            worldMapDisplayWaypoint.OnCtrlClickOnHeatMapEvent += WorldMapDisplay_OnCtrlClickOnHeatMapEvent;
+
 
             foreach (string s in SerialPort.GetPortNames())
             {
@@ -848,7 +866,18 @@ namespace RobotInterface
                 }
             }
         }
-#region OUTPUT EVENT
+        private void WorldMapDisplay_OnCtrlClickOnHeatMapEvent(object sender, PositionArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.GOTO;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
+            msg.posX = e.X;
+            msg.posY = e.Y;
+            msg.posTheta = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+        #region OUTPUT EVENT
         //OUTPUT EVENT
         public delegate void EnableDisableMotorsEventHandler(object sender, BoolEventArgs e);
         public event EnableDisableMotorsEventHandler OnEnableDisableMotorsFromInterfaceGeneratedEvent;
@@ -1120,7 +1149,7 @@ namespace RobotInterface
             RefBoxMessage msg = new RefBoxMessage();
             msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress; //Ici on est en local, pas de transmission, on remplis pour rien.
-            msg.robotID = 0;
+            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
             msg.posX = 0;
             msg.posY = 0;
             msg.posTheta = 0;
@@ -1132,7 +1161,7 @@ namespace RobotInterface
             RefBoxMessage msg = new RefBoxMessage();
             msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress;
-            msg.robotID = 0;
+            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
             msg.posX = 0;
             msg.posY = 1;
             msg.posTheta = Math.PI/2;
@@ -1144,7 +1173,7 @@ namespace RobotInterface
             RefBoxMessage msg = new RefBoxMessage();
             msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress;
-            msg.robotID = 0;
+            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
             msg.posX = 1;
             msg.posY = 0;
             msg.posTheta = 0;
@@ -1156,7 +1185,7 @@ namespace RobotInterface
             RefBoxMessage msg = new RefBoxMessage();
             msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress;
-            msg.robotID = 0;
+            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
             msg.posX = 0;
             msg.posY = -1;
             msg.posTheta = -Math.PI/2;
@@ -1168,7 +1197,7 @@ namespace RobotInterface
             RefBoxMessage msg = new RefBoxMessage();
             msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress;
-            msg.robotID = 0;
+            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
             msg.posX = -1;
             msg.posY = 0;
             msg.posTheta = Math.PI;
