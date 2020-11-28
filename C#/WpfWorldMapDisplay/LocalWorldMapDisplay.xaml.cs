@@ -153,46 +153,85 @@ namespace WpfWorldMapDisplay
             switch (gMode)
             {
                 case GameMode.Cachan:
-                    PolygonExtended robotShape = new PolygonExtended();
-                    robotShape.polygon.Points.Add(new System.Windows.Point(-0.14, -0.18));
-                    robotShape.polygon.Points.Add(new System.Windows.Point(0.14, -0.18));
-                    robotShape.polygon.Points.Add(new System.Windows.Point(0.10, 0));
-                    robotShape.polygon.Points.Add(new System.Windows.Point(0.14, 0.18));
-                    robotShape.polygon.Points.Add(new System.Windows.Point(-0.14, 0.18));
-                    robotShape.polygon.Points.Add(new System.Windows.Point(-0.14, -0.18));
-                    robotShape.borderColor = System.Drawing.Color.Blue;
-                    robotShape.backgroundColor = System.Drawing.Color.Red;
-                    RobotDisplay rd = new RobotDisplay(robotShape, playerName);
-                    rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
-                    TeamMatesDisplayDictionary.Add(robotId, rd);
+                    {
+                        PolygonExtended robotShape = new PolygonExtended();
+                        robotShape.polygon.Points.Add(new System.Windows.Point(-0.14, -0.18));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(0.14, -0.18));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(0.10, 0));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(0.14, 0.18));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(-0.14, 0.18));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(-0.14, -0.18));
+                        robotShape.borderColor = System.Drawing.Color.Blue;
+                        robotShape.backgroundColor = System.Drawing.Color.Red;
+
+                        PolygonExtended ghostShape = new PolygonExtended();
+                        ghostShape.polygon.Points.Add(new Point(-0.16, -0.2));
+                        ghostShape.polygon.Points.Add(new Point(0.16, -0.2));
+                        ghostShape.polygon.Points.Add(new Point(0.12, 0));
+                        ghostShape.polygon.Points.Add(new Point(0.16, 0.2));
+                        ghostShape.polygon.Points.Add(new Point(-0.16, 0.2));
+                        ghostShape.polygon.Points.Add(new Point(-0.16, -0.2));
+                        ghostShape.backgroundColor = System.Drawing.Color.FromArgb(20, 0, 255, 0);
+                        ghostShape.borderColor = System.Drawing.Color.Black;
+
+                        RobotDisplay rd = new RobotDisplay(robotShape, ghostShape, playerName);
+                        rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
+                        TeamMatesDisplayDictionary.Add(robotId, rd);
+                    }
                     break;
                 case GameMode.Eurobot:
-                    robotShape = new PolygonExtended();
-                    robotShape.polygon.Points.Add(new System.Windows.Point(-0.12, -0.12));
-                    robotShape.polygon.Points.Add(new System.Windows.Point(0.12, -0.12));
-                    robotShape.polygon.Points.Add(new System.Windows.Point(0.02, 0));
-                    robotShape.polygon.Points.Add(new System.Windows.Point(0.12, 0.12));
-                    robotShape.polygon.Points.Add(new System.Windows.Point(-0.12, 0.12));
-                    robotShape.polygon.Points.Add(new System.Windows.Point(-0.12, -0.12));
-                    robotShape.borderColor = System.Drawing.Color.Blue;
-                    robotShape.backgroundColor = System.Drawing.Color.DarkRed;
-                    rd = new RobotDisplay(robotShape, playerName);
-                    rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
-                    TeamMatesDisplayDictionary.Add(robotId, rd);
+                    {
+                        PolygonExtended robotShape = new PolygonExtended();
+                        robotShape.polygon.Points.Add(new System.Windows.Point(-0.12, -0.12));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(0.12, -0.12));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(0.02, 0));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(0.12, 0.12));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(-0.12, 0.12));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(-0.12, -0.12));
+                        robotShape.borderColor = System.Drawing.Color.Blue;
+                        robotShape.backgroundColor = System.Drawing.Color.DarkRed;
+
+                        PolygonExtended ghostShape = new PolygonExtended();
+                        ghostShape.polygon.Points.Add(new Point(-0.14, -0.14));
+                        ghostShape.polygon.Points.Add(new Point(0.14, -0.14));
+                        ghostShape.polygon.Points.Add(new Point(0.14, 0.02));
+                        ghostShape.polygon.Points.Add(new Point(0.14, 0.14));
+                        ghostShape.polygon.Points.Add(new Point(-0.14, 0.14));
+                        ghostShape.polygon.Points.Add(new Point(-0.14, -0.14));
+                        ghostShape.backgroundColor = System.Drawing.Color.FromArgb(20, 0, 255, 0);
+                        ghostShape.borderColor = System.Drawing.Color.Black;
+
+                        RobotDisplay rd = new RobotDisplay(robotShape, ghostShape, playerName);
+                        rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
+                        TeamMatesDisplayDictionary.Add(robotId, rd);
+                    }
                     break;
                 default:
-                    robotShape = new PolygonExtended();
-                    robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
-                    robotShape.polygon.Points.Add(new System.Windows.Point(0.25, -0.25));
-                    robotShape.polygon.Points.Add(new System.Windows.Point(0.2, 0));
-                    robotShape.polygon.Points.Add(new System.Windows.Point(0.25, 0.25));
-                    robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, 0.25));
-                    robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
-                    robotShape.borderColor = System.Drawing.Color.Blue;
-                    robotShape.backgroundColor = System.Drawing.Color.Red;
-                    rd = new RobotDisplay(robotShape, playerName);
-                    rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
-                    TeamMatesDisplayDictionary.Add(robotId, rd);
+                    {
+                        PolygonExtended robotShape = new PolygonExtended();
+                        robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(0.25, -0.25));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(0.2, 0));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(0.25, 0.25));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, 0.25));
+                        robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
+                        robotShape.borderColor = System.Drawing.Color.Blue;
+                        robotShape.backgroundColor = System.Drawing.Color.Red;
+
+                        PolygonExtended ghostShape = new PolygonExtended();
+                        ghostShape.polygon.Points.Add(new Point(-0.27, -0.27));
+                        ghostShape.polygon.Points.Add(new Point(0.27, -0.27));
+                        ghostShape.polygon.Points.Add(new Point(0.22, 0.02));
+                        ghostShape.polygon.Points.Add(new Point(0.27, 0.27));
+                        ghostShape.polygon.Points.Add(new Point(-0.27, 0.27));
+                        ghostShape.polygon.Points.Add(new Point(-0.27, -0.27));
+                        ghostShape.backgroundColor = System.Drawing.Color.FromArgb(20, 0, 255, 0);
+                        ghostShape.borderColor = System.Drawing.Color.Black;
+
+                        RobotDisplay rd = new RobotDisplay(robotShape, ghostShape, playerName);
+                        rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
+                        TeamMatesDisplayDictionary.Add(robotId, rd);
+                    }
                     break;
             }
 

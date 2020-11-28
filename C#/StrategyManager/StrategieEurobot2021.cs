@@ -181,17 +181,10 @@ namespace StrategyManagerNS
         private void ConfigTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             //On envoie périodiquement les réglages du PID de vitesse embarqué
-            //OnSetRobotVitessePID(5.0, 0, 0, 5.0, 0, 0, 5.0, 0, 0, 100.0, 0, 0, 100.0, 0, 0, 100.0, 0, 0);
-            //OnSetRobotVitessePID(Kpx, Kix, Kdx, Kpy, Kiy, Kdy, KpTheta, KiTheta, KdTheta);
-
-            //OnSetRobotSpeedPolarPID(px:4.0, ix:300, 0.0, py:4.0, iy:300, 0, ptheta:6, itheta:500, 0, 
-            //    pxLimit:4.0, ixLimit:4.0, 0, pyLimit:4.0, iyLimit:4.0, 0, pthetaLimit:4.0, ithetaLimit:4.0, 0);
-
+            
             OnSetRobotSpeedIndependantPID(pM1: 4.0, iM1: 300, 0.0, pM2: 4.0, iM2: 300, 0, pM3: 4.0, iM3: 300, 0, pM4: 4.0, iM4: 300, 0.0,
                 pM1Limit: 4.0, iM1Limit: 4.0, 0, pM2Limit: 4.0, iM2Limit: 4.0, 0, pM3Limit: 4.0, iM3Limit: 4.0, 0, pM4Limit: 4.0, iM4Limit: 4.0, 0);
-            //OnSetRobotSpeedIndependantPID(pM1: 4.1, iM1: 0, 0.0, pM2: 4.2, iM2: 0, 0, pM3: 4.3, iM3: 0, 0, pM4: 4.4, iM4: 0, 0.0,
-            //    pM1Limit: 3.1, iM1Limit: 2.1, 0, pM2Limit: 3.2, iM2Limit: 2.2, 0, pM3Limit: 3.3, iM3Limit: 2.3, 0, pM4Limit: 3.4, iM4Limit: 2.4, 0);
-
+            
             OnSetAsservissementMode((byte)AsservissementMode.Independant);
         }
 
@@ -205,35 +198,12 @@ namespace StrategyManagerNS
             {
                 globalWorldMap = e.GlobalWorldMap;
             }
-
-            ////On regarde si le gamestate a changé
-            //if (globalWorldMap.gameState != gameState_1)
-            //{
-            //    //Le gameState a changé, on envoie un event
-            //    OnGameStateChanged(robotId, globalWorldMap.gameState);
-            //}
         }
-
-        //public override void OnRefBoxMsgReceived(object sender, WorldMap.RefBoxMessageArgs e)
-        //{
-        //    var command = e.refBoxMsg.command;
-        //    var robotId = e.refBoxMsg.robotID;
-        //    var targetTeam = e.refBoxMsg.targetTeam;
-
-        //    switch (command)
-        //    {
-        //        case RefBoxCommand.GOTO:
-        //            externalRefBoxPosition = new Location(e.refBoxMsg.posX, e.refBoxMsg.posY, e.refBoxMsg.posTheta, 0, 0, 0);
-        //            break;
-        //    }
-        //}
 
         public override void OnRefBoxMsgReceived(object sender, WorldMap.RefBoxMessageArgs e)
         {
             var command = e.refBoxMsg.command;
-            //var robotId = e.refBoxMsg.robotID;
             var targetTeam = e.refBoxMsg.targetTeam;
-
 
             switch (command)
             {
