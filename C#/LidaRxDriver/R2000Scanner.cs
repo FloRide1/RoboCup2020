@@ -131,7 +131,14 @@ namespace Staudt.Engineering.LidaRx.Drivers.R2000
 
         public override void Connect()
         {
-            ConnectAsync().Wait();
+            try
+            {
+                ConnectAsync().Wait();
+            }
+            catch
+            {
+                Console.WriteLine("Connexion au Lidar impossible");
+            }
         }
 
         public override async Task ConnectAsync()

@@ -57,7 +57,18 @@ namespace WpfWorldMapDisplay
             robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
             robotShape.borderColor = Color.Black;
             robotShape.backgroundColor = Color.FromArgb(255, 0, 0, 200);
-            RobotDisplay rd = new RobotDisplay(robotShape, name);
+
+            PolygonExtended ghostShape = new PolygonExtended();
+            ghostShape.polygon.Points.Add(new System.Windows.Point(-0.27, -0.27));
+            ghostShape.polygon.Points.Add(new System.Windows.Point(0.27, -0.27));
+            ghostShape.polygon.Points.Add(new System.Windows.Point(0.22, 0.02));
+            ghostShape.polygon.Points.Add(new System.Windows.Point(0.27, 0.27));
+            ghostShape.polygon.Points.Add(new System.Windows.Point(-0.27, 0.27));
+            ghostShape.polygon.Points.Add(new System.Windows.Point(-0.27, -0.27));
+            ghostShape.backgroundColor = System.Drawing.Color.FromArgb(20, 0, 255, 0);
+            ghostShape.borderColor = System.Drawing.Color.Black;
+
+            RobotDisplay rd = new RobotDisplay(robotShape, ghostShape, name);
             rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
             TeamMatesDisplayDictionary.Add(robotId, rd);
         }
@@ -65,15 +76,18 @@ namespace WpfWorldMapDisplay
         public void InitOpponent(int robotId, string name)
         {
             PolygonExtended robotShape = new PolygonExtended();
-            robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
-            robotShape.polygon.Points.Add(new System.Windows.Point(0.25, -0.25));
-            robotShape.polygon.Points.Add(new System.Windows.Point(0.2, 0));
-            robotShape.polygon.Points.Add(new System.Windows.Point(0.25, 0.25));
-            robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, 0.25));
-            robotShape.polygon.Points.Add(new System.Windows.Point(-0.25, -0.25));
+            for (int i = 0; i < 7; i++)
+                robotShape.polygon.Points.Add(new System.Windows.Point(0.25 * Math.Cos(i * 2 * Math.PI / 6), 0.25 * Math.Sin(i * 2 * Math.PI / 6)));
             robotShape.borderColor = Color.Black;
             robotShape.backgroundColor = Color.FromArgb(255, 200, 0, 0);
-            RobotDisplay rd = new RobotDisplay(robotShape, name);
+
+            PolygonExtended ghostShape = new PolygonExtended();
+            for (int i = 0; i < 7; i++)
+                ghostShape.polygon.Points.Add(new System.Windows.Point(0.27 * Math.Cos(i * 2 * Math.PI / 6), 0.27 * Math.Sin(i * 2 * Math.PI / 6)));
+            ghostShape.backgroundColor = System.Drawing.Color.FromArgb(20, 0, 255, 0);
+            ghostShape.borderColor = System.Drawing.Color.Black;
+
+            RobotDisplay rd = new RobotDisplay(robotShape, ghostShape, name);
             rd.SetLocation(new Location(0, 0, 0, 0, 0, 0));
             OpponentDisplayDictionary.Add(robotId, rd);
         }

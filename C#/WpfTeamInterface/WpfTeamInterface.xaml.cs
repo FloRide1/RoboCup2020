@@ -20,6 +20,7 @@ using Utilities;
 using WorldMap;
 using WpfWorldMapDisplay;
 using ZeroFormatter;
+using System.IO;
 
 namespace WpfTeamInterfaceNS
 {
@@ -30,15 +31,15 @@ namespace WpfTeamInterfaceNS
     {
         string TeamIpAddress = "224.16.32.79";
         string OpponentTeamIpAddress = "224.16.32.63";
-        string typeTerrain;
+        GameMode competition;
 
         DispatcherTimer timerAffichage;
 
-        public WpfTeamInterface(string typeTerrain, string[] team1PlayerNames, string[] team2PlayerNames)
+        public WpfTeamInterface(GameMode gameMode, string[] team1PlayerNames, string[] team2PlayerNames)
         {
             InitializeComponent();
 
-            this.typeTerrain = typeTerrain;
+            competition = gameMode;
 
             InitPlayers(team1PlayerNames, team2PlayerNames);
 
@@ -50,18 +51,21 @@ namespace WpfTeamInterfaceNS
 
         private void InitPlayers(string[] team1PlayerNames, string[] team2PlayerNames)
         {
-            localWorldMapDisplay1.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap, "C:/Eurobot2020.png");
-            localWorldMapDisplay2.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap, "C:/Eurobot2019.png");
-            localWorldMapDisplay3.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap, "");
-            localWorldMapDisplay4.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap, "");
-            localWorldMapDisplay5.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap, "");
+            var currentDir = Directory.GetCurrentDirectory();
+            var racineProjets = Directory.GetParent(currentDir);
+            var imagePath = racineProjets.Parent.Parent.Parent.FullName.ToString() + "\\Images\\";
+            localWorldMapDisplay1.Init(competition, LocalWorldMapDisplayType.StrategyMap, imagePath + "Eurobot2020.png");
+            localWorldMapDisplay2.Init(competition, LocalWorldMapDisplayType.StrategyMap, imagePath + "Eurobot2020.png");
+            localWorldMapDisplay3.Init(competition, LocalWorldMapDisplayType.StrategyMap, imagePath + "Eurobot2020.png");
+            localWorldMapDisplay4.Init(competition, LocalWorldMapDisplayType.StrategyMap, imagePath + "Eurobot2020.png");
+            localWorldMapDisplay5.Init(competition, LocalWorldMapDisplayType.StrategyMap, imagePath + "Eurobot2020.png");
             //localWorldMapDisplay6.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
-            
-            localWorldMapDisplay1.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, team1PlayerNames[0]);
-            localWorldMapDisplay2.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot2, team1PlayerNames[1]);
-            localWorldMapDisplay3.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot3, team1PlayerNames[2]);
-            localWorldMapDisplay4.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot4, team1PlayerNames[3]);
-            localWorldMapDisplay5.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot5, team1PlayerNames[4]);
+
+            localWorldMapDisplay1.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, GameMode.RoboCup, team1PlayerNames[0]);
+            localWorldMapDisplay2.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot2, GameMode.RoboCup, team1PlayerNames[1]);
+            localWorldMapDisplay3.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot3, GameMode.RoboCup, team1PlayerNames[2]);
+            localWorldMapDisplay4.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot4, GameMode.RoboCup, team1PlayerNames[3]);
+            localWorldMapDisplay5.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot5, GameMode.RoboCup, team1PlayerNames[4]);
 
             localWorldMapDisplay1.OnCtrlClickOnHeatMapEvent += LocalWorldMapDisplay1_OnCtrlClickOnHeatMapEvent;
             localWorldMapDisplay2.OnCtrlClickOnHeatMapEvent += LocalWorldMapDisplay2_OnCtrlClickOnHeatMapEvent;

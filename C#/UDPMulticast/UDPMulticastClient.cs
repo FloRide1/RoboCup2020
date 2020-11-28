@@ -35,13 +35,6 @@ namespace UDPMulticast
         
         public void OnMulticastMessageToSendReceived(object sender, DataReceivedArgs e)
         {
-            //Console.WriteLine(string.Format("\nUncompressed bytes: {0}", e.Data.Length));
-            ////byte[] compressedbyteData = Zip.CompressBytes(e.Data);
-            //byte[] compressedData = Zip.ZipText(Encoding.UTF8.GetString(e.Data));
-            //Console.WriteLine(string.Format("Compressed bytes: {0}", compressedData.Length));
-            //string uncompressedTextData = Zip.UnzipText(compressedData);
-            //Console.WriteLine(string.Format("Decompressed bytes: {0}", uncompressedTextData.Length));
-            ////Send(compressedData);
             Send(e.Data);
         }
     }
