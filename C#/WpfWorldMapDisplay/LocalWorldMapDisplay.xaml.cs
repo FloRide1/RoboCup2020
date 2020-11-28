@@ -5,6 +5,7 @@ using SciChart.Charting.Model.DataSeries;
 using SciChart.Charting.Model.DataSeries.Heatmap2DArrayDataSeries;
 using SciChart.Charting.Visuals.Annotations;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -61,7 +62,9 @@ namespace WpfWorldMapDisplay
         
         //Liste des robots à afficher
         Dictionary<int, RobotDisplay> TeamMatesDisplayDictionary = new Dictionary<int, RobotDisplay>();
-        Dictionary<int, RobotDisplay> OpponentDisplayDictionary = new Dictionary<int, RobotDisplay>();
+
+        ConcurrentDictionary<int, RobotDisplay> OpponentDisplayDictionary = new ConcurrentDictionary<int, RobotDisplay>();
+        //Dictionary<int, RobotDisplay> OpponentDisplayDictionary = new Dictionary<int, RobotDisplay>();
         List<PolygonExtended> ObjectDisplayList = new List<PolygonExtended>();
 
         //Liste des balles vues par le robot à afficher
@@ -236,7 +239,6 @@ namespace WpfWorldMapDisplay
             }
 
             LocalWorldMapTitle.Text = "LWM " + gMode.ToString();
-            //AddOrUpdateTextAnnotation(robotId.ToString(), robotId.ToString(), 0,0);
         }
 
         public void AddOrUpdateTextAnnotation(string annotationName, string annotationText, double posX, double posY)
@@ -261,7 +263,7 @@ namespace WpfWorldMapDisplay
             if (TeamMatesDisplayDictionary.Count == 1) //Cas d'un affichage de robot unique (localWorldMap)
             {
                 AnnotRobotRole.Text = TeamMatesDisplayDictionary.First().Value.robotRole.ToString();
-                //DrawLidar();
+                //DrawLidar(); 
                 DrawHeatMap(TeamMatesDisplayDictionary.First().Key);
             }
             PolygonSeries.RedrawAll();

@@ -125,7 +125,7 @@ namespace TeamSimulator
             int robotId = TeamNumber + RobotNumber;
             var strategyManager = new StrategyManagerNS.StrategyManager(robotId, TeamNumber, multicastIpAddress, GameMode.RoboCup);
             //var waypointGenerator = new WaypointGenerator(robotId, GameMode.RoboCup);
-            var trajectoryPlanner = new TrajectoryPlanner(robotId);
+            var trajectoryPlanner = new TrajectoryPlanner(robotId, GameMode.RoboCup);
             var sensorSimulator = new SensorSimulator.SensorSimulator(robotId);
             var kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
             var localWorldMapManager = new LocalWorldMapManager(robotId, TeamNumber, bypassMulticast: false);

@@ -215,9 +215,7 @@ namespace Robot
             msgEncoder = new MsgEncoder();
             robotMsgGenerator = new MsgGenerator();
             robotMsgProcessor = new MsgProcessor(robotId,Competition.Eurobot);
-            
-            
-
+                       
             perceptionManager = new PerceptionManager(robotId);
             imuProcessor = new ImuProcessor.ImuProcessor(robotId);
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
@@ -241,7 +239,7 @@ namespace Robot
             //On effectue un cast explicite afin d'utiliser les methodes d'extension definies dans StrategyEurobots2021
             strategyEurobot = strategyManager.strategy as StrategyManagerNS.StrategyEurobot2021;
             //waypointGenerator = new WaypointGenerator(robotId, Utilities.GameMode.Eurobot);
-            trajectoryPlanner = new TrajectoryPlanner(robotId);
+            trajectoryPlanner = new TrajectoryPlanner(robotId, GameMode.Eurobot);
 
             herkulexManager = new HerkulexManager();
 

@@ -12,6 +12,7 @@ namespace TrajectoryGenerator
     public class TrajectoryPlanner
     {
         int robotId = 0;
+        GameMode gameMode;
 
         Location currentLocationRefTerrain;
         Location wayPointLocation;
@@ -48,6 +49,40 @@ namespace TrajectoryGenerator
         
         System.Timers.Timer PidConfigUpdateTimer;
 
+        public TrajectoryPlanner(int id, GameMode gameMode)
+        {
+            this.gameMode = gameMode;
+            robotId = id;
+            InitRobotPosition(0, 0, 0);
+            InitPositionPID();
+
+            switch (this.gameMode)
+            {
+                case GameMode.RoboCup:
+                    {
+                        accelLineaireMax = 4; //en m.s-2
+                        accelRotationCapVitesseMax = 2 * Math.PI * 1.0; //en rad.s-2
+                        accelRotationOrientationRobotMax = 2 * Math.PI * 1.0; //en rad.s-2
+
+                        vitesseLineaireMax = 2; //en m.s-1
+                        vitesseRotationCapVitesseMax = 2 * Math.PI * 2.0; //en rad.s-1
+                        vitesseRotationOrientationRobotMax = 2 * Math.PI * 2.0; //en rad.s-1
+                    }
+                    break;
+                case GameMode.Eurobot:
+                    {
+                        accelLineaireMax = 1; //en m.s-2
+                        accelRotationCapVitesseMax = 0.8 * Math.PI * 1.0; //en rad.s-2
+                        accelRotationOrientationRobotMax = 0.8 * Math.PI * 1.0; //en rad.s-2
+
+                        vitesseLineaireMax = 0.8; //en m.s-1
+                        vitesseRotationCapVitesseMax = 0.8 * Math.PI * 2.0; //en rad.s-1
+                        vitesseRotationOrientationRobotMax = 0.8 * Math.PI * 2.0; //en rad.s-1
+                    }
+                    break;
+            }
+        }
+
         void InitPositionPID()
         {
             PID_X = new AsservissementPID(20.0, 10.0, 0, 100, 100, 1);
@@ -62,20 +97,23 @@ namespace TrajectoryGenerator
 
         private void PidConfigUpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            PID_X.Init(kp: 50.0, ki: 0.0, kd: 4.0, 10000, 10000, 10000);
-            PID_Y.Init(kp: 50.0, ki: 0.0, kd: 4.0, 10000, 10000, 10000);
-            PID_Theta.Init(kp: 12.0, ki: 0.0, kd: 1.0, 10000, 10000, 10000);
-
-            //PID_X.Init(kp: 0, ki: 0.0, kd: 4.0, 10000, 10000, 10000);
-            //PID_Y.Init(kp: 0, ki: 0.0, kd: 4.0, 10000, 10000, 10000);
-            //PID_Theta.Init(kp: 0, ki: 0.0, kd: 1.0, 10000, 10000, 10000);
-        }
-
-        public TrajectoryPlanner(int id)
-        {
-            robotId = id;
-            InitRobotPosition(0, 0, 0);
-            InitPositionPID();
+            switch (gameMode)
+            {
+                case GameMode.RoboCup:
+                    {
+                        PID_X.Init(kp: 50.0, ki: 0.0, kd: 4.0, 10000, 10000, 10000);
+                        PID_Y.Init(kp: 50.0, ki: 0.0, kd: 4.0, 10000, 10000, 10000);
+                        PID_Theta.Init(kp: 12.0, ki: 0.0, kd: 1.0, 10000, 10000, 10000);
+                    }
+                    break;
+                case GameMode.Eurobot:
+                    {
+                        PID_X.Init(kp: 2.0, ki: 0.0, kd: 2.0, 10000, 10000, 10000);
+                        PID_Y.Init(kp: 2.0, ki: 0.0, kd: 2.0, 10000, 10000, 10000);
+                        PID_Theta.Init(kp: 1.0, ki: 0.0, kd: 1.0, 10000, 10000, 10000);
+                    }
+                    break;
+            }
         }
 
         public void InitRobotPosition(double x, double y, double theta)
