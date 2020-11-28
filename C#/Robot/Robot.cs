@@ -217,7 +217,7 @@ namespace Robot
             robotMsgProcessor = new MsgProcessor(robotId, Competition.RoboCup);
 
             robotPilot = new RobotPilot.RobotPilot(robotId);
-            strategyManager = new StrategyManager(robotId, teamId, GameMode.RoboCup);
+            strategyManager = new StrategyManager(robotId, teamId, "224.16.32.79", GameMode.RoboCup);
             waypointGenerator = new WaypointGenerator(robotId, GameMode.RoboCup);
             trajectoryPlanner = new TrajectoryPlanner(robotId);
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);

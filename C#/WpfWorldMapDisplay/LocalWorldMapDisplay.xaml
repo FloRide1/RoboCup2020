@@ -56,19 +56,14 @@
             <s:SciChartSurface.Annotations>
                 <s:TextAnnotation x:Name="LocalWorldMapTitle" AnnotationCanvas="AboveChart" CoordinateMode="Relative" FontSize="14" FontWeight="Bold" HorizontalAnchorPoint="Left" Opacity="0.5" Text="Local World Map" VerticalAnchorPoint="Center" X1="0.15" Y1="0.18"/>
                 <s:TextAnnotation x:Name="AnnotRobotRole" AnnotationCanvas="AboveChart" CoordinateMode="Relative" FontSize="14" FontWeight="Bold" HorizontalAnchorPoint="Right" Opacity="0.5" Text="Role" VerticalAnchorPoint="Center" X1="0.8" Y1="0.18"/>
-                <s:BoxAnnotation x:Name="boxAnnotation"
-                    AnnotationCanvas="AboveChart"
-                    Background="Red"
-                    CoordinateMode="Absolute"
-                    ContentTemplate="{Binding AnnotationTemplate}"
-                    Opacity="0.45"
-                    X1="0"
-                    Y1="0"
-                    X2="10"
-                    Y2="10">
-                    <DataTemplate>
-                        <Image Source="C:/image.png" />
-                    </DataTemplate>
+                <s:BoxAnnotation x:Name="AnnotationFond" AnnotationCanvas="ModifierSurface"  CoordinateMode="Absolute" X1="{Binding X1}" X2="{Binding X2}" Y1="{Binding Y1}" Y2="{Binding Y2}" HorizontalContentAlignment="Stretch" Background="#55FFFF00">
+                    <s:BoxAnnotation.Template>
+                        <ControlTemplate TargetType="s:BoxAnnotation">
+                            <Border x:Name="PART_BoxAnnotationRoot">
+                                <Image Name="BackGroundImage" Source="{Binding ImagePath}" Stretch="Fill" Opacity="0.3" />
+                            </Border>
+                        </ControlTemplate>
+                    </s:BoxAnnotation.Template>
                 </s:BoxAnnotation>
             </s:SciChartSurface.Annotations>
 

@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Utilities;
@@ -17,7 +18,23 @@ using WorldMap;
 
 namespace WpfWorldMapDisplay
 {
+    public class BindingClass
+    {
+        private string imagePath;
 
+        public string ImagePath
+        {
+            get { return imagePath; }
+            set { imagePath = value; }
+        }
+
+        private double x1, x2, y1, y2;
+        public double X1 { get { return x1; } set { x1 = value; } }
+        public double X2 { get { return x2; } set { x2 = value; } }
+        public double Y1 { get { return y1; } set { y1 = value; } }
+        public double Y2 { get { return y2; } set { y2 = value; } }
+    }
+    
     public enum LocalWorldMapDisplayType
     {
         StrategyMap,
@@ -54,14 +71,37 @@ namespace WpfWorldMapDisplay
         List<ObstacleDisplay> ObstacleDisplayList = new List<ObstacleDisplay>();
 
         string typeTerrain = "RoboCup";
-        
+
+        BindingClass imageBinding = new BindingClass();
+
 
         public LocalWorldMapDisplay()
         {
             InitializeComponent();
+            this.DataContext = imageBinding;
+
         }
 
-        public void Init(string competition, LocalWorldMapDisplayType type)
+        /// <summary>
+        /// Définit l'image en fond de carte
+        /// </summary>
+        /// <param name="imagePath">Chemin de l'image</param>
+        public void SetFieldImageBackGround(string imagePath)
+        {
+            imageBinding.ImagePath = imagePath;
+            imageBinding.X1 = -LengthGameArea / 2;
+            imageBinding.X2 = +LengthGameArea / 2;
+            imageBinding.Y1 = -WidthGameArea/ 2;
+            imageBinding.Y2 = +WidthGameArea / 2;
+        }
+
+        /// <summary>
+        /// Initialise la Local World Map
+        /// </summary>
+        /// <param name="competition">Spécifie le type de compétition, le réglage des dimensions est automatique</param>
+        /// <param name="type">Spécifie si on a une LWM affichant la stratégie ou les waypoints</param>
+        /// <param name="imagePath">Chemin de l'image de fond</param>
+        public void Init(string competition, LocalWorldMapDisplayType type, string imagePath)
         {
             this.competition = competition;
             lwmdType = type;
@@ -105,37 +145,7 @@ namespace WpfWorldMapDisplay
             this.sciChart.XAxis.VisibleRange.SetMinMax(-LengthDisplayArea / 2, LengthDisplayArea / 2);
             this.sciChart.YAxis.VisibleRange.SetMinMax(-WidthDisplayArea / 2, WidthDisplayArea / 2);
 
-            //boxAnnotation.ContentTemplate = (DataTemplate)sciChart.Resources["AnnotationTemplate"];
-
-            var annotation = new CustomAnnotation()
-            {
-                X1 = -LengthGameArea / 2,
-                Y1 = WidthGameArea / 2,
-                X2 = 0*LengthGameArea / 2,
-                Y2 = -0*WidthGameArea / 2,
-                Opacity = 0.25,
-                CoordinateMode = AnnotationCoordinateMode.Absolute,
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                ContentTemplate = (DataTemplate)sciChart.Resources["AnnotationTemplate"]
-            };
-            this.sciChart.Annotations.Add(annotation);
-
-            //Image image = new Image();
-            //BitmapImage icon = new BitmapImage();
-            //icon.UriSource = new Uri(@".\image.png", UriKind.Absolute);
-            //BoxAnnotation imageAnnotation = new BoxAnnotation();
-            //imageAnnotation.CoordinateMode = AnnotationCoordinateMode.Absolute;
-            //imageAnnotation.X1 = -LengthDisplayArea / 2;
-            //imageAnnotation.X2 = +LengthDisplayArea / 2;
-            //imageAnnotation.Y1 = -WidthDisplayArea / 2;
-            //imageAnnotation.Y2 = +WidthDisplayArea / 2;
-            //imageAnnotation.Template = new ControlTemplate();
-            ////imageAnnotation.Template.
-
-            //TextAnnotation textAnnot = new TextAnnotation();
-
-            //this.sciChart.Annotations.Add()
+            SetFieldImageBackGround(imagePath);
         }
 
         public void InitTeamMate(int robotId, string name)

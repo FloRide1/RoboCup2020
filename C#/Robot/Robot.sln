@@ -97,7 +97,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorSimulator", "..\Senso
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbsolutePositionEstimator", "..\AbsolutePositionEstimator\AbsolutePositionEstimator.csproj", "{C8760A70-0073-45F9-AFB7-806881456673}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Robot_Eurobot_2020", "..\Robot_Eurobot_2020\Robot_Eurobot_2020.csproj", "{7AAC58B3-251F-4A84-B891-30EBF7F76701}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Robot_Eurobot_2021", "..\Robot_Eurobot_2020\Robot_Eurobot_2021.csproj", "{7AAC58B3-251F-4A84-B891-30EBF7F76701}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageGenerator", "..\MessageGenerator\MessageGenerator.csproj", "{A31F4A19-F674-4776-B597-E92BA3E5061E}"
 EndProject
