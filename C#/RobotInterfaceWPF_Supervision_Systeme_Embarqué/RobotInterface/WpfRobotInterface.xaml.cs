@@ -79,6 +79,10 @@ namespace RobotInterface
                 worldMapDisplayWaypoint.Init(gameMode, LocalWorldMapDisplayType.WayPointMap, imagePath + "RoboCup.png");
 
 
+            worldMapDisplayStrategy.OnCtrlClickOnHeatMapEvent += WorldMapDisplay_OnCtrlClickOnHeatMapEvent;
+            worldMapDisplayWaypoint.OnCtrlClickOnHeatMapEvent += WorldMapDisplay_OnCtrlClickOnHeatMapEvent;
+
+
             foreach (string s in SerialPort.GetPortNames())
             {
                 Console.WriteLine("   {0}", s);
@@ -860,7 +864,18 @@ namespace RobotInterface
                 }
             }
         }
-#region OUTPUT EVENT
+        private void WorldMapDisplay_OnCtrlClickOnHeatMapEvent(object sender, PositionArgs e)
+        {
+            RefBoxMessage msg = new RefBoxMessage();
+            msg.command = RefBoxCommand.GOTO;
+            msg.targetTeam = TeamIpAddress;
+            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
+            msg.posX = e.X;
+            msg.posY = e.Y;
+            msg.posTheta = 0;
+            OnRefereeBoxReceivedCommand(msg);
+        }
+        #region OUTPUT EVENT
         //OUTPUT EVENT
         public delegate void EnableDisableMotorsEventHandler(object sender, BoolEventArgs e);
         public event EnableDisableMotorsEventHandler OnEnableDisableMotorsFromInterfaceGeneratedEvent;
@@ -1132,7 +1147,7 @@ namespace RobotInterface
             RefBoxMessage msg = new RefBoxMessage();
             msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress; //Ici on est en local, pas de transmission, on remplis pour rien.
-            msg.robotID = 0;
+            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
             msg.posX = 0;
             msg.posY = 0;
             msg.posTheta = 0;
@@ -1144,7 +1159,7 @@ namespace RobotInterface
             RefBoxMessage msg = new RefBoxMessage();
             msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress;
-            msg.robotID = 0;
+            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
             msg.posX = 0;
             msg.posY = 1;
             msg.posTheta = Math.PI/2;
@@ -1156,7 +1171,7 @@ namespace RobotInterface
             RefBoxMessage msg = new RefBoxMessage();
             msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress;
-            msg.robotID = 0;
+            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
             msg.posX = 1;
             msg.posY = 0;
             msg.posTheta = 0;
@@ -1168,7 +1183,7 @@ namespace RobotInterface
             RefBoxMessage msg = new RefBoxMessage();
             msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress;
-            msg.robotID = 0;
+            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
             msg.posX = 0;
             msg.posY = -1;
             msg.posTheta = -Math.PI/2;
@@ -1180,7 +1195,7 @@ namespace RobotInterface
             RefBoxMessage msg = new RefBoxMessage();
             msg.command = RefBoxCommand.GOTO;
             msg.targetTeam = TeamIpAddress;
-            msg.robotID = 0;
+            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
             msg.posX = -1;
             msg.posY = 0;
             msg.posTheta = Math.PI;

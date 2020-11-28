@@ -230,55 +230,7 @@ namespace TeamSimulator
             physicalSimulator.RegisterRobot(robotId, xInit, yInit);
             trajectoryPlanner.InitRobotPosition(xInit, yInit, thetaInit);
         }
-
-
-        //private static void TimerStrategie_Tick(object sender, EventArgs e)
-        //{
-        //    DefineRoles();
-        //}
-
-        //private static void DefineRoles()
-        //{
-        //    List<int> roleList = new List<int>();
-
-        //    for (int i = 0; i < nbPlayersTeam1; i++)
-        //        roleList.Add(i + 1);
-
-        //    Shuffle(roleList);
-
-        //    for (int i = 0; i < nbPlayersTeam1; i++)
-        //    {
-        //        strategyManagerDictionary[(int)TeamId.Team1 + i].SetRole((RobotRole)roleList[i]);
-        //        //strategyManagerDictionary[(int)TeamId.Team1 + i].ProcessStrategy();
-        //    }
-            
-        //    roleList = new List<int>();
-
-        //    for (int i = 0; i < nbPlayersTeam2; i++)
-        //        roleList.Add(i + 1);
-
-        //    Shuffle(roleList);
-
-        //    for (int i = 0; i < nbPlayersTeam2; i++)
-        //    {
-        //        strategyManagerDictionary[(int)TeamId.Team2 + i].SetRole((RobotRole)roleList[i]);
-        //        //strategyManagerDictionary[(int)TeamId.Team2 + i].ProcessStrategy();
-        //    }
-        //}
-
-        //public static void Shuffle<T>(this IList<T> list)
-        //{ 
-        //    int n = list.Count; 
-        //    while (n > 1) 
-        //    { 
-        //        n--; 
-        //        int k = randomGenerator.Next(n + 1); 
-        //        T value = list[k]; 
-        //        list[k] = list[n]; 
-        //        list[n] = value; 
-        //    } 
-        //}        
-        
+                
         static void ExitProgram()
         {
             lock (ExitLock)
