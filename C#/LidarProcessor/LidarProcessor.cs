@@ -71,22 +71,22 @@ namespace LidarProcessor
             //Opérations de traitement du signal LIDAR
             ptList = PrefiltragePointsIsoles(ptList, 0.04);
 
-            BalisesCatadioptriqueList = DetectionBalisesCatadioptriques(ptList, 3.6);
+//            BalisesCatadioptriqueList = DetectionBalisesCatadioptriques(ptList, 3.6);
             BalisesCatadioptriqueList2 = DetectionBalisesCatadioptriquesParRssiEtTaille(ptList, 3.6);
-            ObjetsProchesList = DetectionObjetsProches(ptList, 0.17, 2.0, 0.2);
+            //ObjetsProchesList = DetectionObjetsProches(ptList, 0.17, 2.0, 0.2);
             
             //Affichage des résultats
             List<PolarPointListExtended> objectList = new List<PolarPointListExtended>();
-            foreach (var obj in ObjetsProchesList)
-            {
-                PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
-                currentPolarPointListExtended.polarPointList = new List<PolarPointRssi>();
-                {
-                    currentPolarPointListExtended.polarPointList.Add(new PolarPointRssi(obj.AngleMoyen, obj.DistanceMoyenne, 0));
-                    currentPolarPointListExtended.type = ObjectType.Obstacle;
-                    objectList.Add(currentPolarPointListExtended);
-                }
-            }
+            //foreach (var obj in ObjetsProchesList)
+            //{
+            //    PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
+            //    currentPolarPointListExtended.polarPointList = new List<PolarPointRssi>();
+            //    {
+            //        currentPolarPointListExtended.polarPointList.Add(new PolarPointRssi(obj.AngleMoyen, obj.DistanceMoyenne, 0));
+            //        currentPolarPointListExtended.type = ObjectType.Obstacle;
+            //        objectList.Add(currentPolarPointListExtended);
+            //    }
+            //}
             foreach (var obj in BalisesCatadioptriqueList)
             {
                 PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
@@ -98,10 +98,12 @@ namespace LidarProcessor
                 }
             }
 
-            double tailleNoyau = 0.10;
-            //var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
+            double tailleNoyau = 0.2;
+            var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
             //var ptListFiltered = Erosion(Dilatation(ptList, tailleNoyau ), tailleNoyau);
-            var ptListFiltered = Dilatation(ptList, tailleNoyau);
+            //var ptListFiltered = Dilatation(ptList, tailleNoyau);
+            //var ptListFiltered = Erosion(ptList, tailleNoyau);
+            //var ptListFiltered = ptList;
 
             OnLidarProcessed(robotId, ptListFiltered);
             OnLidarBalisesListExtracted(robotId, BalisesCatadioptriqueList2);
@@ -116,6 +118,11 @@ namespace LidarProcessor
             {
                 if ((Math.Abs(ptList[i - 1].Distance - ptList[i].Distance) < seuilPtIsole) || (Math.Abs(ptList[i + 1].Distance - ptList[i].Distance) < seuilPtIsole))
                 {
+                    ptListFiltered.Add(ptList[i]);
+                }
+                else
+                {
+                    ptList[i].Distance = 0;
                     ptListFiltered.Add(ptList[i]);
                 }
             }
@@ -144,16 +151,26 @@ namespace LidarProcessor
                 int borneSup = Math.Min(i + nbPasAngulaire, ptList.Count - 1);
                 for (int j = borneInf; j <= borneSup; j++)
                 {
-                    double distancePtAxeDilatation = Math.Sin((j - i) * resolutionAngulaire) * ptList[i].Distance;
-                    double ajout = Math.Sqrt(rayon * rayon - distancePtAxeDilatation * distancePtAxeDilatation);
-                    if(i==100)
-                    {
-                        Console.WriteLine("Dilatation - ajout : " + ajout.ToString("N4"));
-                    }
-                    ptListDilated[j].Distance = Math.Max(0, Math.Min(ptListDilated[j].Distance, ptList[i].Distance - ajout));
+                    /// Pour avoir une formule qui fonctionne aux petites distances avec un grand rayon d'érosion, 
+                    /// il faut utiliser les lois des cosinus
+                    double a = 1;
+                    double b = -2 * ptList[i].Distance * Math.Cos((j - i) * resolutionAngulaire);
+                    double c = ptList[i].Distance * ptList[i].Distance - rayon * rayon;
+
+                    double discrimant = b * b - 4 * a * c;
+                    double distanceErodee = (-b + Math.Sqrt(discrimant)) / (2 * a);
+                    double distanceDilatee = (-b - Math.Sqrt(discrimant)) / (2 * a);
+
+                    /// Version simple
+                    /// ptListEroded[j].Distance = Math.Max(ptListEroded[j].Distance, distanceErodee);
+                    
+                    //double distancePtAxeDilatation = Math.Sin((j - i) * resolutionAngulaire) * ptList[i].Distance;
+                    //double ajout = Math.Sqrt(rayon * rayon - distancePtAxeDilatation * distancePtAxeDilatation);
+                    
+                    ptListDilated[j].Distance = Math.Max(0, Math.Min(ptListDilated[j].Distance, distanceDilatee));
                 }
-                if (i == 100)
-                    Console.WriteLine("/n");
+                //if (i == 100)
+                //    Console.WriteLine("/n");
             }
             return ptListDilated.ToList();
         }
@@ -181,11 +198,26 @@ namespace LidarProcessor
 
                 for (int j = borneInf; j <= borneSup; j++)
                 {
-                    double distancePtAxeErosion = Math.Sin((j-i) * resolutionAngulaire) * ptList[i].Distance;
-                    double ajout = Math.Sqrt(rayon * rayon - distancePtAxeErosion * distancePtAxeErosion);
-                    //double ajout = rayon;
+                    /// Pour avoir une formule qui fonctionne aux petites distances avec un grand rayon d'érosion, 
+                    /// il faut utiliser les lois des cosinus
+                    double a = 1;
+                    double b = -2 * ptList[i].Distance * Math.Cos((j - i) * resolutionAngulaire);
+                    double c = ptList[i].Distance * ptList[i].Distance - rayon * rayon;
 
-                    ptListEroded[j].Distance = Math.Max(ptListEroded[j].Distance, ptList[i].Distance + ajout);
+                    double discrimant = b * b - 4 * a * c;
+                    double distanceErodee = (-b + Math.Sqrt(discrimant)) / (2 * a);
+                    double distanceSeuil = (-b - Math.Sqrt(discrimant)) / (2 * a);
+
+                    /// Version simple
+                    /// ptListEroded[j].Distance = Math.Max(ptListEroded[j].Distance, distanceErodee);
+                                        
+                    /// Variante permettant d'exclure les occlusions de la liste  érodée, 
+                    /// de manière à ne pas créer d'objet virtuel derrière les objets masqués.
+//                    if (ptList[j].Distance > distanceSeuil-rayon)
+                        ptListEroded[j].Distance = Math.Max(ptListEroded[j].Distance, distanceErodee);
+  //                  else
+    //                    ptListEroded[j].Distance = double.PositiveInfinity;
+
                 }
             }
             return ptListEroded.ToList();
