@@ -684,7 +684,6 @@ namespace LidaRxR2000NS
         //}
 
 
-        public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<RawLidarArgs> OnLidarDecodedFrameEvent;
         public virtual void OnLidarDecodedFrame(int id, List<PolarPointRssi> ptList, int lidarFrameNumber =0)
         {

@@ -329,6 +329,7 @@ namespace Robot
             {
                 lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += perceptionManager.OnRawLidarDataReceived;
                 lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
+                lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnRawLidarDataReceived;
             }
 
             //Events de recording
@@ -457,7 +458,7 @@ namespace Robot
             msgDecoder.OnMessageDecodedErrorEvent += interfaceRobot.DisplayMessageDecodedError;
 
             //lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += interfaceRobot.OnRawLidarDataReceived;
-            lidarProcessor.OnLidarProcessedEvent += interfaceRobot.OnRawLidarDataReceived;
+            //lidarProcessor.OnLidarProcessedEvent += interfaceRobot.OnRawLidarDataReceived;
             //lidarProcessor.OnLidarObjectProcessedEvent +=  
 
             if (!usingLogReplay)
