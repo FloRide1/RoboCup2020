@@ -69,7 +69,8 @@ namespace LidarProcessor
             LidarDetectedObject currentObject = new LidarDetectedObject();
             
             //Opérations de traitement du signal LIDAR
-            ptList = PrefiltragePointsIsoles(ptList, 0.04);
+            //ptList = PrefiltragePointsIsoles(ptList, 0.04);
+            ptList = MedianFilter(ptList, 2);
 
 //            BalisesCatadioptriqueList = DetectionBalisesCatadioptriques(ptList, 3.6);
             BalisesCatadioptriqueList2 = DetectionBalisesCatadioptriquesParRssiEtTaille(ptList, 3.6);
@@ -98,18 +99,51 @@ namespace LidarProcessor
                 }
             }
 
-            double tailleNoyau = 1.50;
-            var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
+            double tailleNoyau = 0.0;
+            //var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
             //var ptListFiltered = Erosion(Dilatation(ptList, tailleNoyau ), tailleNoyau);
             //var ptListFiltered = Dilatation(ptList, tailleNoyau);
             //var ptListFiltered = Erosion(ptList, tailleNoyau);
-            //var ptListFiltered = ptList;
+            var ptListFiltered = ptList;
 
-            OnLidarProcessed(robotId, ptListFiltered);
+            OnLidarProcessed(robotId, ptList);
             OnLidarBalisesListExtracted(robotId, BalisesCatadioptriqueList2);
             OnLidarObjectProcessed(robotId, objectList);
         }
 
+        private List<PolarPointRssi> MedianFilter(List<PolarPointRssi> ptList, int size)
+        {
+            List<PolarPointRssi> ptListFiltered = new List<PolarPointRssi>();
+
+            FixedSizedQueue<PolarPointRssi> medianQueue = new FixedSizedQueue<PolarPointRssi>(2 * size + 1);
+
+            //Init
+            for (int i = ptList.Count - 1 - size; i < ptList.Count; i++)
+                medianQueue.Enqueue(ptList[i]);
+            for (int i = 0; i <= size; i++)
+                medianQueue.Enqueue(ptList[i]);
+
+            //Itération
+            for (int i = 0; i < ptList.Count - size - 1; i++)
+            {
+                var medList = medianQueue.OrderBy(x => x.Distance).ToList();
+                var ptToAdd = ptList[i];
+                ptToAdd.Distance = medList[size].Distance;
+                ptListFiltered.Add(ptToAdd);
+                medianQueue.Enqueue(ptList[i + size + 1]);
+            }
+
+            //Fin
+            for (int i = ptList.Count - size - 1; i < ptList.Count; i++)
+            {
+                var medList = medianQueue.OrderBy(x => x.Distance).ToList();
+                var ptToAdd = ptList[i];
+                ptToAdd.Distance = medList[size].Distance;
+                ptListFiltered.Add(ptToAdd);
+                medianQueue.Enqueue(ptList[i + size + 1 - ptList.Count]);
+            }
+            return ptListFiltered;
+        }
         private List<PolarPointRssi> PrefiltragePointsIsoles(List<PolarPointRssi> ptList, double seuilPtIsole)
         {
             //Préfiltrage des points isolés : un pt dont la distance aux voisin est supérieur à un seuil des deux coté est considere comme isolé.
@@ -200,7 +234,7 @@ namespace LidarProcessor
             ///On commence par la segmentation en objets
             List<LidarDetectedObject> lidarSceneSegmentation = new List<LidarDetectedObject>();
             LidarDetectedObject objet = new LidarDetectedObject();
-            double seuilDetectionObjet = 0.5;
+            double seuilDetectionObjet = 0.1;
             objet.PtList.Add(ptList[0]);
             for (int i = 1; i < ptList.Count; i++)
             {
@@ -246,7 +280,7 @@ namespace LidarProcessor
                         double distanceSeuil = (-b - Math.Sqrt(discrimant)) / (2 * a);
 
                         /// Version simple
-                        if (distanceErodee > ptListEroded[j].Distance)
+                        if (distanceErodee >= ptListEroded[j].Distance)
                         {
                             ptListEroded[j].Distance = distanceErodee;
                             ptListErodedbyObjectId[j] = n;
