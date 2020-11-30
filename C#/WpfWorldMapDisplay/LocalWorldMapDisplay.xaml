@@ -6,13 +6,13 @@
              xmlns:local="clr-namespace:WpfWorldMapDisplay"
              mc:Ignorable="d" 
              d:DesignHeight="2000" d:DesignWidth="2600"
-             xmlns:s="http://schemas.abtsoftware.co.uk/scichart" >
+             xmlns:s="http://schemas.abtsoftware.co.uk/scichart">
 
     <Grid>        
-        <s:SciChartSurface x:Name="sciChart" Padding="0" BorderThickness="0" Grid.Row="0" MouseLeftButtonUp="sciChart_MouseLeftButtonUp">
+        <s:SciChartSurface x:Name="sciChart" Padding="0" BorderThickness="0" Grid.Row="0" MouseLeftButtonUp="sciChart_MouseLeftButtonUp" MouseDoubleClick="sciChart_MouseDoubleClick">
             <!--  Create a X Axis  -->
             <s:SciChartSurface.XAxis>
-                <s:NumericAxis VisibleRange="-12,12" IsCenterAxis="False" AutoRange="Never" Visibility="Hidden" DrawMajorGridLines="False" DrawMinorGridLines="False"
+                <s:NumericAxis VisibleRange="-12,12" IsCenterAxis="False" AutoRange="Never"  Visibility="Hidden" DrawMajorGridLines="False" DrawMinorGridLines="False"
                                DrawMajorTicks="False" DrawMinorTicks="False" DrawMajorBands="False"/>
             </s:SciChartSurface.XAxis>
             <!--  Create a Y Axis  -->
@@ -67,6 +67,15 @@
                     </s:BoxAnnotation.Template>
                 </s:BoxAnnotation>
             </s:SciChartSurface.Annotations>
+
+            <s:SciChartSurface.ChartModifier>
+                <s:ModifierGroup>
+                    <!--<local:RubberBandXyZoomModifierEx/>-->
+                    <s:RubberBandXyZoomModifier IsXAxisOnly="False"  ZoomExtentsY="False" IsAnimated="True" RubberBandFill="#33FFFFFF" RubberBandStroke="#66FFFFFF" RubberBandStrokeDashArray="2 2"/>
+                    <s:ZoomExtentsModifier IsAnimated="True"/>
+                    <s:MouseWheelZoomModifier ActionType="Zoom" XyDirection="XYDirection"/>
+                </s:ModifierGroup>
+            </s:SciChartSurface.ChartModifier>
         </s:SciChartSurface>
     </Grid>
 </UserControl>

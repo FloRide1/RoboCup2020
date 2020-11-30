@@ -53,7 +53,7 @@ namespace WpfTeamInterfaceNS
         {
             var currentDir = Directory.GetCurrentDirectory();
             var racineProjets = Directory.GetParent(currentDir);
-            var imagePath = racineProjets.Parent.Parent.Parent.FullName.ToString() + "\\Images\\";
+            var imagePath = racineProjets.Parent.Parent.FullName.ToString() + "\\Images\\";
             localWorldMapDisplay1.Init(competition, LocalWorldMapDisplayType.StrategyMap, imagePath + "Eurobot2020.png");
             localWorldMapDisplay2.Init(competition, LocalWorldMapDisplayType.StrategyMap, imagePath + "Eurobot2020.png");
             localWorldMapDisplay3.Init(competition, LocalWorldMapDisplayType.StrategyMap, imagePath + "Eurobot2020.png");

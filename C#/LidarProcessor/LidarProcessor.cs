@@ -209,14 +209,14 @@ namespace LidarProcessor
                     double distanceSeuil = (-b - Math.Sqrt(discrimant)) / (2 * a);
 
                     /// Version simple
-                    /// ptListEroded[j].Distance = Math.Max(ptListEroded[j].Distance, distanceErodee);
-                                        
+                    ptListEroded[j].Distance = Math.Max(ptListEroded[j].Distance, distanceErodee);
+
                     /// Variante permettant d'exclure les occlusions de la liste  érodée, 
                     /// de manière à ne pas créer d'objet virtuel derrière les objets masqués.
-//                    if (ptList[j].Distance > distanceSeuil-rayon)
-                        ptListEroded[j].Distance = Math.Max(ptListEroded[j].Distance, distanceErodee);
-  //                  else
-    //                    ptListEroded[j].Distance = double.PositiveInfinity;
+                    //if (ptList[j].Distance > distanceSeuil - rayon)
+                    //    ptListEroded[j].Distance = Math.Max(ptListEroded[j].Distance, distanceErodee);
+                    //else
+                    //    ptListEroded[j].Distance = double.PositiveInfinity;
 
                 }
             }

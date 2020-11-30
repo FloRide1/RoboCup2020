@@ -66,7 +66,7 @@ namespace RobotInterface
             
             var currentDir = Directory.GetCurrentDirectory();
             var racineProjets = Directory.GetParent(currentDir);
-            var imagePath = racineProjets.Parent.Parent.Parent.FullName.ToString() + "\\Images\\";
+            var imagePath = racineProjets.Parent.Parent.FullName.ToString() + "\\Images\\";
             if (gameMode == GameMode.Eurobot)
             {
                 worldMapDisplayStrategy.Init(gameMode, LocalWorldMapDisplayType.StrategyMap, imagePath + "Eurobot2020.png");

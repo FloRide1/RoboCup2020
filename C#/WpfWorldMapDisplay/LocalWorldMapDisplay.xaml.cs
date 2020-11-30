@@ -1,9 +1,12 @@
 ﻿
 using Constants;
 using EventArgsLibrary;
+using SciChart.Charting.ChartModifiers;
 using SciChart.Charting.Model.DataSeries;
 using SciChart.Charting.Model.DataSeries.Heatmap2DArrayDataSeries;
 using SciChart.Charting.Visuals.Annotations;
+using SciChart.Charting.Visuals.Axes;
+using SciChart.Core.Utility.Mouse;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -35,7 +38,7 @@ namespace WpfWorldMapDisplay
         public double Y1 { get { return y1; } set { y1 = value; } }
         public double Y2 { get { return y2; } set { y2 = value; } }
     }
-    
+
     public enum LocalWorldMapDisplayType
     {
         StrategyMap,
@@ -59,7 +62,7 @@ namespace WpfWorldMapDisplay
         double WidthGameArea = 0;
         double LengthDisplayArea = 0;
         double WidthDisplayArea = 0;
-        
+
         //Liste des robots à afficher
         Dictionary<int, RobotDisplay> TeamMatesDisplayDictionary = new Dictionary<int, RobotDisplay>();
 
@@ -83,6 +86,8 @@ namespace WpfWorldMapDisplay
             InitializeComponent();
             this.DataContext = imageBinding;
 
+            //sciChart.ChartModifier = new ModifierGroup(new ZoomExtentsModifier());
+
         }
 
         /// <summary>
@@ -94,7 +99,7 @@ namespace WpfWorldMapDisplay
             imageBinding.ImagePath = imagePath;
             imageBinding.X1 = -LengthGameArea / 2;
             imageBinding.X2 = +LengthGameArea / 2;
-            imageBinding.Y1 = -WidthGameArea/ 2;
+            imageBinding.Y1 = -WidthGameArea / 2;
             imageBinding.Y2 = +WidthGameArea / 2;
         }
 
@@ -243,9 +248,9 @@ namespace WpfWorldMapDisplay
 
         public void AddOrUpdateTextAnnotation(string annotationName, string annotationText, double posX, double posY)
         {
-            var textAnnotationList = sciChart.Annotations.Where(annotation => annotation.GetType().Name=="TextAnnotation").ToList();
+            var textAnnotationList = sciChart.Annotations.Where(annotation => annotation.GetType().Name == "TextAnnotation").ToList();
             var annot = textAnnotationList.FirstOrDefault(c => ((TextAnnotation)c).Name == annotationName);
-            if(annot == null)
+            if (annot == null)
             {
                 TextAnnotation textAnnot = new TextAnnotation();
                 textAnnot.Text = annotationText;
@@ -301,7 +306,7 @@ namespace WpfWorldMapDisplay
             UpdateObstacleList(localWorldMap.obstaclesLocationList);
             UpdateBallLocationList(localWorldMap.ballLocationList);
         }
-        
+
         private void DrawHeatMap(int robotId)
         {
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
@@ -388,7 +393,7 @@ namespace WpfWorldMapDisplay
                 foreach (var polygonObject in TeamMatesDisplayDictionary[r.Key].GetRobotLidarObjects())
                     ObjectsPolygonSeries.AddOrUpdatePolygonExtended(ObjectsPolygonSeries.Count(), polygonObject);
             }
-            
+
             foreach (var r in OpponentDisplayDictionary)
             {
                 //Affichage des robots
@@ -570,7 +575,7 @@ namespace WpfWorldMapDisplay
                 Console.WriteLine("UpdateOpponentsLocation : Robot non trouvé");
             }
         }
-        
+
 
         void InitSoccerField()
         {
@@ -740,12 +745,13 @@ namespace WpfWorldMapDisplay
             p.backgroundColor = System.Drawing.Color.FromArgb(0x00, 0x00, 0xFF, 0x00);
             PolygonTerrainSeries.AddOrUpdatePolygonExtended((int)Terrain.PtAvantSurfaceDroit, p);
 
-        }void InitEurobotField()
+        }
+        void InitEurobotField()
         {
-            double TerrainLowerX = -LengthGameArea/2-0.2;
-            double TerrainUpperX = LengthGameArea/2+0.2;
-            double TerrainLowerY = -WidthGameArea/2-0.2;
-            double TerrainUpperY = WidthGameArea/2+0.2;
+            double TerrainLowerX = -LengthGameArea / 2 - 0.2;
+            double TerrainUpperX = LengthGameArea / 2 + 0.2;
+            double TerrainLowerY = -WidthGameArea / 2 - 0.2;
+            double TerrainUpperY = WidthGameArea / 2 + 0.2;
 
             int fieldLineWidth = 1;
             PolygonExtended p = new PolygonExtended();
@@ -758,11 +764,11 @@ namespace WpfWorldMapDisplay
             p.borderColor = System.Drawing.Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF);
             p.backgroundColor = System.Drawing.Color.FromArgb(0xFF, 46, 49, 146);
             PolygonTerrainSeries.AddOrUpdatePolygonExtended((int)Terrain.TerrainComplet, p);
-                                    
+
             p = new PolygonExtended();
             p.polygon.Points.Add(new Point(-1.5 - 0.1, 1));
-            p.polygon.Points.Add(new Point(-1.5 , 1));
-            p.polygon.Points.Add(new Point(-1.5 , 1-0.1));
+            p.polygon.Points.Add(new Point(-1.5, 1));
+            p.polygon.Points.Add(new Point(-1.5, 1 - 0.1));
             p.polygon.Points.Add(new Point(-1.5 - 0.1, 1 - 0.1));
             p.polygon.Points.Add(new Point(-1.5 - 0.1, 1));
             p.borderWidth = fieldLineWidth;
@@ -796,10 +802,10 @@ namespace WpfWorldMapDisplay
 
         void InitCachanField()
         {
-            double TerrainLowerX = -LengthGameArea/2;
-            double TerrainUpperX = LengthGameArea/2;
-            double TerrainLowerY = -WidthGameArea/2;
-            double TerrainUpperY = WidthGameArea/2;
+            double TerrainLowerX = -LengthGameArea / 2;
+            double TerrainUpperX = LengthGameArea / 2;
+            double TerrainLowerY = -WidthGameArea / 2;
+            double TerrainUpperY = WidthGameArea / 2;
 
             int fieldLineWidth = 1;
             PolygonExtended p = new PolygonExtended();
@@ -941,7 +947,7 @@ namespace WpfWorldMapDisplay
                 // Perform the hit test relative to the GridLinesPanel
                 var hitTestPoint = e.GetPosition(sciChart.GridLinesPanel as UIElement);
                 foreach (var renderableSeries in sciChart.RenderableSeries)
-                {                    
+                {
                     // Get hit-test the RenderableSeries using interpolation
                     var hitTestInfo = renderableSeries.HitTestProvider.HitTest(hitTestPoint, true);
                     if (hitTestInfo.DataSeriesType == DataSeriesType.Heatmap)
@@ -953,6 +959,13 @@ namespace WpfWorldMapDisplay
             }
         }
 
+        private void sciChart_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+
+            this.sciChart.XAxis.VisibleRange.SetMinMax(-LengthDisplayArea / 2, LengthDisplayArea / 2);
+            this.sciChart.YAxis.VisibleRange.SetMinMax(-WidthDisplayArea / 2, WidthDisplayArea / 2);
+        }
+
         //Event en cas de CTRL+click dans une heatmap
         public event EventHandler<PositionArgs> OnCtrlClickOnHeatMapEvent;
         public virtual void OnCtrlClickOnHeatMap(double x, double y)
@@ -960,7 +973,7 @@ namespace WpfWorldMapDisplay
             var handler = OnCtrlClickOnHeatMapEvent;
             if (handler != null)
             {
-                handler(this, new PositionArgs {  X = x, Y=y });
+                handler(this, new PositionArgs { X = x, Y = y });
             }
         }
     }
@@ -1007,4 +1020,5 @@ namespace WpfWorldMapDisplay
         }
     }
 }
+
 
