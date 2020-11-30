@@ -98,11 +98,11 @@ namespace LidarProcessor
                 }
             }
 
-            double tailleNoyau = 0.50;
-            //var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
+            double tailleNoyau = 1.50;
+            var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
             //var ptListFiltered = Erosion(Dilatation(ptList, tailleNoyau ), tailleNoyau);
             //var ptListFiltered = Dilatation(ptList, tailleNoyau);
-            var ptListFiltered = Erosion(ptList, tailleNoyau);
+            //var ptListFiltered = Erosion(ptList, tailleNoyau);
             //var ptListFiltered = ptList;
 
             OnLidarProcessed(robotId, ptListFiltered);
@@ -200,7 +200,7 @@ namespace LidarProcessor
             ///On commence par la segmentation en objets
             List<LidarDetectedObject> lidarSceneSegmentation = new List<LidarDetectedObject>();
             LidarDetectedObject objet = new LidarDetectedObject();
-            double seuilDetectionObjet = 0.2;
+            double seuilDetectionObjet = 0.5;
             objet.PtList.Add(ptList[0]);
             for (int i = 1; i < ptList.Count; i++)
             {
