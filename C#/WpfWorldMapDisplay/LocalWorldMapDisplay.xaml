@@ -70,9 +70,7 @@
 
             <s:SciChartSurface.ChartModifier>
                 <s:ModifierGroup>
-                    <!--<local:RubberBandXyZoomModifierEx/>-->
                     <s:RubberBandXyZoomModifier IsXAxisOnly="False"  ZoomExtentsY="False" IsAnimated="True" RubberBandFill="#33FFFFFF" RubberBandStroke="#66FFFFFF" RubberBandStrokeDashArray="2 2"/>
-                    <s:ZoomExtentsModifier IsAnimated="True"/>
                     <s:MouseWheelZoomModifier ActionType="Zoom" XyDirection="XYDirection"/>
                 </s:ModifierGroup>
             </s:SciChartSurface.ChartModifier>
