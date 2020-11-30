@@ -98,11 +98,11 @@ namespace LidarProcessor
                 }
             }
 
-            double tailleNoyau = 0.2;
-            var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
+            double tailleNoyau = 0.50;
+            //var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
             //var ptListFiltered = Erosion(Dilatation(ptList, tailleNoyau ), tailleNoyau);
             //var ptListFiltered = Dilatation(ptList, tailleNoyau);
-            //var ptListFiltered = Erosion(ptList, tailleNoyau);
+            var ptListFiltered = Erosion(ptList, tailleNoyau);
             //var ptListFiltered = ptList;
 
             OnLidarProcessed(robotId, ptListFiltered);
@@ -182,44 +182,128 @@ namespace LidarProcessor
             /// L'initialisation manuelle est obligatoire, la copie ne marche pas car elle se fait par référence,
             /// donc tout modification au tableau dilaté se reporterait dans le tableau initial
             List<PolarPointRssi> ptListEroded = new List<PolarPointRssi>();
+            List<int> ptListErodedbyObjectId = new List<int>();
             for (int i = 0; i < ptList.Count; i++)
             {
                 ptListEroded.Add(new PolarPointRssi(ptList[i].Angle, ptList[i].Distance, ptList[i].Rssi));
+                ptListErodedbyObjectId.Add(0);
             }
             double resolutionAngulaire = 2 * Math.PI / ptList.Count;
 
-            for (int i = 0; i < ptList.Count; i++)
+            /// On effectue une segmentation en objet connexes, de manière à éviter les effets de bords 
+            /// d'érosion au voisinnage des objets en saillie.
+            /// On effetue donc l'érosion en notant pour chaque angle quel est l'objet ayant contribué à l'érosion
+            /// Une fois l'érosion terminée, on retire, en passant la distance pt à l'infini,
+            /// les points érodé par un objet différent de celui dans lequel ils sont dans l'ombre.
+            /// 
+
+            ///On commence par la segmentation en objets
+            List<LidarDetectedObject> lidarSceneSegmentation = new List<LidarDetectedObject>();
+            LidarDetectedObject objet = new LidarDetectedObject();
+            double seuilDetectionObjet = 0.2;
+            objet.PtList.Add(ptList[0]);
+            for (int i = 1; i < ptList.Count; i++)
             {
-                var pt = ptList[i];
-                double erosionAngulaire = Math.Atan2(rayon, pt.Distance);
-                int nbPasAngulaire = (int)(erosionAngulaire / resolutionAngulaire);
-                int borneInf = Math.Max(0, i - nbPasAngulaire);
-                int borneSup = Math.Min(i + nbPasAngulaire, ptList.Count - 1);
-
-                for (int j = borneInf; j <= borneSup; j++)
+                if (Math.Abs(ptList[i].Distance - ptList[i - 1].Distance) < seuilDetectionObjet)
                 {
-                    /// Pour avoir une formule qui fonctionne aux petites distances avec un grand rayon d'érosion, 
-                    /// il faut utiliser les lois des cosinus
-                    double a = 1;
-                    double b = -2 * ptList[i].Distance * Math.Cos((j - i) * resolutionAngulaire);
-                    double c = ptList[i].Distance * ptList[i].Distance - rayon * rayon;
-
-                    double discrimant = b * b - 4 * a * c;
-                    double distanceErodee = (-b + Math.Sqrt(discrimant)) / (2 * a);
-                    double distanceSeuil = (-b - Math.Sqrt(discrimant)) / (2 * a);
-
-                    /// Version simple
-                    ptListEroded[j].Distance = Math.Max(ptListEroded[j].Distance, distanceErodee);
-
-                    /// Variante permettant d'exclure les occlusions de la liste  érodée, 
-                    /// de manière à ne pas créer d'objet virtuel derrière les objets masqués.
-                    //if (ptList[j].Distance > distanceSeuil - rayon)
-                    //    ptListEroded[j].Distance = Math.Max(ptListEroded[j].Distance, distanceErodee);
-                    //else
-                    //    ptListEroded[j].Distance = double.PositiveInfinity;
-
+                    ///Si la distance entre deux points successifs n'est pas trop grande, ils appartiennent au même objet
+                    objet.PtList.Add(ptList[i]);
+                }
+                else
+                {
+                    //Sinon, on crée un nouvel objet
+                    lidarSceneSegmentation.Add(objet);
+                    objet = new LidarDetectedObject();
+                    objet.PtList.Add(ptList[i]);
                 }
             }
+
+            int numPtCourant = 0;
+            for (int n = 0; n < lidarSceneSegmentation.Count; n++)
+            {
+                /// On itère sur tous les objets dans l'ordre
+                /// 
+                var obj = lidarSceneSegmentation[n];
+                var objPtList = obj.PtList;
+                for (int k = 0; k < objPtList.Count; k++)
+                {
+                    var pt = ptList[numPtCourant];
+                    double erosionAngulaire = Math.Atan2(rayon, pt.Distance);
+                    int nbPasAngulaire = (int)(erosionAngulaire / resolutionAngulaire);
+                    int borneInf = Math.Max(0, numPtCourant - nbPasAngulaire);
+                    int borneSup = Math.Min(numPtCourant + nbPasAngulaire, ptList.Count - 1);
+
+                    for (int j = borneInf; j <= borneSup; j++)
+                    {
+                        /// Pour avoir une formule qui fonctionne aux petites distances avec un grand rayon d'érosion, 
+                        /// il faut utiliser les lois des cosinus
+                        double a = 1;
+                        double b = -2 * ptList[numPtCourant].Distance * Math.Cos((j - numPtCourant) * resolutionAngulaire);
+                        double c = ptList[numPtCourant].Distance * ptList[numPtCourant].Distance - rayon * rayon;
+
+                        double discrimant = b * b - 4 * a * c;
+                        double distanceErodee = (-b + Math.Sqrt(discrimant)) / (2 * a);
+                        double distanceSeuil = (-b - Math.Sqrt(discrimant)) / (2 * a);
+
+                        /// Version simple
+                        if (distanceErodee > ptListEroded[j].Distance)
+                        {
+                            ptListEroded[j].Distance = distanceErodee;
+                            ptListErodedbyObjectId[j] = n;
+                        }
+                    }
+                    numPtCourant++;
+                }
+            }
+
+            /// On fait une seconde passe pour retirer tous les points érodés par un objet autre que celui 
+            /// qui les masque.
+            numPtCourant = 0;
+            for (int n = 0; n < lidarSceneSegmentation.Count; n++)
+            {
+                /// On itère sur tous les objets dans l'ordre
+                var obj = lidarSceneSegmentation[n];
+                var objPtList = obj.PtList;
+                for (int k = 0; k < objPtList.Count; k++)
+                {
+                    if (ptListErodedbyObjectId[numPtCourant] != n)
+                        ptListEroded[numPtCourant].Distance = double.PositiveInfinity;
+                    numPtCourant++;
+                }
+            }
+
+            //    for (int i = 0; i < ptList.Count; i++)
+            //{
+            //    var pt = ptList[i];
+            //    double erosionAngulaire = Math.Atan2(rayon, pt.Distance);
+            //    int nbPasAngulaire = (int)(erosionAngulaire / resolutionAngulaire);
+            //    int borneInf = Math.Max(0, i - nbPasAngulaire);
+            //    int borneSup = Math.Min(i + nbPasAngulaire, ptList.Count - 1);
+
+            //    for (int j = borneInf; j <= borneSup; j++)
+            //    {
+            //        /// Pour avoir une formule qui fonctionne aux petites distances avec un grand rayon d'érosion, 
+            //        /// il faut utiliser les lois des cosinus
+            //        double a = 1;
+            //        double b = -2 * ptList[i].Distance * Math.Cos((j - i) * resolutionAngulaire);
+            //        double c = ptList[i].Distance * ptList[i].Distance - rayon * rayon;
+
+            //        double discrimant = b * b - 4 * a * c;
+            //        double distanceErodee = (-b + Math.Sqrt(discrimant)) / (2 * a);
+            //        double distanceSeuil = (-b - Math.Sqrt(discrimant)) / (2 * a);
+
+            //        /// Version simple
+            //        ptListEroded[j].Distance = Math.Max(ptListEroded[j].Distance, distanceErodee);
+
+            //        /// Variante permettant d'exclure les occlusions de la liste  érodée, 
+            //        /// de manière à ne pas créer d'objet virtuel derrière les objets masqués.
+            //        //if (ptList[j].Distance > distanceSeuil - rayon)
+            //        //    ptListEroded[j].Distance = Math.Max(ptListEroded[j].Distance, distanceErodee);
+            //        //else
+            //        //    ptListEroded[j].Distance = double.PositiveInfinity;
+
+            //    }
+            //}
             return ptListEroded.ToList();
         }
 
