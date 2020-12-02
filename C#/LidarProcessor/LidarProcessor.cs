@@ -99,7 +99,7 @@ namespace LidarProcessor
                 }
             }
 
-            double tailleNoyau = 0.4;
+            double tailleNoyau = 0.8;
             //var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
             //var ptListFiltered = Erosion(Dilatation(ptList, tailleNoyau ), tailleNoyau);
             //var ptListFiltered = Dilatation(ptList, tailleNoyau);
