@@ -316,8 +316,9 @@ namespace Robot
             if (usingLidar)
             {
                 lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += perceptionManager.OnRawLidarDataReceived;
+                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
                 //lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;  
-                perceptionManager.OnLidarProcessedDataEvent += localWorldMapManager.OnRawLidarDataReceived;
+                perceptionManager.OnLidarProcessedDataEvent += localWorldMapManager.OnProcessedLidarDataReceived;
 
             }
 

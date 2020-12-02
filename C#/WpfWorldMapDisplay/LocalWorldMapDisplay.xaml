@@ -34,6 +34,11 @@
                         <s:EllipsePointMarker Width="2" Height="2" Fill="SteelBlue" Stroke="LightSteelBlue" StrokeThickness="1"/>
                     </s:XyScatterRenderableSeries.PointMarker>
                 </s:XyScatterRenderableSeries>
+                <s:XyScatterRenderableSeries x:Name="LidarProcessedPoints" Opacity="0.5">
+                    <s:XyScatterRenderableSeries.PointMarker>
+                        <s:EllipsePointMarker Width="2" Height="2" Fill="SteelBlue" Stroke="LightCoral" StrokeThickness="1"/>
+                    </s:XyScatterRenderableSeries.PointMarker>
+                </s:XyScatterRenderableSeries>
                 <s:FastUniformHeatmapRenderableSeries x:Name="heatmapSeries" Opacity="0.6">
                     <s:FastUniformHeatmapRenderableSeries.ColorMap>
                         <s:HeatmapColorPalette Minimum="-1" Maximum="1">

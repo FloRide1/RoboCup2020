@@ -70,24 +70,24 @@ namespace LidarProcessor
             
             //Opérations de traitement du signal LIDAR
             //ptList = PrefiltragePointsIsoles(ptList, 0.04);
-            ptList = MedianFilter(ptList, 2);
+            ptList = MedianFilter(ptList, 5);
 
 //            BalisesCatadioptriqueList = DetectionBalisesCatadioptriques(ptList, 3.6);
             BalisesCatadioptriqueList2 = DetectionBalisesCatadioptriquesParRssiEtTaille(ptList, 3.6);
-            //ObjetsProchesList = DetectionObjetsProches(ptList, 0.17, 2.0, 0.2);
+            ObjetsProchesList = DetectionObjetsProches(ptList, 0.17, 2.0, 0.2);
             
             //Affichage des résultats
             List<PolarPointListExtended> objectList = new List<PolarPointListExtended>();
-            //foreach (var obj in ObjetsProchesList)
-            //{
-            //    PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
-            //    currentPolarPointListExtended.polarPointList = new List<PolarPointRssi>();
-            //    {
-            //        currentPolarPointListExtended.polarPointList.Add(new PolarPointRssi(obj.AngleMoyen, obj.DistanceMoyenne, 0));
-            //        currentPolarPointListExtended.type = ObjectType.Obstacle;
-            //        objectList.Add(currentPolarPointListExtended);
-            //    }
-            //}
+            foreach (var obj in ObjetsProchesList)
+            {
+                PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
+                currentPolarPointListExtended.polarPointList = new List<PolarPointRssi>();
+                {
+                    currentPolarPointListExtended.polarPointList.Add(new PolarPointRssi(obj.AngleMoyen, obj.DistanceMoyenne, 0));
+                    currentPolarPointListExtended.type = ObjectType.Obstacle;
+                    objectList.Add(currentPolarPointListExtended);
+                }
+            }
             foreach (var obj in BalisesCatadioptriqueList)
             {
                 PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
@@ -99,14 +99,14 @@ namespace LidarProcessor
                 }
             }
 
-            double tailleNoyau = 0.0;
+            double tailleNoyau = 0.4;
             //var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
             //var ptListFiltered = Erosion(Dilatation(ptList, tailleNoyau ), tailleNoyau);
             //var ptListFiltered = Dilatation(ptList, tailleNoyau);
-            //var ptListFiltered = Erosion(ptList, tailleNoyau);
-            var ptListFiltered = ptList;
+            var ptListFiltered = Erosion(ptList, tailleNoyau);
+            //var ptListFiltered = ptList;
 
-            OnLidarProcessed(robotId, ptList);
+            OnLidarProcessed(robotId, ptListFiltered);
             OnLidarBalisesListExtracted(robotId, BalisesCatadioptriqueList2);
             OnLidarObjectProcessed(robotId, objectList);
         }
@@ -212,6 +212,26 @@ namespace LidarProcessor
 
         private List<PolarPointRssi> Erosion(List<PolarPointRssi> ptList, double rayon)
         {
+            int originalSize = ptList.Count;
+            /// On construit une liste de points ayant le double du nombre de points de la liste d'origine, de manière 
+            /// à avoir un recoupement d'un tour complet 
+            List<PolarPointRssi> ptListExtended = new List<PolarPointRssi>();
+
+            for (int i = (int)(originalSize / 2); i < originalSize; i++)
+            {
+                ptListExtended.Add(new PolarPointRssi(ptList[i].Angle - 2 * Math.PI, ptList[i].Distance, ptList[i].Rssi));
+            }
+            for (int i = 0; i < originalSize; i++)
+            {
+                ptListExtended.Add(new PolarPointRssi(ptList[i].Angle, ptList[i].Distance, ptList[i].Rssi));
+            }
+            for (int i = 0; i < (int)(originalSize / 2); i++)
+            {
+                ptListExtended.Add(new PolarPointRssi(ptList[i].Angle + 2 * Math.PI, ptList[i].Distance, ptList[i].Rssi));
+            }
+
+            ptList = ptListExtended;
+
             /// On déclare une liste pour les points de sortie. 
             /// L'initialisation manuelle est obligatoire, la copie ne marche pas car elle se fait par référence,
             /// donc tout modification au tableau dilaté se reporterait dans le tableau initial
@@ -234,7 +254,7 @@ namespace LidarProcessor
             ///On commence par la segmentation en objets
             List<LidarDetectedObject> lidarSceneSegmentation = new List<LidarDetectedObject>();
             LidarDetectedObject objet = new LidarDetectedObject();
-            double seuilDetectionObjet = 0.1;
+            double seuilDetectionObjet = 0.2;
             objet.PtList.Add(ptList[0]);
             for (int i = 1; i < ptList.Count; i++)
             {
@@ -338,7 +358,8 @@ namespace LidarProcessor
 
             //    }
             //}
-            return ptListEroded.ToList();
+            //return ptListEroded;
+            return ptListEroded.ToList().GetRange((int)(originalSize / 2), originalSize);
         }
 
         //double seuilResiduLine = 0.03;

@@ -25,6 +25,7 @@ namespace WpfWorldMapDisplay
         public double[,] heatMapStrategy;
         public double[,] heatMapWaypoint;
         List<PointD> lidarMap;
+        List<PointD> lidarProcessedMap;
         List<PolarPointListExtended> lidarObjectList;
         public List<Location> ballLocationList;
 
@@ -38,8 +39,9 @@ namespace WpfWorldMapDisplay
             robotShape = rbtShape;
             ghostShape = ghstShape;
             robotName = name;
-                        
+
             lidarMap = new List<PointD>();
+            lidarProcessedMap = new List<PointD>();
             ballLocationList = new List<Location>();
         }
 
@@ -91,6 +93,10 @@ namespace WpfWorldMapDisplay
         public void SetLidarMap(List<PointD> lidarMap)
         {
             this.lidarMap = lidarMap;
+        }
+        public void SetLidarProcessedMap(List<PointD> lidarProcessedMap)
+        {
+            this.lidarProcessedMap = lidarProcessedMap;
         }
         public void SetLidarObjectList(List<PolarPointListExtended> lidarObjectList)
         {
@@ -223,6 +229,22 @@ namespace WpfWorldMapDisplay
                     dataSeries.AcceptsUnsortedData = true;
                     dataSeries.Append(listX, listY);
                 }
+            }
+            return dataSeries;
+        }
+        public XyDataSeries<double, double> GetRobotLidarProcessedPoints()
+        {
+            var dataSeries = new XyDataSeries<double, double>();
+            if (lidarMap == null)
+                return dataSeries;
+
+            var listX = lidarProcessedMap.Select(e => e.X);
+            var listY = lidarProcessedMap.Select(e => e.Y);
+
+            if (listX.Count() == listY.Count())
+            {
+                dataSeries.AcceptsUnsortedData = true;
+                dataSeries.Append(listX, listY);
             }
             return dataSeries;
         }
