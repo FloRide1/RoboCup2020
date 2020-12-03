@@ -70,7 +70,7 @@ namespace LidarProcessor
             
             //Opérations de traitement du signal LIDAR
             //ptList = PrefiltragePointsIsoles(ptList, 0.04);
-            ptList = MedianFilter(ptList, 5);
+            //ptList = MedianFilter(ptList, 5);
 
 //            BalisesCatadioptriqueList = DetectionBalisesCatadioptriques(ptList, 3.6);
             BalisesCatadioptriqueList2 = DetectionBalisesCatadioptriquesParRssiEtTaille(ptList, 3.6);
@@ -103,10 +103,10 @@ namespace LidarProcessor
             //var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
             //var ptListFiltered = Erosion(Dilatation(ptList, tailleNoyau ), tailleNoyau);
             //var ptListFiltered = Dilatation(ptList, tailleNoyau);
-            var ptListFiltered = Erosion(ptList, tailleNoyau);
+            //var ptListFiltered = Erosion(ptList, tailleNoyau);
             //var ptListFiltered = ptList;
 
-            OnLidarProcessed(robotId, ptListFiltered);
+            //OnLidarProcessed(robotId, ptListFiltered);
             OnLidarBalisesListExtracted(robotId, BalisesCatadioptriqueList2);
             OnLidarObjectProcessed(robotId, objectList);
         }

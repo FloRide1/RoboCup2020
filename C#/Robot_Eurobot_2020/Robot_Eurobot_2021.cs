@@ -353,6 +353,9 @@ namespace Robot
             ////Event d'interprétation d'une globalWorldMap à sa réception dans le robot
             robotUdpMulticastInterpreter.OnRefBoxMessageEvent += strategyManager.strategy.OnRefBoxMsgReceived;
             robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += strategyManager.strategy.OnGlobalWorldMapReceived;
+            robotUdpMulticastInterpreter.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+
+            globalWorldMapManager.OnMulticastSendGlobalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
             //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
             //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
 

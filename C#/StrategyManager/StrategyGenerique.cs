@@ -164,6 +164,7 @@ namespace StrategyManagerNS
                             obstacleList.Add(new LocationExtended(teammate.Value.X, teammate.Value.Y, 0, 0, 0, 0, ObjectType.Robot));
                     }
                 }
+
             }
             if (displayConsole)
                 Console.WriteLine("Tps calcul Génération obstacles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
@@ -176,7 +177,7 @@ namespace StrategyManagerNS
 
             /// Calcul de la HeatMap WayPoint
             sw.Restart();
-            positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, 0.5);
+            positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, 0.2);
             if (displayConsole)
                 Console.WriteLine("Tps calcul zones exclusion obstacles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
 

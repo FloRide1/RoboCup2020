@@ -62,7 +62,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="StrategieEurobot2021.cs" />
+    <Compile Include="StrategyEurobot\StrategieEurobot2021.cs" />
     <Compile Include="StrategyEurobot\DescripteurMatch.cs" />
     <Compile Include="StrategyEurobot\EnumsStrategy.cs" />
     <Compile Include="StrategyEurobot\TaskBalade.cs" />
