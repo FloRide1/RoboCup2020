@@ -91,7 +91,7 @@ namespace Robot
         }
         #endregion
 
-        static RobotMode robotMode = RobotMode.Standard;
+        static RobotMode robotMode = RobotMode.NoLidar;
 
         static bool usingXBoxController;
         static bool usingLidar;
@@ -214,9 +214,9 @@ namespace Robot
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
             robotMsgGenerator = new MsgGenerator();
-            robotMsgProcessor = new MsgProcessor(robotId,Competition.Eurobot);
+            robotMsgProcessor = new MsgProcessor(robotId, GameMode.Eurobot);
                        
-            perceptionManager = new PerceptionManager(robotId);
+            perceptionManager = new PerceptionManager(robotId, GameMode.Eurobot);
             imuProcessor = new ImuProcessor.ImuProcessor(robotId);
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
 
@@ -297,7 +297,7 @@ namespace Robot
 
             //Gestion des events liés à une détection de collision soft
             trajectoryPlanner.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
-            trajectoryPlanner.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
+            //trajectoryPlanner.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
 
 
             if (usingLidar)

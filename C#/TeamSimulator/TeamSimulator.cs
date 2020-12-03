@@ -130,7 +130,7 @@ namespace TeamSimulator
             var kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
             var localWorldMapManager = new LocalWorldMapManager(robotId, TeamNumber, bypassMulticast: false);
             //var lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
-            var perceptionSimulator = new PerceptionManager(robotId);
+            var perceptionSimulator = new PerceptionManager(robotId, GameMode.RoboCup);
             UDPMulticastSender robotUdpMulticastSender = null;
             UDPMulticastReceiver robotUdpMulticastReceiver = null;
             UDPMulticastInterpreter robotUdpMulticastInterpreter = null;

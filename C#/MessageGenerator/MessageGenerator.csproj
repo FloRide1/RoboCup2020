@@ -80,6 +80,10 @@
       <Project>{835B8B5A-C248-4443-99CA-FF11AC77481A}</Project>
       <Name>HerkulexManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PerformanceMonitorTools\PerformanceMonitorTools.csproj">
+      <Project>{e43fd01a-2803-412c-8b33-256d3f681029}</Project>
+      <Name>PerformanceMonitorTools</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8e7d0da4-9a13-4b18-a90e-0243bbcce40a}</Project>
       <Name>Utilities</Name>

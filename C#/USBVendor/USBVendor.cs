@@ -1,5 +1,6 @@
 ﻿using EventArgsLibrary;
 using Microsoft.Win32.SafeHandles;
+using PerformanceMonitorTools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -156,6 +157,7 @@ namespace USBVendor
                                 bufff[i] = dataBuffer[i];
                             }
                             OnUSBDataReceived(bufff);
+                            USBMonitoring.USBRecuMonitor();
                         //    ProcessUSBReceivedMessage(dataBuffer, totalByteReceived);
                             //rcvMessageQueue.Enqueue(dataBuffer);
                         }

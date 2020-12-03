@@ -214,7 +214,7 @@ namespace Robot
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
             robotMsgGenerator = new MsgGenerator();
-            robotMsgProcessor = new MsgProcessor(robotId, Competition.RoboCup);
+            robotMsgProcessor = new MsgProcessor(robotId, GameMode.RoboCup);
 
             robotPilot = new RobotPilot.RobotPilot(robotId);
             strategyManager = new StrategyManager(robotId, teamId, "224.16.32.79", GameMode.RoboCup);
@@ -224,7 +224,7 @@ namespace Robot
 
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId, bypassMulticast:false);
             //lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
-            perceptionManager = new PerceptionManager(robotId);
+            perceptionManager = new PerceptionManager(robotId, GameMode.RoboCup);
             imuProcessor = new ImuProcessor.ImuProcessor(robotId);
 
             if (usingYolo)
@@ -239,7 +239,7 @@ namespace Robot
 
             if (usingLidar || usingLogReplay)
             {
-                lidarProcessor = new LidarProcessor.LidarProcessor(robotId);
+                lidarProcessor = new LidarProcessor.LidarProcessor(robotId, GameMode.RoboCup);
             }
 
             xBoxManette = new XBoxController.XBoxController(robotId);
@@ -443,7 +443,7 @@ namespace Robot
             t1 = new Thread(() =>
             {
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
-                interfaceRobot = new RobotInterface.WpfRobotInterface();
+                interfaceRobot = new RobotInterface.WpfRobotInterface( GameMode.RoboCup);
                 interfaceRobot.Loaded += RegisterRobotInterfaceEvents;
                 interfaceRobot.ShowDialog();
             });

@@ -64,14 +64,14 @@ namespace TrajectoryGenerator
                         accelRotationCapVitesseMax = 2 * Math.PI * 1.0; //en rad.s-2
                         accelRotationOrientationRobotMax = 2 * Math.PI * 1.0; //en rad.s-2
 
-                        vitesseLineaireMax = 2; //en m.s-1
-                        vitesseRotationCapVitesseMax = 2 * Math.PI * 2.0; //en rad.s-1
-                        vitesseRotationOrientationRobotMax = 2 * Math.PI * 2.0; //en rad.s-1
+                        vitesseLineaireMax = 0.5; //en m.s-1
+                        vitesseRotationCapVitesseMax = 0.5 * Math.PI * 2.0; //en rad.s-1
+                        vitesseRotationOrientationRobotMax = 0.5 * Math.PI * 2.0; //en rad.s-1
                     }
                     break;
                 case GameMode.Eurobot:
                     {
-                        accelLineaireMax = 1; //en m.s-2
+                        accelLineaireMax = 0.1; //en m.s-2
                         accelRotationCapVitesseMax = 0.8 * Math.PI * 1.0; //en rad.s-2
                         accelRotationOrientationRobotMax = 0.8 * Math.PI * 1.0; //en rad.s-2
 
@@ -108,8 +108,8 @@ namespace TrajectoryGenerator
                     break;
                 case GameMode.Eurobot:
                     {
-                        PID_X.Init(kp: 2.0, ki: 0.0, kd: 2.0, 10000, 10000, 10000);
-                        PID_Y.Init(kp: 2.0, ki: 0.0, kd: 2.0, 10000, 10000, 10000);
+                        PID_X.Init(kp: 0.0, ki: 0.0, kd: 1.0, 10000, 10000, 10000);
+                        PID_Y.Init(kp: 0.0, ki: 0.0, kd: 0.0, 10000, 10000, 10000);
                         PID_Theta.Init(kp: 1.0, ki: 0.0, kd: 1.0, 10000, 10000, 10000);
                     }
                     break;
@@ -139,7 +139,7 @@ namespace TrajectoryGenerator
         Stopwatch swTimeInterPhysicalPositionReceived = new Stopwatch();
         double InstantPhysicalPositionReceived_1 = 0;
         public void OnPhysicalPositionReceived(object sender, EventArgsLibrary.LocationArgs e)
-        {
+        {           
             if (!swTimeInterPhysicalPositionReceived.IsRunning)
                 swTimeInterPhysicalPositionReceived.Start();
 
@@ -186,15 +186,17 @@ namespace TrajectoryGenerator
                 double erreurYRefRobot = -erreurXRefTerrain * Math.Sin(currentLocationRefTerrain.Theta) + erreurYRefTerrain * Math.Cos(currentLocationRefTerrain.Theta);
 
                 ////For testing purpose only
-                //double vxGhostRefRobot = ghostLocationRefTerrain.Vx * Math.Cos(currentLocationRefTerrain.Theta) + ghostLocationRefTerrain.Vy * Math.Sin(currentLocationRefTerrain.Theta);
-                //double vyGhostRefRobot = -ghostLocationRefTerrain.Vx * Math.Sin(currentLocationRefTerrain.Theta) + ghostLocationRefTerrain.Vy * Math.Cos(currentLocationRefTerrain.Theta);
-                //double vxRefRobot = vxGhostRefRobot;
-                //double vyRefRobot = vyGhostRefRobot;
-                //double vtheta = ghostLocationRefTerrain.Vtheta;
+                double vxGhostRefRobot = ghostLocationRefTerrain.Vx * Math.Cos(currentLocationRefTerrain.Theta) + ghostLocationRefTerrain.Vy * Math.Sin(currentLocationRefTerrain.Theta);
+                double vyGhostRefRobot = -ghostLocationRefTerrain.Vx * Math.Sin(currentLocationRefTerrain.Theta) + ghostLocationRefTerrain.Vy * Math.Cos(currentLocationRefTerrain.Theta);
+                double vxRefRobot = vxGhostRefRobot;
+                double vyRefRobot = vyGhostRefRobot;
+                double vtheta = ghostLocationRefTerrain.Vtheta;
 
-                double vxRefRobot = PID_X.CalculatePIDoutput(erreurXRefRobot, elapsedTimeBetweenSamples);
-                double vyRefRobot = PID_Y.CalculatePIDoutput(erreurYRefRobot, elapsedTimeBetweenSamples);
-                double vtheta = PID_Theta.CalculatePIDoutput(erreurTheta, elapsedTimeBetweenSamples);
+                //Console.WriteLine("Temps entre sample Odometry : " + elapsedTimeBetweenSamples.ToString() + " ms");
+
+                //double vxRefRobot = PID_X.CalculatePIDoutput(erreurXRefRobot, elapsedTimeBetweenSamples);
+                //double vyRefRobot = PID_Y.CalculatePIDoutput(erreurYRefRobot, elapsedTimeBetweenSamples);
+                //double vtheta = PID_Theta.CalculatePIDoutput(erreurTheta, elapsedTimeBetweenSamples);
 
                 //On regarde si la position du robot est proche de la position du ghost
                 double seuilToleranceEcartGhost = 1.0;

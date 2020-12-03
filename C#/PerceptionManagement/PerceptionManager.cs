@@ -11,6 +11,7 @@ namespace PerceptionManagement
     public class PerceptionManager
     {
         int robotId = 0;
+        GameMode competition;
         
         List<LocationExtended> physicalObjectList;
         Perception robotPerception;
@@ -20,9 +21,10 @@ namespace PerceptionManagement
 
         GlobalWorldMap globalWorldMap;
 
-        public PerceptionManager(int id)
+        public PerceptionManager(int id, GameMode compet)
         {
             robotId = id;
+            competition = compet;
             globalWorldMap = new GlobalWorldMap();
 
             robotPerception = new Perception();
@@ -31,7 +33,7 @@ namespace PerceptionManagement
             //Chainage des modules composant le Perception Manager
             absolutePositionEstimator = new AbsolutePositionEstimator(robotId);
 
-            lidarProcessor = new LidarProcessor.LidarProcessor(robotId);
+            lidarProcessor = new LidarProcessor.LidarProcessor(robotId, competition);
             lidarProcessor.OnLidarBalisesListExtractedEvent += absolutePositionEstimator.OnLidarBalisesListExtractedEvent;
             lidarProcessor.OnLidarBalisePointListForDebugEvent += OnLidarBalisePointListForDebugReceived;
             lidarProcessor.OnLidarObjectProcessedEvent += OnLidarObjectsReceived;

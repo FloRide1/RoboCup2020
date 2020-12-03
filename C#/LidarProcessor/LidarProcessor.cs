@@ -10,9 +10,11 @@ using Utilities;
 namespace LidarProcessor
 {
     public class LidarProcessor
-    {        
+    {   
         int robotId;
-        public LidarProcessor(int id)
+        GameMode competition;  // Permet de customisezr les traitemetns en fonction de la compétition
+
+        public LidarProcessor(int id, GameMode compet)
         {
             robotId = id;
         }

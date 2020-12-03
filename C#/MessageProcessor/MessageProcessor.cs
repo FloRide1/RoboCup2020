@@ -1,5 +1,6 @@
 ﻿using Constants;
 using EventArgsLibrary;
+using PerformanceMonitorTools;
 using System;
 using System.Text;
 using System.Timers;
@@ -7,20 +8,15 @@ using Utilities;
 
 namespace MessageProcessorNS
 {
-    public enum Competition
-    {
-        RoboCup = 1,
-        Eurobot=2,
-    }
     public class MsgProcessor
     {
-        Competition chosenCompetition;
+        GameMode competition;
         Timer tmrComptageMessage;
         int robotID;
-        public MsgProcessor(int robotId,Competition type)
+        public MsgProcessor(int robotId, GameMode compet)
         {
             robotID = robotId;
-            chosenCompetition = type;
+            competition = compet;
             tmrComptageMessage = new Timer(1000);
             tmrComptageMessage.Elapsed += TmrComptageMessage_Elapsed;
             tmrComptageMessage.Start();
@@ -65,6 +61,7 @@ namespace MessageProcessorNS
                         tab = payload.GetRange(12, 4);
                         float vTheta = tab.GetFloat();
                         OnPolarOdometrySpeedFromRobot(robotID,timeStamp, vX, vY, vTheta);
+                        //OdometryMonitoring.OdometryEmiseMonitor();
                     }
                     break;
 
@@ -87,9 +84,9 @@ namespace MessageProcessorNS
                     {
                         float accelX=0, accelY=0, accelZ=0, gyroX=0, gyroY=0, gyroZ=0;
                         timeStamp = 0;
-                        switch (chosenCompetition)
+                        switch (competition)
                         {
-                            case Competition.RoboCup:
+                            case GameMode.RoboCup:
                                 nbMessageIMUReceived++;
                                 timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
                                 tab  = payload.GetRange(4, 4);
@@ -106,7 +103,7 @@ namespace MessageProcessorNS
                                 gyroZ = tab.GetFloat();
                                 break;
 
-                            case Competition.Eurobot: //La carte de mesure est placée verticalement
+                            case GameMode.Eurobot: //La carte de mesure est placée verticalement
                                 nbMessageIMUReceived++;
                                 timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
                                 tab = payload.GetRange(4, 4);
