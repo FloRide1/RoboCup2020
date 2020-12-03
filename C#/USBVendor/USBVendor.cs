@@ -123,8 +123,8 @@ namespace USBVendor
             }
         }
 
-        UInt32 bytesToRead = Convert.ToUInt32(2048);//204810
-        Byte[] dataBuffer = new Byte[2048];
+        UInt32 bytesToRead = Convert.ToUInt32(256);//204810
+        Byte[] dataBuffer = new Byte[256]; //new Byte[2048];
         UInt32 bytesRead = 0;
         bool readSuccess = true;
         bool success = false;
@@ -157,7 +157,7 @@ namespace USBVendor
                                 bufff[i] = dataBuffer[i];
                             }
                             OnUSBDataReceived(bufff);
-                            USBMonitoring.USBRecuMonitor();
+                            USBMonitoring.USBRecuMonitor(bufff);
                         //    ProcessUSBReceivedMessage(dataBuffer, totalByteReceived);
                             //rcvMessageQueue.Enqueue(dataBuffer);
                         }

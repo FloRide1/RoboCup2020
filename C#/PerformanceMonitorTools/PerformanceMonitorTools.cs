@@ -237,32 +237,37 @@ namespace PerformanceMonitorTools
         public static int nbUSBEmiseReceived = 0;
         static Object lockDiagUSBEmise = new object();
         static List<int> listIntervalMonitoring = new List<int>();
+        static List<int> listNbByteRecus = new List<int>();
+        public static int nbByteUsbRecus = 0;
 
-        public static void USBRecuMonitor()
+        public static void USBRecuMonitor(byte[]buff)
         {
             lock (lockDiagUSBEmise)
             {
                 if (!swUSBEmise.IsRunning)
                     swUSBEmise.Start();
                 nbUSBEmiseReceived++;
+                nbByteUsbRecus += buff.Length;
 
-                //if (listIntervalMonitoring.Count > 0)
-                listIntervalMonitoring.Add((int)swUSBEmise.Elapsed.TotalMilliseconds);// - listIntervalMonitoring[listIntervalMonitoring.Count - 1]);
-                //else
-                //    listIntervalMonitoring.Add((int)swUSBEmise.Elapsed.TotalMilliseconds);
+                listIntervalMonitoring.Add((int)swUSBEmise.Elapsed.TotalMilliseconds);
+                listNbByteRecus.Add((int)nbByteUsbRecus);
 
                 if (swUSBEmise.ElapsedMilliseconds > 1000)
                 {
                     string s = nbUSBEmiseReceived + " USB Recus en 1 s - Delta t :";
                     foreach (var interval in listIntervalMonitoring)
-                    {
                         s += " " + interval.ToString();
-                    }
+                    s += " - Nb Bytes : ";
+                    foreach (var nbByte in listNbByteRecus)
+                        s += " " + nbByte.ToString();
+
                     Console.WriteLine(s);
 
                     swUSBEmise.Restart();
                     listIntervalMonitoring = new List<int>();
+                    listNbByteRecus = new List<int>();
                     nbUSBEmiseReceived = 0;
+                    nbByteUsbRecus = 0;
                 }
             }
         }
