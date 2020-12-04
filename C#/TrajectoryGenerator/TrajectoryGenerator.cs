@@ -64,9 +64,9 @@ namespace TrajectoryGenerator
                         accelRotationCapVitesseMax = 2 * Math.PI * 1.0; //en rad.s-2
                         accelRotationOrientationRobotMax = 2 * Math.PI * 1.0; //en rad.s-2
 
-                        vitesseLineaireMax = 0.5; //en m.s-1
-                        vitesseRotationCapVitesseMax = 0.5 * Math.PI * 2.0; //en rad.s-1
-                        vitesseRotationOrientationRobotMax = 0.5 * Math.PI * 2.0; //en rad.s-1
+                        vitesseLineaireMax = 3; //en m.s-1
+                        vitesseRotationCapVitesseMax = 3 * Math.PI * 2.0; //en rad.s-1
+                        vitesseRotationOrientationRobotMax = 2 * Math.PI * 2.0; //en rad.s-1
                     }
                     break;
                 case GameMode.Eurobot:
