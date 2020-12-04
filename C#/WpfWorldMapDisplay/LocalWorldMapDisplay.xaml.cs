@@ -962,16 +962,21 @@ namespace WpfWorldMapDisplay
         {
             if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
+                Console.WriteLine("CTRL+Click");
                 // Perform the hit test relative to the GridLinesPanel
                 var hitTestPoint = e.GetPosition(sciChart.GridLinesPanel as UIElement);
-                foreach (var renderableSeries in sciChart.RenderableSeries)
+                foreach (var serie in sciChart.RenderableSeries)
                 {
-                    // Get hit-test the RenderableSeries using interpolation
-                    var hitTestInfo = renderableSeries.HitTestProvider.HitTest(hitTestPoint, true);
-                    if (hitTestInfo.DataSeriesType == DataSeriesType.Heatmap)
+                    if (serie.GetType().Name == "FastUniformHeatmapRenderableSeries")
                     {
-                        Console.WriteLine(hitTestInfo.DataSeriesType.ToString() + " Click on : x=" + hitTestInfo.XValue + " - y=" + hitTestInfo.YValue);
-                        OnCtrlClickOnHeatMap((double)hitTestInfo.XValue, (double)hitTestInfo.YValue);
+                        // Get hit-test the RenderableSeries using interpolation
+                        var hitTestInfo = serie.HitTestProvider.HitTest(hitTestPoint, false);
+                        Console.WriteLine(hitTestInfo.DataSeriesType);
+                        if (hitTestInfo.DataSeriesType == DataSeriesType.Heatmap)
+                        {
+                            Console.WriteLine(hitTestInfo.DataSeriesType.ToString() + " Click on : x=" + hitTestInfo.XValue + " - y=" + hitTestInfo.YValue);
+                            OnCtrlClickOnHeatMap((double)hitTestInfo.XValue, (double)hitTestInfo.YValue);
+                        }
                     }
                 }
             }

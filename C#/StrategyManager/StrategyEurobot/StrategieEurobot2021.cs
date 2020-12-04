@@ -51,6 +51,12 @@ namespace StrategyManagerNS
 
         public PointD robotDestination = new PointD(0, 0);
 
+        double _obstacleAvoidanceDistance = 0.2;
+        public override double ObstacleAvoidanceDistance
+        {
+            get { return _obstacleAvoidanceDistance; }
+            set { _obstacleAvoidanceDistance = value; }
+        }
         public GameState gameState = GameState.STOPPED;
         public StoppedGameAction stoppedGameAction = StoppedGameAction.NONE;
         public Location externalRefBoxPosition = new Location();

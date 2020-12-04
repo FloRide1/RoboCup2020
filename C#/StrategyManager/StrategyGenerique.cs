@@ -54,6 +54,8 @@ namespace StrategyManagerNS
         public Location robotCurrentLocation = new Location(0, 0, 0, 0, 0, 0);
         public double robotOrientation;
 
+        public abstract double ObstacleAvoidanceDistance { get; set; }
+
 
         Stopwatch sw = new Stopwatch();
         Stopwatch swGlobal = new Stopwatch();
@@ -177,7 +179,7 @@ namespace StrategyManagerNS
 
             /// Calcul de la HeatMap WayPoint
             sw.Restart();
-            positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, 0.2);
+            positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, ObstacleAvoidanceDistance);
             if (displayConsole)
                 Console.WriteLine("Tps calcul zones exclusion obstacles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
 
