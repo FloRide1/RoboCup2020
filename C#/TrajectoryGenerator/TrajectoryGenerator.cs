@@ -101,9 +101,9 @@ namespace TrajectoryGenerator
             {
                 case GameMode.RoboCup:
                     {
-                        PID_X.Init(kp: 200.0, ki: 0.0, kd: 40.0, 10000, 10000, 10000);
-                        PID_Y.Init(kp: 200.0, ki: 0.0, kd: 40.0, 10000, 10000, 10000);
-                        PID_Theta.Init(kp: 60.0, ki: 0.0, kd: 10.0, 10000, 10000, 10000);
+                        PID_X.Init(kp: 50.0, ki: 0.0, kd: 4.0, 10000, 10000, 10000);
+                        PID_Y.Init(kp: 50.0, ki: 0.0, kd: 4.0, 10000, 10000, 10000);
+                        PID_Theta.Init(kp: 12.0, ki: 0.0, kd: 1.0, 10000, 10000, 10000);
                     }
                     break;
                 case GameMode.Eurobot:
@@ -186,17 +186,17 @@ namespace TrajectoryGenerator
                 double erreurYRefRobot = -erreurXRefTerrain * Math.Sin(currentLocationRefTerrain.Theta) + erreurYRefTerrain * Math.Cos(currentLocationRefTerrain.Theta);
 
                 ////For testing purpose only
-                double vxGhostRefRobot = ghostLocationRefTerrain.Vx * Math.Cos(currentLocationRefTerrain.Theta) + ghostLocationRefTerrain.Vy * Math.Sin(currentLocationRefTerrain.Theta);
-                double vyGhostRefRobot = -ghostLocationRefTerrain.Vx * Math.Sin(currentLocationRefTerrain.Theta) + ghostLocationRefTerrain.Vy * Math.Cos(currentLocationRefTerrain.Theta);
-                double vxRefRobot = vxGhostRefRobot;
-                double vyRefRobot = vyGhostRefRobot;
-                double vtheta = ghostLocationRefTerrain.Vtheta;
+                //double vxGhostRefRobot = ghostLocationRefTerrain.Vx * Math.Cos(currentLocationRefTerrain.Theta) + ghostLocationRefTerrain.Vy * Math.Sin(currentLocationRefTerrain.Theta);
+                //double vyGhostRefRobot = -ghostLocationRefTerrain.Vx * Math.Sin(currentLocationRefTerrain.Theta) + ghostLocationRefTerrain.Vy * Math.Cos(currentLocationRefTerrain.Theta);
+                //double vxRefRobot = vxGhostRefRobot;
+                //double vyRefRobot = vyGhostRefRobot;
+                //double vtheta = ghostLocationRefTerrain.Vtheta;
 
                 //Console.WriteLine("Temps entre sample Odometry : " + elapsedTimeBetweenSamples.ToString() + " ms");
 
-                //double vxRefRobot = PID_X.CalculatePIDoutput(erreurXRefRobot, elapsedTimeBetweenSamples);
-                //double vyRefRobot = PID_Y.CalculatePIDoutput(erreurYRefRobot, elapsedTimeBetweenSamples);
-                //double vtheta = PID_Theta.CalculatePIDoutput(erreurTheta, elapsedTimeBetweenSamples);
+                double vxRefRobot = PID_X.CalculatePIDoutput(erreurXRefRobot, elapsedTimeBetweenSamples);
+                double vyRefRobot = PID_Y.CalculatePIDoutput(erreurYRefRobot, elapsedTimeBetweenSamples);
+                double vtheta = PID_Theta.CalculatePIDoutput(erreurTheta, elapsedTimeBetweenSamples);
 
                 //On regarde si la position du robot est proche de la position du ghost
                 double seuilToleranceEcartGhost = 1.0;

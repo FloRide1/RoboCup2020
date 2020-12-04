@@ -46,7 +46,7 @@ namespace StrategyManagerNS.StrategyRoboCupNS
 
         public override void InitHeatMap()
         {
-            positioningHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 9)); //Init HeatMap
+            positioningHeatMap = new Heatmap(22.0, 14.0, (int)Math.Pow(2, 8)); //Init HeatMap
         }
 
         public override void DetermineRobotRole()

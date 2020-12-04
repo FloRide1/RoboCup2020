@@ -243,7 +243,7 @@ namespace WpfWorldMapDisplay
                     break;
             }
 
-            LocalWorldMapTitle.Text = "LWM " + gMode.ToString();
+            LocalWorldMapTitle.Text = "LWM " + playerName.ToString();
         }
 
         public void AddOrUpdateTextAnnotation(string annotationName, string annotationText, double posX, double posY)
@@ -275,7 +275,9 @@ namespace WpfWorldMapDisplay
             ObjectsPolygonSeries.RedrawAll();
             BallPolygon.RedrawAll();
             ObstaclePolygons.RedrawAll();
-            //PolygonTerrainSeries.RedrawAll();
+
+            if(competition == GameMode.RoboCup)
+                PolygonTerrainSeries.RedrawAll();
         }
 
         public void UpdateLocalWorldMap(LocalWorldMap localWorldMap)
