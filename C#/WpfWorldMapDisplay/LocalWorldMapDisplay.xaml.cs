@@ -969,14 +969,19 @@ namespace WpfWorldMapDisplay
                 {
                     if (serie.GetType().Name == "FastUniformHeatmapRenderableSeries")
                     {
-                        // Get hit-test the RenderableSeries using interpolation
-                        var hitTestInfo = serie.HitTestProvider.HitTest(hitTestPoint, false);
-                        Console.WriteLine(hitTestInfo.DataSeriesType);
-                        if (hitTestInfo.DataSeriesType == DataSeriesType.Heatmap)
-                        {
-                            Console.WriteLine(hitTestInfo.DataSeriesType.ToString() + " Click on : x=" + hitTestInfo.XValue + " - y=" + hitTestInfo.YValue);
-                            OnCtrlClickOnHeatMap((double)hitTestInfo.XValue, (double)hitTestInfo.YValue);
-                        }
+                        double xmin = (double)sciChart.XAxes[0].VisibleRange.Min;
+                        double xmax = (double)sciChart.XAxes[0].VisibleRange.Max;
+                        double ymin = (double)sciChart.YAxes[0].VisibleRange.Min;
+                        double ymax = (double)sciChart.YAxes[0].VisibleRange.Max;
+
+                        var width = sciChart.ModifierSurface.ActualWidth;
+                        var height = sciChart.ModifierSurface.ActualHeight;
+
+                        var xHeatMap = xmin + (xmax - xmin) * hitTestPoint.X / width;
+                        var yHeatMap = -(ymin + (ymax - ymin) * hitTestPoint.Y / height);
+                        
+                        Console.WriteLine("Click on : x=" + xHeatMap + " - y=" + yHeatMap);
+                        OnCtrlClickOnHeatMap(xHeatMap, yHeatMap);
                     }
                 }
             }
