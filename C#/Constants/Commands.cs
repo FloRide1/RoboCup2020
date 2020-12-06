@@ -11,73 +11,73 @@ namespace Constants
         #region Commandes générales
         #pragma warning disable CS1591
 
-        Unknown = 0,
+        //Unknown = 0,
 
         // Commandes de contrôle de flux
 
-        Time = 128,
-        RobotLoopback = 129,
-        ClientLoopback = 130,
-        AskDisconnection = 131,
-        Disconnected = 132,
-        ResetEmbedded = 133,
-        RobotWelcome = 134,
-        RobotMainInfos = 135,
-        RobotAccepted = 136,
-        RobotRefused = 137,
-        RobotInfos = 138,
-        ConfigurationInfo = 139,
+        //Time = 128,
+        //RobotLoopback = 129,
+        //ClientLoopback = 130,
+        //AskDisconnection = 131,
+        //Disconnected = 132,
+        //ResetEmbedded = 133,
+        //RobotWelcome = 134,
+        //RobotMainInfos = 135,
+        //RobotAccepted = 136,
+        //RobotRefused = 137,
+        //RobotInfos = 138,
+        //ConfigurationInfo = 139,
 
         // Setters de variables embarquées
 
-        SetXYSpeed = 200,
-        SetMotorSpeed = 201,
-        SetMotorSpeed_Each = 202,
-        SetKu = 203,
-        SetKu_Each = 204,
-        SetPu = 205,
-        SetPu_Each = 206,
-        SetBaudrate = 207,
-        SetLEDState = 208,
-        SetLEDState_Each = 209,
-        SetAsservMode = 210,
-        SetAsservMode_Each = 211,
-        SetX = 212,
-        SetY = 213,
-        SetTheta = 214,
-        SetXYTheta = 215,
-        SetTrajectoryParameters = 216,
-        SetAsservissementEnable = 217,
-        SetServoEnable = 218,
-        SetCarteTirAlim = 219,
-        FieldLinesFound = 220,
+        //SetXYSpeed = 200,
+        //SetMotorSpeed = 201,
+        //SetMotorSpeed_Each = 202,
+        //SetKu = 203,
+        //SetKu_Each = 204,
+        //SetPu = 205,
+        //SetPu_Each = 206,
+        //SetBaudrate = 207,
+        //SetLEDState = 208,
+        //SetLEDState_Each = 209,
+        //SetAsservMode = 210,
+        //SetAsservMode_Each = 211,
+        //SetX = 212,
+        //SetY = 213,
+        //SetTheta = 214,
+        //SetXYTheta = 215,
+        //SetTrajectoryParameters = 216,
+        //SetAsservissementEnable = 217,
+        //SetServoEnable = 218,
+        //SetCarteTirAlim = 219,
+        //FieldLinesFound = 220,
 
         // Getters et Askers de variables embarquées
 
         WelcomeMessage=400,             
-        MotorSpeedConsigne = 402,
-        MotorSpeedConsigne_Each = 403,
-        Ku = 404,
-        Ku_Each = 405,
-        Pu = 406,
-        Pu_Each = 407,
-        LEDState = 408,
-        LEDState_Each = 409,
-        AsservMode = 410,
-        AsservMode_Each = 411,
-        BatteryLevel = 412,
-        BatteryLevel_Each = 413,
-        X = 414,
-        Y = 415,
-        Theta = 416,
-        XYTheta = 417,
+        //MotorSpeedConsigne = 402,
+        //MotorSpeedConsigne_Each = 403,
+        //Ku = 404,
+        //Ku_Each = 405,
+        //Pu = 406,
+        //Pu_Each = 407,
+        //LEDState = 408,
+        //LEDState_Each = 409,
+        //AsservMode = 410,
+        //AsservMode_Each = 411,
+        //BatteryLevel = 412,
+        //BatteryLevel_Each = 413,
+        //X = 414,
+        //Y = 415,
+        //Theta = 416,
+        //XYTheta = 417,
         IMUData = 418,                  //0x01A2
 
         PolarOdometrySpeed = 0x01A3,
         IndependantOdometrySpeed = 0x013A,
         AuxiliaryOdometrySpeed = 0x01A4,
 
-        MotorsPositions = 421,          //0x01A5
+        //MotorsPositions = 421,          //0x01A5
         AuxiliarySpeedConsignes = 0x01A6,
         EncoderRawData = 423,           //0x01A7
         IOValues = 424,                 //0x01A8
@@ -97,9 +97,9 @@ namespace Constants
         SetSpeedIndependantPIDValues = 0x01AF,
         SetAsservissementMode = 0x1B6,       
 
-        SetRobotVariable = 430,
-        GetParameter = 432,
-        SetParameter = 433,
+        //SetRobotVariable = 430,
+        //GetParameter = 432,
+        //SetParameter = 433,
         SetMotorSpeedConsigne = 0x01AE,    //0x01AE
         SpeedPidReset = 0x01B0,
         EnablePowerMonitoring = 431,    //0x01B1
@@ -112,31 +112,31 @@ namespace Constants
         EnablePositionData=441,         //0x01B9
         EnableMotorSpeedConsigne=442,   //0x01BA
         ForwardHerkulex = 0x3333,        
-        GetCamera = 443,
+        //GetCamera = 443,
         TirCommand = 444,
         MoveTirUp = 445,
         MoveTirDown = 446,
 
 
 
-        // Setters de variables d'informations sur les robots
+        //// Setters de variables d'informations sur les robots
 
-        SetID = 600,
-        SetName = 601,
-        SetColor = 602,
-        SetControllerControlMode = 603,
+        //SetID = 600,
+        //SetName = 601,
+        //SetColor = 602,
+        //SetControllerControlMode = 603,
 
 
-        // Getters et Askers de variables d'informations sur les robots
+        //// Getters et Askers de variables d'informations sur les robots
 
-        ID = 800,
-        Name = 801,
-        Color = 802,
-        ControllerControlMode = 803,
+        //ID = 800,
+        //Name = 801,
+        //Color = 802,
+        //ControllerControlMode = 803,
 
         // Commandes haut niveau
 
-        GoToXYTheta = 1000,
+        //GoToXYTheta = 1000,
 
         EmergencySTOP=-1,
         ErrorTextMessage=-4370,
