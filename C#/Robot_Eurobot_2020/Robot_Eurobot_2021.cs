@@ -129,7 +129,7 @@ namespace Robot
                 
         static ImuProcessor.ImuProcessor imuProcessor;
         //static StrategyManagerEurobot strategyManager;
-        static new StrategyManagerNS.StrategyManager strategyManager;
+        static StrategyManagerNS.StrategyManager strategyManager;
 
         //On effectue un cast explicite afin d'utiliser les methodes d'extension definies dans StrategyEurobots2021
         static StrategyManagerNS.StrategyEurobot2021 strategyEurobot;
@@ -222,23 +222,15 @@ namespace Robot
 
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId, bypassMulticast:false);
             strategyManagerDictionary = new Dictionary<int, StrategyManagerNS.StrategyManager>();
-
-
-            //On simule une base station en local
-            //baseStationUdpMulticastSender = new UDPMulticastSender(0, "224.16.32.79");
-            //baseStationUdpMulticastReceiver = new UDPMulticastReceiver(0, "224.16.32.79");
-            //baseStationUdpMulticastInterpreter = new UDPMulticastInterpreter(0);
-
+            
             robotUdpMulticastSender = new UDPMulticastSender(robotId, "224.16.32.79");
             robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, "224.16.32.79");
             robotUdpMulticastInterpreter = new UDPMulticastInterpreter(robotId);
 
             globalWorldMapManager = new GlobalWorldMapManager(robotId);
-            //strategyManager = new StrategyManagerEurobot(robotId, teamId);
             strategyManager = new StrategyManagerNS.StrategyManager(robotId, teamId, "224.16.32.79", GameMode.Eurobot);
             //On effectue un cast explicite afin d'utiliser les methodes d'extension definies dans StrategyEurobots2021
             strategyEurobot = strategyManager.strategy as StrategyManagerNS.StrategyEurobot2021;
-            //waypointGenerator = new WaypointGenerator(robotId, Utilities.GameMode.Eurobot);
             trajectoryPlanner = new TrajectoryPlanner(robotId, GameMode.Eurobot);
 
             herkulexManager = new HerkulexManager();
@@ -271,10 +263,8 @@ namespace Robot
 
             //Liens entre modules
             //strategyManager.strategy.OnRefereeBoxCommandEvent += globalWorldMapManager.OnRefereeBoxCommandReceived;
-            //trategyManager.strategy.OnDestinationEvent += waypointGenerator.OnDestinationReceived;
             strategyManager.strategy.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
             strategyManager.strategy.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
-            //strategyManager.strategy.OnHeatMapStrategyEvent += waypointGenerator.OnStrategyHeatMapReceived;
 
             //Kalman
             perceptionManager.OnAbsolutePositionEvent += kalmanPositioning.OnAbsolutePositionCalculatedEvent;
@@ -499,18 +489,15 @@ namespace Robot
             //Sur evenement xx        -->>        Action a effectuer
             msgDecoder.OnMessageDecodedEvent += interfaceRobot.DisplayMessageDecoded;
             msgDecoder.OnMessageDecodedErrorEvent += interfaceRobot.DisplayMessageDecodedError;
-            //if(usingLidar)
-            //    lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += interfaceRobot.OnRawLidarDataReceived;
+            
+            lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += interfaceRobot.OnRawLidarDataReceived;
             perceptionManager.OnLidarBalisePointListForDebugEvent += interfaceRobot.OnRawLidarBalisePointsReceived;
 
             robotMsgGenerator.OnMessageToDisplaySpeedPolarPidSetupEvent += interfaceRobot.OnMessageToDisplayPolarSpeedPidSetupReceived;
             robotMsgGenerator.OnMessageToDisplaySpeedIndependantPidSetupEvent += interfaceRobot.OnMessageToDisplayIndependantSpeedPidSetupReceived;
             trajectoryPlanner.OnMessageToDisplayPositionPidSetupEvent += interfaceRobot.OnMessageToDisplayPositionPidSetupReceived;
             trajectoryPlanner.OnMessageToDisplayPositionPidCorrectionEvent += interfaceRobot.OnMessageToDisplayPositionPidCorrectionReceived;
-
-            //herkulexManager.OnHerkulexServoInformationEvent += interfaceRobot.OnHerkulexServoInformationReceived;
-
-
+            
             //On récupère les évènements de type refbox, qui sont ici des tests manuels dans le globalManager pour lancer à la main des actions ou stratégies
             //interfaceRobot.OnRefereeBoxCommandEvent +=  globalWorldMapManager.OnRefereeBoxCommandReceived;
             interfaceRobot.OnMulticastSendRefBoxCommandEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;

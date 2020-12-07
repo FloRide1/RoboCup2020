@@ -217,21 +217,21 @@ namespace RobotInterface
             }));
         }
 
-        //public void OnRawLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
-        //{
-        //    List<Point> ptList = new List<Point>();
-        //    ptList = e.PtList.Select(p => new Point(p.Angle, p.Rssi)).ToList();
-        //    oscilloLidar.UpdatePointListOfLine(0, ptList);
-        //    List<Point> ptList2 = new List<Point>();
-        //    ptList2 = e.PtList.Select(p => new Point(p.Angle, p.Distance)).ToList();
-        //    oscilloLidar.UpdatePointListOfLine(1, ptList2);
-        //}
+        public void OnRawLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
+        {
+            List<Point> ptList = new List<Point>();
+            ptList = e.PtList.Select(p => new Point(p.Angle, p.Rssi)).ToList();
+            oscilloLidar.UpdatePointListOfLine(0, ptList);
+            List<Point> ptList2 = new List<Point>();
+            ptList2 = e.PtList.Select(p => new Point(p.Angle, p.Distance)).ToList();
+            oscilloLidar.UpdatePointListOfLine(1, ptList2);
+        }
 
         public void OnRawLidarBalisePointsReceived(object sender, EventArgsLibrary.RawLidarArgs e)
         {
-            List<Point> ptList2 = new List<Point>();
-            ptList2 = e.PtList.Select(p => new Point(p.Angle, p.Distance)).ToList();
-            oscilloLidar.UpdatePointListOfLine(2, ptList2);
+            List<Point> ptListBalises = new List<Point>();
+            ptListBalises = e.PtList.Select(p => new Point(p.Angle, p.Distance)).ToList();
+            oscilloLidar.UpdatePointListOfLine(2, ptListBalises);
         }
 
         public void OnMessageToDisplayPolarSpeedPidSetupReceived(object sender, PolarPIDSetupArgs e)
