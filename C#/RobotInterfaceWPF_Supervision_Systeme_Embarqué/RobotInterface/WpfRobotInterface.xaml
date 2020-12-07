@@ -25,7 +25,6 @@
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
-            <RowDefinition Height="1*"/>
             <RowDefinition Height="1.6*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -48,14 +47,7 @@
         </TabControl>
         <oscillo:WpfOscilloscope x:Name="oscilloX" Grid.Column="1" Grid.Row="0" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
         <oscillo:WpfOscilloscope x:Name="oscilloY" Grid.Column="0" Grid.Row="1" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
-        <Grid Grid.Column="1" Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="150"/>
-                <ColumnDefinition Width="1*"/>
-            </Grid.ColumnDefinitions>
-            <Image Source="Ressources/Robot_Shape.png"></Image>
-            <oscillo:WpfOscilloscope x:Name="oscilloTheta" Grid.Column="1" Grid.Row="0" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
-        </Grid>
+        <oscillo:WpfOscilloscope x:Name="oscilloTheta" Grid.Column="1" Grid.Row="1" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
 
         <Grid Grid.Column="0" Grid.Row="2"  >
             <Grid.RowDefinitions>
@@ -100,49 +92,48 @@
                     <Label x:Name="LabelBattCommandVoltage" Content="BATT COMMAND Voltage : " Foreground="White"></Label>
                     <Label x:Name="LabelBattPowerVoltage" Content="BATT POWER Voltage : " Foreground="White"></Label>
                 </StackPanel>
-                <ScrollViewer Name="scrollViewerTextBoxConsole" Grid.Column="1">
-                    <TextBlock Name="textBoxConsole" HorizontalAlignment="Stretch" Margin="0,0,0,0" TextWrapping="WrapWithOverflow" Text="" VerticalAlignment="Stretch" Background="Transparent" Foreground="White"
-                                   ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"/>
-                </ScrollViewer>
+                <Image Grid.Column="1" Source="Ressources/Robot_Shape.png" Margin="20"></Image>
             </Grid>
         </GroupBox>
 
 
-        <oscillo:WpfOscilloscope x:Name="oscilloLidar" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
-        <!--<ext:LocalWorldMapDisplay x:Name="worldMapDisplay" Grid.Row="1" Grid.Column="1"  MouseDoubleClick="worldMapDisplay_MouseDoubleClick" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></ext:LocalWorldMapDisplay>-->
-        <Viewbox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="1" Stretch="Uniform" MaxWidth="900" MaxHeight="800"   >
-            <ext:LocalWorldMapDisplay x:Name="worldMapDisplayStrategy" Width="300" Height="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></ext:LocalWorldMapDisplay>
-            <!--MouseDoubleClick="worldMapDisplay_MouseDoubleClick"-->
-        </Viewbox>
-        <Viewbox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1" Stretch="Uniform" MaxWidth="900" MaxHeight="800"   >
-            <ext:LocalWorldMapDisplay x:Name="worldMapDisplayWaypoint" Width="300" Height="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></ext:LocalWorldMapDisplay>
-            <!--MouseDoubleClick="worldMapDisplay_MouseDoubleClick"-->
-        </Viewbox>
-
-        <Grid Grid.Row="4" Grid.Column="2" >
+        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="6*"/>
                 <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="64"/>
             </Grid.ColumnDefinitions>
-
-            
-
-            <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="0">
-                <Button x:Name="Button_0_0" Width="60" Content="Go to (0,0)" Click="Button_0_0_Click"/>
-                <Button x:Name="Button_0_1" Width="60" Margin="1" Content="Go to (0,1)" Click="Button_0_1_Click"/>
-                <Button x:Name="Button_1_0" Width="60" Margin="1" Content="Go to (1,0)" Click="Button_1_0_Click"/>
-                <Button x:Name="Button_0_m1" Width="60" Margin="1" Content="Go to (0,-1)" Click="Button_0_m1_Click"/>
-                <Button x:Name="Button_m1_0" Width="60" Margin="1" Content="Go to (-1,0)" Click="Button_m1_0_Click"/>
-            </StackPanel>
+            <oscillo:WpfOscilloscope x:Name="oscilloLidar"  MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
+            <GroupBox Grid.Column="1" Margin="5" Header="Shortcuts" HorizontalAlignment="Stretch" Grid.Row="1" VerticalAlignment="Stretch" Background="Transparent" Foreground="White">
+                <StackPanel VerticalAlignment="Top">
+                    <Button x:Name="Button_0_0" HorizontalAlignment="Stretch" Content="Go to (0,0)" Click="Button_0_0_Click"/>
+                    <Button x:Name="Button_0_1" HorizontalAlignment="Stretch" Margin="1" Content="Go to (0,1)" Click="Button_0_1_Click"/>
+                    <Button x:Name="Button_1_0" HorizontalAlignment="Stretch" Margin="1" Content="Go to (1,0)" Click="Button_1_0_Click"/>
+                    <Button x:Name="Button_0_m1" HorizontalAlignment="Stretch" Margin="1" Content="Go to (0,-1)" Click="Button_0_m1_Click"/>
+                    <Button x:Name="Button_m1_0" HorizontalAlignment="Stretch" Margin="1" Content="Go to (-1,0)" Click="Button_m1_0_Click"/>
+                </StackPanel>
+            </GroupBox>
         </Grid>
-
-
-
-
-        <!--<GroupBox x:Name="groupBox" Header="Reception" Margin="0" Background="#FFDDDDDD" BorderBrush="Black" Grid.Column="1" Grid.Row="1">
-            <TextBox x:Name="textBoxReception" Margin="0" Grid.Row="1" TextWrapping="Wrap" Background="{x:Null}" BorderBrush="{x:Null}" IsReadOnly="True" AcceptsReturn="True"/>
-        </GroupBox>-->
-        <!--  Create the chart surface  -->
+        <Viewbox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="1" Stretch="Uniform" MaxWidth="900" MaxHeight="800" >
+            <ext:LocalWorldMapDisplay x:Name="worldMapDisplayStrategy" Padding="5" Width="300" Height="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></ext:LocalWorldMapDisplay>
+        </Viewbox>
+        <Viewbox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" Stretch="Uniform" MaxWidth="900" MaxHeight="800"   >
+            <ext:LocalWorldMapDisplay x:Name="worldMapDisplayWaypoint" Padding="5" Width="300" Height="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></ext:LocalWorldMapDisplay>
+        </Viewbox>
+        <Grid Grid.Row="3" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="ButtonOnOffCamera" Width="100" HorizontalAlignment="Stretch" Content="On/Off"/>
+                <Button x:Name="ButtonCalibrateCamera" Width="100" HorizontalAlignment="Stretch" Margin="1" Content="Calibrate"/>
+                <Button x:Name="ButtonDebugCam1" Width="100" HorizontalAlignment="Stretch" Margin="1" Content="Show Debug 1"/>
+                <Button x:Name="ButtonDebugCam2" Width="100" HorizontalAlignment="Stretch" Margin="1" Content="Show Debug 2"/>
+            </StackPanel>
+            <GroupBox x:Name="ImageDebug1" Header="Camera Display" Margin="0" Grid.Column="2" Grid.Row="3"  Foreground="White">
+                <Image x:Name="imageCamera1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            </GroupBox>
+        </Grid>
 
     </Grid>
 </Window>

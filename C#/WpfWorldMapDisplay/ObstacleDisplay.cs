@@ -8,7 +8,7 @@ namespace WpfWorldMapDisplay
     public class ObstacleDisplay
     {
         private Random rand = new Random();
-        private LocationExtended location = new LocationExtended(0, 0, 0, 0, 0, 0, ObjectType.Obstacle);
+        public LocationExtended location = new LocationExtended(0, 0, 0, 0, 0, 0, ObjectType.Obstacle);
         private System.Drawing.Color backgroundColor = System.Drawing.Color.Yellow;
         private System.Drawing.Color borderColor = System.Drawing.Color.DarkRed;
         private int borderWidth = 5;

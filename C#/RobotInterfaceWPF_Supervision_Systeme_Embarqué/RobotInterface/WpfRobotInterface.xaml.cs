@@ -182,7 +182,7 @@ namespace RobotInterface
                 {
                     output += "Servo " + HerkulexServos.Keys.ElementAt(i) + " : " + HerkulexServos.Values.ElementAt(i) + "\n";
                 }
-                textBoxConsole.Text = output;
+                //textBoxConsole.Text = output;
             }
             //currentTime += 0.050;
             //double value = Math.Sin(0.5 * currentTime);
@@ -267,19 +267,19 @@ namespace RobotInterface
 
             if (counterServo++ % HerkulexServos.Count == 0) //On n'affiche qu'une fois tous les n évènements, n étant égal au nombre de servos
             {
-                textBoxConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
-                {
-                    string output = "";
-                    lock (HerkulexServos)
-                    {
-                        for (int i = 0; i < HerkulexServos.Count; i++)
-                        {
-                            //output += "Servo " + HerkulexServos.Keys.ElementAt(i) + " Abs Pos : " + HerkulexServos.Values.ElementAt(i).AbsolutePosition + " Cal Pos : "+ HerkulexServos.Values.ElementAt(i).CalibratedPosition + "\n";
-                            output += "Servo " + HerkulexServos.Keys.ElementAt(i) + " Cal Pos : " + HerkulexServos.Values.ElementAt(i).CalibratedPosition + "\n";
-                        }
-                    }
-                    textBoxConsole.Text = output;
-                }));
+                //textBoxConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
+                //{
+                //    string output = "";
+                //    lock (HerkulexServos)
+                //    {
+                //        for (int i = 0; i < HerkulexServos.Count; i++)
+                //        {
+                //            //output += "Servo " + HerkulexServos.Keys.ElementAt(i) + " Abs Pos : " + HerkulexServos.Values.ElementAt(i).AbsolutePosition + " Cal Pos : "+ HerkulexServos.Values.ElementAt(i).CalibratedPosition + "\n";
+                //            output += "Servo " + HerkulexServos.Keys.ElementAt(i) + " Cal Pos : " + HerkulexServos.Values.ElementAt(i).CalibratedPosition + "\n";
+                //        }
+                //    }
+                //    textBoxConsole.Text = output;
+                //}));
             }
         }
 
@@ -788,15 +788,15 @@ namespace RobotInterface
             //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
             //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
             //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
-            textBoxConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
-            {
-                textBoxConsole.Text += e.value+'\n';
-                if (textBoxConsole.Text.Length >= 2000)
-                {
-                    textBoxConsole.Text = textBoxConsole.Text.Remove(0, 2000);
-                }
-                scrollViewerTextBoxConsole.ScrollToEnd();
-            }));
+            //textBoxConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
+            //{
+            //    textBoxConsole.Text += e.value+'\n';
+            //    if (textBoxConsole.Text.Length >= 2000)
+            //    {
+            //        textBoxConsole.Text = textBoxConsole.Text.Remove(0, 2000);
+            //    }
+            //    scrollViewerTextBoxConsole.ScrollToEnd();
+            //}));
         }
 
 

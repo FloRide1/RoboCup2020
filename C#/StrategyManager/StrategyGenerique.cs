@@ -51,7 +51,8 @@ namespace StrategyManagerNS
         public string DisplayName;
 
         public GlobalWorldMap globalWorldMap;
-        public Heatmap positioningHeatMap;
+        public Heatmap WayPointHeatMap;
+        public Heatmap strategyHeatMap;
         public Location robotCurrentLocation = new Location(0, 0, 0, 0, 0, 0);
         public double robotOrientation;
 
@@ -113,10 +114,7 @@ namespace StrategyManagerNS
             robotCurrentLocation.Vx = location.Location.Vx;
             robotCurrentLocation.Vy = location.Location.Vy;
             robotCurrentLocation.Vtheta = location.Location.Vtheta;
-        }
-
-
-        
+        }        
 
         bool displayConsole = false;
         object strategyLock = new object();
@@ -143,19 +141,17 @@ namespace StrategyManagerNS
 
 
                     sw.Restart();
-                    PositioningHeatMapGeneration();
+                    GenerateStrategyHeatMap();
                     if (displayConsole)
                         Console.WriteLine("Tps calcul Heatmap Destination : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
 
                     sw.Restart();
-                    var optimalPosition = GetOptimalDestination();
+                    var optimalPosition = GetOptimalStrategyDestination();
                     if (displayConsole)
                         Console.WriteLine("Tps calcul Get Optimal Destination : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
 
                     List<LocationExtended> obstacleList = new List<LocationExtended>();
-
                     double seuilDetectionObstacle = 0.4;
-
                     sw.Restart();
                     //Construction de la liste des obstacles en enlevant le robot lui-même
                     lock (globalWorldMap)
@@ -181,25 +177,29 @@ namespace StrategyManagerNS
                     if (displayConsole)
                         Console.WriteLine("Tps calcul Génération obstacles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
 
-                    //Renvoi de la HeatMap Stratégie
+                    ///Renvoi de la HeatMap Stratégie
                     sw.Restart();
-                    OnHeatMapStrategy(robotId, positioningHeatMap);
+                    OnHeatMapStrategy(robotId, strategyHeatMap);
+
                     if (displayConsole)
                         Console.WriteLine("Tps envoi strat Heatmap : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
 
+                    ///On copie la heatmap de strategy dans la heatmap de waypoint pour la compléter sans abimer la première
+                    CopyStrategyHeatMapToWayPointHeatMap();
+
                     /// Calcul de la HeatMap WayPoint
                     sw.Restart();
-                    positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, ObstacleAvoidanceDistance);
+                    WayPointHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, ObstacleAvoidanceDistance);
                     if (displayConsole)
                         Console.WriteLine("Tps calcul zones exclusion obstacles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
 
                     sw.Restart();
-                    OnHeatMapWayPoint(robotId, positioningHeatMap);
+                    OnHeatMapWayPoint(robotId, WayPointHeatMap);
                     if (displayConsole)
                         Console.WriteLine("Tps calcul HeatMap WayPoint : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
 
                     sw.Restart();
-                    var optimalWayPoint = GetOptimalDestination();
+                    var optimalWayPoint = GetOptimalStrategyDestination();
                     if (displayConsole)
                         Console.WriteLine("Tps calcul Get Optimal Waypoint : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure mesure
 
@@ -245,7 +245,7 @@ namespace StrategyManagerNS
 
         public abstract void IterateStateMachines(); //A définir dans les classes héritées
 
-        private void PositioningHeatMapGeneration()
+        private void GenerateStrategyHeatMap()
         {
             //TestGPU.ActionWithClosure();
             sw.Reset();
@@ -253,28 +253,33 @@ namespace StrategyManagerNS
 
             //Génération de la HeatMap
             
-            positioningHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList, 
+            strategyHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList, 
                 strictlyAllowedRectangleList, preferredRectangleList, avoidanceConicalZoneList, preferredSegmentZoneList);
 
             sw.Stop();
         }
 
-        public PointD GetOptimalDestination()
+        public PointD GetOptimalStrategyDestination()
         {
-            PointD optimalPosition = positioningHeatMap.GetOptimalPosition();
-
-            //TODO à gérer à partir des coordonnées des centres des zones préférées
-
-            //Si la position optimale est très de la cible théorique, on prend la cible théorique
-            //double seuilPositionnementFinal = 0.1;
-            //if (Toolbox.Distance(new PointD(robotDestination.X, robotDestination.Y), new PointD(OptimalPosition.X, OptimalPosition.Y)) < seuilPositionnementFinal)
-            //{
-            //    OptimalPosition = robotDestination;
-            //}
-
-            //OnDestination(robotId, new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, (float)robotOrientation, 0, 0, 0));
+            PointD optimalPosition = strategyHeatMap.GetOptimalPosition();
             return optimalPosition;
         }
+
+        public PointD GetOptimalWayPointDestination()
+        {
+            PointD optimalPosition = WayPointHeatMap.GetOptimalPosition();
+            return optimalPosition;
+        }
+
+        public void CopyStrategyHeatMapToWayPointHeatMap()
+        { 
+            for(int i=0; i<strategyHeatMap.nbCellInBaseHeatMapHeight; i++)
+            {
+                for (int j = 0; j < strategyHeatMap.nbCellInBaseHeatMapWidth; j++)
+                    WayPointHeatMap.BaseHeatMapData[i,j] = strategyHeatMap.BaseHeatMapData[i,j];
+            }
+        }
+
 
         //Zones circulaires préférentielles
         List<Zone> preferredZonesList = new List<Zone>();

@@ -40,14 +40,6 @@ namespace HeatMap
             BaseHeatMapData = new double[nbCellInBaseHeatMapHeight, nbCellInBaseHeatMapWidth];
         }
 
-        //public void InitHeatMapData()
-        //{
-        //    lock (BaseHeatMapData)
-        //    {
-        //        BaseHeatMapData = new double[nbCellInBaseHeatMapHeight, nbCellInBaseHeatMapWidth];
-        //    }
-        //}
-               
         public PointD GetFieldPosFromBaseHeatMapCoordinates(double xHeatMap, double yHeatMap)
         {
             //return new PointD(-HalfFieldLength + x * BaseCellSize, -HalfFieldHeight + y * BaseCellSize);

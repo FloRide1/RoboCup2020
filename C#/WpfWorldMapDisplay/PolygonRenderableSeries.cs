@@ -1,6 +1,7 @@
 ﻿using SciChart.Charting.Model.DataSeries;
 using SciChart.Charting.Visuals.RenderableSeries;
 using SciChart.Drawing.Common;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -12,7 +13,7 @@ namespace WpfWorldMapDisplay
 {
     public class PolygonRenderableSeries : CustomRenderableSeries
     {
-        Dictionary<int, PolygonExtended> polygonList = new Dictionary<int, PolygonExtended>();
+        ConcurrentDictionary<int, PolygonExtended> polygonList = new ConcurrentDictionary<int, PolygonExtended>();
         XyDataSeries<double, double> lineData = new XyDataSeries<double, double> { }; //Nécessaire pour l'update d'affichage
 
         public PolygonRenderableSeries()
@@ -21,10 +22,7 @@ namespace WpfWorldMapDisplay
 
         public void AddOrUpdatePolygonExtended(int id, PolygonExtended p)
         {
-            if (polygonList.ContainsKey(id))
-                polygonList[id] = p;
-            else
-                polygonList.Add(id, p);
+            polygonList.AddOrUpdate(id, p, (key, value) => p);
         }
 
         public void Clear()

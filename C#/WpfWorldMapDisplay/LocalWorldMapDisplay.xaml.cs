@@ -7,6 +7,7 @@ using SciChart.Charting.Model.DataSeries.Heatmap2DArrayDataSeries;
 using SciChart.Charting.Visuals.Annotations;
 using SciChart.Charting.Visuals.Axes;
 using SciChart.Core.Utility.Mouse;
+using SciChart.Drawing.VisualXcceleratorRasterizer;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -150,10 +151,15 @@ namespace WpfWorldMapDisplay
                     break;
             }
 
-            this.sciChart.XAxis.VisibleRange.SetMinMax(-LengthDisplayArea / 2, LengthDisplayArea / 2);
-            this.sciChart.YAxis.VisibleRange.SetMinMax(-WidthDisplayArea / 2, WidthDisplayArea / 2);
+            this.sciChartSurface.XAxis.VisibleRange.SetMinMax(-LengthDisplayArea / 2, LengthDisplayArea / 2);
+            this.sciChartSurface.YAxis.VisibleRange.SetMinMax(-WidthDisplayArea / 2, WidthDisplayArea / 2);
 
             SetFieldImageBackGround(imagePath);
+
+            if (sciChartSurface.RenderSurface.GetType() == typeof(VisualXcceleratorRenderSurface))
+            {
+                Console.WriteLine("Scichart LocalWorldMapDisplay : DirectX enabled");
+            }
         }
 
         public void InitTeamMate(int robotId, GameMode gMode, string playerName)
@@ -248,7 +254,7 @@ namespace WpfWorldMapDisplay
 
         public void AddOrUpdateTextAnnotation(string annotationName, string annotationText, double posX, double posY)
         {
-            var textAnnotationList = sciChart.Annotations.Where(annotation => annotation.GetType().Name == "TextAnnotation").ToList();
+            var textAnnotationList = sciChartSurface.Annotations.Where(annotation => annotation.GetType().Name == "TextAnnotation").ToList();
             var annot = textAnnotationList.FirstOrDefault(c => ((TextAnnotation)c).Name == annotationName);
             if (annot == null)
             {
@@ -256,28 +262,28 @@ namespace WpfWorldMapDisplay
                 textAnnot.Text = annotationText;
                 textAnnot.X1 = posX;
                 textAnnot.Y1 = posY;
-                sciChart.Annotations.Add(textAnnot);
+                sciChartSurface.Annotations.Add(textAnnot);
             }
         }
 
         public void UpdateWorldMapDisplay()
         {
-            DrawBalls();
+            UpdateBallPolygons();
             DrawTeam();
-            DrawObstacles();
+            UpdateObstaclesPolygons();
             if (TeamMatesDisplayDictionary.Count == 1) //Cas d'un affichage de robot unique (localWorldMap)
             {
                 AnnotRobotRole.Text = TeamMatesDisplayDictionary.First().Value.robotRole.ToString();
                 //DrawLidar(); 
                 DrawHeatMap(TeamMatesDisplayDictionary.First().Key);
             }
-            PolygonSeries.RedrawAll();
-            ObjectsPolygonSeries.RedrawAll();
-            BallPolygon.RedrawAll();
-            ObstaclePolygons.RedrawAll();
 
             if(competition == GameMode.RoboCup)
                 PolygonTerrainSeries.RedrawAll();
+            PolygonSeries.RedrawAll();
+            ObjectsPolygonSeries.RedrawAll();
+            BallPolygon.RedrawAll();
+
         }
 
         public void UpdateLocalWorldMap(LocalWorldMap localWorldMap)
@@ -343,7 +349,7 @@ namespace WpfWorldMapDisplay
             }
         }
 
-        public void DrawBalls()
+        public void UpdateBallPolygons()
         {
             lock (BallDisplayList)
             {
@@ -357,18 +363,23 @@ namespace WpfWorldMapDisplay
                 }
             }
         }
-        public void DrawObstacles()
+        public void UpdateObstaclesPolygons()
         {
             lock (ObstacleDisplayList)
             {
                 int indexObstacle = 0;
-                foreach (var obstacle in ObstacleDisplayList)
-                {
-                    //Affichage des obstacles
-                    ObstaclePolygons.AddOrUpdatePolygonExtended((int)ObstacleId.Obstacle + indexObstacle, obstacle.GetObstaclePolygon());
-                    //ObstaclePolygons.AddOrUpdatePolygonExtended((int)ObstacleId.Obstacle + indexBall + (int)Caracteristique.Speed, obstacle.GetObstacleSpeedArrow());
-                    indexObstacle++;
-                }
+                //ObstaclePolygons = new PolygonRenderableSeries();
+                var toto = ObstacleDisplayList.Select(x => new PointD(x.location.X, x.location.Y));
+                var obstaclesPoints = GetXYDataSeriesFromPoints(toto.ToList());
+                ObstaclePoints.DataSeries = obstaclesPoints;
+
+                //foreach (var obstacle in ObstacleDisplayList)
+                //{
+                //    //Affichage des obstacles
+                //    ObstaclePolygons.AddOrUpdatePolygonExtended((int)ObstacleId.Obstacle + indexObstacle, obstacle.GetObstaclePolygon());
+                //    //ObstaclePolygons.AddOrUpdatePolygonExtended((int)ObstacleId.Obstacle + indexBall + (int)Caracteristique.Speed, obstacle.GetObstacleSpeedArrow());
+                //    indexObstacle++;
+                //}
             }
         }
 
@@ -966,18 +977,18 @@ namespace WpfWorldMapDisplay
             {
                 Console.WriteLine("CTRL+Click");
                 // Perform the hit test relative to the GridLinesPanel
-                var hitTestPoint = e.GetPosition(sciChart.GridLinesPanel as UIElement);
-                foreach (var serie in sciChart.RenderableSeries)
+                var hitTestPoint = e.GetPosition(sciChartSurface.GridLinesPanel as UIElement);
+                foreach (var serie in sciChartSurface.RenderableSeries)
                 {
                     if (serie.GetType().Name == "FastUniformHeatmapRenderableSeries")
                     {
-                        double xmin = (double)sciChart.XAxes[0].VisibleRange.Min;
-                        double xmax = (double)sciChart.XAxes[0].VisibleRange.Max;
-                        double ymin = (double)sciChart.YAxes[0].VisibleRange.Min;
-                        double ymax = (double)sciChart.YAxes[0].VisibleRange.Max;
+                        double xmin = (double)sciChartSurface.XAxes[0].VisibleRange.Min;
+                        double xmax = (double)sciChartSurface.XAxes[0].VisibleRange.Max;
+                        double ymin = (double)sciChartSurface.YAxes[0].VisibleRange.Min;
+                        double ymax = (double)sciChartSurface.YAxes[0].VisibleRange.Max;
 
-                        var width = sciChart.ModifierSurface.ActualWidth;
-                        var height = sciChart.ModifierSurface.ActualHeight;
+                        var width = sciChartSurface.ModifierSurface.ActualWidth;
+                        var height = sciChartSurface.ModifierSurface.ActualHeight;
 
                         var xHeatMap = xmin + (xmax - xmin) * hitTestPoint.X / width;
                         var yHeatMap = -(ymin + (ymax - ymin) * hitTestPoint.Y / height);
@@ -992,8 +1003,8 @@ namespace WpfWorldMapDisplay
         private void sciChart_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
 
-            this.sciChart.XAxis.VisibleRange.SetMinMax(-LengthDisplayArea / 2, LengthDisplayArea / 2);
-            this.sciChart.YAxis.VisibleRange.SetMinMax(-WidthDisplayArea / 2, WidthDisplayArea / 2);
+            this.sciChartSurface.XAxis.VisibleRange.SetMinMax(-LengthDisplayArea / 2, LengthDisplayArea / 2);
+            this.sciChartSurface.YAxis.VisibleRange.SetMinMax(-WidthDisplayArea / 2, WidthDisplayArea / 2);
         }
 
         //Event en cas de CTRL+click dans une heatmap
@@ -1005,6 +1016,17 @@ namespace WpfWorldMapDisplay
             {
                 handler(this, new PositionArgs { X = x, Y = y });
             }
+        }
+
+
+        public XyDataSeries<double, double> GetXYDataSeriesFromPoints(List<PointD> ptList)
+        {
+            var dataSeries = new XyDataSeries<double, double>();
+            var listX = ptList.Select(e => e.X);
+            var listY = ptList.Select(e => e.Y);
+            dataSeries.AcceptsUnsortedData = true;
+            dataSeries.Append(listX, listY);
+            return dataSeries;
         }
     }
 

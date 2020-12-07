@@ -232,6 +232,7 @@ namespace WpfWorldMapDisplay
             }
             return dataSeries;
         }
+
         public XyDataSeries<double, double> GetRobotLidarProcessedPoints()
         {
             var dataSeries = new XyDataSeries<double, double>();
