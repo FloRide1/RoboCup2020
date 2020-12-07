@@ -21,29 +21,16 @@ namespace RobotPilot
         }
 
         //Events générés en sortie
-        public delegate void SpeedConsigneEventHandler(object sender, PolarSpeedArgs e);
-        public event EventHandler<PolarSpeedArgs> OnSpeedConsigneEvent;
-        public virtual void OnSpeedConsigneToRobot(int id, float vx, float vy, float vtheta)
-        {
-            var handler = OnSpeedConsigneEvent;
-            if (handler != null)
-            {
-                handler(this, new PolarSpeedArgs {RobotId=id, Vx = vx, Vy = vy, Vtheta = vtheta });
-            }
-        }
-
-
-        public delegate void SpeedConsigneToMotorEventHandler(object sender, SpeedConsigneToMotorArgs e);
-        public event EventHandler<SpeedConsigneToMotorArgs> OnSpeedConsigneToMotorEvent;
-        public virtual void OnSpeedConsigneToMotor(float speed, MotorControlName motor)
-        {
-            var handler = OnSpeedConsigneToMotorEvent;
-            if (handler != null)
-            {
-                handler(this, new SpeedConsigneToMotorArgs { V = speed, MotorNumber = (byte)motor});
-            }
-        }
-        
+        //public delegate void SpeedConsigneEventHandler(object sender, PolarSpeedArgs e);
+        //public event EventHandler<PolarSpeedArgs> OnSpeedConsigneEvent;
+        //public virtual void OnSpeedConsigneToRobot(int id, float vx, float vy, float vtheta)
+        //{
+        //    var handler = OnSpeedConsigneEvent;
+        //    if (handler != null)
+        //    {
+        //        handler(this, new PolarSpeedArgs {RobotId=id, Vx = vx, Vy = vy, Vtheta = vtheta });
+        //    }
+        //}              
 
         public delegate void SendPositionFromKalmanFilterEventHandler(object sender, LocationArgs e);
         public event EventHandler<LocationArgs> OnSendPositionFromKalmanFilterEvent;

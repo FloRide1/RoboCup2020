@@ -66,7 +66,7 @@ namespace RobotInterface
             
             var currentDir = Directory.GetCurrentDirectory();
             var racineProjets = Directory.GetParent(currentDir);
-            var imagePath = racineProjets.Parent.Parent.Parent.FullName.ToString() + "\\Images\\";
+            var imagePath = racineProjets.Parent.Parent.FullName.ToString() + "\\Images\\";
             if (gameMode == GameMode.Eurobot)
             {
                 worldMapDisplayStrategy.Init(gameMode, LocalWorldMapDisplayType.StrategyMap, imagePath + "Eurobot2020.png");
@@ -217,15 +217,15 @@ namespace RobotInterface
             }));
         }
 
-        public void OnRawLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
-        {
-            List<Point> ptList = new List<Point>();
-            ptList = e.PtList.Select(p => new Point(p.Angle, p.Rssi)).ToList();
-            oscilloLidar.UpdatePointListOfLine(0, ptList);
-            List<Point> ptList2 = new List<Point>();
-            ptList2 = e.PtList.Select(p => new Point(p.Angle, p.Distance)).ToList();
-            oscilloLidar.UpdatePointListOfLine(1, ptList2);
-        }
+        //public void OnRawLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
+        //{
+        //    List<Point> ptList = new List<Point>();
+        //    ptList = e.PtList.Select(p => new Point(p.Angle, p.Rssi)).ToList();
+        //    oscilloLidar.UpdatePointListOfLine(0, ptList);
+        //    List<Point> ptList2 = new List<Point>();
+        //    ptList2 = e.PtList.Select(p => new Point(p.Angle, p.Distance)).ToList();
+        //    oscilloLidar.UpdatePointListOfLine(1, ptList2);
+        //}
 
         public void OnRawLidarBalisePointsReceived(object sender, EventArgsLibrary.RawLidarArgs e)
         {

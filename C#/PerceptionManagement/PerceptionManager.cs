@@ -11,6 +11,7 @@ namespace PerceptionManagement
     public class PerceptionManager
     {
         int robotId = 0;
+        GameMode competition;
         
         List<LocationExtended> physicalObjectList;
         Perception robotPerception;
@@ -20,9 +21,10 @@ namespace PerceptionManagement
 
         GlobalWorldMap globalWorldMap;
 
-        public PerceptionManager(int id)
+        public PerceptionManager(int id, GameMode compet)
         {
             robotId = id;
+            competition = compet;
             globalWorldMap = new GlobalWorldMap();
 
             robotPerception = new Perception();
@@ -31,16 +33,18 @@ namespace PerceptionManagement
             //Chainage des modules composant le Perception Manager
             absolutePositionEstimator = new AbsolutePositionEstimator(robotId);
 
-            lidarProcessor = new LidarProcessor.LidarProcessor(robotId);
+            lidarProcessor = new LidarProcessor.LidarProcessor(robotId, competition);
             lidarProcessor.OnLidarBalisesListExtractedEvent += absolutePositionEstimator.OnLidarBalisesListExtractedEvent;
             lidarProcessor.OnLidarBalisePointListForDebugEvent += OnLidarBalisePointListForDebugReceived;
-            lidarProcessor.OnLidarObjectProcessedEvent += OnLidarObjectsReceived; 
+            lidarProcessor.OnLidarObjectProcessedEvent += OnLidarObjectsReceived;
+            lidarProcessor.OnLidarProcessedEvent += OnLidarProcessedData;
 
             absolutePositionEstimator.OnAbsolutePositionCalculatedEvent += OnAbsolutePositionCalculatedEvent;
 
             PerceptionMonitor.swPerception.Start();
 
         }
+
 
         private void OnLidarBalisePointListForDebugReceived(object sender, RawLidarArgs e)
         {
@@ -229,7 +233,16 @@ namespace PerceptionManagement
             robotPerception.ballLocationList = e.LocationList;            
         }
 
-        public delegate void PerceptionEventHandler(object sender, PerceptionArgs e);
+        public event EventHandler<RawLidarArgs> OnLidarProcessedDataEvent;
+        public virtual void OnLidarProcessedData(object sender, RawLidarArgs e)
+        {
+            var handler = OnLidarProcessedDataEvent;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
         public event EventHandler<PerceptionArgs> OnPerceptionEvent;
         public virtual void OnPerception(Perception perception)
         {
@@ -240,7 +253,6 @@ namespace PerceptionManagement
             }
         }
         
-        //public delegate void OnLidarBalisePointListForDebugEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<RawLidarArgs> OnLidarBalisePointListForDebugEvent;
         public virtual void OnLidarBalisePointListForDebug(int id, List<PolarPointRssi> ptList)
         {

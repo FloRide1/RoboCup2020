@@ -17,7 +17,7 @@ namespace WorldMapManager
     public class GlobalWorldMapManager
     {
         int TeamId;
-        double freqRafraichissementWorldMap = 20;
+        double freqRafraichissementWorldMap = 200;
 
         ConcurrentDictionary<int, LocalWorldMap> localWorldMapDictionary = new ConcurrentDictionary<int, LocalWorldMap>();
         //GlobalWorldMapStorage globalWorldMapStorage = new GlobalWorldMapStorage();

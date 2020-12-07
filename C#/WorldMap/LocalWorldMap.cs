@@ -51,6 +51,9 @@ namespace WorldMap
         public virtual List<PointD> lidarMap { get; set; }
         [JsonIgnore]
         [IgnoreFormat]
+        public virtual List<PointD> lidarMapProcessed { get; set; }
+        [JsonIgnore]
+        [IgnoreFormat]
         public virtual Heatmap heatMapStrategy { get; set; }
         [JsonIgnore]
         [IgnoreFormat]

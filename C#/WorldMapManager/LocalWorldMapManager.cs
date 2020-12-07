@@ -173,7 +173,6 @@ namespace WorldMapManager
             }
         }
 
-        //int i = 0;
         public void OnRawLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
         {
             if (localWorldMap == null || localWorldMap.robotLocation == null)
@@ -194,6 +193,28 @@ namespace WorldMapManager
                 catch { };
 
                 localWorldMap.lidarMap = listPtLidar;
+            }
+        }
+        public void OnProcessedLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
+        {
+            if (localWorldMap == null || localWorldMap.robotLocation == null)
+                return;
+            if (localWorldMap.RobotId == e.RobotId && e.PtList.Count != 0)
+            {
+                List<PointD> listPtLidar = new List<PointD>();
+
+                try
+                {
+                    //for (int i = 0; i < 500; i++) //Stress test
+                    {
+                        listPtLidar = e.PtList.Select(
+                        pt => new PointD(localWorldMap.robotLocation.X + pt.Distance * Math.Cos(pt.Angle + localWorldMap.robotLocation.Theta),
+                                         localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle + localWorldMap.robotLocation.Theta))).ToList();
+                    }
+                }
+                catch { };
+
+                localWorldMap.lidarMapProcessed = listPtLidar;
             }
         }
 

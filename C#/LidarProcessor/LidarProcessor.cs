@@ -10,11 +10,14 @@ using Utilities;
 namespace LidarProcessor
 {
     public class LidarProcessor
-    {        
+    {   
         int robotId;
-        public LidarProcessor(int id)
+        GameMode competition;  // Permet de customisezr les traitemetns en fonction de la compétition
+
+        public LidarProcessor(int id, GameMode compet)
         {
             robotId = id;
+            competition = compet;
         }
         public void OnRawLidarDataReceived(object sender, RawLidarArgs e)
         {
@@ -69,9 +72,10 @@ namespace LidarProcessor
             LidarDetectedObject currentObject = new LidarDetectedObject();
             
             //Opérations de traitement du signal LIDAR
-            ptList = PrefiltragePointsIsoles(ptList, 0.04);
+            //ptList = PrefiltragePointsIsoles(ptList, 0.04);
+            //ptList = MedianFilter(ptList, 5);
 
-            BalisesCatadioptriqueList = DetectionBalisesCatadioptriques(ptList, 3.6);
+//            BalisesCatadioptriqueList = DetectionBalisesCatadioptriques(ptList, 3.6);
             BalisesCatadioptriqueList2 = DetectionBalisesCatadioptriquesParRssiEtTaille(ptList, 3.6);
             ObjetsProchesList = DetectionObjetsProches(ptList, 0.17, 2.0, 0.2);
             
@@ -97,34 +101,55 @@ namespace LidarProcessor
                     objectList.Add(currentPolarPointListExtended);
                 }
             }
-            //foreach (var obj in ObjetsPoteauPossible)
-            //{
-            //    PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
-            //    currentPolarPointListExtended.polarPointList = new List<PolarPointRssi>();
-            //    {
-            //        currentPolarPointListExtended.polarPointList = obj.PtList;
-            //        currentPolarPointListExtended.type = ObjectType.Poteau;
-            //        objectList.Add(currentPolarPointListExtended);
-            //    }
-            //}
-            //foreach (var obj in ObjetsFondList)
-            //{
-            //    PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
-            //    currentPolarPointListExtended.polarPointList = new List<PolarPointRssi>();
-            //    //if (obj.Largeur > 0.05 && obj.Largeur < 0.5)
-            //    {
-            //        currentPolarPointListExtended.polarPointList = obj.PtList;
-            //        currentPolarPointListExtended.displayColor = System.Drawing.Color.Blue;
-            //        currentPolarPointListExtended.displayWidth = 1;
-            //        objectList.Add(currentPolarPointListExtended);
-            //    }
-            //}
 
-            //OnLidarProcessed(robotId, ptList);
+            if (competition == GameMode.RoboCup)
+            {
+                ///On fait la recherche du rectangle vide le plus grand 
+                double tailleNoyau = 0.8;
+                //var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
+                //var ptListFiltered = Erosion(Dilatation(ptList, tailleNoyau), tailleNoyau);
+                //var ptListFiltered = Dilatation(ptList, tailleNoyau);
+                var ptListFiltered = Erosion(ptList, tailleNoyau);
+                //var ptListFiltered = ptList;
+                OnLidarProcessed(robotId, ptListFiltered);
+            }
             OnLidarBalisesListExtracted(robotId, BalisesCatadioptriqueList2);
             OnLidarObjectProcessed(robotId, objectList);
         }
 
+        private List<PolarPointRssi> MedianFilter(List<PolarPointRssi> ptList, int size)
+        {
+            List<PolarPointRssi> ptListFiltered = new List<PolarPointRssi>();
+
+            FixedSizedQueue<PolarPointRssi> medianQueue = new FixedSizedQueue<PolarPointRssi>(2 * size + 1);
+
+            //Init
+            for (int i = ptList.Count - 1 - size; i < ptList.Count; i++)
+                medianQueue.Enqueue(ptList[i]);
+            for (int i = 0; i <= size; i++)
+                medianQueue.Enqueue(ptList[i]);
+
+            //Itération
+            for (int i = 0; i < ptList.Count - size - 1; i++)
+            {
+                var medList = medianQueue.OrderBy(x => x.Distance).ToList();
+                var ptToAdd = ptList[i];
+                ptToAdd.Distance = medList[size].Distance;
+                ptListFiltered.Add(ptToAdd);
+                medianQueue.Enqueue(ptList[i + size + 1]);
+            }
+
+            //Fin
+            for (int i = ptList.Count - size - 1; i < ptList.Count; i++)
+            {
+                var medList = medianQueue.OrderBy(x => x.Distance).ToList();
+                var ptToAdd = ptList[i];
+                ptToAdd.Distance = medList[size].Distance;
+                ptListFiltered.Add(ptToAdd);
+                medianQueue.Enqueue(ptList[i + size + 1 - ptList.Count]);
+            }
+            return ptListFiltered;
+        }
         private List<PolarPointRssi> PrefiltragePointsIsoles(List<PolarPointRssi> ptList, double seuilPtIsole)
         {
             //Préfiltrage des points isolés : un pt dont la distance aux voisin est supérieur à un seuil des deux coté est considere comme isolé.
@@ -135,8 +160,212 @@ namespace LidarProcessor
                 {
                     ptListFiltered.Add(ptList[i]);
                 }
+                else
+                {
+                    ptList[i].Distance = 0;
+                    ptListFiltered.Add(ptList[i]);
+                }
             }
             return ptListFiltered;
+        }
+        private List<PolarPointRssi> Dilatation(List<PolarPointRssi> ptList, double rayon)
+        {
+            /// On déclare une liste pour les points de sortie. 
+            /// L'initialisation manuelle est obligatoire, la copie ne marche pas car elle se fait par référence,
+            /// donc tout modification au tableau dilaté se reporterait dans le tableau initial
+            List<PolarPointRssi> ptListDilated = new List<PolarPointRssi>();
+            for (int i = 0; i < ptList.Count; i++)
+            {
+                ptListDilated.Add(new PolarPointRssi(ptList[i].Angle, ptList[i].Distance, ptList[i].Rssi));
+            }
+            double resolutionAngulaire = 2 * Math.PI / ptList.Count;
+
+            for (int i = 0; i < ptList.Count; i++)
+            {
+                if (i == 100)
+                    ;
+                var pt = ptList[i];
+                double dilatationAngulaire = Math.Atan2(rayon, pt.Distance);
+                int nbPasAngulaire = (int)(dilatationAngulaire / resolutionAngulaire);
+                int borneInf = Math.Max(0, i - nbPasAngulaire);
+                int borneSup = Math.Min(i + nbPasAngulaire, ptList.Count - 1);
+                for (int j = borneInf; j <= borneSup; j++)
+                {
+                    /// Pour avoir une formule qui fonctionne aux petites distances avec un grand rayon d'érosion, 
+                    /// il faut utiliser les lois des cosinus
+                    double a = 1;
+                    double b = -2 * ptList[i].Distance * Math.Cos((j - i) * resolutionAngulaire);
+                    double c = ptList[i].Distance * ptList[i].Distance - rayon * rayon;
+
+                    double discrimant = b * b - 4 * a * c;
+                    double distanceErodee = (-b + Math.Sqrt(discrimant)) / (2 * a);
+                    double distanceDilatee = (-b - Math.Sqrt(discrimant)) / (2 * a);
+
+                    /// Version simple
+                    /// ptListEroded[j].Distance = Math.Max(ptListEroded[j].Distance, distanceErodee);
+                    
+                    //double distancePtAxeDilatation = Math.Sin((j - i) * resolutionAngulaire) * ptList[i].Distance;
+                    //double ajout = Math.Sqrt(rayon * rayon - distancePtAxeDilatation * distancePtAxeDilatation);
+                    
+                    ptListDilated[j].Distance = Math.Max(0, Math.Min(ptListDilated[j].Distance, distanceDilatee));
+                }
+                //if (i == 100)
+                //    Console.WriteLine("/n");
+            }
+            return ptListDilated.ToList();
+        }
+
+
+        private List<PolarPointRssi> Erosion(List<PolarPointRssi> ptList, double rayon)
+        {
+            int originalSize = ptList.Count;
+            /// On construit une liste de points ayant le double du nombre de points de la liste d'origine, de manière 
+            /// à avoir un recoupement d'un tour complet 
+            List<PolarPointRssi> ptListExtended = new List<PolarPointRssi>();
+
+            for (int i = (int)(originalSize / 2); i < originalSize; i++)
+            {
+                ptListExtended.Add(new PolarPointRssi(ptList[i].Angle - 2 * Math.PI, ptList[i].Distance, ptList[i].Rssi));
+            }
+            for (int i = 0; i < originalSize; i++)
+            {
+                ptListExtended.Add(new PolarPointRssi(ptList[i].Angle, ptList[i].Distance, ptList[i].Rssi));
+            }
+            for (int i = 0; i < (int)(originalSize / 2); i++)
+            {
+                ptListExtended.Add(new PolarPointRssi(ptList[i].Angle + 2 * Math.PI, ptList[i].Distance, ptList[i].Rssi));
+            }
+
+            ptList = ptListExtended;
+
+            /// On déclare une liste pour les points de sortie. 
+            /// L'initialisation manuelle est obligatoire, la copie ne marche pas car elle se fait par référence,
+            /// donc tout modification au tableau dilaté se reporterait dans le tableau initial
+            List<PolarPointRssi> ptListEroded = new List<PolarPointRssi>();
+            List<int> ptListErodedbyObjectId = new List<int>();
+            for (int i = 0; i < ptList.Count; i++)
+            {
+                ptListEroded.Add(new PolarPointRssi(ptList[i].Angle, ptList[i].Distance, ptList[i].Rssi));
+                ptListErodedbyObjectId.Add(0);
+            }
+            double resolutionAngulaire = 2 * Math.PI / ptList.Count;
+
+            /// On effectue une segmentation en objet connexes, de manière à éviter les effets de bords 
+            /// d'érosion au voisinnage des objets en saillie.
+            /// On effetue donc l'érosion en notant pour chaque angle quel est l'objet ayant contribué à l'érosion
+            /// Une fois l'érosion terminée, on retire, en passant la distance pt à l'infini,
+            /// les points érodé par un objet différent de celui dans lequel ils sont dans l'ombre.
+            /// 
+
+            ///On commence par la segmentation en objets
+            List<LidarDetectedObject> lidarSceneSegmentation = new List<LidarDetectedObject>();
+            LidarDetectedObject objet = new LidarDetectedObject();
+            double seuilDetectionObjet = 0.2;
+            objet.PtList.Add(ptList[0]);
+            for (int i = 1; i < ptList.Count; i++)
+            {
+                if (Math.Abs(ptList[i].Distance - ptList[i - 1].Distance) < seuilDetectionObjet)
+                {
+                    ///Si la distance entre deux points successifs n'est pas trop grande, ils appartiennent au même objet
+                    objet.PtList.Add(ptList[i]);
+                }
+                else
+                {
+                    //Sinon, on crée un nouvel objet
+                    lidarSceneSegmentation.Add(objet);
+                    objet = new LidarDetectedObject();
+                    objet.PtList.Add(ptList[i]);
+                }
+            }
+
+            int numPtCourant = 0;
+            for (int n = 0; n < lidarSceneSegmentation.Count; n++)
+            {
+                /// On itère sur tous les objets dans l'ordre
+                /// 
+                var obj = lidarSceneSegmentation[n];
+                var objPtList = obj.PtList;
+                for (int k = 0; k < objPtList.Count; k++)
+                {
+                    var pt = ptList[numPtCourant];
+                    double erosionAngulaire = Math.Atan2(rayon, pt.Distance);
+                    int nbPasAngulaire = (int)(erosionAngulaire / resolutionAngulaire);
+                    int borneInf = Math.Max(0, numPtCourant - nbPasAngulaire);
+                    int borneSup = Math.Min(numPtCourant + nbPasAngulaire, ptList.Count - 1);
+
+                    for (int j = borneInf; j <= borneSup; j++)
+                    {
+                        /// Pour avoir une formule qui fonctionne aux petites distances avec un grand rayon d'érosion, 
+                        /// il faut utiliser les lois des cosinus
+                        double a = 1;
+                        double b = -2 * ptList[numPtCourant].Distance * Math.Cos((j - numPtCourant) * resolutionAngulaire);
+                        double c = ptList[numPtCourant].Distance * ptList[numPtCourant].Distance - rayon * rayon;
+
+                        double discrimant = b * b - 4 * a * c;
+                        double distanceErodee = (-b + Math.Sqrt(discrimant)) / (2 * a);
+                        double distanceSeuil = (-b - Math.Sqrt(discrimant)) / (2 * a);
+
+                        /// Version simple
+                        if (distanceErodee >= ptListEroded[j].Distance)
+                        {
+                            ptListEroded[j].Distance = distanceErodee;
+                            ptListErodedbyObjectId[j] = n;
+                        }
+                    }
+                    numPtCourant++;
+                }
+            }
+
+            /// On fait une seconde passe pour retirer tous les points érodés par un objet autre que celui 
+            /// qui les masque.
+            numPtCourant = 0;
+            for (int n = 0; n < lidarSceneSegmentation.Count; n++)
+            {
+                /// On itère sur tous les objets dans l'ordre
+                var obj = lidarSceneSegmentation[n];
+                var objPtList = obj.PtList;
+                for (int k = 0; k < objPtList.Count; k++)
+                {
+                    if (ptListErodedbyObjectId[numPtCourant] != n)
+                        ptListEroded[numPtCourant].Distance = double.PositiveInfinity;
+                    numPtCourant++;
+                }
+            }
+
+            //    for (int i = 0; i < ptList.Count; i++)
+            //{
+            //    var pt = ptList[i];
+            //    double erosionAngulaire = Math.Atan2(rayon, pt.Distance);
+            //    int nbPasAngulaire = (int)(erosionAngulaire / resolutionAngulaire);
+            //    int borneInf = Math.Max(0, i - nbPasAngulaire);
+            //    int borneSup = Math.Min(i + nbPasAngulaire, ptList.Count - 1);
+
+            //    for (int j = borneInf; j <= borneSup; j++)
+            //    {
+            //        /// Pour avoir une formule qui fonctionne aux petites distances avec un grand rayon d'érosion, 
+            //        /// il faut utiliser les lois des cosinus
+            //        double a = 1;
+            //        double b = -2 * ptList[i].Distance * Math.Cos((j - i) * resolutionAngulaire);
+            //        double c = ptList[i].Distance * ptList[i].Distance - rayon * rayon;
+
+            //        double discrimant = b * b - 4 * a * c;
+            //        double distanceErodee = (-b + Math.Sqrt(discrimant)) / (2 * a);
+            //        double distanceSeuil = (-b - Math.Sqrt(discrimant)) / (2 * a);
+
+            //        /// Version simple
+            //        ptListEroded[j].Distance = Math.Max(ptListEroded[j].Distance, distanceErodee);
+
+            //        /// Variante permettant d'exclure les occlusions de la liste  érodée, 
+            //        /// de manière à ne pas créer d'objet virtuel derrière les objets masqués.
+            //        //if (ptList[j].Distance > distanceSeuil - rayon)
+            //        //    ptListEroded[j].Distance = Math.Max(ptListEroded[j].Distance, distanceErodee);
+            //        //else
+            //        //    ptListEroded[j].Distance = double.PositiveInfinity;
+
+            //    }
+            //}
+            //return ptListEroded;
+            return ptListEroded.ToList().GetRange((int)(originalSize / 2), originalSize);
         }
 
         //double seuilResiduLine = 0.03;
@@ -223,6 +452,8 @@ namespace LidarProcessor
 
             return ObjetsSaillantsList;
         }
+
+        
 
         private List<LidarDetectedObject> DetectionBalisesCatadioptriques(List<PolarPointRssi> ptList, double distanceMax)
         {
@@ -443,7 +674,6 @@ namespace LidarProcessor
         }
 
 
-        public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<RawLidarArgs> OnLidarProcessedEvent;
         public virtual void OnLidarProcessed(int id, List<PolarPointRssi> ptList)
         {
@@ -454,7 +684,7 @@ namespace LidarProcessor
             }
         }
 
-        public delegate void OnLidarBalisePointListForDebugEventHandler(object sender, RawLidarArgs e);
+
         public event EventHandler<RawLidarArgs> OnLidarBalisePointListForDebugEvent;
         public virtual void OnLidarBalisePointListForDebug(int id, List<PolarPointRssi> ptList)
         {
@@ -465,7 +695,6 @@ namespace LidarProcessor
             }
         }
 
-        public delegate void LidarObjectProcessedEventHandler(object sender, PolarPointListExtendedListArgs e);
         public event EventHandler<PolarPointListExtendedListArgs> OnLidarObjectProcessedEvent;
         public virtual void OnLidarObjectProcessed(int id, List<PolarPointListExtended> objectList)
         {
@@ -476,7 +705,6 @@ namespace LidarProcessor
             }
         }
 
-        public delegate void LidarBalisesListExtractedEventHandler(object sender, LidarDetectedObjectListArgs e);
         public event EventHandler<LidarDetectedObjectListArgs> OnLidarBalisesListExtractedEvent;
         public virtual void OnLidarBalisesListExtracted(int id, List<LidarDetectedObject> objectList)
         {

@@ -9,137 +9,81 @@ namespace Constants
     public enum Commands
     {
         #region Commandes générales
-        #pragma warning disable CS1591
+#pragma warning disable CS1591
 
-        Unknown = 0,
-
-        // Commandes de contrôle de flux
-
-        Time = 128,
-        RobotLoopback = 129,
-        ClientLoopback = 130,
-        AskDisconnection = 131,
-        Disconnected = 132,
-        ResetEmbedded = 133,
-        RobotWelcome = 134,
-        RobotMainInfos = 135,
-        RobotAccepted = 136,
-        RobotRefused = 137,
-        RobotInfos = 138,
-        ConfigurationInfo = 139,
-
-        // Setters de variables embarquées
-
-        SetXYSpeed = 200,
-        SetMotorSpeed = 201,
-        SetMotorSpeed_Each = 202,
-        SetKu = 203,
-        SetKu_Each = 204,
-        SetPu = 205,
-        SetPu_Each = 206,
-        SetBaudrate = 207,
-        SetLEDState = 208,
-        SetLEDState_Each = 209,
-        SetAsservMode = 210,
-        SetAsservMode_Each = 211,
-        SetX = 212,
-        SetY = 213,
-        SetTheta = 214,
-        SetXYTheta = 215,
-        SetTrajectoryParameters = 216,
-        SetAsservissementEnable = 217,
-        SetServoEnable = 218,
-        SetCarteTirAlim = 219,
-        FieldLinesFound = 220,
+        /// <summary>
+        /// Le principe d'attribution des commandes est le suivant :
+        /// On distingue :
+        /// Les commandes R2PC : Robot to Computer - elles permettent d'envoyer des infos ou des ordres au PC
+        /// Elles sont dans le range 0x0100 - 0x1FF
+        /// Les commandes PC2R : Computer to Robot - elles permettent d'envoyer des infos ou des ordres au robot
+        /// Elles sont dans le range 0x0200 - 0x2FF
+        /// </summary>
 
         // Getters et Askers de variables embarquées
+        R2PC_WelcomeMessage = 0x0100,                                   //Pas de payload
+        R2PC_ErrorMessage = 0x0101,                                     //Payload de taille variable
 
-        WelcomeMessage=400,             
-        MotorSpeedConsigne = 402,
-        MotorSpeedConsigne_Each = 403,
-        Ku = 404,
-        Ku_Each = 405,
-        Pu = 406,
-        Pu_Each = 407,
-        LEDState = 408,
-        LEDState_Each = 409,
-        AsservMode = 410,
-        AsservMode_Each = 411,
-        BatteryLevel = 412,
-        BatteryLevel_Each = 413,
-        X = 414,
-        Y = 415,
-        Theta = 416,
-        XYTheta = 417,
-        IMUData = 418,                  //0x01A2
+        R2PC_IMUData = 0x0110,                                          //Timestamp(4L) - AccX(4F) - AccY(4F) - AccZ(4F) - GyroX(4F) - GyroY(4F) - GyroZ(4F)
+        R2PC_IOMonitoring = 0x0120,                                     //Timestamp(4L) - IO1-IO8 (1)
+        R2PC_PowerMonitoring = 0x0130,                                  //Timestamp(4L) - BattCmdVoltage(4F) - BattCmdCurrent(4F) - BattPwrVoltage(4F) - BattPwrCurrent(4F)
+        R2PC_EncoderRawData = 0x0140,                                   //Timestamp(4L) - Enc Motor 1 Value(4L) - ... - Enc Motor 7 Value(4L))
 
-        PolarOdometrySpeed = 0x01A3,
-        IndependantOdometrySpeed = 0x013A,
-        AuxiliaryOdometrySpeed = 0x01A4,
+        R2PC_SpeedPolarAndIndependantOdometry = 0x0150,                 //Timestamp(4L) - Vx(4F) - Vy(4F) - VTheta(4F) - VM1(4F) - VM2(4F) - VM3(4F) - VM4(4F)
+        R2PC_SpeedAuxiliaryOdometry = 0x0151,                           //Timestamp(4L) - VM5(4F) - VM6(4F) - VM7(4F) 
+        R2PC_SpeedPolarPidDebugErrorCorrectionConsigne = 0x152,         //Timestamp(4L) - ErrX(4F) - ErrY(4F) - ErrTh(4F) - CorrX(4F) - CorrY(4F) - CorrTh(4F) - ConsX(4F) - ConsY(4F) - ConsTh(4F)
+        R2PC_SpeedIndependantPidDebugErrorCorrectionConsigne = 0x153,   //Timestamp(4L) - ErrM1(4F) - ErrM2(4F) - ErrM3(4F) - ErrM4(4F) - CorrM1(4F) - CorrM2(4F) - CorrM3(4F) - CorrM4(4F) - ConsM(4F) - ConsM2(4F) - ConsM3(4F) - ConsM4(4F)
+        R2PC_SpeedPolarPidDebugInternal = 0x0154,                       //Timestamp(4L) - CorrPx(4F) - CorrIx(4F) - CorrDx(4F) - CorrPy(4F) - CorrIy(4F) - CorrDy(4F) - CorrPTh(4F) - CorrITh(4F) - CorrDTh(4F)  
+        R2PC_SpeedIndependantPidDebugInternal = 0x0155,                 //Timestamp(4L) - CorrPM1(4F) - CorrIM1(4F) - CorrDM1(4F) - CorrPM2(4F) - CorrIM2(4F) - CorrDM2(4F) - CorrPM3(4F) - CorrIM3(4F) - CorrDM3(4F) - CorrPM4(4F) - CorrIM4(4F) - CorrDM4(4F)
+        R2PC_SpeedAuxiliaryMotorsConsignes = 0x0156,                    //Timestamp(4L) - Consigne Motor 5(4F) - Consigne Motor 6(4F) - Consigne Motor 7(4F) )
+        
+        R2PC_MotorCurrentsMonitoring = 0x0160,                          //Timestamp(4L) - Motor Current 1 (4F) - ... - Motor Current 7 (4F)
 
-        MotorsPositions = 421,          //0x01A5
-        AuxiliarySpeedConsignes = 0x01A6,
-        EncoderRawData = 423,           //0x01A7
-        IOValues = 424,                 //0x01A8
-        PowerMonitoringValues = 425,    //0x01A9
-        SetIOPollingFrequency = 426,    //0x01AA
-        SetSpeedConsigne = 427,         //0x01AB
+        //Acknowledgment aux commandes du PC
+        R2PC_MotorsEnableDisableAck = 0x0180,                           //Enable-Disable (1 Byte)
+        R2PC_TirEnableDisableAck = 0x0181,                              //Enable-Disable (1 Byte)
+        R2PC_SetAsservissementModeAck = 0x0182,                         //Enable-Disable (1 Byte)
+        R2PC_SpeedPIDEnableDebugFullAck = 0x0183,                       //Enable-Disable (1 Byte)
+        R2PC_MotorCurrentMonitoringEnableAck = 0x0184,                  //Enable-Disable (1 Byte)
+        R2PC_EncoderRawMonitoringEnableAck = 0x0185,                    //Enable-Disable (1 Byte)
+        R2PC_SpeedConsigneMonitoringEnableAck = 0x0186,                 //Enable-Disable (1 Byte)
+        R2PC_PowerMonitoringEnableAck = 0x0187,                         //Enable-Disable (1 Byte)
+        R2PC_SpeedPIDEnableDebugErrorCorrectionConsigneAck = 0x0188,    //Enable-Disable (1 Byte)
+        R2PC_IOPollingEnableAck = 0x0189,                               //Enable-Disable (1 Byte)
 
-        EnableAsservissementDebugData = 0x01BB,         
-        SpeedPidEnableCorrectionData = 0x1C0,
+        /// <summary>
+        /// PC to Robot commands
+        /// </summary>
+        PC2R_EmergencyStop = 0x0200,
 
-        SpeedPolarPidErrorCorrectionConsigneData = 0x1AC,           //Trame de données de debug asserv vitesse : Erreur / Correction / Consigne
-        SpeedIndependantPidDebugData = 0x1CA,           //Trame de données de debug asserv vitesse : Erreur / Correction / Consigne
-        SpeedPolarPidCorrectionData = 0x01C1,  //PIDAdvancedData CorrPID sur X Y et Theta - fe = 10Hz
-        SpeedIndependantPidCorrectionData = 0x01C2,
+        PC2R_IOPollingEnable = 0x0220,                                  //Enable-Disable (1 Byte)
+        PC2R_IOPollingSetFrequency = 0x0221,                            //Frequency (1 Byte)
 
-        SetSpeedPolarPIDValues = 0x01AD,            
-        SetSpeedIndependantPIDValues = 0x01AF,
-        SetAsservissementMode = 0x1B6,       
+        PC2R_PowerMonitoringEnable = 0x0230,                            //Enable-Disable (1 Byte)        
 
-        SetRobotVariable = 430,
-        GetParameter = 432,
-        SetParameter = 433,
-        SetMotorSpeedConsigne = 0x01AE,    //0x01AE
-        SpeedPidReset = 0x01B0,
-        EnablePowerMonitoring = 431,    //0x01B1
-        EnableIOPolling= 432,           //0x01B2
-        EnableDisableMotors = 435,      //0x01B3
-        EnableDisableTir = 436,         //0x01B4
-        MotorCurrents= 0x01B5,          //0x01B5
-        EnableMotorCurrent=439,         //0x01B7
-        EnableEncoderRawData=440,       //0x01B8
-        EnablePositionData=441,         //0x01B9
-        EnableMotorSpeedConsigne=442,   //0x01BA
-        ForwardHerkulex = 0x3333,        
-        GetCamera = 443,
-        TirCommand = 444,
-        MoveTirUp = 445,
-        MoveTirDown = 446,
+        PC2R_EncoderRawMonitoringEnable = 0x0240,                       //Enable-Disable (1 Byte)
 
+        PC2R_SetAsservissementMode = 0x250,                             //Mode (1 Byte : Disabled=0 - Polarie = 1 - Independant = 2)
+        PC2R_SpeedPIDEnableDebugErrorCorrectionConsigne = 0x251,        //Enable-Disable (1 Byte)
+        PC2R_SpeedPIDEnableDebugFull = 0x0252,                          //Enable-Disable (1 Byte)
+        PC2R_SpeedConsigneMonitoringEnable = 0x0253,                    //Enable-Disable (1 Byte)
+        PC2R_SpeedPolarPIDSetGains = 0x0254,                            //KpX(4F) - KiX(4F) - KdX(4F) - idem en Y, en Theta, puis en LimitX, LimitY et Limit Theta : total 72 octets
+        PC2R_SpeedIndependantPIDSetGains = 0x0255,                      //KpM1(4F) - KiM1(4F) - KdM1(4F) - idem en M2, M3 et M4, puis en LimitM1, LimitM2, LimitM3 et Limit M4 : total 96 octets
+        PC2R_SpeedPolarSetConsigne = 0x0256,                            //Vx(4F) - Vy(4F) - VTh(4F)
+        PC2R_SpeedIndividualMotorSetConsigne = 0x0257,                  //Numero Moteur (1 byte) - VMoteur(4F)
+        PC2R_SpeedPIDReset = 0x0258,                                    //Pas de payload
 
+        PC2R_MotorsEnableDisable = 0x0260,                              //Enable-Disable (1 Byte)
+        PC2R_MotorCurrentMonitoringEnable = 0x0261,                     //Enable-Disable (1 Byte)
 
-        // Setters de variables d'informations sur les robots
+        PC2R_TirEnableDisable = 0x0270,                                 //Enable-Disable (1 Byte)
+        PC2R_TirCommand = 0x0271,                                       //Duree Pulse Coil 1 (2) - .. - Duree Pulse Coil 4 (2) - Offset Pulse Coil 2 (2) - .. - Offset Pulse Coil 4 (2) : total 14 bytes
+        PC2R_TirMoveUp = 0x0272,                                        //Pas de payload
+        PC2R_TirMoveDown = 0x0273,                                      //Pas de payload
 
-        SetID = 600,
-        SetName = 601,
-        SetColor = 602,
-        SetControllerControlMode = 603,
+        PC2R_HerkulexForward = 0x0280,                                  //Payload variable
+        PC2R_PololuServoSetPosition = 0x0290,                           //A définir
 
-
-        // Getters et Askers de variables d'informations sur les robots
-
-        ID = 800,
-        Name = 801,
-        Color = 802,
-        ControllerControlMode = 803,
-
-        // Commandes haut niveau
-
-        GoToXYTheta = 1000,
-
-        EmergencySTOP=-1,
-        ErrorTextMessage=-4370,
 
 #pragma warning restore CS1591
         #endregion
@@ -231,19 +175,6 @@ namespace Constants
         REPAIR_IN_CYAN = 'I'
 
         #endregion
-    }
-
-    public enum MotorControlName
-    {
-#pragma warning disable CS1591
-        MotorLeft,
-        MotorRear,
-        MotorRight,
-        Motor4,
-        Motor5,
-        Motor6,
-        None
-#pragma warning restore CS1591
     }
 
     public enum AsservissementMode

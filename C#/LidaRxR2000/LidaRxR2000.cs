@@ -48,7 +48,7 @@ namespace LidaRxR2000NS
             horizontalShift += 2;
             if (horizontalShift > 130)
                 horizontalShift = -100;
-            if(r2000!=null)
+            if (r2000 != null)
                 r2000.DisplayRotatingText(horizontalShift);
         }
 
@@ -684,7 +684,6 @@ namespace LidaRxR2000NS
         //}
 
 
-        public delegate void SimulatedLidarEventHandler(object sender, RawLidarArgs e);
         public event EventHandler<RawLidarArgs> OnLidarDecodedFrameEvent;
         public virtual void OnLidarDecodedFrame(int id, List<PolarPointRssi> ptList, int lidarFrameNumber =0)
         {

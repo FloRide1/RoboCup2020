@@ -91,7 +91,7 @@ namespace Robot
         }
         #endregion
 
-        static RobotMode robotMode = RobotMode.NoLidar;
+        static RobotMode robotMode = RobotMode.Standard;
 
         static bool usingXBoxController;
         static bool usingLidar;
@@ -214,9 +214,9 @@ namespace Robot
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
             robotMsgGenerator = new MsgGenerator();
-            robotMsgProcessor = new MsgProcessor(robotId,Competition.Eurobot);
+            robotMsgProcessor = new MsgProcessor(robotId, GameMode.Eurobot);
                        
-            perceptionManager = new PerceptionManager(robotId);
+            perceptionManager = new PerceptionManager(robotId, GameMode.Eurobot);
             imuProcessor = new ImuProcessor.ImuProcessor(robotId);
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
 
@@ -297,7 +297,7 @@ namespace Robot
 
             //Gestion des events liés à une détection de collision soft
             trajectoryPlanner.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
-            trajectoryPlanner.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
+            //trajectoryPlanner.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
 
 
             if (usingLidar)
@@ -316,7 +316,10 @@ namespace Robot
             if (usingLidar)
             {
                 lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += perceptionManager.OnRawLidarDataReceived;
-                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;                
+                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
+                //lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;  
+                perceptionManager.OnLidarProcessedDataEvent += localWorldMapManager.OnProcessedLidarDataReceived;
+
             }
 
             strategyManagerDictionary.Add(robotId, strategyManager);
@@ -350,6 +353,9 @@ namespace Robot
             ////Event d'interprétation d'une globalWorldMap à sa réception dans le robot
             robotUdpMulticastInterpreter.OnRefBoxMessageEvent += strategyManager.strategy.OnRefBoxMsgReceived;
             robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += strategyManager.strategy.OnGlobalWorldMapReceived;
+            robotUdpMulticastInterpreter.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+
+            globalWorldMapManager.OnMulticastSendGlobalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
             //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
             //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
 
@@ -493,8 +499,8 @@ namespace Robot
             //Sur evenement xx        -->>        Action a effectuer
             msgDecoder.OnMessageDecodedEvent += interfaceRobot.DisplayMessageDecoded;
             msgDecoder.OnMessageDecodedErrorEvent += interfaceRobot.DisplayMessageDecodedError;
-            if(usingLidar)
-                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += interfaceRobot.OnRawLidarDataReceived;
+            //if(usingLidar)
+            //    lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += interfaceRobot.OnRawLidarDataReceived;
             perceptionManager.OnLidarBalisePointListForDebugEvent += interfaceRobot.OnRawLidarBalisePointsReceived;
 
             robotMsgGenerator.OnMessageToDisplaySpeedPolarPidSetupEvent += interfaceRobot.OnMessageToDisplayPolarSpeedPidSetupReceived;
