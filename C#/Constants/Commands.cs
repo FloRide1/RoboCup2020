@@ -16,11 +16,11 @@ namespace Constants
         /// On distingue :
         /// Les commandes R2PC : Robot to Computer - elles permettent d'envoyer des infos ou des ordres au PC
         /// Elles sont dans le range 0x0100 - 0x1FF
+        /// Les acknowledgment ont un format particulier : on rajoute 0x1000 à la commande initiale 
         /// Les commandes PC2R : Computer to Robot - elles permettent d'envoyer des infos ou des ordres au robot
         /// Elles sont dans le range 0x0200 - 0x2FF
         /// </summary>
 
-        // Getters et Askers de variables embarquées
         R2PC_WelcomeMessage = 0x0100,                                   //Pas de payload
         R2PC_ErrorMessage = 0x0101,                                     //Payload de taille variable
 
@@ -39,17 +39,17 @@ namespace Constants
         
         R2PC_MotorCurrentsMonitoring = 0x0160,                          //Timestamp(4L) - Motor Current 1 (4F) - ... - Motor Current 7 (4F)
 
-        //Acknowledgment aux commandes du PC
-        R2PC_MotorsEnableDisableAck = 0x0180,                           //Enable-Disable (1 Byte)
-        R2PC_TirEnableDisableAck = 0x0181,                              //Enable-Disable (1 Byte)
-        R2PC_SetAsservissementModeAck = 0x0182,                         //Enable-Disable (1 Byte)
-        R2PC_SpeedPIDEnableDebugFullAck = 0x0183,                       //Enable-Disable (1 Byte)
-        R2PC_MotorCurrentMonitoringEnableAck = 0x0184,                  //Enable-Disable (1 Byte)
-        R2PC_EncoderRawMonitoringEnableAck = 0x0185,                    //Enable-Disable (1 Byte)
-        R2PC_SpeedConsigneMonitoringEnableAck = 0x0186,                 //Enable-Disable (1 Byte)
-        R2PC_PowerMonitoringEnableAck = 0x0187,                         //Enable-Disable (1 Byte)
-        R2PC_SpeedPIDEnableDebugErrorCorrectionConsigneAck = 0x0188,    //Enable-Disable (1 Byte)
-        R2PC_IOPollingEnableAck = 0x0189,                               //Enable-Disable (1 Byte)
+        //Retour des commandes d'enable du PC
+        R2PC_IOPollingEnableStatus = 0x0180,                               //Enable-Disable (1 Byte)
+        R2PC_PowerMonitoringEnableStatus = 0x0181,                         //Enable-Disable (1 Byte)
+        R2PC_EncoderRawMonitoringEnableStatus = 0x0182,                    //Enable-Disable (1 Byte)
+        R2PC_SetAsservissementModeStatus = 0x0183,                         //Enable-Disable (1 Byte)
+        R2PC_SpeedPIDEnableDebugErrorCorrectionConsigneStatus = 0x0184,    //Enable-Disable (1 Byte)
+        R2PC_SpeedPIDEnableDebugFullStatus = 0x0185,                       //Enable-Disable (1 Byte)
+        R2PC_SpeedConsigneMonitoringEnableStatus = 0x0186,                 //Enable-Disable (1 Byte)
+        R2PC_MotorsEnableDisableStatus = 0x0187,                           //Enable-Disable (1 Byte)
+        R2PC_MotorCurrentMonitoringEnableStatus = 0x0188,                  //Enable-Disable (1 Byte)
+        R2PC_TirEnableDisableStatus = 0x0189,                              //Enable-Disable (1 Byte)
 
         /// <summary>
         /// PC to Robot commands
