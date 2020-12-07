@@ -17,7 +17,7 @@ namespace MessageGeneratorNS
             payload.SetValueRange(((float)e.Vx).GetBytes(), 0);
             payload.SetValueRange(((float)e.Vy).GetBytes(), 4);
             payload.SetValueRange(((float)e.Vtheta).GetBytes(), 8);
-            OnMessageToRobot((Int16)Commands.SetSpeedConsigne, 12, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_SpeedPolarSetConsigne, 12, payload);
             OnSetSpeedConsigneToRobotReceived(e);
         }
 
@@ -31,7 +31,7 @@ namespace MessageGeneratorNS
         {
             byte[] payload = new byte[1];
             payload[0]= e.Value;
-            OnMessageToRobot((Int16)Commands.SetIOPollingFrequency, 1, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_IOPollingSetFrequency, 1, payload);
         }
 
         public void GenerateMessageSetSpeedConsigneToMotor(object sender, SpeedConsigneToMotorArgs e)
@@ -39,107 +39,100 @@ namespace MessageGeneratorNS
             byte[] payload = new byte[5];
             payload.SetValueRange(((float)e.V).GetBytes(), 0);
             payload[4] = (byte)e.MotorNumber;
-            OnMessageToRobot((Int16)Commands.SetMotorSpeedConsigne, 5, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_SpeedIndividualMotorSetConsigne, 5, payload);
         }
         public void GenerateMessageTir(object sender, TirEventArgs e)
         {
             byte[] payload = new byte[4];
             payload.SetValueRange(((float)e.Puissance).GetBytes(), 0);
-            OnMessageToRobot((Int16)Commands.TirCommand, 4, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_TirCommand, 4, payload);
         }
         public void GenerateMessageMoveTirUp(object sender, EventArgs e)
         {
-            OnMessageToRobot((Int16)Commands.MoveTirUp, 0, null);
+            OnMessageToRobot((Int16)Commands.PC2R_TirMoveUp, 0, null);
         }
         
         public void GenerateMessageMoveTirDown(object sender, EventArgs e)
         {
-            OnMessageToRobot((Int16)Commands.MoveTirDown, 0, null);
+            OnMessageToRobot((Int16)Commands.PC2R_TirMoveDown, 0, null);
         }
 
         public void GenerateMessageEnablePowerMonitoring(object sender, BoolEventArgs e)
         {
             byte[] payload = new byte[1];
             payload[0] = Convert.ToByte(e.value);
-            OnMessageToRobot((Int16)Commands.EnablePowerMonitoring, 1, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_PowerMonitoringEnable, 1, payload);
         }
         public void GenerateMessageEnableIOPolling(object sender, BoolEventArgs e)
         {
             byte[] payload = new byte[1];
             payload[0] = Convert.ToByte(e.value);
-            OnMessageToRobot((Int16)Commands.EnableIOPolling, 1, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_IOPollingEnable , 1, payload);
         }
 
         public void GenerateMessageEnableDisableMotors(object sender, BoolEventArgs e)
         {
             byte[] payload = new byte[1];
             payload[0] = Convert.ToByte(e.value);
-            OnMessageToRobot((Int16)Commands.EnableDisableMotors, 1, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_MotorsEnableDisable, 1, payload);
         }
         public void GenerateMessageResetSpeedPid(object sender, RobotIdEventArgs e)
         {
-            OnMessageToRobot((Int16)Commands.SpeedPidReset, 0, null);
+            OnMessageToRobot((Int16)Commands.PC2R_SpeedPIDReset, 0, null);
         }
 
         public void GenerateMessageForwardHerkulex(object sender, DataReceivedArgs e)
         {
-            OnMessageToRobot((Int16)Commands.ForwardHerkulex, (short)e.Data.Length, e.Data);
+            OnMessageToRobot((Int16)Commands.PC2R_HerkulexForward, (short)e.Data.Length, e.Data);
         }
 
         public void GenerateMessageEnableDisableTir(object sender, BoolEventArgs e)
         {
             byte[] payload = new byte[1];
             payload[0] = Convert.ToByte(e.value);
-            OnMessageToRobot((Int16)Commands.EnableDisableTir, 1, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_TirEnableDisable, 1, payload);
         }
 
         public void GenerateMessageSetAsservissementMode(object sender, ByteEventArgs e)
         {
             byte[] payload = new byte[1];
             payload[0] = Convert.ToByte(e.Value);
-            OnMessageToRobot((Int16)Commands.SetAsservissementMode, 1, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_SetAsservissementMode, 1, payload);
         }
 
         public void GenerateMessageEnableAsservissementDebugData(object sender, BoolEventArgs e)
         {
             byte[] payload = new byte[1];
             payload[0] = Convert.ToByte(e.value);
-            OnMessageToRobot((Int16)Commands.EnableAsservissementDebugData, 1, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_SpeedPIDEnableDebugFull, 1, payload);
         }
 
         public void GenerateMessageEnableSpeedPidCorrectionData(object sender, BoolEventArgs e)
         {
             byte[] payload = new byte[1];
             payload[0] = Convert.ToByte(e.value);
-            OnMessageToRobot((Int16)Commands.SpeedPidEnableCorrectionData, 1, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_SpeedPIDEnableDebugErrorCorrectionConsigne, 1, payload);
         }
 
         public void GenerateMessageEnableEncoderRawData(object sender, BoolEventArgs e)
         {
             byte[] payload = new byte[1];
             payload[0] = Convert.ToByte(e.value);
-            OnMessageToRobot((Int16)Commands.EnableEncoderRawData, 1, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_EncoderRawMonitoringEnable, 1, payload);
         }
 
         public void GenerateMessageEnableMotorCurrentData(object sender, BoolEventArgs e)
         {
             byte[] payload = new byte[1];
             payload[0] = Convert.ToByte(e.value);
-            OnMessageToRobot((Int16)Commands.EnableMotorCurrent, 1, payload);
-        }
-
-        public void GenerateMessageEnableMotorPositionData(object sender, BoolEventArgs e)
-        {
-            byte[] payload = new byte[1];
-            payload[0] = Convert.ToByte(e.value);
-            OnMessageToRobot((Int16)Commands.EnablePositionData, 1, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_MotorCurrentMonitoringEnable, 1, payload);
         }
 
         public void GenerateMessageEnableMotorSpeedConsigne(object sender, BoolEventArgs e)
         {
             byte[] payload = new byte[1];
             payload[0] = Convert.ToByte(e.value);
-            OnMessageToRobot((Int16)Commands.EnableMotorSpeedConsigne, 1, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_SpeedConsigneMonitoringEnable, 1, payload);
         }
 
         public void GenerateMessageSTOP(object sender, BoolEventArgs e)
@@ -147,7 +140,7 @@ namespace MessageGeneratorNS
             byte[] payload = new byte[1];
             payload[0] = Convert.ToByte(e.value);
 
-            OnMessageToRobot((Int16)Commands.EmergencySTOP, 1, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_EmergencyStop, 1, payload);
         }
 
         public void GenerateMessageSetupSpeedPolarPIDToRobot(object sender, PolarPIDSetupArgs e)
@@ -171,7 +164,7 @@ namespace MessageGeneratorNS
             payload.SetValueRange(((float)(e.P_theta_Limit)).GetBytes(), 60);
             payload.SetValueRange(((float)(e.I_theta_Limit)).GetBytes(), 64);
             payload.SetValueRange(((float)(e.D_theta_Limit)).GetBytes(), 68);
-            OnMessageToRobot((Int16)Commands.SetSpeedPolarPIDValues, 72, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_SpeedPolarPIDSetGains, 72, payload);
             OnMessageToDisplaySpeedPolarPidSetup(e);
         }
 
@@ -202,7 +195,7 @@ namespace MessageGeneratorNS
             payload.SetValueRange(((float)(e.P_M4_Limit)).GetBytes(), 84);
             payload.SetValueRange(((float)(e.I_M4_Limit)).GetBytes(), 88);
             payload.SetValueRange(((float)(e.D_M4_Limit)).GetBytes(), 92);
-            OnMessageToRobot((Int16)Commands.SetSpeedIndependantPIDValues, 96, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_SpeedIndependantPIDSetGains, 96, payload);
             OnMessageToDisplaySpeedIndependantPidSetup(e);
         }
 
