@@ -19,7 +19,7 @@
                 <RowDefinition Height="1*"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"></ColumnDefinition>
+                <ColumnDefinition Width="2*"></ColumnDefinition>
                 <ColumnDefinition Width="1*"></ColumnDefinition>
                 <ColumnDefinition Width="1*"></ColumnDefinition>
                 <ColumnDefinition Width="1*"></ColumnDefinition>
@@ -39,7 +39,7 @@
             <Border BorderBrush="#AAAAAA" BorderThickness="1" Grid.Row="6" Grid.ColumnSpan="8"/>
             <Border BorderBrush="#AAAAAA" BorderThickness="1" Grid.Row="7" Grid.ColumnSpan="8"/>
 
-            <Label x:Name="LabelTitre" Content="Asservissement en ..." Foreground="White" Margin="0" Padding="0" ></Label>
+            <Label x:Name="LabelTitre" Content="Asserv en ..." Foreground="White" Margin="0" Padding="0" ></Label>
             <Label Grid.Row="1" Content="Consigne : " Foreground="White"  Margin="0" Padding="0"></Label>
             <Label Grid.Row="2" Content="Measure : " Foreground="White"  Margin="0" Padding="0"></Label>
             <Label Grid.Row="3" Content="Error : " Foreground="White"  Margin="0" Padding="0"></Label>

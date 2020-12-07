@@ -74,8 +74,8 @@ namespace RobotInterface
             }
             else if (gameMode == GameMode.RoboCup)
             {
-                worldMapDisplayStrategy.Init(gameMode, LocalWorldMapDisplayType.StrategyMap, imagePath + "RoboCup.png");
-                worldMapDisplayWaypoint.Init(gameMode, LocalWorldMapDisplayType.WayPointMap, imagePath + "RoboCup.png");
+                //worldMapDisplayStrategy.Init(gameMode, LocalWorldMapDisplayType.StrategyMap, imagePath + "RoboCup.png");
+                //worldMapDisplayWaypoint.Init(gameMode, LocalWorldMapDisplayType.WayPointMap, imagePath + "RoboCup.png");
             }
 
             worldMapDisplayStrategy.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, GameMode.Eurobot,  "Wally");
@@ -94,26 +94,18 @@ namespace RobotInterface
             timerAffichage.Tick += TimerAffichage_Tick;
             timerAffichage.Start();
 
-            oscilloM1.SetTitle("Moteur 1");
-            oscilloM1.AddOrUpdateLine(0, 100, "Vitesse M1");
-            oscilloM1.AddOrUpdateLine(1, 100, "Courant M1");
-            //oscilloM1.AddOrUpdateLine(2, 100, "Position M1");
-            //oscilloM1.ChangeLineColor("Courant M1", Colors.Red);
-            oscilloM2.SetTitle("Moteur 2");
-            oscilloM2.AddOrUpdateLine(0, 100, "Vitesse M2");
-            oscilloM2.AddOrUpdateLine(1, 100, "Courant M2");
-            //oscilloM2.AddOrUpdateLine(2, 100, "Position M2");
-            //oscilloM2.ChangeLineColor("Courant M2", Colors.Red);
-            oscilloM3.SetTitle("Moteur 3");
-            oscilloM3.AddOrUpdateLine(0, 100, "Vitesse M3");
-            oscilloM3.AddOrUpdateLine(1, 100, "Courant M3");
-            //oscilloM3.AddOrUpdateLine(2, 100, "Position M3");
-            //oscilloM3.ChangeLineColor("Courant M3", Colors.Red);
-            oscilloM4.SetTitle("Moteur 4");
-            oscilloM4.AddOrUpdateLine(0, 100, "Vitesse M4");
-            oscilloM4.AddOrUpdateLine(1, 100, "Courant M4");
-            //oscilloM4.AddOrUpdateLine(2, 100, "Position M4");
-            //oscilloM4.ChangeLineColor("Courant M4", Colors.Red);
+            //oscilloM1.SetTitle("Moteur 1");
+            //oscilloM1.AddOrUpdateLine(0, 100, "Vitesse M1");
+            //oscilloM1.AddOrUpdateLine(1, 100, "Courant M1");
+            //oscilloM2.SetTitle("Moteur 2");
+            //oscilloM2.AddOrUpdateLine(0, 100, "Vitesse M2");
+            //oscilloM2.AddOrUpdateLine(1, 100, "Courant M2");
+            //oscilloM3.SetTitle("Moteur 3");
+            //oscilloM3.AddOrUpdateLine(0, 100, "Vitesse M3");
+            //oscilloM3.AddOrUpdateLine(1, 100, "Courant M3");
+            //oscilloM4.SetTitle("Moteur 4");
+            //oscilloM4.AddOrUpdateLine(0, 100, "Vitesse M4");
+            //oscilloM4.AddOrUpdateLine(1, 100, "Courant M4");
 
             oscilloX.SetTitle("Vx");
             oscilloX.AddOrUpdateLine(0, 100, "Vitesse X Consigne");
@@ -296,10 +288,10 @@ namespace RobotInterface
             oscilloX.ResetGraph();
             oscilloY.ResetGraph();
             oscilloTheta.ResetGraph();
-            oscilloM1.ResetGraph();
-            oscilloM2.ResetGraph();
-            oscilloM3.ResetGraph();
-            oscilloM4.ResetGraph();
+            //oscilloM1.ResetGraph();
+            //oscilloM2.ResetGraph();
+            //oscilloM3.ResetGraph();
+            //oscilloM4.ResetGraph();
         }
 
          public void UpdateSpeedPolarOdometryOnInterface(object sender, PolarSpeedEventArgs e)
@@ -340,10 +332,10 @@ namespace RobotInterface
 
         public void UpdateIndependantSpeedConsigneOnGraph(object sender, IndependantSpeedEventArgs e)
         {
-            oscilloM1.AddPointToLine(4, e.timeStampMs / 1000.0, e.VitesseMoteur1);
-            oscilloM2.AddPointToLine(4, e.timeStampMs / 1000.0, e.VitesseMoteur2);
-            oscilloM3.AddPointToLine(4, e.timeStampMs / 1000.0, e.VitesseMoteur3);
-            oscilloM4.AddPointToLine(4, e.timeStampMs / 1000.0, e.VitesseMoteur4);
+            //oscilloM1.AddPointToLine(4, e.timeStampMs / 1000.0, e.VitesseMoteur1);
+            //oscilloM2.AddPointToLine(4, e.timeStampMs / 1000.0, e.VitesseMoteur2);
+            //oscilloM3.AddPointToLine(4, e.timeStampMs / 1000.0, e.VitesseMoteur3);
+            //oscilloM4.AddPointToLine(4, e.timeStampMs / 1000.0, e.VitesseMoteur4);
         }
 
         //public void UpdateAuxiliarySpeedConsigneOnGraph(object sender, AuxiliaryMotorsVitesseDataEventArgs e)
@@ -355,10 +347,10 @@ namespace RobotInterface
 
         public void UpdateMotorsCurrentsOnGraph(object sender, MotorsCurrentsEventArgs e)
         {
-            oscilloM1.AddPointToLine(1, e.timeStampMS / 1000.0, e.motor1);
-            oscilloM2.AddPointToLine(1, e.timeStampMS / 1000.0, e.motor2);
-            oscilloM3.AddPointToLine(1, e.timeStampMS / 1000.0, e.motor3);
-            oscilloM4.AddPointToLine(1, e.timeStampMS / 1000.0, e.motor4);
+            //oscilloM1.AddPointToLine(1, e.timeStampMS / 1000.0, e.motor1);
+            //oscilloM2.AddPointToLine(1, e.timeStampMS / 1000.0, e.motor2);
+            //oscilloM3.AddPointToLine(1, e.timeStampMS / 1000.0, e.motor3);
+            //oscilloM4.AddPointToLine(1, e.timeStampMS / 1000.0, e.motor4);
         }
 
         //public void UpdateMotorsSpeedsOnGraph(object sender, MotorsVitesseDataEventArgs e)
@@ -371,18 +363,18 @@ namespace RobotInterface
 
         public void UpdateMotorsPositionOnGraph(object sender, MotorsPositionDataEventArgs e)
         {
-            oscilloM1.AddPointToLine(2, e.timeStampMS / 1000.0, e.motor1);
-            oscilloM2.AddPointToLine(2, e.timeStampMS / 1000.0, e.motor2);
-            oscilloM3.AddPointToLine(2, e.timeStampMS / 1000.0, e.motor3);
-            oscilloM4.AddPointToLine(2, e.timeStampMS / 1000.0, e.motor4);
+            //oscilloM1.AddPointToLine(2, e.timeStampMS / 1000.0, e.motor1);
+            //oscilloM2.AddPointToLine(2, e.timeStampMS / 1000.0, e.motor2);
+            //oscilloM3.AddPointToLine(2, e.timeStampMS / 1000.0, e.motor3);
+            //oscilloM4.AddPointToLine(2, e.timeStampMS / 1000.0, e.motor4);
         }
 
         public void UpdateMotorsEncRawDataOnGraph(object sender, EncodersRawDataEventArgs e)
         {
-            oscilloM1.AddPointToLine(3, e.timeStampMS / 1000.0, e.motor1);
-            oscilloM2.AddPointToLine(3, e.timeStampMS / 1000.0, e.motor2);
-            oscilloM3.AddPointToLine(3, e.timeStampMS / 1000.0, e.motor3);
-            oscilloM4.AddPointToLine(3, e.timeStampMS / 1000.0, e.motor4);
+            //oscilloM1.AddPointToLine(3, e.timeStampMS / 1000.0, e.motor1);
+            //oscilloM2.AddPointToLine(3, e.timeStampMS / 1000.0, e.motor2);
+            //oscilloM3.AddPointToLine(3, e.timeStampMS / 1000.0, e.motor3);
+            //oscilloM4.AddPointToLine(3, e.timeStampMS / 1000.0, e.motor4);
         }
 
         public void UpdateSpeedPolarPidErrorCorrectionConsigneDataOnGraph(object sender, PolarPidErrorCorrectionConsigneDataArgs e)
@@ -621,26 +613,26 @@ namespace RobotInterface
             {
                 if (!e.value)
                 {
-                    if (oscilloM1.LineExist(1))
-                        oscilloM1.RemoveLine(1);
-                    if (oscilloM2.LineExist(1))
-                        oscilloM2.RemoveLine(1);
-                    if (oscilloM3.LineExist(1))
-                        oscilloM3.RemoveLine(1);
-                    if (oscilloM4.LineExist(1))
-                        oscilloM4.RemoveLine(1);
+                    //if (oscilloM1.LineExist(1))
+                    //    oscilloM1.RemoveLine(1);
+                    //if (oscilloM2.LineExist(1))
+                    //    oscilloM2.RemoveLine(1);
+                    //if (oscilloM3.LineExist(1))
+                    //    oscilloM3.RemoveLine(1);
+                    //if (oscilloM4.LineExist(1))
+                    //    oscilloM4.RemoveLine(1);
                 }
                 else
                 {
                     //CheckBoxEnableMotorCurrentData.IsChecked = true;
-                    oscilloM1.AddOrUpdateLine(1, 100, "Courant M1");
-                    oscilloM1.ChangeLineColor(1, Colors.Red);
-                    oscilloM2.AddOrUpdateLine(1, 100, "Courant M2");
-                    oscilloM2.ChangeLineColor(1, Colors.Red);
-                    oscilloM3.AddOrUpdateLine(1, 100, "Courant M3");
-                    oscilloM3.ChangeLineColor(1, Colors.Red);
-                    oscilloM4.AddOrUpdateLine(1, 100, "Courant M4");
-                    oscilloM4.ChangeLineColor(1, Colors.Red);
+                    //oscilloM1.AddOrUpdateLine(1, 100, "Courant M1");
+                    //oscilloM1.ChangeLineColor(1, Colors.Red);
+                    //oscilloM2.AddOrUpdateLine(1, 100, "Courant M2");
+                    //oscilloM2.ChangeLineColor(1, Colors.Red);
+                    //oscilloM3.AddOrUpdateLine(1, 100, "Courant M3");
+                    //oscilloM3.ChangeLineColor(1, Colors.Red);
+                    //oscilloM4.AddOrUpdateLine(1, 100, "Courant M4");
+                    //oscilloM4.ChangeLineColor(1, Colors.Red);
                 }
             }));
         }
@@ -658,25 +650,25 @@ namespace RobotInterface
             {
                 if (!e.value)
                 {
-                    if (oscilloM1.LineExist(4))
-                        oscilloM1.RemoveLine(4);
-                    if (oscilloM2.LineExist(4))
-                        oscilloM2.RemoveLine(4);
-                    if (oscilloM3.LineExist(4))
-                        oscilloM3.RemoveLine(4);
-                    if (oscilloM4.LineExist(4))
-                        oscilloM4.RemoveLine(4);
+                    //if (oscilloM1.LineExist(4))
+                    //    oscilloM1.RemoveLine(4);
+                    //if (oscilloM2.LineExist(4))
+                    //    oscilloM2.RemoveLine(4);
+                    //if (oscilloM3.LineExist(4))
+                    //    oscilloM3.RemoveLine(4);
+                    //if (oscilloM4.LineExist(4))
+                    //    oscilloM4.RemoveLine(4);
                 }
                 else
                 {
-                    oscilloM1.AddOrUpdateLine(4, 100, "PWM M1");
-                    oscilloM1.ChangeLineColor(4, Colors.GreenYellow);
-                    oscilloM2.AddOrUpdateLine(4, 100, "PWM M2");
-                    oscilloM2.ChangeLineColor(4, Colors.GreenYellow);
-                    oscilloM3.AddOrUpdateLine(4, 100, "PWM M3");
-                    oscilloM3.ChangeLineColor(4, Colors.GreenYellow);
-                    oscilloM4.AddOrUpdateLine(4, 100, "PWM M4");
-                    oscilloM4.ChangeLineColor(4, Colors.GreenYellow);
+                    //oscilloM1.AddOrUpdateLine(4, 100, "PWM M1");
+                    //oscilloM1.ChangeLineColor(4, Colors.GreenYellow);
+                    //oscilloM2.AddOrUpdateLine(4, 100, "PWM M2");
+                    //oscilloM2.ChangeLineColor(4, Colors.GreenYellow);
+                    //oscilloM3.AddOrUpdateLine(4, 100, "PWM M3");
+                    //oscilloM3.ChangeLineColor(4, Colors.GreenYellow);
+                    //oscilloM4.AddOrUpdateLine(4, 100, "PWM M4");
+                    //oscilloM4.ChangeLineColor(4, Colors.GreenYellow);
                 }
             }));
         }
@@ -693,25 +685,25 @@ namespace RobotInterface
             {
                 if (!e.value)
                 {
-                    if (oscilloM1.LineExist(3))
-                        oscilloM1.RemoveLine(3);
-                    if (oscilloM2.LineExist(3))
-                        oscilloM2.RemoveLine(3);
-                    if (oscilloM3.LineExist(3))
-                        oscilloM3.RemoveLine(3);
-                    if (oscilloM4.LineExist(3))
-                        oscilloM4.RemoveLine(3);
+                    //if (oscilloM1.LineExist(3))
+                    //    oscilloM1.RemoveLine(3);
+                    //if (oscilloM2.LineExist(3))
+                    //    oscilloM2.RemoveLine(3);
+                    //if (oscilloM3.LineExist(3))
+                    //    oscilloM3.RemoveLine(3);
+                    //if (oscilloM4.LineExist(3))
+                    //    oscilloM4.RemoveLine(3);
                 }
                 else
                 {
-                    oscilloM1.AddOrUpdateLine(3, 100, "RAW Val M1");
-                    oscilloM1.ChangeLineColor(3, Colors.GreenYellow);
-                    oscilloM2.AddOrUpdateLine(3, 100, "RAW Val M2");
-                    oscilloM2.ChangeLineColor(3, Colors.GreenYellow);
-                    oscilloM3.AddOrUpdateLine(3, 100, "RAW Val M3");
-                    oscilloM3.ChangeLineColor(3, Colors.GreenYellow);
-                    oscilloM4.AddOrUpdateLine(3, 100, "RAW Val M4");
-                    oscilloM4.ChangeLineColor(3, Colors.GreenYellow);
+                    //oscilloM1.AddOrUpdateLine(3, 100, "RAW Val M1");
+                    //oscilloM1.ChangeLineColor(3, Colors.GreenYellow);
+                    //oscilloM2.AddOrUpdateLine(3, 100, "RAW Val M2");
+                    //oscilloM2.ChangeLineColor(3, Colors.GreenYellow);
+                    //oscilloM3.AddOrUpdateLine(3, 100, "RAW Val M3");
+                    //oscilloM3.ChangeLineColor(3, Colors.GreenYellow);
+                    //oscilloM4.AddOrUpdateLine(3, 100, "RAW Val M4");
+                    //oscilloM4.ChangeLineColor(3, Colors.GreenYellow);
                 }
             }));
         }

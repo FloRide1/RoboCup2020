@@ -92,6 +92,7 @@ namespace Robot
         #endregion
 
         static RobotMode robotMode = RobotMode.Standard;
+        static GameMode competition = GameMode.RoboCup;
 
         static bool usingXBoxController;
         static bool usingLidar;
@@ -214,9 +215,9 @@ namespace Robot
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
             robotMsgGenerator = new MsgGenerator();
-            robotMsgProcessor = new MsgProcessor(robotId, GameMode.Eurobot);
+            robotMsgProcessor = new MsgProcessor(robotId, competition);
                        
-            perceptionManager = new PerceptionManager(robotId, GameMode.Eurobot);
+            perceptionManager = new PerceptionManager(robotId, competition);
             imuProcessor = new ImuProcessor.ImuProcessor(robotId);
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
 
@@ -228,10 +229,10 @@ namespace Robot
             robotUdpMulticastInterpreter = new UDPMulticastInterpreter(robotId);
 
             globalWorldMapManager = new GlobalWorldMapManager(robotId);
-            strategyManager = new StrategyManagerNS.StrategyManager(robotId, teamId, "224.16.32.79", GameMode.Eurobot);
+            strategyManager = new StrategyManagerNS.StrategyManager(robotId, teamId, "224.16.32.79", competition);
             //On effectue un cast explicite afin d'utiliser les methodes d'extension definies dans StrategyEurobots2021
             strategyEurobot = strategyManager.strategy as StrategyManagerNS.StrategyEurobot2021;
-            trajectoryPlanner = new TrajectoryPlanner(robotId, GameMode.Eurobot);
+            trajectoryPlanner = new TrajectoryPlanner(robotId, competition);
 
             herkulexManager = new HerkulexManager();
 
@@ -281,7 +282,7 @@ namespace Robot
             strategyManager.strategy.OnMessageDisplayEvent += localWorldMapManager.OnMessageDisplayReceived; //Utile pour l'affichage
             strategyManager.strategy.OnHeatMapStrategyEvent += localWorldMapManager.OnHeatMapStrategyReceived;
             strategyManager.strategy.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
-            strategyEurobot.OnHeatMapWayPointEvent += localWorldMapManager.OnHeatMapWaypointReceived;
+            strategyManager.strategy.OnHeatMapWayPointEvent += localWorldMapManager.OnHeatMapWaypointReceived;
             trajectoryPlanner.OnGhostLocationEvent += localWorldMapManager.OnGhostLocationReceived;
 
 
@@ -291,15 +292,15 @@ namespace Robot
 
 
             if (usingLidar)
-                strategyEurobot.OnMessageEvent += lidar_OMD60M_TCP.OnMessageReceivedEvent;
+                strategyManager.strategy.OnMessageEvent += lidar_OMD60M_TCP.OnMessageReceivedEvent;
 
 
-            strategyEurobot.OnSetRobotSpeedPolarPIDEvent += robotMsgGenerator.GenerateMessageSetupSpeedPolarPIDToRobot;
-            strategyEurobot.OnSetRobotSpeedIndependantPIDEvent += robotMsgGenerator.GenerateMessageSetupSpeedIndependantPIDToRobot;
-            strategyEurobot.OnSetAsservissementModeEvent += robotMsgGenerator.GenerateMessageSetAsservissementMode;
-          //  strategyEurobot.OnHerkulexPositionRequestEvent += herkulexManager.OnHerkulexPositionRequestEvent;
-            strategyEurobot.OnSetSpeedConsigneToMotor += robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
-            strategyEurobot.OnEnableDisableMotorCurrentDataEvent += robotMsgGenerator.GenerateMessageEnableMotorCurrentData;
+            strategyManager.strategy.OnSetRobotSpeedPolarPIDEvent += robotMsgGenerator.GenerateMessageSetupSpeedPolarPIDToRobot;
+            strategyManager.strategy.OnSetRobotSpeedIndependantPIDEvent += robotMsgGenerator.GenerateMessageSetupSpeedIndependantPIDToRobot;
+            strategyManager.strategy.OnSetAsservissementModeEvent += robotMsgGenerator.GenerateMessageSetAsservissementMode;
+            //  strategyEurobot.OnHerkulexPositionRequestEvent += herkulexManager.OnHerkulexPositionRequestEvent;
+            strategyManager.strategy.OnSetSpeedConsigneToMotor += robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
+            strategyManager.strategy.OnEnableDisableMotorCurrentDataEvent += robotMsgGenerator.GenerateMessageEnableMotorCurrentData;
             herkulexManager.OnHerkulexSendToSerialEvent += robotMsgGenerator.GenerateMessageForwardHerkulex;
 
             
@@ -329,7 +330,7 @@ namespace Robot
             usbDriver.OnUSBDataReceivedEvent += msgDecoder.DecodeMsgReceived;
             msgDecoder.OnMessageDecodedEvent += robotMsgProcessor.ProcessRobotDecodedMessage;
             robotMsgProcessor.OnIMURawDataFromRobotGeneratedEvent += imuProcessor.OnIMURawDataReceived;
-            robotMsgProcessor.OnIOValuesFromRobotGeneratedEvent += strategyEurobot.OnIOValuesFromRobotEvent;
+            robotMsgProcessor.OnIOValuesFromRobotGeneratedEvent += strategyManager.strategy.OnIOValuesFromRobotEvent;
             robotMsgProcessor.OnIOValuesFromRobotGeneratedEvent += perceptionManager.OnIOValuesFromRobotEvent;
           //  robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += strategyManager.OnMotorCurrentReceive;
 
@@ -382,8 +383,8 @@ namespace Robot
 
             //strategyManagerDictionary.Add(robotId, strategyManager);
             trajectoryPlanner.InitRobotPosition(0, 0, 0);
-            
-            strategyEurobot.InitStrategy( robotId,  teamId);
+
+            strategyManager.strategy.InitStrategy( robotId,  teamId);
             while (!exitSystem)
             {
                 Thread.Sleep(500);
@@ -417,7 +418,7 @@ namespace Robot
 
                 //Gestion des events liés à une détection de collision soft
                 trajectoryPlanner.OnCollisionEvent -= kalmanPositioning.OnCollisionReceived;
-                strategyEurobot.OnCollisionEvent -= kalmanPositioning.OnCollisionReceived;
+                strategyManager.strategy.OnCollisionEvent -= kalmanPositioning.OnCollisionReceived;
             }
             else
             {
@@ -434,7 +435,7 @@ namespace Robot
 
                 //Gestion des events liés à une détection de collision soft
                 trajectoryPlanner.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
-                strategyEurobot.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
+                strategyManager.strategy.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
             }
         }
 
@@ -476,7 +477,7 @@ namespace Robot
             t1 = new Thread(() =>
             {
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
-                interfaceRobot = new RobotInterface.WpfRobotInterface(GameMode.Eurobot);
+                interfaceRobot = new RobotInterface.WpfRobotInterface(competition);
                 interfaceRobot.Loaded += RegisterRobotInterfaceEvents;
                 interfaceRobot.ShowDialog();
             });
