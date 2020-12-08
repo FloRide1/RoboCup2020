@@ -37,10 +37,6 @@ namespace StrategyManagerNS.StrategyRoboCupNS
 
         public StrategyRoboCup(int robotId, int teamId, string multicastIpAddress) : base(robotId, teamId, multicastIpAddress)
         {
-            //this.teamId = teamId;
-            //this.robotId = robotId;
-            //this. = multicastIpAddress;
-
             taskBallHandlingManagement = new TaskBallHandlingManagement(this);
         }
 

@@ -316,46 +316,38 @@ namespace MessageProcessorNS
 
                 case (short)Commands.R2PC_MotorsEnableDisableStatus:
                     bool value = Convert.ToBoolean(payload[0]);
-                    //On envois l'event aux abonnés
                     OnEnableDisableMotorsACKFromRobot(value);
                     break;
                 case (short)Commands.R2PC_TirEnableDisableStatus:
                     value = Convert.ToBoolean(payload[0]);
-                    //On envois l'event aux abonnés
                     OnEnableDisableTirACKFromRobot(value);
                     break;
-                case (short)Commands.R2PC_SetAsservissementModeStatus:
-                    value = Convert.ToBoolean(payload[0]);
-                    //On envois l'event aux abonnés
-                    OnEnableAsservissementACKFromRobot(value);
+                case (short)Commands.R2PC_AsservissementModeStatus:
+                    AsservissementMode asservMode = (AsservissementMode)payload[0];
+                    OnAsservissementModeStatusFromRobot(asservMode);
                     break;
-                case (short)Commands.R2PC_SpeedPIDEnableDebugFullStatus:
+                case (short)Commands.R2PC_SpeedPIDEnableDebugInternalStatus:
                     value = Convert.ToBoolean(payload[0]);
                     OnEnableAsservissementDebugDataACKFromRobot(value);
                     break;
                 case (short)Commands.R2PC_MotorCurrentMonitoringEnableStatus:
                     value = Convert.ToBoolean(payload[0]);
-                    //On envois l'event aux abonnés
                     OnEnableMotorCurrentACKFromRobot(value);
                     break;
                 case (short)Commands.R2PC_EncoderRawMonitoringEnableStatus:
                     value = Convert.ToBoolean(payload[0]);
-                    //On envois l'event aux abonnés
                     OnEnableEncoderRawDataACKFromRobot(value);
                     break;
                 case (short)Commands.R2PC_SpeedConsigneMonitoringEnableStatus:
                     value = Convert.ToBoolean(payload[0]);
-                    //On envois l'event aux abonnés
                     OnEnableMotorSpeedConsigneDataACKFromRobot(value);
                     break;
                 case (short)Commands.R2PC_PowerMonitoringEnableStatus:
                     value = Convert.ToBoolean(payload[0]);
-                    //On envois l'event aux abonnés
                     OnEnablePowerMonitoringDataACKFromRobot(value);
                     break;
                 case (short)Commands.R2PC_ErrorMessage:
                     string errorMsg = Encoding.UTF8.GetString(payload);
-                    //On envois l'event aux abonnés
                     OnErrorTextFromRobot(errorMsg);
                     break;
                 default: break;
@@ -404,13 +396,13 @@ namespace MessageProcessorNS
             }
         }
 
-        public event EventHandler<BoolEventArgs> OnEnableAsservissementACKFromRobotGeneratedEvent;
-        public virtual void OnEnableAsservissementACKFromRobot(bool isEnabled)
+        public event EventHandler<AsservissementModeEventArgs> OnAsservissementModeStatusFromRobotGeneratedEvent;
+        public virtual void OnAsservissementModeStatusFromRobot(AsservissementMode asservMode)
         {
-            var handler = OnEnableAsservissementACKFromRobotGeneratedEvent;
+            var handler = OnAsservissementModeStatusFromRobotGeneratedEvent;
             if (handler != null)
             {
-                handler(this, new BoolEventArgs { value = isEnabled });
+                handler(this, new AsservissementModeEventArgs { mode = asservMode});
             }
         }
 

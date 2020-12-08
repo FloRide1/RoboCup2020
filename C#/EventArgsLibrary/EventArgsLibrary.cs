@@ -1,4 +1,5 @@
-﻿using Emgu.CV;
+﻿using Constants;
+using Emgu.CV;
 using HeatMap;
 using PerceptionManagement;
 using System;
@@ -24,6 +25,10 @@ namespace EventArgsLibrary
     public class BoolEventArgs : EventArgs
     {
         public bool value { get; set; }
+    }
+    public class AsservissementModeEventArgs : EventArgs
+    {
+        public AsservissementMode mode { get; set; }
     }
     public class ByteEventArgs : EventArgs
     {

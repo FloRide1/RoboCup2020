@@ -43,9 +43,9 @@ namespace Constants
         R2PC_IOPollingEnableStatus = 0x0180,                               //Enable-Disable (1 Byte)
         R2PC_PowerMonitoringEnableStatus = 0x0181,                         //Enable-Disable (1 Byte)
         R2PC_EncoderRawMonitoringEnableStatus = 0x0182,                    //Enable-Disable (1 Byte)
-        R2PC_SetAsservissementModeStatus = 0x0183,                         //Enable-Disable (1 Byte)
+        R2PC_AsservissementModeStatus = 0x0183,                            //Enable-Disable (1 Byte)
         R2PC_SpeedPIDEnableDebugErrorCorrectionConsigneStatus = 0x0184,    //Enable-Disable (1 Byte)
-        R2PC_SpeedPIDEnableDebugFullStatus = 0x0185,                       //Enable-Disable (1 Byte)
+        R2PC_SpeedPIDEnableDebugInternalStatus = 0x0185,                       //Enable-Disable (1 Byte)
         R2PC_SpeedConsigneMonitoringEnableStatus = 0x0186,                 //Enable-Disable (1 Byte)
         R2PC_MotorsEnableDisableStatus = 0x0187,                           //Enable-Disable (1 Byte)
         R2PC_MotorCurrentMonitoringEnableStatus = 0x0188,                  //Enable-Disable (1 Byte)
@@ -65,7 +65,7 @@ namespace Constants
 
         PC2R_SetAsservissementMode = 0x250,                             //Mode (1 Byte : Disabled=0 - Polarie = 1 - Independant = 2)
         PC2R_SpeedPIDEnableDebugErrorCorrectionConsigne = 0x251,        //Enable-Disable (1 Byte)
-        PC2R_SpeedPIDEnableDebugFull = 0x0252,                          //Enable-Disable (1 Byte)
+        PC2R_SpeedPIDEnableDebugInternal = 0x0252,                          //Enable-Disable (1 Byte)
         PC2R_SpeedConsigneMonitoringEnable = 0x0253,                    //Enable-Disable (1 Byte)
         PC2R_SpeedPolarPIDSetGains = 0x0254,                            //KpX(4F) - KiX(4F) - KdX(4F) - idem en Y, en Theta, puis en LimitX, LimitY et Limit Theta : total 72 octets
         PC2R_SpeedIndependantPIDSetGains = 0x0255,                      //KpM1(4F) - KiM1(4F) - KdM1(4F) - idem en M2, M3 et M4, puis en LimitM1, LimitM2, LimitM3 et Limit M4 : total 96 octets
