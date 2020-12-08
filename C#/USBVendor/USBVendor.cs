@@ -157,7 +157,7 @@ namespace USBVendor
                                 bufff[i] = dataBuffer[i];
                             }
                             OnUSBDataReceived(bufff);
-                            USBMonitoring.USBRecuMonitor(bufff);
+                            //USBMonitoring.USBRecuMonitor(bufff);
                         //    ProcessUSBReceivedMessage(dataBuffer, totalByteReceived);
                             //rcvMessageQueue.Enqueue(dataBuffer);
                         }
