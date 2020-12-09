@@ -594,12 +594,15 @@ namespace RobotInterface
                 {
                     case AsservissementMode.Disabled:
                         LabelAsservMode.Content = "Asserv Mode :  Disabled";
+                        asservSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
                         break;
                     case AsservissementMode.Independant:
                         LabelAsservMode.Content = "Asserv Mode : Independant";
+                        asservSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
                         break;
                     case AsservissementMode.Polar:
                         LabelAsservMode.Content = "Asserv Mode : Polar";
+                        asservSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
                         break;
                 }
             }));

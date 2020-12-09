@@ -39,10 +39,10 @@
         <oscillo:WpfOscilloscope x:Name="oscilloM4" Grid.Column="2" Grid.Row="0" Padding="20" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>-->
         <TabControl Grid.Column="2" Grid.Row="0" HorizontalAlignment="Stretch" Grid.RowSpan="2" VerticalAlignment="Stretch" >
             <TabItem Header="  Vitesse Asserv  ">
-                <AsservDisplay:AsservissementXYThetaControl x:Name="asservSpeedDisplay" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                <AsservDisplay:AsservissementDisplayControl x:Name="asservSpeedDisplay" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
             </TabItem>
             <TabItem Header="  Position Asserv  ">
-                <AsservDisplay:AsservissementXYThetaControl x:Name="asservPositionDisplay" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                <AsservDisplay:AsservissementDisplayControl x:Name="asservPositionDisplay" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
             </TabItem>
             
         </TabControl>

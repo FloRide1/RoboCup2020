@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Constants;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,7 +23,7 @@ namespace WpfAsservissementDisplay
     /// Logique d'interaction pour UserControl1.xaml
     /// </summary>
     /// 
-    public partial class AsservissementXYThetaControl : UserControl
+    public partial class AsservissementDisplayControl : UserControl
     {
         int queueSize = 1;
         FixedSizedQueue<double> commandXList;
@@ -89,7 +90,9 @@ namespace WpfAsservissementDisplay
 
         System.Timers.Timer displayTimer;
 
-        public AsservissementXYThetaControl()
+        AsservissementMode asservissementMode = AsservissementMode.Disabled;
+
+        public AsservissementDisplayControl()
         {
             InitializeComponent();
 
@@ -184,6 +187,157 @@ namespace WpfAsservissementDisplay
             displayTimer = new Timer(100);
             displayTimer.Elapsed += DisplayTimer_Elapsed;
             displayTimer.Start();
+        }
+
+        public void SetAsservissementMode(AsservissementMode mode)
+        {
+            asservissementMode = mode;
+
+            switch(asservissementMode)
+            {
+                case AsservissementMode.Disabled:
+                    LabelConsigneX.Visibility = Visibility.Hidden;
+                    LabelConsigneY.Visibility = Visibility.Hidden;
+                    LabelConsigneTheta.Visibility = Visibility.Hidden;
+                    LabelErreurX.Visibility = Visibility.Hidden;
+                    LabelErreurY.Visibility = Visibility.Hidden;
+                    LabelErreurTheta.Visibility = Visibility.Hidden;
+                    LabelCommandX.Visibility = Visibility.Hidden;
+                    LabelCommandY.Visibility = Visibility.Hidden;
+                    LabelCommandTheta.Visibility = Visibility.Hidden;
+
+                    LabelConsigneM1.Visibility = Visibility.Hidden;
+                    LabelConsigneM2.Visibility = Visibility.Hidden;
+                    LabelConsigneM3.Visibility = Visibility.Hidden;
+                    LabelConsigneM4.Visibility = Visibility.Hidden;
+                    LabelErreurM1.Visibility = Visibility.Hidden;
+                    LabelErreurM2.Visibility = Visibility.Hidden;
+                    LabelErreurM3.Visibility = Visibility.Hidden;
+                    LabelErreurM4.Visibility = Visibility.Hidden;
+                    LabelCommandM1.Visibility = Visibility.Hidden;
+                    LabelCommandM2.Visibility = Visibility.Hidden;
+                    LabelCommandM3.Visibility = Visibility.Hidden;
+                    LabelCommandM4.Visibility = Visibility.Hidden;
+
+                    LabelCorrPX.Visibility = Visibility.Hidden;
+                    LabelCorrPY.Visibility = Visibility.Hidden;
+                    LabelCorrPTheta.Visibility = Visibility.Hidden;
+                    LabelCorrIX.Visibility = Visibility.Hidden;
+                    LabelCorrIY.Visibility = Visibility.Hidden;
+                    LabelCorrITheta.Visibility = Visibility.Hidden;
+                    LabelCorrDX.Visibility = Visibility.Hidden;
+                    LabelCorrDY.Visibility = Visibility.Hidden;
+                    LabelCorrDTheta.Visibility = Visibility.Hidden;
+
+                    LabelCorrPM1.Visibility = Visibility.Hidden;
+                    LabelCorrPM2.Visibility = Visibility.Hidden;
+                    LabelCorrPM3.Visibility = Visibility.Hidden;
+                    LabelCorrPM4.Visibility = Visibility.Hidden;
+                    LabelCorrIM1.Visibility = Visibility.Hidden;
+                    LabelCorrIM2.Visibility = Visibility.Hidden;
+                    LabelCorrIM3.Visibility = Visibility.Hidden;
+                    LabelCorrIM4.Visibility = Visibility.Hidden;
+                    LabelCorrDM1.Visibility = Visibility.Hidden;
+                    LabelCorrDM2.Visibility = Visibility.Hidden;
+                    LabelCorrDM3.Visibility = Visibility.Hidden;
+                    LabelCorrDM4.Visibility = Visibility.Hidden;
+                    break;
+                case AsservissementMode.Polar:
+                    LabelConsigneX.Visibility = Visibility.Visible;
+                    LabelConsigneY.Visibility = Visibility.Visible;
+                    LabelConsigneTheta.Visibility = Visibility.Visible;
+                    LabelErreurX.Visibility = Visibility.Visible;
+                    LabelErreurY.Visibility = Visibility.Visible;
+                    LabelErreurTheta.Visibility = Visibility.Visible;
+                    LabelCommandX.Visibility = Visibility.Visible;
+                    LabelCommandY.Visibility = Visibility.Visible;
+                    LabelCommandTheta.Visibility = Visibility.Visible;
+
+                    LabelConsigneM1.Visibility = Visibility.Hidden;
+                    LabelConsigneM2.Visibility = Visibility.Hidden;
+                    LabelConsigneM3.Visibility = Visibility.Hidden;
+                    LabelConsigneM4.Visibility = Visibility.Hidden;
+                    LabelErreurM1.Visibility = Visibility.Hidden;
+                    LabelErreurM2.Visibility = Visibility.Hidden;
+                    LabelErreurM3.Visibility = Visibility.Hidden;
+                    LabelErreurM4.Visibility = Visibility.Hidden;
+                    LabelCommandM1.Visibility = Visibility.Hidden;
+                    LabelCommandM2.Visibility = Visibility.Hidden;
+                    LabelCommandM3.Visibility = Visibility.Hidden;
+                    LabelCommandM4.Visibility = Visibility.Hidden;
+
+                    LabelCorrPX.Visibility = Visibility.Visible;
+                    LabelCorrPY.Visibility = Visibility.Visible;
+                    LabelCorrPTheta.Visibility = Visibility.Visible;
+                    LabelCorrIX.Visibility = Visibility.Visible;
+                    LabelCorrIY.Visibility = Visibility.Visible;
+                    LabelCorrITheta.Visibility = Visibility.Visible;
+                    LabelCorrDX.Visibility = Visibility.Visible;
+                    LabelCorrDY.Visibility = Visibility.Visible;
+                    LabelCorrDTheta.Visibility = Visibility.Visible;
+
+                    LabelCorrPM1.Visibility = Visibility.Hidden;
+                    LabelCorrPM2.Visibility = Visibility.Hidden;
+                    LabelCorrPM3.Visibility = Visibility.Hidden;
+                    LabelCorrPM4.Visibility = Visibility.Hidden;
+                    LabelCorrIM1.Visibility = Visibility.Hidden;
+                    LabelCorrIM2.Visibility = Visibility.Hidden;
+                    LabelCorrIM3.Visibility = Visibility.Hidden;
+                    LabelCorrIM4.Visibility = Visibility.Hidden;
+                    LabelCorrDM1.Visibility = Visibility.Hidden;
+                    LabelCorrDM2.Visibility = Visibility.Hidden;
+                    LabelCorrDM3.Visibility = Visibility.Hidden;
+                    LabelCorrDM4.Visibility = Visibility.Hidden;
+                    break;
+                case AsservissementMode.Independant:
+                    LabelConsigneX.Visibility = Visibility.Hidden;
+                    LabelConsigneY.Visibility = Visibility.Hidden;
+                    LabelConsigneTheta.Visibility = Visibility.Hidden;
+                    LabelErreurX.Visibility = Visibility.Hidden;
+                    LabelErreurY.Visibility = Visibility.Hidden;
+                    LabelErreurTheta.Visibility = Visibility.Hidden;
+                    LabelCommandX.Visibility = Visibility.Hidden;
+                    LabelCommandY.Visibility = Visibility.Hidden;
+                    LabelCommandTheta.Visibility = Visibility.Hidden;
+
+                    LabelConsigneM1.Visibility = Visibility.Visible;
+                    LabelConsigneM2.Visibility = Visibility.Visible;
+                    LabelConsigneM3.Visibility = Visibility.Visible;
+                    LabelConsigneM4.Visibility = Visibility.Visible;
+                    LabelErreurM1.Visibility = Visibility.Visible;
+                    LabelErreurM2.Visibility = Visibility.Visible;
+                    LabelErreurM3.Visibility = Visibility.Visible;
+                    LabelErreurM4.Visibility = Visibility.Visible;
+                    LabelCommandM1.Visibility = Visibility.Visible;
+                    LabelCommandM2.Visibility = Visibility.Visible;
+                    LabelCommandM3.Visibility = Visibility.Visible;
+                    LabelCommandM4.Visibility = Visibility.Visible;
+
+                    LabelCorrPX.Visibility = Visibility.Hidden;
+                    LabelCorrPY.Visibility = Visibility.Hidden;
+                    LabelCorrPTheta.Visibility = Visibility.Hidden;
+                    LabelCorrIX.Visibility = Visibility.Hidden;
+                    LabelCorrIY.Visibility = Visibility.Hidden;
+                    LabelCorrITheta.Visibility = Visibility.Hidden;
+                    LabelCorrDX.Visibility = Visibility.Hidden;
+                    LabelCorrDY.Visibility = Visibility.Hidden;
+                    LabelCorrDTheta.Visibility = Visibility.Hidden;
+
+                    LabelCorrPM1.Visibility = Visibility.Visible;
+                    LabelCorrPM2.Visibility = Visibility.Visible;
+                    LabelCorrPM3.Visibility = Visibility.Visible;
+                    LabelCorrPM4.Visibility = Visibility.Visible;
+                    LabelCorrIM1.Visibility = Visibility.Visible;
+                    LabelCorrIM2.Visibility = Visibility.Visible;
+                    LabelCorrIM3.Visibility = Visibility.Visible;
+                    LabelCorrIM4.Visibility = Visibility.Visible;
+                    LabelCorrDM1.Visibility = Visibility.Visible;
+                    LabelCorrDM2.Visibility = Visibility.Visible;
+                    LabelCorrDM3.Visibility = Visibility.Visible;
+                    LabelCorrDM4.Visibility = Visibility.Visible;
+                    break;
+
+            }
         }
 
         public void SetTitle(string titre)
