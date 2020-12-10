@@ -248,7 +248,7 @@ namespace LogRecorder
         {
             get
             {
-                return ZeroFormatterLoggingType.IMUDataEventArgs;
+                return ZeroFormatterLoggingType.PolarSpeedEventArgs;
             }
         }
         //public string Type = "SpeedFromOdometry";
