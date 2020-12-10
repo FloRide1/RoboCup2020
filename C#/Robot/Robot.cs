@@ -270,8 +270,8 @@ namespace Robot
                 StartRobotInterface();
             if (usingCameraInterface)
                 StartCameraInterface();
-            if (usingLogReplay)
-                StartReplayNavigatorInterface();
+            //if (usingLogReplay)
+            //    StartReplayNavigatorInterface();
 
             //Démarrage du logger si besoin
             if (usingLogging)
@@ -508,8 +508,8 @@ namespace Robot
 
             if (usingLogReplay)
             {
-                logReplay.OnIMUEvent += interfaceRobot.UpdateImuDataOnGraph;
-                logReplay.OnSpeedDataEvent += interfaceRobot.UpdateSpeedPolarOdometryOnInterface;
+                logReplay.OnIMURawDataFromReplayGeneratedEvent += interfaceRobot.UpdateImuDataOnGraph;
+                logReplay.OnSpeedPolarOdometryFromReplayEvent += interfaceRobot.UpdateSpeedPolarOdometryOnInterface;
             }
         }
 
@@ -527,21 +527,21 @@ namespace Robot
             t2.SetApartmentState(ApartmentState.STA);
             t2.Start();
         }
-        static Thread t3;
-        static void StartReplayNavigatorInterface()
-        {
-            t3 = new Thread(() =>
-            {
-                //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
+        //static Thread t3;
+        //static void StartReplayNavigatorInterface()
+        //{
+        //    t3 = new Thread(() =>
+        //    {
+        //        //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
 
-                replayNavigator = new ReplayNavigator();
-                replayNavigator.Loaded += RegisterReplayInterfaceEvents;
-                replayNavigator.ShowDialog();
+        //        replayNavigator = new ReplayNavigator();
+        //        replayNavigator.Loaded += RegisterReplayInterfaceEvents;
+        //        replayNavigator.ShowDialog();
 
-            });
-            t3.SetApartmentState(ApartmentState.STA);
-            t3.Start();
-        }
+        //    });
+        //    t3.SetApartmentState(ApartmentState.STA);
+        //    t3.Start();
+        //}
 
         static void RegisterCameraInterfaceEvents(object sender, EventArgs e)
         {
@@ -570,24 +570,24 @@ namespace Robot
 
         }
 
-        static void RegisterReplayInterfaceEvents(object sender, EventArgs e)
-        {
-            if (usingLogReplay)
-            {
-                replayNavigator.OnPauseEvent += logReplay.PauseReplay;
-                replayNavigator.OnPlayEvent += logReplay.StartReplay;
-                replayNavigator.OnLoopEvent += logReplay.LoopReplayChanged;
-                logReplay.OnUpdateFileNameEvent += replayNavigator.UpdateFileName;
-                replayNavigator.OnNextEvent += logReplay.NextReplay;
-                replayNavigator.OnPrevEvent += logReplay.PreviousReplay;
-                replayNavigator.OnRepeatEvent += logReplay.RepeatReplayChanged;
-                replayNavigator.OnOpenFileEvent += logReplay.OpenReplayFile;
-                replayNavigator.OnOpenFolderEvent += logReplay.OpenReplayFolder;
-                replayNavigator.OnSpeedChangeEvent += logReplay.ReplaySpeedChanged;
-            }
+        //static void RegisterReplayInterfaceEvents(object sender, EventArgs e)
+        //{
+        //    if (usingLogReplay)
+        //    {
+        //        replayNavigator.OnPauseEvent += logReplay.PauseReplay;
+        //        replayNavigator.OnPlayEvent += logReplay.StartReplay;
+        //        replayNavigator.OnLoopEvent += logReplay.LoopReplayChanged;
+        //        logReplay.OnUpdateFileNameEvent += replayNavigator.UpdateFileName;
+        //        replayNavigator.OnNextEvent += logReplay.NextReplay;
+        //        replayNavigator.OnPrevEvent += logReplay.PreviousReplay;
+        //        replayNavigator.OnRepeatEvent += logReplay.RepeatReplayChanged;
+        //        replayNavigator.OnOpenFileEvent += logReplay.OpenReplayFile;
+        //        replayNavigator.OnOpenFolderEvent += logReplay.OpenReplayFolder;
+        //        replayNavigator.OnSpeedChangeEvent += logReplay.ReplaySpeedChanged;
+        //    }
 
-            //imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;
-        }
+        //    //imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;
+        //}
 
         private static void RefBoxAdapter_DataReceivedEvent(object sender, EventArgsLibrary.DataReceivedArgs e)
         {

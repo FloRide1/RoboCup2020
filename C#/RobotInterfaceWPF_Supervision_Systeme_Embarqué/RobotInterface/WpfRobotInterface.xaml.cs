@@ -479,25 +479,23 @@ namespace RobotInterface
             catch {; }
         }
 
-        bool motorsDisabled = false;
         private void ButtonDisableMotors_Click(object sender, RoutedEventArgs e)
         {
-            if (!motorsDisabled)
+            if (currentMotorActivation == true)
             {
-                motorsDisabled = true;
                 OnEnableDisableMotorsFromInterface(false);
             }
             else
-            {
-                motorsDisabled = false;
+            {                
                 OnEnableDisableMotorsFromInterface(true);
             }
             ResetInterfaceState();
         }
-       
+
 
         //Methode appelée sur evenement (event) provenant du port Serie.
         //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
+        bool currentMotorActivation = false;
         public void ActualizeEnableDisableMotorsButton(object sender, BoolEventArgs e)
         {
             //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
@@ -505,17 +503,17 @@ namespace RobotInterface
             //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
             //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
             //Utilisation ici d'une methode anonyme
+
+            currentMotorActivation = e.value;
             ButtonDisableMotors.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
             {
-                if (!e.value)
+                if (currentMotorActivation)
                 {
-                    ButtonDisableMotors.Content = "Enable Motors";
-                    motorsDisabled = true;
+                    LabelMotorState.Content = "Motor State : Enabled";
                 }
                 else
                 {
-                    ButtonDisableMotors.Content = "Disable Motors";
-                    motorsDisabled = false;
+                    LabelMotorState.Content = "Motor State : Disabled";
                 }
             }));
         }
@@ -612,108 +610,8 @@ namespace RobotInterface
         //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
         public void ActualizeEnableMotorCurrentCheckBox(object sender, BoolEventArgs e)
         {
-            //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
-            //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
-            //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
-            //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
-            //CheckBoxEnableMotorCurrentData.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
-            //{
-            //    if (!e.value)
-            //    {
-            //        //if (oscilloM1.LineExist(1))
-            //        //    oscilloM1.RemoveLine(1);
-            //        //if (oscilloM2.LineExist(1))
-            //        //    oscilloM2.RemoveLine(1);
-            //        //if (oscilloM3.LineExist(1))
-            //        //    oscilloM3.RemoveLine(1);
-            //        //if (oscilloM4.LineExist(1))
-            //        //    oscilloM4.RemoveLine(1);
-            //    }
-            //    else
-            //    {
-            //        //CheckBoxEnableMotorCurrentData.IsChecked = true;
-            //        //oscilloM1.AddOrUpdateLine(1, 100, "Courant M1");
-            //        //oscilloM1.ChangeLineColor(1, Colors.Red);
-            //        //oscilloM2.AddOrUpdateLine(1, 100, "Courant M2");
-            //        //oscilloM2.ChangeLineColor(1, Colors.Red);
-            //        //oscilloM3.AddOrUpdateLine(1, 100, "Courant M3");
-            //        //oscilloM3.ChangeLineColor(1, Colors.Red);
-            //        //oscilloM4.AddOrUpdateLine(1, 100, "Courant M4");
-            //        //oscilloM4.ChangeLineColor(1, Colors.Red);
-            //    }
-            //}));
         }
 
-
-        //Methode appelée sur evenement (event) provenant du port Serie.
-        //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
-        //public void ActualizEnableMotorSpeedConsigneCheckBox(object sender, BoolEventArgs e)
-        //{
-        //    //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
-        //    //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
-        //    //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
-        //    //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
-        //    CheckBoxEnablePIDSpeedDebugErrorCorrConsigne.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
-        //    {
-        //        if (!e.value)
-        //        {
-        //            //if (oscilloM1.LineExist(4))
-        //            //    oscilloM1.RemoveLine(4);
-        //            //if (oscilloM2.LineExist(4))
-        //            //    oscilloM2.RemoveLine(4);
-        //            //if (oscilloM3.LineExist(4))
-        //            //    oscilloM3.RemoveLine(4);
-        //            //if (oscilloM4.LineExist(4))
-        //            //    oscilloM4.RemoveLine(4);
-        //        }
-        //        else
-        //        {
-        //            //oscilloM1.AddOrUpdateLine(4, 100, "PWM M1");
-        //            //oscilloM1.ChangeLineColor(4, Colors.GreenYellow);
-        //            //oscilloM2.AddOrUpdateLine(4, 100, "PWM M2");
-        //            //oscilloM2.ChangeLineColor(4, Colors.GreenYellow);
-        //            //oscilloM3.AddOrUpdateLine(4, 100, "PWM M3");
-        //            //oscilloM3.ChangeLineColor(4, Colors.GreenYellow);
-        //            //oscilloM4.AddOrUpdateLine(4, 100, "PWM M4");
-        //            //oscilloM4.ChangeLineColor(4, Colors.GreenYellow);
-        //        }
-        //    }));
-        //}
-
-        ////Methode appelée sur evenement (event) provenant du port Serie.
-        ////Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
-        //public void ActualizeEnableEncoderRawDataCheckBox(object sender, BoolEventArgs e)
-        //{
-        //    //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
-        //    //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
-        //    //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
-        //    //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
-        //    CheckBoxEnableEncRawData.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
-        //    {
-        //        if (!e.value)
-        //        {
-        //            //if (oscilloM1.LineExist(3))
-        //            //    oscilloM1.RemoveLine(3);
-        //            //if (oscilloM2.LineExist(3))
-        //            //    oscilloM2.RemoveLine(3);
-        //            //if (oscilloM3.LineExist(3))
-        //            //    oscilloM3.RemoveLine(3);
-        //            //if (oscilloM4.LineExist(3))
-        //            //    oscilloM4.RemoveLine(3);
-        //        }
-        //        else
-        //        {
-        //            //oscilloM1.AddOrUpdateLine(3, 100, "RAW Val M1");
-        //            //oscilloM1.ChangeLineColor(3, Colors.GreenYellow);
-        //            //oscilloM2.AddOrUpdateLine(3, 100, "RAW Val M2");
-        //            //oscilloM2.ChangeLineColor(3, Colors.GreenYellow);
-        //            //oscilloM3.AddOrUpdateLine(3, 100, "RAW Val M3");
-        //            //oscilloM3.ChangeLineColor(3, Colors.GreenYellow);
-        //            //oscilloM4.AddOrUpdateLine(3, 100, "RAW Val M4");
-        //            //oscilloM4.ChangeLineColor(3, Colors.GreenYellow);
-        //        }
-        //    }));
-        //}
 
         //Methode appelée sur evenement (event) provenant du port Serie.
         //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
@@ -725,53 +623,6 @@ namespace RobotInterface
             //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
             CheckBoxEnableAsservissementDebugData.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
             {
-                //if (!e.value)
-                //{
-
-                //    if (oscilloX.LineExist(3))   
-                //        oscilloX.RemoveLine(3);
-                //    if (oscilloX.LineExist(4))
-                //        oscilloX.RemoveLine(4);
-                //    if (oscilloX.LineExist(5))
-                //        oscilloX.RemoveLine(5);
-
-                //    if (oscilloY.LineExist(3))
-                //        oscilloY.RemoveLine(3);
-                //    if (oscilloY.LineExist(4))
-                //        oscilloY.RemoveLine(4);
-                //    if (oscilloY.LineExist(5))
-                //        oscilloY.RemoveLine(5);
-
-                //    if (oscilloTheta.LineExist(3))
-                //        oscilloTheta.RemoveLine(3);
-                //    if (oscilloTheta.LineExist(4))
-                //        oscilloTheta.RemoveLine(4);
-                //    if (oscilloTheta.LineExist(5))
-                //        oscilloTheta.RemoveLine(5);
-                //}
-                //else
-                //{
-                //    oscilloX.AddOrUpdateLine(3, 100, "xErreur");
-                //    oscilloX.ChangeLineColor(3, Colors.GreenYellow);
-                //    oscilloY.AddOrUpdateLine(3, 100, "yErreur");
-                //    oscilloY.ChangeLineColor(3, Colors.GreenYellow);
-                //    oscilloTheta.AddOrUpdateLine(3, 100, "thetaErreur");
-                //    oscilloTheta.ChangeLineColor(3, Colors.GreenYellow);
-
-                //    oscilloX.AddOrUpdateLine(4, 100, "xCorrection %");
-                //    oscilloX.ChangeLineColor(4, Colors.ForestGreen);
-                //    oscilloY.AddOrUpdateLine(4, 100, "yCorrection %");
-                //    oscilloY.ChangeLineColor(4, Colors.ForestGreen);
-                //    oscilloTheta.AddOrUpdateLine(4, 100, "thetaCorrection %");
-                //    oscilloTheta.ChangeLineColor(4, Colors.ForestGreen);
-
-                //    oscilloX.AddOrUpdateLine(5, 100, "xConsigne robot");
-                //    oscilloX.ChangeLineColor(5, Colors.Yellow);
-                //    oscilloY.AddOrUpdateLine(5, 100, "xConsigne robot");
-                //    oscilloY.ChangeLineColor(5, Colors.Yellow);
-                //    oscilloTheta.AddOrUpdateLine(5, 100, "thetaConsigne robot");
-                //    oscilloTheta.ChangeLineColor(5, Colors.Yellow);
-                //}
             }));
         }
 
@@ -931,6 +782,26 @@ namespace RobotInterface
             }
         }
 
+        public event EventHandler<BoolEventArgs> OnEnableDisableLoggingEvent;
+        public virtual void OnEnableDisableLogging(bool val)
+        {
+            var handler = OnEnableDisableLoggingEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = val });
+            }
+        }
+
+        public event EventHandler<BoolEventArgs> OnEnableDisableLogReplayEvent;
+        public virtual void OnEnableDisableLogReplay(bool val)
+        {
+            var handler = OnEnableDisableLogReplayEvent;
+            if (handler != null)
+            {
+                handler(this, new BoolEventArgs { value = val });
+            }
+        }
+
         //public delegate void EnableDisableControlManetteEventHandler(object sender, BoolEventArgs e);
         public event EventHandler<BoolEventArgs> OnEnableMotorCurrentDataFromInterfaceGeneratedEvent;
         public virtual void OnEnableMotorCurrentDataFromInterface(bool val)
@@ -1018,18 +889,6 @@ namespace RobotInterface
             }
         }
         #endregion
-        private void CheckBox_CheckedChanged(object sender, RoutedEventArgs e)
-        {
-            if(CheckBoxControlManette.IsChecked ?? false)
-            {
-                OnEnableDisableControlManetteFromInterface(true);
-            }
-            else
-            {
-                OnEnableDisableControlManetteFromInterface(false);
-            }
-        }
-
 
         bool isWorldMapZoomed = false;
         double worldMapZoomFactor = 5;
@@ -1076,58 +935,6 @@ namespace RobotInterface
                     break;
             }
         }
-
-        //private void ButtonSetPID_Click(object sender, RoutedEventArgs e)
-        //{
-        //    double Px = Convert.ToDouble(textBoxPx.Text);
-        //    double Ix = Convert.ToDouble(textBoxIx.Text);
-        //    double Dx = Convert.ToDouble(textBoxDx.Text);
-        //    double Py = Convert.ToDouble(textBoxPy.Text);
-        //    double Iy = Convert.ToDouble(textBoxIy.Text);
-        //    double Dy = Convert.ToDouble(textBoxDy.Text);
-        //    double Ptheta = Convert.ToDouble(textBoxPtheta.Text);
-        //    double Itheta = Convert.ToDouble(textBoxItheta.Text);
-        //    double Dtheta = Convert.ToDouble(textBoxDtheta.Text);
-        //    OnSetRobotPIDFromInterface(Px,Ix, Dx, Py, Iy, Dy, Ptheta, Itheta, Dtheta);
-
-        //}
-
-        //private void CheckBoxEnableMotorCurrentData_Checked(object sender, RoutedEventArgs e)
-        //{
-        //    if (CheckBoxEnableMotorCurrentData.IsChecked ?? false)
-        //    {
-        //        OnEnableMotorCurrentDataFromInterface(true);
-        //    }
-        //    else
-        //    {
-        //        OnEnableMotorCurrentDataFromInterface(false);
-        //    }
-        //}
-        
-        //private void CheckBoxEnableEncRawData_Checked(object sender, RoutedEventArgs e)
-        //{
-        //    if (CheckBoxEnableEncRawData.IsChecked ?? false)
-        //    {
-        //        OnEnableEncodersRawDataFromInterface(true);
-        //    }
-        //    else
-        //    {
-        //        OnEnableEncodersRawDataFromInterface(false);
-        //    }
-        //}
-
-        //private void CheckBoxEnablePIDSpeedDebugErrorCorrConsigne_Checked(object sender, RoutedEventArgs e)
-        //{
-        //    if (CheckBoxEnablePIDSpeedDebugErrorCorrConsigne.IsChecked ?? false)
-        //    {
-        //        OnEnableMotorSpeedConsigneDataFromInterface(true);
-        //    }
-        //    else
-        //    {
-        //        OnEnableMotorSpeedConsigneDataFromInterface(false);
-        //    }
-        //}
-
         private void CheckBoxEnableAsservissementDebugData_Checked(object sender, RoutedEventArgs e)
         {
             if (CheckBoxEnableAsservissementDebugData.IsChecked ?? false)
@@ -1233,6 +1040,54 @@ namespace RobotInterface
             if (handler != null)
             {
                 handler(this, new DataReceivedArgs { Data = data });
+            }
+        }
+        
+        bool currentXBoxActivation = false;
+        private void ButtonXBoxController_Click(object sender, RoutedEventArgs e)
+        {
+            currentXBoxActivation = !currentXBoxActivation;
+            if (currentXBoxActivation)
+            {
+                OnEnableDisableControlManetteFromInterface(true);
+                LabelXBoxControllerMode.Content = "XBox Controller State : Enabled";
+            }
+            else
+            {
+                OnEnableDisableControlManetteFromInterface(false);
+                LabelXBoxControllerMode.Content = "XBox Controller State : Disabled";
+            }
+        }
+
+        bool currentLoggingActivationState = false;
+        private void ButtonLogging_Click(object sender, RoutedEventArgs e)
+        {
+            currentLoggingActivationState = !currentLoggingActivationState;            
+            if(currentLoggingActivationState)
+            {
+                OnEnableDisableLogging(true);
+                LabelLoggingState.Content = "Logging Started";
+            }
+            else
+            {
+                OnEnableDisableLogging(false);
+                LabelLoggingState.Content = "Logging Stopped";
+            }
+        }
+
+        bool logReplayActivationState = false;
+        private void ButtonLogReplay_Click(object sender, RoutedEventArgs e)
+        {
+            logReplayActivationState = !logReplayActivationState;
+            if (logReplayActivationState)
+            {
+                OnEnableDisableLogReplay(true);
+                LabelLogReplayState.Content = "Replay";
+            }
+            else
+            {
+                OnEnableDisableLogReplay(false);
+                LabelLogReplayState.Content = "Real Data";
             }
         }
 

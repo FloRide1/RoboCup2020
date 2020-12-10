@@ -13,6 +13,9 @@ namespace MessageProcessorNS
         GameMode competition;
         Timer tmrComptageMessage;
         int robotID;
+
+        bool replayModeActivated = false;
+
         public MsgProcessor(int robotId, GameMode compet)
         {
             robotID = robotId;
@@ -34,8 +37,23 @@ namespace MessageProcessorNS
         //Input CallBack        
         public void ProcessRobotDecodedMessage(object sender, MessageDecodedArgs e)
         {
-            ProcessDecodedMessage((Int16)e.MsgFunction,(Int16) e.MsgPayloadLength, e.MsgPayload);
+            //Si on n'est pas en mode replay, on process les messages en provenance du robot
+            if(!replayModeActivated)
+                ProcessDecodedMessage((Int16)e.MsgFunction,(Int16) e.MsgPayloadLength, e.MsgPayload);
         }
+
+        public void OnSpeedPolarOdometryFromReplay(object sender, PolarSpeedEventArgs e)
+        {
+            /// Forward de trame du Replay
+            if (replayModeActivated)
+                OnPolarOdometrySpeedFromRobot(e); 
+        }
+
+        public void OnEnableDisableLogReplayEvent(object sender, BoolEventArgs e)
+        {
+            replayModeActivated = e.value;
+        }
+
         //Processeur de message en provenance du robot...
         //Une fois processé, le message sera transformé en event sortant
         public void ProcessDecodedMessage(Int16 command, Int16 payloadLength, byte[] payload)
@@ -363,6 +381,7 @@ namespace MessageProcessorNS
                 handler(this, new EventArgs());
             }
         }
+        
 
 
         //Output events
@@ -479,6 +498,14 @@ namespace MessageProcessorNS
                     Vy = (float)vY,
                     Vtheta = (float)vTheta
                 });
+            }
+        }
+        public virtual void OnPolarOdometrySpeedFromRobot(PolarSpeedEventArgs e)
+        {
+            var handler = OnSpeedPolarOdometryFromRobotEvent;
+            if (handler != null)
+            {
+                handler(this, e);
             }
         }
 
@@ -690,5 +717,6 @@ namespace MessageProcessorNS
                 handler(this, new MsgCounterArgs { nbMessageIMU = nbMessageFromImu, nbMessageOdometry = nbMessageFromOdometry });
             }
         }
+        
     }
 }

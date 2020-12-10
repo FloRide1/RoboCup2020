@@ -7,8 +7,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Utilities;
 
 namespace LogReplay
@@ -35,15 +37,11 @@ namespace LogReplay
 
         bool loopReplayFile = false;
         bool RepeatReplayFile = false;
+
+        bool replayModeActivated = false;
+
         public LogReplay()
         {
-            filePath = folderPath + fileName;
-            filesNamesList = Directory.GetFiles(folderPath).ToList();
-            if (filesNamesList.Contains(filePath))
-            {
-                fileIndexInList = filesNamesList.IndexOf(filePath);
-            }
-
             replayThread = new Thread(ReplayLoop);
             replayThread.SetApartmentState(ApartmentState.STA);
             replayThread.IsBackground = true;
@@ -52,232 +50,180 @@ namespace LogReplay
             initialDateTime = DateTime.Now;
         }
 
-        public void ReplaySpeedChanged(object sender, DoubleArgs args)
+        public void OnEnableDisableLogReplayEvent(object sender, BoolEventArgs e)
         {
-            speedFactor = args.Value;
+            replayModeActivated = e.value;
         }
 
-        public void LoopReplayChanged(object sender, BoolEventArgs args)
-        {
-            loopReplayFile = args.value;
-        }
+        bool isReplayingFileOpened = false;
+        int subFileIndex = 0;
+        //void StartReplay()
+        //{
+        //    initialDateTime = DateTime.Now;
+        //    subFileIndex = 0;
 
-        public void RepeatReplayChanged(object sender, BoolEventArgs args)
-        {
-            RepeatReplayFile = args.value;
-        }
-
-        public void PauseReplay(object sender, EventArgs arg)
-        {
-            _pauseEvent.Reset();          //Pause the Thread
-        }
-
-        public void StartReplay(object sender, EventArgs arg)
-        {
-            if (replayThread.IsAlive)
-            {
-                if (replayThread.ThreadState.HasFlag(ThreadState.WaitSleepJoin))
-                {
-                    //replayThread = new Thread(ReplayLoop);
-                    //replayThread.Start();
-                    //_shutdownEvent.Reset();
-                }
-                _pauseEvent.Set();            //Resume the Thread
-            }
-        }
-
-
-        public void StopReplay(object sender, EventArgs arg)
-        {
-            // Signal the shutdown event
-            _shutdownEvent.Set();
-
-            // Make sure to resume any paused threads
-            _pauseEvent.Set();
-
-            // Wait for the thread to exit
-            replayThread.Join();
             
-        }
 
-        public void PreviousReplay(object sender, EventArgs arg)
-        {
-            filePathChanged = true;
-            if (fileIndexInList >0)
-            {
-                fileIndexInList--;
-                filePath = filesNamesList[fileIndexInList];
-            }
-            else
-            {
-                fileIndexInList = filesNamesList.Count - 1;
-                filePath = filesNamesList[fileIndexInList];
-            }
-        }
-
-        public void NextReplay(object sender, EventArgs arg)
-        {
-            if(fileIndexInList+1<filesNamesList.Count)
-            {
-                fileIndexInList++;
-                filePathChanged = true;
-                filePath = filesNamesList[fileIndexInList];
-            }
-            else
-            {
-                fileIndexInList = 0;
-                filePath = filesNamesList[fileIndexInList];
-            }
-        }
-
-        public void OpenReplayFile(object sender,StringEventArgs e)
-        {
-            filePath = e.value;
-            filesNamesList.Clear();
-        }
-
-        public void OpenReplayFolder(object sender, StringEventArgs e)
-        {
-            filesNamesList.Clear();
-            if(Directory.Exists(e.value))
-            {
-                var lst=Directory.GetFiles(e.value).ToList();
-                foreach (string str in lst)
-                {
-                    if (str.Contains(".rbt"))
-                    {
-                        filesNamesList.Add(str);
-                    }
-                }
-            }
-           
-
-            if(filesNamesList.Count>0)
-            {
-                filePath = filesNamesList[0];
-            }
-            else
-            {
-
-                filePath = folderPath + fileName;
-            }
-        }
-
+        //        //    filePath = folderPath + fileName;
+        //        //filesNamesList = Directory.GetFiles(folderPath).ToList();
+        //        //if (filesNamesList.Contains(filePath))
+        //        //{
+        //        //    fileIndexInList = filesNamesList.IndexOf(filePath);
+        //        //}
+        //    }
+        //}
+        //void StopReplay()
+        //{
+        //    replayModeActivated = false;
+        //}
 
         private void ReplayLoop()
         {
             while (true)
             {
-                _pauseEvent.WaitOne(Timeout.Infinite);
-
-                //if (_shutdownEvent.WaitOne(0))
-                //  break;
-                sr = new StreamReader(filePath);
-                OnFileNameChange(filePath);
-
-                using (JsonTextReader txtRdr = new JsonTextReader(sr))
+                if (replayModeActivated)
                 {
-                    txtRdr.SupportMultipleContent = true;
-
-                    while (txtRdr.Read())
+                    if (isReplayingFileOpened == false)
                     {
-                        _pauseEvent.WaitOne(Timeout.Infinite);
-                        if (txtRdr.TokenType == JsonToken.StartObject)
+                        /// Défini le path des fichiers de logReplay
+                        var currentDir = Directory.GetCurrentDirectory();
+
+                        string pattern = @"(.*(?'name'RoboCup2020))"; // Regex pour la recherche des FTDI 232
+                        Regex r = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                        Match m = r.Match(currentDir);
+                        if (m.Success)
                         {
-                            //SpeedDataEventArgs speed=serializer.Deserialize<SpeedDataEventArgs>(txtRdr);
-                            // Load each object from the stream and do something with it
-                            JObject obj = JObject.Load(txtRdr);
-                            string objType = (string)obj["Type"];
-                            double newReplayInstant = (double)obj["InstantInMs"];
-                            if (LogDateTimeOffsetInMs == null)
-                                LogDateTimeOffsetInMs = newReplayInstant;
+                            //On a trouvé le path
+                            string path = m.Groups[1].ToString();
+                            var logPath = path + "\\LogFiles\\";
 
-                            //Tant que l'on a pas un nouvel echantillon, on attends
-                            while (DateTime.Now.Subtract(initialDateTime).TotalMilliseconds + LogDateTimeOffsetInMs < ((newReplayInstant) * (1/speedFactor) ))
+                            //Ouvre une boite de dialog pour demander le fichier à ouvrir
+                            OpenFileDialog openFileDialog = new OpenFileDialog();
+                            openFileDialog.InitialDirectory = logPath;
+                            openFileDialog.Filter = "Log files |*_0_Init.rbt";
+                            if(openFileDialog.ShowDialog()== DialogResult.OK)
                             {
-                                Thread.Sleep(10); //On bloque
+                                filePath = openFileDialog.FileName;
+                                isReplayingFileOpened = true;
                             }
-
-                            switch (objType)
-                            {
-                                case "RawLidar":
-                                    var currentLidarLog = obj.ToObject<RawLidarArgsLog>();
-                                    OnLidar(currentLidarLog.RobotId, currentLidarLog.PtList);
-                                    break;
-                                case "SpeedFromOdometry":
-                                    var robotSpeedData = obj.ToObject<SpeedDataEventArgsLog>();
-                                    OnSpeedData(robotSpeedData);
-                                    break;
-                                case "ImuData":
-                                    var ImuData = obj.ToObject<IMUDataEventArgsLog>();
-                                    OnIMU(ImuData);
-                                    break;
-                                //case "CameraOmni":
-                                //    var cameraImage = obj.ToObject<OpenCvMatImageArgsLog>();
-                                //    OnCameraImage(cameraImage);
-                                //    break;
-                                case "BitmapDataPanorama":
-                                    var BitmapData = obj.ToObject<BitmapDataPanoramaArgsLog>();
-                                    OnBitmapDataPanorama(BitmapData);
-                                    break;
-                                default:
-                                    Console.WriteLine("Log Replay : wrong type");
-                                    break;
-                            }
-                        }
-
-                        if(filePathChanged)
-                        {
-                            break;
                         }
                     }
 
-                    if(RepeatReplayFile)
+                    if(isReplayingFileOpened)
                     {
-                        if (loopReplayFile)
-                        {
-                            if (fileIndexInList + 1 < filesNamesList.Count)
-                            {
-                                fileIndexInList++;
-                                filePath = filesNamesList[fileIndexInList];
-                            }
-                            else
-                            {
-                                fileIndexInList = 0;
-                                if(filesNamesList.Count>0)
-                                    filePath = filesNamesList[fileIndexInList];
-                            }
-                        }
-                        else
-                        {
-                            
-                        }
+                        sr = new StreamReader(filePath);
                     }
-                    else
+                        //_pauseEvent.WaitOne(Timeout.Infinite);
+
+                        //if (_shutdownEvent.WaitOne(0))
+                        //  break;
+                        sr = new StreamReader(filePath);
+                    OnFileNameChange(filePath);
+
+                    using (JsonTextReader txtRdr = new JsonTextReader(sr))
                     {
-                        if (loopReplayFile && !filePathChanged)
+                        txtRdr.SupportMultipleContent = true;
+
+                        while (txtRdr.Read())
                         {
-                            if (fileIndexInList + 1 < filesNamesList.Count)
+                            _pauseEvent.WaitOne(Timeout.Infinite);
+                            if (txtRdr.TokenType == JsonToken.StartObject)
                             {
-                                fileIndexInList++;
-                                filePath = filesNamesList[fileIndexInList];
+                                //SpeedDataEventArgs speed=serializer.Deserialize<SpeedDataEventArgs>(txtRdr);
+                                // Load each object from the stream and do something with it
+                                JObject obj = JObject.Load(txtRdr);
+                                string objType = (string)obj["Type"];
+                                double newReplayInstant = (double)obj["InstantInMs"];
+                                if (LogDateTimeOffsetInMs == null)
+                                    LogDateTimeOffsetInMs = newReplayInstant;
+
+                                //Tant que l'on a pas un nouvel echantillon, on attends
+                                while (DateTime.Now.Subtract(initialDateTime).TotalMilliseconds + LogDateTimeOffsetInMs < ((newReplayInstant) * (1 / speedFactor)))
+                                {
+                                    Thread.Sleep(10); //On bloque
+                                }
+
+                                switch (objType)
+                                {
+                                    case "RawLidar":
+                                        var currentLidarLog = obj.ToObject<RawLidarArgsLog>();
+                                        OnLidar(currentLidarLog.RobotId, currentLidarLog.PtList);
+                                        break;
+                                    case "SpeedFromOdometry":
+                                        var robotSpeedData = obj.ToObject<SpeedDataEventArgsLog>();
+                                        OnSpeedData(robotSpeedData);
+                                        break;
+                                    case "ImuData":
+                                        var ImuData = obj.ToObject<IMUDataEventArgsLog>();
+                                        OnIMU(ImuData);
+                                        break;
+                                    //case "CameraOmni":
+                                    //    var cameraImage = obj.ToObject<OpenCvMatImageArgsLog>();
+                                    //    OnCameraImage(cameraImage);
+                                    //    break;
+                                    case "BitmapDataPanorama":
+                                        var BitmapData = obj.ToObject<BitmapDataPanoramaArgsLog>();
+                                        OnBitmapDataPanorama(BitmapData);
+                                        break;
+                                    default:
+                                        Console.WriteLine("Log Replay : wrong type");
+                                        break;
+                                }
                             }
-                        }
-                        else
-                        {
+
                             if (filePathChanged)
                             {
-                                filePathChanged = false;
+                                break;
+                            }
+                        }
+
+                        if (RepeatReplayFile)
+                        {
+                            if (loopReplayFile)
+                            {
+                                if (fileIndexInList + 1 < filesNamesList.Count)
+                                {
+                                    fileIndexInList++;
+                                    filePath = filesNamesList[fileIndexInList];
+                                }
+                                else
+                                {
+                                    fileIndexInList = 0;
+                                    if (filesNamesList.Count > 0)
+                                        filePath = filesNamesList[fileIndexInList];
+                                }
                             }
                             else
                             {
-                                _pauseEvent.Reset();          //Pause the Thread
+
+                            }
+                        }
+                        else
+                        {
+                            if (loopReplayFile && !filePathChanged)
+                            {
+                                if (fileIndexInList + 1 < filesNamesList.Count)
+                                {
+                                    fileIndexInList++;
+                                    filePath = filesNamesList[fileIndexInList];
+                                }
+                            }
+                            else
+                            {
+                                if (filePathChanged)
+                                {
+                                    filePathChanged = false;
+                                }
+                                else
+                                {
+                                    _pauseEvent.Reset();          //Pause the Thread
+                                }
                             }
                         }
                     }
+                    sr.Close();
+                    sr.Dispose();
                 }
-                sr.Close();
-                sr.Dispose();
             }
         }
 
@@ -293,20 +239,20 @@ namespace LogReplay
             }
         }
 
-        public event EventHandler<IMUDataEventArgs> OnIMUEvent;
+        public event EventHandler<IMUDataEventArgs> OnIMURawDataFromReplayGeneratedEvent;
         public virtual void OnIMU(IMUDataEventArgs dat)
         {
-            var handler = OnIMUEvent;
+            var handler = OnIMURawDataFromReplayGeneratedEvent;
             if (handler != null)
             {
                 handler(this, new IMUDataEventArgs { accelX = dat.accelX, accelY = dat.accelY, accelZ = dat.accelZ, gyroX = dat.gyroX, gyroY = dat.gyroY, gyroZ = dat.gyroZ,EmbeddedTimeStampInMs=dat.EmbeddedTimeStampInMs});
             }
         }
 
-        public event EventHandler<PolarSpeedEventArgs> OnSpeedDataEvent;
+        public event EventHandler<PolarSpeedEventArgs> OnSpeedPolarOdometryFromReplayEvent;
         public virtual void OnSpeedData( PolarSpeedEventArgs dat)
         {
-            var handler = OnSpeedDataEvent;
+            var handler = OnSpeedPolarOdometryFromReplayEvent;
             if (handler != null)
             {
                 handler(this, new PolarSpeedEventArgs { Vx = dat.Vx, Vy = dat.Vy, Vtheta = dat.Vtheta, RobotId = dat.RobotId, timeStampMs=dat.timeStampMs});

@@ -183,4 +183,9 @@ namespace Constants
         Polar = 1,
         Independant = 2
     }
+    public enum ActiveMode
+    {
+        Disabled = 0,
+        Enabled = 1
+    }
 }

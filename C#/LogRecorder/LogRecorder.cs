@@ -7,6 +7,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,45 +23,105 @@ namespace LogRecorder
         JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
         DateTime initialDateTime;
 
+        bool isLogging = false;
+
         public LogRecorder()
         {
             logThread = new Thread(LogLoop);
             logThread.IsBackground = true;
             logThread.Name = "Logging Thread";
             logThread.Start();
-            initialDateTime = DateTime.Now;
         }
 
+        int subFileIndex = 0;
+        void StartLogging()
+        {
+            initialDateTime = DateTime.Now;
+            subFileIndex = 0;
+            isLogging = true;
+        }
+        void StopLogging()
+        {
+            isLogging = false;
+        }
+
+        bool isRecordingFileOpened = false;
         private void LogLoop()
         {
-            string currentFileName = "logFilePath_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + ".rbt";
-            sw = new StreamWriter(currentFileName, true);
-            sw.AutoFlush = true;
             while (true)
             {
-                while (logQueue.Count > 0)
+                if (isLogging)
                 {
-                    string s = "";
-                    lock (logLock) // get a lock on the queue
-                    {
-                        s = logQueue.Dequeue();
-                    }
-                    sw.WriteLine(s);
+                    /// On est en mode logging
 
-                    //Vérification de la taille du fichier
-                    if(sw.BaseStream.Length > 90*1000000)
+                    if (isRecordingFileOpened == false)
                     {
-                        //On split le fichier
-                        sw.Close();
-                        currentFileName = "logFilePath_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + ".rbt";
-                        sw = new StreamWriter(currentFileName, true);
+                        /// Le fichier de log n'est pas créé
+                        /// On le crée, mais pour cela on commence par remonter au directory RoboCup2020
+
+                        /// On récupère le répertoire courant de l'application pour débuter
+                        var currentDir = Directory.GetCurrentDirectory();
+                        
+                        string pattern = @"(.*(?'name'RoboCup2020))"; // Regex pour la recherche des FTDI 232
+                        Regex r = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                        Match m = r.Match(currentDir);
+                        if (m.Success)
+                        {
+                            string path = m.Groups[1].ToString();                            
+                            var logPath = path + "\\LogFiles\\";
+                            string currentFileName = "";
+                            if(subFileIndex==0)
+                                currentFileName = logPath+"Log_" + initialDateTime.ToString("yyyy-MM-dd_HH-mm-ss") + "_" + subFileIndex + "_Init.rbt";
+                            else
+                                currentFileName = logPath + "Log_" + initialDateTime.ToString("yyyy-MM-dd_HH-mm-ss") + "_"+subFileIndex+".rbt";
+                            subFileIndex++;
+                            sw = new StreamWriter(currentFileName, true);
+                            sw.AutoFlush = true;
+                            isRecordingFileOpened = true;
+                        }
+
+                        
+                    }
+
+                    while (logQueue.Count > 0)
+                    {
+                        string s = "";
+                        lock (logLock) // get a lock on the queue
+                        {
+                            s = logQueue.Dequeue();
+                        }
+                        sw.WriteLine(s);
+
+                        //Vérification de la taille du fichier
+                        if (sw.BaseStream.Length > 90 * 1000000)
+                        {
+                            //On ferme le fichier, ce qui a pour conséquence de le splitter
+                            sw.Close();
+                            isRecordingFileOpened = false;
+                            break; //On sort de la boucle de logging puisque le fichier est fermé
+                        }
                     }
                 }
+                else
+                {
+                    if (isRecordingFileOpened == true)
+                    {
+                        //On ferme le fichier, ce qui a pour conséquence de le splitter
+                        sw.Close();
+                        isRecordingFileOpened = false;
+                    }
+                    
+                    lock (logLock)
+                    {
+                        logQueue.Clear();
+                    }
+                }
+
                 Thread.Sleep(10);
             }
         }
         public void Log(string contents)
-        {            
+        {
             lock (logLock) // get a lock on the queue
             {
                 logQueue.Enqueue(contents);
@@ -124,7 +185,7 @@ namespace LogRecorder
 
             Bitmap originalImage = e.Bitmap;
             BitmapData bmpDataOriginal = originalImage.LockBits(new Rectangle(0, 0, originalImage.Width, originalImage.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
-            
+
             int bytesPerPixel = 0;
             if (bmpDataOriginal.PixelFormat == PixelFormat.Format24bppRgb)
                 bytesPerPixel = 3; //TODO modif si canal alpha
@@ -143,7 +204,19 @@ namespace LogRecorder
             string json = JsonConvert.SerializeObject(data);
             Log(json);
         }
+        public void OnEnableDisableLoggingReceived(object sender, BoolEventArgs e)
+        {
+            if (e.value == true)
+            {
+                StartLogging();
+            }
+            else
+            {
+                StopLogging();
+            }
+        }
     }
+    
 
     public class RawLidarArgsLog : RawLidarArgs
     {
