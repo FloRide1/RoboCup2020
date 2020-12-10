@@ -1,7 +1,5 @@
 ﻿using EventArgsLibrary;
 using LogRecorder;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -60,8 +58,6 @@ namespace LogReplay
         string replayFileSerieName = "";
         bool isReplayingFileOpened = false;
 
-
-        JsonTextReader txtRdr;
         double newReplayInstant = 0;
         int subFileIndex = 0;
         private void ReplayLoop()

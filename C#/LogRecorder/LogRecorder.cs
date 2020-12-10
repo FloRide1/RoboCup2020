@@ -1,15 +1,11 @@
 ﻿using EventArgsLibrary;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using Utilities;
 using ZeroFormatter;
 
@@ -22,7 +18,6 @@ namespace LogRecorder
         //private Queue<string> logQueue = new Queue<string>();
         private Queue<byte[]> logQueue = new Queue<byte[]>();
         public string logLock = "";
-        JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
         DateTime initialDateTime;
 
         bool isLogging = false;
@@ -204,7 +199,7 @@ namespace LogRecorder
             data.BitmapData = bmpDataOriginal;
             data.Data = bmpData;
             data.InstantInMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
-            string json = JsonConvert.SerializeObject(data);
+            //string json = JsonConvert.SerializeObject(data);
             //Log(json);
         }
         public void OnEnableDisableLoggingReceived(object sender, BoolEventArgs e)
