@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="LogRecorder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ZeroFormatterLogging.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventArgsLibrary\EventArgsLibrary.csproj">

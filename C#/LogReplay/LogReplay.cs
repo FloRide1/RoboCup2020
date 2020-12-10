@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Utilities;
+using ZeroFormatter;
 
 namespace LogReplay
 {
@@ -112,8 +113,7 @@ namespace LogReplay
                                 sr = new StreamReader(filePath);
                                 isReplayingFileOpened = true;
                                 OnFileNameChange(filePath);
-                                txtRdr = new JsonTextReader(sr);
-                                txtRdr.SupportMultipleContent = true;
+                                initialDateTime = DateTime.Now;
                             }
                             else
                             {
@@ -129,46 +129,52 @@ namespace LogReplay
                             //Si un fichier est déjà ouvert
                             do
                             {
-                                //On tente de lire les jetons JSON du fichier un par un
-                                if (txtRdr.Read())
+                                var s = sr.ReadLine();
+                                if (s != null)
                                 {
-                                    //Lecture réussie, on traite les données
-                                    if (txtRdr.TokenType == JsonToken.StartObject)
-                                    {
-                                        // Load each object from the stream and do something with it
-                                        JObject obj = JObject.Load(txtRdr);
-                                        string objType = (string)obj["Type"];
-                                        newReplayInstant = (double)obj["InstantInMs"];
-                                        if (LogDateTimeOffsetInMs == null)
-                                            LogDateTimeOffsetInMs = newReplayInstant;
+                                    byte[] bytes = Convert.FromBase64String(s);
+                                    var deserialization = ZeroFormatterSerializer.Deserialize<ZeroFormatterLogging>(bytes);
 
-                                        switch (objType)
-                                        {
-                                            case "RawLidar":
-                                                var currentLidarLog = obj.ToObject<RawLidarArgsLog>();
-                                                OnLidar(currentLidarLog.RobotId, currentLidarLog.PtList);
-                                                break;
-                                            case "SpeedFromOdometry":
-                                                var robotSpeedData = obj.ToObject<SpeedDataEventArgsLog>();
-                                                OnSpeedData(robotSpeedData);
-                                                break;
-                                            case "ImuData":
-                                                var ImuData = obj.ToObject<IMUDataEventArgsLog>();
-                                                OnIMU(ImuData);
-                                                break;
-                                            //case "CameraOmni":
-                                            //    var cameraImage = obj.ToObject<OpenCvMatImageArgsLog>();
-                                            //    OnCameraImage(cameraImage);
-                                            //    break;
-                                            case "BitmapDataPanorama":
-                                                var BitmapData = obj.ToObject<BitmapDataPanoramaArgsLog>();
-                                                OnBitmapDataPanorama(BitmapData);
-                                                break;
-                                            default:
-                                                Console.WriteLine("Log Replay : wrong type");
-                                                break;
-                                        }
+                                    switch (deserialization.Type)
+                                    {
+                                        case ZeroFormatterLoggingType.IMUDataEventArgs:
+                                            IMUDataEventArgsLog ImuData = (IMUDataEventArgsLog)deserialization;
+                                            newReplayInstant = ImuData.InstantInMs;
+                                            var e = new IMUDataEventArgs();
+                                            e.accelX = ImuData.accelX;
+                                            e.accelY = ImuData.accelY;
+                                            e.accelZ = ImuData.accelZ;
+                                            e.gyroX = ImuData.gyroX;
+                                            e.gyroY = ImuData.gyroY;
+                                            e.gyroZ = ImuData.gyroZ;
+                                            e.magX = ImuData.magX;
+                                            e.magY = ImuData.magY;
+                                            e.magZ = ImuData.magZ;
+                                            e.EmbeddedTimeStampInMs = ImuData.EmbeddedTimeStampInMs;
+                                            OnIMU(e);
+                                            break;
+                                        case ZeroFormatterLoggingType.PolarSpeedEventArgs:
+                                            PolarSpeedEventArgsLog robotSpeedData = (PolarSpeedEventArgsLog)deserialization;
+                                            newReplayInstant = robotSpeedData.InstantInMs;
+                                            var eSpeed = new PolarSpeedEventArgs();
+                                            eSpeed.RobotId = robotSpeedData.RobotId;
+                                            eSpeed.Vtheta = robotSpeedData.Vtheta;
+                                            eSpeed.Vx = robotSpeedData.Vx;
+                                            eSpeed.Vy = robotSpeedData.Vy;
+                                            eSpeed.timeStampMs = robotSpeedData.timeStampMs;
+                                            OnSpeedData(eSpeed);
+                                            break;
+                                        case ZeroFormatterLoggingType.RawLidarArgs:
+                                            RawLidarArgsLog currentLidarLog = (RawLidarArgsLog)deserialization;
+                                            newReplayInstant = currentLidarLog.InstantInMs;
+                                            OnLidar(currentLidarLog.RobotId, currentLidarLog.PtList);
+                                            break;
+                                        default:
+                                            break;
                                     }
+
+                                    if (LogDateTimeOffsetInMs == null)
+                                        LogDateTimeOffsetInMs = newReplayInstant;
                                 }
                                 else
                                 {

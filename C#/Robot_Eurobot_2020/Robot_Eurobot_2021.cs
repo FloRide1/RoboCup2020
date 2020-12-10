@@ -285,7 +285,7 @@ namespace Robot
             /// LOGGER related events
             perceptionManager.OnLidarRawDataEvent += logRecorder.OnRawLidarDataReceived;
             robotMsgProcessor.OnIMURawDataFromRobotGeneratedEvent += logRecorder.OnIMURawDataReceived;
-            robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += logRecorder.OnSpeedDataReceived;
+            robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += logRecorder.OnPolarSpeedDataReceived;
 
             /// LOG REPLAY related events
             logReplay.OnIMURawDataFromReplayGeneratedEvent += imuProcessor.OnIMURawDataReceived;

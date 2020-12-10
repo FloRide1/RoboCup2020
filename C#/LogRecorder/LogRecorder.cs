@@ -10,7 +10,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-
+using Utilities;
+using ZeroFormatter;
 
 namespace LogRecorder
 {
@@ -18,7 +19,8 @@ namespace LogRecorder
     {
         private Thread logThread;
         private StreamWriter sw;
-        private Queue<string> logQueue = new Queue<string>();
+        //private Queue<string> logQueue = new Queue<string>();
+        private Queue<byte[]> logQueue = new Queue<byte[]>();
         public string logLock = "";
         JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
         DateTime initialDateTime;
@@ -85,12 +87,13 @@ namespace LogRecorder
 
                     while (logQueue.Count > 0)
                     {
-                        string s = "";
+                        byte[] s;
                         lock (logLock) // get a lock on the queue
                         {
                             s = logQueue.Dequeue();
                         }
-                        sw.WriteLine(s);
+
+                        sw.WriteLine(Convert.ToBase64String(s));
 
                         //Vérification de la taille du fichier
                         if (sw.BaseStream.Length > 90 * 1000000)
@@ -120,11 +123,11 @@ namespace LogRecorder
                 Thread.Sleep(10);
             }
         }
-        public void Log(string contents)
+        public void Log(byte[] content)
         {
             lock (logLock) // get a lock on the queue
             {
-                logQueue.Enqueue(contents);
+                logQueue.Enqueue(content);
             }
         }
 
@@ -134,8 +137,8 @@ namespace LogRecorder
             data.PtList = e.PtList;
             data.RobotId = e.RobotId;
             data.InstantInMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
-            string json = JsonConvert.SerializeObject(data);
-            Log(json);
+            var msg = ZeroFormatterSerializer.Serialize<ZeroFormatterLogging>(data);
+            Log(msg);
         }
 
         public void OnIMURawDataReceived(object sender, IMUDataEventArgs e)
@@ -152,21 +155,21 @@ namespace LogRecorder
             data.magZ = e.magZ;
             data.EmbeddedTimeStampInMs = e.EmbeddedTimeStampInMs;
             data.InstantInMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
-            string json = JsonConvert.SerializeObject(data);
-            Log(json);
+            var msg = ZeroFormatterSerializer.Serialize<ZeroFormatterLogging>(data);
+            Log(msg);
         }
 
-        public void OnSpeedDataReceived(object sender, PolarSpeedEventArgs e)
+        public void OnPolarSpeedDataReceived(object sender, PolarSpeedEventArgs e)
         {
-            SpeedDataEventArgsLog data = new SpeedDataEventArgsLog();
+            PolarSpeedEventArgsLog data = new PolarSpeedEventArgsLog();
             data.Vx = e.Vx;
             data.Vy = e.Vy;
             data.Vtheta = e.Vtheta;
             data.RobotId = e.RobotId;
             data.timeStampMs = e.timeStampMs;
             data.InstantInMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
-            string json = JsonConvert.SerializeObject(data);
-            Log(json);
+            var msg = ZeroFormatterSerializer.Serialize<ZeroFormatterLogging>(data);
+            Log(msg);
         }
 
         //public void OnOpenCVMatImageReceived(object sender, OpenCvMatImageArgs e)
@@ -202,7 +205,7 @@ namespace LogRecorder
             data.Data = bmpData;
             data.InstantInMs = DateTime.Now.Subtract(initialDateTime).TotalMilliseconds;
             string json = JsonConvert.SerializeObject(data);
-            Log(json);
+            //Log(json);
         }
         public void OnEnableDisableLoggingReceived(object sender, BoolEventArgs e)
         {
@@ -216,24 +219,86 @@ namespace LogRecorder
             }
         }
     }
-    
 
-    public class RawLidarArgsLog : RawLidarArgs
+    [ZeroFormattable]
+    public class RawLidarArgsLog : ZeroFormatterLogging
     {
-        public string Type = "RawLidar";
-        public double InstantInMs;
+        public override ZeroFormatterLoggingType Type
+        {
+            get
+            {
+                return ZeroFormatterLoggingType.RawLidarArgs;
+            }
+        }
+        //public string Type = "RawLidar";
+        [Index(0)]
+        public virtual double InstantInMs { get; set; }
+        [Index(1)]
+        public virtual int RobotId { get; set; }
+        [Index(2)]
+        public virtual List<PolarPointRssi> PtList { get; set; }
+        [Index(3)]
+        public virtual int LidarFrameNumber { get; set; }
     }
 
-    public class SpeedDataEventArgsLog : PolarSpeedEventArgs
+    [ZeroFormattable]
+    public class PolarSpeedEventArgsLog : ZeroFormatterLogging
     {
-        public string Type = "SpeedFromOdometry";
-        public double InstantInMs;
+        public override ZeroFormatterLoggingType Type
+        {
+            get
+            {
+                return ZeroFormatterLoggingType.IMUDataEventArgs;
+            }
+        }
+        //public string Type = "SpeedFromOdometry";
+        [Index(0)]
+        public virtual double InstantInMs { get; set; }
+        [Index(1)]
+        public virtual uint timeStampMs { get; set; }
+        [Index(2)]
+        public virtual int RobotId { get; set; }
+        [Index(3)]
+        public virtual double Vx { get; set; }
+        [Index(4)]
+        public virtual double Vy { get; set; }
+        [Index(5)]
+        public virtual double Vtheta { get; set; }
     }
 
-    public class IMUDataEventArgsLog : IMUDataEventArgs
+    [ZeroFormattable]
+    public class IMUDataEventArgsLog :  ZeroFormatterLogging
     {
-        public string Type = "ImuData";
-        public double InstantInMs;
+        public override ZeroFormatterLoggingType Type
+        {
+            get
+            {
+                return ZeroFormatterLoggingType.IMUDataEventArgs;
+            }
+        }
+        //public string Type = "ImuData";
+        [Index(0)]
+        public virtual double InstantInMs { get; set; }
+        [Index(1)]
+        public virtual uint EmbeddedTimeStampInMs { get; set; }
+        [Index(2)]
+        public virtual double accelX { get; set; }
+        [Index(3)]
+        public virtual double accelY { get; set; }
+        [Index(4)]
+        public virtual double accelZ { get; set; }
+        [Index(5)]
+        public virtual double gyroX { get; set; }
+        [Index(6)]
+        public virtual double gyroY { get; set; }
+        [Index(7)]
+        public virtual double gyroZ { get; set; }
+        [Index(8)]
+        public virtual double magX { get; set; }
+        [Index(9)]
+        public virtual double magY { get; set; }
+        [Index(10)]
+        public virtual double magZ { get; set; }
     }
     public class OpenCvMatImageArgsLog : OpenCvMatImageArgs
     {
