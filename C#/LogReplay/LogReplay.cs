@@ -55,35 +55,21 @@ namespace LogReplay
             replayModeActivated = e.value;
         }
 
+        bool isReplayingFileSerieDefined = false;
+        string replayFileSerieName = "";
         bool isReplayingFileOpened = false;
+
+
+        JsonTextReader txtRdr;
+        double newReplayInstant = 0;
         int subFileIndex = 0;
-        //void StartReplay()
-        //{
-        //    initialDateTime = DateTime.Now;
-        //    subFileIndex = 0;
-
-            
-
-        //        //    filePath = folderPath + fileName;
-        //        //filesNamesList = Directory.GetFiles(folderPath).ToList();
-        //        //if (filesNamesList.Contains(filePath))
-        //        //{
-        //        //    fileIndexInList = filesNamesList.IndexOf(filePath);
-        //        //}
-        //    }
-        //}
-        //void StopReplay()
-        //{
-        //    replayModeActivated = false;
-        //}
-
         private void ReplayLoop()
         {
             while (true)
             {
                 if (replayModeActivated)
                 {
-                    if (isReplayingFileOpened == false)
+                    if (isReplayingFileSerieDefined == false)
                     {
                         /// Défini le path des fichiers de logReplay
                         var currentDir = Directory.GetCurrentDirectory();
@@ -101,133 +87,106 @@ namespace LogReplay
                             OpenFileDialog openFileDialog = new OpenFileDialog();
                             openFileDialog.InitialDirectory = logPath;
                             openFileDialog.Filter = "Log files |*_0_Init.rbt";
-                            if(openFileDialog.ShowDialog()== DialogResult.OK)
+                            if (openFileDialog.ShowDialog() == DialogResult.OK)
                             {
                                 filePath = openFileDialog.FileName;
+                                replayFileSerieName = filePath.Substring(0, filePath.Length - 10);
+                                isReplayingFileSerieDefined = true;
+                                subFileIndex = 0; //On réinit le compteur de sous-fichier pour les multi files chainés
+                            }
+                        }
+                    }
+
+                    if (isReplayingFileSerieDefined)
+                    {
+                        //Si le nom de la série de fichier à traiter est défini
+                        if (!isReplayingFileOpened)
+                        {
+                            //Si aucun fichier n'est ouvert, on ouvre le courant
+                            if (subFileIndex == 0)
+                                filePath = replayFileSerieName + "0_Init.rbt";
+                            else
+                                filePath = replayFileSerieName + subFileIndex + ".rbt";
+                            if (File.Exists(filePath))
+                            {
+                                sr = new StreamReader(filePath);
                                 isReplayingFileOpened = true;
-                            }
-                        }
-                    }
-
-                    if(isReplayingFileOpened)
-                    {
-                        sr = new StreamReader(filePath);
-                    }
-                        //_pauseEvent.WaitOne(Timeout.Infinite);
-
-                        //if (_shutdownEvent.WaitOne(0))
-                        //  break;
-                        sr = new StreamReader(filePath);
-                    OnFileNameChange(filePath);
-
-                    using (JsonTextReader txtRdr = new JsonTextReader(sr))
-                    {
-                        txtRdr.SupportMultipleContent = true;
-
-                        while (txtRdr.Read())
-                        {
-                            _pauseEvent.WaitOne(Timeout.Infinite);
-                            if (txtRdr.TokenType == JsonToken.StartObject)
-                            {
-                                //SpeedDataEventArgs speed=serializer.Deserialize<SpeedDataEventArgs>(txtRdr);
-                                // Load each object from the stream and do something with it
-                                JObject obj = JObject.Load(txtRdr);
-                                string objType = (string)obj["Type"];
-                                double newReplayInstant = (double)obj["InstantInMs"];
-                                if (LogDateTimeOffsetInMs == null)
-                                    LogDateTimeOffsetInMs = newReplayInstant;
-
-                                //Tant que l'on a pas un nouvel echantillon, on attends
-                                while (DateTime.Now.Subtract(initialDateTime).TotalMilliseconds + LogDateTimeOffsetInMs < ((newReplayInstant) * (1 / speedFactor)))
-                                {
-                                    Thread.Sleep(10); //On bloque
-                                }
-
-                                switch (objType)
-                                {
-                                    case "RawLidar":
-                                        var currentLidarLog = obj.ToObject<RawLidarArgsLog>();
-                                        OnLidar(currentLidarLog.RobotId, currentLidarLog.PtList);
-                                        break;
-                                    case "SpeedFromOdometry":
-                                        var robotSpeedData = obj.ToObject<SpeedDataEventArgsLog>();
-                                        OnSpeedData(robotSpeedData);
-                                        break;
-                                    case "ImuData":
-                                        var ImuData = obj.ToObject<IMUDataEventArgsLog>();
-                                        OnIMU(ImuData);
-                                        break;
-                                    //case "CameraOmni":
-                                    //    var cameraImage = obj.ToObject<OpenCvMatImageArgsLog>();
-                                    //    OnCameraImage(cameraImage);
-                                    //    break;
-                                    case "BitmapDataPanorama":
-                                        var BitmapData = obj.ToObject<BitmapDataPanoramaArgsLog>();
-                                        OnBitmapDataPanorama(BitmapData);
-                                        break;
-                                    default:
-                                        Console.WriteLine("Log Replay : wrong type");
-                                        break;
-                                }
-                            }
-
-                            if (filePathChanged)
-                            {
-                                break;
-                            }
-                        }
-
-                        if (RepeatReplayFile)
-                        {
-                            if (loopReplayFile)
-                            {
-                                if (fileIndexInList + 1 < filesNamesList.Count)
-                                {
-                                    fileIndexInList++;
-                                    filePath = filesNamesList[fileIndexInList];
-                                }
-                                else
-                                {
-                                    fileIndexInList = 0;
-                                    if (filesNamesList.Count > 0)
-                                        filePath = filesNamesList[fileIndexInList];
-                                }
+                                OnFileNameChange(filePath);
+                                txtRdr = new JsonTextReader(sr);
+                                txtRdr.SupportMultipleContent = true;
                             }
                             else
                             {
-
+                                //On n'a plus de fichier à traiter
+                                isReplayingFileOpened = false;
+                                isReplayingFileSerieDefined = false;
+                                replayModeActivated = false;
                             }
                         }
-                        else
+
+                        if (isReplayingFileOpened)
                         {
-                            if (loopReplayFile && !filePathChanged)
+                            //Si un fichier est déjà ouvert
+                            do
                             {
-                                if (fileIndexInList + 1 < filesNamesList.Count)
+                                //On tente de lire les jetons JSON du fichier un par un
+                                if (txtRdr.Read())
                                 {
-                                    fileIndexInList++;
-                                    filePath = filesNamesList[fileIndexInList];
-                                }
-                            }
-                            else
-                            {
-                                if (filePathChanged)
-                                {
-                                    filePathChanged = false;
+                                    //Lecture réussie, on traite les données
+                                    if (txtRdr.TokenType == JsonToken.StartObject)
+                                    {
+                                        // Load each object from the stream and do something with it
+                                        JObject obj = JObject.Load(txtRdr);
+                                        string objType = (string)obj["Type"];
+                                        newReplayInstant = (double)obj["InstantInMs"];
+                                        if (LogDateTimeOffsetInMs == null)
+                                            LogDateTimeOffsetInMs = newReplayInstant;
+
+                                        switch (objType)
+                                        {
+                                            case "RawLidar":
+                                                var currentLidarLog = obj.ToObject<RawLidarArgsLog>();
+                                                OnLidar(currentLidarLog.RobotId, currentLidarLog.PtList);
+                                                break;
+                                            case "SpeedFromOdometry":
+                                                var robotSpeedData = obj.ToObject<SpeedDataEventArgsLog>();
+                                                OnSpeedData(robotSpeedData);
+                                                break;
+                                            case "ImuData":
+                                                var ImuData = obj.ToObject<IMUDataEventArgsLog>();
+                                                OnIMU(ImuData);
+                                                break;
+                                            //case "CameraOmni":
+                                            //    var cameraImage = obj.ToObject<OpenCvMatImageArgsLog>();
+                                            //    OnCameraImage(cameraImage);
+                                            //    break;
+                                            case "BitmapDataPanorama":
+                                                var BitmapData = obj.ToObject<BitmapDataPanoramaArgsLog>();
+                                                OnBitmapDataPanorama(BitmapData);
+                                                break;
+                                            default:
+                                                Console.WriteLine("Log Replay : wrong type");
+                                                break;
+                                        }
+                                    }
                                 }
                                 else
                                 {
-                                    _pauseEvent.Reset();          //Pause the Thread
+                                    //Lecture échouée, on a une fin de fichier
+                                    isReplayingFileOpened = false;
+                                    subFileIndex++;
                                 }
                             }
+
+                            //On le fait tant que l'instant courant des data de Replay est inférieur à l'instant théorique de simulation, on traite les datas
+                            while (newReplayInstant / speedFactor < DateTime.Now.Subtract(initialDateTime).TotalMilliseconds + LogDateTimeOffsetInMs && isReplayingFileOpened);
                         }
                     }
-                    sr.Close();
-                    sr.Dispose();
                 }
+                Thread.Sleep(10);
             }
         }
-
-       
+               
 
         public event EventHandler<RawLidarArgs> OnLidarEvent;
         public virtual void OnLidar(int id, List<PolarPointRssi> ptList)
