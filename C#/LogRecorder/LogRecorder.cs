@@ -8,26 +8,31 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Utilities;
 using ZeroFormatter;
+using AdvancedTimers;
+using System.Collections.Concurrent;
 
 namespace LogRecorder
 {
     public class LogRecorder
     {
-        private Thread logThread;
         private StreamWriter sw;
-        //private Queue<string> logQueue = new Queue<string>();
-        private Queue<byte[]> logQueue = new Queue<byte[]>();
+        private ConcurrentQueue<byte[]> logQueue = new ConcurrentQueue<byte[]>();
         public string logLock = "";
         DateTime initialDateTime;
 
+        HighFreqTimer timerLogging = new HighFreqTimer(50);
+        
         bool isLogging = false;
 
         public LogRecorder()
         {
-            logThread = new Thread(LogLoop);
-            logThread.IsBackground = true;
-            logThread.Name = "Logging Thread";
-            logThread.Start();
+            timerLogging.Tick += TimerLogging_Tick;
+            timerLogging.Start();
+        }
+
+        private void TimerLogging_Tick(object sender, EventArgs e)
+        {
+            LogLoop();
         }
 
         int subFileIndex = 0;
@@ -45,7 +50,7 @@ namespace LogRecorder
         bool isRecordingFileOpened = false;
         private void LogLoop()
         {
-            while (true)
+            //while (true)
             {
                 if (isLogging)
                 {
@@ -83,10 +88,7 @@ namespace LogRecorder
                     while (logQueue.Count > 0)
                     {
                         byte[] s;
-                        lock (logLock) // get a lock on the queue
-                        {
-                            s = logQueue.Dequeue();
-                        }
+                        while (!logQueue.TryDequeue(out s)) ;
 
                         sw.WriteLine(Convert.ToBase64String(s));
 
@@ -108,10 +110,11 @@ namespace LogRecorder
                         sw.Close();
                         isRecordingFileOpened = false;
                     }
-                    
-                    lock (logLock)
+
+                    while (logQueue.Count > 0)
                     {
-                        logQueue.Clear();
+                        byte[] s;
+                        logQueue.TryDequeue(out s);
                     }
                 }
 
@@ -120,9 +123,12 @@ namespace LogRecorder
         }
         public void Log(byte[] content)
         {
-            lock (logLock) // get a lock on the queue
+            if (isLogging)
             {
-                logQueue.Enqueue(content);
+                lock (logLock) // get a lock on the queue
+                {
+                    logQueue.Enqueue(content);
+                }
             }
         }
 

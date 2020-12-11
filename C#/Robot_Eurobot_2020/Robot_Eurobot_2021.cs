@@ -280,19 +280,12 @@ namespace Robot
             localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
             //Event de Réception de data Multicast sur le robot
             robotUdpMulticastReceiver.OnDataReceivedEvent += robotUdpMulticastInterpreter.OnMulticastDataReceived;
-
-
+            
             /// LOGGER related events
             perceptionManager.OnLidarRawDataEvent += logRecorder.OnRawLidarDataReceived;
             robotMsgProcessor.OnIMURawDataFromRobotGeneratedEvent += logRecorder.OnIMURawDataReceived;
             robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += logRecorder.OnPolarSpeedDataReceived;
-
-            /// LOG REPLAY related events
-            logReplay.OnIMURawDataFromReplayGeneratedEvent += imuProcessor.OnIMURawDataReceived;
-            logReplay.OnLidarEvent += perceptionManager.OnRawLidarReplayDataReceived;
-            logReplay.OnSpeedPolarOdometryFromReplayEvent += robotMsgProcessor.OnSpeedPolarOdometryFromReplay;
-
-
+                       
             //omniCamera.OpenCvMatImageEvent += logRecorder.OnOpenCVMatImageReceived;
 
             //strategyManagerDictionary.Add(robotId, strategyManager);
@@ -470,19 +463,50 @@ namespace Robot
             interfaceRobot.OnEnablePowerMonitoringDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnablePowerMonitoring;
 
             //Activation désactivation du mode replay
+            interfaceRobot.OnEnableDisableLogReplayEvent += InterfaceRobot_OnEnableDisableLogReplayEvent;
             interfaceRobot.OnEnableDisableLogReplayEvent += logReplay.OnEnableDisableLogReplayEvent;
-            interfaceRobot.OnEnableDisableLogReplayEvent += perceptionManager.OnEnableDisableLogReplayEvent;
-            interfaceRobot.OnEnableDisableLogReplayEvent += imuProcessor.OnEnableDisableLogReplayEvent;
-            interfaceRobot.OnEnableDisableLogReplayEvent += robotMsgProcessor.OnEnableDisableLogReplayEvent;
 
             localWorldMapManager.OnLocalWorldMapForDisplayOnlyEvent += interfaceRobot.OnLocalWorldMapStrategyEvent;
             localWorldMapManager.OnLocalWorldMapForDisplayOnlyEvent += interfaceRobot.OnLocalWorldMapWayPointEvent;
-            
 
             //strategyManager.Init();
         }
-
         
+        private static void InterfaceRobot_OnEnableDisableLogReplayEvent(object sender, BoolEventArgs e)
+        {
+            /// Fonction lancée lors d'un appui sur Enable / Disable de l'interface
+            /// On fait deux choses : 
+            ///     On suspend le msgProcessor
+            ///     On reroute les évènements Lidar - IMU - SpeedPolar
+
+            if (e.value)
+            {
+                //On enable le Replay
+                /// On fait sauter le lidar et l'USB entrant
+                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent -= perceptionManager.OnRawLidarDataReceived;
+                usbDriver.OnUSBDataReceivedEvent -= msgDecoder.DecodeMsgReceived;
+
+                logReplay.OnIMURawDataFromReplayGeneratedEvent += imuProcessor.OnIMURawDataReceived;
+                logReplay.OnLidarEvent += perceptionManager.OnRawLidarDataReceived;
+                logReplay.OnSpeedPolarOdometryFromReplayEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
+            }
+            else
+            {
+                //On disable le Replay
+                /// On remet le lidar et l'USB entrant
+                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += perceptionManager.OnRawLidarDataReceived;
+                usbDriver.OnUSBDataReceivedEvent += msgDecoder.DecodeMsgReceived;
+
+                logReplay.OnIMURawDataFromReplayGeneratedEvent -= imuProcessor.OnIMURawDataReceived;
+                logReplay.OnLidarEvent -= perceptionManager.OnRawLidarDataReceived;
+                logReplay.OnSpeedPolarOdometryFromReplayEvent -= kalmanPositioning.OnOdometryRobotSpeedReceived;
+            }
+
+
+
+        }
+
+
 
         //static Thread t3;
         //static void StartReplayNavigatorInterface()

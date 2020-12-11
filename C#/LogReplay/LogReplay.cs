@@ -1,4 +1,5 @@
-﻿using EventArgsLibrary;
+﻿using AdvancedTimers;
+using EventArgsLibrary;
 using LogRecorder;
 using System;
 using System.Collections.Generic;
@@ -16,42 +17,74 @@ namespace LogReplay
 {
     public class LogReplay
     {
-        private Thread replayThread;
-        ManualResetEvent _shutdownEvent = new ManualResetEvent(false);
-        ManualResetEvent _pauseEvent = new ManualResetEvent(true);        //The true parameter tells the event to start out in the signaled state.
+        //private Thread replayThread;
+        //ManualResetEvent _shutdownEvent = new ManualResetEvent(false);
+        //ManualResetEvent _pauseEvent = new ManualResetEvent(true);        //The true parameter tells the event to start out in the signaled state.
         private StreamReader sr;
-        private Queue<string> replayQueue = new Queue<string>();
-        public string logLock = "";
-        private bool filePathChanged = false;
-        
-        string folderPath= @"C:\Github\RoboCup2020\C#\_Logs\";              //Emplacement du dossier logs (par defaut)
-        string fileName= "logFilePath_2020-03-05_17-47-11.rbt";
+        public string logLock = "";        
         string filePath = "";
-        List<string> filesNamesList = new List<string>();
-        int fileIndexInList = 0;
-
+        
         DateTime initialDateTime;
         double? LogDateTimeOffsetInMs = null;
         double speedFactor = 1.0;
 
-        bool loopReplayFile = false;
-        bool RepeatReplayFile = false;
-
         bool replayModeActivated = false;
+
+        HighFreqTimer timerReplay = new HighFreqTimer(50);
 
         public LogReplay()
         {
-            replayThread = new Thread(ReplayLoop);
-            replayThread.SetApartmentState(ApartmentState.STA);
-            replayThread.IsBackground = true;
-            replayThread.Name = "Replay Thread";
-            replayThread.Start();
+            //replayThread = new Thread(ReplayLoop);
+            //replayThread.SetApartmentState(ApartmentState.STA);
+            //replayThread.IsBackground = true;
+            //replayThread.Name = "Replay Thread";
+            //replayThread.Start();
+            timerReplay.Tick += TimerReplay_Tick;
+            timerReplay.Start();
             initialDateTime = DateTime.Now;
+        }
+
+        private void TimerReplay_Tick(object sender, EventArgs e)
+        {
+            ReplayLoop();
         }
 
         public void OnEnableDisableLogReplayEvent(object sender, BoolEventArgs e)
         {
             replayModeActivated = e.value;
+
+            if(replayModeActivated)
+            {
+                if (isReplayingFileSerieDefined == false)
+                {
+                    /// Défini le path des fichiers de logReplay
+                    var currentDir = Directory.GetCurrentDirectory();
+
+                    string pattern = @"(.*(?'name'RoboCup2020))";
+                    Regex r = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                    Match m = r.Match(currentDir);
+                    if (m.Success)
+                    {
+                        //On a trouvé le path
+                        string path = m.Groups[1].ToString();
+                        var logPath = path + "\\LogFiles\\";
+                        /// Ouvre une boite de dialog pour demander le fichier à ouvrir
+                        /// ATTENTION : le OpenFileDialog ne doit surtout pas être placé dans la routine du Timer, sinon, ça ne fonctionne pas : FUITE MEMOIRE !!!
+                        OpenFileDialog openFileDialog = new OpenFileDialog();
+                        openFileDialog.InitialDirectory = logPath;
+                        openFileDialog.Filter = "Log files |*_0_Init.rbt";
+
+
+                        if (openFileDialog.ShowDialog() == DialogResult.OK)
+                        {
+                            filePath = openFileDialog.FileName;
+                            replayFileSerieName = filePath.Substring(0, filePath.Length - 10);
+                            isReplayingFileSerieDefined = true;
+                            subFileIndex = 0; //On réinit le compteur de sous-fichier pour les multi files chainés
+                        }
+                    }
+                }
+            }
         }
 
         bool isReplayingFileSerieDefined = false;
@@ -60,40 +93,14 @@ namespace LogReplay
 
         double newReplayInstant = 0;
         int subFileIndex = 0;
+        bool replayLoopInProgress = false;
         private void ReplayLoop()
         {
-            while (true)
+            if(!replayLoopInProgress)
             {
+                replayLoopInProgress = true;
                 if (replayModeActivated)
-                {
-                    if (isReplayingFileSerieDefined == false)
-                    {
-                        /// Défini le path des fichiers de logReplay
-                        var currentDir = Directory.GetCurrentDirectory();
-
-                        string pattern = @"(.*(?'name'RoboCup2020))"; // Regex pour la recherche des FTDI 232
-                        Regex r = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Singleline);
-                        Match m = r.Match(currentDir);
-                        if (m.Success)
-                        {
-                            //On a trouvé le path
-                            string path = m.Groups[1].ToString();
-                            var logPath = path + "\\LogFiles\\";
-
-                            //Ouvre une boite de dialog pour demander le fichier à ouvrir
-                            OpenFileDialog openFileDialog = new OpenFileDialog();
-                            openFileDialog.InitialDirectory = logPath;
-                            openFileDialog.Filter = "Log files |*_0_Init.rbt";
-                            if (openFileDialog.ShowDialog() == DialogResult.OK)
-                            {
-                                filePath = openFileDialog.FileName;
-                                replayFileSerieName = filePath.Substring(0, filePath.Length - 10);
-                                isReplayingFileSerieDefined = true;
-                                subFileIndex = 0; //On réinit le compteur de sous-fichier pour les multi files chainés
-                            }
-                        }
-                    }
-
+                {        
                     if (isReplayingFileSerieDefined)
                     {
                         //Si le nom de la série de fichier à traiter est défini
@@ -176,6 +183,7 @@ namespace LogReplay
                                 {
                                     //Lecture échouée, on a une fin de fichier
                                     isReplayingFileOpened = false;
+                                    sr.Close();
                                     subFileIndex++;
                                 }
                             }
@@ -185,7 +193,7 @@ namespace LogReplay
                         }
                     }
                 }
-                Thread.Sleep(10);
+                replayLoopInProgress = false;
             }
         }
                

@@ -76,6 +76,10 @@
       <Project>{9C46A7C0-4675-41BE-B282-E6F0825AD73E}</Project>
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\HighFreqTimer\AdvancedTimers.csproj">
+      <Project>{ECC907ED-F9B2-457F-901E-720987934E47}</Project>
+      <Name>AdvancedTimers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LogRecorder\LogRecorder.csproj">
       <Project>{128114E9-1A4D-4EBF-BA5C-5C4E136D3F53}</Project>
       <Name>LogRecorder</Name>

@@ -21,7 +21,7 @@ namespace PerceptionManagement
 
         GlobalWorldMap globalWorldMap;
 
-        bool replayModeActivated = false;
+        //bool replayModeActivated = false;
 
 
         public PerceptionManager(int id, GameMode compet)
@@ -49,10 +49,10 @@ namespace PerceptionManagement
         }
 
 
-        public void OnEnableDisableLogReplayEvent(object sender, BoolEventArgs e)
-        {
-            replayModeActivated = e.value;
-        }
+        //public void OnEnableDisableLogReplayEvent(object sender, BoolEventArgs e)
+        //{
+        //    replayModeActivated = e.value;
+        //}
 
         private void OnLidarBalisePointListForDebugReceived(object sender, RawLidarArgs e)
         {
@@ -87,7 +87,7 @@ namespace PerceptionManagement
         public void OnRawLidarDataReceived(object sender, RawLidarArgs e)
         {
             //On forward si on n'est pas en mode replay
-            if (!replayModeActivated)
+            //if (!replayModeActivated)
             {
                 //On forward les données lidar brutes reçues au lidarProcessor
                 lidarProcessor.OnRawLidarDataReceived(sender, e);
@@ -96,17 +96,17 @@ namespace PerceptionManagement
             }
         }
 
-        public void OnRawLidarReplayDataReceived(object sender, RawLidarArgs e)
-        {
-            //On forward si on est en mode replay
-            if (replayModeActivated)
-            {
-                //On forward les données lidar brutes reçues au lidarProcessor
-                lidarProcessor.OnRawLidarDataReceived(sender, e);
-                //On rémet un event pour les affichages éventuels
-                OnLidarRawData(e);
-            }
-        }
+        //public void OnRawLidarReplayDataReceived(object sender, RawLidarArgs e)
+        //{
+        //    //On forward si on est en mode replay
+        //    if (replayModeActivated)
+        //    {
+        //        //On forward les données lidar brutes reçues au lidarProcessor
+        //        lidarProcessor.OnRawLidarDataReceived(sender, e);
+        //        //On rémet un event pour les affichages éventuels
+        //        OnLidarRawData(e);
+        //    }
+        //}
 
         //L'arrivée d'une nouvelle position mesurée (ou simulée) déclenche le recalcul et event de perception
         public void OnPhysicalRobotPositionReceived(object sender, LocationArgs e)
