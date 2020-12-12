@@ -194,19 +194,19 @@ namespace RobotInterface
         {
             //throw new NotImplementedException();
             worldMapDisplayStrategy.UpdateLocalWorldMap(e.LocalWorldMap);
-            Dispatcher.BeginInvoke(new Action(delegate ()
-            {
-                worldMapDisplayStrategy.UpdateWorldMapDisplay();
-            }));
+            //Dispatcher.BeginInvoke(new Action(delegate ()
+            //{
+            //    worldMapDisplayStrategy.UpdateWorldMapDisplay();
+            //}));
         }
         public void OnLocalWorldMapWayPointEvent(object sender, EventArgsLibrary.LocalWorldMapArgs e)
         {
             //throw new NotImplementedException();
             worldMapDisplayWaypoint.UpdateLocalWorldMap(e.LocalWorldMap);
-            Dispatcher.BeginInvoke(new Action(delegate ()
-            {
-                worldMapDisplayWaypoint.UpdateWorldMapDisplay();
-            }));
+            //Dispatcher.BeginInvoke(new Action(delegate ()
+            //{
+            //    worldMapDisplayWaypoint.UpdateWorldMapDisplay();
+            //}));
         }
 
         public void OnRawLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)

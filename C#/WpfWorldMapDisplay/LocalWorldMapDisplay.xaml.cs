@@ -6,6 +6,7 @@ using SciChart.Charting.Model.DataSeries;
 using SciChart.Charting.Model.DataSeries.Heatmap2DArrayDataSeries;
 using SciChart.Charting.Visuals.Annotations;
 using SciChart.Charting.Visuals.Axes;
+using SciChart.Charting.Visuals.RenderableSeries;
 using SciChart.Core.Utility.Mouse;
 using SciChart.Drawing.VisualXcceleratorRasterizer;
 using System;
@@ -13,6 +14,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -51,6 +53,18 @@ namespace WpfWorldMapDisplay
     /// </summary>    /// 
     public partial class LocalWorldMapDisplay : UserControl
     {
+        ////A enlever après debug
+        //PolygonRenderableSeries PolygonTerrainSeries = new PolygonRenderableSeries();
+        //XyScatterRenderableSeries LidarPoints = new XyScatterRenderableSeries();
+        //XyScatterRenderableSeries LidarProcessedPoints = new XyScatterRenderableSeries();
+        //PolygonRenderableSeries PolygonSeries = new PolygonRenderableSeries();
+        //XyScatterRenderableSeries BallPoints = new XyScatterRenderableSeries();
+        //PolygonRenderableSeries BallPolygon = new PolygonRenderableSeries();
+        //PolygonRenderableSeries ObjectsPolygonSeries = new PolygonRenderableSeries();
+        //XyScatterRenderableSeries ObstaclePoints = new XyScatterRenderableSeries();
+
+        //
+
         LocalWorldMapDisplayType lwmdType = LocalWorldMapDisplayType.StrategyMap; //Par défaut
 
         GameMode competition;
@@ -80,13 +94,17 @@ namespace WpfWorldMapDisplay
         string typeTerrain = "RoboCup";
 
         BindingClass imageBinding = new BindingClass();
-
+        Thread tDisplayMap;
+        AutoResetEvent waitForDisplayAuthorization = new AutoResetEvent(false);
 
         public LocalWorldMapDisplay()
         {
             InitializeComponent();
             this.DataContext = imageBinding;
 
+            tDisplayMap = new Thread(UpdateWorldMapDisplay);
+            tDisplayMap.ApartmentState = ApartmentState.STA;
+            tDisplayMap.Start();
             //sciChart.ChartModifier = new ModifierGroup(new ZoomExtentsModifier());
 
         }
@@ -110,7 +128,7 @@ namespace WpfWorldMapDisplay
         /// <param name="competition">Spécifie le type de compétition, le réglage des dimensions est automatique</param>
         /// <param name="type">Spécifie si on a une LWM affichant la stratégie ou les waypoints</param>
         /// <param name="imagePath">Chemin de l'image de fond</param>
-        public void Init(GameMode competition, LocalWorldMapDisplayType type, string imagePath)
+        public void Init(GameMode competition, LocalWorldMapDisplayType type)
         {
             this.competition = competition;
             lwmdType = type;
@@ -154,11 +172,37 @@ namespace WpfWorldMapDisplay
             this.sciChartSurface.XAxis.VisibleRange.SetMinMax(-LengthDisplayArea / 2, LengthDisplayArea / 2);
             this.sciChartSurface.YAxis.VisibleRange.SetMinMax(-WidthDisplayArea / 2, WidthDisplayArea / 2);
 
-            SetFieldImageBackGround(imagePath);
-
             if (sciChartSurface.RenderSurface.GetType() == typeof(VisualXcceleratorRenderSurface))
             {
                 Console.WriteLine("Scichart LocalWorldMapDisplay : DirectX enabled");
+            }
+        }
+
+        public void UpdateWorldMapDisplay()
+        {
+            while (true)
+            {
+                waitForDisplayAuthorization.WaitOne();
+
+                Dispatcher.BeginInvoke(new Action(delegate ()
+                {
+                    UpdateBallPolygons();
+                    UpdateObstaclesPolygons();
+                    if (TeamMatesDisplayDictionary.Count == 1) //Cas d'un affichage de robot unique (localWorldMap)
+                {
+                        AnnotRobotRole.Text = TeamMatesDisplayDictionary.First().Value.robotRole.ToString();
+                    //DrawLidar(); 
+                    DrawHeatMap(TeamMatesDisplayDictionary.First().Key);
+                    }
+
+                    if (competition == GameMode.RoboCup)
+                        PolygonTerrainSeries.RedrawAll();
+                    PolygonSeries.RedrawAll();
+                    ObjectsPolygonSeries.RedrawAll();
+                    BallPolygon.RedrawAll();
+                    DrawTeam();
+                }));
+                Thread.Sleep(10);
             }
         }
 
@@ -266,25 +310,6 @@ namespace WpfWorldMapDisplay
             }
         }
 
-        public void UpdateWorldMapDisplay()
-        {
-            UpdateBallPolygons();
-            DrawTeam();
-            UpdateObstaclesPolygons();
-            if (TeamMatesDisplayDictionary.Count == 1) //Cas d'un affichage de robot unique (localWorldMap)
-            {
-                AnnotRobotRole.Text = TeamMatesDisplayDictionary.First().Value.robotRole.ToString();
-                //DrawLidar(); 
-                DrawHeatMap(TeamMatesDisplayDictionary.First().Key);
-            }
-
-            if(competition == GameMode.RoboCup)
-                PolygonTerrainSeries.RedrawAll();
-            PolygonSeries.RedrawAll();
-            ObjectsPolygonSeries.RedrawAll();
-            BallPolygon.RedrawAll();
-
-        }
 
         public void UpdateLocalWorldMap(LocalWorldMap localWorldMap)
         {
@@ -581,6 +606,8 @@ namespace WpfWorldMapDisplay
             {
                 TeamMatesDisplayDictionary[robotId].SetWayPoint(waypointLocation.X, waypointLocation.Y, waypointLocation.Theta);
             }
+
+            waitForDisplayAuthorization.Set();
         }
 
         public void UpdateRobotDestination(int robotId, Location destinationLocation)
