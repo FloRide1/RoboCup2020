@@ -94,8 +94,13 @@ namespace PerceptionManagement
                 //On rémet un event pour les affichages éventuels
                 OnLidarRawData(e);
 
+
+                /////////////////////////////////////////////////////////////////////////////////////////////////
+                //TODO : remove that lines - just there for using recording with Lidar only
                 //On génère la perception
                 GeneratePerception();
+
+                /////////////////////////////////////////////////////////////////////////////////////////////////
             }
         }
 
@@ -119,8 +124,8 @@ namespace PerceptionManagement
                 robotPerception.robotKalmanLocation = e.Location;
                 //On transmet la location au positionnement absolu pour qu'il puisse vérifier que la nouvelle position absolue est cohérente avec le positionnement Kalman.
                 absolutePositionEstimator.OnPhysicalPositionReceived(sender, e);
-                ////On génère la perception
-                //GeneratePerception();
+                //On génère la perception
+                GeneratePerception();
             }
         }
         

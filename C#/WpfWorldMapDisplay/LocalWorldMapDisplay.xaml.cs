@@ -344,6 +344,9 @@ namespace WpfWorldMapDisplay
             UpdateLidarObjects(robotId, localWorldMap.lidarObjectList);
             UpdateObstacleList(localWorldMap.obstaclesLocationList);
             UpdateBallLocationList(localWorldMap.ballLocationList);
+
+            /// Demande d'affichage de la World Map reçue
+            UpdateWorldMapDisplay();
         }
 
         private void DrawHeatMap(int robotId)
@@ -492,7 +495,6 @@ namespace WpfWorldMapDisplay
             {
                 Console.WriteLine("UpdateRobotLocation : Robot non trouvé");
             }
-            UpdateWorldMapDisplay();
         }
         private void UpdateRobotRole(int robotId, RobotRole role)
         {
