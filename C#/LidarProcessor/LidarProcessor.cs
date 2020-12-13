@@ -260,7 +260,7 @@ namespace LidarProcessor
             ///On commence par la segmentation en objets
             List<LidarDetectedObject> lidarSceneSegmentation = new List<LidarDetectedObject>();
             LidarDetectedObject objet = new LidarDetectedObject();
-            double seuilDetectionObjet = 0.2;
+            double seuilDetectionObjet = 0.5;
             objet.PtList.Add(ptList[0]);
             for (int i = 1; i < ptList.Count; i++)
             {
@@ -332,39 +332,6 @@ namespace LidarProcessor
                 }
             }
 
-            //    for (int i = 0; i < ptList.Count; i++)
-            //{
-            //    var pt = ptList[i];
-            //    double erosionAngulaire = Math.Atan2(rayon, pt.Distance);
-            //    int nbPasAngulaire = (int)(erosionAngulaire / resolutionAngulaire);
-            //    int borneInf = Math.Max(0, i - nbPasAngulaire);
-            //    int borneSup = Math.Min(i + nbPasAngulaire, ptList.Count - 1);
-
-            //    for (int j = borneInf; j <= borneSup; j++)
-            //    {
-            //        /// Pour avoir une formule qui fonctionne aux petites distances avec un grand rayon d'érosion, 
-            //        /// il faut utiliser les lois des cosinus
-            //        double a = 1;
-            //        double b = -2 * ptList[i].Distance * Math.Cos((j - i) * resolutionAngulaire);
-            //        double c = ptList[i].Distance * ptList[i].Distance - rayon * rayon;
-
-            //        double discrimant = b * b - 4 * a * c;
-            //        double distanceErodee = (-b + Math.Sqrt(discrimant)) / (2 * a);
-            //        double distanceSeuil = (-b - Math.Sqrt(discrimant)) / (2 * a);
-
-            //        /// Version simple
-            //        ptListEroded[j].Distance = Math.Max(ptListEroded[j].Distance, distanceErodee);
-
-            //        /// Variante permettant d'exclure les occlusions de la liste  érodée, 
-            //        /// de manière à ne pas créer d'objet virtuel derrière les objets masqués.
-            //        //if (ptList[j].Distance > distanceSeuil - rayon)
-            //        //    ptListEroded[j].Distance = Math.Max(ptListEroded[j].Distance, distanceErodee);
-            //        //else
-            //        //    ptListEroded[j].Distance = double.PositiveInfinity;
-
-            //    }
-            //}
-            //return ptListEroded;
             return ptListEroded.ToList().GetRange((int)(originalSize / 2), originalSize);
         }
 
