@@ -69,8 +69,10 @@ namespace RobotInterface
             var imagePath = racineProjets.Parent.Parent.FullName.ToString() + "\\Images\\";
             if (gameMode == GameMode.Eurobot)
             {
-                worldMapDisplayStrategy.Init(gameMode, LocalWorldMapDisplayType.StrategyMap, imagePath + "Eurobot2020.png");
-                worldMapDisplayWaypoint.Init(gameMode, LocalWorldMapDisplayType.WayPointMap, imagePath + "Eurobot2020.png");
+                worldMapDisplayStrategy.Init(gameMode, LocalWorldMapDisplayType.StrategyMap);
+                worldMapDisplayStrategy.SetFieldImageBackGround(imagePath + "Eurobot2020.png");
+                worldMapDisplayWaypoint.Init(gameMode, LocalWorldMapDisplayType.WayPointMap);
+                worldMapDisplayWaypoint.SetFieldImageBackGround(imagePath + "Eurobot2020.png");
             }
             else if (gameMode == GameMode.RoboCup)
             {

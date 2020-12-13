@@ -102,7 +102,7 @@ namespace WpfWorldMapDisplay
             InitializeComponent();
             this.DataContext = imageBinding;
 
-            tDisplayMap = new Thread(UpdateWorldMapDisplay);
+            tDisplayMap = new Thread(DisplayWorldMap);
             tDisplayMap.ApartmentState = ApartmentState.STA;
             tDisplayMap.Start();
             //sciChart.ChartModifier = new ModifierGroup(new ZoomExtentsModifier());
@@ -178,7 +178,7 @@ namespace WpfWorldMapDisplay
             }
         }
 
-        public void UpdateWorldMapDisplay()
+        public void DisplayWorldMap()
         {
             while (true)
             {
@@ -204,6 +204,11 @@ namespace WpfWorldMapDisplay
                 }));
                 Thread.Sleep(10);
             }
+        }
+
+        public void UpdateWorldMapDisplay()
+        {
+            waitForDisplayAuthorization.Set();
         }
 
         public void InitTeamMate(int robotId, GameMode gMode, string playerName)
@@ -487,6 +492,7 @@ namespace WpfWorldMapDisplay
             {
                 Console.WriteLine("UpdateRobotLocation : Robot non trouvé");
             }
+            UpdateWorldMapDisplay();
         }
         private void UpdateRobotRole(int robotId, RobotRole role)
         {
@@ -606,9 +612,9 @@ namespace WpfWorldMapDisplay
             {
                 TeamMatesDisplayDictionary[robotId].SetWayPoint(waypointLocation.X, waypointLocation.Y, waypointLocation.Theta);
             }
-
-            waitForDisplayAuthorization.Set();
         }
+
+
 
         public void UpdateRobotDestination(int robotId, Location destinationLocation)
         {

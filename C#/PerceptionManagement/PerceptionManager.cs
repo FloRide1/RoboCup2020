@@ -93,6 +93,9 @@ namespace PerceptionManagement
                 lidarProcessor.OnRawLidarDataReceived(sender, e);
                 //On rémet un event pour les affichages éventuels
                 OnLidarRawData(e);
+
+                //On génère la perception
+                GeneratePerception();
             }
         }
 
@@ -111,17 +114,13 @@ namespace PerceptionManagement
         //L'arrivée d'une nouvelle position mesurée (ou simulée) déclenche le recalcul et event de perception
         public void OnPhysicalRobotPositionReceived(object sender, LocationArgs e)
         {
-            //On calcule la perception simulée de position d'après le retour du simulateur physique directement
-            //On réel on utilisera la triangulation lidar et la caméra
             if (robotId == e.RobotId)
             {
                 robotPerception.robotKalmanLocation = e.Location;
                 //On transmet la location au positionnement absolu pour qu'il puisse vérifier que la nouvelle position absolue est cohérente avec le positionnement Kalman.
                 absolutePositionEstimator.OnPhysicalPositionReceived(sender, e);
-                //On génère la perception
-                GeneratePerception();
-
-                //PerceptionMonitor.PerceptionReceived();
+                ////On génère la perception
+                //GeneratePerception();
             }
         }
         

@@ -183,6 +183,7 @@ namespace StrategyManagerNS
                     //if (displayConsole) Console.WriteLine("Tps events waypoint et destination : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
                     //if (displayConsole) Console.WriteLine("Tps calcul Global Stratégie : " + swGlobal.Elapsed.TotalMilliseconds.ToString("N4") + " ms \n\n"); // Affichage de la mesure globale
                     //Thread.Sleep(100);
+                                        
                     isLocked = false;
                 }
             }
