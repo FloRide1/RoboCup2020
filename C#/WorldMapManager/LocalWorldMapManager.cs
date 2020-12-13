@@ -64,11 +64,11 @@ namespace WorldMapManager
 
                 if (transferLocalWorldMap.robotLocation != null)
                 {
-                    if (bypassMulticastUdp)
-                    {
-                        OnLocalWorldMapForDisplayOnly(localWorldMap); //Pour affichage uniquement, sinon transmission radio en, multicast
-                    }
-                    else
+                    //if (bypassMulticastUdp)
+                    //{
+                    //    OnLocalWorldMapForDisplayOnly(localWorldMap); //Pour affichage uniquement, sinon transmission radio en, multicast
+                    //}
+                    //else
                     {
                         var s = ZeroFormatterSerializer.Serialize<WorldMap.ZeroFormatterMsg>(transferLocalWorldMap);
 

@@ -51,7 +51,8 @@ namespace StrategyManagerNS
         public string DisplayName;
 
         public GlobalWorldMap globalWorldMap;
-        public Heatmap positioningHeatMap;
+        public Heatmap WayPointHeatMap;
+        public Heatmap strategyHeatMap;
         public Location robotCurrentLocation = new Location(0, 0, 0, 0, 0, 0);
         public double robotOrientation;
 
@@ -77,6 +78,8 @@ namespace StrategyManagerNS
             timerStrategy.Elapsed += TimerStrategy_Elapsed;
             timerStrategy.Start();
         }
+
+        public abstract void InitStrategy(int robotId, int teamId);
 
         public abstract void InitHeatMap();
 
@@ -111,10 +114,7 @@ namespace StrategyManagerNS
             robotCurrentLocation.Vx = location.Location.Vx;
             robotCurrentLocation.Vy = location.Location.Vy;
             robotCurrentLocation.Vtheta = location.Location.Vtheta;
-        }
-
-
-        
+        }        
 
         bool displayConsole = false;
         object strategyLock = new object();
@@ -127,34 +127,14 @@ namespace StrategyManagerNS
                 {
                     isLocked = true;
                     InitRobotRoleDeterminationZones();
-                    swGlobal.Restart();
                     //Le joueur détermine sa stratégie
                     sw.Restart();
-                    DetermineRobotRole();
-                    if (displayConsole)
-                        Console.WriteLine("Tps calcul détermination des rôles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
-
-                    sw.Restart();
-                    IterateStateMachines();
-                    if (displayConsole)
-                        Console.WriteLine("Tps calcul State machines : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
-
-
-                    sw.Restart();
-                    PositioningHeatMapGeneration();
-                    if (displayConsole)
-                        Console.WriteLine("Tps calcul Heatmap Destination : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
-
-                    sw.Restart();
-                    var optimalPosition = GetOptimalDestination();
-                    if (displayConsole)
-                        Console.WriteLine("Tps calcul Get Optimal Destination : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
-
+                    DetermineRobotRole();  //if (displayConsole) Console.WriteLine("Tps calcul détermination des rôles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); sw.Restart();
+                    IterateStateMachines(); //if (displayConsole) Console.WriteLine("Tps calcul State machines : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms");  sw.Restart();
+                    GenerateStrategyHeatMap(); //if (displayConsole) Console.WriteLine("Tps calcul Heatmap Destination : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms");  sw.Restart();
+                    var optimalPosition = GetOptimalStrategyDestination(); //if (displayConsole) Console.WriteLine("Tps calcul Get Optimal Destination : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); sw.Restart();
                     List<LocationExtended> obstacleList = new List<LocationExtended>();
-
                     double seuilDetectionObstacle = 0.4;
-
-                    sw.Restart();
                     //Construction de la liste des obstacles en enlevant le robot lui-même
                     lock (globalWorldMap)
                     {
@@ -176,33 +156,20 @@ namespace StrategyManagerNS
                         }
 
                     }
-                    if (displayConsole)
-                        Console.WriteLine("Tps calcul Génération obstacles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
-
-                    //Renvoi de la HeatMap Stratégie
-                    sw.Restart();
-                    OnHeatMapStrategy(robotId, positioningHeatMap);
-                    if (displayConsole)
-                        Console.WriteLine("Tps envoi strat Heatmap : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
+                    
+                    // if (displayConsole) Console.WriteLine("Tps calcul Génération obstacles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); sw.Restart();
+                    OnHeatMapStrategy(robotId, strategyHeatMap); // if (displayConsole) Console.WriteLine("Tps envoi strat Heatmap : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); sw.Restart();                    
+                    
+                    ///On copie la heatmap de strategy dans la heatmap de waypoint pour la compléter sans abimer la première
+                    CopyStrategyHeatMapToWayPointHeatMap();
 
                     /// Calcul de la HeatMap WayPoint
-                    sw.Restart();
-                    positioningHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, ObstacleAvoidanceDistance);
-                    if (displayConsole)
-                        Console.WriteLine("Tps calcul zones exclusion obstacles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
+                    WayPointHeatMap.ExcludeMaskedZones(new PointD(robotCurrentLocation.X, robotCurrentLocation.Y), obstacleList, ObstacleAvoidanceDistance); //if (displayConsole) Console.WriteLine("Tps calcul zones exclusion obstacles : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms");  sw.Restart();
 
-                    sw.Restart();
-                    OnHeatMapWayPoint(robotId, positioningHeatMap);
-                    if (displayConsole)
-                        Console.WriteLine("Tps calcul HeatMap WayPoint : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
-
-                    sw.Restart();
-                    var optimalWayPoint = GetOptimalDestination();
-                    if (displayConsole)
-                        Console.WriteLine("Tps calcul Get Optimal Waypoint : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure mesure
+                    OnHeatMapWayPoint(robotId, WayPointHeatMap); //if (displayConsole) Console.WriteLine("Tps calcul HeatMap WayPoint : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); sw.Restart();
+                    var optimalWayPoint = GetOptimalWayPointDestination(); //if (displayConsole) Console.WriteLine("Tps calcul Get Optimal Waypoint : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); sw.Restart();
 
                     //Mise à jour de la destination
-                    sw.Restart();
                     if (optimalPosition == null)
                         OnDestination(robotId, new Location((float)robotCurrentLocation.X, (float)robotCurrentLocation.Y, (float)robotOrientation, 0, 0, 0));
                     else
@@ -213,12 +180,10 @@ namespace StrategyManagerNS
                     else
                         OnWaypoint(robotId, new Location((float)optimalWayPoint.X, (float)optimalWayPoint.Y, (float)robotOrientation, 0, 0, 0));
 
-                    if (displayConsole)
-                        Console.WriteLine("Tps events waypoint et destination : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
-
-                    if (displayConsole)
-                        Console.WriteLine("Tps calcul Global Stratégie : " + swGlobal.Elapsed.TotalMilliseconds.ToString("N4") + " ms \n\n"); // Affichage de la mesure globale
+                    //if (displayConsole) Console.WriteLine("Tps events waypoint et destination : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
+                    //if (displayConsole) Console.WriteLine("Tps calcul Global Stratégie : " + swGlobal.Elapsed.TotalMilliseconds.ToString("N4") + " ms \n\n"); // Affichage de la mesure globale
                     //Thread.Sleep(100);
+                                        
                     isLocked = false;
                 }
             }
@@ -243,7 +208,7 @@ namespace StrategyManagerNS
 
         public abstract void IterateStateMachines(); //A définir dans les classes héritées
 
-        private void PositioningHeatMapGeneration()
+        private void GenerateStrategyHeatMap()
         {
             //TestGPU.ActionWithClosure();
             sw.Reset();
@@ -251,28 +216,33 @@ namespace StrategyManagerNS
 
             //Génération de la HeatMap
             
-            positioningHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList, 
+            strategyHeatMap.GenerateHeatMap(preferredZonesList, avoidanceZonesList, forbiddenRectangleList, 
                 strictlyAllowedRectangleList, preferredRectangleList, avoidanceConicalZoneList, preferredSegmentZoneList);
 
             sw.Stop();
         }
 
-        public PointD GetOptimalDestination()
+        public PointD GetOptimalStrategyDestination()
         {
-            PointD optimalPosition = positioningHeatMap.GetOptimalPosition();
-
-            //TODO à gérer à partir des coordonnées des centres des zones préférées
-
-            //Si la position optimale est très de la cible théorique, on prend la cible théorique
-            //double seuilPositionnementFinal = 0.1;
-            //if (Toolbox.Distance(new PointD(robotDestination.X, robotDestination.Y), new PointD(OptimalPosition.X, OptimalPosition.Y)) < seuilPositionnementFinal)
-            //{
-            //    OptimalPosition = robotDestination;
-            //}
-
-            //OnDestination(robotId, new Location((float)OptimalPosition.X, (float)OptimalPosition.Y, (float)robotOrientation, 0, 0, 0));
+            PointD optimalPosition = strategyHeatMap.GetOptimalPosition();
             return optimalPosition;
         }
+
+        public PointD GetOptimalWayPointDestination()
+        {
+            PointD optimalPosition = WayPointHeatMap.GetOptimalPosition();
+            return optimalPosition;
+        }
+
+        public void CopyStrategyHeatMapToWayPointHeatMap()
+        { 
+            for(int i=0; i<strategyHeatMap.nbCellInBaseHeatMapHeight; i++)
+            {
+                for (int j = 0; j < strategyHeatMap.nbCellInBaseHeatMapWidth; j++)
+                    WayPointHeatMap.BaseHeatMapData[i,j] = strategyHeatMap.BaseHeatMapData[i,j];
+            }
+        }
+
 
         //Zones circulaires préférentielles
         List<Zone> preferredZonesList = new List<Zone>();
@@ -466,7 +436,103 @@ namespace StrategyManagerNS
             }
         }
 
+        public event EventHandler<PolarPIDSetupArgs> OnSetRobotSpeedPolarPIDEvent;
+        public virtual void OnSetRobotSpeedPolarPID(double px, double ix, double dx, double py, double iy, double dy, double ptheta, double itheta, double dtheta,
+            double pxLimit, double ixLimit, double dxLimit, double pyLimit, double iyLimit, double dyLimit, double pthetaLimit, double ithetaLimit, double dthetaLimit
+            )
+        {
+            OnSetRobotSpeedPolarPIDEvent?.Invoke(this, new PolarPIDSetupArgs
+            {
+                P_x = px,
+                I_x = ix,
+                D_x = dx,
+                P_y = py,
+                I_y = iy,
+                D_y = dy,
+                P_theta = ptheta,
+                I_theta = itheta,
+                D_theta = dtheta,
+                P_x_Limit = pxLimit,
+                I_x_Limit = ixLimit,
+                D_x_Limit = dxLimit,
+                P_y_Limit = pyLimit,
+                I_y_Limit = iyLimit,
+                D_y_Limit = dyLimit,
+                P_theta_Limit = pthetaLimit,
+                I_theta_Limit = ithetaLimit,
+                D_theta_Limit = dthetaLimit
+            });
+        }
 
+        public event EventHandler<LidarMessageArgs> OnMessageEvent;
+        public virtual void OnLidarMessage(string message, int line)
+        {
+            OnMessageEvent?.Invoke(this, new LidarMessageArgs { Value = message, Line = line });
+        }
+
+        public event EventHandler<IndependantPIDSetupArgs> OnSetRobotSpeedIndependantPIDEvent;
+        public virtual void OnSetRobotSpeedIndependantPID(double pM1, double iM1, double dM1, double pM2, double iM2, double dM2, double pM3, double iM3, double dM3, double pM4, double iM4, double dM4,
+            double pM1Limit, double iM1Limit, double dM1Limit, double pM2Limit, double iM2Limit, double dM2Limit, double pM3Limit, double iM3Limit, double dM3Limit, double pM4Limit, double iM4Limit, double dM4Limit
+            )
+        {
+            OnSetRobotSpeedIndependantPIDEvent?.Invoke(this, new IndependantPIDSetupArgs
+            {
+                P_M1 = pM1,
+                I_M1 = iM1,
+                D_M1 = dM1,
+                P_M2 = pM2,
+                I_M2 = iM2,
+                D_M2 = dM2,
+                P_M3 = pM3,
+                I_M3 = iM3,
+                D_M3 = dM3,
+                P_M4 = pM4,
+                I_M4 = iM4,
+                D_M4 = dM4,
+                P_M1_Limit = pM1Limit,
+                I_M1_Limit = iM1Limit,
+                D_M1_Limit = dM1Limit,
+                P_M2_Limit = pM2Limit,
+                I_M2_Limit = iM2Limit,
+                D_M2_Limit = dM2Limit,
+                P_M3_Limit = pM3Limit,
+                I_M3_Limit = iM3Limit,
+                D_M3_Limit = dM3Limit,
+                P_M4_Limit = pM4Limit,
+                I_M4_Limit = iM4Limit,
+                D_M4_Limit = dM4Limit
+            });
+        }
+
+        public event EventHandler<ByteEventArgs> OnSetAsservissementModeEvent;
+        public virtual void OnSetAsservissementMode(byte val)
+        {
+            OnSetAsservissementModeEvent?.Invoke(this, new ByteEventArgs { Value = val });
+        }
+
+        public event EventHandler<SpeedConsigneToMotorArgs> OnSetSpeedConsigneToMotor;
+        public virtual void OnSetSpeedConsigneToMotorEvent(object sender, SpeedConsigneToMotorArgs e)
+        {
+            OnSetSpeedConsigneToMotor?.Invoke(sender, e);
+        }
+
+        public event EventHandler<BoolEventArgs> OnEnableDisableMotorCurrentDataEvent;
+        public virtual void OnEnableDisableMotorCurrentData(bool val)
+        {
+            OnEnableDisableMotorCurrentDataEvent?.Invoke(this, new BoolEventArgs { value = val });
+        }
+
+        public event EventHandler<CollisionEventArgs> OnCollisionEvent;
+        public virtual void OnCollision(int id, Location robotLocation)
+        {
+            OnCollisionEvent?.Invoke(this, new CollisionEventArgs { RobotId = id, RobotRealPositionRefTerrain = robotLocation });
+        }
+
+        public event EventHandler<IOValuesEventArgs> OnIOValuesEvent;
+        public void OnIOValuesFromRobotEvent(object sender, IOValuesEventArgs e)
+        {
+            OnIOValuesEvent?.Invoke(sender, e);
+        }
     }
 
     

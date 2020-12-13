@@ -51,14 +51,11 @@ namespace WpfTeamInterfaceNS
 
         private void InitPlayers(string[] team1PlayerNames, string[] team2PlayerNames)
         {
-            var currentDir = Directory.GetCurrentDirectory();
-            var racineProjets = Directory.GetParent(currentDir);
-            var imagePath = racineProjets.Parent.Parent.FullName.ToString() + "\\Images\\";
-            localWorldMapDisplay1.Init(competition, LocalWorldMapDisplayType.StrategyMap, imagePath + "Eurobot2020.png");
-            localWorldMapDisplay2.Init(competition, LocalWorldMapDisplayType.StrategyMap, imagePath + "Eurobot2020.png");
-            localWorldMapDisplay3.Init(competition, LocalWorldMapDisplayType.StrategyMap, imagePath + "Eurobot2020.png");
-            localWorldMapDisplay4.Init(competition, LocalWorldMapDisplayType.StrategyMap, imagePath + "Eurobot2020.png");
-            localWorldMapDisplay5.Init(competition, LocalWorldMapDisplayType.StrategyMap, imagePath + "Eurobot2020.png");
+            localWorldMapDisplay1.Init(competition, LocalWorldMapDisplayType.WayPointMap);
+            localWorldMapDisplay2.Init(competition, LocalWorldMapDisplayType.WayPointMap);
+            localWorldMapDisplay3.Init(competition, LocalWorldMapDisplayType.WayPointMap);
+            localWorldMapDisplay4.Init(competition, LocalWorldMapDisplayType.WayPointMap);
+            localWorldMapDisplay5.Init(competition, LocalWorldMapDisplayType.WayPointMap);
             //localWorldMapDisplay6.Init(typeTerrain, LocalWorldMapDisplayType.StrategyMap);
 
             localWorldMapDisplay1.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, GameMode.RoboCup, team1PlayerNames[0]);
@@ -144,12 +141,12 @@ namespace WpfTeamInterfaceNS
         {
             globalWorldMapDisplayTeam1.UpdateWorldMapDisplay();
             globalWorldMapDisplayTeam2.UpdateWorldMapDisplay();
-            localWorldMapDisplay1.UpdateWorldMapDisplay();
-            localWorldMapDisplay2.UpdateWorldMapDisplay();
-            localWorldMapDisplay3.UpdateWorldMapDisplay();
-            localWorldMapDisplay4.UpdateWorldMapDisplay();
-            localWorldMapDisplay5.UpdateWorldMapDisplay();
-            //localWorldMapDisplay6.UpdateWorldMapDisplay();
+            //localWorldMapDisplay1.UpdateWorldMapDisplay();
+            //localWorldMapDisplay2.UpdateWorldMapDisplay();
+            //localWorldMapDisplay3.UpdateWorldMapDisplay();
+            //localWorldMapDisplay4.UpdateWorldMapDisplay();
+            //localWorldMapDisplay5.UpdateWorldMapDisplay();
+            ////localWorldMapDisplay6.UpdateWorldMapDisplay();
         }
 
         public void OnLocalWorldMapReceived(object sender, LocalWorldMapArgs e)

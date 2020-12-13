@@ -9,11 +9,12 @@
              xmlns:s="http://schemas.abtsoftware.co.uk/scichart">
 
     <Grid>
-        <s:SciChartSurface x:Name="sciChart" MaxFrameRate="25" Padding="0" BorderThickness="0" Grid.Row="0" MouseLeftButtonUp="sciChart_MouseLeftButtonUp" MouseDoubleClick="sciChart_MouseDoubleClick"
-                   s:VisualXcceleratorEngine.IsEnabled="True"
-                   s:VisualXcceleratorEngine.FallbackType="{x:Type s:HighQualityRenderSurface}"
-                   s:VisualXcceleratorEngine.DowngradeWithoutException="False"
-                   s:VisualXcceleratorEngine.EnableImpossibleMode="True">
+        <s:SciChartSurface x:Name="sciChartSurface" MaxFrameRate="25" Padding="0" BorderThickness="0" Grid.Row="0" 
+                           MouseLeftButtonUp="sciChart_MouseLeftButtonUp" MouseDoubleClick="sciChart_MouseDoubleClick"
+                           s:VisualXcceleratorEngine.IsEnabled="True"
+                           s:VisualXcceleratorEngine.FallbackType="{x:Type s:HighQualityRenderSurface}"
+                           s:VisualXcceleratorEngine.DowngradeWithoutException="False"
+                           s:VisualXcceleratorEngine.EnableImpossibleMode="False">
             <!--  Create a X Axis  -->
             <s:SciChartSurface.XAxis>
                 <s:NumericAxis VisibleRange="-12,12" IsCenterAxis="False" AutoRange="Never"  Visibility="Hidden" DrawMajorGridLines="False" DrawMinorGridLines="False"
@@ -26,24 +27,6 @@
             </s:SciChartSurface.YAxis>
             <s:SciChartSurface.RenderableSeries >
                 <local:PolygonRenderableSeries x:Name="PolygonTerrainSeries" Opacity="0.5">
-                </local:PolygonRenderableSeries>
-                <local:PolygonRenderableSeries x:Name="PolygonSeries" Opacity="0.5">
-                </local:PolygonRenderableSeries>
-                <local:PolygonRenderableSeries x:Name="BallPolygon" Opacity="1" >
-                </local:PolygonRenderableSeries>
-                <local:PolygonRenderableSeries x:Name="ObstaclePolygons" Opacity="1">
-                </local:PolygonRenderableSeries>
-                <s:XyScatterRenderableSeries x:Name="LidarPoints" Opacity="0.5">
-                    <s:XyScatterRenderableSeries.PointMarker>
-                        <s:EllipsePointMarker Width="2" Height="2" Fill="SteelBlue" Stroke="LightSteelBlue" StrokeThickness="1"/>
-                    </s:XyScatterRenderableSeries.PointMarker>
-                </s:XyScatterRenderableSeries>
-                <s:XyScatterRenderableSeries x:Name="LidarProcessedPoints" Opacity="0.5">
-                    <s:XyScatterRenderableSeries.PointMarker>
-                        <s:EllipsePointMarker Width="2" Height="2" Fill="SteelBlue" Stroke="LightCoral" StrokeThickness="1"/>
-                    </s:XyScatterRenderableSeries.PointMarker>
-                </s:XyScatterRenderableSeries>
-                <local:PolygonRenderableSeries x:Name="ObjectsPolygonSeries" Opacity="1" >
                 </local:PolygonRenderableSeries>
                 <s:FastUniformHeatmapRenderableSeries x:Name="heatmapSeries" Opacity="0.6">
                     <s:FastUniformHeatmapRenderableSeries.ColorMap>
@@ -60,6 +43,33 @@
                         </s:HeatmapColorPalette>
                     </s:FastUniformHeatmapRenderableSeries.ColorMap>
                 </s:FastUniformHeatmapRenderableSeries>
+                <s:XyScatterRenderableSeries x:Name="LidarPoints" Opacity="0.5">
+                    <s:XyScatterRenderableSeries.PointMarker>
+                        <s:EllipsePointMarker Width="2" Height="2" Fill="SteelBlue" Stroke="LightSteelBlue" StrokeThickness="1"/>
+                    </s:XyScatterRenderableSeries.PointMarker>
+                </s:XyScatterRenderableSeries>
+                <s:XyScatterRenderableSeries x:Name="LidarProcessedPoints" Opacity="0.5">
+                    <s:XyScatterRenderableSeries.PointMarker>
+                        <s:EllipsePointMarker Width="2" Height="2" Fill="SteelBlue" Stroke="LightCoral" StrokeThickness="1"/>
+                    </s:XyScatterRenderableSeries.PointMarker>
+                </s:XyScatterRenderableSeries>
+                <local:PolygonRenderableSeries x:Name="PolygonSeries" Opacity="0.5">
+                </local:PolygonRenderableSeries>
+                <s:XyScatterRenderableSeries x:Name="BallPoints" Opacity="0.5">
+                    <s:XyScatterRenderableSeries.PointMarker>
+                        <s:EllipsePointMarker Width="10" Height="10" Fill="Yellow" Stroke="White" StrokeThickness="1"/>
+                    </s:XyScatterRenderableSeries.PointMarker>
+                </s:XyScatterRenderableSeries>
+                <local:PolygonRenderableSeries x:Name="BallPolygon" Opacity="0.8" >
+                </local:PolygonRenderableSeries>
+                <local:PolygonRenderableSeries x:Name="ObjectsPolygonSeries" Opacity="0.8" >
+                </local:PolygonRenderableSeries>
+                <s:XyScatterRenderableSeries x:Name="ObstaclePoints" Opacity="0.5">
+                    <s:XyScatterRenderableSeries.PointMarker>
+                        <s:EllipsePointMarker Width="5" Height="5" Fill="Red" Stroke="White" StrokeThickness="1"/>
+                    </s:XyScatterRenderableSeries.PointMarker>
+                </s:XyScatterRenderableSeries>
+                
                 
             </s:SciChartSurface.RenderableSeries>
                 

@@ -56,11 +56,15 @@ namespace Utilities
             Angle = angle;
         }
     }
+    [ZeroFormattable]
     public class PolarPointRssi
     {
-        public double Distance;
-        public double Angle;
-        public double Rssi;
+        [Index(0)]
+        public virtual double Distance { get; set; }
+        [Index(1)]
+        public virtual double Angle { get; set; }
+        [Index(2)]
+        public virtual double Rssi { get; set; }
 
         public PolarPointRssi(double angle, double distance, double rssi)
         {
@@ -68,7 +72,10 @@ namespace Utilities
             Angle = angle;
             Rssi = rssi;
         }
+        public PolarPointRssi()
+        {
 
+        }
     }
 
     public class PointDExtended

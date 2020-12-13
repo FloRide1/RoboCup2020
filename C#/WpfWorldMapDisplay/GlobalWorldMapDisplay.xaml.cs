@@ -358,8 +358,7 @@ namespace WpfWorldMapDisplay
             {
                 //Console.WriteLine("UpdateOpponentsLocation : Robot non trouvé");
             }
-        }
-        
+        }        
 
         void InitRoboCupSoccerField()
         {

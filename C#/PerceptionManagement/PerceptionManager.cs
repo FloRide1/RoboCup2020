@@ -21,6 +21,9 @@ namespace PerceptionManagement
 
         GlobalWorldMap globalWorldMap;
 
+        //bool replayModeActivated = false;
+
+
         public PerceptionManager(int id, GameMode compet)
         {
             robotId = id;
@@ -45,6 +48,11 @@ namespace PerceptionManagement
 
         }
 
+
+        //public void OnEnableDisableLogReplayEvent(object sender, BoolEventArgs e)
+        //{
+        //    replayModeActivated = e.value;
+        //}
 
         private void OnLidarBalisePointListForDebugReceived(object sender, RawLidarArgs e)
         {
@@ -78,25 +86,41 @@ namespace PerceptionManagement
 
         public void OnRawLidarDataReceived(object sender, RawLidarArgs e)
         {
-            //On forward les données lidar brutes reçues au lidarProcessor
-            lidarProcessor.OnRawLidarDataReceived(sender, e);
+            //On forward si on n'est pas en mode replay
+            //if (!replayModeActivated)
+            {
+                //On forward les données lidar brutes reçues au lidarProcessor
+                lidarProcessor.OnRawLidarDataReceived(sender, e);
+                //On rémet un event pour les affichages éventuels
+                OnLidarRawData(e);
+
+                //On génère la perception
+                GeneratePerception();
+            }
         }
 
+        //public void OnRawLidarReplayDataReceived(object sender, RawLidarArgs e)
+        //{
+        //    //On forward si on est en mode replay
+        //    if (replayModeActivated)
+        //    {
+        //        //On forward les données lidar brutes reçues au lidarProcessor
+        //        lidarProcessor.OnRawLidarDataReceived(sender, e);
+        //        //On rémet un event pour les affichages éventuels
+        //        OnLidarRawData(e);
+        //    }
+        //}
 
         //L'arrivée d'une nouvelle position mesurée (ou simulée) déclenche le recalcul et event de perception
         public void OnPhysicalRobotPositionReceived(object sender, LocationArgs e)
         {
-            //On calcule la perception simulée de position d'après le retour du simulateur physique directement
-            //On réel on utilisera la triangulation lidar et la caméra
             if (robotId == e.RobotId)
             {
                 robotPerception.robotKalmanLocation = e.Location;
                 //On transmet la location au positionnement absolu pour qu'il puisse vérifier que la nouvelle position absolue est cohérente avec le positionnement Kalman.
                 absolutePositionEstimator.OnPhysicalPositionReceived(sender, e);
-                //On génère la perception
-                GeneratePerception();
-
-                //PerceptionMonitor.PerceptionReceived();
+                ////On génère la perception
+                //GeneratePerception();
             }
         }
         
@@ -231,6 +255,16 @@ namespace PerceptionManagement
             //On calcule la perception simulée de position balle d'après le retour du simulateur physique directement
             //En réel on utilisera la caméra
             robotPerception.ballLocationList = e.LocationList;            
+        }
+
+        public event EventHandler<RawLidarArgs> OnLidarRawDataEvent;
+        public virtual void OnLidarRawData(RawLidarArgs e)
+        {
+            var handler = OnLidarRawDataEvent;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
         }
 
         public event EventHandler<RawLidarArgs> OnLidarProcessedDataEvent;

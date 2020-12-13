@@ -18,7 +18,7 @@ namespace MessageGeneratorNS
             payload.SetValueRange(((float)e.Vy).GetBytes(), 4);
             payload.SetValueRange(((float)e.Vtheta).GetBytes(), 8);
             OnMessageToRobot((Int16)Commands.PC2R_SpeedPolarSetConsigne, 12, payload);
-            OnSetSpeedConsigneToRobotReceived(e);
+            OnSetSpeedConsigneToRobotReceived(e); //Pour affichage graphique supervision
         }
 
         public event EventHandler<PolarSpeedArgs> OnSetSpeedConsigneToRobotReceivedEvent;
@@ -100,14 +100,14 @@ namespace MessageGeneratorNS
             OnMessageToRobot((Int16)Commands.PC2R_SetAsservissementMode, 1, payload);
         }
 
-        public void GenerateMessageEnableAsservissementDebugData(object sender, BoolEventArgs e)
+        public void GenerateMessageSpeedPIDEnableDebugInternal(object sender, BoolEventArgs e)
         {
             byte[] payload = new byte[1];
             payload[0] = Convert.ToByte(e.value);
-            OnMessageToRobot((Int16)Commands.PC2R_SpeedPIDEnableDebugFull, 1, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_SpeedPIDEnableDebugInternal, 1, payload);
         }
 
-        public void GenerateMessageEnableSpeedPidCorrectionData(object sender, BoolEventArgs e)
+        public void GenerateMessageSpeedPIDEnableDebugErrorCorrectionConsigne(object sender, BoolEventArgs e)
         {
             byte[] payload = new byte[1];
             payload[0] = Convert.ToByte(e.value);

@@ -829,13 +829,6 @@ namespace USBVendor
         }
     }
 
-
-
-
-
-
-
-
     internal class SafeWinUsbHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
         // Create a SafeHandle, informing the base class

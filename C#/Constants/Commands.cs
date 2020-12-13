@@ -16,11 +16,11 @@ namespace Constants
         /// On distingue :
         /// Les commandes R2PC : Robot to Computer - elles permettent d'envoyer des infos ou des ordres au PC
         /// Elles sont dans le range 0x0100 - 0x1FF
+        /// Les acknowledgment ont un format particulier : on rajoute 0x1000 à la commande initiale 
         /// Les commandes PC2R : Computer to Robot - elles permettent d'envoyer des infos ou des ordres au robot
         /// Elles sont dans le range 0x0200 - 0x2FF
         /// </summary>
 
-        // Getters et Askers de variables embarquées
         R2PC_WelcomeMessage = 0x0100,                                   //Pas de payload
         R2PC_ErrorMessage = 0x0101,                                     //Payload de taille variable
 
@@ -39,17 +39,17 @@ namespace Constants
         
         R2PC_MotorCurrentsMonitoring = 0x0160,                          //Timestamp(4L) - Motor Current 1 (4F) - ... - Motor Current 7 (4F)
 
-        //Acknowledgment aux commandes du PC
-        R2PC_MotorsEnableDisableAck = 0x0180,                           //Enable-Disable (1 Byte)
-        R2PC_TirEnableDisableAck = 0x0181,                              //Enable-Disable (1 Byte)
-        R2PC_SetAsservissementModeAck = 0x0182,                         //Enable-Disable (1 Byte)
-        R2PC_SpeedPIDEnableDebugFullAck = 0x0183,                       //Enable-Disable (1 Byte)
-        R2PC_MotorCurrentMonitoringEnableAck = 0x0184,                  //Enable-Disable (1 Byte)
-        R2PC_EncoderRawMonitoringEnableAck = 0x0185,                    //Enable-Disable (1 Byte)
-        R2PC_SpeedConsigneMonitoringEnableAck = 0x0186,                 //Enable-Disable (1 Byte)
-        R2PC_PowerMonitoringEnableAck = 0x0187,                         //Enable-Disable (1 Byte)
-        R2PC_SpeedPIDEnableDebugErrorCorrectionConsigneAck = 0x0188,    //Enable-Disable (1 Byte)
-        R2PC_IOPollingEnableAck = 0x0189,                               //Enable-Disable (1 Byte)
+        //Retour des commandes d'enable du PC
+        R2PC_IOPollingEnableStatus = 0x0180,                               //Enable-Disable (1 Byte)
+        R2PC_PowerMonitoringEnableStatus = 0x0181,                         //Enable-Disable (1 Byte)
+        R2PC_EncoderRawMonitoringEnableStatus = 0x0182,                    //Enable-Disable (1 Byte)
+        R2PC_AsservissementModeStatus = 0x0183,                            //Enable-Disable (1 Byte)
+        R2PC_SpeedPIDEnableDebugErrorCorrectionConsigneStatus = 0x0184,    //Enable-Disable (1 Byte)
+        R2PC_SpeedPIDEnableDebugInternalStatus = 0x0185,                       //Enable-Disable (1 Byte)
+        R2PC_SpeedConsigneMonitoringEnableStatus = 0x0186,                 //Enable-Disable (1 Byte)
+        R2PC_MotorsEnableDisableStatus = 0x0187,                           //Enable-Disable (1 Byte)
+        R2PC_MotorCurrentMonitoringEnableStatus = 0x0188,                  //Enable-Disable (1 Byte)
+        R2PC_TirEnableDisableStatus = 0x0189,                              //Enable-Disable (1 Byte)
 
         /// <summary>
         /// PC to Robot commands
@@ -65,7 +65,7 @@ namespace Constants
 
         PC2R_SetAsservissementMode = 0x250,                             //Mode (1 Byte : Disabled=0 - Polarie = 1 - Independant = 2)
         PC2R_SpeedPIDEnableDebugErrorCorrectionConsigne = 0x251,        //Enable-Disable (1 Byte)
-        PC2R_SpeedPIDEnableDebugFull = 0x0252,                          //Enable-Disable (1 Byte)
+        PC2R_SpeedPIDEnableDebugInternal = 0x0252,                          //Enable-Disable (1 Byte)
         PC2R_SpeedConsigneMonitoringEnable = 0x0253,                    //Enable-Disable (1 Byte)
         PC2R_SpeedPolarPIDSetGains = 0x0254,                            //KpX(4F) - KiX(4F) - KdX(4F) - idem en Y, en Theta, puis en LimitX, LimitY et Limit Theta : total 72 octets
         PC2R_SpeedIndependantPIDSetGains = 0x0255,                      //KpM1(4F) - KiM1(4F) - KdM1(4F) - idem en M2, M3 et M4, puis en LimitM1, LimitM2, LimitM3 et Limit M4 : total 96 octets
@@ -182,5 +182,10 @@ namespace Constants
         Disabled = 0,
         Polar = 1,
         Independant = 2
+    }
+    public enum ActiveMode
+    {
+        Disabled = 0,
+        Enabled = 1
     }
 }

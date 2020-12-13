@@ -27,6 +27,8 @@ namespace ImuProcessor
         List<double> gyroZCalibrationList = new List<double>();
         System.Configuration.Configuration configFile;
 
+        bool replayModeActivated = false;
+
         public ImuProcessor(int id)
         {
             robotId = id;
@@ -39,6 +41,11 @@ namespace ImuProcessor
             Double.TryParse(configFile.AppSettings.Settings["GyroOffsetX"].Value.Replace(',', '.'), out offsetGyroX);
             Double.TryParse(configFile.AppSettings.Settings["GyroOffsetY"].Value.Replace(',','.'), out offsetGyroY);
             Double.TryParse(configFile.AppSettings.Settings["GyroOffsetZ"].Value.Replace(',', '.'), out offsetGyroZ);
+        }
+        
+        public void OnEnableDisableLogReplayEvent(object sender, BoolEventArgs e)
+        {
+            replayModeActivated = e.value;
         }
 
         private void CalibrationFinished_Event(object sender, ElapsedEventArgs e)
@@ -63,12 +70,28 @@ namespace ImuProcessor
 
         public void OnIMURawDataReceived(object sender, IMUDataEventArgs e)
         {
+            if (!replayModeActivated)
+            {
+                ProcessImuRawData(e);
+            }
+        }
+
+        public void OnIMUReplayRawDataReceived(object sender, IMUDataEventArgs e)
+        {
+            if (replayModeActivated)
+            {
+                ProcessImuRawData(e);
+            }
+        }
+
+        private void ProcessImuRawData(IMUDataEventArgs e)
+        {
             //Point3D accelXYZ = new Point3D(e.accelX - offsetAccelX, e.accelY - offsetAccelY, e.accelZ - offsetAccelZ);
-            Point3D accelXYZ = new Point3D(e.accelX , e.accelY , e.accelZ );
+            Point3D accelXYZ = new Point3D(e.accelX, e.accelY, e.accelZ);
             Point3D gyroXYZ = new Point3D(e.gyroX - offsetGyroX, e.gyroY - offsetGyroY, e.gyroZ - offsetGyroZ);
 
-            if(calibrationInProgress)            
-            { 
+            if (calibrationInProgress)
+            {
                 accelXCalibrationList.Add(e.accelX);
                 accelYCalibrationList.Add(e.accelY);
                 accelZCalibrationList.Add(e.accelZ);

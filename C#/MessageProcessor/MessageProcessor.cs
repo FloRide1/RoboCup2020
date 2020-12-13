@@ -13,6 +13,7 @@ namespace MessageProcessorNS
         GameMode competition;
         Timer tmrComptageMessage;
         int robotID;
+        
         public MsgProcessor(int robotId, GameMode compet)
         {
             robotID = robotId;
@@ -36,6 +37,7 @@ namespace MessageProcessorNS
         {
             ProcessDecodedMessage((Int16)e.MsgFunction,(Int16) e.MsgPayloadLength, e.MsgPayload);
         }
+         
         //Processeur de message en provenance du robot...
         //Une fois processé, le message sera transformé en event sortant
         public void ProcessDecodedMessage(Int16 command, Int16 payloadLength, byte[] payload)
@@ -314,48 +316,40 @@ namespace MessageProcessorNS
                     OnSpeedIndependantPidCorrectionDataFromRobot(CorrPM1, CorrIM1, CorrDM1, CorrPM2, CorrIM2, CorrDM2, CorrPM3, CorrIM3, CorrDM3, CorrPM4, CorrIM4, CorrDM4);
                     break;
 
-                case (short)Commands.R2PC_MotorsEnableDisableAck:
+                case (short)Commands.R2PC_MotorsEnableDisableStatus:
                     bool value = Convert.ToBoolean(payload[0]);
-                    //On envois l'event aux abonnés
                     OnEnableDisableMotorsACKFromRobot(value);
                     break;
-                case (short)Commands.R2PC_TirEnableDisableAck:
+                case (short)Commands.R2PC_TirEnableDisableStatus:
                     value = Convert.ToBoolean(payload[0]);
-                    //On envois l'event aux abonnés
                     OnEnableDisableTirACKFromRobot(value);
                     break;
-                case (short)Commands.R2PC_SetAsservissementModeAck:
-                    value = Convert.ToBoolean(payload[0]);
-                    //On envois l'event aux abonnés
-                    OnEnableAsservissementACKFromRobot(value);
+                case (short)Commands.R2PC_AsservissementModeStatus:
+                    AsservissementMode asservMode = (AsservissementMode)payload[0];
+                    OnAsservissementModeStatusFromRobot(asservMode);
                     break;
-                case (short)Commands.R2PC_SpeedPIDEnableDebugFullAck:
+                case (short)Commands.R2PC_SpeedPIDEnableDebugInternalStatus:
                     value = Convert.ToBoolean(payload[0]);
                     OnEnableAsservissementDebugDataACKFromRobot(value);
                     break;
-                case (short)Commands.R2PC_MotorCurrentMonitoringEnableAck:
+                case (short)Commands.R2PC_MotorCurrentMonitoringEnableStatus:
                     value = Convert.ToBoolean(payload[0]);
-                    //On envois l'event aux abonnés
                     OnEnableMotorCurrentACKFromRobot(value);
                     break;
-                case (short)Commands.R2PC_EncoderRawMonitoringEnableAck:
+                case (short)Commands.R2PC_EncoderRawMonitoringEnableStatus:
                     value = Convert.ToBoolean(payload[0]);
-                    //On envois l'event aux abonnés
                     OnEnableEncoderRawDataACKFromRobot(value);
                     break;
-                case (short)Commands.R2PC_SpeedConsigneMonitoringEnableAck:
+                case (short)Commands.R2PC_SpeedConsigneMonitoringEnableStatus:
                     value = Convert.ToBoolean(payload[0]);
-                    //On envois l'event aux abonnés
                     OnEnableMotorSpeedConsigneDataACKFromRobot(value);
                     break;
-                case (short)Commands.R2PC_PowerMonitoringEnableAck:
+                case (short)Commands.R2PC_PowerMonitoringEnableStatus:
                     value = Convert.ToBoolean(payload[0]);
-                    //On envois l'event aux abonnés
                     OnEnablePowerMonitoringDataACKFromRobot(value);
                     break;
                 case (short)Commands.R2PC_ErrorMessage:
                     string errorMsg = Encoding.UTF8.GetString(payload);
-                    //On envois l'event aux abonnés
                     OnErrorTextFromRobot(errorMsg);
                     break;
                 default: break;
@@ -371,6 +365,7 @@ namespace MessageProcessorNS
                 handler(this, new EventArgs());
             }
         }
+        
 
 
         //Output events
@@ -404,13 +399,13 @@ namespace MessageProcessorNS
             }
         }
 
-        public event EventHandler<BoolEventArgs> OnEnableAsservissementACKFromRobotGeneratedEvent;
-        public virtual void OnEnableAsservissementACKFromRobot(bool isEnabled)
+        public event EventHandler<AsservissementModeEventArgs> OnAsservissementModeStatusFromRobotGeneratedEvent;
+        public virtual void OnAsservissementModeStatusFromRobot(AsservissementMode asservMode)
         {
-            var handler = OnEnableAsservissementACKFromRobotGeneratedEvent;
+            var handler = OnAsservissementModeStatusFromRobotGeneratedEvent;
             if (handler != null)
             {
-                handler(this, new BoolEventArgs { value = isEnabled });
+                handler(this, new AsservissementModeEventArgs { mode = asservMode});
             }
         }
 
@@ -487,6 +482,14 @@ namespace MessageProcessorNS
                     Vy = (float)vY,
                     Vtheta = (float)vTheta
                 });
+            }
+        }
+        public virtual void OnPolarOdometrySpeedFromRobot(PolarSpeedEventArgs e)
+        {
+            var handler = OnSpeedPolarOdometryFromRobotEvent;
+            if (handler != null)
+            {
+                handler(this, e);
             }
         }
 
@@ -698,5 +701,6 @@ namespace MessageProcessorNS
                 handler(this, new MsgCounterArgs { nbMessageIMU = nbMessageFromImu, nbMessageOdometry = nbMessageFromOdometry });
             }
         }
+        
     }
 }
