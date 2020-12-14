@@ -16,6 +16,7 @@ namespace WorldMapManager
 {
     public class GlobalWorldMapManager
     {
+        int RobotId;
         int TeamId;
         double freqRafraichissementWorldMap = 200;
 
@@ -26,8 +27,9 @@ namespace WorldMapManager
         HighFreqTimer globalWorldMapSendTimer;
               
 
-        public GlobalWorldMapManager(int teamId)
+        public GlobalWorldMapManager(int robotId, int teamId)
         {
+            RobotId = robotId;
             TeamId = teamId;
             globalWorldMapSendTimer = new HighFreqTimer(freqRafraichissementWorldMap);
             globalWorldMapSendTimer.Tick += GlobalWorldMapSendTimer_Tick; 
@@ -42,7 +44,26 @@ namespace WorldMapManager
 
         public void OnLocalWorldMapReceived(object sender, EventArgsLibrary.LocalWorldMapArgs e)
         {
-            AddOrUpdateLocalWorldMap(e.LocalWorldMap);
+            switch(sender.GetType().Name)
+            {
+                case "UDPMulticastInterpreter":
+                    if (e.LocalWorldMap.RobotId != RobotId)
+                        AddOrUpdateLocalWorldMap(e.LocalWorldMap);
+                    else
+                        ;
+                    break;
+                case "LocalWorldMapManager":
+                    if (e.LocalWorldMap.RobotId == RobotId)
+                        AddOrUpdateLocalWorldMap(e.LocalWorldMap);
+                    else
+                        Console.WriteLine("GlobalWorldMapManager : ceci ne devrait pas arriver");
+                        ;
+                    break;
+                default:
+                    AddOrUpdateLocalWorldMap(e.LocalWorldMap);
+                    break;
+            }
+            
         }
 
         private void AddOrUpdateLocalWorldMap(LocalWorldMap localWorldMap)
@@ -106,6 +127,7 @@ namespace WorldMapManager
                 //TODO : Fusion des obstacles vus par chacun des robots
                 foreach (var localMap in localWorldMapDictionary)
                 {
+
                     foreach (var obstacle in localMap.Value.obstaclesLocationList)
                     {
                         bool skipNext = false;
@@ -152,7 +174,8 @@ namespace WorldMapManager
             
             /// Transfert de la globalworldmap via le Multicast UDP
             var s = ZeroFormatterSerializer.Serialize<WorldMap.ZeroFormatterMsg>(globalWorldMap);
-            OnMulticastSendGlobalWorldMap(s);
+            OnGlobalWorldMap(globalWorldMap);
+            //OnMulticastSendGlobalWorldMap(s);
             //GWMEmiseMonitoring.GWMEmiseMonitor(s.Length);
         }
         
@@ -168,10 +191,10 @@ namespace WorldMapManager
         }
 
         ////Output event for Multicast Bypass : NO USE at RoboCup !
-        public event EventHandler<GlobalWorldMapArgs> OnGlobalWorldMapBypassEvent;
-        public virtual void OnGlobalWorldMapBypass(GlobalWorldMap map)
+        public event EventHandler<GlobalWorldMapArgs> OnGlobalWorldMapEvent;
+        public virtual void OnGlobalWorldMap(GlobalWorldMap map)
         {
-            var handler = OnGlobalWorldMapBypassEvent;
+            var handler = OnGlobalWorldMapEvent;
             if (handler != null)
             {
                 handler(this, new GlobalWorldMapArgs { GlobalWorldMap = map });

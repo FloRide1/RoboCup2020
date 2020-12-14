@@ -72,7 +72,9 @@ namespace WorldMapManager
                     {
                         var s = ZeroFormatterSerializer.Serialize<WorldMap.ZeroFormatterMsg>(transferLocalWorldMap);
 
-                        OnMulticastSendLocalWorldMapCommand(s); //Retiré pour test de robustesse, mais nécessaire à la RoboCup
+                        OnMulticastSendLocalWorldMapCommand(s); //Envoi à destination des autres robots en multicast
+
+                        OnLocalWorldMapToGlobalWorldMapGenerator(transferLocalWorldMap); //Envoi à destination du robot lui même en direct
 
                         //ATTENTION : appel douteux...
                         OnLocalWorldMapForDisplayOnly(localWorldMap); //Pour affichage uniquement, sinon transmission radio en, multicast
@@ -237,6 +239,16 @@ namespace WorldMapManager
             if (handler != null)
             {
                 handler(this, new DataReceivedArgs { Data = data });
+            }
+        }
+
+        public event EventHandler<LocalWorldMapArgs> OnLocalWorldMapToGlobalWorldMapGeneratorEvent;
+        public virtual void OnLocalWorldMapToGlobalWorldMapGenerator(LocalWorldMap data)
+        {
+            var handler = OnLocalWorldMapToGlobalWorldMapGeneratorEvent;
+            if (handler != null)
+            {
+                handler(this, new LocalWorldMapArgs { LocalWorldMap = data});
             }
         }
 

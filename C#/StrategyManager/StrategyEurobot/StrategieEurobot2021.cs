@@ -198,17 +198,7 @@ namespace StrategyManagerNS
         }
 
         //************************ Events reçus ************************************************/
-
-        //Event de récupération d'une GlobalWorldMap mise à jour
-        public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
-        {
-            //On récupère la nouvelle worldMap
-            lock (globalWorldMap)
-            {
-                globalWorldMap = e.GlobalWorldMap;
-            }
-        }
-
+              
         public override void OnRefBoxMsgReceived(object sender, WorldMap.RefBoxMessageArgs e)
         {
             var command = e.refBoxMsg.command;
