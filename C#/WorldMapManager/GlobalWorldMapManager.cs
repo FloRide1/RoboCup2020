@@ -130,42 +130,46 @@ namespace WorldMapManager
 
                     foreach (var obstacle in localMap.Value.obstaclesLocationList)
                     {
-                        bool skipNext = false;
-                        /// On itère sur chacun des obstacles perçus par chacun des robots
-                        /// On commence regarde pour chaque obstacle perçu si il ne correspond pas à une position de robot de l'équipe
-                        ///     Si c'est le cas, on abandonne cet obstacle
-                        ///     Si ce n'est pas le cas, on regarde si il ne correspond pas à un obstacle déjà présent dans la liste des obstacles
-                        ///         Si ce n'est pas le cas, on l'ajoute à la liste des obtacles
-                        ///         Si c'est le cas, on le fusionne en moyennant ses coordonnées de manière pondérée 
-                        ///             et on renforce le poids de cet obstacle
-                        foreach (var teamMateRobot in globalWorldMap.teammateLocationList)
+                        if (obstacle != null)
                         {
-                            if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(teamMateRobot.Value.X, teamMateRobot.Value.Y)) < distanceMaxFusionTeamMate)
+                            bool skipNext = false;
+                            /// On itère sur chacun des obstacles perçus par chacun des robots
+                            /// On commence regarde pour chaque obstacle perçu si il ne correspond pas à une position de robot de l'équipe
+                            ///     Si c'est le cas, on abandonne cet obstacle
+                            ///     Si ce n'est pas le cas, on regarde si il ne correspond pas à un obstacle déjà présent dans la liste des obstacles
+                            ///         Si ce n'est pas le cas, on l'ajoute à la liste des obtacles
+                            ///         Si c'est le cas, on le fusionne en moyennant ses coordonnées de manière pondérée 
+                            ///             et on renforce le poids de cet obstacle
+                            foreach (var teamMateRobot in globalWorldMap.teammateLocationList)
                             {
-                                /// L'obstacle est un robot, on abandonne
-                                skipNext = true;
-                                break;
-                            }
-                        }
-                        if (skipNext == false)
-                        {
-                            /// Si on arrive ici c'est que l'obstacle n'est pas un robot de l'équipe
-                            foreach (var obstacleConnu in globalWorldMap.obstacleLocationList)
-                            {
-                                if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(obstacleConnu.X, obstacleConnu.Y)) < distanceMaxFusionObstacle)
+
+                                if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(teamMateRobot.Value.X, teamMateRobot.Value.Y)) < distanceMaxFusionTeamMate)
                                 {
-                                    //L'obstacle est déjà connu, on le fusionne /TODO : améliorer la fusion avec pondération
-                                    obstacleConnu.X = (obstacleConnu.X + obstacle.X) / 2;
-                                    obstacleConnu.Y = (obstacleConnu.Y + obstacle.Y) / 2;
+                                    /// L'obstacle est un robot, on abandonne
                                     skipNext = true;
                                     break;
                                 }
                             }
-                        }
-                        if (skipNext == false)
-                        {
-                            /// Si on arrive ici, c'est que l'obstacle n'était pas connu, on l'ajoute
-                            globalWorldMap.obstacleLocationList.Add(obstacle);
+                            if (skipNext == false)
+                            {
+                                /// Si on arrive ici c'est que l'obstacle n'est pas un robot de l'équipe
+                                foreach (var obstacleConnu in globalWorldMap.obstacleLocationList)
+                                {
+                                    if (Toolbox.Distance(new PointD(obstacle.X, obstacle.Y), new PointD(obstacleConnu.X, obstacleConnu.Y)) < distanceMaxFusionObstacle)
+                                    {
+                                        //L'obstacle est déjà connu, on le fusionne /TODO : améliorer la fusion avec pondération
+                                        obstacleConnu.X = (obstacleConnu.X + obstacle.X) / 2;
+                                        obstacleConnu.Y = (obstacleConnu.Y + obstacle.Y) / 2;
+                                        skipNext = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (skipNext == false)
+                            {
+                                /// Si on arrive ici, c'est que l'obstacle n'était pas connu, on l'ajoute
+                                globalWorldMap.obstacleLocationList.Add(obstacle);
+                            }
                         }
                     }
                 }

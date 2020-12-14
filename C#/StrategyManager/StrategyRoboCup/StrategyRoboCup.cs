@@ -56,7 +56,7 @@ namespace StrategyManagerNS.StrategyRoboCupNS
         private void ConfigTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             //On envoie périodiquement les réglages du PID de vitesse embarqué
-            OnSetRobotSpeedIndependantPID(pM1: 4.0, iM1: 400, 0.0, pM2: 4.0, iM2: 0, 0, pM3: 4.0, iM3: 0, 0, pM4: 4.0, iM4: 0, 0.0,
+            OnSetRobotSpeedIndependantPID(pM1: 4.0, iM1: 400, 0.0, pM2: 4.0, iM2: 400, 0, pM3: 4.0, iM3: 400, 0, pM4: 4.0, iM4: 400, 0.0,
                 pM1Limit: 4, iM1Limit: 4, 0, pM2Limit: 4.0, iM2Limit: 4.0, 0, pM3Limit: 4.0, iM3Limit: 4.0, 0, pM4Limit: 4.0, iM4Limit: 4.0, 0);
             //OnSetRobotSpeedIndependantPID(pM1: 4.0, iM1: 300, 0.0, pM2: 4.0, iM2: 300, 0, pM3: 4.0, iM3: 300, 0, pM4: 4.0, iM4: 300, 0.0,
             //    pM1Limit: 4.0, iM1Limit: 4.0, 0, pM2Limit: 4.0, iM2Limit: 4.0, 0, pM3Limit: 4.0, iM3Limit: 4.0, 0, pM4Limit: 4.0, iM4Limit: 4.0, 0);
