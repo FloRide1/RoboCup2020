@@ -271,19 +271,19 @@ namespace Robot
 
             ////Event d'interprétation d'une globalWorldMap à sa réception dans le robot
             robotUdpMulticastInterpreter.OnRefBoxMessageEvent += strategyManager.strategy.OnRefBoxMsgReceived;
-            //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += strategyManager.strategy.OnGlobalWorldMapReceived;
-            robotUdpMulticastInterpreter.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
-
-            //globalWorldMapManager.OnMulticastSendGlobalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
-            /// Event généré lorsque la Global World Map a été calculée.
-            /// Elle n'a pas vocation à être renvoyée à tous les robots puisqu'on la génère dans chaque robot en parallèle
-            globalWorldMapManager.OnGlobalWorldMapEvent += strategyManager.strategy.OnGlobalWorldMapReceived;
-
+            
             /// Event de Transmission des Local World Map du robot vers le multicast
             /// Disparaitra quand on voudra jouer sans liaison multicast
             localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
-            /// Event de la local world map du robot en direct au multicast local
-            localWorldMapManager.OnLocalWorldMapToGlobalWorldMapGeneratorEvent += robotUdpMulticastInterpreter.OnMulticastDataReceived;
+
+            /// Events de réception des localWorldMap
+            /// Soit en direct si on se transmet à nous même, soit via le Multicast pour transmettre aux autres robots
+            localWorldMapManager.OnLocalWorldMapToGlobalWorldMapGeneratorEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+            robotUdpMulticastInterpreter.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+
+            /// Event généré lorsque la Global World Map a été calculée.
+            /// Elle n'a pas vocation à être renvoyée à tous les robots puisqu'on la génère dans chaque robot en parallèle
+            globalWorldMapManager.OnGlobalWorldMapEvent += strategyManager.strategy.OnGlobalWorldMapReceived;
 
             /// Event de Réception de data Multicast sur le robot
             robotUdpMulticastReceiver.OnDataReceivedEvent += robotUdpMulticastInterpreter.OnMulticastDataReceived;
@@ -458,6 +458,7 @@ namespace Robot
             interfaceRobot.OnEnableDisableServosFromInterfaceGeneratedEvent += herkulexManager.OnEnableDisableServosRequestEvent;
             interfaceRobot.OnEnableDisableTirFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableTir;
             interfaceRobot.OnEnableDisableControlManetteFromInterfaceGeneratedEvent += ChangeUseOfXBoxController;
+            interfaceRobot.OnEnableDisableControlManetteFromInterfaceGeneratedEvent += trajectoryPlanner.ChangeUseOfXBoxController;
             interfaceRobot.OnEnableDisableLoggingEvent += logRecorder.OnEnableDisableLoggingReceived;
             interfaceRobot.OnSetAsservissementModeFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageSetAsservissementMode;
             interfaceRobot.OnEnableEncodersRawDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableEncoderRawData;

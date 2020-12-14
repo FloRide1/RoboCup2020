@@ -1,4 +1,5 @@
-﻿using EventArgsLibrary;
+﻿using Constants;
+using EventArgsLibrary;
 using HeatMap;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using Utilities;
 using WorldMap;
 
@@ -15,25 +17,27 @@ namespace StrategyManagerNS.StrategyRoboCupNS
     {
         Stopwatch sw = new Stopwatch();
 
+        RobotRole role = RobotRole.Stopped;
+        public PointD robotDestination = new PointD(0, 0);
+        PlayingSide playingSide = PlayingSide.Left;
+        public BallHandlingState ballHandlingState = BallHandlingState.NoBall;
+
+        public GameState gameState = GameState.STOPPED;
+        public StoppedGameAction stoppedGameAction = StoppedGameAction.NONE;
+
+        public string MessageDisplay = "Debug";
+
         private double _obstacleAvoidanceDistance = 1.0;
         public override double ObstacleAvoidanceDistance 
         { 
             get { return _obstacleAvoidanceDistance; } 
             set { _obstacleAvoidanceDistance = value; } 
         }
-
-        public GameState gameState = GameState.STOPPED;
-        public StoppedGameAction stoppedGameAction = StoppedGameAction.NONE;
-
-        RobotRole role = RobotRole.Stopped;
-        PlayingSide playingSide = PlayingSide.Left;
-        public PointD robotDestination = new PointD(0, 0);
-        public BallHandlingState ballHandlingState = BallHandlingState.NoBall;
-        public string MessageDisplay = "Debug";
-
+        
         public Location externalRefBoxPosition = new Location();
-
         TaskBallHandlingManagement taskBallHandlingManagement;
+
+        Timer configTimer;
 
         public StrategyRoboCup(int robotId, int teamId, string multicastIpAddress) : base(robotId, teamId, multicastIpAddress)
         {
@@ -42,7 +46,24 @@ namespace StrategyManagerNS.StrategyRoboCupNS
 
         public override void InitStrategy(int robotId, int teamId)
         {
+            //On initialisae le timer de réglage récurrent 
+            //Il permet de modifier facilement les paramètre des asservissement durant l'exécution
+            configTimer = new System.Timers.Timer(1000);
+            configTimer.Elapsed += ConfigTimer_Elapsed;
+            configTimer.Start();
+        }
 
+        private void ConfigTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            //On envoie périodiquement les réglages du PID de vitesse embarqué
+            OnSetRobotSpeedIndependantPID(pM1: 4.0, iM1: 400, 0.0, pM2: 4.0, iM2: 0, 0, pM3: 4.0, iM3: 0, 0, pM4: 4.0, iM4: 0, 0.0,
+                pM1Limit: 4, iM1Limit: 4, 0, pM2Limit: 4.0, iM2Limit: 4.0, 0, pM3Limit: 4.0, iM3Limit: 4.0, 0, pM4Limit: 4.0, iM4Limit: 4.0, 0);
+            //OnSetRobotSpeedIndependantPID(pM1: 4.0, iM1: 300, 0.0, pM2: 4.0, iM2: 300, 0, pM3: 4.0, iM3: 300, 0, pM4: 4.0, iM4: 300, 0.0,
+            //    pM1Limit: 4.0, iM1Limit: 4.0, 0, pM2Limit: 4.0, iM2Limit: 4.0, 0, pM3Limit: 4.0, iM3Limit: 4.0, 0, pM4Limit: 4.0, iM4Limit: 4.0, 0);
+            OnSetRobotSpeedPolarPID(px: 4.0, ix: 300, 0.0, py: 4.0, iy: 300, 0, ptheta: 4.0, itheta: 300, 0,
+                pxLimit: 4.0, ixLimit: 4.0, 0, pyLimit: 4.0, iyLimit: 4.0, 0, pthetaLimit: 4.0, ithetaLimit: 4.0, 0);
+
+            OnSetAsservissementMode((byte)AsservissementMode.Independant);
         }
 
         public override void InitHeatMap()

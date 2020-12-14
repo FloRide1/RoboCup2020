@@ -1052,12 +1052,12 @@ namespace RobotInterface
             if (currentXBoxActivation)
             {
                 OnEnableDisableControlManetteFromInterface(true);
-                LabelXBoxControllerMode.Content = "XBox Controller State : Enabled";
+                LabelXBoxControllerMode.Content = "XBox Pad : Enabled";
             }
             else
             {
                 OnEnableDisableControlManetteFromInterface(false);
-                LabelXBoxControllerMode.Content = "XBox Controller State : Disabled";
+                LabelXBoxControllerMode.Content = "XBox Pad : Disabled";
             }
         }
 

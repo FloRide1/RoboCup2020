@@ -13,6 +13,7 @@ namespace TrajectoryGenerator
     {
         int robotId = 0;
         GameMode gameMode;
+        bool isUsingXboxControler = false;
 
         Location currentLocationRefTerrain;
         Location wayPointLocation;
@@ -90,12 +91,12 @@ namespace TrajectoryGenerator
             PID_Theta = new AsservissementPID(20.0, 10.0, 0, 5*Math.PI, 5*Math.PI, Math.PI); 
 
             PidConfigUpdateTimer = new System.Timers.Timer(1000);
-            PidConfigUpdateTimer.Elapsed += PidConfigUpdateTimer_Elapsed;
+            PidConfigUpdateTimer.Elapsed += PositionPidConfigUpdateTimer_Elapsed;
             PidConfigUpdateTimer.Start();
 
         }
 
-        private void PidConfigUpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private void PositionPidConfigUpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             switch (gameMode)
             {
@@ -114,6 +115,12 @@ namespace TrajectoryGenerator
                     }
                     break;
             }
+        }
+
+
+        public void ChangeUseOfXBoxController(object sender, BoolEventArgs e)
+        {
+            isUsingXboxControler = e.value;
         }
 
         public void InitRobotPosition(double x, double y, double theta)
@@ -207,13 +214,16 @@ namespace TrajectoryGenerator
                 }
                 else
                 {
-                    //Sinon, le robot a rencontré un obstacle ou eu un problème, on arrête le robot et on réinitialise les correcteurs et la ghostLocation
-                    OnCollision(robotId, currentLocationRefTerrain);
-                    OnSpeedConsigneToRobot(robotId, 0, 0, 0);
+                    if (!isUsingXboxControler)
+                    {
+                        //Sinon, le robot a rencontré un obstacle ou eu un problème, on arrête le robot et on réinitialise les correcteurs et la ghostLocation
+                        OnCollision(robotId, currentLocationRefTerrain);
+                        OnSpeedConsigneToRobot(robotId, 0, 0, 0);
 
-                    ghostLocationRefTerrain = currentLocationRefTerrain;
-                    PIDPositionReset();
-                    OnPidSpeedReset(robotId);
+                        ghostLocationRefTerrain = currentLocationRefTerrain;
+                        PIDPositionReset();
+                        OnPidSpeedReset(robotId);
+                    }
                 }
 
                 PolarPidCorrectionArgs correction = new PolarPidCorrectionArgs();
