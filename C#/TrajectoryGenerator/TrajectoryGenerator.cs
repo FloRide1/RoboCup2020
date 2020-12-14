@@ -102,9 +102,12 @@ namespace TrajectoryGenerator
             {
                 case GameMode.RoboCup:
                     {
-                        PID_X.Init(kp: 50.0, ki: 0.0, kd: 4.0, 10, 10, 10);
-                        PID_Y.Init(kp: 50.0, ki: 0.0, kd: 4.0, 10, 10, 10);
+                        PID_X.Init(kp: 0.0, ki: 0.0, kd: 0.0, 10, 10, 10);
+                        PID_Y.Init(kp: 0.0, ki: 0.0, kd: 0.0, 10, 10, 10);
                         PID_Theta.Init(kp: 12.0, ki: 0.0, kd: 1.0, 10, 10, 10);
+                        //PID_X.Init(kp: 50.0, ki: 0.0, kd: 4.0, 10, 10, 10);
+                        //PID_Y.Init(kp: 50.0, ki: 0.0, kd: 4.0, 10, 10, 10);
+                        //PID_Theta.Init(kp: 12.0, ki: 0.0, kd: 1.0, 10, 10, 10);
                     }
                     break;
                 case GameMode.Eurobot:
