@@ -335,6 +335,11 @@ namespace LidarProcessor
             return ptListEroded.ToList().GetRange((int)(originalSize / 2), originalSize);
         }
 
+        void FindLargestRectangle(List<PolarPointRssi> ptList)
+        {
+
+        }
+
         //double seuilResiduLine = 0.03;
 
         //private List<LidarDetectedObject> DetectionObjetsFond(List<PolarPointRssi> ptList, double zoomCoeff)
