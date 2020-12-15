@@ -93,8 +93,7 @@ namespace Robot
 
         static GameMode competition = GameMode.RoboCup;
 
-        static bool usingXBoxController;
-        static bool usingLidar = true;        
+        static bool usingXBoxController; 
         static bool usingRobotInterface = true;
 
         static HighFreqTimer timerStrategie;
@@ -128,7 +127,6 @@ namespace Robot
         static WpfRobotInterface interfaceRobot;
         static LogRecorder.LogRecorder logRecorder;
         static LogReplay.LogReplay logReplay;
-        static ReplayNavigator replayNavigator;
 
 
         [STAThread] //à ajouter au projet initial
@@ -159,8 +157,8 @@ namespace Robot
             robotMsgProcessor = new MsgProcessor(robotId, competition);
                        
             imuProcessor = new ImuProcessor.ImuProcessor(robotId);
-            if (usingLidar)
-                lidar_OMD60M_TCP = new LidaRxR2000(50, R2000SamplingRate._72kHz);
+            
+            lidar_OMD60M_TCP = new LidaRxR2000(50, R2000SamplingRate._72kHz);
             perceptionManager = new PerceptionManager(robotId, competition);
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
             trajectoryPlanner = new TrajectoryPlanner(robotId, competition);
@@ -220,10 +218,8 @@ namespace Robot
             //Gestion des events liés à une détection de collision soft
             trajectoryPlanner.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
             //trajectoryPlanner.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
-
-
-            if (usingLidar)
-                strategyManager.strategy.OnMessageEvent += lidar_OMD60M_TCP.OnMessageReceivedEvent;
+            
+            strategyManager.strategy.OnMessageEvent += lidar_OMD60M_TCP.OnMessageReceivedEvent;
 
 
             strategyManager.strategy.OnSetRobotSpeedPolarPIDEvent += robotMsgGenerator.GenerateMessageSetupSpeedPolarPIDToRobot;
@@ -237,13 +233,9 @@ namespace Robot
             herkulexManager.OnHerkulexSendToSerialEvent += robotMsgGenerator.GenerateMessageForwardHerkulex;
 
             
-            if (usingLidar)
-            {
-                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += perceptionManager.OnRawLidarDataReceived;
-                perceptionManager.OnLidarRawDataEvent += localWorldMapManager.OnRawLidarDataReceived;
-                perceptionManager.OnLidarProcessedDataEvent += localWorldMapManager.OnProcessedLidarDataReceived;
-
-            }
+            lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += perceptionManager.OnRawLidarDataReceived;
+            perceptionManager.OnLidarRawDataEvent += localWorldMapManager.OnRawLidarDataReceived;
+            perceptionManager.OnLidarProcessedDataEvent += localWorldMapManager.OnProcessedLidarDataReceived;
 
             //L'envoi des commandes dépend du fait qu'on soit en mode manette ou pas. 
             //Il faut donc enregistrer les évènement ou pas en fonction de l'activation
@@ -405,13 +397,10 @@ namespace Robot
         {
             //Sur evenement xx        -->>        Action a effectuer
             msgDecoder.OnMessageDecodedEvent += interfaceRobot.DisplayMessageDecoded;
-            msgDecoder.OnMessageDecodedErrorEvent += interfaceRobot.DisplayMessageDecodedError;
-
-            if (usingLidar)
-            {
-                perceptionManager.OnLidarRawDataEvent += interfaceRobot.OnRawLidarDataReceived;
-                perceptionManager.OnLidarBalisePointListForDebugEvent += interfaceRobot.OnRawLidarBalisePointsReceived;
-            }
+            msgDecoder.OnMessageDecodedErrorEvent += interfaceRobot.DisplayMessageDecodedError;            
+            
+            perceptionManager.OnLidarRawDataEvent += interfaceRobot.OnRawLidarDataReceived;
+            perceptionManager.OnLidarBalisePointListForDebugEvent += interfaceRobot.OnRawLidarBalisePointsReceived;   
 
             robotMsgGenerator.OnMessageToDisplaySpeedPolarPidSetupEvent += interfaceRobot.OnMessageToDisplayPolarSpeedPidSetupReceived;
             robotMsgGenerator.OnMessageToDisplaySpeedIndependantPidSetupEvent += interfaceRobot.OnMessageToDisplayIndependantSpeedPidSetupReceived;
