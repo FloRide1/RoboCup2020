@@ -121,6 +121,41 @@ namespace MessageGeneratorNS
             OnMessageToRobot((Int16)Commands.PC2R_EncoderRawMonitoringEnable, 1, payload);
         }
 
+        public void GenerateMessageOdometryPointToMeter(object sender, DoubleEventArgs e)
+        {
+            byte[] payload = new byte[4];
+            payload.SetValueRange(((float)(e.Value)).GetBytes(), 0);
+            OnMessageToRobot((Int16)Commands.PC2R_OdometryPointToMeter, 4, payload);
+        }
+
+        public void GenerateMessage4WheelsAngleSet(object sender, FourWheelsAngleArgs e)
+        {
+            byte[] payload = new byte[16];
+            payload.SetValueRange(((float)(e.angleMotor1)).GetBytes(), 0);
+            payload.SetValueRange(((float)(e.angleMotor2)).GetBytes(), 4);
+            payload.SetValueRange(((float)(e.angleMotor3)).GetBytes(), 8);
+            payload.SetValueRange(((float)(e.angleMotor4)).GetBytes(), 12);
+            OnMessageToRobot((Int16)Commands.PC2R_4WheelsAngleSet, 16, payload);
+        }
+
+        public void GenerateMessage4WheelsToPolarMatrixSet(object sender, FourWheelsToPolarMatrixArgs e)
+        {
+            byte[] payload = new byte[48];
+            payload.SetValueRange(((float)(e.mx1)).GetBytes(), 0);
+            payload.SetValueRange(((float)(e.mx2)).GetBytes(), 4);
+            payload.SetValueRange(((float)(e.mx3)).GetBytes(), 8);
+            payload.SetValueRange(((float)(e.mx4)).GetBytes(), 12);
+            payload.SetValueRange(((float)(e.my1)).GetBytes(), 16);
+            payload.SetValueRange(((float)(e.my2)).GetBytes(), 20);
+            payload.SetValueRange(((float)(e.my3)).GetBytes(), 24);
+            payload.SetValueRange(((float)(e.my4)).GetBytes(), 28);
+            payload.SetValueRange(((float)(e.mtheta1)).GetBytes(), 32);
+            payload.SetValueRange(((float)(e.mtheta2)).GetBytes(), 36);
+            payload.SetValueRange(((float)(e.mtheta3)).GetBytes(), 40);
+            payload.SetValueRange(((float)(e.mtheta4)).GetBytes(), 44);
+            OnMessageToRobot((Int16)Commands.PC2R_4WheelsToPolarMatrixSet, 48, payload);
+        }
+
         public void GenerateMessageEnableMotorCurrentData(object sender, BoolEventArgs e)
         {
             byte[] payload = new byte[1];

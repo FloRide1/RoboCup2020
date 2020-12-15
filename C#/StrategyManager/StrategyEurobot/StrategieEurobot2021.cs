@@ -143,7 +143,7 @@ namespace StrategyManagerNS
             taskWindFlag.OnPilotageVentouseEvent += OnSetSpeedConsigneToMotorEvent;
 
             taskStrategy = new TaskStrategy(this);
-            OnIOValuesEvent += taskStrategy.OnIOValuesFromRobotEvent;
+            OnIOValuesFromRobotEvent += taskStrategy.OnIOValuesFromRobotEvent;
             taskStrategy.OnMirrorModeEvent += OnMirrorMode;
 
             taskFinDeMatch = new TaskFinDeMatch(this);
@@ -166,6 +166,13 @@ namespace StrategyManagerNS
             configTimer = new System.Timers.Timer(1000);
             configTimer.Elapsed += ConfigTimer_Elapsed;
             configTimer.Start();
+
+            //Config Eurobot des paramètre embarqués
+            OnOdometryPointToMeter(1.211037464120243e-06);
+            On4WheelsAngleSet(Toolbox.DegToRad(72), Toolbox.DegToRad(144), Toolbox.DegToRad(216), Toolbox.DegToRad(288));
+            On4WheelsToPolarSet(-3.967532e-01, -2.720655e-01, +2.720655e-01, 3.967532e-01,
+                             +3.776278e-01, -3.776278e-01, -3.776278e-01, 3.776278e-01,
+                             +2.106947e+00, +1.341329e+00, +1.341329e+00, +2.106947e+00);
 
             OnEnableDisableMotorCurrentData(true);
         }

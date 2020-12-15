@@ -105,11 +105,11 @@ namespace LidarProcessor
             if (competition == GameMode.RoboCup)
             {
                 ///On fait la recherche du rectangle vide le plus grand 
-                double tailleNoyau = 0.8;
-                //var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
+                double tailleNoyau = 0.2;
+                var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
                 //var ptListFiltered = Erosion(Dilatation(ptList, tailleNoyau), tailleNoyau);
                 //var ptListFiltered = Dilatation(ptList, tailleNoyau);
-                var ptListFiltered = Erosion(ptList, tailleNoyau);
+                //var ptListFiltered = Erosion(ptList, tailleNoyau);
                 //var ptListFiltered = ptList;
                 OnLidarProcessed(robotId, ptListFiltered);
             }

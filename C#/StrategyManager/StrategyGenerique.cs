@@ -540,11 +540,53 @@ namespace StrategyManagerNS
             OnCollisionEvent?.Invoke(this, new CollisionEventArgs { RobotId = id, RobotRealPositionRefTerrain = robotLocation });
         }
 
-        public event EventHandler<IOValuesEventArgs> OnIOValuesEvent;
-        public void OnIOValuesFromRobotEvent(object sender, IOValuesEventArgs e)
+        public event EventHandler<IOValuesEventArgs> OnIOValuesFromRobotEvent;
+        public void OnIOValuesFromRobot(object sender, IOValuesEventArgs e)
         {
-            OnIOValuesEvent?.Invoke(sender, e);
+            OnIOValuesFromRobotEvent?.Invoke(sender, e);
         }
+
+        public event EventHandler<DoubleEventArgs> OnOdometryPointToMeterEvent;
+        public void OnOdometryPointToMeter(double value)
+        {
+            OnOdometryPointToMeterEvent?.Invoke(this, new DoubleEventArgs { Value = value });
+        }
+
+        public event EventHandler<FourWheelsAngleArgs> On4WheelsAngleSetEvent;
+        public void On4WheelsAngleSet(double angleM1, double angleM2, double angleM3, double angleM4)
+        {
+            On4WheelsAngleSetEvent?.Invoke(this, new FourWheelsAngleArgs { angleMotor1 = angleM1, angleMotor2 = angleM2, angleMotor3 = angleM3, angleMotor4 = angleM4 });
+        }
+
+        public event EventHandler<FourWheelsToPolarMatrixArgs> On4WheelsToPolarSetEvent;
+        public void On4WheelsToPolarSet(double mX1, double mX2, double mX3, double mX4, double mY1, double mY2, double mY3, double mY4, double mTheta1, double mTheta2, double mTheta3, double mTheta4)
+        {
+            On4WheelsToPolarSetEvent?.Invoke(this, new FourWheelsToPolarMatrixArgs
+            {
+                mx1 = mX1,
+                mx2 = mX2,
+                mx3 = mX3,
+                mx4 = mX4,
+                my1 = mY1,
+                my2 = mY2,
+                my3 = mY3,
+                my4 = mY4,
+                mtheta1 = mTheta1,
+                mtheta2 = mTheta2,
+                mtheta3 = mTheta3,
+                mtheta4 = mTheta4
+            });
+        }
+
+
+
+        //public event EventHandler<FourWheelsAngleArgs> OnOdometryPointToMeterEvent;
+        //public void OnOdometryPointToMeter(object sender, FourWheelsAngleArgs e)
+        //{
+        //    OnOdometryPointToMeterEvent?.Invoke(sender, e);
+        //}
+
+
     }
 
     

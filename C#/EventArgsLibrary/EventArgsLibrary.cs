@@ -49,7 +49,7 @@ namespace EventArgsLibrary
         public int Line { get; set; }
     }
 
-    public class DoubleArgs : EventArgs
+    public class DoubleEventArgs : EventArgs
     {
         public double Value { get; set; }
     }
@@ -189,19 +189,28 @@ namespace EventArgsLibrary
     {
 
     }
-
-    //public class MotorsVitesseDataEventArgs : EventArgs
-    //{
-    //    public uint timeStampMS;
-    //    public double vitesseMotor1;
-    //    public double vitesseMotor2;
-    //    public double vitesseMotor3;
-    //    public double vitesseMotor4;
-    //    public double vitesseMotor5;
-    //    public double vitesseMotor6;
-    //    public double vitesseMotor7;
-    //}
-
+    public class FourWheelsAngleArgs : EventArgs
+    {
+        public double angleMotor1;
+        public double angleMotor2;
+        public double angleMotor3;
+        public double angleMotor4;
+    }
+    public class FourWheelsToPolarMatrixArgs : EventArgs
+    {
+        public double mx1;
+        public double mx2;
+        public double mx3;
+        public double mx4;
+        public double my1;
+        public double my2;
+        public double my3;
+        public double my4;
+        public double mtheta1;
+        public double mtheta2;
+        public double mtheta3;
+        public double mtheta4;
+    }
     public class AuxiliaryMotorsVitesseDataEventArgs : EventArgs
     {
         public uint timeStampMS;

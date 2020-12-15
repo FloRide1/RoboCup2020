@@ -62,6 +62,9 @@ namespace Constants
         PC2R_PowerMonitoringEnable = 0x0230,                            //Enable-Disable (1 Byte)        
 
         PC2R_EncoderRawMonitoringEnable = 0x0240,                       //Enable-Disable (1 Byte)
+        PC2R_OdometryPointToMeter = 0x0241,                             //PointToMeter (4F)
+        PC2R_4WheelsAngleSet = 0x0242,                                  //AngleMotor1 (4F) - AngleMotor2 (4F) - AngleMotor3 (4F) - AngleMotor4 (4F)
+        PC2R_4WheelsToPolarMatrixSet = 0x0243,                          //Mx1 (4F) - Mx2 (4F) - Mx3 (4F) - Mx4 (4F) - My1 (4F) - My2 (4F) - My3 (4F) - My4 (4F) - Mtheta1 (4F) - Mtheta2 (4F) - Mtheta3 (4F) - Mtheta4 (4F)
 
         PC2R_SetAsservissementMode = 0x250,                             //Mode (1 Byte : Disabled=0 - Polarie = 1 - Independant = 2)
         PC2R_SpeedPIDEnableDebugErrorCorrectionConsigne = 0x251,        //Enable-Disable (1 Byte)

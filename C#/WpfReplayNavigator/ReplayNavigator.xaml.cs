@@ -76,13 +76,13 @@ namespace WpfReplayNavigator
             }
         }
 
-        public event EventHandler<DoubleArgs> OnSpeedChangeEvent;
+        public event EventHandler<DoubleEventArgs> OnSpeedChangeEvent;
         public virtual void OnSpeedChange( double val)
         {
             var handler = OnSpeedChangeEvent;
             if (handler != null)
             {
-                handler(this, new DoubleArgs() { Value = val });
+                handler(this, new DoubleEventArgs() { Value = val });
             }
         }
         //public delegate void SimulatedLidarEventHandler(object sender, EventArgs e);

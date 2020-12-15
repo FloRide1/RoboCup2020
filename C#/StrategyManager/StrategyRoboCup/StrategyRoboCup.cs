@@ -51,6 +51,13 @@ namespace StrategyManagerNS.StrategyRoboCupNS
             configTimer = new System.Timers.Timer(1000);
             configTimer.Elapsed += ConfigTimer_Elapsed;
             configTimer.Start();
+
+            //Obtenus directement à partir du script Matlab
+            OnOdometryPointToMeter(4.261590e-06);
+            On4WheelsAngleSet(1.256637e+00, 2.513274e+00, 3.769911e+00, 5.026548e+00);
+            On4WheelsToPolarSet(-3.804226e-01, -2.351141e-01, 2.351141e-01, 3.804226e-01,
+                                4.472136e-01, -4.472136e-01, -4.472136e-01, 4.472136e-01,
+                                1.955694e+00, 7.470087e-01, 7.470087e-01, 1.955694e+00);
         }
 
         private void ConfigTimer_Elapsed(object sender, ElapsedEventArgs e)
