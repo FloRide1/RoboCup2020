@@ -50,7 +50,7 @@ namespace Staudt.Engineering.LidaRx
         /// <summary>
         /// Conntect to the scanner
         /// </summary>
-        void Connect();
+        bool Connect();
 
         /// <summary>
         /// Connect to the scanner

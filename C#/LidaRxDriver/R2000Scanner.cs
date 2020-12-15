@@ -129,15 +129,17 @@ namespace Staudt.Engineering.LidaRx.Drivers.R2000
             this.dataStreamConnector.Subscribe<LidarStatusEvent>(ev => this.PublishLidarEvent(ev));
         }
 
-        public override void Connect()
+        public override bool Connect()
         {
             try
             {
                 ConnectAsync().Wait();
+                return true;
             }
             catch
             {
                 Console.WriteLine("Connexion au Lidar impossible");
+                return false;
             }
         }
 
@@ -273,7 +275,14 @@ namespace Staudt.Engineering.LidaRx.Drivers.R2000
         /// <param name="frequencyHz">Refer  to the vendor's manual for the acceptable range</param>
         public void SetScanFrequency(double frequencyHz)
         {
-            SetScanFrequencyAsync(frequencyHz).Wait();
+            try
+            {
+                SetScanFrequencyAsync(frequencyHz).Wait();
+            }
+            catch
+            {
+
+            }
         }
 
         /// <summary>
@@ -491,7 +500,14 @@ namespace Staudt.Engineering.LidaRx.Drivers.R2000
         /// <param name="targetSamplingRate">Target rate or AutoMaximum</param>
         public void SetSamplingRate(R2000SamplingRate targetSamplingRate)
         {
-            SetSamplingRateAsync(targetSamplingRate).Wait();
+            try
+            {
+                SetSamplingRateAsync(targetSamplingRate).Wait();
+            }
+            catch
+            {
+                ;
+            }
         }
 
         /// <summary>

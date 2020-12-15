@@ -7,6 +7,7 @@ using Staudt.Engineering.LidaRx;
 using Staudt.Engineering.LidaRx.Drivers.R2000;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -52,54 +53,109 @@ namespace LidaRxR2000NS
                 r2000.DisplayRotatingText(horizontalShift);
         }
 
-        //double angleIncrement;
+        bool isLidarConnected = false;
         private void LidarStartAndAcquire(double freq, R2000SamplingRate samplingRate)
         {
-            using (r2000 = new R2000Scanner(IPAddress.Parse("169.254.235.44"), R2000ConnectionType.TCPConnection))
+            while(true)
             {
-                r2000.Connect();
-                r2000.SetSamplingRate(R2000SamplingRate._8kHz);
-                r2000.SetScanFrequency(freq);
-                r2000.SetSamplingRate(samplingRate);
-                r2000.DisplayMessage(1, "Points :");
-                r2000.DisplayMessage(2, "50 points");
-
-                //angleIncrement = 2 * Math.PI/((double)R2000SamplingRate._252kHz / 20);
-
-                r2000.OnlyStatusEvents().Subscribe(ev =>
+                /// Si le lidar n'est pas connecté, on tente de le connecter
+                if (!isLidarConnected)
                 {
-                    var oldColor = Console.ForegroundColor;
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.WriteLine($"Event: {ev.Level.ToString()} / {ev.Message}");
-                    Console.ForegroundColor = oldColor;
-                });
-
-
-                r2000.OnlyLidarPoints()
-                    .BufferByScan()
-                    .Subscribe(x =>
+                    Console.WriteLine("Trying to connect Lidar R2000");
+                    try
                     {
-                        //lastLidarPtList = new List<PolarPoint>();
+                        //var r2000 = new R2000Scanner(IPAddress.Parse("169.254.235.44"), R2000ConnectionType.TCPConnection);
+                        using (r2000 = new R2000Scanner(IPAddress.Parse("169.254.235.44"), R2000ConnectionType.TCPConnection))
+                        {                            
+                            var isLidarReachable = r2000.Connect();
+                            if (isLidarReachable)
+                            {
+                                r2000.SetSamplingRate(R2000SamplingRate._8kHz);
+                                r2000.SetScanFrequency(freq);
+                                r2000.SetSamplingRate(samplingRate);
+                                r2000.DisplayMessage(1, "Points :");
+                                r2000.DisplayMessage(2, "50 points");
 
-                        //lastLidarPtList.Add(new PolarPoint(x.Points[0].Distance / 1000, Utilities.Toolbox.DegToRad(x.Points[0].Azimuth)));
-                        //for (int i=1; i< x.Points.Count; i++ )
-                        //{
-                        //    if()
-                        //}
-                        lastLidarPtList = new List<PolarPointRssi>(x.Points.Select(pt => new PolarPointRssi(Utilities.Toolbox.DegToRad(pt.Azimuth), pt.Distance / 1000, pt.Amplitude)));
-                        lastScanNumber = (int)x.Scan;
-                        newLidarDataAvailable = true;
-                        //Console.WriteLine($"Got {x.Count} points for scan {x.Scan} / Min {x.Points.Min(pt => pt.Azimuth)} :: Max {x.Points.Max(pt => pt.Azimuth)}");
-                    });
+                                //angleIncrement = 2 * Math.PI/((double)R2000SamplingRate._252kHz / 20);
+
+                                r2000.OnlyStatusEvents().Subscribe(ev =>
+                                {
+                                    var oldColor = Console.ForegroundColor;
+                                    Console.ForegroundColor = ConsoleColor.Blue;
+                                    Console.WriteLine($"Event: {ev.Level.ToString()} / {ev.Message}");
+                                    Console.ForegroundColor = oldColor;
+                                });
 
 
-                r2000.StartScan();
+                                r2000.OnlyLidarPoints()
+                                    .BufferByScan()
+                                    .Subscribe(x =>
+                                    {
+                                        lastLidarPtList = new List<PolarPointRssi>(x.Points.Select(pt => new PolarPointRssi(Utilities.Toolbox.DegToRad(pt.Azimuth), pt.Distance / 1000, pt.Amplitude)));
+                                        lastScanNumber = (int)x.Scan;
+                                        newLidarDataAvailable = true;
+                                    });
 
-                while (true)
-                {
-                    Thread.Sleep(5);
+                                r2000.StartScan();
+                                Console.WriteLine("Lidar R2000 Connected");
+                                isLidarConnected = true;
+                            }
+                        }
+                    }
+                    catch(IOException e)
+                    {
+                        Console.WriteLine(e);
+                        isLidarConnected = false;
+                    }
                 }
+
+                Thread.Sleep(2000);
             }
+            //using (r2000 = new R2000Scanner(IPAddress.Parse("169.254.235.44"), R2000ConnectionType.TCPConnection))
+            //{
+            //    r2000.Connect();
+            //    r2000.SetSamplingRate(R2000SamplingRate._8kHz);
+            //    r2000.SetScanFrequency(freq);
+            //    r2000.SetSamplingRate(samplingRate);
+            //    r2000.DisplayMessage(1, "Points :");
+            //    r2000.DisplayMessage(2, "50 points");
+
+            //    //angleIncrement = 2 * Math.PI/((double)R2000SamplingRate._252kHz / 20);
+
+            //    r2000.OnlyStatusEvents().Subscribe(ev =>
+            //    {
+            //        var oldColor = Console.ForegroundColor;
+            //        Console.ForegroundColor = ConsoleColor.Blue;
+            //        Console.WriteLine($"Event: {ev.Level.ToString()} / {ev.Message}");
+            //        Console.ForegroundColor = oldColor;
+            //    });
+
+
+            //    r2000.OnlyLidarPoints()
+            //        .BufferByScan()
+            //        .Subscribe(x =>
+            //        {
+            //            //lastLidarPtList = new List<PolarPoint>();
+
+            //            //lastLidarPtList.Add(new PolarPoint(x.Points[0].Distance / 1000, Utilities.Toolbox.DegToRad(x.Points[0].Azimuth)));
+            //            //for (int i=1; i< x.Points.Count; i++ )
+            //            //{
+            //            //    if()
+            //            //}
+            //            lastLidarPtList = new List<PolarPointRssi>(x.Points.Select(pt => new PolarPointRssi(Utilities.Toolbox.DegToRad(pt.Azimuth), pt.Distance / 1000, pt.Amplitude)));
+            //            lastScanNumber = (int)x.Scan;
+            //            newLidarDataAvailable = true;
+            //            //Console.WriteLine($"Got {x.Count} points for scan {x.Scan} / Min {x.Points.Min(pt => pt.Azimuth)} :: Max {x.Points.Max(pt => pt.Azimuth)}");
+            //        });
+
+
+            //    r2000.StartScan();
+
+            //    while (true)
+            //    {
+            //        Thread.Sleep(5);
+            //    }
+            //}
         }
 
         public void OnMessageReceivedEvent(object sender, LidarMessageArgs e)
@@ -116,8 +172,7 @@ namespace LidaRxR2000NS
                 {
                     //lock(lastLidarPtList)
                     {
-                        OnLidarDecodedFrame((int)TeamId.Team1, lastLidarPtList, lastScanNumber); //TODO on creuse le bug de lag
-                        //Console.WriteLine(lastScanNumber + " Envoi de la trame lidar sur event");
+                        OnLidarDecodedFrame((int)TeamId.Team1, lastLidarPtList, lastScanNumber); 
                         newLidarDataAvailable = false;
                     }
                 }
