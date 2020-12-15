@@ -73,8 +73,6 @@ namespace LidaRxR2000NS
                                 r2000.SetSamplingRate(R2000SamplingRate._8kHz);
                                 r2000.SetScanFrequency(freq);
                                 r2000.SetSamplingRate(samplingRate);
-                                r2000.DisplayMessage(1, "Points :");
-                                r2000.DisplayMessage(2, "50 points");
 
                                 //angleIncrement = 2 * Math.PI/((double)R2000SamplingRate._252kHz / 20);
 
@@ -99,10 +97,6 @@ namespace LidaRxR2000NS
                                 r2000.StartScan();
                                 Console.WriteLine("Lidar R2000 Connected");
                                 isLidarConnected = true;
-                                //while (true)
-                                //{
-                                //    Thread.Sleep(5);
-                                //}
                             }
                         }
                     }
@@ -112,8 +106,6 @@ namespace LidaRxR2000NS
                         isLidarConnected = false;
                     }
 
-                    //    Thread.Sleep(2000);
-                    //}
 
                     //using (r2000 = new R2000Scanner(IPAddress.Parse("169.254.235.44"), R2000ConnectionType.TCPConnection))
                     //{
