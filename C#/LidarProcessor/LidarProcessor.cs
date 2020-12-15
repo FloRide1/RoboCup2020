@@ -111,6 +111,7 @@ namespace LidarProcessor
                 //var ptListFiltered = Dilatation(ptList, tailleNoyau);
                 //var ptListFiltered = Erosion(ptList, tailleNoyau);
                 //var ptListFiltered = ptList;
+                FindLargestRectangle(ptListFiltered, 15, 15);
                 OnLidarProcessed(robotId, ptListFiltered);
             }
             OnLidarBalisesListExtracted(robotId, BalisesCatadioptriqueList2);
@@ -335,10 +336,100 @@ namespace LidarProcessor
             return ptListEroded.ToList().GetRange((int)(originalSize / 2), originalSize);
         }
 
-        void FindLargestRectangle(List<PolarPointRssi> ptList)
+        void FindLargestRectangle(List<PolarPointRssi> ptList, int maxLength, int maxHeight)
         {
+            ///L'algorithme repose sur la construction d'une matrice dans laquelle on place les points par blocs de 1m²
+            ///La taille maximum de recherche est spécifiée dans les arguments
+            ///
+
+            /// On commence par remplir la matrice d'occupation
+            double[,] fieldOccupancy = new double[2 * maxLength + 1, 2 * maxHeight + 1];
+            for (int i = 1; i < ptList.Count; i++)
+            {
+                double xpos = ptList[i].Distance * Math.Cos(ptList[i].Angle);
+                double ypos = ptList[i].Distance * Math.Sin(ptList[i].Angle);
+                if (xpos < maxLength && ypos < maxHeight)
+                    fieldOccupancy[(int)xpos + maxLength, (int)ypos + maxHeight] += 1;
+            }
+
+
+            /// On généère ensuite une matrice avec des 1 dans toutes les cases en relation directe avec le pt central
+            double[,] fieldBool = new double[2 * maxLength + 1, 2 * maxHeight + 1];
+            fieldBool[maxLength, maxHeight] = 1;
+            /// On commence par la croix centrée sur le robot
+            /// vers le bas
+            for (int j = maxHeight - 1; j >= 0; j--)
+            {
+                if (fieldBool[maxLength, j+1] == 1 && fieldOccupancy[maxLength, j] == 0)
+                    fieldBool[maxLength, j] = 1;
+            }
+            /// vers le haut
+            for (int j = maxHeight + 1; j < 2*maxHeight+1; j++)
+            {
+                if (fieldBool[maxLength, j-1] == 1 && fieldOccupancy[maxLength, j] == 0)
+                    fieldBool[maxLength, j] = 1;
+            }
+            /// vers la gauche
+            for (int i = maxLength - 1; i >= 0; i--)
+            {
+                if (fieldBool[i + 1, maxHeight] == 1 && fieldOccupancy[i, maxHeight] == 0)
+                    fieldBool[i, maxHeight] = 1;
+            }
+            /// vers la droite
+            for (int i = maxLength + 1; i < 2*maxLength+1; i++)
+            {
+                if (fieldBool[i - 1, maxHeight] == 1 && fieldOccupancy[i, maxHeight] == 0)
+                    fieldBool[i, maxHeight] = 1;
+            }
+
+            ///Remplissage du coin bas à gauche -> i=0 et j=0;
+            for (int j = maxHeight - 1; j >= 0; j--)
+            {
+                for (int i = maxLength - 1; i >= 0; i--)
+                {
+                    if (fieldBool[i + 1, j] == 1 && fieldBool[i, j + 1] == 1 && fieldOccupancy[i, j] == 0)
+                        fieldBool[i, j] = 1;
+                }
+            }
+
+            ///Remplissage du coin bas à droit -> i= 2 * maxLength + 1 et j=0;
+            for (int j = maxHeight - 1; j >= 0; j--)
+            {
+                for (int i = maxLength + 1; i < 2 * maxLength + 1; i++)
+                {
+                    if (fieldBool[i - 1, j] == 1 && fieldBool[i, j + 1] == 1 && fieldOccupancy[i, j] == 0)
+                        fieldBool[i, j] = 1;
+                }
+            }
+
+            ///Remplissage du coin haut à gauche : i->0 et j->2*maxHeight+1;
+            for (int j = maxHeight + 1; j < 2 * maxHeight + 1; j++)
+            {
+                for (int i = maxLength - 1; i >= 0; i--)
+                {
+                    if (fieldBool[i + 1, j] == 1 && fieldBool[i, j - 1] == 1 && fieldOccupancy[i, j] == 0)
+                        fieldBool[i, j] = 1;
+                }
+            }
+
+            ///Remplissage du coin haut à droite : i->2*maxLength+1 et j->2*maxHeight+1;
+            for (int j = maxHeight + 1; j < 2 * maxHeight + 1; j++)
+            {
+                for (int i = maxLength + 1; i < 2 * maxLength + 1; i++)
+                {
+                    if (fieldBool[i - 1, j] == 1 && fieldBool[i, j - 1] == 1 && fieldOccupancy[i, j] == 0)
+                        fieldBool[i, j] = 1;
+                }
+            }
+
+            /// On cherche ensuite le plus grand rectangle inscrit dans fieldBool
+            /// Un bon exemple d'algo peut être trouvé ici :
+            /// https://www.geeksforgeeks.org/maximum-size-rectangle-binary-sub-matrix-1s/
+            /// 
 
         }
+
+
 
         //double seuilResiduLine = 0.03;
 
