@@ -94,12 +94,17 @@ namespace LidarProcessor
                 case GameMode.RoboCup:
                     double tailleNoyau = 0.2;
                     var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
-                    ObjetsProchesList = DetectionObjetsProches(ptListFiltered, 0.17, 20.0, tailleSegmentationObjet: 0.05, tolerance:0.2);
+                    ObjetsProchesList = DetectionObjetsProches(ptListFiltered, 0.5, 20.0, tailleSegmentationObjet: 0.05, tolerance:0.2);
                     //var ptListFiltered = Erosion(Dilatation(ptList, tailleNoyau), tailleNoyau);
                     //var ptListFiltered = Dilatation(ptList, tailleNoyau);
                     //var ptListFiltered = Erosion(ptList, tailleNoyau);
                     //var ptListFiltered = ptList;
-                    FindLargestRectangle(ptListFiltered, 15, 15);
+                    
+                    Console.WriteLine("\n");
+                    for (double angleShift = 0; angleShift < Math.PI / 2; angleShift += Toolbox.DegToRad(10))
+                    {
+                        FindLargestRectangle(ptListFiltered, 10, 10, angleShift, 1.0);
+                    }
                     OnLidarProcessed(robotId, ptListFiltered);
                     break;
             }
@@ -336,21 +341,45 @@ namespace LidarProcessor
             return ptListEroded.ToList().GetRange((int)(originalSize / 2), originalSize);
         }
 
-        void FindLargestRectangle(List<PolarPointRssi> ptList, int maxLength, int maxHeight)
+        void FindEnclosingLines(List<PolarPointRssi> ptList, int maxLength, int maxHeight, double resolution=1)
+        {
+            /// On teste toute les lignes possibles pour différents X>0 avec Theta entre PI/4 et 3*PI/4
+            /// On teste toute les lignes possibles pour différents X<0 avec Theta entre PI/4 et 3*PI/4
+            /// On teste toute les lignes possibles pour différents Y>0 avec Theta entre -PI/4 et PI/4
+            /// On teste toute les lignes possibles pour différents Y<0 avec Theta entre -PI/4 et PI/4
+            /// 
+            /// Si le pt est distant de la droite de moins de xxx m, on le considère comma appartenant à la droite, et on incrémente le score de la droite
+            /// 
+            /// On garde les meillurs scores dans chaque sous ensemble
+            /// Le cout algo est donc nbX * nbAngles * nbPoints * 4.
+            /// 
+            ///Atention, cet algo est adapté aux cas de bordure de type quadrilatère, mais peut donner des résultats étranges sinon.
+            
+            for (int i = 1; i < ptList.Count; i++)
+            {
+
+            }
+        }
+
+        void FindLargestRectangle(List<PolarPointRssi> ptList, int maxLength, int maxHeight, double angleshift, double resolution = 1)
         {
             ///L'algorithme repose sur la construction d'une matrice dans laquelle on place les points par blocs de 1m²
             ///La taille maximum de recherche est spécifiée dans les arguments
             ///
+            maxLength = (int)(maxLength / resolution);
+            maxHeight = (int)(maxHeight / resolution);
 
             /// On commence par remplir la matrice d'occupation
             double[,] fieldOccupancy = new double[2 * maxLength + 1, 2 * maxHeight + 1];
             for (int i = 1; i < ptList.Count; i++)
             {
-                double xpos = ptList[i].Distance * Math.Cos(ptList[i].Angle);
-                double ypos = ptList[i].Distance * Math.Sin(ptList[i].Angle);
-                if (xpos < maxLength && ypos < maxHeight)
+                double xpos = ptList[i].Distance / resolution * Math.Cos(ptList[i].Angle - angleshift);
+                double ypos = ptList[i].Distance / resolution * Math.Sin(ptList[i].Angle - angleshift);
+                if (xpos >= 0 && xpos < maxLength && ypos >= 0 && ypos < maxHeight)
                     fieldOccupancy[(int)xpos + maxLength, (int)ypos + maxHeight] += 1;
             }
+
+            ///On referme la matrice d'occupation de manière à ce que le contour soit continu tout autour du robot
 
 
             /// On généère ensuite une matrice avec des 1 dans toutes les cases en relation directe avec le pt central
@@ -434,7 +463,7 @@ namespace LidarProcessor
             /// 
 
             Console.Write("Area of maximum rectangle is "
-                      + GFG.maxRectangle(2 * maxLength + 1, 2 * maxHeight + 1, fieldBool)+"\n");
+                      + GFG.maxRectangle(2 * maxLength + 1, 2 * maxHeight + 1, fieldBool) + ", angleShift = " + angleshift.ToString("N2") + "\n");
         }
 
 
