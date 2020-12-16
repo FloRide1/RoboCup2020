@@ -70,17 +70,41 @@ namespace LidarProcessor
             List<LidarDetectedObject> ObjetsFondList = new List<LidarDetectedObject>();
             List<LidarDetectedObject> ObjetsPoteauPossible = new List<LidarDetectedObject>();
             LidarDetectedObject currentObject = new LidarDetectedObject();
-            
-            //Opérations de traitement du signal LIDAR
-            //ptList = PrefiltragePointsIsoles(ptList, 0.04);
-            //ptList = MedianFilter(ptList, 5);
 
-//            BalisesCatadioptriqueList = DetectionBalisesCatadioptriques(ptList, 3.6);
-            BalisesCatadioptriqueList2 = DetectionBalisesCatadioptriquesParRssiEtTaille(ptList, 3.6);
-            ObjetsProchesList = DetectionObjetsProches(ptList, 0.17, 2.0, 0.2);
+            List<PolarPointListExtended> objectList = new List<PolarPointListExtended>();
+
+            switch (competition)
+            {
+                case GameMode.Eurobot:
+                    BalisesCatadioptriqueList2 = DetectionBalisesCatadioptriquesParRssiEtTaille(ptList, 3.6);
+                    ObjetsProchesList = DetectionObjetsProches(ptList, 0.17, 2.0, 0.2);
+
+                    foreach (var obj in BalisesCatadioptriqueList)
+                    {
+                        PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
+                        currentPolarPointListExtended.polarPointList = new List<PolarPointRssi>();
+                        {
+                            currentPolarPointListExtended.polarPointList = obj.PtList;
+                            currentPolarPointListExtended.type = ObjectType.Balise;
+                            objectList.Add(currentPolarPointListExtended);
+                        }
+                    }
+                    OnLidarBalisesListExtracted(robotId, BalisesCatadioptriqueList2);
+                    break;
+                case GameMode.RoboCup:
+                    double tailleNoyau = 0.2;
+                    var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
+                    ObjetsProchesList = DetectionObjetsProches(ptListFiltered, 0.17, 20.0, tailleSegmentationObjet: 0.05, tolerance:0.2);
+                    //var ptListFiltered = Erosion(Dilatation(ptList, tailleNoyau), tailleNoyau);
+                    //var ptListFiltered = Dilatation(ptList, tailleNoyau);
+                    //var ptListFiltered = Erosion(ptList, tailleNoyau);
+                    //var ptListFiltered = ptList;
+                    FindLargestRectangle(ptListFiltered, 15, 15);
+                    OnLidarProcessed(robotId, ptListFiltered);
+                    break;
+            }
             
             //Affichage des résultats
-            List<PolarPointListExtended> objectList = new List<PolarPointListExtended>();
             foreach (var obj in ObjetsProchesList)
             {
                 PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
@@ -91,30 +115,6 @@ namespace LidarProcessor
                     objectList.Add(currentPolarPointListExtended);
                 }
             }
-            foreach (var obj in BalisesCatadioptriqueList)
-            {
-                PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
-                currentPolarPointListExtended.polarPointList = new List<PolarPointRssi>();
-                {
-                    currentPolarPointListExtended.polarPointList = obj.PtList;
-                    currentPolarPointListExtended.type = ObjectType.Balise;
-                    objectList.Add(currentPolarPointListExtended);
-                }
-            }
-
-            if (competition == GameMode.RoboCup)
-            {
-                ///On fait la recherche du rectangle vide le plus grand 
-                double tailleNoyau = 0.2;
-                var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
-                //var ptListFiltered = Erosion(Dilatation(ptList, tailleNoyau), tailleNoyau);
-                //var ptListFiltered = Dilatation(ptList, tailleNoyau);
-                //var ptListFiltered = Erosion(ptList, tailleNoyau);
-                //var ptListFiltered = ptList;
-                FindLargestRectangle(ptListFiltered, 15, 15);
-                OnLidarProcessed(robotId, ptListFiltered);
-            }
-            OnLidarBalisesListExtracted(robotId, BalisesCatadioptriqueList2);
             OnLidarObjectProcessed(robotId, objectList);
         }
 
@@ -354,32 +354,38 @@ namespace LidarProcessor
 
 
             /// On généère ensuite une matrice avec des 1 dans toutes les cases en relation directe avec le pt central
-            double[,] fieldBool = new double[2 * maxLength + 1, 2 * maxHeight + 1];
-            fieldBool[maxLength, maxHeight] = 1;
+            int[][] fieldBool = new int[2 * maxLength + 1][];
+            for(int i=0; i< 2*maxLength+1; i++)
+            {
+                fieldBool[i] = new int[2 * maxHeight + 1];
+            }
+
+
+            fieldBool[maxLength][maxHeight] = 1;
             /// On commence par la croix centrée sur le robot
             /// vers le bas
             for (int j = maxHeight - 1; j >= 0; j--)
             {
-                if (fieldBool[maxLength, j+1] == 1 && fieldOccupancy[maxLength, j] == 0)
-                    fieldBool[maxLength, j] = 1;
+                if (fieldBool[maxLength][j +1] == 1 && fieldOccupancy[maxLength, j] == 0)
+                    fieldBool[maxLength][j] = 1;
             }
             /// vers le haut
             for (int j = maxHeight + 1; j < 2*maxHeight+1; j++)
             {
-                if (fieldBool[maxLength, j-1] == 1 && fieldOccupancy[maxLength, j] == 0)
-                    fieldBool[maxLength, j] = 1;
+                if (fieldBool[maxLength][j -1] == 1 && fieldOccupancy[maxLength, j] == 0)
+                    fieldBool[maxLength][j] = 1;
             }
             /// vers la gauche
             for (int i = maxLength - 1; i >= 0; i--)
             {
-                if (fieldBool[i + 1, maxHeight] == 1 && fieldOccupancy[i, maxHeight] == 0)
-                    fieldBool[i, maxHeight] = 1;
+                if (fieldBool[i + 1][maxHeight] == 1 && fieldOccupancy[i, maxHeight] == 0)
+                    fieldBool[i][maxHeight] = 1;
             }
             /// vers la droite
             for (int i = maxLength + 1; i < 2*maxLength+1; i++)
             {
-                if (fieldBool[i - 1, maxHeight] == 1 && fieldOccupancy[i, maxHeight] == 0)
-                    fieldBool[i, maxHeight] = 1;
+                if (fieldBool[i - 1][maxHeight] == 1 && fieldOccupancy[i, maxHeight] == 0)
+                    fieldBool[i][maxHeight] = 1;
             }
 
             ///Remplissage du coin bas à gauche -> i=0 et j=0;
@@ -387,8 +393,8 @@ namespace LidarProcessor
             {
                 for (int i = maxLength - 1; i >= 0; i--)
                 {
-                    if (fieldBool[i + 1, j] == 1 && fieldBool[i, j + 1] == 1 && fieldOccupancy[i, j] == 0)
-                        fieldBool[i, j] = 1;
+                    if (fieldBool[i + 1][j] == 1 && fieldBool[i][j + 1] == 1 && fieldOccupancy[i, j] == 0)
+                        fieldBool[i][j] = 1;
                 }
             }
 
@@ -397,8 +403,8 @@ namespace LidarProcessor
             {
                 for (int i = maxLength + 1; i < 2 * maxLength + 1; i++)
                 {
-                    if (fieldBool[i - 1, j] == 1 && fieldBool[i, j + 1] == 1 && fieldOccupancy[i, j] == 0)
-                        fieldBool[i, j] = 1;
+                    if (fieldBool[i - 1][j] == 1 && fieldBool[i][j + 1] == 1 && fieldOccupancy[i, j] == 0)
+                        fieldBool[i][j] = 1;
                 }
             }
 
@@ -407,8 +413,8 @@ namespace LidarProcessor
             {
                 for (int i = maxLength - 1; i >= 0; i--)
                 {
-                    if (fieldBool[i + 1, j] == 1 && fieldBool[i, j - 1] == 1 && fieldOccupancy[i, j] == 0)
-                        fieldBool[i, j] = 1;
+                    if (fieldBool[i + 1][j] == 1 && fieldBool[i][j - 1] == 1 && fieldOccupancy[i, j] == 0)
+                        fieldBool[i][j] = 1;
                 }
             }
 
@@ -417,8 +423,8 @@ namespace LidarProcessor
             {
                 for (int i = maxLength + 1; i < 2 * maxLength + 1; i++)
                 {
-                    if (fieldBool[i - 1, j] == 1 && fieldBool[i, j - 1] == 1 && fieldOccupancy[i, j] == 0)
-                        fieldBool[i, j] = 1;
+                    if (fieldBool[i - 1][j] == 1 && fieldBool[i][j - 1] == 1 && fieldOccupancy[i, j] == 0)
+                        fieldBool[i][j] = 1;
                 }
             }
 
@@ -427,6 +433,8 @@ namespace LidarProcessor
             /// https://www.geeksforgeeks.org/maximum-size-rectangle-binary-sub-matrix-1s/
             /// 
 
+            Console.Write("Area of maximum rectangle is "
+                      + GFG.maxRectangle(2 * maxLength + 1, 2 * maxHeight + 1, fieldBool)+"\n");
         }
 
 
@@ -695,7 +703,7 @@ namespace LidarProcessor
         }
 
 
-        private List<LidarDetectedObject> DetectionObjetsProches(List<PolarPointRssi> ptList, double distanceMin, double distanceMax, double tailleSegmentationObjet)
+        private List<LidarDetectedObject> DetectionObjetsProches(List<PolarPointRssi> ptList, double distanceMin, double distanceMax, double tailleSegmentationObjet, double tolerance=0.1)
         {
             List<LidarDetectedObject> ObjetsProchesList = new List<LidarDetectedObject>();
             LidarDetectedObject currentObject = new LidarDetectedObject(); ;
@@ -713,7 +721,7 @@ namespace LidarProcessor
                 for (int i = 1; i < objetsProchesPointsList.Count; i++)
                 {
                     if ((Math.Abs(objetsProchesPointsList[i].Angle - objetsProchesPointsList[i - 1].Angle) < Toolbox.DegToRad(2)) &&
-                        (Math.Abs(objetsProchesPointsList[i].Distance - objetsProchesPointsList[i - 1].Distance) < 0.1)&&
+                        (Math.Abs(objetsProchesPointsList[i].Distance - objetsProchesPointsList[i - 1].Distance) < tolerance) &&
                         (Math.Abs(objetsProchesPointsList[i].Angle - angleInitialObjet) *objetsProchesPointsList[i].Distance< tailleSegmentationObjet))
                         //Si les pts successifs sont distants de moins de x degrés et de moins de y mètres
                         //et que l'objet fait moins de tailleMax en largeur
