@@ -95,9 +95,10 @@ namespace LidarProcessor
                     double tailleNoyau = 0.2;
                     //var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
                     var ptListFiltered = DetectionBackgroundPoints(ptList);
-                    var backgroundObjectList = DetectionObjetsProches(ptListFiltered, 0.5, 20.0, tailleSegmentationObjet: 0.2, tolerance: 0.2);
+                    var backgroundObjectList = DetectionObjetsProches(ptListFiltered, 0.5, 20.0, tailleSegmentationObjet: 1, tolerance: 0.2);
                     var backgroundObjectsCenterList = backgroundObjectList.Where(x=>x.PtList.Count>10/x.DistanceMoyenne).Select(x => new PolarPointRssi(x.AngleMoyen, x.DistanceMoyenne, 0)).ToList();
-                    var linePtList = FindEnclosingLines(backgroundObjectsCenterList, 12, 12, 0.5);
+                    //var linePtList = FindEnclosingLines(backgroundObjectsCenterList, 12, 12, 0.5);
+                    var linePtList = FindEnclosingRectangle(backgroundObjectsCenterList, rectangleLength:9, rectangleHeight:7, maxShiftX:8, maxShiftY:6, shiftResolution:1);
                     ObjetsProchesList = backgroundObjectList;
 
                     //ObjetsProchesList = DetectionObjetsProches(ptCenterObjetsProchesList, 0.5, 20.0, tailleSegmentationObjet: 0.1, tolerance: 0.2);
@@ -347,6 +348,124 @@ namespace LidarProcessor
             }
 
             return ptListEroded.ToList().GetRange((int)(originalSize / 2), originalSize);
+        }
+
+        class RotationTranslation
+        {
+            double shiftX;
+            double shiftY;
+            double shiftAngle;
+        }
+
+        class ShiftParameters
+        {
+            RotationTranslation centerAround;
+            double xShiftSpan;
+            double yShiftSpan;
+            double thetaShiftSpan;
+            double nbStep;
+        }
+
+        List<PolarPointRssi> FindEnclosingRectangle(List<PolarPointRssi> ptList, double rectangleLength, double rectangleHeight, double maxShiftX, double maxShiftY, double shiftResolution)
+        {
+
+            double seuilProximiteLigne = shiftResolution / 3;
+            int n = 5;
+
+            PointD RectSegment1Pt1, RectSegment1Pt2;
+            PointD RectSegment2Pt1, RectSegment2Pt2;
+            PointD RectSegment3Pt1, RectSegment3Pt2;
+            PointD RectSegment4Pt1, RectSegment4Pt2;
+
+            PointD corner1 = new PointD(rectangleLength / 2, rectangleHeight / 2);
+            PointD corner2 = new PointD(-rectangleLength / 2, rectangleHeight / 2);
+            PointD corner3 = new PointD(-rectangleLength / 2, -rectangleHeight / 2);
+            PointD corner4 = new PointD(rectangleLength / 2, -rectangleHeight / 2);
+
+            double maxScore = 0;
+            double optimalAngle = 0;
+            double optimalX = 0;
+            double optimalY = 0;
+
+            for (double angle = 0; angle < Math.PI; angle += Toolbox.DegToRad(10))
+            {
+                double cosAngle = Math.Cos(angle);
+                double sinAngle = Math.Sin(angle);
+
+                for (double X = -maxShiftX; X < maxShiftX; X += shiftResolution)
+                {
+                    for (double Y = -maxShiftY; Y < maxShiftY; Y += shiftResolution)
+                    {
+
+                        /// On commencce par déterminer les coordonnées des 4 segments du rectangle tourné et décalé
+                        /// On tourne en premier et on décale après, les calculs sont plus simples
+                        /// 
+                        PointD corner1RotatedShifted = new PointD(corner1.X * cosAngle - corner1.Y * sinAngle + X, corner1.X * sinAngle + corner1.Y * cosAngle + Y);
+                        PointD corner2RotatedShifted = new PointD(corner2.X * cosAngle - corner2.Y * sinAngle + X, corner2.X * sinAngle + corner2.Y * cosAngle + Y);
+                        PointD corner3RotatedShifted = new PointD(corner3.X * cosAngle - corner3.Y * sinAngle + X, corner3.X * sinAngle + corner3.Y * cosAngle + Y);
+                        PointD corner4RotatedShifted = new PointD(corner4.X * cosAngle - corner4.Y * sinAngle + X, corner4.X * sinAngle + corner4.Y * cosAngle + Y);
+
+                        double score = 0;
+                        for (int i = 0; i < ptList.Count; i++)
+                        {
+                            var currentPt = new PointD(ptList[i].Distance * Math.Cos(ptList[i].Angle), ptList[i].Distance * Math.Sin(ptList[i].Angle));
+                            double distSegment1 = Toolbox.DistancePointToSegment(currentPt, corner1RotatedShifted, corner2RotatedShifted);
+                            double distSegment2 = Toolbox.DistancePointToSegment(currentPt, corner2RotatedShifted, corner3RotatedShifted);
+                            double distSegment3 = Toolbox.DistancePointToSegment(currentPt, corner3RotatedShifted, corner4RotatedShifted);
+                            double distSegment4 = Toolbox.DistancePointToSegment(currentPt, corner4RotatedShifted, corner1RotatedShifted);
+
+                            var distMin = Math.Min(Math.Min(distSegment1, distSegment2), Math.Min(distSegment3, distSegment4));
+                            if (distMin < seuilProximiteLigne)
+                                score += 1;
+                            else if (distMin < n * seuilProximiteLigne)
+                                score += (n * seuilProximiteLigne - distMin) / ((n - 1) * seuilProximiteLigne);
+                        }
+
+                        if (score > maxScore)
+                        {
+                            maxScore = score;
+                            optimalAngle = angle;
+                            optimalX = X;
+                            optimalY = Y;
+                        }
+                    }
+                }
+            }
+            Console.WriteLine("Optimum - X : " + optimalX.ToString("N2") + " - Y : " + optimalY.ToString("N2") + " - Angle : " + Toolbox.RadToDeg(optimalAngle).ToString("N0") + "° - score :" + maxScore);
+
+            PointD corner1RotatedShiftedOptimal = new PointD(corner1.X * Math.Cos(optimalAngle) - corner1.Y * Math.Sin(optimalAngle) + optimalX, corner1.X * Math.Sin(optimalAngle) + corner1.Y * Math.Cos(optimalAngle) + optimalY);
+            PointD corner2RotatedShiftedOptimal = new PointD(corner2.X * Math.Cos(optimalAngle) - corner2.Y * Math.Sin(optimalAngle) + optimalX, corner2.X * Math.Sin(optimalAngle) + corner2.Y * Math.Cos(optimalAngle) + optimalY);
+            PointD corner3RotatedShiftedOptimal = new PointD(corner3.X * Math.Cos(optimalAngle) - corner3.Y * Math.Sin(optimalAngle) + optimalX, corner3.X * Math.Sin(optimalAngle) + corner3.Y * Math.Cos(optimalAngle) + optimalY);
+            PointD corner4RotatedShiftedOptimal = new PointD(corner4.X * Math.Cos(optimalAngle) - corner4.Y * Math.Sin(optimalAngle) + optimalX, corner4.X * Math.Sin(optimalAngle) + corner4.Y * Math.Cos(optimalAngle) + optimalY);
+
+
+            List<PolarPointRssi> rectanglePointList = new List<PolarPointRssi>();
+            int nbPtsBySegment = 20;
+            for (int i = 0; i < nbPtsBySegment; i++)
+            {
+                PointD linePt12 = new PointD(corner1RotatedShiftedOptimal.X + (corner2RotatedShiftedOptimal.X - corner1RotatedShiftedOptimal.X) * i / nbPtsBySegment,
+                                           corner1RotatedShiftedOptimal.Y + (corner2RotatedShiftedOptimal.Y - corner1RotatedShiftedOptimal.Y) * i / nbPtsBySegment);
+                PointD linePt23 = new PointD(corner2RotatedShiftedOptimal.X + (corner3RotatedShiftedOptimal.X - corner2RotatedShiftedOptimal.X) * i / nbPtsBySegment,
+                                           corner2RotatedShiftedOptimal.Y + (corner3RotatedShiftedOptimal.Y - corner2RotatedShiftedOptimal.Y) * i / nbPtsBySegment);
+                PointD linePt34 = new PointD(corner3RotatedShiftedOptimal.X + (corner4RotatedShiftedOptimal.X - corner3RotatedShiftedOptimal.X) * i / nbPtsBySegment,
+                                           corner3RotatedShiftedOptimal.Y + (corner4RotatedShiftedOptimal.Y - corner3RotatedShiftedOptimal.Y) * i / nbPtsBySegment);
+                PointD linePt41 = new PointD(corner4RotatedShiftedOptimal.X + (corner1RotatedShiftedOptimal.X - corner4RotatedShiftedOptimal.X) * i / nbPtsBySegment,
+                                           corner4RotatedShiftedOptimal.Y + (corner1RotatedShiftedOptimal.Y - corner4RotatedShiftedOptimal.Y) * i / nbPtsBySegment);
+                double distance12 = Toolbox.Distance(new PointD(0, 0), linePt12);
+                double angle12 = Math.Atan2(linePt12.Y, linePt12.X); 
+                double distance23 = Toolbox.Distance(new PointD(0, 0), linePt23);
+                double angle23 = Math.Atan2(linePt23.Y, linePt23.X); 
+                double distance34 = Toolbox.Distance(new PointD(0, 0), linePt34);
+                double angle34 = Math.Atan2(linePt34.Y, linePt34.X); 
+                double distance41 = Toolbox.Distance(new PointD(0, 0), linePt41);
+                double angle41 = Math.Atan2(linePt41.Y, linePt41.X);
+                rectanglePointList.Add(new PolarPointRssi(angle12, distance12, 0));
+                rectanglePointList.Add(new PolarPointRssi(angle23, distance23, 0)); 
+                rectanglePointList.Add(new PolarPointRssi(angle34, distance34, 0));
+                rectanglePointList.Add(new PolarPointRssi(angle41, distance41, 0));
+            }
+
+            return rectanglePointList;
         }
 
         List<PolarPointRssi> FindEnclosingLines(List<PolarPointRssi> ptList, int maxLength, int maxHeight, double resolution)
