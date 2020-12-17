@@ -189,7 +189,7 @@ namespace PerceptionManagement
 
                         //Code spécifique Eurobot
                         //On s'occupe des obstacles dans le terrain qui sont a priori des robots
-                        if (Math.Abs(xObjetRefTerrain) < 1.5 && Math.Abs(yObjetRefTerrain) < 1.0)
+                        //if (Math.Abs(xObjetRefTerrain) < 1.5 && Math.Abs(yObjetRefTerrain) < 1.0)
                         {
                             double rayon = 0.2;
                             if (distance > 0.05) //On exclut les obstacles trop proches

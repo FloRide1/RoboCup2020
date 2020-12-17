@@ -93,21 +93,27 @@ namespace LidarProcessor
                     break;
                 case GameMode.RoboCup:
                     double tailleNoyau = 0.2;
-                    var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
-                    ObjetsProchesList = DetectionObjetsProches(ptListFiltered, 0.5, 20.0, tailleSegmentationObjet: 0.1, tolerance:0.2);
-                    var ptCenterObjetsProchesList = ObjetsProchesList.Select(x => new PolarPointRssi(x.AngleMoyen, x.DistanceMoyenne, 0)).ToList();
+                    //var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
+                    var ptListFiltered = DetectionBackgroundPoints(ptList);
+                    var backgroundObjectList = DetectionObjetsProches(ptListFiltered, 0.5, 20.0, tailleSegmentationObjet: 0.2, tolerance: 0.2);
+                    var backgroundObjectsCenterList = backgroundObjectList.Where(x=>x.PtList.Count>10/x.DistanceMoyenne).Select(x => new PolarPointRssi(x.AngleMoyen, x.DistanceMoyenne, 0)).ToList();
+                    var linePtList = FindEnclosingLines(backgroundObjectsCenterList, 12, 12, 0.5);
+                    ObjetsProchesList = backgroundObjectList;
+
+                    //ObjetsProchesList = DetectionObjetsProches(ptCenterObjetsProchesList, 0.5, 20.0, tailleSegmentationObjet: 0.1, tolerance: 0.2);
+
+                    //var ptCenterObjetsProchesList = ObjetsProchesList.Select(x => new PolarPointRssi(x.AngleMoyen, x.DistanceMoyenne, 0)).ToList();
                     //var ptListFiltered = Erosion(Dilatation(ptList, tailleNoyau), tailleNoyau);
                     //var ptListFiltered = Dilatation(ptList, tailleNoyau);
                     //var ptListFiltered = Erosion(ptList, tailleNoyau);
                     //var ptListFiltered = ptList;
-                    
-                    Console.WriteLine("\n");
-                    FindEnclosingLines(ptCenterObjetsProchesList, 20, 20, 1);
+
                     //for (double angleShift = 0; angleShift < Math.PI / 2; angleShift += Toolbox.DegToRad(10))
                     //{
                     //    FindLargestRectangle(ptListFiltered, 10, 10, angleShift, 1.0);
                     //}
-                    OnLidarProcessed(robotId, ptListFiltered);
+                    //OnLidarProcessed(robotId, ptListFiltered);
+                    OnLidarProcessed(robotId, linePtList);
                     break;
             }
             
@@ -343,7 +349,7 @@ namespace LidarProcessor
             return ptListEroded.ToList().GetRange((int)(originalSize / 2), originalSize);
         }
 
-        void FindEnclosingLines(List<PolarPointRssi> ptList, int maxLength, int maxHeight, double resolution=1)
+        List<PolarPointRssi> FindEnclosingLines(List<PolarPointRssi> ptList, int maxLength, int maxHeight, double resolution)
         {
             /// On teste toute les lignes possibles pour différents X>0 avec Theta entre PI/4 et 3*PI/4
             /// On teste toute les lignes possibles pour différents X<0 avec Theta entre PI/4 et 3*PI/4
@@ -356,32 +362,131 @@ namespace LidarProcessor
             /// Le cout algo est donc nbX * nbAngles * nbPoints * 4.
             /// 
             ///Attention, cet algo est adapté aux cas de bordure de type quadrilatère, mais peut donner des résultats étranges sinon.
+            ///
+
+            double maxScore=0;
+            double optimalAngle = 0;
+            double optimalX = 0;
+            double optimalY = 0;
+
+            List<PolarPointRssi> linePointList = new List<PolarPointRssi>();
+
+            double seuilProximiteLigne = resolution/3;
+            int n = 5;
             
+
             for (double X = 0; X< maxLength; X+=resolution)
             {
-                Console.WriteLine("\n");
-                
+                double Y = 0;
                 var LinePt = new PointD(X, 0);
-                for (double theta = Math.PI / 4; theta < 3*Math.PI / 4; theta += 0.05)
+                for (double theta = Math.PI / 4; theta <= 3*Math.PI / 4; theta += 0.1)
                 {
-                    //double lineVectorX = Math.Cos(theta);
-                    //double lineVectorY = Math.Sin(theta);
-                    double score = 0;
-                    for (int i = 0; i < ptList.Count; i++)
-                    {
-                        //On teste si la distance du pt Lidar à la droite est inférieure à un certain seuil
-                        PointD ptCourant = new PointD(ptList[i].Distance * Math.Cos(ptList[i].Angle), ptList[i].Distance * Math.Sin(ptList[i].Angle));
-                        if (Toolbox.DistancePointToLine(ptCourant, LinePt, theta) < resolution)
-                        {
-                            score += 1;
-                            //Console.Write("Pt : " + ptCourant.X.ToString("N1") + " - " + ptCourant.Y.ToString("N1")+" ");
-                        }
-                    }
-                    Console.WriteLine("X : " + X.ToString("N2") + " - Angle : " + Toolbox.RadToDeg(theta).ToString("N0") + "° - score :" + score);
+                    EvaluateProximity(ptList, ref maxScore, ref optimalAngle, ref optimalX, ref optimalY, seuilProximiteLigne, n, X, Y, LinePt, theta);
                 }
             }
 
-            Console.WriteLine("------------------------------------------------------------------------------------------");
+            Console.WriteLine("Optimum X>0 - X : " + optimalX.ToString("N2") + " - Angle : " + Toolbox.RadToDeg(optimalAngle).ToString("N0") + "° - score :" + maxScore);
+            for (double inc = -maxLength; inc < maxLength; inc += 0.1)
+            {
+                AddLineExtractedPoint(optimalAngle, optimalX, optimalY, linePointList, inc);
+            }
+
+            maxScore = 0;
+            optimalAngle = 0;
+            optimalX = 0;
+            optimalY = 0;
+
+            for (double X = 0; X > -maxLength; X -= resolution)
+            {
+                double Y = 0;
+                var LinePt = new PointD(X, 0);
+                for (double theta = Math.PI / 4; theta <= 3 * Math.PI / 4; theta += 0.1)
+                {
+                    EvaluateProximity(ptList, ref maxScore, ref optimalAngle, ref optimalX, ref optimalY, seuilProximiteLigne, n, X, Y, LinePt, theta);
+                }
+            }
+
+            Console.WriteLine("Optimum X<0 - X : " + optimalX.ToString("N2") + " - Angle : " + Toolbox.RadToDeg(optimalAngle).ToString("N0") + "° - score :" + maxScore);
+            for (double inc = -maxLength; inc < maxLength; inc += 0.1)
+            {
+                AddLineExtractedPoint(optimalAngle, optimalX, optimalY, linePointList, inc);
+            }
+
+            maxScore = 0;
+            optimalAngle = 0;
+            optimalX = 0;
+            optimalY = 0;
+
+            //On s'occupe des Y > 0
+            for (double Y = 0; Y < maxHeight; Y += resolution)
+            {
+                double X = 0;
+                var LinePt = new PointD(0, Y);
+                for (double theta = -Math.PI / 4; theta <= Math.PI / 4; theta += 0.1)
+                {
+                    EvaluateProximity(ptList, ref maxScore, ref optimalAngle, ref optimalX, ref optimalY, seuilProximiteLigne, n, X, Y, LinePt, theta);
+                }
+            }
+
+            Console.WriteLine("Optimum Y>0 - Y : " + optimalY.ToString("N2") + " - Angle : " + Toolbox.RadToDeg(optimalAngle).ToString("N0") + "° - score :" + maxScore);
+            for (double inc = -maxLength; inc < maxLength; inc += 0.1)
+            {
+                AddLineExtractedPoint(optimalAngle, optimalX, optimalY, linePointList, inc);
+            }
+
+            maxScore = 0;
+            optimalAngle = 0;
+            optimalX = 0;
+            optimalY = 0;
+
+            //On s'occupe des Y < 0
+            for (double Y = 0; Y > -maxHeight; Y -= resolution)
+            {
+                double X = 0;
+                var LinePt = new PointD(0, Y);
+                for (double theta = -Math.PI / 4; theta <= Math.PI / 4; theta += 0.1)
+                {
+                    EvaluateProximity(ptList, ref maxScore, ref optimalAngle, ref optimalX, ref optimalY, seuilProximiteLigne, n, X, Y, LinePt, theta);
+                }
+            }
+
+            Console.WriteLine("Optimum Y<0 - Y : " + optimalY.ToString("N2") + " - Angle : " + Toolbox.RadToDeg(optimalAngle).ToString("N0") + "° - score :" + maxScore);
+            for (double inc = -maxLength; inc < maxLength; inc += 0.1)
+            {
+                AddLineExtractedPoint(optimalAngle, optimalX, optimalY, linePointList, inc);
+            }
+
+            return linePointList;
+        }
+
+        private static void AddLineExtractedPoint(double optimalAngle, double optimalX, double optimalY, List<PolarPointRssi> linePointList, double inc)
+        {
+            PointD linePt = new PointD(optimalX + inc * Math.Cos(optimalAngle), optimalY + inc * Math.Sin(optimalAngle));
+            double distance = Toolbox.Distance(new PointD(0, 0), linePt);
+            double angle = Math.Atan2(linePt.Y, linePt.X);
+            linePointList.Add(new PolarPointRssi(angle, distance, 0));
+        }
+
+        private static void EvaluateProximity(List<PolarPointRssi> ptList, ref double maxScore, ref double optimalAngle, ref double optimalX, ref double optimalY, double seuilProximiteLigne, int n, double X, double Y, PointD LinePt, double theta)
+        {
+            double score = 0;
+            for (int i = 0; i < ptList.Count; i++)
+            {
+                //On teste si la distance du pt Lidar à la droite est inférieure à un certain seuil
+                PointD ptCourant = new PointD(ptList[i].Distance * Math.Cos(ptList[i].Angle), ptList[i].Distance * Math.Sin(ptList[i].Angle));
+                var distance = Toolbox.DistancePointToLine(ptCourant, LinePt, theta);
+                if (distance < seuilProximiteLigne)
+                    score += 1;
+                else if (distance < n * seuilProximiteLigne)
+                    score += (n * seuilProximiteLigne - distance) / ((n - 1) * seuilProximiteLigne);
+            }
+            if (score > maxScore)
+            {
+                maxScore = score;
+                optimalAngle = theta;
+                optimalX = X;
+                optimalY = Y;
+            }
         }
 
         void FindLargestRectangle(List<PolarPointRssi> ptList, int maxLength, int maxHeight, double angleshift, double resolution = 1)
@@ -493,49 +598,37 @@ namespace LidarProcessor
 
         //double seuilResiduLine = 0.03;
 
-        //private List<LidarDetectedObject> DetectionObjetsFond(List<PolarPointRssi> ptList, double zoomCoeff)
-        //{
-        //    //Détection des objets de fond
-        //    List<LidarDetectedObject> ObjetsFondList = new List<LidarDetectedObject>();
-        //    LidarDetectedObject currentObject = new LidarDetectedObject();
-        //    bool objetFondEnCours = false;
+        private List<PolarPointRssi> DetectionBackgroundPoints(List<PolarPointRssi> ptList)
+        {
+            //Détection des objets de fond
+            List<PolarPointRssi> BackgroundPointList = new List<PolarPointRssi>();
+            bool objetFondEnCours = false;
 
-        //    for (int i = 1; i < ptList.Count; i++)
-        //    {
-        //        //On commence un objet de fond sur un front montant de distance
-        //        if (ptList[i].Distance - ptList[i - 1].Distance > 0.06 * zoomCoeff)
-        //        {
-        //            currentObject = new LidarDetectedObject();
-        //            currentObject.PtList.Add(ptList[i]);
-        //            objetFondEnCours = true;
-        //        }
-        //        //On termine un objet de fond sur un front descendant de distance
-        //        else if (ptList[i].Distance - ptList[i - 1].Distance < -0.12 * zoomCoeff && objetFondEnCours)
-        //        {
-        //            objetFondEnCours = false;
-        //            if (currentObject.PtList.Count > 20)
-        //            {
-        //                currentObject.ExtractObjectAttributes();
-        //                //Console.WriteLine("Résidu fond : " + currentObject.ResiduLineModel);
-        //                //if (currentObject.ResiduLineModel < seuilResiduLine*2)
-        //                {
+            for (int i = 1; i < ptList.Count; i++)
+            {
+                //On commence un objet de fond sur un front montant de distance
+                if (ptList[i].Distance - ptList[i - 1].Distance > 0.4 )
+                {
+                    BackgroundPointList.Add(ptList[i]);
+                    objetFondEnCours = true;
+                }
+                //On termine un objet de fond sur un front descendant de distance
+                else if (ptList[i].Distance - ptList[i - 1].Distance < -0.1 && objetFondEnCours)
+                {
+                    objetFondEnCours = false;                    
+                }
+                //Sinon on reste sur le même objet
+                else
+                {
+                    if (objetFondEnCours)
+                    {
+                        BackgroundPointList.Add(ptList[i]);
+                    }
+                }
+            }
 
-        //                }
-        //                    ObjetsFondList.Add(currentObject);
-        //            }
-        //        }
-        //        //Sinon on reste sur le même objet
-        //        else
-        //        {
-        //            if (objetFondEnCours)
-        //            {
-        //                currentObject.PtList.Add(ptList[i]);
-        //            }
-        //        }
-        //    }
-
-        //    return ObjetsFondList;
-        //}
+            return BackgroundPointList;
+        }
 
         private List<LidarDetectedObject> DetectionObjetsSaillants(List<PolarPointRssi> ptList, double seuilSaillance)
         {
