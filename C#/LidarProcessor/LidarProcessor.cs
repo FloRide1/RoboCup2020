@@ -94,17 +94,19 @@ namespace LidarProcessor
                 case GameMode.RoboCup:
                     double tailleNoyau = 0.2;
                     var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
-                    ObjetsProchesList = DetectionObjetsProches(ptListFiltered, 0.5, 20.0, tailleSegmentationObjet: 0.05, tolerance:0.2);
+                    ObjetsProchesList = DetectionObjetsProches(ptListFiltered, 0.5, 20.0, tailleSegmentationObjet: 0.1, tolerance:0.2);
+                    var ptCenterObjetsProchesList = ObjetsProchesList.Select(x => new PolarPointRssi(x.AngleMoyen, x.DistanceMoyenne, 0)).ToList();
                     //var ptListFiltered = Erosion(Dilatation(ptList, tailleNoyau), tailleNoyau);
                     //var ptListFiltered = Dilatation(ptList, tailleNoyau);
                     //var ptListFiltered = Erosion(ptList, tailleNoyau);
                     //var ptListFiltered = ptList;
                     
                     Console.WriteLine("\n");
-                    for (double angleShift = 0; angleShift < Math.PI / 2; angleShift += Toolbox.DegToRad(10))
-                    {
-                        FindLargestRectangle(ptListFiltered, 10, 10, angleShift, 1.0);
-                    }
+                    FindEnclosingLines(ptCenterObjetsProchesList, 20, 20, 1);
+                    //for (double angleShift = 0; angleShift < Math.PI / 2; angleShift += Toolbox.DegToRad(10))
+                    //{
+                    //    FindLargestRectangle(ptListFiltered, 10, 10, angleShift, 1.0);
+                    //}
                     OnLidarProcessed(robotId, ptListFiltered);
                     break;
             }
@@ -353,12 +355,33 @@ namespace LidarProcessor
             /// On garde les meillurs scores dans chaque sous ensemble
             /// Le cout algo est donc nbX * nbAngles * nbPoints * 4.
             /// 
-            ///Atention, cet algo est adapté aux cas de bordure de type quadrilatère, mais peut donner des résultats étranges sinon.
+            ///Attention, cet algo est adapté aux cas de bordure de type quadrilatère, mais peut donner des résultats étranges sinon.
             
-            for (int i = 1; i < ptList.Count; i++)
+            for (double X = 0; X< maxLength; X+=resolution)
             {
-
+                Console.WriteLine("\n");
+                
+                var LinePt = new PointD(X, 0);
+                for (double theta = Math.PI / 4; theta < 3*Math.PI / 4; theta += 0.05)
+                {
+                    //double lineVectorX = Math.Cos(theta);
+                    //double lineVectorY = Math.Sin(theta);
+                    double score = 0;
+                    for (int i = 0; i < ptList.Count; i++)
+                    {
+                        //On teste si la distance du pt Lidar à la droite est inférieure à un certain seuil
+                        PointD ptCourant = new PointD(ptList[i].Distance * Math.Cos(ptList[i].Angle), ptList[i].Distance * Math.Sin(ptList[i].Angle));
+                        if (Toolbox.DistancePointToLine(ptCourant, LinePt, theta) < resolution)
+                        {
+                            score += 1;
+                            //Console.Write("Pt : " + ptCourant.X.ToString("N1") + " - " + ptCourant.Y.ToString("N1")+" ");
+                        }
+                    }
+                    Console.WriteLine("X : " + X.ToString("N2") + " - Angle : " + Toolbox.RadToDeg(theta).ToString("N0") + "° - score :" + score);
+                }
             }
+
+            Console.WriteLine("------------------------------------------------------------------------------------------");
         }
 
         void FindLargestRectangle(List<PolarPointRssi> ptList, int maxLength, int maxHeight, double angleshift, double resolution = 1)
