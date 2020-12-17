@@ -98,7 +98,16 @@ namespace LidarProcessor
                     var backgroundObjectList = DetectionObjetsProches(ptListFiltered, 0.5, 20.0, tailleSegmentationObjet: 1, tolerance: 0.2);
                     var backgroundObjectsCenterList = backgroundObjectList.Where(x=>x.PtList.Count>10/x.DistanceMoyenne).Select(x => new PolarPointRssi(x.AngleMoyen, x.DistanceMoyenne, 0)).ToList();
                     //var linePtList = FindEnclosingLines(backgroundObjectsCenterList, 12, 12, 0.5);
-                    var linePtList = FindEnclosingRectangle(backgroundObjectsCenterList, rectangleLength:9, rectangleHeight:7, maxShiftX:8, maxShiftY:6, shiftResolution:1);
+                    ShiftParameters shiftParams = new ShiftParameters();
+                    shiftParams.nbStep = 20;
+                    shiftParams.xShiftSpan = 8;
+                    shiftParams.yShiftSpan = 8;
+                    shiftParams.thetaShiftSpan = Math.PI/2;
+                    shiftParams.centerAround = new RotationTranslation();
+                    shiftParams.centerAround.shiftX = 0;
+                    shiftParams.centerAround.shiftY = 0;
+                    shiftParams.centerAround.shiftAngle = 0;
+                    var linePtList = FindEnclosingRectangle(backgroundObjectsCenterList, rectangleLength: 9, rectangleHeight: 7, shiftConfig: shiftParams);// maxShiftX:8, maxShiftY:6, shiftResolution:1);
                     ObjetsProchesList = backgroundObjectList;
 
                     //ObjetsProchesList = DetectionObjetsProches(ptCenterObjetsProchesList, 0.5, 20.0, tailleSegmentationObjet: 0.1, tolerance: 0.2);
@@ -350,26 +359,11 @@ namespace LidarProcessor
             return ptListEroded.ToList().GetRange((int)(originalSize / 2), originalSize);
         }
 
-        class RotationTranslation
-        {
-            double shiftX;
-            double shiftY;
-            double shiftAngle;
-        }
 
-        class ShiftParameters
-        {
-            RotationTranslation centerAround;
-            double xShiftSpan;
-            double yShiftSpan;
-            double thetaShiftSpan;
-            double nbStep;
-        }
-
-        List<PolarPointRssi> FindEnclosingRectangle(List<PolarPointRssi> ptList, double rectangleLength, double rectangleHeight, double maxShiftX, double maxShiftY, double shiftResolution)
+        List<PolarPointRssi> FindEnclosingRectangle(List<PolarPointRssi> ptList, double rectangleLength, double rectangleHeight, ShiftParameters shiftConfig)
         {
 
-            double seuilProximiteLigne = shiftResolution / 3;
+            double seuilProximiteLigne = 2 * shiftConfig.xShiftSpan / shiftConfig.nbStep / 3;
             int n = 5;
 
             PointD RectSegment1Pt1, RectSegment1Pt2;
@@ -387,14 +381,14 @@ namespace LidarProcessor
             double optimalX = 0;
             double optimalY = 0;
 
-            for (double angle = 0; angle < Math.PI; angle += Toolbox.DegToRad(10))
+            for (double angle = -shiftConfig.thetaShiftSpan + shiftConfig.centerAround.shiftAngle; angle < shiftConfig.thetaShiftSpan + shiftConfig.centerAround.shiftAngle; angle += 2*shiftConfig.thetaShiftSpan/shiftConfig.nbStep)
             {
                 double cosAngle = Math.Cos(angle);
                 double sinAngle = Math.Sin(angle);
 
-                for (double X = -maxShiftX; X < maxShiftX; X += shiftResolution)
+                for (double X = -shiftConfig.xShiftSpan+shiftConfig.centerAround.shiftX ; X < shiftConfig.xShiftSpan + shiftConfig.centerAround.shiftX; X += 2*shiftConfig.xShiftSpan/shiftConfig.nbStep)
                 {
-                    for (double Y = -maxShiftY; Y < maxShiftY; Y += shiftResolution)
+                    for (double Y = -shiftConfig.yShiftSpan + shiftConfig.centerAround.shiftY; Y < shiftConfig.yShiftSpan + shiftConfig.centerAround.shiftY; Y += 2* shiftConfig.yShiftSpan/shiftConfig.nbStep)
                     {
 
                         /// On commencce par déterminer les coordonnées des 4 segments du rectangle tourné et décalé
@@ -1093,6 +1087,23 @@ namespace LidarProcessor
                 //ResiduLineModel = GoodnessOfFit.PopulationStandardError(YListFitted, YList);
             }
         }
+    }
+
+
+    class RotationTranslation
+    {
+        public double shiftX;
+        public double shiftY;
+        public double shiftAngle;
+    }
+
+    class ShiftParameters
+    {
+        public RotationTranslation centerAround;
+        public double xShiftSpan;
+        public double yShiftSpan;
+        public double thetaShiftSpan;
+        public double nbStep;
     }
 }
 
