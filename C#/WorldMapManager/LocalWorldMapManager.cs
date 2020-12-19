@@ -18,6 +18,7 @@ namespace WorldMapManager
         public LocalWorldMapManager(int robotId, int teamId, bool bypassMulticast)
         {
             localWorldMap = new LocalWorldMap();
+            localWorldMap.Init();
             localWorldMap.RobotId = robotId;
             localWorldMap.TeamId = teamId;
             bypassMulticastUdp = bypassMulticast;
@@ -64,23 +65,15 @@ namespace WorldMapManager
 
                 if (transferLocalWorldMap.robotLocation != null)
                 {
-                    //if (bypassMulticastUdp)
-                    //{
-                    //    OnLocalWorldMapForDisplayOnly(localWorldMap); //Pour affichage uniquement, sinon transmission radio en, multicast
-                    //}
-                    //else
-                    {
                         var s = ZeroFormatterSerializer.Serialize<WorldMap.ZeroFormatterMsg>(transferLocalWorldMap);
 
                         OnMulticastSendLocalWorldMapCommand(s); //Envoi à destination des autres robots en multicast
 
                         OnLocalWorldMapToGlobalWorldMapGenerator(transferLocalWorldMap); //Envoi à destination du robot lui même en direct
 
-                        //ATTENTION : appel douteux...
                         OnLocalWorldMapForDisplayOnly(localWorldMap); //Pour affichage uniquement, sinon transmission radio en, multicast
 
-                        //LWMEmiseMonitoring.LWMEmiseMonitor(s.Length);
-                    }
+                        //LWMEmiseMonitoring.LWMEmiseMonitor(s.Length);                 
                 }
             }
         }

@@ -19,7 +19,7 @@ namespace PhysicalSimulator
         ConcurrentDictionary<int, PhysicalBallSimulator> ballSimulatedList = new ConcurrentDictionary<int, PhysicalBallSimulator>();
         double fSampling = 50;
 
-        HighFreqTimer highFrequencyTimer;
+        HighFreqTimerV2 highFrequencyTimer;
 
         ConcurrentDictionary<int, FiltreOrdre1> filterLowPassVxList = new ConcurrentDictionary<int, FiltreOrdre1>();
         ConcurrentDictionary<int, FiltreOrdre1> filterLowPassVyList = new ConcurrentDictionary<int, FiltreOrdre1>();
@@ -46,7 +46,7 @@ namespace PhysicalSimulator
             //ballSimulatedList.Add(2, new PhysicalBallSimulator(6, 0));
 
 
-            highFrequencyTimer = new HighFreqTimer(fSampling);
+            highFrequencyTimer = new HighFreqTimerV2(fSampling, "PhysicalSimulator");
             highFrequencyTimer.Tick += HighFrequencyTimer_Tick;
             highFrequencyTimer.Start();
 

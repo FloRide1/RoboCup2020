@@ -96,7 +96,6 @@ namespace Robot
         static bool usingXBoxController; 
         static bool usingRobotInterface = true;
 
-        static HighFreqTimer timerStrategie;
         static USBVendor.USBVendor usbDriver;
         static MsgDecoder msgDecoder;
         static MsgEncoder msgEncoder;

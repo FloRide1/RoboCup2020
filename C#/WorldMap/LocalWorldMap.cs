@@ -63,6 +63,12 @@ namespace WorldMap
         {
             //Type = "LocalWorldMap";
         }
+
+        public void Init()
+        {
+            robotLocation = new Location(0, 0, 0, 0, 0, 0);
+            robotGhostLocation = new Location(0, 0, 0, 0, 0, 0); 
+        }
     }
 
     public enum GameState

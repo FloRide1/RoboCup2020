@@ -97,7 +97,6 @@ namespace LidarProcessor
                     var ptListFiltered = DetectionBackgroundPoints(ptList);
                     var backgroundObjectList = DetectionObjetsProches(ptListFiltered, 0.5, 20.0, tailleSegmentationObjet: 1, tolerance: 0.2);
                     var backgroundObjectsCenterList = backgroundObjectList.Where(x=>x.PtList.Count>10/x.DistanceMoyenne).Select(x => new PolarPointRssi(x.AngleMoyen, x.DistanceMoyenne, 0)).ToList();
-                    //var linePtList = FindEnclosingLines(backgroundObjectsCenterList, 12, 12, 0.5);
                     ShiftParameters shiftParams = new ShiftParameters();
                     shiftParams.nbStep = 20;
                     shiftParams.xShiftSpan = 8;
@@ -107,7 +106,8 @@ namespace LidarProcessor
                     shiftParams.centerAround.shiftX = 0;
                     shiftParams.centerAround.shiftY = 0;
                     shiftParams.centerAround.shiftAngle = 0;
-                    var linePtList = FindEnclosingRectangle(backgroundObjectsCenterList, rectangleLength: 9, rectangleHeight: 7, shiftConfig: shiftParams);// maxShiftX:8, maxShiftY:6, shiftResolution:1);
+                    //var linePtList = FindEnclosingRectangle(backgroundObjectsCenterList, rectangleLength: 9, rectangleHeight: 7, shiftConfig: shiftParams);// maxShiftX:8, maxShiftY:6, shiftResolution:1);
+                    //OnLidarProcessed(robotId, linePtList);
                     ObjetsProchesList = backgroundObjectList;
 
                     //ObjetsProchesList = DetectionObjetsProches(ptCenterObjetsProchesList, 0.5, 20.0, tailleSegmentationObjet: 0.1, tolerance: 0.2);
@@ -123,7 +123,6 @@ namespace LidarProcessor
                     //    FindLargestRectangle(ptListFiltered, 10, 10, angleShift, 1.0);
                     //}
                     //OnLidarProcessed(robotId, ptListFiltered);
-                    OnLidarProcessed(robotId, linePtList);
                     break;
             }
             

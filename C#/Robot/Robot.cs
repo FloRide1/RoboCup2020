@@ -115,8 +115,6 @@ namespace Robot
         static bool usingCameraInterface = true;
         static bool usingReplayNavigator = true;
 
-        //static HighFreqTimer highFrequencyTimer;
-        static HighFreqTimer timerStrategie;
         static ImageSaver.ImageSaver imgSaver;
         static ReliableSerialPort serialPort1;
         static MsgDecoder msgDecoder;
@@ -125,10 +123,8 @@ namespace Robot
         static MsgProcessor robotMsgProcessor;
         static RobotPilot.RobotPilot robotPilot;
         static BaslerCameraAdapter omniCamera;
-        //static SimulatedCamera.SimulatedCamera omniCameraSimulator;
         static ImageProcessingPositionFromOmniCamera imageProcessingPositionFromOmniCamera;
         static AbsolutePositionEstimator absolutePositionEstimator;
-        //static PhysicalSimulator.PhysicalSimulator physicalSimulator;
         static WaypointGenerator waypointGenerator;
         static TrajectoryPlanner trajectoryPlanner;
         static KalmanPositioning.KalmanPositioning kalmanPositioning;
@@ -136,11 +132,9 @@ namespace Robot
         static HerkulexManager herkulexManager;
 
         static LocalWorldMapManager localWorldMapManager;
-        //static LidarSimulator.LidarSimulator lidarSimulator;
         static ImuProcessor.ImuProcessor imuProcessor;
         static StrategyManager strategyManager;
         static PerceptionManager perceptionManager;
-        //static Lidar_OMD60M_UDP lidar_OMD60M_UDP;
         static LidaRxR2000 lidar_OMD60M_TCP;
         static LidarProcessor.LidarProcessor lidarProcessor;
         static XBoxController.XBoxController xBoxManette;
@@ -223,7 +217,6 @@ namespace Robot
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
 
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId, bypassMulticast:false);
-            //lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             perceptionManager = new PerceptionManager(robotId, GameMode.RoboCup);
             imuProcessor = new ImuProcessor.ImuProcessor(robotId);
 
@@ -270,8 +263,6 @@ namespace Robot
                 StartRobotInterface();
             if (usingCameraInterface)
                 StartCameraInterface();
-            //if (usingLogReplay)
-            //    StartReplayNavigatorInterface();
 
             //Démarrage du logger si besoin
             if (usingLogging)
@@ -351,11 +342,6 @@ namespace Robot
                 //lidarProcessor.OnLidarObjectProcessedEvent += localWorldMapManager.OnLidarObjectsReceived;
             }
 
-            //Timer de stratégie
-            timerStrategie = new HighFreqTimer(0.5);
-            timerStrategie.Tick += TimerStrategie_Tick;
-            timerStrategie.Start();
-
             lock (ExitLock)
             {
                 // Do whatever setup code you need here
@@ -364,25 +350,6 @@ namespace Robot
             }
         }
 
-
-        static Random rand = new Random();
-        private static void TimerStrategie_Tick(object sender, EventArgs e)
-        {
-            //var role = (StrategyManager.PlayerRole)rand.Next((int)(int)StrategyManager.PlayerRole.Centre, (int)StrategyManager.PlayerRole.Centre);
-            //strategyManager.SetRole(role);
-            //strategyManager.CalculateDestination();
-        }
-
-        //static int nbMsgSent = 0;
-        //static private void HighFrequencyTimer_Tick(object sender, EventArgs e)
-        //{
-        //    //Utilisé pour des tests de stress sur l'interface série.
-        //    //robotPilot.SendSpeedConsigneToRobot();
-        //    //nbMsgSent += 1;
-        //    //robotPilot.SendSpeedConsigneToMotor();
-        //    //nbMsgSent += 1;
-        //    //robotPilot.SendPositionFromKalmanFilter();
-        //}
         static void ChangeUseOfXBoxController(object sender, BoolEventArgs e)
         {
             ConfigControlEvents(e.value);
@@ -457,10 +424,6 @@ namespace Robot
             msgDecoder.OnMessageDecodedEvent += interfaceRobot.DisplayMessageDecoded;
             msgDecoder.OnMessageDecodedErrorEvent += interfaceRobot.DisplayMessageDecodedError;
 
-            //lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += interfaceRobot.OnRawLidarDataReceived;
-            //lidarProcessor.OnLidarProcessedEvent += interfaceRobot.OnRawLidarDataReceived;
-            //lidarProcessor.OnLidarObjectProcessedEvent +=  
-
             if (!usingLogReplay)
             {
                 imuProcessor.OnIMUProcessedDataGeneratedEvent += interfaceRobot.UpdateImuDataOnGraph;
@@ -527,21 +490,6 @@ namespace Robot
             t2.SetApartmentState(ApartmentState.STA);
             t2.Start();
         }
-        //static Thread t3;
-        //static void StartReplayNavigatorInterface()
-        //{
-        //    t3 = new Thread(() =>
-        //    {
-        //        //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
-
-        //        replayNavigator = new ReplayNavigator();
-        //        replayNavigator.Loaded += RegisterReplayInterfaceEvents;
-        //        replayNavigator.ShowDialog();
-
-        //    });
-        //    t3.SetApartmentState(ApartmentState.STA);
-        //    t3.Start();
-        //}
 
         static void RegisterCameraInterfaceEvents(object sender, EventArgs e)
         {
@@ -570,24 +518,6 @@ namespace Robot
 
         }
 
-        //static void RegisterReplayInterfaceEvents(object sender, EventArgs e)
-        //{
-        //    if (usingLogReplay)
-        //    {
-        //        replayNavigator.OnPauseEvent += logReplay.PauseReplay;
-        //        replayNavigator.OnPlayEvent += logReplay.StartReplay;
-        //        replayNavigator.OnLoopEvent += logReplay.LoopReplayChanged;
-        //        logReplay.OnUpdateFileNameEvent += replayNavigator.UpdateFileName;
-        //        replayNavigator.OnNextEvent += logReplay.NextReplay;
-        //        replayNavigator.OnPrevEvent += logReplay.PreviousReplay;
-        //        replayNavigator.OnRepeatEvent += logReplay.RepeatReplayChanged;
-        //        replayNavigator.OnOpenFileEvent += logReplay.OpenReplayFile;
-        //        replayNavigator.OnOpenFolderEvent += logReplay.OpenReplayFolder;
-        //        replayNavigator.OnSpeedChangeEvent += logReplay.ReplaySpeedChanged;
-        //    }
-
-        //    //imageProcessingPositionFromOmniCamera.OnOpenCvMatImageProcessedEvent += ConsoleCamera.DisplayOpenCvMatImage;
-        //}
 
         private static void RefBoxAdapter_DataReceivedEvent(object sender, EventArgsLibrary.DataReceivedArgs e)
         {

@@ -23,16 +23,18 @@ namespace WorldMapManager
         ConcurrentDictionary<int, LocalWorldMap> localWorldMapDictionary = new ConcurrentDictionary<int, LocalWorldMap>();
         //GlobalWorldMapStorage globalWorldMapStorage = new GlobalWorldMapStorage();
         GlobalWorldMap globalWorldMap = new GlobalWorldMap();
-        //Timer globalWorldMapSendTimer;
-        HighFreqTimer globalWorldMapSendTimer;
+        Timer globalWorldMapSendTimer;
+        //HighFreqTimer globalWorldMapSendTimer;
               
 
         public GlobalWorldMapManager(int robotId, int teamId)
         {
             RobotId = robotId;
             TeamId = teamId;
-            globalWorldMapSendTimer = new HighFreqTimer(freqRafraichissementWorldMap);
-            globalWorldMapSendTimer.Tick += GlobalWorldMapSendTimer_Tick; 
+            //globalWorldMapSendTimer = new HighFreqTimer(freqRafraichissementWorldMap);
+            //globalWorldMapSendTimer.Tick += GlobalWorldMapSendTimer_Tick; 
+            globalWorldMapSendTimer = new Timer(freqRafraichissementWorldMap);            
+            globalWorldMapSendTimer.Elapsed += GlobalWorldMapSendTimer_Tick;
             globalWorldMapSendTimer.Start();
         }
 

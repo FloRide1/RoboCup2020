@@ -21,8 +21,6 @@ namespace PerceptionManagement
 
         GlobalWorldMap globalWorldMap;
 
-        //bool replayModeActivated = false;
-
 
         public PerceptionManager(int id, GameMode compet)
         {
@@ -48,12 +46,6 @@ namespace PerceptionManagement
 
         }
 
-
-        //public void OnEnableDisableLogReplayEvent(object sender, BoolEventArgs e)
-        //{
-        //    replayModeActivated = e.value;
-        //}
-
         private void OnLidarBalisePointListForDebugReceived(object sender, RawLidarArgs e)
         {
             //On transmet l'event
@@ -71,12 +63,7 @@ namespace PerceptionManagement
                 playingTeam = Equipe.Bleue;
         }
 
-        //private void LidarProcessor_OnLidarProcessedEvent(object sender, RawLidarArgs e)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-                // Event position absolue, on le forward vers l'extérieur du perception Manager
+        // Event position absolue, on le forward vers l'extérieur du perception Manager
         public event EventHandler<PositionArgs> OnAbsolutePositionEvent;
         private void OnAbsolutePositionCalculatedEvent(object sender, PositionArgs e)
         {
@@ -103,18 +90,6 @@ namespace PerceptionManagement
                 /////////////////////////////////////////////////////////////////////////////////////////////////
             }
         }
-
-        //public void OnRawLidarReplayDataReceived(object sender, RawLidarArgs e)
-        //{
-        //    //On forward si on est en mode replay
-        //    if (replayModeActivated)
-        //    {
-        //        //On forward les données lidar brutes reçues au lidarProcessor
-        //        lidarProcessor.OnRawLidarDataReceived(sender, e);
-        //        //On rémet un event pour les affichages éventuels
-        //        OnLidarRawData(e);
-        //    }
-        //}
 
         //L'arrivée d'une nouvelle position mesurée (ou simulée) déclenche le recalcul et event de perception
         public void OnPhysicalRobotPositionReceived(object sender, LocationArgs e)
@@ -203,43 +178,6 @@ namespace PerceptionManagement
                             }
                         }
                     }
-
-                    //double borderAvoidanceZone = 0.05;
-                    ////On rajoute les bordures du terrain à la main :
-                    //physicalObjectList.Add(new LocationExtended(0, -1+ borderAvoidanceZone, 0, 0, 0, 0, ObjectType.LimiteHorizontaleBasse));
-                    //physicalObjectList.Add(new LocationExtended(0, 1- borderAvoidanceZone, 0, 0, 0, 0, ObjectType.LimiteHorizontaleHaute));
-                    //physicalObjectList.Add(new LocationExtended(-1.5+ borderAvoidanceZone, 0, 0, 0, 0, 0, ObjectType.LimiteVerticaleGauche));
-                    //physicalObjectList.Add(new LocationExtended(1.5- borderAvoidanceZone, 0, 0, 0, 0, 0, ObjectType.LimiteVerticaleDroite));
-
-                    //if (playingTeam == Equipe.Jaune)
-                    //{
-                    //    physicalObjectList.Add(new LocationExtended(1.05, 0.08, 0, 0, 0, 0, ObjectType.Obstacle));
-                    //    physicalObjectList.Add(new LocationExtended(1.05, -0.49, 0, 0, 0, 0, ObjectType.Obstacle));
-                    //    physicalObjectList.Add(new LocationExtended(1.3, 0.08, 0, 0, 0, 0, ObjectType.Obstacle));
-                    //    physicalObjectList.Add(new LocationExtended(1.3, -0.49, 0, 0, 0, 0, ObjectType.Obstacle));
-                    //    physicalObjectList.Add(new LocationExtended(1.05, (0.08 - 0.49) / 2.0, 0, 0, 0, 0, ObjectType.Obstacle));
-                    //}
-                    //else if (playingTeam == Equipe.Bleue)
-                    //{
-                    //    physicalObjectList.Add(new LocationExtended(-1.05, 0.08, 0, 0, 0, 0, ObjectType.Obstacle));
-                    //    physicalObjectList.Add(new LocationExtended(-1.3, 0.08, 0, 0, 0, 0, ObjectType.Obstacle));
-                    //    physicalObjectList.Add(new LocationExtended(-1.05, -0.49, 0, 0, 0, 0, ObjectType.Obstacle));
-                    //    physicalObjectList.Add(new LocationExtended(-1.3, -0.49, 0, 0, 0, 0, ObjectType.Obstacle));
-                    //    physicalObjectList.Add(new LocationExtended(-1.05, (0.08-0.49)/2.0, 0, 0, 0, 0, ObjectType.Obstacle));
-                    //}
-                    //physicalObjectList.Add(new LocationExtended(0, 0.7, 0, 0, 0, 0, ObjectType.Obstacle));
-                    //physicalObjectList.Add(new LocationExtended(-0.611, 0.85, 0, 0, 0, 0, ObjectType.Obstacle));
-                    //physicalObjectList.Add(new LocationExtended(0.611, 0.85, 0, 0, 0, 0, ObjectType.Obstacle));
-                    ////for (double x = -1.5; x <= 1.5; x += 0.35)
-                    ////{
-                    ////    physicalObjectList.Add(new LocationExtended(x, -1, 0, 0, 0, 0, ObjectType.Obstacle));
-                    ////    physicalObjectList.Add(new LocationExtended(x, 1, 0, 0, 0, 0, ObjectType.Obstacle));
-                    ////}
-                    ////for (double y = -0.8; y <= 0.8; y += 0.35)
-                    ////{
-                    ////    physicalObjectList.Add(new LocationExtended(-1.5, y, 0, 0, 0, 0, ObjectType.Obstacle));
-                    ////    physicalObjectList.Add(new LocationExtended(1.5, y, 0, 0, 0, 0, ObjectType.Obstacle));
-                    ////}
                 }
             }
         }

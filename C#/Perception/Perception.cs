@@ -18,6 +18,8 @@ namespace PerceptionManagement
         {
             ballLocationList = new List<Location>();
             obstaclesLocationList = new List<LocationExtended>();
+            robotKalmanLocation = new Location(0, 0, 0, 0, 0, 0);
+            robotAbsoluteLocation = new Location(0, 0, 0, 0, 0, 0);
         }
     }
 }
