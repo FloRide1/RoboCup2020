@@ -78,11 +78,17 @@ namespace Utilities
         }
     }
 
-    public class PointDExtended
+    public class PolarCourbure
     {
-        public double X;
-        public double Y;
-        public ObjectType type;
+        public virtual double Courbure { get; set; }
+        public virtual double Angle { get; set; }
+        public virtual bool Discontinuity { get; set; }
+        public PolarCourbure(double angle, double courbure, bool discontinuity)
+        {            
+            Angle = angle;
+            Courbure = courbure;
+            Discontinuity = discontinuity;
+        }
     }
 
     [ZeroFormattable]

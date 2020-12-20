@@ -1,5 +1,4 @@
 ﻿using EventArgsLibrary;
-using MathNet.Numerics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,6 +71,7 @@ namespace LidarProcessor
             LidarDetectedObject currentObject = new LidarDetectedObject();
 
             List<PolarPointListExtended> objectList = new List<PolarPointListExtended>();
+            List<PolarPointRssi> ptObstacleList = new List<PolarPointRssi>();
 
             switch (competition)
             {
@@ -93,22 +93,33 @@ namespace LidarProcessor
                     break;
                 case GameMode.RoboCup:
                     double tailleNoyau = 0.2;
+                    //ptList = PrefiltragePointsIsoles(ptList, 0.05).ToList();
                     //var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
-                    var ptListFiltered = DetectionBackgroundPoints(ptList);
-                    var backgroundObjectList = DetectionObjetsProches(ptListFiltered, 0.5, 20.0, tailleSegmentationObjet: 1, tolerance: 0.2);
-                    var backgroundObjectsCenterList = backgroundObjectList.Where(x=>x.PtList.Count>10/x.DistanceMoyenne).Select(x => new PolarPointRssi(x.AngleMoyen, x.DistanceMoyenne, 0)).ToList();
+
+                    /// Marche bien mais un peu lent en vitesse de calcul
+                    //var ptListFiltered = DetectionBackgroundPoints(ptList);
+                    //var backgroundObjectList = DetectionObjetsProches(ptListFiltered, 0.5, 20.0, tailleSegmentationObjet: 0.4, tolerance: 0.2);
+                    //var backgroundObjectsCenterList = backgroundObjectList.Where(x=>x.PtList.Count>10/x.DistanceMoyenne).Select(x => new PolarPointRssi(x.AngleMoyen, x.DistanceMoyenne, 0)).ToList();
+                    
+                    
+                    ////ptList = SubSampleLidar(ptList, 5).ToList();
+                    var ptListCurvature = ExtractCurvature(ptList);
+                    var ptLineList = ExtractLinesFromCurvature(ptList, ptListCurvature);
+                    var ptCornerList = ExtractCornersFromCurvature(ptList, ptListCurvature);
+                    ptObstacleList = ptCornerList;
+
                     ShiftParameters shiftParams = new ShiftParameters();
                     shiftParams.nbStep = 20;
                     shiftParams.xShiftSpan = 8;
                     shiftParams.yShiftSpan = 8;
-                    shiftParams.thetaShiftSpan = Math.PI/2;
+                    shiftParams.thetaShiftSpan = Math.PI / 2;
                     shiftParams.centerAround = new RotationTranslation();
                     shiftParams.centerAround.shiftX = 0;
                     shiftParams.centerAround.shiftY = 0;
                     shiftParams.centerAround.shiftAngle = 0;
-                    //var linePtList = FindEnclosingRectangle(backgroundObjectsCenterList, rectangleLength: 9, rectangleHeight: 7, shiftConfig: shiftParams);// maxShiftX:8, maxShiftY:6, shiftResolution:1);
-                    //OnLidarProcessed(robotId, linePtList);
-                    ObjetsProchesList = backgroundObjectList;
+                    var rectanglePtList = FindEnclosingRectangle(ptObstacleList, rectangleLength: 16, rectangleHeight: 7, shiftConfig: shiftParams);// maxShiftX:8, maxShiftY:6, shiftResolution:1);
+                    OnLidarProcessed(robotId, rectanglePtList);
+                    //ObjetsProchesList = backgroundObjectList;
 
                     //ObjetsProchesList = DetectionObjetsProches(ptCenterObjetsProchesList, 0.5, 20.0, tailleSegmentationObjet: 0.1, tolerance: 0.2);
 
@@ -127,6 +138,14 @@ namespace LidarProcessor
             }
             
             //Affichage des résultats
+            foreach(var pt in ptObstacleList)
+            {
+                var pple = new PolarPointListExtended();
+                pple.polarPointList = new List<PolarPointRssi>();
+                pple.polarPointList.Add(pt);
+                pple.type = ObjectType.Obstacle;
+                objectList.Add(pple);
+            }
             foreach (var obj in ObjetsProchesList)
             {
                 PolarPointListExtended currentPolarPointListExtended = new PolarPointListExtended();
@@ -172,6 +191,16 @@ namespace LidarProcessor
                 medianQueue.Enqueue(ptList[i + size + 1 - ptList.Count]);
             }
             return ptListFiltered;
+        }
+
+        private List<PolarPointRssi> SubSampleLidar(List<PolarPointRssi> ptList, int subsamplingFactor)
+        {
+            List<PolarPointRssi> ptListSubSampled = new List<PolarPointRssi>();
+            for(int i=0; i< ptList.Count; i+= subsamplingFactor)
+            {
+                ptListSubSampled.Add(ptList[i]);
+            }
+            return ptListSubSampled;
         }
         private List<PolarPointRssi> PrefiltragePointsIsoles(List<PolarPointRssi> ptList, double seuilPtIsole)
         {
@@ -358,8 +387,226 @@ namespace LidarProcessor
             return ptListEroded.ToList().GetRange((int)(originalSize / 2), originalSize);
         }
 
+        Object lockExtractCurvature = new object();
+        List<PolarCourbure> ExtractCurvature(List<PolarPointRssi> ptList)
+        {
+            lock (lockExtractCurvature)
+            {
+                /// Implanation basée sur 
+                /// "Natural landmark extraction for mobile robot navigation based on an adaptive curvature estimation"
+                /// P. Nunez, R. Vazquez-Martın, J.C. del Toro, A. Bandera, F. Sandoval
+                /// Robotics and Autonomous Systems 56 (2008) 247–264
+                /// 
 
-        List<PolarPointRssi> FindEnclosingRectangle(List<PolarPointRssi> ptList, double rectangleLength, double rectangleHeight, ShiftParameters shiftConfig)
+                List<double> ptListX = new List<double>();
+                List<double> ptListY = new List<double>();
+                for (int i = 0; i < ptList.Count; i++)
+                {
+                    ptListX.Add(ptList[i].Distance * Math.Cos(ptList[i].Angle));
+                    ptListY.Add(ptList[i].Distance * Math.Sin(ptList[i].Angle));
+                }
+
+                double[] DiffX_iPlus1_i_List = new double[ptList.Count];
+                double[] DiffY_iPlus1_i_List = new double[ptList.Count];
+                double[] DiffX_i_iMoins1_List = new double[ptList.Count];
+                double[] DiffY_i_iMoins1_List = new double[ptList.Count];
+                double[] Dist_iPlus1_i_List = new double[ptList.Count];
+                double[] Dist_i_iMoins1_List = new double[ptList.Count];
+
+                bool[] DiscontinuityList = new bool[ptList.Count];
+
+                /// On commence par calculer les deltaX delatY et distances entre deux pts lidar successifs
+                for (int i = 0; i < ptList.Count - 1; i++)
+                {
+                    int iPlus1 = i + 1;
+                    if (iPlus1 > +ptList.Count)
+                        iPlus1 -= ptList.Count;
+                    int iMoins1 = i - 1;
+                    if (iMoins1 < 0)
+                        iMoins1 += ptList.Count;
+
+                    DiffX_iPlus1_i_List[i] = ptListX[iPlus1] - ptListX[i];
+                    DiffY_iPlus1_i_List[i] = ptListY[iPlus1] - ptListY[i];
+                    DiffX_i_iMoins1_List[i] = ptListX[i] - ptListX[iMoins1];
+                    DiffY_i_iMoins1_List[i] = ptListY[i] - ptListY[iMoins1];
+                    Dist_iPlus1_i_List[i] = Math.Sqrt(DiffX_iPlus1_i_List[i] * DiffX_iPlus1_i_List[i] + DiffY_iPlus1_i_List[i] * DiffY_iPlus1_i_List[i]);
+                    Dist_i_iMoins1_List[i] = Math.Sqrt(DiffX_i_iMoins1_List[i] * DiffX_i_iMoins1_List[i] + DiffY_i_iMoins1_List[i] * DiffY_i_iMoins1_List[i]);
+
+                    if (Dist_iPlus1_i_List[i] < 0.5)
+                        DiscontinuityList[i] = false;
+                    else
+                        DiscontinuityList[i] = true;
+                }
+
+                /// Pour chaque point lidar, on regarde son voisinage en s'écartant du point vers la droite dans un premier temps
+                /// puis vers la gauche dans un second temps
+                /// on compare la somme des distances entre les pts lidar successifs (sui décrit la longueur de la courbe lidar)
+                /// et la distance directe entre le pt considéré et le voisinage en s'écartant
+                /// Cette distance doit être à peu près la même si le voisinage est un segment de droite
+                /// Si on a une courbe, il doit augmenter fortement
+                /// Quand la différence entre les deux devient supérieure à un certain seuil, on considère qu'on a une discontinuité.
+                /// 
+
+                int[] neighbourIndexSupList = new int[ptList.Count];
+                int[] neighbourIndexInfList = new int[ptList.Count];
+
+                double K = 0.01;
+                double lidarNoise = 0.005;
+                int maxNeighboor = 20;
+                for (int i = 0; i < ptList.Count; i++)
+                {
+                    /// On part vers le indice croissant en premier
+                    double distanceSum = 0;
+                    double distanceDirecte = 0;
+                    int j = i;
+                    int nbNeighboor = 0;
+                    do
+                    {
+                        j++;
+                        nbNeighboor++;
+                        if (j >= ptList.Count) /// Gestion des index dépassant la taille du tableau
+                            j -= ptList.Count;
+                        distanceSum += Dist_i_iMoins1_List[j]; /// On ajoute la distance entre les pts j et j-1
+                        distanceDirecte = Toolbox.Distance(new PointD(ptListX[i], ptListY[i]), new PointD(ptListX[j], ptListY[j]));
+                    }
+                    while (distanceSum - distanceDirecte < K + nbNeighboor * lidarNoise 
+                            && nbNeighboor < maxNeighboor);
+                    neighbourIndexSupList[i] = j - 1; /// On enlève 1 pour éviter de prendre en compte le pt qui pose problème
+                    if (neighbourIndexSupList[i] < 0) /// Gestion des index dépassant la taille du tableau
+                        neighbourIndexSupList[i] += ptList.Count;
+
+                    /// On part vers le indice decroissant en second
+                    distanceSum = 0;
+                    distanceDirecte = 0;
+                    j = i;
+                    nbNeighboor = 0;
+                    do
+                    {
+                        j--;
+                        nbNeighboor++;
+                        if (j < 0) /// Gestion des index dépassant la taille du tableau
+                            j += ptList.Count;
+                        distanceSum += Dist_iPlus1_i_List[j];
+                        distanceDirecte = Toolbox.Distance(new PointD(ptListX[i], ptListY[i]), new PointD(ptListX[j], ptListY[j]));
+                    }
+                    while (distanceSum - distanceDirecte < K + nbNeighboor * lidarNoise 
+                                && nbNeighboor < maxNeighboor);
+                    neighbourIndexInfList[i] = j + 1; /// On rajoute 1 pour éviter de prendre en compte le pt qui pose problème
+                    if (neighbourIndexInfList[i] >= ptList.Count) /// Gestion des index dépassant la taille du tableau
+                        neighbourIndexInfList[i] -= ptList.Count;
+                }
+
+                /// Calcul de la courbure en tout point
+                /// Pour chacun des points, on calcul les deux vecteurs pt-> extrémité du voisinage à droite et à gauche
+                /// On approxime la courbure comme étant le cos-1 du produit scalaire divisé par la norme des vecteurs
+                List<PolarCourbure> curvatureList = new List<PolarCourbure>();
+                List<PolarPointRssi> curvatureListDebug = new List<PolarPointRssi>();
+
+                for (int i = 0; i < ptList.Count; i++)
+                {
+                    double vectVoisinageMaxSupX = ptListX[neighbourIndexSupList[i]] - ptListX[i];
+                    double vectVoisinageMaxSupY = ptListY[neighbourIndexSupList[i]] - ptListY[i];
+                    double vectVoisinageMaxInfX = ptListX[i] - ptListX[neighbourIndexInfList[i]];
+                    double vectVoisinageMaxInfY = ptListY[i] - ptListY[neighbourIndexInfList[i]];
+
+                    double dotProduct = vectVoisinageMaxInfX * vectVoisinageMaxSupX + vectVoisinageMaxInfY * vectVoisinageMaxSupY;
+                    double normVectVoisinageMaxSup = Math.Sqrt(vectVoisinageMaxSupX * vectVoisinageMaxSupX + vectVoisinageMaxSupY * vectVoisinageMaxSupY);
+                    double normVectVoisinageMaxInf = Math.Sqrt(vectVoisinageMaxInfX * vectVoisinageMaxInfX + vectVoisinageMaxInfY * vectVoisinageMaxInfY);
+                    double courbure = Math.Acos(dotProduct / (normVectVoisinageMaxInf * normVectVoisinageMaxSup));
+
+                    courbure = Toolbox.ModuloPiAngleRadian(courbure);
+
+                    curvatureList.Add(new PolarCourbure(ptList[i].Angle, courbure, DiscontinuityList[i]));
+                    curvatureListDebug.Add(new PolarPointRssi(ptList[i].Angle, courbure, 0));
+                }
+                OnLidarBalisePointListForDebug(robotId, curvatureListDebug);
+                return curvatureList;
+            }
+        }
+        List<PolarPointRssi> ExtractLinesFromCurvature(List<PolarPointRssi> ptList, List<PolarCourbure> curvatureList)
+        {
+            bool isLineStarted = false;
+            bool isLineDiscontinuous = true;
+            int lineBeginIndex = 0;
+
+            List<PolarPointRssi> linePoints = new List<PolarPointRssi>();
+
+            double thetaMinCourbure = 0.3;
+
+            for (int i = 0; i < curvatureList.Count; i++)
+            {
+                if (!isLineStarted)
+                {
+                    //On n'est pas dans une ligne
+                    if (curvatureList[i].Courbure < thetaMinCourbure)
+                    {
+                        isLineStarted = true;
+                        lineBeginIndex = i;
+                        isLineDiscontinuous = curvatureList[i].Discontinuity;
+                    }
+                }
+                else
+                {
+                    //On est dans une ligne
+                    if (curvatureList[i].Discontinuity)
+                        isLineDiscontinuous = true;
+                    if (curvatureList[i].Courbure >= thetaMinCourbure || curvatureList[i].Discontinuity)
+                    {
+                        isLineStarted = false;
+                        /// On termine la ligne, il faut la valider ou pas
+                        /// On la valide si sa longueur est supérieure à 10 pts successifs
+                        /// Sinon on la jette
+                        /// 
+                        var ptInit = new PointD(ptList[lineBeginIndex].Distance * Math.Cos(ptList[lineBeginIndex].Angle), ptList[lineBeginIndex].Distance * Math.Sin(ptList[lineBeginIndex].Angle));
+                        var ptEnd = new PointD(ptList[i - 1].Distance * Math.Cos(ptList[i - 1].Angle), ptList[i - 1].Distance * Math.Sin(ptList[i - 1].Angle));
+                        double longueurLigne = Toolbox.Distance(ptInit, ptEnd);
+
+                        double angleLine = Math.Atan2(ptEnd.Y - ptInit.Y, ptEnd.X - ptInit.X);
+                        double capLinePtInit = Math.Atan2(ptInit.Y, ptInit.X);
+
+                        double ecartAngleLine = Toolbox.ModuloPiDivTwoAngleRadian(angleLine - capLinePtInit);
+                        bool lineAlignedWithPoint = false;
+                        if (Math.Abs(ecartAngleLine) < Toolbox.DegToRad(10))
+                            lineAlignedWithPoint = true;
+
+                        if (longueurLigne > 0.2 && !lineAlignedWithPoint && !isLineDiscontinuous)// On garde les lignes ayant une taille minimum
+                        {
+                            /// On valide la ligne
+                            /// 
+                            //Console.WriteLine("Longueur ligne : " + longueurLigne + " - ecartLigne : " + ecartAngleLine);
+                            for (int j = lineBeginIndex; j < i; j++)
+                            {
+                                linePoints.Add(ptList[j]);
+                            }
+                        }
+
+                    }
+                }
+            }
+            return linePoints;
+        }
+
+        List<PolarPointRssi> ExtractCornersFromCurvature(List<PolarPointRssi> ptList, List<PolarCourbure> curvatureList)
+        {
+            List<PolarPointRssi> cornerPoints = new List<PolarPointRssi>();
+            for (int i = 0; i < curvatureList.Count; i++)
+            {
+                int i_Moins1 = i - 1;
+                if (i_Moins1 < 0)
+                    i_Moins1 += ptList.Count;
+                int i_Plus1 = i + 1;
+                if (i_Plus1 >= ptList.Count)
+                    i_Plus1 -= ptList.Count;
+                if (curvatureList[i].Courbure > curvatureList[i_Moins1].Courbure && curvatureList[i].Courbure > curvatureList[i_Plus1].Courbure && curvatureList[i].Courbure>1) //On a maximum local de courbure
+                {
+                    cornerPoints.Add(ptList[i]);
+                }
+            }
+            return cornerPoints;
+        }
+
+
+            List<PolarPointRssi> FindEnclosingRectangle(List<PolarPointRssi> ptList, double rectangleLength, double rectangleHeight, ShiftParameters shiftConfig)
         {
 
             double seuilProximiteLigne = 2 * shiftConfig.xShiftSpan / shiftConfig.nbStep / 3;

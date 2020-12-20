@@ -152,8 +152,8 @@ namespace AdvancedTimers
                 {
                     if (!isTimerProcessing)
                         timerTrigger.Set();
-                    else
-                        Console.WriteLine(mainThread.Name+" : Task in progress");
+                    //else
+                    //    Console.WriteLine(mainThread.Name+" : Task in progress");
                     //Tick?.Invoke(this, new EventArgs());
                 }
                 Thread.Sleep(interval);
