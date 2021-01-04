@@ -108,17 +108,17 @@ namespace LidarProcessor
                     var ptCornerList = ExtractCornersFromCurvature(ptList, ptListCurvature);
                     ptObstacleList = ptCornerList;
 
-                    ShiftParameters shiftParams = new ShiftParameters();
-                    shiftParams.nbStep = 20;
-                    shiftParams.xShiftSpan = 8;
-                    shiftParams.yShiftSpan = 8;
-                    shiftParams.thetaShiftSpan = Math.PI / 2;
-                    shiftParams.centerAround = new RotationTranslation();
-                    shiftParams.centerAround.shiftX = 0;
-                    shiftParams.centerAround.shiftY = 0;
-                    shiftParams.centerAround.shiftAngle = 0;
-                    var rectanglePtList = FindEnclosingRectangle(ptObstacleList, rectangleLength: 16, rectangleHeight: 7, shiftConfig: shiftParams);// maxShiftX:8, maxShiftY:6, shiftResolution:1);
-                    OnLidarProcessed(robotId, rectanglePtList);
+                    //ShiftParameters shiftParams = new ShiftParameters();
+                    //shiftParams.nbStep = 20;
+                    //shiftParams.xShiftSpan = 8;
+                    //shiftParams.yShiftSpan = 8;
+                    //shiftParams.thetaShiftSpan = Math.PI / 2;
+                    //shiftParams.centerAround = new RotationTranslation();
+                    //shiftParams.centerAround.shiftX = 0;
+                    //shiftParams.centerAround.shiftY = 0;
+                    //shiftParams.centerAround.shiftAngle = 0;
+                    //var rectanglePtList = FindEnclosingRectangle(ptObstacleList, rectangleLength: 16, rectangleHeight: 7, shiftConfig: shiftParams);// maxShiftX:8, maxShiftY:6, shiftResolution:1);
+                    //OnLidarProcessed(robotId, rectanglePtList);
                     //ObjetsProchesList = backgroundObjectList;
 
                     //ObjetsProchesList = DetectionObjetsProches(ptCenterObjetsProchesList, 0.5, 20.0, tailleSegmentationObjet: 0.1, tolerance: 0.2);
