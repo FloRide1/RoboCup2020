@@ -23,6 +23,7 @@ using MessageGeneratorNS;
 using LidaRxR2000NS;
 using HerkulexManagerNS;
 using StrategyManagerNS;
+using RobotInterface;
 
 namespace Robot
 {
@@ -139,7 +140,7 @@ namespace Robot
 
         static object ExitLock = new object();
 
-        static WpfRobotInterface interfaceRobot;
+        static WpfRobot4RouesHolonomeInterface interfaceRobot;
         static WpfCameraMonitor ConsoleCamera;
         static LogRecorder.LogRecorder logRecorder;
         static LogReplay.LogReplay logReplay;
@@ -407,7 +408,7 @@ namespace Robot
             t1 = new Thread(() =>
             {
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
-                interfaceRobot = new RobotInterface.WpfRobotInterface( GameMode.RoboCup);
+                interfaceRobot = new RobotInterface.WpfRobot4RouesHolonomeInterface( GameMode.RoboCup);
                 interfaceRobot.Loaded += RegisterRobotInterfaceEvents;
                 interfaceRobot.ShowDialog();
             });

@@ -237,6 +237,10 @@
       <Project>{32a52236-c210-40a2-829e-acb4bb3a1b43}</Project>
       <Name>WpfReplayNavigator</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WpfRobotHolo4RouesInterface\RobotInterface\WpfRobot4RouesHoloInterface.csproj">
+      <Project>{1cdc0611-a2e5-42e8-a28b-ba4269343c68}</Project>
+      <Name>WpfRobot4RouesHoloInterface</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WpfRobotMonitor\WpfCameraMonitor.csproj">
       <Project>{ba7276f6-9386-42cb-894a-04095e5f75b9}</Project>
       <Name>WpfCameraMonitor</Name>
