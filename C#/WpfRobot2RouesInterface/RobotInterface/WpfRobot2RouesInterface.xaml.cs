@@ -3,38 +3,31 @@ using System.Windows;
 using System.IO.Ports;
 using System.Windows.Threading;
 using EventArgsLibrary;
-using System.Configuration; 
 using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Constants;
-using WpfOscilloscopeControl;
-using WpfWorldMapDisplay;
-using SciChart.Charting.Visuals;
 using System.Globalization;
 using System.Threading;
 using System.Windows.Markup;
 using System.Windows.Input;
 using System.Linq;
-using RefereeBoxAdapter;
-using Utilities;
-using SciChart.Charting.Visuals.Axes;
-using HerkulexManagerNS;
-using WorldMap;
 using ZeroFormatter;
 using System.IO;
+using Constants;
+using WpfWorldMapDisplay;
+using WpfOscilloscopeControl;
 
 namespace RobotInterface
 {
     /// <summary>
     /// Logique d'interaction pour MainWindow.xaml
     /// </summary>
-    public partial class WpfRobotInterface : Window
+    public partial class WpfRobot2RouesInterface : Window
     {
         GameMode gameMode;
         DispatcherTimer timerAffichage = new DispatcherTimer();
 
-        public WpfRobotInterface(GameMode gamemode)
+        public WpfRobot2RouesInterface(GameMode gamemode)
         {
             gameMode = gamemode;
             InitializeComponent();
@@ -176,20 +169,7 @@ namespace RobotInterface
 
         double currentTime = 0;
         private void TimerAffichage_Tick(object sender, EventArgs e)
-        {
-            lock(HerkulexServos)
-            {
-                string output = "";
-                for(int i = 0; i<HerkulexServos.Count; i++)
-                {
-                    output += "Servo " + HerkulexServos.Keys.ElementAt(i) + " : " + HerkulexServos.Values.ElementAt(i) + "\n";
-                }
-                //textBoxConsole.Text = output;
-            }
-            //currentTime += 0.050;
-            //double value = Math.Sin(0.5 * currentTime);
-            //oscilloX.AddPointToLine(0, currentTime, value);
-            //textBoxReception.Text = "Nb Message Sent : " + nbMsgSent + " Nb Message Received : " + nbMsgReceived + " Nb Message Received Errors : " + nbMsgReceivedErrors;
+        {           
         }
 
         public void OnLocalWorldMapStrategyEvent(object sender, EventArgsLibrary.LocalWorldMapArgs e)
@@ -230,70 +210,32 @@ namespace RobotInterface
 
         public void OnMessageToDisplayPolarSpeedPidSetupReceived(object sender, PolarPIDSetupArgs e)
         {
-            asservSpeedDisplay.UpdatePolarSpeedCorrectionGains(e.P_x, e.P_y, e.P_theta, e.I_x, e.I_y, e.I_theta, e.D_x, e.D_y, e.D_theta);
-            asservSpeedDisplay.UpdatePolarSpeedCorrectionLimits(e.P_x_Limit, e.P_y_Limit, e.P_theta_Limit, e.I_x_Limit, e.I_y_Limit, e.I_theta_Limit, e.D_x_Limit, e.D_y_Limit, e.D_theta_Limit);
+            asservSpeedDisplay.UpdatePolarSpeedCorrectionGains(e.P_x, e.P_theta, e.I_x, e.I_theta, e.D_x, e.D_theta);
+            asservSpeedDisplay.UpdatePolarSpeedCorrectionLimits(e.P_x_Limit, e.P_theta_Limit, e.I_x_Limit, e.I_theta_Limit, e.D_x_Limit, e.D_theta_Limit);
         }
 
         public void OnMessageToDisplayIndependantSpeedPidSetupReceived(object sender, IndependantPIDSetupArgs e)
         {
-            asservSpeedDisplay.UpdateIndependantSpeedCorrectionGains(e.P_M1, e.P_M2, e.P_M3, e.P_M4, e.I_M1, e.I_M2, e.I_M3, e.I_M4, e.D_M1, e.D_M2, e.D_M3, e.D_M4);
-            asservSpeedDisplay.UpdateIndependantSpeedCorrectionLimits(e.P_M1_Limit, e.P_M2_Limit, e.P_M3_Limit, e.P_M4_Limit, e.I_M1_Limit, e.I_M2_Limit, e.I_M3_Limit, e.I_M4_Limit, e.D_M1_Limit, e.D_M2_Limit, e.D_M3_Limit, e.D_M4_Limit);
+            asservSpeedDisplay.UpdateIndependantSpeedCorrectionGains(e.P_M1, e.P_M2, e.I_M1, e.I_M2, e.D_M1, e.D_M2);
+            asservSpeedDisplay.UpdateIndependantSpeedCorrectionLimits(e.P_M1_Limit, e.P_M2_Limit, e.I_M1_Limit, e.I_M2_Limit, e.D_M1_Limit, e.D_M2_Limit);
         }
 
         public void OnMessageToDisplayPositionPidSetupReceived(object sender, PolarPIDSetupArgs e)
         {
-            asservPositionDisplay.UpdatePolarSpeedCorrectionGains(e.P_x, e.P_y, e.P_theta, e.I_x, e.I_y, e.I_theta, e.D_x, e.D_y, e.D_theta);
-            asservPositionDisplay.UpdatePolarSpeedCorrectionLimits(e.P_x_Limit, e.P_y_Limit, e.P_theta_Limit, e.I_x_Limit, e.I_y_Limit, e.I_theta_Limit, e.D_x_Limit, e.D_y_Limit, e.D_theta_Limit);
+            asservPositionDisplay.UpdatePolarSpeedCorrectionGains(e.P_x, e.P_theta, e.I_x, e.I_theta, e.D_x, e.D_theta);
+            asservPositionDisplay.UpdatePolarSpeedCorrectionLimits(e.P_x_Limit, e.P_theta_Limit, e.I_x_Limit, e.I_theta_Limit, e.D_x_Limit, e.D_theta_Limit);
         }
 
         public void OnMessageToDisplayPositionPidCorrectionReceived(object sender, PolarPidCorrectionArgs e)
         {
-            asservPositionDisplay.UpdatePolarSpeedCorrectionValues(e.CorrPx, e.CorrPy, e.CorrPTheta, e.CorrIx, e.CorrIy, e.CorrITheta, e.CorrDx, e.CorrDy, e.CorrDTheta);
-        }
-
-        Dictionary<ServoId, Servo> HerkulexServos = new Dictionary<ServoId, Servo>();
-        int counterServo = 0;
-        public void OnHerkulexServoInformationReceived(object sender, HerkulexEventArgs.HerkulexServoInformationArgs e)
-        {
-            lock (HerkulexServos)
-            {
-                if (HerkulexServos.ContainsKey(e.Servo.GetID()))
-                {
-                    HerkulexServos[e.Servo.GetID()] = e.Servo;
-                }
-                else
-                {
-                    HerkulexServos.Add(e.Servo.GetID(), e.Servo);
-                }
-            }
-
-            if (counterServo++ % HerkulexServos.Count == 0) //On n'affiche qu'une fois tous les n évènements, n étant égal au nombre de servos
-            {
-                //textBoxConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
-                //{
-                //    string output = "";
-                //    lock (HerkulexServos)
-                //    {
-                //        for (int i = 0; i < HerkulexServos.Count; i++)
-                //        {
-                //            //output += "Servo " + HerkulexServos.Keys.ElementAt(i) + " Abs Pos : " + HerkulexServos.Values.ElementAt(i).AbsolutePosition + " Cal Pos : "+ HerkulexServos.Values.ElementAt(i).CalibratedPosition + "\n";
-                //            output += "Servo " + HerkulexServos.Keys.ElementAt(i) + " Cal Pos : " + HerkulexServos.Values.ElementAt(i).CalibratedPosition + "\n";
-                //        }
-                //    }
-                //    textBoxConsole.Text = output;
-                //}));
-            }
-        }
+            asservPositionDisplay.UpdatePolarSpeedCorrectionValues(e.CorrPx, e.CorrPTheta, e.CorrIx, e.CorrITheta, e.CorrDx, e.CorrDTheta);
+        }        
 
         public void ResetInterfaceState()
         {
             oscilloX.ResetGraph();
             oscilloY.ResetGraph();
             oscilloTheta.ResetGraph();
-            //oscilloM1.ResetGraph();
-            //oscilloM2.ResetGraph();
-            //oscilloM3.ResetGraph();
-            //oscilloM4.ResetGraph();
         }
 
          public void UpdateSpeedPolarOdometryOnInterface(object sender, PolarSpeedEventArgs e)
@@ -303,11 +245,11 @@ namespace RobotInterface
             oscilloTheta.AddPointToLine(1, e.timeStampMs / 1000.0, e.Vtheta);
             currentTime = e.timeStampMs / 1000.0;
 
-            asservSpeedDisplay.UpdatePolarOdometrySpeed(e.Vx, e.Vy, e.Vtheta);
+            asservSpeedDisplay.UpdatePolarOdometrySpeed(e.Vx, e.Vtheta);
         }
         public void UpdateSpeedIndependantOdometryOnInterface(object sender, IndependantSpeedEventArgs e)
         {
-            asservSpeedDisplay.UpdateIndependantOdometrySpeed(e.VitesseMoteur1, e.VitesseMoteur2, e.VitesseMoteur3, e.VitesseMoteur4);
+            asservSpeedDisplay.UpdateIndependantOdometrySpeed(e.VitesseMoteur1, e.VitesseMoteur2);
         }
         public void ActualizeAccelDataOnGraph(object sender, AccelEventArgs e)
         {
@@ -381,9 +323,9 @@ namespace RobotInterface
 
         public void UpdateSpeedPolarPidErrorCorrectionConsigneDataOnGraph(object sender, PolarPidErrorCorrectionConsigneDataArgs e)
         {
-            asservSpeedDisplay.UpdatePolarSpeedErrorValues(e.xErreur, e.yErreur, e.thetaErreur);
-            asservSpeedDisplay.UpdatePolarSpeedCommandValues(e.xCorrection, e.yCorrection, e.thetaCorrection);
-            asservSpeedDisplay.UpdatePolarSpeedConsigneValues(e.xConsigneFromRobot, e.yConsigneFromRobot, e.thetaConsigneFromRobot);
+            asservSpeedDisplay.UpdatePolarSpeedErrorValues(e.xErreur, e.thetaErreur);
+            asservSpeedDisplay.UpdatePolarSpeedCommandValues(e.xCorrection, e.thetaCorrection);
+            asservSpeedDisplay.UpdatePolarSpeedConsigneValues(e.xConsigneFromRobot, e.thetaConsigneFromRobot);
 
             oscilloX.AddPointToLine(3, e.timeStampMS / 1000.0, e.xErreur);
             oscilloX.AddPointToLine(4, e.timeStampMS / 1000.0, e.xCorrection);
@@ -400,23 +342,23 @@ namespace RobotInterface
         }
         public void UpdateSpeedIndependantPidErrorCorrectionConsigneDataOnGraph(object sender, IndependantPidErrorCorrectionConsigneDataArgs e)
         {
-            asservSpeedDisplay.UpdateIndependantSpeedErrorValues(e.M1Erreur, e.M2Erreur, e.M3Erreur, e.M4Erreur);
-            asservSpeedDisplay.UpdateIndependantSpeedCommandValues(e.M1Correction, e.M2Correction, e.M3Correction, e.M4Correction);
-            asservSpeedDisplay.UpdateIndependantSpeedConsigneValues(e.M1ConsigneFromRobot, e.M2ConsigneFromRobot, e.M3ConsigneFromRobot, e.M4ConsigneFromRobot);
+            asservSpeedDisplay.UpdateIndependantSpeedErrorValues(e.M1Erreur, e.M2Erreur);
+            asservSpeedDisplay.UpdateIndependantSpeedCommandValues(e.M1Correction, e.M2Correction);
+            asservSpeedDisplay.UpdateIndependantSpeedConsigneValues(e.M1ConsigneFromRobot, e.M2ConsigneFromRobot);
         }
 
         public void UpdateSpeedPolarPidCorrectionData(object sender, PolarPidCorrectionArgs e)
         {
-            asservSpeedDisplay.UpdatePolarSpeedCorrectionValues(e.CorrPx, e.CorrPy, e.CorrPTheta,
-                e.CorrIx, e.CorrIy, e.CorrITheta,
-                e.CorrDx, e.CorrDy, e.CorrDTheta);
+            asservSpeedDisplay.UpdatePolarSpeedCorrectionValues(e.CorrPx, e.CorrPTheta,
+                e.CorrIx, e.CorrITheta,
+                e.CorrDx, e.CorrDTheta);
         }
 
         public void UpdateSpeedIndependantPidCorrectionData(object sender, IndependantPidCorrectionArgs e)
         {
-            asservSpeedDisplay.UpdateIndependantSpeedCorrectionValues(e.CorrPM1, e.CorrPM2, e.CorrPM3, e.CorrPM4,
-                e.CorrIM1, e.CorrIM2, e.CorrIM3, e.CorrIM4,
-                e.CorrDM1, e.CorrDM2, e.CorrDM3, e.CorrDM4);
+            asservSpeedDisplay.UpdateIndependantSpeedCorrectionValues(e.CorrPM1, e.CorrPM2,
+                e.CorrIM1, e.CorrIM2,
+                e.CorrDM1, e.CorrDM2);
         }
         public void UpdatePowerMonitoringValues(object sender, PowerMonitoringValuesEventArgs e)
         {
@@ -720,14 +662,14 @@ namespace RobotInterface
         }
         private void WorldMapDisplay_OnCtrlClickOnHeatMapEvent(object sender, PositionArgs e)
         {
-            RefBoxMessage msg = new RefBoxMessage();
-            msg.command = RefBoxCommand.GOTO;
-            msg.targetTeam = TeamIpAddress;
-            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
-            msg.posX = e.X;
-            msg.posY = e.Y;
-            msg.posTheta = 0;
-            OnRefereeBoxReceivedCommand(msg);
+            //RefBoxMessage msg = new RefBoxMessage();
+            //msg.command = RefBoxCommand.GOTO;
+            //msg.targetTeam = TeamIpAddress;
+            //msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
+            //msg.posX = e.X;
+            //msg.posY = e.Y;
+            //msg.posTheta = 0;
+            //OnRefereeBoxReceivedCommand(msg);
         }
         #region OUTPUT EVENT
         //OUTPUT EVENT
@@ -955,95 +897,7 @@ namespace RobotInterface
         {
             OnCalibrateGyroFromInterface();
         }
-
-        string TeamIpAddress = "0.0.0.0";
-        private void Button_0_0_Click(object sender, RoutedEventArgs e)
-        {
-            RefBoxMessage msg = new RefBoxMessage();
-            msg.command = RefBoxCommand.GOTO;
-            msg.targetTeam = TeamIpAddress; //Ici on est en local, pas de transmission, on remplis pour rien.
-            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
-            msg.posX = 0;
-            msg.posY = 0;
-            msg.posTheta = 0;
-            OnRefereeBoxReceivedCommand(msg);
-        }
-
-        private void Button_0_1_Click(object sender, RoutedEventArgs e)
-        {
-            RefBoxMessage msg = new RefBoxMessage();
-            msg.command = RefBoxCommand.GOTO;
-            msg.targetTeam = TeamIpAddress;
-            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
-            msg.posX = 0;
-            msg.posY = 1;
-            msg.posTheta = Math.PI/2;
-            OnRefereeBoxReceivedCommand(msg);
-        }
-
-        private void Button_1_0_Click(object sender, RoutedEventArgs e)
-        {
-            RefBoxMessage msg = new RefBoxMessage();
-            msg.command = RefBoxCommand.GOTO;
-            msg.targetTeam = TeamIpAddress;
-            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
-            msg.posX = 1;
-            msg.posY = 0;
-            msg.posTheta = 0;
-            OnRefereeBoxReceivedCommand(msg);
-        }
-
-        private void Button_0_m1_Click(object sender, RoutedEventArgs e)
-        {
-            RefBoxMessage msg = new RefBoxMessage();
-            msg.command = RefBoxCommand.GOTO;
-            msg.targetTeam = TeamIpAddress;
-            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
-            msg.posX = 0;
-            msg.posY = -1;
-            msg.posTheta = -Math.PI/2;
-            OnRefereeBoxReceivedCommand(msg);
-        }
-
-        private void Button_m1_0_Click(object sender, RoutedEventArgs e)
-        {
-            RefBoxMessage msg = new RefBoxMessage();
-            msg.command = RefBoxCommand.GOTO;
-            msg.targetTeam = TeamIpAddress;
-            msg.robotID = (int)TeamId.Team1 + (int)RobotId.Robot1;
-            msg.posX = -1;
-            msg.posY = 0;
-            msg.posTheta = Math.PI;
-            OnRefereeBoxReceivedCommand(msg);
-        }
-
-
-        private void OnRefereeBoxReceivedCommand(RefBoxMessage rbMsg)
-        {
-            var msg = ZeroFormatterSerializer.Serialize<ZeroFormatterMsg>(rbMsg);
-            OnMulticastSendRefBoxCommand(msg);
-        }
-
-        //Output events
-        //public event EventHandler<RefBoxMessageArgs> OnRefereeBoxCommandEvent;
-        //public virtual void OnRefereeBoxReceivedCommand(RefBoxMessage msg)
-        //{
-        //    var handler = OnRefereeBoxCommandEvent;
-        //    if (handler != null)
-        //    {
-        //        handler(this, new RefBoxMessageArgs { refBoxMsg = msg });
-        //    }
-        //}
-
-        public event EventHandler<DataReceivedArgs> OnMulticastSendRefBoxCommandEvent;
-        public virtual void OnMulticastSendRefBoxCommand(byte[] data)
-        {
-            var handler = OnMulticastSendRefBoxCommandEvent;
-            if (handler != null)
-            {
-                handler(this, new DataReceivedArgs { Data = data });
-            }
-        }
+        
         
         bool currentXBoxActivation = false;
         private void ButtonXBoxController_Click(object sender, RoutedEventArgs e)

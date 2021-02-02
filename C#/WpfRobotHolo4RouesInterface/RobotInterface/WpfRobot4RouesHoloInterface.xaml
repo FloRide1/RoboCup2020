@@ -7,7 +7,7 @@
         xmlns:ext="clr-namespace:WpfWorldMapDisplay;assembly=WpfWorldMapDisplay"
         xmlns:oscillo="clr-namespace:WpfOscilloscopeControl;assembly=WpfOscilloscopeControl"
         xmlns:AsservDisplay="clr-namespace:WpfAsservissementDisplay;assembly=WpfAsservissementDisplay"
-        x:Class="RobotInterface.WpfRobotInterface"
+        x:Class="RobotInterface.WpfRobot4RouesHolonomeInterface"
         mc:Ignorable="d"
         Title="Robot Interface" Closing="Window_Closing" SourceInitialized="Window_SourceInitialized"        
     >

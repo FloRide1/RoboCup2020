@@ -7,7 +7,7 @@
         xmlns:ext="clr-namespace:WpfWorldMapDisplay;assembly=WpfWorldMapDisplay"
         xmlns:oscillo="clr-namespace:WpfOscilloscopeControl;assembly=WpfOscilloscopeControl"
         xmlns:AsservDisplay="clr-namespace:WpfAsservissementDisplay;assembly=WpfAsservissementDisplay"
-        x:Class="RobotInterface.WpfRobotInterface"
+        x:Class="RobotInterface.WpfRobot2RouesInterface"
         mc:Ignorable="d"
         Title="Robot Interface" Closing="Window_Closing" SourceInitialized="Window_SourceInitialized"        
     >
@@ -138,13 +138,7 @@
             </Grid.ColumnDefinitions>
             <oscillo:WpfOscilloscope x:Name="oscilloLidar"  MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
             <GroupBox Grid.Column="1" Margin="5" Header="Shortcuts" HorizontalAlignment="Stretch" Grid.Row="1" VerticalAlignment="Stretch" Background="Transparent" Foreground="White">
-                <StackPanel VerticalAlignment="Top">
-                    <Button x:Name="Button_0_0" HorizontalAlignment="Stretch" Content="Go to (0,0)" Click="Button_0_0_Click"/>
-                    <Button x:Name="Button_0_1" HorizontalAlignment="Stretch" Margin="1" Content="Go to (0,1)" Click="Button_0_1_Click"/>
-                    <Button x:Name="Button_1_0" HorizontalAlignment="Stretch" Margin="1" Content="Go to (1,0)" Click="Button_1_0_Click"/>
-                    <Button x:Name="Button_0_m1" HorizontalAlignment="Stretch" Margin="1" Content="Go to (0,-1)" Click="Button_0_m1_Click"/>
-                    <Button x:Name="Button_m1_0" HorizontalAlignment="Stretch" Margin="1" Content="Go to (-1,0)" Click="Button_m1_0_Click"/>
-                </StackPanel>
+                <StackPanel VerticalAlignment="Top"/>
             </GroupBox>
         </Grid>
         <Viewbox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="1" Stretch="Uniform" MaxWidth="900" MaxHeight="800" >

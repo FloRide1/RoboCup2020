@@ -123,7 +123,7 @@ namespace Robot
 
         static object ExitLock = new object();
 
-        static WpfRobotInterface interfaceRobot;
+        static WpfRobot4RouesHolonomeInterface interfaceRobot;
         static LogRecorder.LogRecorder logRecorder;
         static LogReplay.LogReplay logReplay;
 
@@ -384,7 +384,7 @@ namespace Robot
             t1 = new Thread(() =>
             {
                 //Attention, il est nécessaire d'ajouter PresentationFramework, PresentationCore, WindowBase and your wpf window application aux ressources.
-                interfaceRobot = new RobotInterface.WpfRobotInterface(competition);
+                interfaceRobot = new RobotInterface.WpfRobot4RouesHolonomeInterface(competition);
                 interfaceRobot.Loaded += RegisterRobotInterfaceEvents;
                 interfaceRobot.ShowDialog();
             });

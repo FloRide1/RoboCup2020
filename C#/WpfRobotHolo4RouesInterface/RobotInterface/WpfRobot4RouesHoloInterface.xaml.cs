@@ -29,12 +29,12 @@ namespace RobotInterface
     /// <summary>
     /// Logique d'interaction pour MainWindow.xaml
     /// </summary>
-    public partial class WpfRobotInterface : Window
+    public partial class WpfRobot4RouesHolonomeInterface : Window
     {
         GameMode gameMode;
         DispatcherTimer timerAffichage = new DispatcherTimer();
 
-        public WpfRobotInterface(GameMode gamemode)
+        public WpfRobot4RouesHolonomeInterface(GameMode gamemode)
         {
             gameMode = gamemode;
             InitializeComponent();
