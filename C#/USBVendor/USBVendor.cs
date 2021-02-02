@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace USBVendor
+namespace USBVendorNS
 {
     public class USBVendor
     {

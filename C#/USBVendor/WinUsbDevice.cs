@@ -6,7 +6,7 @@ using System.Runtime.ConstrainedExecution;
 using System.Security.Permissions;
 
 
-namespace USBVendor
+namespace USBVendorNS
 {
 	/// <summary>
 	///  Routines for the WinUsb driver.

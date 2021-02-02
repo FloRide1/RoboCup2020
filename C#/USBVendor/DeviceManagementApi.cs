@@ -2,7 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 
 
-namespace USBVendor
+namespace USBVendorNS
 {
 	///<summary >
 	// API declarations relating to device management (SetupDixxx and 

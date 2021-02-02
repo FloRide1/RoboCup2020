@@ -96,7 +96,7 @@ namespace Robot
         static bool usingXBoxController; 
         static bool usingRobotInterface = true;
 
-        static USBVendor.USBVendor usbDriver;
+        static USBVendorNS.USBVendor usbDriver;
         static MsgDecoder msgDecoder;
         static MsgEncoder msgEncoder;
         static MsgGenerator robotMsgGenerator;
@@ -117,7 +117,7 @@ namespace Robot
 
         static PerceptionManager perceptionManager;        
         static LidaRxR2000 lidar_OMD60M_TCP;
-        static XBoxController.XBoxController xBoxManette;
+        static XBoxControllerNS.XBoxController xBoxManette;
 
         static HerkulexManager herkulexManager;
 
@@ -149,7 +149,7 @@ namespace Robot
             //serialPort1 = new ReliableSerialPort("COM1", 115200, Parity.None, 8, StopBits.One);
             int teamId = (int)TeamId.Team1;
             int robotId = (int)RobotId.Robot1 + teamId;
-            usbDriver = new USBVendor.USBVendor();
+            usbDriver = new USBVendorNS.USBVendor();
             msgDecoder = new MsgDecoder();
             msgEncoder = new MsgEncoder();
             robotMsgGenerator = new MsgGenerator();
@@ -176,7 +176,7 @@ namespace Robot
             herkulexManager.AddServo(ServoId.BrasGauche, HerkulexDescription.JOG_MODE.positionControlJOG);
             herkulexManager.AddServo(ServoId.PorteDrapeau, HerkulexDescription.JOG_MODE.positionControlJOG);
                                    
-            xBoxManette = new XBoxController.XBoxController(robotId);
+            xBoxManette = new XBoxControllerNS.XBoxController(robotId);
             
             //Démarrage des interface de visualisation
             if (usingRobotInterface)

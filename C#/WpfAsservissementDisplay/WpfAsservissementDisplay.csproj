@@ -48,12 +48,19 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="AsservissementDisplay.xaml">
+    <Page Include="AsservissementRobot2RouesDisplay.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="AsservissementDisplay.xaml.cs">
-      <DependentUpon>AsservissementDisplay.xaml</DependentUpon>
+    <Page Include="AsservissementRobot4RouesHoloDisplay.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="AsservissementRobot2RouesDisplay.xaml.cs">
+      <DependentUpon>AsservissementRobot2RouesDisplay.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AsservissementRobot4RouesHoloDisplay.xaml.cs">
+      <DependentUpon>AsservissementRobot4RouesHoloDisplay.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

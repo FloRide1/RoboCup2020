@@ -2,7 +2,7 @@ using System;
 using Microsoft.Win32.SafeHandles;
 using System.Runtime.InteropServices;
 
-namespace USBVendor
+namespace USBVendorNS
 {
 	/// <summary>
 	///  These declarations are translated from the C declarations in various files

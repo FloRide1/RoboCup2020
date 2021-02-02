@@ -70,10 +70,6 @@
       <Project>{9c46a7c0-4675-41be-b282-e6f0825ad73e}</Project>
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\RobotInterfaceWPF_Supervision_Systeme_Embarqué\RobotInterface\WpfRobotInterface.csproj">
-      <Project>{1CDC0611-A2E5-42E8-A28B-BA4269343C68}</Project>
-      <Name>WpfRobotInterface</Name>
-    </ProjectReference>
     <ProjectReference Include="..\WorldMapManager\WorldMapManager.csproj">
       <Project>{01E89552-13A5-4A24-80B2-9246700F72FD}</Project>
       <Name>WorldMapManager</Name>

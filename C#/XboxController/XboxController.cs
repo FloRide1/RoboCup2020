@@ -3,7 +3,7 @@ using SharpDX.XInput;
 using System;
 using System.Timers;
 
-namespace XBoxController
+namespace XBoxControllerNS
 {
     public class XBoxController
     {

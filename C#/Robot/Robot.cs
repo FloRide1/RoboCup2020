@@ -1,11 +1,9 @@
-﻿using AdvancedTimers;
-using CameraAdapter;
+﻿using CameraAdapter;
 using Constants;
 using ExtendedSerialPort;
 using ImageProcessingOmniCamera;
 using MessageDecoder;
 using MessageEncoder;
-using RobotInterface;
 using RobotMonitor;
 using SciChart.Charting.Visuals;
 using System;
@@ -24,7 +22,6 @@ using MessageProcessorNS;
 using MessageGeneratorNS;
 using LidaRxR2000NS;
 using HerkulexManagerNS;
-using Utilities;
 using StrategyManagerNS;
 
 namespace Robot
@@ -137,7 +134,7 @@ namespace Robot
         static PerceptionManager perceptionManager;
         static LidaRxR2000 lidar_OMD60M_TCP;
         static LidarProcessor.LidarProcessor lidarProcessor;
-        static XBoxController.XBoxController xBoxManette;
+        static XBoxControllerNS.XBoxController xBoxManette;
         static YoloObjectDetector.YoloObjectDetector yoloDetector;
 
         static object ExitLock = new object();
@@ -235,7 +232,7 @@ namespace Robot
                 lidarProcessor = new LidarProcessor.LidarProcessor(robotId, GameMode.RoboCup);
             }
 
-            xBoxManette = new XBoxController.XBoxController(robotId);
+            xBoxManette = new XBoxControllerNS.XBoxController(robotId);
 
             if (usingCamera || usingLogReplay)
             {
