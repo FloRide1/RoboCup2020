@@ -11,7 +11,6 @@ using System.Threading;
 using System.Windows.Markup;
 using System.Windows.Input;
 using System.Linq;
-using ZeroFormatter;
 using System.IO;
 using Constants;
 using WpfWorldMapDisplay;
