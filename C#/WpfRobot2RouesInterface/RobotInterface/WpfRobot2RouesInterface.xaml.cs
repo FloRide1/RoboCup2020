@@ -88,19 +88,6 @@ namespace RobotInterface
             timerAffichage.Tick += TimerAffichage_Tick;
             timerAffichage.Start();
 
-            //oscilloM1.SetTitle("Moteur 1");
-            //oscilloM1.AddOrUpdateLine(0, 100, "Vitesse M1");
-            //oscilloM1.AddOrUpdateLine(1, 100, "Courant M1");
-            //oscilloM2.SetTitle("Moteur 2");
-            //oscilloM2.AddOrUpdateLine(0, 100, "Vitesse M2");
-            //oscilloM2.AddOrUpdateLine(1, 100, "Courant M2");
-            //oscilloM3.SetTitle("Moteur 3");
-            //oscilloM3.AddOrUpdateLine(0, 100, "Vitesse M3");
-            //oscilloM3.AddOrUpdateLine(1, 100, "Courant M3");
-            //oscilloM4.SetTitle("Moteur 4");
-            //oscilloM4.AddOrUpdateLine(0, 100, "Vitesse M4");
-            //oscilloM4.AddOrUpdateLine(1, 100, "Courant M4");
-
             oscilloX.SetTitle("Vx");
             oscilloX.AddOrUpdateLine(0, 100, "Vitesse X Consigne");
             oscilloX.AddOrUpdateLine(1, 100, "Vitesse X");
@@ -459,65 +446,7 @@ namespace RobotInterface
                     LabelMotorState.Content = "Motor State : Disabled";
                 }
             }));
-        }
-
-        private void ButtonEnableDisableTir_Click(object sender, RoutedEventArgs e)
-        {
-            if (ButtonEnableDisableTir.Content == "Enable Tir")
-                OnEnableDisableTirFromInterface(true);
-            else
-                OnEnableDisableTirFromInterface(false);
-        }
-
-        //Methode appelée sur evenement (event) provenant du port Serie.
-        //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
-        public void ActualizeEnableDisableTirButton(object sender, BoolEventArgs e)
-        {
-            //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
-            //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
-            //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
-            //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
-            ButtonEnableDisableTir.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
-            {
-                if (!e.value)
-                    ButtonEnableDisableTir.Content = "Enable Tir";
-                else
-                    ButtonEnableDisableTir.Content = "Disable Tir";
-            }));
-        }
-
-
-
-        private void ButtonEnableDisableServos_Click(object sender, RoutedEventArgs e)
-        {
-            if (ButtonEnableDisableServos.Content == "Servos Torque Off")
-            {
-                OnEnableDisableServosFromInterface(false);
-                ButtonEnableDisableServos.Content = "Servos Torque On";
-            }
-            else
-            {
-                OnEnableDisableServosFromInterface(true);
-                ButtonEnableDisableServos.Content = "Servos Torque Off";
-            }
-        }
-
-        //Methode appelée sur evenement (event) provenant du port Serie.
-        //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
-        public void ActualizeEnableDisableServosButton(object sender, BoolEventArgs e)
-        {
-            //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
-            //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
-            //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
-            //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
-            ButtonEnableDisableServos.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
-            {
-                if (!e.value)
-                    ButtonEnableDisableServos.Content = "Servos Torque On";
-                else
-                    ButtonEnableDisableServos.Content = "Servos Torque Off";
-            }));
-        }
+        }                       
 
         //Methode appelée sur evenement (event) provenant du port Serie.
         //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
@@ -599,7 +528,6 @@ namespace RobotInterface
             //    scrollViewerTextBoxConsole.ScrollToEnd();
             //}));
         }
-
 
         public void MessageCounterReceived(object sender, MsgCounterArgs e)
         {
@@ -833,35 +761,6 @@ namespace RobotInterface
         }
         #endregion
 
-        bool isWorldMapZoomed = false;
-        double worldMapZoomFactor = 5;
-        
-        private void worldMapDisplay_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            LocalWorldMapDisplay s = (LocalWorldMapDisplay)sender;
-
-            int row = 0, column = 0;
-
-            if (s != null)
-            {
-                row = Grid.GetRow(s);
-                column = Grid.GetColumn(s);
-            }
-
-            if (!isWorldMapZoomed)
-            {
-                GridApplication.ColumnDefinitions[column].Width = new GridLength(GridApplication.ColumnDefinitions[column].Width.Value * worldMapZoomFactor, GridUnitType.Star);
-                GridApplication.RowDefinitions[row].Height = new GridLength(GridApplication.RowDefinitions[row].Height.Value * worldMapZoomFactor, GridUnitType.Star);
-                isWorldMapZoomed = true;
-            }
-            else
-            {
-                GridApplication.ColumnDefinitions[column].Width = new GridLength(GridApplication.ColumnDefinitions[column].Width.Value / worldMapZoomFactor, GridUnitType.Star);
-                GridApplication.RowDefinitions[row].Height = new GridLength(GridApplication.RowDefinitions[row].Height.Value / worldMapZoomFactor, GridUnitType.Star);
-                isWorldMapZoomed = false;
-            }
-        }
-
         AsservissementMode currentAsservissementMode = AsservissementMode.Disabled;
         private void ButtonEnableAsservissement_Click(object sender, RoutedEventArgs e)
         {
@@ -878,6 +777,7 @@ namespace RobotInterface
                     break;
             }
         }
+
         private void CheckBoxEnableAsservissementDebugData_Checked(object sender, RoutedEventArgs e)
         {
             if (CheckBoxEnableAsservissementDebugData.IsChecked ?? false)
@@ -890,13 +790,7 @@ namespace RobotInterface
                 OnEnableSpeedPIDEnableDebugInternalFromInterface(false);
                 OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(false);
             }
-        }
-
-        private void ButtonCalibrateGyro_Click(object sender, RoutedEventArgs e)
-        {
-            OnCalibrateGyroFromInterface();
-        }
-        
+        }               
         
         bool currentXBoxActivation = false;
         private void ButtonXBoxController_Click(object sender, RoutedEventArgs e)
@@ -912,38 +806,11 @@ namespace RobotInterface
                 OnEnableDisableControlManetteFromInterface(false);
                 LabelXBoxControllerMode.Content = "XBox Pad : Disabled";
             }
-        }
+        }              
 
-        bool currentLoggingActivationState = false;
-        private void ButtonLogging_Click(object sender, RoutedEventArgs e)
+        private void worldMapDisplayStrategy_Loaded(object sender, RoutedEventArgs e)
         {
-            currentLoggingActivationState = !currentLoggingActivationState;            
-            if(currentLoggingActivationState)
-            {
-                OnEnableDisableLogging(true);
-                LabelLoggingState.Content = "Logging Started";
-            }
-            else
-            {
-                OnEnableDisableLogging(false);
-                LabelLoggingState.Content = "Logging Stopped";
-            }
-        }
 
-        bool logReplayActivationState = false;
-        private void ButtonLogReplay_Click(object sender, RoutedEventArgs e)
-        {
-            logReplayActivationState = !logReplayActivationState;
-            if (logReplayActivationState)
-            {
-                OnEnableDisableLogReplay(true);
-                LabelLogReplayState.Content = "Replay";
-            }
-            else
-            {
-                OnEnableDisableLogReplay(false);
-                LabelLogReplayState.Content = "Real Data";
-            }
         }
 
         //private void CheckBoxEnablePowerMonitoringData_Checked(object sender, RoutedEventArgs e)

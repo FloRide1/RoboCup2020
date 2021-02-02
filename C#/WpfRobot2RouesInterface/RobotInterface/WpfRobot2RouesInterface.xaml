@@ -74,9 +74,6 @@
                     </Grid.ColumnDefinitions>
                     <Label x:Name="LabelMotorState" Grid.Row="0" Content="Motor State : "></Label>
                     <Button Name="ButtonDisableMotors" Grid.Row="0" Grid.Column="1" Content="Change" Click="ButtonDisableMotors_Click"/>
-                    <Button Name="ButtonCalibrateGyro" Grid.Row="1" Content="Calibrate Gyro" Click="ButtonCalibrateGyro_Click"/>
-                    <Button Name="ButtonEnableDisableServos" Grid.Row="2" Content="Servos Torque Off" Click="ButtonEnableDisableServos_Click" />
-                    <Button Name="ButtonEnableDisableTir" Grid.Row="3" Content="Enable Tir" Click="ButtonEnableDisableTir_Click"/>
                     <Label x:Name="LabelAsservMode" Grid.Row="4" Content="Asserv Mode : "></Label>
                     <Button Name="ButtonChangeAsservissementMode" Grid.Row="4" Grid.Column="1" Content="Change" Click="ButtonEnableAsservissement_Click"/>
                     <Label x:Name="LabelXBoxControllerMode" Grid.Row="5" Content="XBox Controller State : Disabled"></Label>
@@ -99,10 +96,6 @@
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="60"/>
                     </Grid.ColumnDefinitions>
-                    <Label x:Name="LabelLoggingState" Grid.Row="0" Content="Logging Stopped"></Label>
-                    <Button Name="ButtonEnableDisableLogging" Grid.Row="0" Grid.Column="1" Content="Change" Click="ButtonLogging_Click"/>
-                    <Label x:Name="LabelLogReplayState" Grid.Row="1" Content="Real Data"></Label>
-                    <Button Name="ButtonEnableDisableLogReplay" Grid.Row="1" Grid.Column="1" Content="Change" Click="ButtonLogReplay_Click"/>
                     <CheckBox Name="CheckBoxEnableAsservissementDebugData" Content="Speed PID Debug" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Checked="CheckBoxEnableAsservissementDebugData_Checked" Unchecked="CheckBoxEnableAsservissementDebugData_Checked" Background="Transparent" Foreground="White"/>
                 </Grid>
                 <!--<StackPanel Orientation="Vertical">
@@ -142,7 +135,7 @@
             </GroupBox>
         </Grid>
         <Viewbox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="1" Stretch="Uniform" MaxWidth="900" MaxHeight="800" >
-            <ext:LocalWorldMapDisplay x:Name="worldMapDisplayStrategy" Padding="5" Width="300" Height="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></ext:LocalWorldMapDisplay>
+            <ext:LocalWorldMapDisplay x:Name="worldMapDisplayStrategy" Padding="5" Width="300" Height="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Loaded="worldMapDisplayStrategy_Loaded" ></ext:LocalWorldMapDisplay>
         </Viewbox>
         <Viewbox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" Stretch="Uniform" MaxWidth="900" MaxHeight="800"   >
             <ext:LocalWorldMapDisplay x:Name="worldMapDisplayWaypoint" Padding="5" Width="300" Height="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></ext:LocalWorldMapDisplay>
