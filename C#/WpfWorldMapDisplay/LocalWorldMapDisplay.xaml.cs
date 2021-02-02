@@ -496,7 +496,7 @@ namespace WpfWorldMapDisplay
                 Console.WriteLine("UpdateRobotLocation : Robot non trouvé");
             }
         }
-        private void UpdateRobotRole(int robotId, RobotRole role)
+        private void UpdateRobotRole(int robotId, RoboCupRobotRole role)
         {
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
             {

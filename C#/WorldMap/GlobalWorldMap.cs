@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using Constants;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Utilities;
 using ZeroFormatter;
@@ -41,7 +42,7 @@ namespace WorldMap
         [Index(11)]
         public virtual List<LocationExtended> obstacleLocationList { get; set; }
         [Index(12)]
-        public virtual Dictionary<int, RobotRole> teammateRoleList { get; set; }
+        public virtual Dictionary<int, RoboCupRobotRole> teammateRoleList { get; set; }
         [Index(13)]
         public virtual Dictionary<int, BallHandlingState> teammateBallHandlingStateList { get; set; }
         [Index(14)]

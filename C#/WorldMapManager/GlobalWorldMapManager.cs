@@ -1,4 +1,5 @@
 ﻿using AdvancedTimers;
+using Constants;
 using EventArgsLibrary;
 using Newtonsoft.Json;
 using PerformanceMonitorTools;
@@ -99,7 +100,7 @@ namespace WorldMapManager
             globalWorldMap.teammateWayPointList = new Dictionary<int, Location>();
             globalWorldMap.opponentLocationList = new List<Location>();
             globalWorldMap.obstacleLocationList = new List<LocationExtended>();
-            globalWorldMap.teammateRoleList = new Dictionary<int, RobotRole>();
+            globalWorldMap.teammateRoleList = new Dictionary<int, RoboCupRobotRole>();
             globalWorldMap.teammateDisplayMessageList = new Dictionary<int, string>();
             globalWorldMap.teammatePlayingSideList = new Dictionary<int, PlayingSide>();
 

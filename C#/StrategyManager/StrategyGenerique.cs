@@ -1,4 +1,5 @@
-﻿using EventArgsLibrary;
+﻿using Constants;
+using EventArgsLibrary;
 using HeatMap;
 using System;
 using System.Collections.Generic;
@@ -393,7 +394,7 @@ namespace StrategyManagerNS
         }
 
         public event EventHandler<RoleArgs> OnRoleEvent;
-        public virtual void OnRole(int id, RobotRole role)
+        public virtual void OnRole(int id, RoboCupRobotRole role)
         {
             OnRoleEvent?.Invoke(this, new RoleArgs { RobotId = id, Role = role });
         }

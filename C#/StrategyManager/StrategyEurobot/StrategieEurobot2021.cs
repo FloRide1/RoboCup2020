@@ -63,7 +63,7 @@ namespace StrategyManagerNS
 
         PlayingSide playingSide = PlayingSide.Left;
 
-        RobotRole role = RobotRole.Stopped;
+        RoboCupRobotRole role = RoboCupRobotRole.Stopped;
         System.Timers.Timer configTimer;
 
 
@@ -257,25 +257,25 @@ namespace StrategyManagerNS
             switch (gameState)
             {
                 case GameState.STOPPED:
-                    role = RobotRole.Stopped;
+                    role = RoboCupRobotRole.Stopped;
                     break;
                 case GameState.PLAYING:
                     {
                     }
                     break;
                 case GameState.STOPPED_GAME_POSITIONING:
-                    role = RobotRole.Positioning;
+                    role = RoboCupRobotRole.Positioning;
                     break;
             }
             DefinePlayerZones(role);
         }
 
 
-        public void DefinePlayerZones(RobotRole role)
+        public void DefinePlayerZones(RoboCupRobotRole role)
         {
             switch (role)
             {
-                case RobotRole.Positioning:
+                case RoboCupRobotRole.Positioning:
                     AddPreferedZone(new PointD(externalRefBoxPosition.X, externalRefBoxPosition.Y), 0.3);
                     robotOrientation = 0;
                     break;
