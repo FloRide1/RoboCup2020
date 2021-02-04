@@ -11,6 +11,7 @@ using System.Threading;
 using USBVendorNS;
 using XBoxControllerNS;
 using Constants;
+using StrategyManagerNS;
 
 namespace RobotEurobot2Roues
 {
@@ -22,6 +23,8 @@ namespace RobotEurobot2Roues
         static MsgGenerator robotMsgGenerator;
         static MsgProcessor robotMsgProcessor;
         static XBoxController xBoxManette;
+        static StrategyManager strategyManager;
+
         static WpfRobot2RouesInterface interfaceRobot;
         static GameMode competition = GameMode.Eurobot;
 

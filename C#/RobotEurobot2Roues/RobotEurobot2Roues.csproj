@@ -92,6 +92,10 @@
       <Project>{AD4884AD-631B-42E4-B6BB-F86B16BD6A68}</Project>
       <Name>MessageProcessor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\StrategyManager\StrategyManager.csproj">
+      <Project>{F2D3FB95-F97A-4049-BCA4-71854FD4FAF3}</Project>
+      <Name>StrategyManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\USBVendor\USBVendor.csproj">
       <Project>{12565644-3BF5-4BCB-84E5-6BDA7D16293C}</Project>
       <Name>USBVendor</Name>
