@@ -553,6 +553,24 @@ namespace StrategyManagerNS
             OnOdometryPointToMeterEvent?.Invoke(this, new DoubleEventArgs { Value = value });
         }
 
+        public event EventHandler<TwoWheelsAngleArgs> On2WheelsAngleSetEvent;
+        public void On4WheelsAngleSet(double angleM1, double angleM2)
+        {
+            On2WheelsAngleSetEvent?.Invoke(this, new TwoWheelsAngleArgs { angleMotor1 = angleM1, angleMotor2 = angleM2});
+        }
+
+        public event EventHandler<TwoWheelsToPolarMatrixArgs> On2WheelsToPolarSetEvent;
+        public void On4WheelsToPolarSet(double mX1, double mX2, double mTheta1, double mTheta2)
+        {
+            On2WheelsToPolarSetEvent?.Invoke(this, new TwoWheelsToPolarMatrixArgs
+            {
+                mx1 = mX1,
+                mx2 = mX2,
+                mtheta1 = mTheta1,
+                mtheta2 = mTheta2,
+            });
+        }
+
         public event EventHandler<FourWheelsAngleArgs> On4WheelsAngleSetEvent;
         public void On4WheelsAngleSet(double angleM1, double angleM2, double angleM3, double angleM4)
         {

@@ -138,6 +138,14 @@ namespace MessageGeneratorNS
             OnMessageToRobot((Int16)Commands.PC2R_4WheelsAngleSet, 16, payload);
         }
 
+        public void GenerateMessage2WheelsAngleSet(object sender, TwoWheelsAngleArgs e)
+        {
+            byte[] payload = new byte[8];
+            payload.SetValueRange(((float)(e.angleMotor1)).GetBytes(), 0);
+            payload.SetValueRange(((float)(e.angleMotor2)).GetBytes(), 4);
+            OnMessageToRobot((Int16)Commands.PC2R_2WheelsAngleSet, 8, payload);
+        }
+
         public void GenerateMessage4WheelsToPolarMatrixSet(object sender, FourWheelsToPolarMatrixArgs e)
         {
             byte[] payload = new byte[48];
@@ -154,6 +162,16 @@ namespace MessageGeneratorNS
             payload.SetValueRange(((float)(e.mtheta3)).GetBytes(), 40);
             payload.SetValueRange(((float)(e.mtheta4)).GetBytes(), 44);
             OnMessageToRobot((Int16)Commands.PC2R_4WheelsToPolarMatrixSet, 48, payload);
+        }
+
+        public void GenerateMessage2WheelsToPolarMatrixSet(object sender, TwoWheelsToPolarMatrixArgs e)
+        {
+            byte[] payload = new byte[16];
+            payload.SetValueRange(((float)(e.mx1)).GetBytes(), 0);
+            payload.SetValueRange(((float)(e.mx2)).GetBytes(), 4);
+            payload.SetValueRange(((float)(e.mtheta1)).GetBytes(), 8);
+            payload.SetValueRange(((float)(e.mtheta2)).GetBytes(), 12);
+            OnMessageToRobot((Int16)Commands.PC2R_2WheelsToPolarMatrixSet, 16, payload);
         }
 
         public void GenerateMessageEnableMotorCurrentData(object sender, BoolEventArgs e)

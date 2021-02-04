@@ -189,6 +189,18 @@ namespace EventArgsLibrary
     {
 
     }
+    public class TwoWheelsAngleArgs : EventArgs
+    {
+        public double angleMotor1;
+        public double angleMotor2;
+    }
+    public class TwoWheelsToPolarMatrixArgs : EventArgs
+    {
+        public double mx1;
+        public double mx2;
+        public double mtheta1;
+        public double mtheta2;
+    }
     public class FourWheelsAngleArgs : EventArgs
     {
         public double angleMotor1;
