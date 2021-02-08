@@ -79,10 +79,10 @@ namespace RobotInterface
             worldMapDisplayWaypoint.OnCtrlClickOnHeatMapEvent += WorldMapDisplay_OnCtrlClickOnHeatMapEvent;
 
 
-            foreach (string s in SerialPort.GetPortNames())
-            {
-                Console.WriteLine("   {0}", s);
-            }
+            //foreach (string s in SerialPort.GetPortNames())
+            //{
+            //    Console.WriteLine("   {0}", s);
+            //}
                                    
             timerAffichage.Interval = new TimeSpan(0, 0, 0, 0, 50);
             timerAffichage.Tick += TimerAffichage_Tick;
@@ -94,13 +94,7 @@ namespace RobotInterface
             oscilloX.AddOrUpdateLine(2, 100, "Accel X");
             oscilloX.ChangeLineColor("Vitesse X", Colors.Red);
             oscilloX.ChangeLineColor("Vitesse X Consigne", Colors.Blue);
-            oscilloY.SetTitle("Vy");
-            oscilloY.AddOrUpdateLine(0, 100, "Vitesse Y Consigne");
-            oscilloY.AddOrUpdateLine(1, 100, "Vitesse Y");
-            oscilloY.AddOrUpdateLine(2, 100, "Accel Y");
-            oscilloY.ChangeLineColor("Vitesse Y", Colors.Red);
-            oscilloY.ChangeLineColor("Vitesse Y Consigne", Colors.Blue);
-
+            
             oscilloTheta.SetTitle("Vtheta");
             oscilloTheta.AddOrUpdateLine(0, 100, "Vitesse Theta Consigne");
             oscilloTheta.AddOrUpdateLine(1, 100, "Vitesse Theta");
@@ -116,7 +110,7 @@ namespace RobotInterface
             oscilloLidar.ChangeLineColor(2, Colors.LightGoldenrodYellow);
 
             asservPositionDisplay.SetTitle("Asservissement Position");
-            asservSpeedDisplay.SetTitle("Asservissement Vitesse");
+            asserv2WheelsSpeedDisplay.SetTitle("Asservissement Vitesse");
         }
 
         void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -196,14 +190,14 @@ namespace RobotInterface
 
         public void OnMessageToDisplayPolarSpeedPidSetupReceived(object sender, PolarPIDSetupArgs e)
         {
-            asservSpeedDisplay.UpdatePolarSpeedCorrectionGains(e.P_x, e.P_theta, e.I_x, e.I_theta, e.D_x, e.D_theta);
-            asservSpeedDisplay.UpdatePolarSpeedCorrectionLimits(e.P_x_Limit, e.P_theta_Limit, e.I_x_Limit, e.I_theta_Limit, e.D_x_Limit, e.D_theta_Limit);
+            asserv2WheelsSpeedDisplay.UpdatePolarSpeedCorrectionGains(e.P_x, e.P_theta, e.I_x, e.I_theta, e.D_x, e.D_theta);
+            asserv2WheelsSpeedDisplay.UpdatePolarSpeedCorrectionLimits(e.P_x_Limit, e.P_theta_Limit, e.I_x_Limit, e.I_theta_Limit, e.D_x_Limit, e.D_theta_Limit);
         }
 
         public void OnMessageToDisplayIndependantSpeedPidSetupReceived(object sender, IndependantPIDSetupArgs e)
         {
-            asservSpeedDisplay.UpdateIndependantSpeedCorrectionGains(e.P_M1, e.P_M2, e.I_M1, e.I_M2, e.D_M1, e.D_M2);
-            asservSpeedDisplay.UpdateIndependantSpeedCorrectionLimits(e.P_M1_Limit, e.P_M2_Limit, e.I_M1_Limit, e.I_M2_Limit, e.D_M1_Limit, e.D_M2_Limit);
+            asserv2WheelsSpeedDisplay.UpdateIndependantSpeedCorrectionGains(e.P_M1, e.P_M2, e.I_M1, e.I_M2, e.D_M1, e.D_M2);
+            asserv2WheelsSpeedDisplay.UpdateIndependantSpeedCorrectionLimits(e.P_M1_Limit, e.P_M2_Limit, e.I_M1_Limit, e.I_M2_Limit, e.D_M1_Limit, e.D_M2_Limit);
         }
 
         public void OnMessageToDisplayPositionPidSetupReceived(object sender, PolarPIDSetupArgs e)
@@ -220,33 +214,29 @@ namespace RobotInterface
         public void ResetInterfaceState()
         {
             oscilloX.ResetGraph();
-            oscilloY.ResetGraph();
             oscilloTheta.ResetGraph();
         }
 
          public void UpdateSpeedPolarOdometryOnInterface(object sender, PolarSpeedEventArgs e)
         {
             oscilloX.AddPointToLine(1, e.timeStampMs / 1000.0, e.Vx);
-            oscilloY.AddPointToLine(1, e.timeStampMs / 1000.0, e.Vy);
             oscilloTheta.AddPointToLine(1, e.timeStampMs / 1000.0, e.Vtheta);
             currentTime = e.timeStampMs / 1000.0;
 
-            asservSpeedDisplay.UpdatePolarOdometrySpeed(e.Vx, e.Vtheta);
+            asserv2WheelsSpeedDisplay.UpdatePolarOdometrySpeed(e.Vx, e.Vtheta);
         }
         public void UpdateSpeedIndependantOdometryOnInterface(object sender, IndependantSpeedEventArgs e)
         {
-            asservSpeedDisplay.UpdateIndependantOdometrySpeed(e.VitesseMoteur1, e.VitesseMoteur2);
+            asserv2WheelsSpeedDisplay.UpdateIndependantOdometrySpeed(e.VitesseMoteur1, e.VitesseMoteur2);
         }
         public void ActualizeAccelDataOnGraph(object sender, AccelEventArgs e)
         {
-            oscilloX.AddPointToLine(2, e.timeStampMS, e.accelX);
-            oscilloY.AddPointToLine(2, e.timeStampMS, e.accelY);            
+            oscilloX.AddPointToLine(2, e.timeStampMS, e.accelX);          
         }
 
         public void UpdateImuDataOnGraph(object sender, IMUDataEventArgs e)
         {
             oscilloX.AddPointToLine(2, e.EmbeddedTimeStampInMs/1000.0, e.accelX);
-            oscilloY.AddPointToLine(2, e.EmbeddedTimeStampInMs/1000.0, e.accelY);
             oscilloTheta.AddPointToLine(2, e.EmbeddedTimeStampInMs / 1000.0, e.gyroZ);
             currentTime = e.EmbeddedTimeStampInMs/1000.0;
         }
@@ -254,7 +244,6 @@ namespace RobotInterface
         public void UpdatePolarSpeedConsigneOnGraph(object sender, PolarSpeedArgs e)
         {
             oscilloX.AddPointToLine(0, currentTime, e.Vx);
-            oscilloY.AddPointToLine(0, currentTime, e.Vy);
             oscilloTheta.AddPointToLine(0, currentTime, e.Vtheta);
 
             //asservSpeedDisplay.UpdateConsigneValues(e.Vx, e.Vy, e.Vtheta);
@@ -307,45 +296,64 @@ namespace RobotInterface
             //oscilloM4.AddPointToLine(3, e.timeStampMS / 1000.0, e.motor4);
         }
 
-        public void UpdateSpeedPolarPidErrorCorrectionConsigneDataOnGraph(object sender, PolarPidErrorCorrectionConsigneDataArgs e)
+        public void UpdateSpeedPolarPidErrorCorrectionConsigneDataOnGraph(object sender, Polar4WheelsPidErrorCorrectionConsigneDataArgs e)
         {
-            asservSpeedDisplay.UpdatePolarSpeedErrorValues(e.xErreur, e.thetaErreur);
-            asservSpeedDisplay.UpdatePolarSpeedCommandValues(e.xCorrection, e.thetaCorrection);
-            asservSpeedDisplay.UpdatePolarSpeedConsigneValues(e.xConsigneFromRobot, e.thetaConsigneFromRobot);
+            asserv2WheelsSpeedDisplay.UpdatePolarSpeedErrorValues(e.xErreur, e.thetaErreur);
+            asserv2WheelsSpeedDisplay.UpdatePolarSpeedCommandValues(e.xCorrection, e.thetaCorrection);
+            asserv2WheelsSpeedDisplay.UpdatePolarSpeedConsigneValues(e.xConsigneFromRobot, e.thetaConsigneFromRobot);
 
             oscilloX.AddPointToLine(3, e.timeStampMS / 1000.0, e.xErreur);
             oscilloX.AddPointToLine(4, e.timeStampMS / 1000.0, e.xCorrection);
-
-            oscilloY.AddPointToLine(3, e.timeStampMS / 1000.0, e.yErreur);
-            oscilloY.AddPointToLine(4, e.timeStampMS / 1000.0, e.yCorrection);
 
             oscilloTheta.AddPointToLine(3, e.timeStampMS / 1000.0, e.thetaErreur);
             oscilloTheta.AddPointToLine(4, e.timeStampMS / 1000.0, e.thetaCorrection);
 
             oscilloX.AddPointToLine(5, e.timeStampMS / 1000.0, e.xConsigneFromRobot);
-            oscilloY.AddPointToLine(5, e.timeStampMS / 1000.0, e.yConsigneFromRobot);
             oscilloTheta.AddPointToLine(5, e.timeStampMS / 1000.0, e.thetaConsigneFromRobot);
         }
-        public void UpdateSpeedIndependantPidErrorCorrectionConsigneDataOnGraph(object sender, IndependantPidErrorCorrectionConsigneDataArgs e)
+        public void UpdateSpeedIndependantPidErrorCorrectionConsigneDataOnGraph(object sender, Independant4WheelsPidErrorCorrectionConsigneDataArgs e)
         {
-            asservSpeedDisplay.UpdateIndependantSpeedErrorValues(e.M1Erreur, e.M2Erreur);
-            asservSpeedDisplay.UpdateIndependantSpeedCommandValues(e.M1Correction, e.M2Correction);
-            asservSpeedDisplay.UpdateIndependantSpeedConsigneValues(e.M1ConsigneFromRobot, e.M2ConsigneFromRobot);
+            asserv2WheelsSpeedDisplay.UpdateIndependantSpeedErrorValues(e.M1Erreur, e.M2Erreur);
+            asserv2WheelsSpeedDisplay.UpdateIndependantSpeedCommandValues(e.M1Correction, e.M2Correction);
+            asserv2WheelsSpeedDisplay.UpdateIndependantSpeedConsigneValues(e.M1ConsigneFromRobot, e.M2ConsigneFromRobot);
         }
 
-        public void UpdateSpeedPolarPidCorrectionData(object sender, PolarPidCorrectionArgs e)
+        public void UpdateSpeedPolarPidErrorCorrectionConsigneDataOnGraph(object sender, Polar2WheelsPidErrorCorrectionConsigneDataArgs e)
         {
-            asservSpeedDisplay.UpdatePolarSpeedCorrectionValues(e.CorrPx, e.CorrPTheta,
+            asserv2WheelsSpeedDisplay.UpdatePolarSpeedErrorValues(e.xErreur, e.thetaErreur);
+            asserv2WheelsSpeedDisplay.UpdatePolarSpeedCommandValues(e.xCorrection, e.thetaCorrection);
+            asserv2WheelsSpeedDisplay.UpdatePolarSpeedConsigneValues(e.xConsigneFromRobot, e.thetaConsigneFromRobot);
+
+            oscilloX.AddPointToLine(3, e.timeStampMS / 1000.0, e.xErreur);
+            oscilloX.AddPointToLine(4, e.timeStampMS / 1000.0, e.xCorrection);
+
+            oscilloTheta.AddPointToLine(3, e.timeStampMS / 1000.0, e.thetaErreur);
+            oscilloTheta.AddPointToLine(4, e.timeStampMS / 1000.0, e.thetaCorrection);
+
+            oscilloX.AddPointToLine(5, e.timeStampMS / 1000.0, e.xConsigneFromRobot);
+            oscilloTheta.AddPointToLine(5, e.timeStampMS / 1000.0, e.thetaConsigneFromRobot);
+        }
+        public void UpdateSpeedIndependantPidErrorCorrectionConsigneDataOnGraph(object sender, Independant2WheelsPidErrorCorrectionConsigneDataArgs e)
+        {
+            asserv2WheelsSpeedDisplay.UpdateIndependantSpeedErrorValues(e.M1Erreur, e.M2Erreur);
+            asserv2WheelsSpeedDisplay.UpdateIndependantSpeedCommandValues(e.M1Correction, e.M2Correction);
+            asserv2WheelsSpeedDisplay.UpdateIndependantSpeedConsigneValues(e.M1ConsigneFromRobot, e.M2ConsigneFromRobot);
+        }
+
+        public void Update2WheelsSpeedPolarPidCorrections(object sender, PolarPidCorrectionArgs e)
+        {
+            asserv2WheelsSpeedDisplay.UpdatePolarSpeedCorrectionValues(e.CorrPx, e.CorrPTheta,
                 e.CorrIx, e.CorrITheta,
                 e.CorrDx, e.CorrDTheta);
         }
 
-        public void UpdateSpeedIndependantPidCorrectionData(object sender, IndependantPidCorrectionArgs e)
+        public void Update2WheelsSpeedIndependantPidCorrections(object sender, IndependantPidCorrectionArgs e)
         {
-            asservSpeedDisplay.UpdateIndependantSpeedCorrectionValues(e.CorrPM1, e.CorrPM2,
+            asserv2WheelsSpeedDisplay.UpdateIndependantSpeedCorrectionValues(e.CorrPM1, e.CorrPM2,
                 e.CorrIM1, e.CorrIM2,
                 e.CorrDM1, e.CorrDM2);
         }
+
         public void UpdatePowerMonitoringValues(object sender, PowerMonitoringValuesEventArgs e)
         {
             //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
@@ -464,15 +472,15 @@ namespace RobotInterface
                 {
                     case AsservissementMode.Disabled:
                         LabelAsservMode.Content = "Asserv Mode :  Disabled";
-                        asservSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
+                        asserv2WheelsSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
                         break;
                     case AsservissementMode.Independant:
                         LabelAsservMode.Content = "Asserv Mode : Independant";
-                        asservSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
+                        asserv2WheelsSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
                         break;
                     case AsservissementMode.Polar:
                         LabelAsservMode.Content = "Asserv Mode : Polar";
-                        asservSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
+                        asserv2WheelsSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
                         break;
                 }
             }));
@@ -493,9 +501,9 @@ namespace RobotInterface
             //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
             //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
             //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
-            CheckBoxEnableAsservissementDebugData.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
-            {
-            }));
+            //CheckBoxEnableAsservissementDebugData.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
+            //{
+            //}));
         }
 
 
@@ -518,15 +526,15 @@ namespace RobotInterface
             //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
             //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
             //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
-            //textBoxConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
-            //{
-            //    textBoxConsole.Text += e.value+'\n';
-            //    if (textBoxConsole.Text.Length >= 2000)
-            //    {
-            //        textBoxConsole.Text = textBoxConsole.Text.Remove(0, 2000);
-            //    }
-            //    scrollViewerTextBoxConsole.ScrollToEnd();
-            //}));
+            textBoxConsole.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
+            {
+                textBoxConsole.Text += e.value + '\n';
+                if (textBoxConsole.Text.Length >= 2000)
+                {
+                    textBoxConsole.Text = textBoxConsole.Text.Remove(0, 2000);
+                }
+                //scrollViewerTextBoxConsole.ScrollToEnd();
+            }));
         }
 
         public void MessageCounterReceived(object sender, MsgCounterArgs e)
@@ -768,28 +776,34 @@ namespace RobotInterface
             {
                 case AsservissementMode.Disabled:
                     OnSetAsservissementModeFromInterface((byte)AsservissementMode.Polar);
+                    OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(false);
+                    OnEnableSpeedPIDEnableDebugInternalFromInterface(false);
                     break;
                 case AsservissementMode.Polar:
                     OnSetAsservissementModeFromInterface((byte)AsservissementMode.Independant);
+                    OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(true);
+                    OnEnableSpeedPIDEnableDebugInternalFromInterface(true);
                     break;
                 case AsservissementMode.Independant:
                     OnSetAsservissementModeFromInterface((byte)AsservissementMode.Disabled);
+                    OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(true);
+                    OnEnableSpeedPIDEnableDebugInternalFromInterface(true);
                     break;
             }
         }
 
         private void CheckBoxEnableAsservissementDebugData_Checked(object sender, RoutedEventArgs e)
         {
-            if (CheckBoxEnableAsservissementDebugData.IsChecked ?? false)
-            {
-                OnEnableSpeedPIDEnableDebugInternalFromInterface(true);
-                OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(true);
-            }
-            else
-            {
-                OnEnableSpeedPIDEnableDebugInternalFromInterface(false);
-                OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(false);
-            }
+            //if (CheckBoxEnableAsservissementDebugData.IsChecked ?? false)
+            //{
+            //    OnEnableSpeedPIDEnableDebugInternalFromInterface(true);
+            //    OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(true);
+            //}
+            //else
+            //{
+            //    OnEnableSpeedPIDEnableDebugInternalFromInterface(false);
+            //    OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(false);
+            //}
         }               
         
         bool currentXBoxActivation = false;

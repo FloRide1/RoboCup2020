@@ -13,7 +13,7 @@ using Utilities;
 using WorldMap;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
-namespace StrategyManagerNS
+namespace StrategyManagerProjetEtudiantNS
 {
     class TaskStrategy
     {

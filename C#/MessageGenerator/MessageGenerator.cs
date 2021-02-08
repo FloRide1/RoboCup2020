@@ -196,7 +196,7 @@ namespace MessageGeneratorNS
             OnMessageToRobot((Int16)Commands.PC2R_EmergencyStop, 1, payload);
         }
 
-        public void GenerateMessageSetupSpeedPolarPIDToRobot(object sender, PolarPIDSetupArgs e)
+        public void GenerateMessage4WheelsPolarSpeedPIDSetup(object sender, PolarPIDSetupArgs e)
         {
             byte[] payload = new byte[72];
             payload.SetValueRange(((float)(e.P_x)).GetBytes(), 0);
@@ -217,11 +217,30 @@ namespace MessageGeneratorNS
             payload.SetValueRange(((float)(e.P_theta_Limit)).GetBytes(), 60);
             payload.SetValueRange(((float)(e.I_theta_Limit)).GetBytes(), 64);
             payload.SetValueRange(((float)(e.D_theta_Limit)).GetBytes(), 68);
-            OnMessageToRobot((Int16)Commands.PC2R_SpeedPolarPIDSetGains, 72, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_4WheelsPolarSpeedPIDSetGains, 72, payload);
             OnMessageToDisplaySpeedPolarPidSetup(e);
         }
 
-        public void GenerateMessageSetupSpeedIndependantPIDToRobot(object sender, IndependantPIDSetupArgs e)
+        public void GenerateMessage2WheelsPolarSpeedPIDSetup(object sender, PolarPIDSetupArgs e)
+        {
+            byte[] payload = new byte[48];
+            payload.SetValueRange(((float)(e.P_x)).GetBytes(), 0);
+            payload.SetValueRange(((float)(e.I_x)).GetBytes(), 4);
+            payload.SetValueRange(((float)(e.D_x)).GetBytes(), 8);
+            payload.SetValueRange(((float)(e.P_theta)).GetBytes(), 12);
+            payload.SetValueRange(((float)(e.I_theta)).GetBytes(), 16);
+            payload.SetValueRange(((float)(e.D_theta)).GetBytes(), 20);
+            payload.SetValueRange(((float)(e.P_x_Limit)).GetBytes(), 24);
+            payload.SetValueRange(((float)(e.I_x_Limit)).GetBytes(), 28);
+            payload.SetValueRange(((float)(e.D_x_Limit)).GetBytes(), 32);
+            payload.SetValueRange(((float)(e.P_theta_Limit)).GetBytes(), 36);
+            payload.SetValueRange(((float)(e.I_theta_Limit)).GetBytes(), 40);
+            payload.SetValueRange(((float)(e.D_theta_Limit)).GetBytes(), 44);
+            OnMessageToRobot((Int16)Commands.PC2R_2WheelsPolarSpeedPIDSetGains, 48, payload);
+            OnMessageToDisplaySpeedPolarPidSetup(e);
+        }
+
+        public void GenerateMessage4WheelsIndependantSpeedPIDSetup(object sender, IndependantPIDSetupArgs e)
         {
             byte[] payload = new byte[96];
             payload.SetValueRange(((float)(e.P_M1)).GetBytes(), 0);
@@ -248,7 +267,26 @@ namespace MessageGeneratorNS
             payload.SetValueRange(((float)(e.P_M4_Limit)).GetBytes(), 84);
             payload.SetValueRange(((float)(e.I_M4_Limit)).GetBytes(), 88);
             payload.SetValueRange(((float)(e.D_M4_Limit)).GetBytes(), 92);
-            OnMessageToRobot((Int16)Commands.PC2R_SpeedIndependantPIDSetGains, 96, payload);
+            OnMessageToRobot((Int16)Commands.PC2R_4WheelsIndependantSpeedPIDSetGains, 96, payload);
+            OnMessageToDisplaySpeedIndependantPidSetup(e);
+        }
+
+        public void GenerateMessage2WheelsIndependantSpeedPIDSetup(object sender, IndependantPIDSetupArgs e)
+        {
+            byte[] payload = new byte[96];
+            payload.SetValueRange(((float)(e.P_M1)).GetBytes(), 0);
+            payload.SetValueRange(((float)(e.I_M1)).GetBytes(), 4);
+            payload.SetValueRange(((float)(e.D_M1)).GetBytes(), 8);
+            payload.SetValueRange(((float)(e.P_M2)).GetBytes(), 12);
+            payload.SetValueRange(((float)(e.I_M2)).GetBytes(), 16);
+            payload.SetValueRange(((float)(e.D_M2)).GetBytes(), 20);
+            payload.SetValueRange(((float)(e.P_M1_Limit)).GetBytes(), 24);
+            payload.SetValueRange(((float)(e.I_M1_Limit)).GetBytes(), 28);
+            payload.SetValueRange(((float)(e.D_M1_Limit)).GetBytes(), 32);
+            payload.SetValueRange(((float)(e.P_M2_Limit)).GetBytes(), 36);
+            payload.SetValueRange(((float)(e.I_M2_Limit)).GetBytes(), 40);
+            payload.SetValueRange(((float)(e.D_M2_Limit)).GetBytes(), 44);
+            OnMessageToRobot((Int16)Commands.PC2R_2WheelsIndependantSpeedPIDSetGains, 48, payload);
             OnMessageToDisplaySpeedIndependantPidSetup(e);
         }
 

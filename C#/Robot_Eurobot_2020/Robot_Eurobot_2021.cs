@@ -24,6 +24,8 @@ using Utilities;
 using System.Collections.Generic;
 using UdpMulticastInterpreter;
 using UDPMulticast;
+using StrategyManagerProjetEtudiantNS.StrategyRoboCupNS;
+using StrategyManagerProjetEtudiantNS;
 
 namespace Robot
 {
@@ -113,7 +115,8 @@ namespace Robot
         static GlobalWorldMapManager globalWorldMapManager;
                 
         static ImuProcessor.ImuProcessor imuProcessor;
-        static StrategyManagerNS.StrategyManager strategyManager;
+        //static StrategyManagerNS.StrategyManager strategyManager;
+        static StrategyManagerProjetEtudiantNS.StrategyGenerique strategyManager;
 
         static PerceptionManager perceptionManager;        
         static LidaRxR2000 lidar_OMD60M_TCP;
@@ -164,7 +167,19 @@ namespace Robot
 
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId, bypassMulticast:false);
             globalWorldMapManager = new GlobalWorldMapManager(robotId, teamId);
-            strategyManager = new StrategyManagerNS.StrategyManager(robotId, teamId, "224.16.32.79", competition);
+
+            switch (competition)
+            {
+                case GameMode.RoboCup:
+                    strategyManager = new StrategyRoboCup(robotId, teamId, "224.16.32.79");
+                    break;
+                case GameMode.Eurobot:
+                    strategyManager = new StrategyEurobot2021(robotId, teamId, "224.16.32.79");
+                    break;
+                case GameMode.Demo:
+                    break;
+            }
+            //strategyManager = new StrategyManagerNS.StrategyManager(robotId, teamId, "224.16.32.79", competition);
             
             robotUdpMulticastSender = new UDPMulticastSender(robotId, "224.16.32.79");
             robotUdpMulticastReceiver = new UDPMulticastReceiver(robotId, "224.16.32.79");
@@ -192,8 +207,8 @@ namespace Robot
             
             //Liens entre modules
             //strategyManager.strategy.OnRefereeBoxCommandEvent += globalWorldMapManager.OnRefereeBoxCommandReceived;
-            strategyManager.strategy.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
-            strategyManager.strategy.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
+            strategyManager.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
+            strategyManager.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
 
             //Kalman
             perceptionManager.OnAbsolutePositionEvent += kalmanPositioning.OnAbsolutePositionCalculatedEvent;
@@ -201,16 +216,16 @@ namespace Robot
             robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             kalmanPositioning.OnKalmanLocationEvent += perceptionManager.OnPhysicalRobotPositionReceived;
-            kalmanPositioning.OnKalmanLocationEvent += strategyManager.strategy.OnPositionRobotReceived;
+            kalmanPositioning.OnKalmanLocationEvent += strategyManager.OnPositionRobotReceived;
 
             //Update des données de la localWorldMap
             perceptionManager.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
-            strategyManager.strategy.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
-            strategyManager.strategy.OnRoleEvent += localWorldMapManager.OnRoleReceived; //Utile pour l'affichage
-            strategyManager.strategy.OnMessageDisplayEvent += localWorldMapManager.OnMessageDisplayReceived; //Utile pour l'affichage
-            strategyManager.strategy.OnHeatMapStrategyEvent += localWorldMapManager.OnHeatMapStrategyReceived;
-            strategyManager.strategy.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
-            strategyManager.strategy.OnHeatMapWayPointEvent += localWorldMapManager.OnHeatMapWaypointReceived;
+            strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
+            strategyManager.OnRoleEvent += localWorldMapManager.OnRoleReceived; //Utile pour l'affichage
+            strategyManager.OnMessageDisplayEvent += localWorldMapManager.OnMessageDisplayReceived; //Utile pour l'affichage
+            strategyManager.OnHeatMapStrategyEvent += localWorldMapManager.OnHeatMapStrategyReceived;
+            strategyManager.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
+            strategyManager.OnHeatMapWayPointEvent += localWorldMapManager.OnHeatMapWaypointReceived;
             trajectoryPlanner.OnGhostLocationEvent += localWorldMapManager.OnGhostLocationReceived;
 
 
@@ -218,20 +233,22 @@ namespace Robot
             trajectoryPlanner.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
             //trajectoryPlanner.OnSpeedConsigneEvent += robotMsgGenerator.GenerateMessageSetSpeedConsigneToRobot;
             
-            strategyManager.strategy.OnMessageEvent += lidar_OMD60M_TCP.OnMessageReceivedEvent;
+            strategyManager.OnMessageEvent += lidar_OMD60M_TCP.OnMessageReceivedEvent;
 
 
-            strategyManager.strategy.OnSetRobotSpeedPolarPIDEvent += robotMsgGenerator.GenerateMessageSetupSpeedPolarPIDToRobot;
-            strategyManager.strategy.OnSetRobotSpeedIndependantPIDEvent += robotMsgGenerator.GenerateMessageSetupSpeedIndependantPIDToRobot;
-            strategyManager.strategy.OnSetAsservissementModeEvent += robotMsgGenerator.GenerateMessageSetAsservissementMode;
+            strategyManager.On4WheelsPolarSpeedPIDSetupEvent += robotMsgGenerator.GenerateMessage4WheelsPolarSpeedPIDSetup;
+            strategyManager.On4WheelsIndependantSpeedPIDSetupEvent += robotMsgGenerator.GenerateMessage4WheelsIndependantSpeedPIDSetup;
+            strategyManager.On2WheelsPolarSpeedPIDSetupEvent += robotMsgGenerator.GenerateMessage2WheelsPolarSpeedPIDSetup;
+            strategyManager.On2WheelsIndependantSpeedPIDSetupEvent += robotMsgGenerator.GenerateMessage2WheelsIndependantSpeedPIDSetup;
+            strategyManager.OnSetAsservissementModeEvent += robotMsgGenerator.GenerateMessageSetAsservissementMode;
             //  strategyEurobot.OnHerkulexPositionRequestEvent += herkulexManager.OnHerkulexPositionRequestEvent;
-            strategyManager.strategy.OnSetSpeedConsigneToMotor += robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
-            strategyManager.strategy.OnEnableDisableMotorCurrentDataEvent += robotMsgGenerator.GenerateMessageEnableMotorCurrentData;
-            strategyManager.strategy.OnOdometryPointToMeterEvent += robotMsgGenerator.GenerateMessageOdometryPointToMeter;
-            strategyManager.strategy.On4WheelsAngleSetEvent += robotMsgGenerator.GenerateMessage4WheelsAngleSet;
-            strategyManager.strategy.On4WheelsToPolarSetEvent += robotMsgGenerator.GenerateMessage4WheelsToPolarMatrixSet;
-            strategyManager.strategy.On2WheelsAngleSetEvent += robotMsgGenerator.GenerateMessage2WheelsAngleSet;
-            strategyManager.strategy.On2WheelsToPolarSetEvent += robotMsgGenerator.GenerateMessage2WheelsToPolarMatrixSet;
+            strategyManager.OnSetSpeedConsigneToMotor += robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;
+            strategyManager.OnEnableDisableMotorCurrentDataEvent += robotMsgGenerator.GenerateMessageEnableMotorCurrentData;
+            strategyManager.OnOdometryPointToMeterEvent += robotMsgGenerator.GenerateMessageOdometryPointToMeter;
+            strategyManager.On4WheelsAngleSetEvent += robotMsgGenerator.GenerateMessage4WheelsAngleSet;
+            strategyManager.On4WheelsToPolarSetEvent += robotMsgGenerator.GenerateMessage4WheelsToPolarMatrixSet;
+            strategyManager.On2WheelsAngleSetEvent += robotMsgGenerator.GenerateMessage2WheelsAngleSet;
+            strategyManager.On2WheelsToPolarSetEvent += robotMsgGenerator.GenerateMessage2WheelsToPolarMatrixSet;
             herkulexManager.OnHerkulexSendToSerialEvent += robotMsgGenerator.GenerateMessageForwardHerkulex;
 
             
@@ -254,7 +271,7 @@ namespace Robot
             usbDriver.OnUSBDataReceivedEvent += msgDecoder.DecodeMsgReceived;
             msgDecoder.OnMessageDecodedEvent += robotMsgProcessor.ProcessRobotDecodedMessage;
             robotMsgProcessor.OnIMURawDataFromRobotGeneratedEvent += imuProcessor.OnIMURawDataReceived;
-            robotMsgProcessor.OnIOValuesFromRobotGeneratedEvent += strategyManager.strategy.OnIOValuesFromRobot;
+            robotMsgProcessor.OnIOValuesFromRobotGeneratedEvent += strategyManager.OnIOValuesFromRobot;
             robotMsgProcessor.OnIOValuesFromRobotGeneratedEvent += perceptionManager.OnIOValuesFromRobotEvent;
 
 
@@ -266,7 +283,7 @@ namespace Robot
             trajectoryPlanner.OnPidSpeedResetEvent += robotMsgGenerator.GenerateMessageResetSpeedPid;
 
             ////Event d'interprétation d'une globalWorldMap à sa réception dans le robot
-            robotUdpMulticastInterpreter.OnRefBoxMessageEvent += strategyManager.strategy.OnRefBoxMsgReceived;
+            robotUdpMulticastInterpreter.OnRefBoxMessageEvent += strategyManager.OnRefBoxMsgReceived;
             
             /// Event de Transmission des Local World Map du robot vers le multicast
             /// Disparaitra quand on voudra jouer sans liaison multicast
@@ -279,7 +296,7 @@ namespace Robot
 
             /// Event généré lorsque la Global World Map a été calculée.
             /// Elle n'a pas vocation à être renvoyée à tous les robots puisqu'on la génère dans chaque robot en parallèle
-            globalWorldMapManager.OnGlobalWorldMapEvent += strategyManager.strategy.OnGlobalWorldMapReceived;
+            globalWorldMapManager.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
 
             /// Event de Réception de data Multicast sur le robot
             robotUdpMulticastReceiver.OnDataReceivedEvent += robotUdpMulticastInterpreter.OnMulticastDataReceived;
@@ -294,7 +311,7 @@ namespace Robot
             //strategyManagerDictionary.Add(robotId, strategyManager);
             trajectoryPlanner.InitRobotPosition(0, 0, 0);
 
-            strategyManager.strategy.InitStrategy( robotId,  teamId);
+            strategyManager.InitStrategy( robotId,  teamId);
             while (!exitSystem)
             {
                 Thread.Sleep(500);
@@ -328,7 +345,7 @@ namespace Robot
 
                 //Gestion des events liés à une détection de collision soft
                 trajectoryPlanner.OnCollisionEvent -= kalmanPositioning.OnCollisionReceived;
-                strategyManager.strategy.OnCollisionEvent -= kalmanPositioning.OnCollisionReceived;
+                strategyManager.OnCollisionEvent -= kalmanPositioning.OnCollisionReceived;
             }
             else
             {
@@ -345,7 +362,7 @@ namespace Robot
 
                 //Gestion des events liés à une détection de collision soft
                 trajectoryPlanner.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
-                strategyManager.strategy.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
+                strategyManager.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
             }
         }
 
@@ -430,10 +447,10 @@ namespace Robot
             robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += interfaceRobot.UpdateSpeedPolarOdometryOnInterface;
             
             robotMsgProcessor.OnIndependantOdometrySpeedFromRobotEvent += interfaceRobot.UpdateSpeedIndependantOdometryOnInterface;
-            robotMsgProcessor.OnSpeedPolarPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedPolarPidErrorCorrectionConsigneDataOnGraph;
-            robotMsgProcessor.OnSpeedIndependantPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedIndependantPidErrorCorrectionConsigneDataOnGraph;
-            robotMsgProcessor.OnSpeedPolarPidCorrectionDataFromRobotEvent += interfaceRobot.UpdateSpeedPolarPidCorrectionData;
-            robotMsgProcessor.OnSpeedIndependantPidCorrectionDataFromRobotEvent += interfaceRobot.UpdateSpeedIndependantPidCorrectionData;
+            robotMsgProcessor.On4WheelsSpeedPolarPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedPolarPidErrorCorrectionConsigneDataOnGraph;
+            robotMsgProcessor.On4WheelsSpeedIndependantPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedIndependantPidErrorCorrectionConsigneDataOnGraph;
+            //robotMsgProcessor.OnSpeedPolarPidCorrectionDataFromRobotEvent += interfaceRobot.UpdateSpeedPolarPidCorrectionData;
+            //robotMsgProcessor.OnSpeedIndependantPidCorrectionDataFromRobotEvent += interfaceRobot.UpdateSpeedIndependantPidCorrectionData;
 
             robotMsgProcessor.OnErrorTextFromRobotGeneratedEvent += interfaceRobot.AppendConsole;
             robotMsgProcessor.OnPowerMonitoringValuesFromRobotGeneratedEvent += interfaceRobot.UpdatePowerMonitoringValues;
@@ -457,7 +474,7 @@ namespace Robot
             interfaceRobot.OnEnableEncodersRawDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableEncoderRawData;
             interfaceRobot.OnEnableMotorCurrentDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableMotorCurrentData;
             interfaceRobot.OnEnableMotorsSpeedConsigneDataFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableMotorSpeedConsigne;
-            interfaceRobot.OnSetRobotPIDFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageSetupSpeedPolarPIDToRobot;
+            interfaceRobot.OnSetRobotPIDFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessage4WheelsPolarSpeedPIDSetup;
             interfaceRobot.OnEnableSpeedPIDEnableDebugInternalFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageSpeedPIDEnableDebugInternal;
             interfaceRobot.OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterfaceEvent += robotMsgGenerator.GenerateMessageSpeedPIDEnableDebugErrorCorrectionConsigne;
             interfaceRobot.OnCalibrateGyroFromInterfaceGeneratedEvent += imuProcessor.OnCalibrateGyroFromInterfaceGeneratedEvent;

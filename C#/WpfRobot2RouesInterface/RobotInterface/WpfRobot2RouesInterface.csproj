@@ -166,5 +166,8 @@
   <ItemGroup>
     <Resource Include="Ressources\Robot_Shape.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Ressources\Robot_Shape_2_Roues.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -230,7 +230,8 @@ namespace EventArgsLibrary
         public double vitesseMotor6;
         public double vitesseMotor7;
     }
-    public class PolarPidErrorCorrectionConsigneDataArgs : EventArgs
+
+    public class Polar4WheelsPidErrorCorrectionConsigneDataArgs : EventArgs
     {
         public uint timeStampMS;
         public double xErreur;
@@ -245,7 +246,21 @@ namespace EventArgsLibrary
         public double yConsigneFromRobot;
         public double thetaConsigneFromRobot;
     }
-    public class IndependantPidErrorCorrectionConsigneDataArgs : EventArgs
+
+    public class Polar2WheelsPidErrorCorrectionConsigneDataArgs : EventArgs
+    {
+        public uint timeStampMS;
+        public double xErreur;
+        public double thetaErreur;
+
+        public double xCorrection;
+        public double thetaCorrection;
+
+        public double xConsigneFromRobot;
+        public double thetaConsigneFromRobot;
+    }
+
+    public class Independant4WheelsPidErrorCorrectionConsigneDataArgs : EventArgs
     {
         public uint timeStampMS;
         public double M1Erreur;
@@ -263,6 +278,20 @@ namespace EventArgsLibrary
         public double M3ConsigneFromRobot;
         public double M4ConsigneFromRobot;
     }
+
+    public class Independant2WheelsPidErrorCorrectionConsigneDataArgs : EventArgs
+    {
+        public uint timeStampMS;
+        public double M1Erreur;
+        public double M2Erreur;
+
+        public double M1Correction;
+        public double M2Correction;
+
+        public double M1ConsigneFromRobot;
+        public double M2ConsigneFromRobot;
+    }
+
     public class PolarPIDSetupArgs : EventArgs
     {
         public double P_x;

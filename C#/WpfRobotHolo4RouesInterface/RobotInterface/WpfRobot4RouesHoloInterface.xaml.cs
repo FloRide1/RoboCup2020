@@ -379,7 +379,7 @@ namespace RobotInterface
             //oscilloM4.AddPointToLine(3, e.timeStampMS / 1000.0, e.motor4);
         }
 
-        public void UpdateSpeedPolarPidErrorCorrectionConsigneDataOnGraph(object sender, PolarPidErrorCorrectionConsigneDataArgs e)
+        public void UpdateSpeedPolarPidErrorCorrectionConsigneDataOnGraph(object sender, Polar4WheelsPidErrorCorrectionConsigneDataArgs e)
         {
             asservSpeedDisplay.UpdatePolarSpeedErrorValues(e.xErreur, e.yErreur, e.thetaErreur);
             asservSpeedDisplay.UpdatePolarSpeedCommandValues(e.xCorrection, e.yCorrection, e.thetaCorrection);
@@ -398,7 +398,7 @@ namespace RobotInterface
             oscilloY.AddPointToLine(5, e.timeStampMS / 1000.0, e.yConsigneFromRobot);
             oscilloTheta.AddPointToLine(5, e.timeStampMS / 1000.0, e.thetaConsigneFromRobot);
         }
-        public void UpdateSpeedIndependantPidErrorCorrectionConsigneDataOnGraph(object sender, IndependantPidErrorCorrectionConsigneDataArgs e)
+        public void UpdateSpeedIndependantPidErrorCorrectionConsigneDataOnGraph(object sender, Independant4WheelsPidErrorCorrectionConsigneDataArgs e)
         {
             asservSpeedDisplay.UpdateIndependantSpeedErrorValues(e.M1Erreur, e.M2Erreur, e.M3Erreur, e.M4Erreur);
             asservSpeedDisplay.UpdateIndependantSpeedCommandValues(e.M1Correction, e.M2Correction, e.M3Correction, e.M4Correction);

@@ -31,13 +31,17 @@ namespace Constants
 
         R2PC_SpeedPolarAndIndependantOdometry = 0x0150,                 //Timestamp(4L) - Vx(4F) - Vy(4F) - VTheta(4F) - VM1(4F) - VM2(4F) - VM3(4F) - VM4(4F)
         R2PC_SpeedAuxiliaryOdometry = 0x0151,                           //Timestamp(4L) - VM5(4F) - VM6(4F) - VM7(4F) 
-        R2PC_SpeedPolarPidDebugErrorCorrectionConsigne = 0x152,         //Timestamp(4L) - ErrX(4F) - ErrY(4F) - ErrTh(4F) - CorrX(4F) - CorrY(4F) - CorrTh(4F) - ConsX(4F) - ConsY(4F) - ConsTh(4F)
-        R2PC_SpeedIndependantPidDebugErrorCorrectionConsigne = 0x153,   //Timestamp(4L) - ErrM1(4F) - ErrM2(4F) - ErrM3(4F) - ErrM4(4F) - CorrM1(4F) - CorrM2(4F) - CorrM3(4F) - CorrM4(4F) - ConsM(4F) - ConsM2(4F) - ConsM3(4F) - ConsM4(4F)
-        R2PC_SpeedPolarPidDebugInternal = 0x0154,                       //Timestamp(4L) - CorrPx(4F) - CorrIx(4F) - CorrDx(4F) - CorrPy(4F) - CorrIy(4F) - CorrDy(4F) - CorrPTh(4F) - CorrITh(4F) - CorrDTh(4F)  
-        R2PC_SpeedIndependantPidDebugInternal = 0x0155,                 //Timestamp(4L) - CorrPM1(4F) - CorrIM1(4F) - CorrDM1(4F) - CorrPM2(4F) - CorrIM2(4F) - CorrDM2(4F) - CorrPM3(4F) - CorrIM3(4F) - CorrDM3(4F) - CorrPM4(4F) - CorrIM4(4F) - CorrDM4(4F)
+        R2PC_4WheelsSpeedPolarPidCommandErrorCorrectionConsigne = 0x152,          //Timestamp(4L) - ErrX(4F) - ErrY(4F) - ErrTh(4F) - CorrX(4F) - CorrY(4F) - CorrTh(4F) - ConsX(4F) - ConsY(4F) - ConsTh(4F)
+        R2PC_4WheelsSpeedIndependantPidCommandErrorCorrectionConsigne = 0x153,    //Timestamp(4L) - ErrM1(4F) - ErrM2(4F) - ErrM3(4F) - ErrM4(4F) - CorrM1(4F) - CorrM2(4F) - CorrM3(4F) - CorrM4(4F) - ConsM(4F) - ConsM2(4F) - ConsM3(4F) - ConsM4(4F)
+        R2PC_4WheelsSpeedPolarPidCorrections = 0x0154,                       //Timestamp(4L) - CorrPx(4F) - CorrIx(4F) - CorrDx(4F) - CorrPy(4F) - CorrIy(4F) - CorrDy(4F) - CorrPTh(4F) - CorrITh(4F) - CorrDTh(4F)  
+        R2PC_4WheelsSpeedIndependantPidCorrections = 0x0155,                 //Timestamp(4L) - CorrPM1(4F) - CorrIM1(4F) - CorrDM1(4F) - CorrPM2(4F) - CorrIM2(4F) - CorrDM2(4F) - CorrPM3(4F) - CorrIM3(4F) - CorrDM3(4F) - CorrPM4(4F) - CorrIM4(4F) - CorrDM4(4F)
         R2PC_SpeedAuxiliaryMotorsConsignes = 0x0156,                    //Timestamp(4L) - Consigne Motor 5(4F) - Consigne Motor 6(4F) - Consigne Motor 7(4F) )
         
         R2PC_MotorCurrentsMonitoring = 0x0160,                          //Timestamp(4L) - Motor Current 1 (4F) - ... - Motor Current 7 (4F)
+        R2PC_2WheelsSpeedPolarPidCommandErrorCorrectionConsigne = 0x162,          //Timestamp(4L) - ErrX(4F) - ErrTh(4F) - CorrX(4F) - CorrTh(4F) - ConsX(4F) - ConsTh(4F)
+        R2PC_2WheelsSpeedIndependantPidCommandErrorCorrectionConsigne = 0x163,    //Timestamp(4L) - ErrM1(4F) - ErrM2(4F) - CorrM1(4F) - CorrM2(4F) - ConsM1(4F) - ConsM2(4F)
+        R2PC_2WheelsSpeedPolarPidCorrections = 0x0164,                       //Timestamp(4L) - CorrPx(4F) - CorrIx(4F) - CorrDx(4F) - CorrPTh(4F) - CorrITh(4F) - CorrDTh(4F)  
+        R2PC_2WheelsSpeedIndependantPidCorrections = 0x0165,                 //Timestamp(4L) - CorrPM1(4F) - CorrIM1(4F) - CorrDM1(4F) - CorrPM2(4F) - CorrIM2(4F) - CorrDM2(4F)
 
         //Retour des commandes d'enable du PC
         R2PC_IOPollingEnableStatus = 0x0180,                               //Enable-Disable (1 Byte)
@@ -70,16 +74,18 @@ namespace Constants
 
         PC2R_SetAsservissementMode = 0x250,                             //Mode (1 Byte : Disabled=0 - Polarie = 1 - Independant = 2)
         PC2R_SpeedPIDEnableDebugErrorCorrectionConsigne = 0x251,        //Enable-Disable (1 Byte)
-        PC2R_SpeedPIDEnableDebugInternal = 0x0252,                          //Enable-Disable (1 Byte)
+        PC2R_SpeedPIDEnableDebugInternal = 0x0252,                      //Enable-Disable (1 Byte)
         PC2R_SpeedConsigneMonitoringEnable = 0x0253,                    //Enable-Disable (1 Byte)
-        PC2R_SpeedPolarPIDSetGains = 0x0254,                            //KpX(4F) - KiX(4F) - KdX(4F) - idem en Y, en Theta, puis en LimitX, LimitY et Limit Theta : total 72 octets
-        PC2R_SpeedIndependantPIDSetGains = 0x0255,                      //KpM1(4F) - KiM1(4F) - KdM1(4F) - idem en M2, M3 et M4, puis en LimitM1, LimitM2, LimitM3 et Limit M4 : total 96 octets
+        PC2R_4WheelsPolarSpeedPIDSetGains = 0x0254,                     //KpX(4F) - KiX(4F) - KdX(4F) - idem en Y, en Theta, puis en LimitX, LimitY et Limit Theta : total 72 octets
+        PC2R_4WheelsIndependantSpeedPIDSetGains = 0x0255,               //KpM1(4F) - KiM1(4F) - KdM1(4F) - idem en M2, M3 et M4, puis en LimitM1, LimitM2, LimitM3 et Limit M4 : total 96 octets
         PC2R_SpeedPolarSetConsigne = 0x0256,                            //Vx(4F) - Vy(4F) - VTh(4F)
         PC2R_SpeedIndividualMotorSetConsigne = 0x0257,                  //Numero Moteur (1 byte) - VMoteur(4F)
         PC2R_SpeedPIDReset = 0x0258,                                    //Pas de payload
 
         PC2R_MotorsEnableDisable = 0x0260,                              //Enable-Disable (1 Byte)
         PC2R_MotorCurrentMonitoringEnable = 0x0261,                     //Enable-Disable (1 Byte)
+        PC2R_2WheelsPolarSpeedPIDSetGains = 0x0264,                     //KpX(4F) - KiX(4F) - KdX(4F) - idem en Theta, puis en LimitX et Limit Theta : total 48 octets
+        PC2R_2WheelsIndependantSpeedPIDSetGains = 0x0265,               //KpM1(4F) - KiM1(4F) - KdM1(4F) - idem en M2, puis en LimitM1, LimitM2 : total 48 octets
 
         PC2R_TirEnableDisable = 0x0270,                                 //Enable-Disable (1 Byte)
         PC2R_TirCommand = 0x0271,                                       //Duree Pulse Coil 1 (2) - .. - Duree Pulse Coil 4 (2) - Offset Pulse Coil 2 (2) - .. - Offset Pulse Coil 4 (2) : total 14 bytes

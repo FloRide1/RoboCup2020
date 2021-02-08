@@ -78,8 +78,6 @@
     <Compile Include="StrategyEurobot\TaskWindFlag.cs" />
     <Compile Include="StrategyGenerique.cs" />
     <Compile Include="StrategyRoboCup\StrategyRoboCup.cs" />
-    <Compile Include="StrategyInterface.cs" />
-    <Compile Include="StrategyManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StrategyRoboCup\TaskBallHandlingManagement.cs" />
   </ItemGroup>

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Utilities;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
-namespace StrategyManagerNS
+namespace StrategyManagerProjetEtudiantNS
 {
     public class TaskBalade
     {

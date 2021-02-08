@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{804BD483-52AA-46E6-8C37-65375552594B}</ProjectGuid>
+    <ProjectGuid>{45B66B72-B07F-4BBD-85F5-DB8A5C438B69}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>StrategyManagerEurobotNS</RootNamespace>
-    <AssemblyName>StrategyManagerEurobot</AssemblyName>
+    <RootNamespace>StrategyManagerProjetEtudiantNS</RootNamespace>
+    <AssemblyName>StrategyManagerProjetEtudiant</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -22,7 +22,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +30,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -53,10 +51,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -66,21 +62,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DescripteurMatch.cs" />
-    <Compile Include="EnumsStrategy.cs" />
-    <Compile Include="StrategyManagerEurobot.cs" />
+    <Compile Include="StrategyGenerique.cs" />
+    <Compile Include="StrategyEurobot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Taches\TaskBrasDrapeau.cs" />
-    <Compile Include="Taches\TaskBrasCentre.cs" />
-    <Compile Include="Taches\TaskFinDeMatch.cs" />
-    <Compile Include="Taches\TaskDistributeur.cs" />
-    <Compile Include="Taches\TaskPhare.cs" />
-    <Compile Include="Taches\TaskWindFlag.cs" />
-    <Compile Include="Taches\TaskDepose.cs" />
-    <Compile Include="Taches\TaskBalade.cs" />
-    <Compile Include="Taches\TaskStrategy.cs" />
-    <Compile Include="Taches\TaskBrasGauche.cs" />
-    <Compile Include="Taches\TaskBrasDroit.cs" />
+    <Compile Include="Taches\TaskDemoMessage.cs" />
+    <Compile Include="Taches\TaskDemoMove.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Constants\Constants.csproj">
@@ -90,10 +76,6 @@
     <ProjectReference Include="..\EventArgsLibrary\EventArgsLibrary.csproj">
       <Project>{9C46A7C0-4675-41BE-B282-E6F0825AD73E}</Project>
       <Name>EventArgsLibrary</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FileManager\FileManager.csproj">
-      <Project>{17c540a1-8d13-4cb6-8094-32229e50e031}</Project>
-      <Name>FileManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\HeatMap\HeatMap.csproj">
       <Project>{BDF7D4A0-1E8B-4487-862E-2DA58A7BC267}</Project>
@@ -122,12 +104,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="CUDAfy.NET">
-      <Version>1.29.5576.13786</Version>
-    </PackageReference>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
