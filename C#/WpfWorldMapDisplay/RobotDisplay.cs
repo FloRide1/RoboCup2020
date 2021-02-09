@@ -1,4 +1,5 @@
-﻿using SciChart.Charting.Model.DataSeries;
+﻿using Constants;
+using SciChart.Charting.Model.DataSeries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace WpfWorldMapDisplay
         private Location destinationLocation;
         private Location waypointLocation;
         public string robotName = "";
-        public RobotRole robotRole = RobotRole.Stopped;
+        public RoboCupRobotRole robotRole = RoboCupRobotRole.Stopped;
         public string DisplayMessage = "";
         public PlayingSide playingSide = PlayingSide.Left;
 
@@ -50,7 +51,7 @@ namespace WpfWorldMapDisplay
             robotLocation = loc;
         }
 
-        public void SetRole(RobotRole role)
+        public void SetRole(RoboCupRobotRole role)
         {
             robotRole = role;
         }

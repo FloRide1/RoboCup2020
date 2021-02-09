@@ -10,17 +10,17 @@ using UDPMulticast;
 using UdpMulticastInterpreter;
 using WpfTeamInterfaceNS;
 using Utilities;
-using StrategyManagerNS.StrategyRoboCupNS;
+using StrategyManagerProjetEtudiantNS.StrategyRoboCupNS;
 
 namespace TeamSimulator
 {
     static class TeamSimulator
     {
         static PhysicalSimulator.PhysicalSimulator physicalSimulator;
-        static GlobalWorldMapManager globalWorldMapManagerTeam1;
-        static GlobalWorldMapManager globalWorldMapManagerTeam2;
+        //static GlobalWorldMapManager globalWorldMapManagerTeam1;
+        //static GlobalWorldMapManager globalWorldMapManagerTeam2;
 
-        static Dictionary<int, StrategyManagerNS.StrategyManager> strategyManagerDictionary;
+        static Dictionary<int, StrategyManagerProjetEtudiantNS.StrategyGenerique> strategyManagerDictionary;
         static List<TrajectoryPlanner> trajectoryPlannerList;
         static List<SensorSimulator.SensorSimulator> sensorSimulatorList;
         static List<KalmanPositioning.KalmanPositioning> kalmanPositioningList;
@@ -29,6 +29,7 @@ namespace TeamSimulator
         static List<UDPMulticastSender> robotUdpMulticastSenderList;
         static List<UDPMulticastReceiver> robotUdpMulticastReceiverList;
         static List<UDPMulticastInterpreter> robotUdpMulticastInterpreterList;
+        static List<GlobalWorldMapManager> globalWorldMapManagerList;
 
         static RefereeBoxAdapter.RefereeBoxAdapter refBoxAdapter;
 
@@ -58,16 +59,17 @@ namespace TeamSimulator
             trajectoryPlannerList = new List<TrajectoryPlanner>();
             sensorSimulatorList = new List<SensorSimulator.SensorSimulator>();
             kalmanPositioningList = new List<KalmanPositioning.KalmanPositioning>();
-            strategyManagerDictionary = new Dictionary<int, StrategyManagerNS.StrategyManager>();
+            strategyManagerDictionary = new Dictionary<int, StrategyManagerProjetEtudiantNS.StrategyGenerique>();
             localWorldMapManagerList = new List<LocalWorldMapManager>();
             perceptionManagerList = new List<PerceptionManager>();
             robotUdpMulticastSenderList = new List<UDPMulticastSender>();
             robotUdpMulticastReceiverList = new List<UDPMulticastReceiver>();
             robotUdpMulticastInterpreterList = new List<UDPMulticastInterpreter>();
+            globalWorldMapManagerList = new List<GlobalWorldMapManager>();
 
             physicalSimulator = new PhysicalSimulator.PhysicalSimulator("RoboCup");
-            globalWorldMapManagerTeam1 = new GlobalWorldMapManager((int)TeamId.Team1);
-            globalWorldMapManagerTeam2 = new GlobalWorldMapManager((int)TeamId.Team2);
+            //globalWorldMapManagerTeam1 = new GlobalWorldMapManager((int)TeamId.Team1);
+            //globalWorldMapManagerTeam2 = new GlobalWorldMapManager((int)TeamId.Team2);
 
             //BaseStation RCT
             BaseStationUdpMulticastSenderTeam1 = new UDPMulticastSender(0, "224.16.32.79");
@@ -92,24 +94,24 @@ namespace TeamSimulator
             //DefineRoles();
             StartInterfaces();
 
-            refBoxAdapter = new RefereeBoxAdapter.RefereeBoxAdapter();
+            //refBoxAdapter = new RefereeBoxAdapter.RefereeBoxAdapter();
 
-            //Event de réception d'une commande de la réferee box
-            refBoxAdapter.OnMulticastSendRefBoxCommandEvent += BaseStationUdpMulticastSenderTeam1.OnMulticastMessageToSendReceived;
-            refBoxAdapter.OnMulticastSendRefBoxCommandEvent += BaseStationUdpMulticastSenderTeam2.OnMulticastMessageToSendReceived;
+            ////Event de réception d'une commande de la réferee box
+            //refBoxAdapter.OnMulticastSendRefBoxCommandEvent += BaseStationUdpMulticastSenderTeam1.OnMulticastMessageToSendReceived;
+            //refBoxAdapter.OnMulticastSendRefBoxCommandEvent += BaseStationUdpMulticastSenderTeam2.OnMulticastMessageToSendReceived;
 
             //Event de réception de data Multicast sur la base Station Team X
             BaseStationUdpMulticastReceiverTeam1.OnDataReceivedEvent += BaseStationUdpMulticastInterpreterTeam1.OnMulticastDataReceived;
             BaseStationUdpMulticastReceiverTeam2.OnDataReceivedEvent += BaseStationUdpMulticastInterpreterTeam2.OnMulticastDataReceived;
-            
+
             //Event d'interprétation d'une localWorldMap à sa réception dans la base station
-            BaseStationUdpMulticastInterpreterTeam1.OnLocalWorldMapEvent += globalWorldMapManagerTeam1.OnLocalWorldMapReceived;
-            BaseStationUdpMulticastInterpreterTeam2.OnLocalWorldMapEvent += globalWorldMapManagerTeam2.OnLocalWorldMapReceived;
-            
+            //BaseStationUdpMulticastInterpreterTeam1.OnLocalWorldMapEvent += globalWorldMapManagerTeam1.OnLocalWorldMapReceived;
+            //BaseStationUdpMulticastInterpreterTeam2.OnLocalWorldMapEvent += globalWorldMapManagerTeam2.OnLocalWorldMapReceived;
+
             //Event d'envoi de la global world map sur le Multicast
-            globalWorldMapManagerTeam1.OnMulticastSendGlobalWorldMapEvent += BaseStationUdpMulticastSenderTeam1.OnMulticastMessageToSendReceived;
-            globalWorldMapManagerTeam2.OnMulticastSendGlobalWorldMapEvent += BaseStationUdpMulticastSenderTeam2.OnMulticastMessageToSendReceived;
-            
+            //globalWorldMapManagerTeam1.OnMulticastSendGlobalWorldMapEvent += BaseStationUdpMulticastSenderTeam1.OnMulticastMessageToSendReceived;
+            //globalWorldMapManagerTeam2.OnMulticastSendGlobalWorldMapEvent += BaseStationUdpMulticastSenderTeam2.OnMulticastMessageToSendReceived;
+
 
             lock (ExitLock)
             {
@@ -123,7 +125,7 @@ namespace TeamSimulator
         private static void CreatePlayer(int TeamNumber, int RobotNumber, string Name, string multicastIpAddress)
         {
             int robotId = TeamNumber + RobotNumber;
-            var strategyManager = new StrategyManagerNS.StrategyManager(robotId, TeamNumber, multicastIpAddress, GameMode.RoboCup);
+            var strategyManager = new StrategyRoboCup(robotId, TeamNumber, multicastIpAddress);
             //var waypointGenerator = new WaypointGenerator(robotId, GameMode.RoboCup);
             var trajectoryPlanner = new TrajectoryPlanner(robotId, GameMode.RoboCup);
             var sensorSimulator = new SensorSimulator.SensorSimulator(robotId);
@@ -131,6 +133,7 @@ namespace TeamSimulator
             var localWorldMapManager = new LocalWorldMapManager(robotId, TeamNumber, bypassMulticast: false);
             //var lidarSimulator = new LidarSimulator.LidarSimulator(robotId);
             var perceptionSimulator = new PerceptionManager(robotId, GameMode.RoboCup);
+            var globalWorldMapManager = new GlobalWorldMapManager(robotId, TeamNumber);
             UDPMulticastSender robotUdpMulticastSender = null;
             UDPMulticastReceiver robotUdpMulticastReceiver = null;
             UDPMulticastInterpreter robotUdpMulticastInterpreter = null;
@@ -149,58 +152,54 @@ namespace TeamSimulator
             }
 
             //Liens entre modules
-            strategyManager.strategy.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
-            strategyManager.strategy.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
-            ((StrategyRoboCup)strategyManager.strategy).OnShootRequestEvent += physicalSimulator.OnShootOrderReceived;
+            strategyManager.OnGameStateChangedEvent += trajectoryPlanner.OnGameStateChangeReceived;
+            strategyManager.OnWaypointEvent += trajectoryPlanner.OnWaypointReceived;
+            strategyManager.OnShootRequestEvent += physicalSimulator.OnShootOrderReceived;
             trajectoryPlanner.OnSpeedConsigneEvent += physicalSimulator.SetRobotSpeed;
 
             //Gestion des events liés à une détection de collision soft
             trajectoryPlanner.OnCollisionEvent += kalmanPositioning.OnCollisionReceived;
             trajectoryPlanner.OnCollisionEvent += physicalSimulator.OnCollisionReceived;
             
-            ////physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived; //replacé par les 5 lignes suivantes
             physicalSimulator.OnPhysicalRobotLocationEvent += sensorSimulator.OnPhysicalRobotPositionReceived;
             physicalSimulator.OnPhysicalBallHandlingEvent += sensorSimulator.OnPhysicalBallHandlingReceived;
             sensorSimulator.OnCamLidarSimulatedRobotPositionEvent += kalmanPositioning.OnCamLidarSimulatedRobotPositionReceived;
             sensorSimulator.OnGyroSimulatedRobotSpeedEvent += kalmanPositioning.OnGyroRobotSpeedReceived;
             sensorSimulator.OnOdometrySimulatedRobotSpeedEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
-            sensorSimulator.OnBallHandlingSimulatedEvent += ((StrategyRoboCup)strategyManager.strategy).OnBallHandlingSensorInfoReceived;
+            sensorSimulator.OnBallHandlingSimulatedEvent += strategyManager.OnBallHandlingSensorInfoReceived;
 
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
-            //physicalSimulator.OnPhysicalRobotLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived; //ajout
 
             kalmanPositioning.OnKalmanLocationEvent += perceptionSimulator.OnPhysicalRobotPositionReceived;
-            kalmanPositioning.OnKalmanLocationEvent += strategyManager.strategy.OnPositionRobotReceived;
-            //physicalSimulator.OnPhysicalRobotLocationEvent += perceptionSimulator.OnPhysicalRobotPositionReceived; //ajout
+            kalmanPositioning.OnKalmanLocationEvent += strategyManager.OnPositionRobotReceived;
 
             physicalSimulator.OnPhysicicalObjectListLocationEvent += perceptionSimulator.OnPhysicalObjectListLocationReceived;
             physicalSimulator.OnPhysicalBallPositionListEvent += perceptionSimulator.OnPhysicalBallPositionListReceived;
 
             //Update des données de la localWorldMap
             perceptionSimulator.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
-            strategyManager.strategy.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
-            strategyManager.strategy.OnRoleEvent += localWorldMapManager.OnRoleReceived; //Utile pour l'affichage
-            strategyManager.strategy.OnBallHandlingStateEvent += localWorldMapManager.OnBallHandlingStateReceived;
-            strategyManager.strategy.OnMessageDisplayEvent += localWorldMapManager.OnMessageDisplayReceived; //Utile pour l'affichage
-            //strategyManager.strategy.OnPlayingSideEvent += localWorldMapManager.OnPlayingSideReceived;  //inutile
-            strategyManager.strategy.OnHeatMapStrategyEvent += localWorldMapManager.OnHeatMapStrategyReceived;
-            strategyManager.strategy.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
-            strategyManager.strategy.OnHeatMapWayPointEvent += localWorldMapManager.OnHeatMapWaypointReceived;
-            //waypointGenerator.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
-            //waypointGenerator.OnHeatMapEvent += localWorldMapManager.OnHeatMapWaypointReceived;
+            strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
+            strategyManager.OnRoleEvent += localWorldMapManager.OnRoleReceived; //Utile pour l'affichage
+            strategyManager.OnBallHandlingStateEvent += localWorldMapManager.OnBallHandlingStateReceived;
+            strategyManager.OnMessageDisplayEvent += localWorldMapManager.OnMessageDisplayReceived; //Utile pour l'affichage
+            strategyManager.OnHeatMapStrategyEvent += localWorldMapManager.OnHeatMapStrategyReceived;
+            strategyManager.OnWaypointEvent += localWorldMapManager.OnWaypointReceived;
+            strategyManager.OnHeatMapWayPointEvent += localWorldMapManager.OnHeatMapWaypointReceived;
             trajectoryPlanner.OnGhostLocationEvent += localWorldMapManager.OnGhostLocationReceived;
 
             //Event de Réception de data Multicast sur le robot
             robotUdpMulticastReceiver.OnDataReceivedEvent += robotUdpMulticastInterpreter.OnMulticastDataReceived;
 
-            //Event d'interprétation d'une globalWorldMap à sa réception dans le robot
-            robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += strategyManager.strategy.OnGlobalWorldMapReceived;
-            robotUdpMulticastInterpreter.OnRefBoxMessageEvent += strategyManager.strategy.OnRefBoxMsgReceived;
-            //robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += waypointGenerator.OnGlobalWorldMapReceived;
-            robotUdpMulticastInterpreter.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
-
             //Event de Transmission des Local World Map du robot vers le multicast
-            localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;
+            localWorldMapManager.OnMulticastSendLocalWorldMapEvent += robotUdpMulticastSender.OnMulticastMessageToSendReceived;            
+            localWorldMapManager.OnLocalWorldMapToGlobalWorldMapGeneratorEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+            robotUdpMulticastInterpreter.OnLocalWorldMapEvent += globalWorldMapManager.OnLocalWorldMapReceived;
+
+            //Event d'interprétation d'une globalWorldMap à sa réception dans le robot
+            globalWorldMapManager.OnGlobalWorldMapEvent += strategyManager.OnGlobalWorldMapReceived;
+            globalWorldMapManager.OnGlobalWorldMapEvent += perceptionSimulator.OnGlobalWorldMapReceived;
+            robotUdpMulticastInterpreter.OnRefBoxMessageEvent += strategyManager.OnRefBoxMsgReceived;
+
 
             strategyManagerDictionary.Add(robotId, strategyManager);
             //waypointGeneratorList.Add(waypointGenerator);
@@ -213,6 +212,7 @@ namespace TeamSimulator
             robotUdpMulticastReceiverList.Add(robotUdpMulticastReceiver);
             robotUdpMulticastSenderList.Add(robotUdpMulticastSender);
             robotUdpMulticastInterpreterList.Add(robotUdpMulticastInterpreter);
+            globalWorldMapManagerList.Add(globalWorldMapManager);
 
             double xInit, yInit, thetaInit;
             if (TeamNumber == (int)TeamId.Team1)
@@ -253,22 +253,15 @@ namespace TeamSimulator
                 {
                     localWorldMapManagerList[i].OnLocalWorldMapForDisplayOnlyEvent += TeamConsole.OnLocalWorldMapReceived;
                 }
-
-                //On s'abonne aux évènements permettant de visualiser les localWorldMap à leur réception par la BaseStation
-                //BaseStationUdpMulticastInterpreterTeam1.OnLocalWorldMapEvent += TeamConsole.OnLocalWorldMapReceived; //->version base station
-                //BaseStationUdpMulticastInterpreterTeam2.OnLocalWorldMapEvent += TeamConsole.OnLocalWorldMapReceived; //->version base station
-
-                //On s'abonne aux évènements permettant de visualiser la globalWorldMap à leur réception par les robots
-                foreach (var udpInterpreter in robotUdpMulticastInterpreterList)
-                {
-                    udpInterpreter.OnGlobalWorldMapEvent += TeamConsole.OnGlobalWorldMapReceived;
-                }
+                                
+                //On s'abonne aux évènements permettant de visualiser la globalWorldMap générée par les robots en fusionnant les localWorldMap
+                globalWorldMapManagerList[0].OnGlobalWorldMapEvent += TeamConsole.OnGlobalWorldMapReceived;
+                globalWorldMapManagerList[nbPlayersTeam1].OnGlobalWorldMapEvent += TeamConsole.OnGlobalWorldMapReceived;
 
                 //Event de simulation de ref box sur le simulateur
                 TeamConsole.OnMulticastSendRefBoxCommandEvent += BaseStationUdpMulticastSenderTeam1.OnMulticastMessageToSendReceived;
                 TeamConsole.OnMulticastSendRefBoxCommandEvent += BaseStationUdpMulticastSenderTeam2.OnMulticastMessageToSendReceived;
-
-
+                
 
                 TeamConsole.ShowDialog();
             });

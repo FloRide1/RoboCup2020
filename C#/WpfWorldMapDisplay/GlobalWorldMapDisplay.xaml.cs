@@ -250,7 +250,7 @@ namespace WpfWorldMapDisplay
                 PolygonSeries.AddOrUpdatePolygonExtended(r.Key, OpponentDisplayDictionary[r.Key].GetRobotPolygon());
             }
         }
-        private void UpdateRobotRole(int robotId, RobotRole role)
+        private void UpdateRobotRole(int robotId, RoboCupRobotRole role)
         {
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
             {

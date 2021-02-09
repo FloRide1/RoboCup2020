@@ -18,6 +18,7 @@ namespace WorldMapManager
         public LocalWorldMapManager(int robotId, int teamId, bool bypassMulticast)
         {
             localWorldMap = new LocalWorldMap();
+            localWorldMap.Init();
             localWorldMap.RobotId = robotId;
             localWorldMap.TeamId = teamId;
             bypassMulticastUdp = bypassMulticast;
@@ -64,21 +65,15 @@ namespace WorldMapManager
 
                 if (transferLocalWorldMap.robotLocation != null)
                 {
-                    //if (bypassMulticastUdp)
-                    //{
-                    //    OnLocalWorldMapForDisplayOnly(localWorldMap); //Pour affichage uniquement, sinon transmission radio en, multicast
-                    //}
-                    //else
-                    {
                         var s = ZeroFormatterSerializer.Serialize<WorldMap.ZeroFormatterMsg>(transferLocalWorldMap);
 
-                        OnMulticastSendLocalWorldMapCommand(s); //Retiré pour test de robustesse, mais nécessaire à la RoboCup
+                        OnMulticastSendLocalWorldMapCommand(s); //Envoi à destination des autres robots en multicast
 
-                        //ATTENTION : appel douteux...
+                        OnLocalWorldMapToGlobalWorldMapGenerator(transferLocalWorldMap); //Envoi à destination du robot lui même en direct
+
                         OnLocalWorldMapForDisplayOnly(localWorldMap); //Pour affichage uniquement, sinon transmission radio en, multicast
 
-                        //LWMEmiseMonitoring.LWMEmiseMonitor(s.Length);
-                    }
+                        //LWMEmiseMonitoring.LWMEmiseMonitor(s.Length);                 
                 }
             }
         }
@@ -173,6 +168,7 @@ namespace WorldMapManager
             }
         }
 
+
         public void OnRawLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
         {
             if (localWorldMap == null || localWorldMap.robotLocation == null)
@@ -236,6 +232,16 @@ namespace WorldMapManager
             if (handler != null)
             {
                 handler(this, new DataReceivedArgs { Data = data });
+            }
+        }
+
+        public event EventHandler<LocalWorldMapArgs> OnLocalWorldMapToGlobalWorldMapGeneratorEvent;
+        public virtual void OnLocalWorldMapToGlobalWorldMapGenerator(LocalWorldMap data)
+        {
+            var handler = OnLocalWorldMapToGlobalWorldMapGeneratorEvent;
+            if (handler != null)
+            {
+                handler(this, new LocalWorldMapArgs { LocalWorldMap = data});
             }
         }
 

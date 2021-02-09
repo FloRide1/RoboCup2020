@@ -20,7 +20,7 @@ namespace LogRecorder
         public string logLock = "";
         DateTime initialDateTime;
 
-        HighFreqTimer timerLogging = new HighFreqTimer(50);
+        HighFreqTimerV2 timerLogging = new HighFreqTimerV2(50, "LogRecorder");
         
         bool isLogging = false;
 
@@ -118,7 +118,7 @@ namespace LogRecorder
                     }
                 }
 
-                Thread.Sleep(10);
+                //Thread.Sleep(10);
             }
         }
         public void Log(byte[] content)

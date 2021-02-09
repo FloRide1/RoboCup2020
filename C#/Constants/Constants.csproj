@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands.cs" />
+    <Compile Include="RoboCupDefs.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Id.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

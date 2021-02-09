@@ -344,6 +344,9 @@ namespace WpfWorldMapDisplay
             UpdateLidarObjects(robotId, localWorldMap.lidarObjectList);
             UpdateObstacleList(localWorldMap.obstaclesLocationList);
             UpdateBallLocationList(localWorldMap.ballLocationList);
+
+            /// Demande d'affichage de la World Map reçue
+            UpdateWorldMapDisplay();
         }
 
         private void DrawHeatMap(int robotId)
@@ -399,8 +402,8 @@ namespace WpfWorldMapDisplay
             {
                 int indexObstacle = 0;
                 //ObstaclePolygons = new PolygonRenderableSeries();
-                var toto = ObstacleDisplayList.Select(x => new PointD(x.location.X, x.location.Y));
-                var obstaclesPoints = GetXYDataSeriesFromPoints(toto.ToList());
+                var obstaclesPointsList = ObstacleDisplayList.Select(x => new PointD(x.location.X, x.location.Y));
+                var obstaclesPoints = GetXYDataSeriesFromPoints(obstaclesPointsList.ToList());
                 ObstaclePoints.DataSeries = obstaclesPoints;
 
                 //foreach (var obstacle in ObstacleDisplayList)
@@ -492,9 +495,8 @@ namespace WpfWorldMapDisplay
             {
                 Console.WriteLine("UpdateRobotLocation : Robot non trouvé");
             }
-            UpdateWorldMapDisplay();
         }
-        private void UpdateRobotRole(int robotId, RobotRole role)
+        private void UpdateRobotRole(int robotId, RoboCupRobotRole role)
         {
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
             {
@@ -596,7 +598,7 @@ namespace WpfWorldMapDisplay
                 lock (ObstacleDisplayList)
                 {
                     ObstacleDisplayList.Clear();
-                    foreach (var obstacleLocation in obstacleList)
+                    foreach (var obstacleLocation in obstacleList.ToList())
                     {
                         ObstacleDisplayList.Add(new ObstacleDisplay(obstacleLocation));
                     }

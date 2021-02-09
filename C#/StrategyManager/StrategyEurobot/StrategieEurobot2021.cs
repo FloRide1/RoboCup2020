@@ -14,7 +14,7 @@ using Utilities;
 using WorldMap;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
-namespace StrategyManagerNS
+namespace StrategyManagerProjetEtudiantNS
 {
     /****************************************************************************/
     /// <summary>
@@ -63,7 +63,7 @@ namespace StrategyManagerNS
 
         PlayingSide playingSide = PlayingSide.Left;
 
-        RobotRole role = RobotRole.Stopped;
+        RoboCupRobotRole role = RoboCupRobotRole.Stopped;
         System.Timers.Timer configTimer;
 
 
@@ -143,7 +143,7 @@ namespace StrategyManagerNS
             taskWindFlag.OnPilotageVentouseEvent += OnSetSpeedConsigneToMotorEvent;
 
             taskStrategy = new TaskStrategy(this);
-            OnIOValuesEvent += taskStrategy.OnIOValuesFromRobotEvent;
+            OnIOValuesFromRobotEvent += taskStrategy.OnIOValuesFromRobotEvent;
             taskStrategy.OnMirrorModeEvent += OnMirrorMode;
 
             taskFinDeMatch = new TaskFinDeMatch(this);
@@ -167,6 +167,13 @@ namespace StrategyManagerNS
             configTimer.Elapsed += ConfigTimer_Elapsed;
             configTimer.Start();
 
+            //Config Eurobot des paramètre embarqués
+            OnOdometryPointToMeter(1.211037464120243e-06);
+            On4WheelsAngleSet(Toolbox.DegToRad(72), Toolbox.DegToRad(144), Toolbox.DegToRad(216), Toolbox.DegToRad(288));
+            On4WheelsToPolarSet(-3.967532e-01, -2.720655e-01, +2.720655e-01, 3.967532e-01,
+                             +3.776278e-01, -3.776278e-01, -3.776278e-01, 3.776278e-01,
+                             +2.106947e+00, +1.341329e+00, +1.341329e+00, +2.106947e+00);
+
             OnEnableDisableMotorCurrentData(true);
         }
 
@@ -189,26 +196,16 @@ namespace StrategyManagerNS
         {
             //On envoie périodiquement les réglages du PID de vitesse embarqué
             
-            OnSetRobotSpeedIndependantPID(pM1: 4.0, iM1: 300, 0.0, pM2: 4.0, iM2: 300, 0, pM3: 4.0, iM3: 300, 0, pM4: 4.0, iM4: 300, 0.0,
+            On4WheelsIndependantSpeedPIDSetup(pM1: 4.0, iM1: 300, 0.0, pM2: 4.0, iM2: 300, 0, pM3: 4.0, iM3: 300, 0, pM4: 4.0, iM4: 300, 0.0,
                 pM1Limit: 4.0, iM1Limit: 4.0, 0, pM2Limit: 4.0, iM2Limit: 4.0, 0, pM3Limit: 4.0, iM3Limit: 4.0, 0, pM4Limit: 4.0, iM4Limit: 4.0, 0);
-            OnSetRobotSpeedPolarPID(px: 4.0, ix: 300, 0.0, py: 4.0, iy: 300, 0, ptheta: 4.0, itheta: 300, 0,
+            On4WheelsPolarSpeedPIDSetup(px: 4.0, ix: 300, 0.0, py: 4.0, iy: 300, 0, ptheta: 4.0, itheta: 300, 0,
                 pxLimit: 4.0, ixLimit: 4.0, 0, pyLimit: 4.0, iyLimit: 4.0, 0, pthetaLimit: 4.0, ithetaLimit: 4.0, 0);
 
             //OnSetAsservissementMode((byte)AsservissementMode.Independant);
         }
 
         //************************ Events reçus ************************************************/
-
-        //Event de récupération d'une GlobalWorldMap mise à jour
-        public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
-        {
-            //On récupère la nouvelle worldMap
-            lock (globalWorldMap)
-            {
-                globalWorldMap = e.GlobalWorldMap;
-            }
-        }
-
+              
         public override void OnRefBoxMsgReceived(object sender, WorldMap.RefBoxMessageArgs e)
         {
             var command = e.refBoxMsg.command;
@@ -260,25 +257,25 @@ namespace StrategyManagerNS
             switch (gameState)
             {
                 case GameState.STOPPED:
-                    role = RobotRole.Stopped;
+                    role = RoboCupRobotRole.Stopped;
                     break;
                 case GameState.PLAYING:
                     {
                     }
                     break;
                 case GameState.STOPPED_GAME_POSITIONING:
-                    role = RobotRole.Positioning;
+                    role = RoboCupRobotRole.Positioning;
                     break;
             }
             DefinePlayerZones(role);
         }
 
 
-        public void DefinePlayerZones(RobotRole role)
+        public void DefinePlayerZones(RoboCupRobotRole role)
         {
             switch (role)
             {
-                case RobotRole.Positioning:
+                case RoboCupRobotRole.Positioning:
                     AddPreferedZone(new PointD(externalRefBoxPosition.X, externalRefBoxPosition.Y), 0.3);
                     robotOrientation = 0;
                     break;

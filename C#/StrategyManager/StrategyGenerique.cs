@@ -1,4 +1,5 @@
-﻿using EventArgsLibrary;
+﻿using Constants;
+using EventArgsLibrary;
 using HeatMap;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ using System.Timers;
 using Utilities;
 using WorldMap;
 
-namespace StrategyManagerNS
+namespace StrategyManagerProjetEtudiantNS
 {
     /****************************************************************************/
     /// <summary>
@@ -183,7 +184,9 @@ namespace StrategyManagerNS
                     //if (displayConsole) Console.WriteLine("Tps events waypoint et destination : " + sw.Elapsed.TotalMilliseconds.ToString("N4") + " ms"); // Affichage de la mesure
                     //if (displayConsole) Console.WriteLine("Tps calcul Global Stratégie : " + swGlobal.Elapsed.TotalMilliseconds.ToString("N4") + " ms \n\n"); // Affichage de la mesure globale
                     //Thread.Sleep(100);
-                                        
+
+                    OnUpdateWorldMapDisplay(robotId);
+
                     isLocked = false;
                 }
             }
@@ -391,7 +394,7 @@ namespace StrategyManagerNS
         }
 
         public event EventHandler<RoleArgs> OnRoleEvent;
-        public virtual void OnRole(int id, RobotRole role)
+        public virtual void OnRole(int id, RoboCupRobotRole role)
         {
             OnRoleEvent?.Invoke(this, new RoleArgs { RobotId = id, Role = role });
         }
@@ -426,6 +429,16 @@ namespace StrategyManagerNS
             }
         }
 
+        public EventHandler<EventArgs> OnUpdateWorldMapDisplayEvent;
+        public virtual void OnUpdateWorldMapDisplay(int id)
+        {
+            var handler = OnUpdateWorldMapDisplayEvent;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
+            }
+        }
+
         public event EventHandler<GameStateArgs> OnGameStateChangedEvent;
         public virtual void OnGameStateChanged(int robotId, GameState state)
         {
@@ -436,12 +449,12 @@ namespace StrategyManagerNS
             }
         }
 
-        public event EventHandler<PolarPIDSetupArgs> OnSetRobotSpeedPolarPIDEvent;
-        public virtual void OnSetRobotSpeedPolarPID(double px, double ix, double dx, double py, double iy, double dy, double ptheta, double itheta, double dtheta,
+        public event EventHandler<PolarPIDSetupArgs> On4WheelsPolarSpeedPIDSetupEvent;
+        public virtual void On4WheelsPolarSpeedPIDSetup(double px, double ix, double dx, double py, double iy, double dy, double ptheta, double itheta, double dtheta,
             double pxLimit, double ixLimit, double dxLimit, double pyLimit, double iyLimit, double dyLimit, double pthetaLimit, double ithetaLimit, double dthetaLimit
             )
         {
-            OnSetRobotSpeedPolarPIDEvent?.Invoke(this, new PolarPIDSetupArgs
+            On4WheelsPolarSpeedPIDSetupEvent?.Invoke(this, new PolarPIDSetupArgs
             {
                 P_x = px,
                 I_x = ix,
@@ -464,18 +477,40 @@ namespace StrategyManagerNS
             });
         }
 
+        public event EventHandler<PolarPIDSetupArgs> On2WheelsPolarSpeedPIDSetupEvent;
+        public virtual void On2WheelsPolarSpeedPIDSetup(double px, double ix, double dx, double ptheta, double itheta, double dtheta,
+            double pxLimit, double ixLimit, double dxLimit, double pthetaLimit, double ithetaLimit, double dthetaLimit
+            )
+        {
+            On2WheelsPolarSpeedPIDSetupEvent?.Invoke(this, new PolarPIDSetupArgs
+            {
+                P_x = px,
+                I_x = ix,
+                D_x = dx,
+                P_theta = ptheta,
+                I_theta = itheta,
+                D_theta = dtheta,
+                P_x_Limit = pxLimit,
+                I_x_Limit = ixLimit,
+                D_x_Limit = dxLimit,
+                P_theta_Limit = pthetaLimit,
+                I_theta_Limit = ithetaLimit,
+                D_theta_Limit = dthetaLimit
+            });
+        }
+
         public event EventHandler<LidarMessageArgs> OnMessageEvent;
         public virtual void OnLidarMessage(string message, int line)
         {
             OnMessageEvent?.Invoke(this, new LidarMessageArgs { Value = message, Line = line });
         }
 
-        public event EventHandler<IndependantPIDSetupArgs> OnSetRobotSpeedIndependantPIDEvent;
-        public virtual void OnSetRobotSpeedIndependantPID(double pM1, double iM1, double dM1, double pM2, double iM2, double dM2, double pM3, double iM3, double dM3, double pM4, double iM4, double dM4,
+        public event EventHandler<IndependantPIDSetupArgs> On4WheelsIndependantSpeedPIDSetupEvent;
+        public virtual void On4WheelsIndependantSpeedPIDSetup(double pM1, double iM1, double dM1, double pM2, double iM2, double dM2, double pM3, double iM3, double dM3, double pM4, double iM4, double dM4,
             double pM1Limit, double iM1Limit, double dM1Limit, double pM2Limit, double iM2Limit, double dM2Limit, double pM3Limit, double iM3Limit, double dM3Limit, double pM4Limit, double iM4Limit, double dM4Limit
             )
         {
-            OnSetRobotSpeedIndependantPIDEvent?.Invoke(this, new IndependantPIDSetupArgs
+            On4WheelsIndependantSpeedPIDSetupEvent?.Invoke(this, new IndependantPIDSetupArgs
             {
                 P_M1 = pM1,
                 I_M1 = iM1,
@@ -504,6 +539,28 @@ namespace StrategyManagerNS
             });
         }
 
+        public event EventHandler<IndependantPIDSetupArgs> On2WheelsIndependantSpeedPIDSetupEvent;
+        public virtual void On2WheelsIndependantSpeedPIDSetup(double pM1, double iM1, double dM1, double pM2, double iM2, double dM2, 
+            double pM1Limit, double iM1Limit, double dM1Limit, double pM2Limit, double iM2Limit, double dM2Limit)
+        {
+            On2WheelsIndependantSpeedPIDSetupEvent?.Invoke(this, new IndependantPIDSetupArgs
+            {
+                P_M1 = pM1,
+                I_M1 = iM1,
+                D_M1 = dM1,
+                P_M2 = pM2,
+                I_M2 = iM2,
+                D_M2 = dM2,
+                P_M1_Limit = pM1Limit,
+                I_M1_Limit = iM1Limit,
+                D_M1_Limit = dM1Limit,
+                P_M2_Limit = pM2Limit,
+                I_M2_Limit = iM2Limit,
+                D_M2_Limit = dM2Limit,
+            });
+        }
+               
+
         public event EventHandler<ByteEventArgs> OnSetAsservissementModeEvent;
         public virtual void OnSetAsservissementMode(byte val)
         {
@@ -528,11 +585,71 @@ namespace StrategyManagerNS
             OnCollisionEvent?.Invoke(this, new CollisionEventArgs { RobotId = id, RobotRealPositionRefTerrain = robotLocation });
         }
 
-        public event EventHandler<IOValuesEventArgs> OnIOValuesEvent;
-        public void OnIOValuesFromRobotEvent(object sender, IOValuesEventArgs e)
+        public event EventHandler<IOValuesEventArgs> OnIOValuesFromRobotEvent;
+        public void OnIOValuesFromRobot(object sender, IOValuesEventArgs e)
         {
-            OnIOValuesEvent?.Invoke(sender, e);
+            OnIOValuesFromRobotEvent?.Invoke(sender, e);
         }
+
+        public event EventHandler<DoubleEventArgs> OnOdometryPointToMeterEvent;
+        public void OnOdometryPointToMeter(double value)
+        {
+            OnOdometryPointToMeterEvent?.Invoke(this, new DoubleEventArgs { Value = value });
+        }
+
+        public event EventHandler<TwoWheelsAngleArgs> On2WheelsAngleSetEvent;
+        public void On4WheelsAngleSet(double angleM1, double angleM2)
+        {
+            On2WheelsAngleSetEvent?.Invoke(this, new TwoWheelsAngleArgs { angleMotor1 = angleM1, angleMotor2 = angleM2});
+        }
+
+        public event EventHandler<TwoWheelsToPolarMatrixArgs> On2WheelsToPolarSetEvent;
+        public void On4WheelsToPolarSet(double mX1, double mX2, double mTheta1, double mTheta2)
+        {
+            On2WheelsToPolarSetEvent?.Invoke(this, new TwoWheelsToPolarMatrixArgs
+            {
+                mx1 = mX1,
+                mx2 = mX2,
+                mtheta1 = mTheta1,
+                mtheta2 = mTheta2,
+            });
+        }
+
+        public event EventHandler<FourWheelsAngleArgs> On4WheelsAngleSetEvent;
+        public void On4WheelsAngleSet(double angleM1, double angleM2, double angleM3, double angleM4)
+        {
+            On4WheelsAngleSetEvent?.Invoke(this, new FourWheelsAngleArgs { angleMotor1 = angleM1, angleMotor2 = angleM2, angleMotor3 = angleM3, angleMotor4 = angleM4 });
+        }
+
+        public event EventHandler<FourWheelsToPolarMatrixArgs> On4WheelsToPolarSetEvent;
+        public void On4WheelsToPolarSet(double mX1, double mX2, double mX3, double mX4, double mY1, double mY2, double mY3, double mY4, double mTheta1, double mTheta2, double mTheta3, double mTheta4)
+        {
+            On4WheelsToPolarSetEvent?.Invoke(this, new FourWheelsToPolarMatrixArgs
+            {
+                mx1 = mX1,
+                mx2 = mX2,
+                mx3 = mX3,
+                mx4 = mX4,
+                my1 = mY1,
+                my2 = mY2,
+                my3 = mY3,
+                my4 = mY4,
+                mtheta1 = mTheta1,
+                mtheta2 = mTheta2,
+                mtheta3 = mTheta3,
+                mtheta4 = mTheta4
+            });
+        }
+
+
+
+        //public event EventHandler<FourWheelsAngleArgs> OnOdometryPointToMeterEvent;
+        //public void OnOdometryPointToMeter(object sender, FourWheelsAngleArgs e)
+        //{
+        //    OnOdometryPointToMeterEvent?.Invoke(sender, e);
+        //}
+
+
     }
 
     

@@ -3,6 +3,7 @@ using EventArgsLibrary;
 using LogRecorder;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,22 +31,22 @@ namespace LogReplay
 
         bool replayModeActivated = false;
 
-        HighFreqTimer timerReplay = new HighFreqTimer(50);
+        HighFreqTimerV2 timerReplayV2 = new HighFreqTimerV2(200, "LogReplay");
+        Stopwatch sw;
 
         public LogReplay()
         {
-            //replayThread = new Thread(ReplayLoop);
-            //replayThread.SetApartmentState(ApartmentState.STA);
-            //replayThread.IsBackground = true;
-            //replayThread.Name = "Replay Thread";
-            //replayThread.Start();
-            timerReplay.Tick += TimerReplay_Tick;
-            timerReplay.Start();
+            timerReplayV2.Tick += TimerReplay_Tick;
+            timerReplayV2.Start();
             initialDateTime = DateTime.Now;
+            sw = new Stopwatch();
+            sw.Start();
         }
 
         private void TimerReplay_Tick(object sender, EventArgs e)
         {
+            //Console.WriteLine("Timer Replay Interval : " + sw.ElapsedMilliseconds);
+            //sw.Restart();
             ReplayLoop();
         }
 
@@ -91,9 +92,11 @@ namespace LogReplay
         string replayFileSerieName = "";
         bool isReplayingFileOpened = false;
 
-        double newReplayInstant = 0;
+        double lastDataTimestamp = 0;
         int subFileIndex = 0;
         bool replayLoopInProgress = false;
+
+        double? currentTimestamp = 0;
         private void ReplayLoop()
         {
             if(!replayLoopInProgress)
@@ -116,7 +119,11 @@ namespace LogReplay
                                 sr = new StreamReader(filePath);
                                 isReplayingFileOpened = true;
                                 OnFileNameChange(filePath);
-                                initialDateTime = DateTime.Now;
+                                if (subFileIndex == 0)
+                                {
+                                    initialDateTime = DateTime.Now;
+                                    lastDataTimestamp = 0;
+                                }
                             }
                             else
                             {
@@ -129,8 +136,15 @@ namespace LogReplay
 
                         if (isReplayingFileOpened)
                         {
-                            //Si un fichier est déjà ouvert
-                            do
+                            int successiveDataCounter = 0;
+
+                            //Récupère l'instant courant de la dernière data du replay
+                            currentTimestamp = (DateTime.Now.Subtract(initialDateTime).TotalMilliseconds + LogDateTimeOffsetInMs);
+                            if (currentTimestamp == null)
+                                currentTimestamp = 0;
+
+                            //On le fait tant que l'instant courant des data de Replay est inférieur à l'instant théorique de simulation, on traite les datas
+                            while (lastDataTimestamp <= currentTimestamp * speedFactor && isReplayingFileOpened && successiveDataCounter < 10)                           
                             {
                                 var s = sr.ReadLine();
                                 if (s != null)
@@ -142,7 +156,7 @@ namespace LogReplay
                                     {
                                         case ZeroFormatterLoggingType.IMUDataEventArgs:
                                             IMUDataEventArgsLog ImuData = (IMUDataEventArgsLog)deserialization;
-                                            newReplayInstant = ImuData.InstantInMs;
+                                            lastDataTimestamp = ImuData.InstantInMs;
                                             var e = new IMUDataEventArgs();
                                             e.accelX = ImuData.accelX;
                                             e.accelY = ImuData.accelY;
@@ -158,7 +172,7 @@ namespace LogReplay
                                             break;
                                         case ZeroFormatterLoggingType.PolarSpeedEventArgs:
                                             PolarSpeedEventArgsLog robotSpeedData = (PolarSpeedEventArgsLog)deserialization;
-                                            newReplayInstant = robotSpeedData.InstantInMs;
+                                            lastDataTimestamp = robotSpeedData.InstantInMs;
                                             var eSpeed = new PolarSpeedEventArgs();
                                             eSpeed.RobotId = robotSpeedData.RobotId;
                                             eSpeed.Vtheta = robotSpeedData.Vtheta;
@@ -169,7 +183,7 @@ namespace LogReplay
                                             break;
                                         case ZeroFormatterLoggingType.RawLidarArgs:
                                             RawLidarArgsLog currentLidarLog = (RawLidarArgsLog)deserialization;
-                                            newReplayInstant = currentLidarLog.InstantInMs;
+                                            lastDataTimestamp = currentLidarLog.InstantInMs;
                                             OnLidar(currentLidarLog.RobotId, currentLidarLog.PtList);
                                             break;
                                         default:
@@ -177,7 +191,9 @@ namespace LogReplay
                                     }
 
                                     if (LogDateTimeOffsetInMs == null)
-                                        LogDateTimeOffsetInMs = newReplayInstant;
+                                        LogDateTimeOffsetInMs = lastDataTimestamp;
+
+                                    successiveDataCounter++;
                                 }
                                 else
                                 {
@@ -186,10 +202,10 @@ namespace LogReplay
                                     sr.Close();
                                     subFileIndex++;
                                 }
-                            }
 
-                            //On le fait tant que l'instant courant des data de Replay est inférieur à l'instant théorique de simulation, on traite les datas
-                            while (newReplayInstant / speedFactor < DateTime.Now.Subtract(initialDateTime).TotalMilliseconds + LogDateTimeOffsetInMs && isReplayingFileOpened);
+                                //Récupère l'instant courant de la dernière data du replay
+                                currentTimestamp = (double)(DateTime.Now.Subtract(initialDateTime).TotalMilliseconds + LogDateTimeOffsetInMs);
+                            }
                         }
                     }
                 }

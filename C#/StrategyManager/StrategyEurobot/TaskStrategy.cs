@@ -1,4 +1,5 @@
-﻿using EventArgsLibrary;
+﻿using Constants;
+using EventArgsLibrary;
 using HerkulexManagerNS;
 using RefereeBoxAdapter;
 using System;
@@ -12,7 +13,7 @@ using Utilities;
 using WorldMap;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
-namespace StrategyManagerNS
+namespace StrategyManagerProjetEtudiantNS
 {
     class TaskStrategy
     {

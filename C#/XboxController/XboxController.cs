@@ -3,7 +3,7 @@ using SharpDX.XInput;
 using System;
 using System.Timers;
 
-namespace XBoxController
+namespace XBoxControllerNS
 {
     public class XBoxController
     {
@@ -19,7 +19,9 @@ namespace XBoxController
         double VthetaRampe = 0;
         bool stopped = false;
 
-        Timer timerGamepad = new Timer(100);
+        Timer timerGamepad = new Timer(50);
+
+        double t = 0;
 
         public XBoxController(int id)
         {
@@ -31,10 +33,9 @@ namespace XBoxController
             timerGamepad.Start();
         }
 
-        bool useRampe = false;
         private void TimerGamepad_Elapsed(object sender, ElapsedEventArgs e)
         {
-            double VLinMax = 1;   //1.2 ~= 0.3m/s
+            double VLinMax = 6;   //1.2 ~= 0.3m/s
             double VThetaMax = 1.5* Math.PI;
             double valeurRampe = 0.6;
             double Vx;
@@ -81,7 +82,7 @@ namespace XBoxController
                     OnTirToRobot(robotId, 50);
                 }
 
-                if(gamepad.Buttons.HasFlag(GamepadButtonFlags.DPadUp))
+                if (gamepad.Buttons.HasFlag(GamepadButtonFlags.DPadUp))
                 {
                     OnMoveTirUpToRobot();
                 }
@@ -89,9 +90,9 @@ namespace XBoxController
                 {
                     OnMoveTirDownToRobot();
                 }
-                if(gamepad.Buttons.HasFlag(GamepadButtonFlags.Start))
+                if (gamepad.Buttons.HasFlag(GamepadButtonFlags.Start))
                 {
-                    if(stopped)
+                    if (stopped)
                     {
                         OnStopToRobot(false);
                         stopped = false;
@@ -101,51 +102,16 @@ namespace XBoxController
                         OnStopToRobot(true);
                         stopped = true;
                     }
-                    
+
                 }
 
+                VxRampe = Vx;
+                VyRampe = Vy;
+                VthetaRampe = Vtheta;
 
-                if (useRampe)
-                {
-                    if (Vx >= VxRampe)
-                    {
-                        VxRampe += valeurRampe;
-                        VxRampe = Math.Min(VxRampe, Vx);
-                    }
-                    else
-                    {
-                        VxRampe -= valeurRampe;
-                        VxRampe = Math.Max(VxRampe, Vx);
-                    }
+                //t += 0.02;
+                //VxRampe = 1 * Math.Sin(3.14 * t);
 
-                    if (Vy >= VyRampe)
-                    {
-                        VyRampe += valeurRampe;
-                        VyRampe = Math.Min(VyRampe, Vy);
-                    }
-                    else
-                    {
-                        VyRampe -= valeurRampe;
-                        VyRampe = Math.Max(VyRampe, Vy);
-                    }
-
-                    if (Vtheta >= VthetaRampe)
-                    {
-                        VthetaRampe += valeurRampe;
-                        VthetaRampe = Math.Min(VthetaRampe, Vtheta);
-                    }
-                    else
-                    {
-                        VthetaRampe -= valeurRampe;
-                        VthetaRampe = Math.Max(VthetaRampe, Vtheta);
-                    }
-                }
-                else
-                {
-                    VxRampe = Vx;
-                    VyRampe = Vy;
-                    VthetaRampe = Vtheta;
-                }
 
                 OnSpeedConsigneToRobot(robotId, VxRampe, VyRampe, VthetaRampe);
                 //OnPriseBalleToRobot(2, (float)(Vx*33.3));

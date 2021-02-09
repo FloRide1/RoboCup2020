@@ -92,6 +92,14 @@ namespace Utilities
             return Math.Sqrt(Math.Pow(xPt2 - xPt1, 2) + Math.Pow(yPt2 - yPt1, 2));
         }
 
+        public static double DistancePointToLine(PointD pt, PointD LinePt, double LineAngle)
+        {
+            var xLineVect = Math.Cos(LineAngle);
+            var yLineVect = Math.Sin(LineAngle);
+            var dot = (pt.X - LinePt.X) * (yLineVect) - (pt.Y - LinePt.Y) * (xLineVect);
+            return Math.Abs(dot);
+        }
+        
         public static double DistancePointToSegment(PointD pt, PointD ptSeg1, PointD ptSeg2)
         {
             var A = pt.X - ptSeg1.X;

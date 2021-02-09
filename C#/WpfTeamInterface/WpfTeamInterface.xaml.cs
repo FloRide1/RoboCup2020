@@ -16,7 +16,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using Utilities;
 using WorldMap;
 using WpfWorldMapDisplay;
 using ZeroFormatter;

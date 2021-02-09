@@ -1,4 +1,5 @@
-﻿using EventArgsLibrary;
+﻿using Constants;
+using EventArgsLibrary;
 using HerkulexManagerNS;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 using Utilities;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
-namespace StrategyManagerNS
+namespace StrategyManagerProjetEtudiantNS
 {
     public class TaskPhare
     {

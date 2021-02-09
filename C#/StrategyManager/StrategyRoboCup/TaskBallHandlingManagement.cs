@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Constants;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Utilities;
 
-namespace StrategyManagerNS.StrategyRoboCupNS
+namespace StrategyManagerProjetEtudiantNS.StrategyRoboCupNS
 {
     public enum TaskBallHandlingManagementState
     {

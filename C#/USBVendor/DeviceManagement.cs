@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Collections.Generic;
 
-namespace USBVendor
+namespace USBVendorNS
 {
 	///  <summary>
 	///  Routines for detecting devices.

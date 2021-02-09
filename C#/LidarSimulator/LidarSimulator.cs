@@ -13,7 +13,7 @@ namespace LidarSimulator
     {
         int robotId = 0;
 
-        HighFreqTimer timerSensor;
+        HighFreqTimerV2 timerSensor;
 
         double resolution = 0.3*Math.PI/180.0;
 
@@ -22,7 +22,7 @@ namespace LidarSimulator
             robotId = id;
 
             //Timer
-            timerSensor = new HighFreqTimer(50);
+            timerSensor = new HighFreqTimerV2(50, "LidarSimulator");
             timerSensor.Tick += TimerSensor_Tick; ;
             timerSensor.Start();
         }

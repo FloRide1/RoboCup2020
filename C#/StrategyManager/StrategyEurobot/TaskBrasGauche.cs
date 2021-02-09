@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using static HerkulexManagerNS.HerkulexEventArgs;
 
-namespace StrategyManagerNS
+namespace StrategyManagerProjetEtudiantNS
 {
     public class TaskBrasGauche
     {

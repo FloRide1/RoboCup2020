@@ -1,4 +1,5 @@
-﻿using HeatMap;
+﻿using Constants;
+using HeatMap;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace WorldMap
         [Index(2)]
         public virtual Location robotLocation { get; set; }
         [Index(3)]
-        public virtual RobotRole robotRole { get; set; }
+        public virtual RoboCupRobotRole robotRole { get; set; }
         [Index(4)]
         public virtual BallHandlingState ballHandlingState { get; set; }
         [Index(5)]
@@ -62,6 +63,12 @@ namespace WorldMap
         public LocalWorldMap()
         {
             //Type = "LocalWorldMap";
+        }
+
+        public void Init()
+        {
+            robotLocation = new Location(0, 0, 0, 0, 0, 0);
+            robotGhostLocation = new Location(0, 0, 0, 0, 0, 0); 
         }
     }
 

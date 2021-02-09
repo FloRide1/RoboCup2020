@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace USBVendor
+namespace USBVendorNS
 {
     //public class WinUsbCommunication
     //{

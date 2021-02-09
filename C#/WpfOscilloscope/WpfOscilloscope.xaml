@@ -7,12 +7,8 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              xmlns:s="http://schemas.abtsoftware.co.uk/scichart" >
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="20"/>
-            <RowDefinition Height="1*"/>
-        </Grid.RowDefinitions>
 
+    <!--<GroupBox x:Name="sciChartBox" Header="Title">-->
         <s:SciChartSurface x:Name="sciChart" Grid.Row="1">
             <!--  Declare RenderableSeries  -->
             <!--<s:SciChartSurface.RenderableSeries>
@@ -34,7 +30,7 @@
                 <s:NumericAxis DrawMajorBands="True" GrowBy="0.5, 0.5" AutoRange="Always" AxisAlignment="Right" Id="RightYAxis"/>
                 <s:NumericAxis DrawMajorBands="True" GrowBy="0.5, 0.5" AutoRange="Always" AxisAlignment="Left" Id="LeftYAxis"/>
             </s:SciChartSurface.YAxes>
-            
+
             <s:SciChartSurface.ChartModifier>
                 <s:ModifierGroup>
                     <s:RubberBandXyZoomModifier x:Name="RubberBandXyZoomModifier" IsEnabled="True"/>
@@ -47,7 +43,5 @@
                 </s:ModifierGroup>
             </s:SciChartSurface.ChartModifier>
         </s:SciChartSurface>
-        <TextBlock x:Name="titleText" Foreground="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextWrapping="Wrap" Text="Title"/>
-
-    </Grid>
+    <!--</GroupBox>-->
 </UserControl>

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace USBVendor
+namespace USBVendorNS
 {
     //utilisé dans ce code : http://stackoverflow.com/questions/2937585/how-to-open-a-serial-port-by-friendly-name
     //plus complet : https://github.com/mikeobrien/HidLibrary/issues/31

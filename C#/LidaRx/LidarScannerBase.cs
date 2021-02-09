@@ -63,7 +63,7 @@ namespace Staudt.Engineering.LidaRx
         public abstract Task StartScanAsync();
         public abstract void StopScan();
         public abstract Task StopScanAsync();
-        public abstract void Connect();
+        public abstract bool Connect();
         public abstract Task ConnectAsync();
         public abstract void Disconnect();
         public abstract Task DisconnectAsync();
