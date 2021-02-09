@@ -6,8 +6,16 @@
              xmlns:local="clr-namespace:WpfAsservissementDisplay"
              mc:Ignorable="d">
 
-    <Border BorderBrush="#AAAAAA" BorderThickness="1">
-        <Grid >
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="ResourcesWPF.xaml"></ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <!--<Border>-->
+        <Grid  Margin="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="0.4*"></RowDefinition>
                 <RowDefinition Height="0.4*"></RowDefinition>
@@ -27,20 +35,20 @@
             </Grid.ColumnDefinitions>
 
 
-            <Border BorderBrush="#AAAAAA" BorderThickness="1" Grid.ColumnSpan="8"/>
-            <Border BorderBrush="#AAAAAA" BorderThickness="1" Grid.Row="1" Grid.ColumnSpan="8"/>
-            <Border BorderBrush="#AAAAAA" BorderThickness="1" Grid.Row="2" Grid.ColumnSpan="8"/>
-            <Border BorderBrush="#AAAAAA" BorderThickness="1" Grid.Row="3" Grid.ColumnSpan="8"/>
-            <Border BorderBrush="#AAAAAA" BorderThickness="1" Grid.Row="4" Grid.ColumnSpan="8"/>
-            <Border BorderBrush="#AAAAAA" BorderThickness="1" Grid.Row="5" Grid.ColumnSpan="8"/>
-            <Border BorderBrush="#AAAAAA" BorderThickness="1" Grid.Row="6" Grid.ColumnSpan="8"/>
-            <Border BorderBrush="#AAAAAA" BorderThickness="1" Grid.Row="7" Grid.ColumnSpan="8"/>
+            <Border Grid.ColumnSpan="8"/>
+            <Border Grid.Row="1" Grid.ColumnSpan="8"/>
+            <Border Grid.Row="2" Grid.ColumnSpan="8"/>
+            <Border Grid.Row="3" Grid.ColumnSpan="8"/>
+            <Border Grid.Row="4" Grid.ColumnSpan="8"/>
+            <Border Grid.Row="5" Grid.ColumnSpan="8"/>
+            <Border Grid.Row="6" Grid.ColumnSpan="8"/>
+            <Border Grid.Row="7" Grid.ColumnSpan="8"/>
 
-            <Label x:Name="LabelTitre" Content="Asserv en ..." Foreground="White" Margin="0" Padding="0" ></Label>
-            <Label Grid.Row="1" Content="Consigne : " Foreground="White"  Margin="0" Padding="0"></Label>
-            <Label Grid.Row="2" Content="Measure : " Foreground="White"  Margin="0" Padding="0"></Label>
-            <Label Grid.Row="3" Content="Error : " Foreground="White"  Margin="0" Padding="0"></Label>
-            <Label Grid.Row="4" Content="Command : " Foreground="White"  Margin="0" Padding="0"></Label>
+        <Label x:Name="LabelTitre" Content="Asserv en ..." Foreground="White" Margin="6,0,0,0" Padding="0" ></Label>
+            <Label Grid.Row="1" Content="Consigne : " Foreground="White"  Margin="6,0,0,0" Padding="0"></Label>
+        <Label Grid.Row="2" Content="Measure : " Foreground="White"  Margin="6,0,0,0" Padding="0"></Label>
+        <Label Grid.Row="3" Content="Error : " Foreground="White"  Margin="6,0,0,0" Padding="0"></Label>
+        <Label Grid.Row="4" Content="Command : " Foreground="White"  Margin="6,0,0,0" Padding="0"></Label>
             <Label Grid.Column="1" Content="X" Foreground="White" HorizontalAlignment="Center" Margin="0" Padding="0" ></Label>
             <Label Grid.Column="2" Content="Theta" Foreground="White" HorizontalAlignment="Center" Margin="0" Padding="0" ></Label>
             <Label Grid.Column="3" Content="M1" Foreground="White" HorizontalAlignment="Center" Margin="0" Padding="0" ></Label>
@@ -71,9 +79,9 @@
                     <RowDefinition Height="1*"/>
                     <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
-                <Label Grid.Row="0" Content="KP" Foreground="White" Margin="0" Padding="0"/>
-                <Label Grid.Row="1" Content="Correction P" Foreground="White" Margin="0" Padding="0"/>
-                <Label Grid.Row="2" Content="Corr P Max" Foreground="White" Margin="0" Padding="0"/>
+            <Label Grid.Row="0" Content="KP" Foreground="White" Margin="6,0,0,0" Padding="0"/>
+            <Label Grid.Row="1" Content="Correction P" Foreground="White" Margin="6,0,0,0" Padding="0"/>
+            <Label Grid.Row="2" Content="Corr P Max" Foreground="White" Margin="6,0,0,0" Padding="0"/>
             </Grid>
 
             <Grid Grid.Column="0" Grid.Row="6">
@@ -82,9 +90,9 @@
                     <RowDefinition Height="1*"/>
                     <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
-                <Label Grid.Row="0" Content="KI" Foreground="White" Margin="0" Padding="0"/>
-                <Label Grid.Row="1" Content="Correction I" Foreground="White" Margin="0" Padding="0"/>
-                <Label Grid.Row="2" Content="Corr I Max" Foreground="White" Margin="0" Padding="0"/>
+            <Label Grid.Row="0" Content="KI" Foreground="White" Margin="6,0,0,0" Padding="0"/>
+            <Label Grid.Row="1" Content="Correction I" Foreground="White" Margin="6,0,0,0" Padding="0"/>
+            <Label Grid.Row="2" Content="Corr I Max" Foreground="White" Margin="6,0,0,0" Padding="0"/>
             </Grid>
 
             <Grid Grid.Column="0" Grid.Row="7">
@@ -93,9 +101,9 @@
                     <RowDefinition Height="1*"/>
                     <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
-                <Label Grid.Row="0" Content="KD" Foreground="White" Margin="0" Padding="0"/>
-                <Label Grid.Row="1" Content="Correction D" Foreground="White" Margin="0" Padding="0"/>
-                <Label Grid.Row="2" Content="Corr D Max" Foreground="White" Margin="0" Padding="0"/>
+            <Label Grid.Row="0" Content="KD" Foreground="White" Margin="6,0,0,0" Padding="0"/>
+            <Label Grid.Row="1" Content="Correction D" Foreground="White" Margin="6,0,0,0" Padding="0"/>
+            <Label Grid.Row="2" Content="Corr D Max" Foreground="White" Margin="6,0,0,0" Padding="0"/>
             </Grid>
 
             <Grid x:Name="CorrPXGrid" Grid.Column="1" MinWidth="50" Grid.Row="5">
@@ -110,12 +118,6 @@
                 <Label x:Name="LabelKpX" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
                 <Label x:Name="LabelCorrPX" Grid.Row="1" Content="0" Foreground="White" Margin="0" Padding="0"/>
                 <Label x:Name="LabelCorrMaxPX" Grid.Row="2" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
-
-                <!--<Polyline Grid.Column="1" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center"  Points="0,0 0,30 20,30 20,0" Stroke="#00BB00" Fill="#00FF00"  StrokeThickness="2">
-                    <Polyline.Effect>
-                        <DropShadowEffect Color="#99FF99" ShadowDepth="0" Direction="0" BlurRadius="25"  />
-                    </Polyline.Effect>
-                </Polyline>-->
             </Grid>
             
             <Grid x:Name="CorrPThetaGrid" Grid.Column="2" MinWidth="50" Grid.Row="5">
@@ -268,5 +270,5 @@
                 <Label x:Name="LabelCorrMaxDM2" Grid.Row="2" Content="0" Foreground="LightGray" Margin="0" Padding="0"/>
             </Grid>
         </Grid>
-    </Border>
+    <!--</Border>-->
 </UserControl>

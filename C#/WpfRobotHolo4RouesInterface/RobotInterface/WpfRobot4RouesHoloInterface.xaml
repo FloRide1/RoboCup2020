@@ -46,10 +46,16 @@
             </TabItem>
             
         </TabControl>
-        <oscillo:WpfOscilloscope x:Name="oscilloX" Grid.Column="1" Grid.Row="0" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
-        <oscillo:WpfOscilloscope x:Name="oscilloY" Grid.Column="0" Grid.Row="1" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
-        <oscillo:WpfOscilloscope x:Name="oscilloTheta" Grid.Column="1" Grid.Row="1" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
-
+        <GroupBox Header="Consigne / Vitesse X" Grid.Column="1" Grid.Row="0" >
+            <oscillo:WpfOscilloscope x:Name="oscilloX" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
+        </GroupBox>
+        <GroupBox Header="Consigne / Vitesse Y" Grid.Column="0" Grid.Row="1" >
+            <oscillo:WpfOscilloscope x:Name="oscilloY" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
+        </GroupBox>
+        <GroupBox Header="Consigne / Vitesse Theta" Grid.Column="1" Grid.Row="1" >
+            <oscillo:WpfOscilloscope x:Name="oscilloTheta" Padding="0" MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
+        </GroupBox>
+        
         <Grid Grid.Column="0" Grid.Row="2"  >
             <Grid.RowDefinitions>
                 <RowDefinition Height="1*"/>
@@ -74,13 +80,13 @@
                     </Grid.ColumnDefinitions>
                     <Label x:Name="LabelMotorState" Grid.Row="0" Content="Motor State : "></Label>
                     <Button Name="ButtonDisableMotors" Grid.Row="0" Grid.Column="1" Content="Change" Click="ButtonDisableMotors_Click"/>
-                    <Button Name="ButtonCalibrateGyro" Grid.Row="1" Content="Calibrate Gyro" Click="ButtonCalibrateGyro_Click"/>
-                    <Button Name="ButtonEnableDisableServos" Grid.Row="2" Content="Servos Torque Off" Click="ButtonEnableDisableServos_Click" />
-                    <Button Name="ButtonEnableDisableTir" Grid.Row="3" Content="Enable Tir" Click="ButtonEnableDisableTir_Click"/>
-                    <Label x:Name="LabelAsservMode" Grid.Row="4" Content="Asserv Mode : "></Label>
-                    <Button Name="ButtonChangeAsservissementMode" Grid.Row="4" Grid.Column="1" Content="Change" Click="ButtonEnableAsservissement_Click"/>
-                    <Label x:Name="LabelXBoxControllerMode" Grid.Row="5" Content="XBox Controller State : Disabled"></Label>
-                    <Button Name="ButtonChangeXBoxControllerMode" Grid.Row="5" Grid.Column="1" Content="Change" Click="ButtonXBoxController_Click"/>
+                    <Label x:Name="LabelAsservMode" Grid.Row="1" Content="Asserv Mode : "></Label>
+                    <Label x:Name="LabelXBoxControllerMode" Grid.Row="2" Content="XBox Controller State : Disabled"></Label>
+                    <Button Name="ButtonChangeAsservissementMode" Grid.Row="1" Grid.Column="1" Content="Change" Click="ButtonEnableAsservissement_Click"/>
+                    <Button Name="ButtonChangeXBoxControllerMode" Grid.Row="2" Grid.Column="1" Content="Change" Click="ButtonXBoxController_Click"/>
+                    <Button Name="ButtonCalibrateGyro" Grid.Row="3" Content="Calibrate Gyro" Click="ButtonCalibrateGyro_Click"/>
+                    <Button Name="ButtonEnableDisableServos" Grid.Row="4" Content="Servos Torque Off" Click="ButtonEnableDisableServos_Click" />
+                    <Button Name="ButtonEnableDisableTir" Grid.Row="5" Content="Enable Tir" Click="ButtonEnableDisableTir_Click"/>
                     <!--<CheckBox Name="CheckBoxControlManette" Grid.Row="5" Content="Enable Manette"  HorizontalAlignment="Center"  Margin="2" VerticalAlignment="Top" Checked="CheckBox_CheckedChanged" Unchecked="CheckBox_CheckedChanged" Background="Transparent" Foreground="White"/>-->
                 </Grid>
             </GroupBox>
@@ -88,9 +94,6 @@
             <GroupBox Grid.ColumnSpan="1"  Grid.Column="1" Margin="5" Header="Options" HorizontalAlignment="Stretch" Grid.Row="1" Grid.RowSpan="2" VerticalAlignment="Stretch" Background="Transparent" Foreground="White">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="1*"/>
                         <RowDefinition Height="1*"/>
                         <RowDefinition Height="1*"/>
                         <RowDefinition Height="1*"/>
@@ -103,7 +106,7 @@
                     <Button Name="ButtonEnableDisableLogging" Grid.Row="0" Grid.Column="1" Content="Change" Click="ButtonLogging_Click"/>
                     <Label x:Name="LabelLogReplayState" Grid.Row="1" Content="Real Data"></Label>
                     <Button Name="ButtonEnableDisableLogReplay" Grid.Row="1" Grid.Column="1" Content="Change" Click="ButtonLogReplay_Click"/>
-                    <CheckBox Name="CheckBoxEnableAsservissementDebugData" Content="Speed PID Debug" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Checked="CheckBoxEnableAsservissementDebugData_Checked" Unchecked="CheckBoxEnableAsservissementDebugData_Checked" Background="Transparent" Foreground="White"/>
+                    <!--<CheckBox Name="CheckBoxEnableAsservissementDebugData" Content="Speed PID Debug" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Checked="CheckBoxEnableAsservissementDebugData_Checked" Unchecked="CheckBoxEnableAsservissementDebugData_Checked" Background="Transparent" Foreground="White"/>-->
                 </Grid>
                 <!--<StackPanel Orientation="Vertical">
                     --><!--<CheckBox Name="CheckBoxEnableEncRawData" Content="Enable Encoder Raw Data" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="1" VerticalAlignment="Top" Checked="CheckBoxEnableEncRawData_Checked" Unchecked="CheckBoxEnableEncRawData_Checked" Background="Transparent" Foreground="White"/>
@@ -136,7 +139,9 @@
                 <ColumnDefinition Width="6*"/>
                 <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
-            <oscillo:WpfOscilloscope x:Name="oscilloLidar"  MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
+            <GroupBox Header="Lidar">
+                <oscillo:WpfOscilloscope x:Name="oscilloLidar"  MouseDoubleClick="ZoomOnGraph_MouseDoubleClick"/>
+            </GroupBox>
             <GroupBox Grid.Column="1" Margin="5" Header="Shortcuts" HorizontalAlignment="Stretch" Grid.Row="1" VerticalAlignment="Stretch" Background="Transparent" Foreground="White">
                 <StackPanel VerticalAlignment="Top">
                     <Button x:Name="Button_0_0" HorizontalAlignment="Stretch" Content="Go to (0,0)" Click="Button_0_0_Click"/>
@@ -153,7 +158,7 @@
         <Viewbox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" Stretch="Uniform" MaxWidth="900" MaxHeight="800"   >
             <ext:LocalWorldMapDisplay x:Name="worldMapDisplayWaypoint" Padding="5" Width="300" Height="200" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></ext:LocalWorldMapDisplay>
         </Viewbox>
-        <Grid Grid.Row="3" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid Grid.Row="3" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="25"/>
                 <RowDefinition Height="1*"/>

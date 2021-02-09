@@ -109,20 +109,20 @@ namespace RobotInterface
             //oscilloM4.AddOrUpdateLine(0, 100, "Vitesse M4");
             //oscilloM4.AddOrUpdateLine(1, 100, "Courant M4");
 
-            oscilloX.SetTitle("Vx");
+            //oscilloX.SetTitle("Vx");
             oscilloX.AddOrUpdateLine(0, 100, "Vitesse X Consigne");
             oscilloX.AddOrUpdateLine(1, 100, "Vitesse X");
             oscilloX.AddOrUpdateLine(2, 100, "Accel X");
             oscilloX.ChangeLineColor("Vitesse X", Colors.Red);
             oscilloX.ChangeLineColor("Vitesse X Consigne", Colors.Blue);
-            oscilloY.SetTitle("Vy");
+            //oscilloY.SetTitle("Vy");
             oscilloY.AddOrUpdateLine(0, 100, "Vitesse Y Consigne");
             oscilloY.AddOrUpdateLine(1, 100, "Vitesse Y");
             oscilloY.AddOrUpdateLine(2, 100, "Accel Y");
             oscilloY.ChangeLineColor("Vitesse Y", Colors.Red);
             oscilloY.ChangeLineColor("Vitesse Y Consigne", Colors.Blue);
 
-            oscilloTheta.SetTitle("Vtheta");
+            //oscilloTheta.SetTitle("Vtheta");
             oscilloTheta.AddOrUpdateLine(0, 100, "Vitesse Theta Consigne");
             oscilloTheta.AddOrUpdateLine(1, 100, "Vitesse Theta");
             oscilloTheta.AddOrUpdateLine(2, 100, "Gyr Z");
@@ -625,16 +625,16 @@ namespace RobotInterface
 
         //Methode appelée sur evenement (event) provenant du port Serie.
         //Cette methode est donc appelée depuis le thread du port Serie. Ce qui peut poser des problemes d'acces inter-thread
-        public void ActualizeEnableAsservissementDebugDataCheckBox(object sender, BoolEventArgs e)
-        {
-            //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
-            //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
-            //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
-            //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
-            CheckBoxEnableAsservissementDebugData.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
-            {
-            }));
-        }
+        //public void ActualizeEnableAsservissementDebugDataCheckBox(object sender, BoolEventArgs e)
+        //{
+        //    //La solution consiste a passer par un delegué qui executera l'action a effectuer depuis le thread concerné.
+        //    //Ici, l'action a effectuer est la modification d'un bouton. Ce bouton est un objet UI, et donc l'action doit etre executée depuis un thread UI.
+        //    //Sachant que chaque objet UI (d'interface graphique) dispose d'un dispatcher qui permet d'executer un delegué (une methode) depuis son propre thread.
+        //    //La difference entre un Invoke et un beginInvoke est le fait que le Invoke attend la fin de l'execution de l'action avant de sortir.
+        //    CheckBoxEnableAsservissementDebugData.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate ()
+        //    {
+        //    }));
+        //}
 
 
         //Methode appelée sur evenement (event) provenant du port Serie.
@@ -936,28 +936,40 @@ namespace RobotInterface
             {
                 case AsservissementMode.Off4Wheels:
                     OnSetAsservissementModeFromInterface((byte)AsservissementMode.Polar4Wheels);
+                    OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(true);
+                    OnEnableSpeedPIDEnableDebugInternalFromInterface(true);
                     break;
                 case AsservissementMode.Polar4Wheels:
                     OnSetAsservissementModeFromInterface((byte)AsservissementMode.Independant4Wheels);
+                    OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(true);
+                    OnEnableSpeedPIDEnableDebugInternalFromInterface(true);
+
                     break;
                 case AsservissementMode.Independant4Wheels:
                     OnSetAsservissementModeFromInterface((byte)AsservissementMode.Off4Wheels);
+                    OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(false);
+                    OnEnableSpeedPIDEnableDebugInternalFromInterface(false);
+                    break;
+                default:
+                    OnSetAsservissementModeFromInterface((byte)AsservissementMode.Off4Wheels);
+                    OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(false);
+                    OnEnableSpeedPIDEnableDebugInternalFromInterface(false);
                     break;
             }
         }
-        private void CheckBoxEnableAsservissementDebugData_Checked(object sender, RoutedEventArgs e)
-        {
-            if (CheckBoxEnableAsservissementDebugData.IsChecked ?? false)
-            {
-                OnEnableSpeedPIDEnableDebugInternalFromInterface(true);
-                OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(true);
-            }
-            else
-            {
-                OnEnableSpeedPIDEnableDebugInternalFromInterface(false);
-                OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(false);
-            }
-        }
+        //private void CheckBoxEnableAsservissementDebugData_Checked(object sender, RoutedEventArgs e)
+        //{
+        //    if (CheckBoxEnableAsservissementDebugData.IsChecked ?? false)
+        //    {
+        //        OnEnableSpeedPIDEnableDebugInternalFromInterface(true);
+        //        OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(true);
+        //    }
+        //    else
+        //    {
+        //        OnEnableSpeedPIDEnableDebugInternalFromInterface(false);
+        //        OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(false);
+        //    }
+        //}
 
         private void ButtonCalibrateGyro_Click(object sender, RoutedEventArgs e)
         {

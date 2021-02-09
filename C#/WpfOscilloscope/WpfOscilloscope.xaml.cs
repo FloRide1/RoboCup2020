@@ -74,10 +74,10 @@ namespace WpfOscilloscopeControl
         }
 
 
-        public void SetTitle(string title)
-        {
-            titleText.Text = title;
-        }
+        //public void SetTitle(string title)
+        //{
+        //    sciChartBox.Header = title;
+        //}
         public void SetSerieName(int lineId, string name)
         {
             if (LineExist(lineId))
