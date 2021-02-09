@@ -90,7 +90,7 @@ namespace WpfAsservissementDisplay
 
         System.Timers.Timer displayTimer;
 
-        AsservissementMode asservissementMode = AsservissementMode.Disabled;
+        AsservissementMode asservissementMode = AsservissementMode.Off4Wheels;
 
         public AsservissementRobot4RouesHoloDisplayControl()
         {
@@ -195,7 +195,7 @@ namespace WpfAsservissementDisplay
 
             switch(asservissementMode)
             {
-                case AsservissementMode.Disabled:
+                case AsservissementMode.Off4Wheels:
                     LabelConsigneX.Visibility = Visibility.Hidden;
                     LabelConsigneY.Visibility = Visibility.Hidden;
                     LabelConsigneTheta.Visibility = Visibility.Hidden;
@@ -242,7 +242,7 @@ namespace WpfAsservissementDisplay
                     LabelCorrDM3.Visibility = Visibility.Hidden;
                     LabelCorrDM4.Visibility = Visibility.Hidden;
                     break;
-                case AsservissementMode.Polar:
+                case AsservissementMode.Polar4Wheels:
                     LabelConsigneX.Visibility = Visibility.Visible;
                     LabelConsigneY.Visibility = Visibility.Visible;
                     LabelConsigneTheta.Visibility = Visibility.Visible;
@@ -289,7 +289,7 @@ namespace WpfAsservissementDisplay
                     LabelCorrDM3.Visibility = Visibility.Hidden;
                     LabelCorrDM4.Visibility = Visibility.Hidden;
                     break;
-                case AsservissementMode.Independant:
+                case AsservissementMode.Independant4Wheels:
                     LabelConsigneX.Visibility = Visibility.Hidden;
                     LabelConsigneY.Visibility = Visibility.Hidden;
                     LabelConsigneTheta.Visibility = Visibility.Hidden;

@@ -592,16 +592,24 @@ namespace RobotInterface
             {
                 switch(currentAsservissementMode)
                 {
-                    case AsservissementMode.Disabled:
+                    case AsservissementMode.Off4Wheels:
                         LabelAsservMode.Content = "Asserv Mode :  Disabled";
                         asservSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
                         break;
-                    case AsservissementMode.Independant:
-                        LabelAsservMode.Content = "Asserv Mode : Independant";
+                    case AsservissementMode.Independant4Wheels:
+                        LabelAsservMode.Content = "Asserv Mode : 4 Roues independant";
                         asservSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
                         break;
-                    case AsservissementMode.Polar:
-                        LabelAsservMode.Content = "Asserv Mode : Polar";
+                    case AsservissementMode.Polar4Wheels:
+                        LabelAsservMode.Content = "Asserv Mode : 4 roues polaire";
+                        asservSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
+                        break;
+                    case AsservissementMode.Independant2Wheels:
+                        LabelAsservMode.Content = "Asserv Mode : 2 Roues independant";
+                        asservSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
+                        break;
+                    case AsservissementMode.Polar2Wheels:
+                        LabelAsservMode.Content = "Asserv Mode : 2 roues polaire";
                         asservSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
                         break;
                 }
@@ -921,19 +929,19 @@ namespace RobotInterface
             }
         }
 
-        AsservissementMode currentAsservissementMode = AsservissementMode.Disabled;
+        AsservissementMode currentAsservissementMode = AsservissementMode.Off4Wheels;
         private void ButtonEnableAsservissement_Click(object sender, RoutedEventArgs e)
         {
             switch(currentAsservissementMode)
             {
-                case AsservissementMode.Disabled:
-                    OnSetAsservissementModeFromInterface((byte)AsservissementMode.Polar);
+                case AsservissementMode.Off4Wheels:
+                    OnSetAsservissementModeFromInterface((byte)AsservissementMode.Polar4Wheels);
                     break;
-                case AsservissementMode.Polar:
-                    OnSetAsservissementModeFromInterface((byte)AsservissementMode.Independant);
+                case AsservissementMode.Polar4Wheels:
+                    OnSetAsservissementModeFromInterface((byte)AsservissementMode.Independant4Wheels);
                     break;
-                case AsservissementMode.Independant:
-                    OnSetAsservissementModeFromInterface((byte)AsservissementMode.Disabled);
+                case AsservissementMode.Independant4Wheels:
+                    OnSetAsservissementModeFromInterface((byte)AsservissementMode.Off4Wheels);
                     break;
             }
         }

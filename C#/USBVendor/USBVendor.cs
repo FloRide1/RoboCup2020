@@ -203,7 +203,7 @@ namespace USBVendorNS
                     Int32 bytesToSend = e.Msg.Length;
                     while (bytesToSend > 0)
                     {
-                        RequestToSendDataViaBulkTransfer(cmv8DeviceListeFound[0], (uint)e.Msg.Length, e.Msg, ref LengthTransferred, ref success);
+                        /**/RequestToSendDataViaBulkTransfer(cmv8DeviceListeFound[0], (uint)e.Msg.Length, e.Msg, ref LengthTransferred, ref success);
                         bytesToSend -= (Int32)LengthTransferred;
                     }
                 }

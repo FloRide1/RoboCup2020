@@ -72,7 +72,7 @@ namespace StrategyManagerProjetEtudiantNS.StrategyRoboCupNS
             On4WheelsPolarSpeedPIDSetup(px: 4.0, ix: 300, 0.0, py: 4.0, iy: 300, 0, ptheta: 4.0, itheta: 300, 0,
                 pxLimit: 4.0, ixLimit: 4.0, 0, pyLimit: 4.0, iyLimit: 4.0, 0, pthetaLimit: 4.0, ithetaLimit: 4.0, 0);
 
-            OnSetAsservissementMode((byte)AsservissementMode.Independant);
+            OnSetAsservissementMode((byte)AsservissementMode.Independant4Wheels);
         }
 
         public override void InitHeatMap()

@@ -311,59 +311,103 @@ namespace MessageProcessorNS
                     }
                     break;
 
-                //case (short)Commands.R2PC_SpeedPolarPidDebugInternal:
-                //    timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
-                //    tab = payload.GetRange(4, 4);
-                //    float CorrPx = tab.GetFloat();
-                //    tab = payload.GetRange(8, 4);
-                //    float CorrIx = tab.GetFloat();
-                //    tab = payload.GetRange(12, 4);
-                //    float CorrDx = tab.GetFloat();
-                //    tab = payload.GetRange(16, 4);
-                //    float CorrPy = tab.GetFloat();
-                //    tab = payload.GetRange(20, 4);
-                //    float CorrIy = tab.GetFloat();
-                //    tab = payload.GetRange(24, 4);
-                //    float CorrDy = tab.GetFloat();
-                //    tab = payload.GetRange(28, 4);
-                //    float CorrPTheta = tab.GetFloat();
-                //    tab = payload.GetRange(32, 4);
-                //    float CorrITheta = tab.GetFloat();
-                //    tab = payload.GetRange(36, 4);
-                //    float CorrDTheta = tab.GetFloat();
-                //    //On envois l'event aux abonnés
-                //    OnSpeedPolarPidCorrectionDataFromRobot(CorrPx, CorrIx, CorrDx, CorrPy, CorrIy, CorrDy, CorrPTheta, CorrITheta, CorrDTheta);
-                //    break;
+                case (short)Commands.R2PC_4WheelsSpeedPolarPidCorrections:
+                    {
+                        timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                        tab = payload.GetRange(4, 4);
+                        float CorrPx = tab.GetFloat();
+                        tab = payload.GetRange(8, 4);
+                        float CorrIx = tab.GetFloat();
+                        tab = payload.GetRange(12, 4);
+                        float CorrDx = tab.GetFloat();
+                        tab = payload.GetRange(16, 4);
+                        float CorrPy = tab.GetFloat();
+                        tab = payload.GetRange(20, 4);
+                        float CorrIy = tab.GetFloat();
+                        tab = payload.GetRange(24, 4);
+                        float CorrDy = tab.GetFloat();
+                        tab = payload.GetRange(28, 4);
+                        float CorrPTheta = tab.GetFloat();
+                        tab = payload.GetRange(32, 4);
+                        float CorrITheta = tab.GetFloat();
+                        tab = payload.GetRange(36, 4);
+                        float CorrDTheta = tab.GetFloat();
+                        //On envois l'event aux abonnés
+                        On4WheelsSpeedPolarPidCorrectionDataFromRobot(CorrPx, CorrIx, CorrDx, CorrPy, CorrIy, CorrDy, CorrPTheta, CorrITheta, CorrDTheta);
+                    }
+                    break;
 
-                //case (short)Commands.R2PC_SpeedIndependantPidDebugInternal:
-                //    timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
-                //    tab = payload.GetRange(4, 4);
-                //    float CorrPM1 = tab.GetFloat();
-                //    tab = payload.GetRange(8, 4);
-                //    float CorrIM1 = tab.GetFloat();
-                //    tab = payload.GetRange(12, 4);
-                //    float CorrDM1 = tab.GetFloat();
-                //    tab = payload.GetRange(16, 4);
-                //    float CorrPM2 = tab.GetFloat();
-                //    tab = payload.GetRange(20, 4);
-                //    float CorrIM2 = tab.GetFloat();
-                //    tab = payload.GetRange(24, 4);
-                //    float CorrDM2 = tab.GetFloat();
-                //    tab = payload.GetRange(28, 4);
-                //    float CorrPM3 = tab.GetFloat();
-                //    tab = payload.GetRange(32, 4);
-                //    float CorrIM3 = tab.GetFloat();
-                //    tab = payload.GetRange(36, 4);
-                //    float CorrDM3 = tab.GetFloat();
-                //    tab = payload.GetRange(40, 4);
-                //    float CorrPM4 = tab.GetFloat();
-                //    tab = payload.GetRange(44, 4);
-                //    float CorrIM4 = tab.GetFloat();
-                //    tab = payload.GetRange(48, 4);
-                //    float CorrDM4 = tab.GetFloat();
-                //    //On envois l'event aux abonnés
-                //    OnSpeedIndependantPidCorrectionDataFromRobot(CorrPM1, CorrIM1, CorrDM1, CorrPM2, CorrIM2, CorrDM2, CorrPM3, CorrIM3, CorrDM3, CorrPM4, CorrIM4, CorrDM4);
-                //    break;
+                case (short)Commands.R2PC_4WheelsSpeedIndependantPidCorrections:
+                    {
+                        timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                        tab = payload.GetRange(4, 4);
+                        float CorrPM1 = tab.GetFloat();
+                        tab = payload.GetRange(8, 4);
+                        float CorrIM1 = tab.GetFloat();
+                        tab = payload.GetRange(12, 4);
+                        float CorrDM1 = tab.GetFloat();
+                        tab = payload.GetRange(16, 4);
+                        float CorrPM2 = tab.GetFloat();
+                        tab = payload.GetRange(20, 4);
+                        float CorrIM2 = tab.GetFloat();
+                        tab = payload.GetRange(24, 4);
+                        float CorrDM2 = tab.GetFloat();
+                        tab = payload.GetRange(28, 4);
+                        float CorrPM3 = tab.GetFloat();
+                        tab = payload.GetRange(32, 4);
+                        float CorrIM3 = tab.GetFloat();
+                        tab = payload.GetRange(36, 4);
+                        float CorrDM3 = tab.GetFloat();
+                        tab = payload.GetRange(40, 4);
+                        float CorrPM4 = tab.GetFloat();
+                        tab = payload.GetRange(44, 4);
+                        float CorrIM4 = tab.GetFloat();
+                        tab = payload.GetRange(48, 4);
+                        float CorrDM4 = tab.GetFloat();
+                        //On envois l'event aux abonnés
+                        On4WheelsSpeedIndependantPidCorrectionDataFromRobot(CorrPM1, CorrIM1, CorrDM1, CorrPM2, CorrIM2, CorrDM2, CorrPM3, CorrIM3, CorrDM3, CorrPM4, CorrIM4, CorrDM4);
+                    }
+                    break;
+
+                case (short)Commands.R2PC_2WheelsSpeedPolarPidCorrections:
+                    {
+                        timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                        tab = payload.GetRange(4, 4);
+                        float CorrPx = tab.GetFloat();
+                        tab = payload.GetRange(8, 4);
+                        float CorrIx = tab.GetFloat();
+                        tab = payload.GetRange(12, 4);
+                        float CorrDx = tab.GetFloat();
+                        tab = payload.GetRange(16, 4);
+                        float CorrPTheta = tab.GetFloat();
+                        tab = payload.GetRange(20, 4);
+                        float CorrITheta = tab.GetFloat();
+                        tab = payload.GetRange(24, 4);
+                        float CorrDTheta = tab.GetFloat();
+                        //On envois l'event aux abonnés
+                        On2WheelsSpeedPolarPidCorrectionDataFromRobot(CorrPx, CorrIx, CorrDx, CorrPTheta, CorrITheta, CorrDTheta);
+                    }
+                    break;
+
+                case (short)Commands.R2PC_2WheelsSpeedIndependantPidCorrections:
+                    {
+                        timeStamp = (uint)(payload[3] | payload[2] << 8 | payload[1] << 16 | payload[0] << 24);
+                        tab = payload.GetRange(4, 4);
+                        float CorrPM1 = tab.GetFloat();
+                        tab = payload.GetRange(8, 4);
+                        float CorrIM1 = tab.GetFloat();
+                        tab = payload.GetRange(12, 4);
+                        float CorrDM1 = tab.GetFloat();
+                        tab = payload.GetRange(16, 4);
+                        float CorrPM2 = tab.GetFloat();
+                        tab = payload.GetRange(20, 4);
+                        float CorrIM2 = tab.GetFloat();
+                        tab = payload.GetRange(24, 4);
+                        float CorrDM2 = tab.GetFloat();
+                        //On envois l'event aux abonnés
+                        On2WheelsSpeedIndependantPidCorrectionDataFromRobot(CorrPM1, CorrIM1, CorrDM1, CorrPM2, CorrIM2, CorrDM2);
+                    }
+                    break;
 
                 case (short)Commands.R2PC_MotorsEnableDisableStatus:
                     bool value = Convert.ToBoolean(payload[0]);

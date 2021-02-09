@@ -340,12 +340,26 @@ namespace RobotInterface
             asserv2WheelsSpeedDisplay.UpdateIndependantSpeedConsigneValues(e.M1ConsigneFromRobot, e.M2ConsigneFromRobot);
         }
 
+        //public void Update4WheelsSpeedPolarPidCorrections(object sender, PolarPidCorrectionArgs e)
+        //{
+        //    asserv4WheelsSpeedDisplay.Updat4WheelsPolarSpeedCorrectionValues(e.CorrPx, e.CorrPy, e.CorrPTheta,
+        //        e.CorrIx, e.CorrIy, e.CorrITheta,
+        //        e.CorrDx, e.CorrDy, e.CorrDTheta);
+        //}
+
         public void Update2WheelsSpeedPolarPidCorrections(object sender, PolarPidCorrectionArgs e)
         {
             asserv2WheelsSpeedDisplay.UpdatePolarSpeedCorrectionValues(e.CorrPx, e.CorrPTheta,
                 e.CorrIx, e.CorrITheta,
                 e.CorrDx, e.CorrDTheta);
         }
+
+        //public void Update4WheelsSpeedIndependantPidCorrections(object sender, IndependantPidCorrectionArgs e)
+        //{
+        //    asserv4WheelsSpeedDisplay.UpdateIndependantSpeedCorrectionValues(e.CorrPM1, e.CorrPM2, e.CorrPM3, e.CorrPM4,
+        //        e.CorrIM1, e.CorrIM2, e.CorrIM3, e.CorrIM4,
+        //        e.CorrDM1, e.CorrDM2, e.CorrDM3, e.CorrDM4);
+        //}
 
         public void Update2WheelsSpeedIndependantPidCorrections(object sender, IndependantPidCorrectionArgs e)
         {
@@ -470,16 +484,28 @@ namespace RobotInterface
             {
                 switch(currentAsservissementMode)
                 {
-                    case AsservissementMode.Disabled:
-                        LabelAsservMode.Content = "Asserv Mode :  Disabled";
+                    case AsservissementMode.Off4Wheels:
+                        LabelAsservMode.Content = "Asserv 4 Wheels : OFF";
                         asserv2WheelsSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
                         break;
-                    case AsservissementMode.Independant:
-                        LabelAsservMode.Content = "Asserv Mode : Independant";
+                    case AsservissementMode.Off2Wheels:
+                        LabelAsservMode.Content = "Asserv 2 Wheels : OFF";
                         asserv2WheelsSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
                         break;
-                    case AsservissementMode.Polar:
-                        LabelAsservMode.Content = "Asserv Mode : Polar";
+                    case AsservissementMode.Independant4Wheels:
+                        LabelAsservMode.Content = "Asserv 4 Wheels : Independant";
+                        asserv2WheelsSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
+                        break;
+                    case AsservissementMode.Independant2Wheels:
+                        LabelAsservMode.Content = "Asserv 2 Wheels : Independant";
+                        asserv2WheelsSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
+                        break;
+                    case AsservissementMode.Polar4Wheels:
+                        LabelAsservMode.Content = "Asserv 4 Wheels : Polar";
+                        asserv2WheelsSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
+                        break;
+                    case AsservissementMode.Polar2Wheels:
+                        LabelAsservMode.Content = "Asserv 2 Wheels : Polar";
                         asserv2WheelsSpeedDisplay.SetAsservissementMode(currentAsservissementMode);
                         break;
                 }
@@ -769,23 +795,28 @@ namespace RobotInterface
         }
         #endregion
 
-        AsservissementMode currentAsservissementMode = AsservissementMode.Disabled;
+        AsservissementMode currentAsservissementMode = AsservissementMode.Off2Wheels;
         private void ButtonEnableAsservissement_Click(object sender, RoutedEventArgs e)
         {
             switch(currentAsservissementMode)
             {
-                case AsservissementMode.Disabled:
-                    OnSetAsservissementModeFromInterface((byte)AsservissementMode.Polar);
+                case AsservissementMode.Off2Wheels:
+                    OnSetAsservissementModeFromInterface((byte)AsservissementMode.Polar2Wheels);
                     OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(false);
                     OnEnableSpeedPIDEnableDebugInternalFromInterface(false);
                     break;
-                case AsservissementMode.Polar:
-                    OnSetAsservissementModeFromInterface((byte)AsservissementMode.Independant);
+                case AsservissementMode.Polar2Wheels:
+                    OnSetAsservissementModeFromInterface((byte)AsservissementMode.Independant2Wheels);
                     OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(true);
                     OnEnableSpeedPIDEnableDebugInternalFromInterface(true);
                     break;
-                case AsservissementMode.Independant:
-                    OnSetAsservissementModeFromInterface((byte)AsservissementMode.Disabled);
+                case AsservissementMode.Independant2Wheels:
+                    OnSetAsservissementModeFromInterface((byte)AsservissementMode.Off2Wheels);
+                    OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(true);
+                    OnEnableSpeedPIDEnableDebugInternalFromInterface(true);
+                    break;
+                default:
+                    OnSetAsservissementModeFromInterface((byte)AsservissementMode.Off2Wheels);
                     OnEnableSpeedPIDEnableDebugErrorCorrectionConsigneFromInterface(true);
                     OnEnableSpeedPIDEnableDebugInternalFromInterface(true);
                     break;

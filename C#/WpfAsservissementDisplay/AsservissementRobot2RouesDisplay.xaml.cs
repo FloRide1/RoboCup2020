@@ -69,7 +69,7 @@ namespace WpfAsservissementDisplay
 
         System.Timers.Timer displayTimer;
 
-        AsservissementMode asservissementMode = AsservissementMode.Disabled;
+        AsservissementMode asservissementMode = AsservissementMode.Off2Wheels;
 
         public AsservissementRobot2RouesDisplayControl()
         {
@@ -141,7 +141,7 @@ namespace WpfAsservissementDisplay
 
             switch(asservissementMode)
             {
-                case AsservissementMode.Disabled:
+                case AsservissementMode.Off2Wheels:
                     LabelConsigneX.Visibility = Visibility.Hidden;
                     LabelConsigneTheta.Visibility = Visibility.Hidden;
                     LabelErreurX.Visibility = Visibility.Hidden;
@@ -170,7 +170,7 @@ namespace WpfAsservissementDisplay
                     LabelCorrDM1.Visibility = Visibility.Hidden;
                     LabelCorrDM2.Visibility = Visibility.Hidden;
                     break;
-                case AsservissementMode.Polar:
+                case AsservissementMode.Polar2Wheels:
                     LabelConsigneX.Visibility = Visibility.Visible;
                     LabelConsigneTheta.Visibility = Visibility.Visible;
                     LabelErreurX.Visibility = Visibility.Visible;
@@ -199,7 +199,7 @@ namespace WpfAsservissementDisplay
                     LabelCorrDM1.Visibility = Visibility.Hidden;
                     LabelCorrDM2.Visibility = Visibility.Hidden;
                     break;
-                case AsservissementMode.Independant:
+                case AsservissementMode.Independant2Wheels:
                     LabelConsigneX.Visibility = Visibility.Hidden;
                     LabelConsigneTheta.Visibility = Visibility.Hidden;
                     LabelErreurX.Visibility = Visibility.Hidden;
@@ -227,6 +227,8 @@ namespace WpfAsservissementDisplay
                     LabelCorrIM2.Visibility = Visibility.Visible;
                     LabelCorrDM1.Visibility = Visibility.Visible;
                     LabelCorrDM2.Visibility = Visibility.Visible;
+                    break;
+                default:
                     break;
 
             }

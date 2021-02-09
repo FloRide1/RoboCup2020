@@ -21,6 +21,8 @@ namespace XBoxControllerNS
 
         Timer timerGamepad = new Timer(50);
 
+        double t = 0;
+
         public XBoxController(int id)
         {
             robotId = id;
@@ -33,7 +35,7 @@ namespace XBoxControllerNS
 
         private void TimerGamepad_Elapsed(object sender, ElapsedEventArgs e)
         {
-            double VLinMax = 3;   //1.2 ~= 0.3m/s
+            double VLinMax = 6;   //1.2 ~= 0.3m/s
             double VThetaMax = 1.5* Math.PI;
             double valeurRampe = 0.6;
             double Vx;
@@ -106,6 +108,9 @@ namespace XBoxControllerNS
                 VxRampe = Vx;
                 VyRampe = Vy;
                 VthetaRampe = Vtheta;
+
+                //t += 0.02;
+                //VxRampe = 1 * Math.Sin(3.14 * t);
 
 
                 OnSpeedConsigneToRobot(robotId, VxRampe, VyRampe, VthetaRampe);
