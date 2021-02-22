@@ -62,12 +62,12 @@ namespace TrajectoryGenerator
             {
                 case GameMode.RoboCup:
                     {
-                        accelLineaireMax = 4; //en m.s-2
+                        accelLineaireMax = 2; //en m.s-2
                         accelRotationCapVitesseMax = 2 * Math.PI * 1.0; //en rad.s-2
                         accelRotationOrientationRobotMax = 2 * Math.PI * 1.0; //en rad.s-2
 
                         vitesseLineaireMax = 3; //en m.s-1
-                        vitesseRotationCapVitesseMax = 3 * Math.PI * 2.0; //en rad.s-1
+                        vitesseRotationCapVitesseMax = 3 * Math.PI * 1.0; //en rad.s-1
                         vitesseRotationOrientationRobotMax = 2 * Math.PI * 2.0; //en rad.s-1
                     }
                     break;
@@ -103,12 +103,9 @@ namespace TrajectoryGenerator
             {
                 case GameMode.RoboCup:
                     {
-                        PID_X.Init(kp: 0.0, ki: 0.0, kd: 0.0, 10, 10, 10);
-                        PID_Y.Init(kp: 0.0, ki: 0.0, kd: 0.0, 10, 10, 10);
+                        PID_X.Init(kp: 50.0, ki: 0.0, kd: 4.0, 10, 10, 10);
+                        PID_Y.Init(kp: 50.0, ki: 0.0, kd: 4.0, 10, 10, 10);
                         PID_Theta.Init(kp: 12.0, ki: 0.0, kd: 1.0, 10, 10, 10);
-                        //PID_X.Init(kp: 50.0, ki: 0.0, kd: 4.0, 10, 10, 10);
-                        //PID_Y.Init(kp: 50.0, ki: 0.0, kd: 4.0, 10, 10, 10);
-                        //PID_Theta.Init(kp: 12.0, ki: 0.0, kd: 1.0, 10, 10, 10);
                     }
                     break;
                 case GameMode.Eurobot:

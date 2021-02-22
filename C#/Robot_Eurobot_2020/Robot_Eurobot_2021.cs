@@ -93,7 +93,7 @@ namespace Robot
         }
         #endregion
 
-        static GameMode competition = GameMode.Eurobot;
+        static GameMode competition = GameMode.RoboCup;
 
         static bool usingXBoxController; 
         static bool usingRobotInterface = true;

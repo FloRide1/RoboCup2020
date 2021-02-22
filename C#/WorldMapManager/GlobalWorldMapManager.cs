@@ -19,7 +19,7 @@ namespace WorldMapManager
     {
         int RobotId;
         int TeamId;
-        double freqRafraichissementWorldMap = 200;
+        double freqRafraichissementWorldMap = 20;
 
         ConcurrentDictionary<int, LocalWorldMap> localWorldMapDictionary = new ConcurrentDictionary<int, LocalWorldMap>();
         //GlobalWorldMapStorage globalWorldMapStorage = new GlobalWorldMapStorage();
