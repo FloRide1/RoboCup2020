@@ -43,7 +43,7 @@ namespace WpfTeamInterfaceNS
             InitPlayers(team1PlayerNames, team2PlayerNames);
 
             timerAffichage = new DispatcherTimer();
-            timerAffichage.Interval = new TimeSpan(0, 0, 0, 0, 50);
+            timerAffichage.Interval = new TimeSpan(0, 0, 0, 0, 20);
             timerAffichage.Tick += TimerAffichage_Tick; ;
             timerAffichage.Start();
         }
