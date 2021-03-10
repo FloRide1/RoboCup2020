@@ -154,10 +154,6 @@
       <Project>{DEDA47B4-8F22-4A8B-8F18-96981C6B408D}</Project>
       <Name>TCPAdapter</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TrajectoryGenerator\TrajectoryGenerator.csproj">
-      <Project>{bb381252-44cf-4962-984b-abd697dcc9fb}</Project>
-      <Name>TrajectoryGenerator</Name>
-    </ProjectReference>
     <ProjectReference Include="..\UdpMulticastInterpreter\UdpMulticastInterpreter.csproj">
       <Project>{2E2E2FF7-D7A1-4AF7-956E-0951B18B7FF5}</Project>
       <Name>UdpMulticastInterpreter</Name>

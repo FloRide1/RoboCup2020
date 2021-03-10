@@ -8,9 +8,9 @@ using System.Diagnostics;
 using Utilities;
 using WorldMap;
 
-namespace TrajectoryGenerator
+namespace TrajectoryGeneratorHolonomeNS
 {
-    public class TrajectoryPlanner
+    public class TrajectoryGeneratorHolonome
     {
         int robotId = 0;
         GameMode gameMode;
@@ -51,7 +51,7 @@ namespace TrajectoryGenerator
         
         System.Timers.Timer PidConfigUpdateTimer;
 
-        public TrajectoryPlanner(int id, GameMode gameMode)
+        public TrajectoryGeneratorHolonome(int id, GameMode gameMode)
         {
             this.gameMode = gameMode;
             robotId = id;
@@ -94,7 +94,6 @@ namespace TrajectoryGenerator
             PidConfigUpdateTimer = new System.Timers.Timer(1000);
             PidConfigUpdateTimer.Elapsed += PositionPidConfigUpdateTimer_Elapsed;
             PidConfigUpdateTimer.Start();
-
         }
 
         private void PositionPidConfigUpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)

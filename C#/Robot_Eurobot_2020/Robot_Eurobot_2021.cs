@@ -6,7 +6,7 @@ using RobotInterface;
 using SciChart.Charting.Visuals;
 using System;
 using System.Threading;
-using TrajectoryGenerator;
+using TrajectoryGeneratorHolonomeNS;
 using WayPointGenerator;
 using WorldMapManager;
 using PerceptionManagement;
@@ -103,7 +103,7 @@ namespace Robot
         static MsgEncoder msgEncoder;
         static MsgGenerator robotMsgGenerator;
         static MsgProcessor robotMsgProcessor;
-        static TrajectoryPlanner trajectoryPlanner;
+        static TrajectoryGeneratorHolonome trajectoryPlanner;
         static KalmanPositioning.KalmanPositioning kalmanPositioning;
         static LocalWorldMapManager localWorldMapManager;
 
@@ -163,7 +163,7 @@ namespace Robot
             lidar_OMD60M_TCP = new LidaRxR2000(50, R2000SamplingRate._72kHz);
             perceptionManager = new PerceptionManager(robotId, competition);
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
-            trajectoryPlanner = new TrajectoryPlanner(robotId, competition);
+            trajectoryPlanner = new TrajectoryGeneratorHolonome(robotId, competition);
 
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId, bypassMulticast:false);
             globalWorldMapManager = new GlobalWorldMapManager(robotId, teamId);
@@ -213,7 +213,7 @@ namespace Robot
             //Kalman
             perceptionManager.OnAbsolutePositionEvent += kalmanPositioning.OnAbsolutePositionCalculatedEvent;
             imuProcessor.OnGyroSpeedEvent += kalmanPositioning.OnGyroRobotSpeedReceived;
-            robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
+            robotMsgProcessor.OnPolarOdometrySpeedFromRobotEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             kalmanPositioning.OnKalmanLocationEvent += perceptionManager.OnPhysicalRobotPositionReceived;
             kalmanPositioning.OnKalmanLocationEvent += strategyManager.OnPositionRobotReceived;
@@ -304,7 +304,7 @@ namespace Robot
             /// LOGGER related events
             perceptionManager.OnLidarRawDataEvent += logRecorder.OnRawLidarDataReceived;
             robotMsgProcessor.OnIMURawDataFromRobotGeneratedEvent += logRecorder.OnIMURawDataReceived;
-            robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += logRecorder.OnPolarSpeedDataReceived;
+            robotMsgProcessor.OnPolarOdometrySpeedFromRobotEvent += logRecorder.OnPolarSpeedDataReceived;
                        
             //omniCamera.OpenCvMatImageEvent += logRecorder.OnOpenCVMatImageReceived;
 
@@ -444,7 +444,7 @@ namespace Robot
             robotMsgProcessor.OnEnableDisableTirACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableDisableTirButton;
 
             robotMsgProcessor.OnAsservissementModeStatusFromRobotGeneratedEvent += interfaceRobot.UpdateAsservissementMode;
-            robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += interfaceRobot.UpdateSpeedPolarOdometryOnInterface;
+            robotMsgProcessor.OnPolarOdometrySpeedFromRobotEvent += interfaceRobot.UpdateSpeedPolarOdometryOnInterface;
             
             robotMsgProcessor.OnIndependantOdometrySpeedFromRobotEvent += interfaceRobot.UpdateSpeedIndependantOdometryOnInterface;
             robotMsgProcessor.On4WheelsSpeedPolarPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedPolarPidErrorCorrectionConsigneDataOnGraph;

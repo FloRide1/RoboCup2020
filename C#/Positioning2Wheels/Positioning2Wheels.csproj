@@ -4,15 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BB381252-44CF-4962-984B-ABD697DCC9FB}</ProjectGuid>
+    <ProjectGuid>{E1EDDD83-8DD6-4C4A-9B8E-9D30B53E6FEA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TrajectoryGenerator</RootNamespace>
-    <AssemblyName>TrajectoryGenerator</AssemblyName>
+    <RootNamespace>Positioning2WheelsNS</RootNamespace>
+    <AssemblyName>Positioning2Wheels</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,24 +30,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -60,41 +41,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TrajectoryGenerator.cs" />
+    <Compile Include="Positioning2Wheels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Constants\Constants.csproj">
-      <Project>{0540b497-b2ce-40a1-84b5-3109ce2f3146}</Project>
-      <Name>Constants</Name>
-    </ProjectReference>
     <ProjectReference Include="..\EventArgsLibrary\EventArgsLibrary.csproj">
       <Project>{9c46a7c0-4675-41be-b282-e6f0825ad73e}</Project>
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\HighFreqTimer\AdvancedTimers.csproj">
-      <Project>{ecc907ed-f9b2-457f-901e-720987934e47}</Project>
-      <Name>AdvancedTimers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PerceptionManagement\PerceptionManagement.csproj">
-      <Project>{ca5585eb-5c96-4df3-823c-878c0ad7d739}</Project>
-      <Name>PerceptionManagement</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Perception\Perception.csproj">
-      <Project>{DD8FD061-D3B2-43AE-B74D-03D94A2876A3}</Project>
-      <Name>Perception</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PerformanceMonitorTools\PerformanceMonitorTools.csproj">
-      <Project>{E43FD01A-2803-412C-8B33-256D3F681029}</Project>
-      <Name>PerformanceMonitorTools</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8e7d0da4-9a13-4b18-a90e-0243bbcce40a}</Project>
       <Name>Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WorldMap\WorldMap.csproj">
-      <Project>{b2d0126f-8c82-4eaa-87e5-67415f589098}</Project>
-      <Name>WorldMap</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

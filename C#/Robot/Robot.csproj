@@ -217,10 +217,6 @@
       <Project>{f2d3fb95-f97a-4049-bca4-71854fd4faf3}</Project>
       <Name>StrategyManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TrajectoryGenerator\TrajectoryGenerator.csproj">
-      <Project>{bb381252-44cf-4962-984b-abd697dcc9fb}</Project>
-      <Name>TrajectoryGenerator</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8e7d0da4-9a13-4b18-a90e-0243bbcce40a}</Project>
       <Name>Utilities</Name>
