@@ -415,9 +415,9 @@ namespace LidarProcessor
                 //On ajoute ce point à la liste des points de sortie
                 ptListFixedStep.Add(ptCourant);
                 //On calcule l'incrément d'angle de manière à avoir une résolution constante si la paroi est orthogonale au rayon issu du robot
-                double incrementAngle = step / Math.Max(ptCourant.Distance, 1);
+                double incrementAngle = step / Math.Max(ptCourant.Distance, 0.1);
                 //On regarde le ration entre la distance entre les pts à dxroite
-                int n = 2;
+                int n = 5;
                 var ptDroite = ptList[Math.Min(ptIndex + n, ptList.Count - 1)];
                 var ptGauche = ptList[Math.Max(ptIndex - n, 0)];
                 var distancePtGauchePtDroit = Toolbox.Distance(ptDroite, ptGauche);
