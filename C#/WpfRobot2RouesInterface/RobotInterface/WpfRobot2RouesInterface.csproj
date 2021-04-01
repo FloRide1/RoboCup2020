@@ -157,7 +157,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SciChart">
-      <Version>6.2.1.13304</Version>
+      <Version>6.3.0.13476</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

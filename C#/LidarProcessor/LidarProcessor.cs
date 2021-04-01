@@ -74,6 +74,8 @@ namespace LidarProcessor
             List<PolarPointListExtended> objectList = new List<PolarPointListExtended>();
             List<PolarPointRssi> ptObstacleList = new List<PolarPointRssi>();
 
+            List<PolarPointRssi> ptListSampled = new List<PolarPointRssi>();
+
             switch (competition)
             {
                 case GameMode.Eurobot:
@@ -101,13 +103,15 @@ namespace LidarProcessor
                     //var ptListFiltered = DetectionBackgroundPoints(ptList);
                     //var backgroundObjectList = DetectionObjetsProches(ptListFiltered, 0.5, 20.0, tailleSegmentationObjet: 0.4, tolerance: 0.2);
                     //var backgroundObjectsCenterList = backgroundObjectList.Where(x=>x.PtList.Count>10/x.DistanceMoyenne).Select(x => new PolarPointRssi(x.AngleMoyen, x.DistanceMoyenne, 0)).ToList();
-                    
-                    
+
+
                     ////ptList = SubSampleLidar(ptList, 5).ToList();
-                    var ptListCurvature = ExtractCurvature(ptList);
-                    var ptLineList = ExtractLinesFromCurvature(ptList, ptListCurvature);
-                    var ptCornerList = ExtractCornersFromCurvature(ptList, ptListCurvature);
-                    ptObstacleList = ptCornerList;
+                    //var curvatureList = ExtractCurvature(ptList);
+                    
+                    ptListSampled = FixedStepLidarMap(ptList,1);
+                    //var ptLineList = ExtractLinesFromCurvature(ptList, curvatureList);
+                    //var ptCornerList = ExtractCornersFromCurvature(ptList, curvatureList);
+                    //ptObstacleList = ptListSampled;
 
                     //ShiftParameters shiftParams = new ShiftParameters();
                     //shiftParams.nbStep = 20;
@@ -158,6 +162,7 @@ namespace LidarProcessor
                 }
             }
             OnLidarObjectProcessed(robotId, objectList);
+            OnLidarProcessed(robotId, ptListSampled);
         }
 
         private List<PolarPointRssi> MedianFilter(List<PolarPointRssi> ptList, int size)
@@ -386,6 +391,43 @@ namespace LidarProcessor
             }
 
             return ptListEroded.ToList().GetRange((int)(originalSize / 2), originalSize);
+        }
+
+        //List<PolarCourbure> ExtractCurvature2(List<PolarPointRssi> ptList)
+        //{
+
+        //}
+
+        private List<PolarPointRssi> FixedStepLidarMap(List<PolarPointRssi> ptList, double step)
+        {
+            /// On construit une liste de points ayant le double du nombre de points de la liste d'origine, de manière 
+            /// à avoir un recoupement d'un tour complet 
+            List<PolarPointRssi> ptListFixedStep = new List<PolarPointRssi>();
+            double minAngle = 0;
+            double maxAngle = 2*Math.PI;
+            double currentAngle = minAngle;
+            double constante =  (ptList.Count) / (maxAngle - minAngle);
+            while (currentAngle < maxAngle && currentAngle >= minAngle)
+            {
+                //On détermine l'indice du point d'angle courant dans la liste d'origine
+                int ptIndex = (int)((currentAngle - minAngle) * constante);
+                var ptCourant = ptList[ptIndex];
+                //On ajoute ce point à la liste des points de sortie
+                ptListFixedStep.Add(ptCourant);
+                //On calcule l'incrément d'angle de manière à avoir une résolution constante si la paroi est orthogonale au rayon issu du robot
+                double incrementAngle = step / Math.Max(ptCourant.Distance, 1);
+                //On regarde le ration entre la distance entre les pts à dxroite
+                int n = 2;
+                var ptDroite = ptList[Math.Min(ptIndex + n, ptList.Count - 1)];
+                var ptGauche = ptList[Math.Max(ptIndex - n, 0)];
+                var distancePtGauchePtDroit = Toolbox.Distance(ptDroite, ptGauche);
+                var distancePtGauchePtDroitCasOrthogonal = (ptDroite.Angle - ptGauche.Angle) * ptCourant.Distance;
+                var ratioAngle = distancePtGauchePtDroit / distancePtGauchePtDroitCasOrthogonal;
+                
+                currentAngle += Math.Min(0.3, incrementAngle * step / ratioAngle);
+            }
+
+            return ptListFixedStep;
         }
 
         Object lockExtractCurvature = new object();
