@@ -108,21 +108,21 @@ namespace WorldMapManager
             foreach (var localMap in localWorldMapDictionary)
             {
                 //On ajoute la position des robots de l'équipe dans la WorldMap
-                globalWorldMap.teammateLocationList.Add(localMap.Key, localMap.Value.robotLocation);
+                globalWorldMap.teammateLocationList.AddOrUpdate(localMap.Key, localMap.Value.robotLocation);
                 //On ajoute le rôle des robots de l'équipe dans la WorldMap
-                globalWorldMap.teammateRoleList.Add(localMap.Key, localMap.Value.robotRole);
+                globalWorldMap.teammateRoleList.AddOrUpdate(localMap.Key, localMap.Value.robotRole);
                 //On ajoute l'état de Ball Handling des robots de l'équipe dans la WorldMap
-                globalWorldMap.teammateBallHandlingStateList.Add(localMap.Key, localMap.Value.ballHandlingState);
+                globalWorldMap.teammateBallHandlingStateList.AddOrUpdate(localMap.Key, localMap.Value.ballHandlingState);
                 //On ajoute le message à afficher des robots de l'équipe dans la WorldMap
-                globalWorldMap.teammateDisplayMessageList.Add(localMap.Key, localMap.Value.messageDisplay);
+                globalWorldMap.teammateDisplayMessageList.AddOrUpdate(localMap.Key, localMap.Value.messageDisplay);
                 //On ajoute le playing Side des robots de l'équipe dans la WorldMap
-                globalWorldMap.teammatePlayingSideList.Add(localMap.Key, localMap.Value.playingSide);
+                globalWorldMap.teammatePlayingSideList.AddOrUpdate(localMap.Key, localMap.Value.playingSide);
                 //On ajoute le ghost (position théorique) des robots de l'équipe dans la WorldMap
-                globalWorldMap.teammateGhostLocationList.Add(localMap.Key, localMap.Value.robotGhostLocation);
+                globalWorldMap.teammateGhostLocationList.AddOrUpdate(localMap.Key, localMap.Value.robotGhostLocation);
                 //On ajoute la destination des robots de l'équipe dans la WorldMap
-                globalWorldMap.teammateDestinationLocationList.Add(localMap.Key, localMap.Value.destinationLocation);
+                globalWorldMap.teammateDestinationLocationList.AddOrUpdate(localMap.Key, localMap.Value.destinationLocation);
                 //On ajoute le waypoint courant des robots de l'équipe dans la WorldMap
-                globalWorldMap.teammateWayPointList.Add(localMap.Key, localMap.Value.waypointLocation);
+                globalWorldMap.teammateWayPointList.AddOrUpdate(localMap.Key, localMap.Value.waypointLocation);
             }
 
             try

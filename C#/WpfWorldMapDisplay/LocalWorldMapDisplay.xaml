@@ -50,7 +50,7 @@
                 </s:XyScatterRenderableSeries>
                 <s:XyScatterRenderableSeries x:Name="LidarProcessedPoints" Opacity="0.5">
                     <s:XyScatterRenderableSeries.PointMarker>
-                        <s:EllipsePointMarker Width="4" Height="4" Fill="SteelBlue" Stroke="Red" StrokeThickness="1"/>
+                        <s:EllipsePointMarker Width="4" Height="4" Fill="SteelBlue" Stroke="Blue" StrokeThickness="1"/>
                     </s:XyScatterRenderableSeries.PointMarker>
                 </s:XyScatterRenderableSeries>
                 <local:PolygonRenderableSeries x:Name="PolygonSeries" Opacity="0.5">
