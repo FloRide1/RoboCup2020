@@ -1,4 +1,5 @@
 ﻿using Constants;
+using EventArgsLibrary;
 using SciChart.Charting.Model.DataSeries;
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,10 @@ namespace WpfWorldMapDisplay
         public double[,] heatMapStrategy;
         public double[,] heatMapWaypoint;
         List<PointD> lidarMap;
-        List<PointD> lidarProcessedMap;
+        List<PointD>[] lidarProcessedMaps = new List<PointD>[3];
+        //List<PointD> lidarProcessedMap1;
+        //List<PointD> lidarProcessedMap2;
+        //List<PointD> lidarProcessedMap3;
         List<PolarPointListExtended> lidarObjectList;
         public List<Location> ballLocationList;
 
@@ -42,7 +46,13 @@ namespace WpfWorldMapDisplay
             robotName = name;
 
             lidarMap = new List<PointD>();
-            lidarProcessedMap = new List<PointD>();
+            for (int i =0; i< lidarProcessedMaps.Count(); i++)
+            {
+                lidarProcessedMaps[i] = new List<PointD>();
+            }
+            //lidarProcessedMap1 = new List<PointD>();
+            //lidarProcessedMap2 = new List<PointD>();
+            //lidarProcessedMap3 = new List<PointD>();
             ballLocationList = new List<Location>();
         }
 
@@ -95,9 +105,17 @@ namespace WpfWorldMapDisplay
         {
             this.lidarMap = lidarMap;
         }
-        public void SetLidarProcessedMap(List<PointD> lidarProcessedMap)
+        public void SetLidarProcessedMap1(List<PointD> lidarProcessedMap)
         {
-            this.lidarProcessedMap = lidarProcessedMap;
+            this.lidarProcessedMap1 = lidarProcessedMap;
+        }
+        public void SetLidarProcessedMap2(List<PointD> lidarProcessedMap)
+        {
+            this.lidarProcessedMap2 = lidarProcessedMap;
+        }
+        public void SetLidarProcessedMap3(List<PointD> lidarProcessedMap)
+        {
+            this.lidarProcessedMap3 = lidarProcessedMap;
         }
         public void SetLidarObjectList(List<PolarPointListExtended> lidarObjectList)
         {
@@ -234,14 +252,61 @@ namespace WpfWorldMapDisplay
             return dataSeries;
         }
 
-        public XyDataSeries<double, double> GetRobotLidarProcessedPoints()
+        public XyDataSeries<double, double> GetRobotLidarPoints(LidarDataType type)
         {
             var dataSeries = new XyDataSeries<double, double>();
             if (lidarMap == null)
                 return dataSeries;
 
-            var listX = lidarProcessedMap.Select(e => e.X);
-            var listY = lidarProcessedMap.Select(e => e.Y);
+            IEnumerable<double> listX;
+            IEnumerable<double> listY;
+
+            switch (type)
+            {
+                case LidarDataType.RawData:
+                    listX = lidarMap.Select(e => e.X);
+                    listY = lidarMap.Select(e => e.Y);
+                    break;
+                case LidarDataType.ProcessedData1:
+                    listX = lidarProcessedMap1.Select(e => e.X);
+                    listY = lidarProcessedMap[0].Select(e => e.Y);
+                    break;
+            }
+            
+
+            if (listX.Count() == listY.Count())
+            {
+                dataSeries.AcceptsUnsortedData = true;
+                dataSeries.Append(listX, listY);
+            }
+            return dataSeries;
+        }
+
+        public XyDataSeries<double, double> GetRobotLidarProcessedPoints2()
+        {
+            var dataSeries = new XyDataSeries<double, double>();
+            if (lidarMap == null)
+                return dataSeries;
+
+            var listX = lidarProcessedMap2.Select(e => e.X);
+            var listY = lidarProcessedMap2.Select(e => e.Y);
+
+            if (listX.Count() == listY.Count())
+            {
+                dataSeries.AcceptsUnsortedData = true;
+                dataSeries.Append(listX, listY);
+            }
+            return dataSeries;
+        }
+
+        public XyDataSeries<double, double> GetRobotLidarProcessedPoints3()
+        {
+            var dataSeries = new XyDataSeries<double, double>();
+            if (lidarMap == null)
+                return dataSeries;
+
+            var listX = lidarProcessedMap3.Select(e => e.X);
+            var listY = lidarProcessedMap3.Select(e => e.Y);
 
             if (listX.Count() == listY.Count())
             {

@@ -210,7 +210,7 @@ namespace WorldMapManager
                 }
                 catch { };
 
-                localWorldMap.lidarMapProcessed = listPtLidar;
+                localWorldMap.lidarMapProcessed1 = listPtLidar;
             }
         }
 
