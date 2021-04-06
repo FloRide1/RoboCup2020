@@ -286,18 +286,18 @@ namespace WpfWorldMapDisplay
                     listX = lidarMap.Select(e => e.Pt.X);
                     listY = lidarMap.Select(e => e.Pt.Y);
                     break;
-                case LidarDataType.ProcessedData1:
-                    listX = lidarProcessedMaps[0].Select(e => e.Pt.X);
-                    listY = lidarProcessedMaps[0].Select(e => e.Pt.Y);
-                    break;
-                case LidarDataType.ProcessedData2:
-                    listX = lidarProcessedMaps[1].Select(e => e.Pt.X);
-                    listY = lidarProcessedMaps[1].Select(e => e.Pt.Y);
-                    break;
-                case LidarDataType.ProcessedData3:
-                    listX = lidarProcessedMaps[2].Select(e => e.Pt.X);
-                    listY = lidarProcessedMaps[2].Select(e => e.Pt.Y);
-                    break;
+                //case LidarDataType.ProcessedData1:
+                //    listX = lidarProcessedMaps[0].Select(e => e.Pt.X);
+                //    listY = lidarProcessedMaps[0].Select(e => e.Pt.Y);
+                //    break;
+                //case LidarDataType.ProcessedData2:
+                //    listX = lidarProcessedMaps[1].Select(e => e.Pt.X);
+                //    listY = lidarProcessedMaps[1].Select(e => e.Pt.Y);
+                //    break;
+                //case LidarDataType.ProcessedData3:
+                //    listX = lidarProcessedMaps[2].Select(e => e.Pt.X);
+                //    listY = lidarProcessedMaps[2].Select(e => e.Pt.Y);
+                //    break;
             }            
 
             if (listX.Count() == listY.Count())

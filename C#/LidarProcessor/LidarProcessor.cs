@@ -421,7 +421,7 @@ namespace LidarProcessor
                 //On ajoute ce point à la liste des points de sortie
                 //System.Drawing.Color randomColor = System.Drawing.Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
 
-                ptListFixedStep.Add(new PolarPointRssiExtended(ptCourant, 3, Color.Magenta));
+                ptListFixedStep.Add(new PolarPointRssiExtended(ptCourant, 5, Color.Magenta));
                 //On calcule l'incrément d'angle de manière à avoir une résolution constante si la paroi est orthogonale au rayon issu du robot
                 double incrementAngle = step / Math.Max(ptCourant.Distance, 0.1);
                 //On regarde le ration entre la distance entre les pts à dxroite
