@@ -219,8 +219,8 @@ namespace PerceptionManagement
             }
         }
 
-        public event EventHandler<RawLidarArgs> OnLidarProcessedDataEvent;
-        public virtual void OnLidarProcessedData(object sender, RawLidarArgs e)
+        public event EventHandler<LidarPolarPtListExtendedArgs> OnLidarProcessedDataEvent;
+        public virtual void OnLidarProcessedData(object sender, LidarPolarPtListExtendedArgs e)
         {
             var handler = OnLidarProcessedDataEvent;
             if (handler != null)

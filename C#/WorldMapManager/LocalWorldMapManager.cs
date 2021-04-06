@@ -169,19 +169,57 @@ namespace WorldMapManager
         }
 
 
-        public void OnLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
+        public void OnRawLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
+        {
+            if (localWorldMap == null || localWorldMap.robotLocation == null)
+                return;
+            if (localWorldMap.RobotId == e.RobotId && e.PtList.Count != 0)
+            {
+                List<PointDExtended> listPtLidar = new List<PointDExtended>();
+
+                try
+                {
+                    listPtLidar = e.PtList.Select(
+                           pt => new PointDExtended(
+                               new PointD(localWorldMap.robotLocation.X + pt.Distance * Math.Cos(pt.Angle + localWorldMap.robotLocation.Theta),
+                                            localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle + localWorldMap.robotLocation.Theta)),
+                               System.Drawing.Color.White, 3)).ToList();
+                    switch (e.Type)
+                    {
+                        case LidarDataType.RawData:
+                            localWorldMap.lidarMap = listPtLidar;
+                            break;
+                        //case LidarDataType.ProcessedData1:
+                        //    localWorldMap.lidarMapProcessed1 = listPtLidar;
+                        //    break;
+                        //case LidarDataType.ProcessedData2:
+                        //    localWorldMap.lidarMapProcessed2 = listPtLidar;
+                        //    break;
+                        //case LidarDataType.ProcessedData3:
+                        //    localWorldMap.lidarMapProcessed3 = listPtLidar;
+                        //    break;
+                    }
+                }
+                catch { };
+
+            }
+        }
+
+        public void OnLidarDataReceived(object sender, EventArgsLibrary.LidarPolarPtListExtendedArgs e)
         {
             if (localWorldMap == null || localWorldMap.robotLocation == null)
                 return;
             if (localWorldMap.RobotId == e.RobotId && e.PtList.Count!=0)
             {
-                List<PointD> listPtLidar = new List<PointD>();
+                List<PointDExtended> listPtLidar = new List<PointDExtended>();
 
                 try
                 {
                     listPtLidar = e.PtList.Select(
-                           pt => new PointD(localWorldMap.robotLocation.X + pt.Distance * Math.Cos(pt.Angle + localWorldMap.robotLocation.Theta),
-                                            localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle + localWorldMap.robotLocation.Theta))).ToList();
+                           pt => new PointDExtended(
+                               new PointD(localWorldMap.robotLocation.X + pt.Pt.Distance * Math.Cos(pt.Pt.Angle + localWorldMap.robotLocation.Theta),
+                                            localWorldMap.robotLocation.Y + pt.Pt.Distance * Math.Sin(pt.Pt.Angle + localWorldMap.robotLocation.Theta)),
+                               pt.Color, pt.Width)).ToList();
                     switch (e.Type)
                     {
                         case LidarDataType.RawData:

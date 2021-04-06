@@ -26,8 +26,8 @@ namespace WpfWorldMapDisplay
 
         public double[,] heatMapStrategy;
         public double[,] heatMapWaypoint;
-        List<PointD> lidarMap;
-        List<PointD>[] lidarProcessedMaps = new List<PointD>[3];
+        List<PointDExtended> lidarMap;
+        List<PointDExtended>[] lidarProcessedMaps = new List<PointDExtended>[3];
         List<PolarPointListExtended> lidarObjectList;
         List<SegmentExtended> lidarSegmentList;
         public List<Location> ballLocationList;
@@ -43,10 +43,10 @@ namespace WpfWorldMapDisplay
             ghostShape = ghstShape;
             robotName = name;
 
-            lidarMap = new List<PointD>();
+            lidarMap = new List<PointDExtended>();
             for (int i =0; i< lidarProcessedMaps.Count(); i++)
             {
-                lidarProcessedMaps[i] = new List<PointD>();
+                lidarProcessedMaps[i] = new List<PointDExtended>();
             }
             //lidarProcessedMap1 = new List<PointD>();
             //lidarProcessedMap2 = new List<PointD>();
@@ -100,7 +100,7 @@ namespace WpfWorldMapDisplay
             this.heatMapWaypoint = heatMap;
         }
 
-        public void SetLidarMap(List<PointD> lidarMap, LidarDataType type)
+        public void SetLidarMap(List<PointDExtended> lidarMap, LidarDataType type)
         {
             switch (type)
             {
@@ -283,20 +283,20 @@ namespace WpfWorldMapDisplay
             switch (type)
             {
                 case LidarDataType.RawData:
-                    listX = lidarMap.Select(e => e.X);
-                    listY = lidarMap.Select(e => e.Y);
+                    listX = lidarMap.Select(e => e.Pt.X);
+                    listY = lidarMap.Select(e => e.Pt.Y);
                     break;
                 case LidarDataType.ProcessedData1:
-                    listX = lidarProcessedMaps[0].Select(e => e.X);
-                    listY = lidarProcessedMaps[0].Select(e => e.Y);
+                    listX = lidarProcessedMaps[0].Select(e => e.Pt.X);
+                    listY = lidarProcessedMaps[0].Select(e => e.Pt.Y);
                     break;
                 case LidarDataType.ProcessedData2:
-                    listX = lidarProcessedMaps[1].Select(e => e.X);
-                    listY = lidarProcessedMaps[1].Select(e => e.Y);
+                    listX = lidarProcessedMaps[1].Select(e => e.Pt.X);
+                    listY = lidarProcessedMaps[1].Select(e => e.Pt.Y);
                     break;
                 case LidarDataType.ProcessedData3:
-                    listX = lidarProcessedMaps[2].Select(e => e.X);
-                    listY = lidarProcessedMaps[2].Select(e => e.Y);
+                    listX = lidarProcessedMaps[2].Select(e => e.Pt.X);
+                    listY = lidarProcessedMaps[2].Select(e => e.Pt.Y);
                     break;
             }            
 
@@ -307,10 +307,14 @@ namespace WpfWorldMapDisplay
             }
             return dataSeries;
         }
-        
+
         public List<SegmentExtended> GetRobotLidarSegments()
         {
             return this.lidarSegmentList;
+        }
+        public List<PointDExtended> GetRobotLidarExtendedPoints()
+        {
+            return this.lidarProcessedMaps[0];
         }
 
         public List<PolygonExtended> GetRobotLidarObjects()

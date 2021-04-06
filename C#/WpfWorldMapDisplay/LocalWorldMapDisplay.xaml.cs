@@ -199,6 +199,7 @@ namespace WpfWorldMapDisplay
                         PolygonTerrainSeries.RedrawAll();
                     PolygonSeries.RedrawAll();
                     SegmentSeries.RedrawAll();
+                    LidarPtExtendedSeries.RedrawAll();
                     ObjectsPolygonSeries.RedrawAll();
                     BallPolygon.RedrawAll();
                     DrawTeam();
@@ -482,6 +483,12 @@ namespace WpfWorldMapDisplay
                     SegmentSeries.AddSegmentExtended(0, segment);
                 }
 
+                LidarPtExtendedSeries.Clear();
+                foreach(var pt in TeamMatesDisplayDictionary[r.Key].GetRobotLidarExtendedPoints())
+                {
+                    LidarPtExtendedSeries.AddPtExtended(pt);
+                }
+
                 foreach (var polygonObject in TeamMatesDisplayDictionary[r.Key].GetRobotLidarObjects())
                     ObjectsPolygonSeries.AddOrUpdatePolygonExtended(ObjectsPolygonSeries.Count(), polygonObject);
             }
@@ -602,7 +609,7 @@ namespace WpfWorldMapDisplay
             }
         }
 
-        private void UpdateLidarMap(int robotId, List<PointD> lidarMap, LidarDataType type)
+        private void UpdateLidarMap(int robotId, List<PointDExtended> lidarMap, LidarDataType type)
         {
             if (lidarMap == null)
                 return;
