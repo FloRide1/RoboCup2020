@@ -76,6 +76,9 @@ namespace LidarProcessor
             List<PolarPointRssi> ptObstacleList = new List<PolarPointRssi>();
 
             List<PolarPointRssiExtended> ptListSampled = new List<PolarPointRssiExtended>();
+            List<PolarPointRssiExtended> ptListLines = new List<PolarPointRssiExtended>();
+
+            List<SegmentExtended> segmentList = new List<SegmentExtended>();
 
             switch (competition)
             {
@@ -111,7 +114,8 @@ namespace LidarProcessor
                     
                     ptListSampled = FixedStepLidarMap(ptList,0.5);
                     var curvatureList = ExtractCurvature(ptListSampled);
-                    ptListSampled = ExtractLinesFromCurvature(ptListSampled, curvatureList, 1.01);
+                    ptListLines = ExtractLinesFromCurvature(ptListSampled, curvatureList, 1.01);
+                    segmentList = ExtractSegmentsFromCurvature(ptListSampled, curvatureList, 1.01);
                     //var ptCornerList = ExtractCornersFromCurvature(ptList, curvatureList);
                     //ptObstacleList = ptListSampled;
 
@@ -164,11 +168,8 @@ namespace LidarProcessor
                 }
             }
             OnLidarObjectProcessed(robotId, objectList);
-            OnLidarProcessed(robotId, ptListSampled);
-            List<SegmentExtended> sList = new List<SegmentExtended>();
-            sList.Add(new SegmentExtended(new PointD(0.2, 0.5), new PointD(0.7, 0.9), System.Drawing.Color.Blue));
-            sList.Add(new SegmentExtended(new PointD(-0.2, 0.5), new PointD(-0.7, 0.9), System.Drawing.Color.Red, 3));
-            OnLidarProcessedSegments(robotId, sList);
+            //OnLidarProcessed(robotId, ptListLines);
+            OnLidarProcessedSegments(robotId, segmentList);
         }
 
         private List<PolarPointRssi> MedianFilter(List<PolarPointRssi> ptList, int size)
@@ -421,7 +422,7 @@ namespace LidarProcessor
                 //On ajoute ce point à la liste des points de sortie
                 //System.Drawing.Color randomColor = System.Drawing.Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
 
-                ptListFixedStep.Add(new PolarPointRssiExtended(ptCourant, 5, Color.Magenta));
+                ptListFixedStep.Add(new PolarPointRssiExtended(ptCourant, 3, Color.Magenta));
                 //On calcule l'incrément d'angle de manière à avoir une résolution constante si la paroi est orthogonale au rayon issu du robot
                 double incrementAngle = step / Math.Max(ptCourant.Distance, 0.1);
                 //On regarde le ration entre la distance entre les pts à dxroite
@@ -492,6 +493,45 @@ namespace LidarProcessor
             }
             return linePoints;
         }
+        List<SegmentExtended> ExtractSegmentsFromCurvature(List<PolarPointRssiExtended> ptList, List<PolarCourbure> curvatureList, double seuilCourbure = 1.01)
+        {
+            bool isLineStarted = false;
+            bool isLineDiscontinuous = true;
+            int lineBeginIndex = 0;
+
+            List<SegmentExtended> segmentList = new List<SegmentExtended>();
+
+
+            bool segmentEnCours = false;
+            PolarPointRssiExtended ptDebutSegmentCourant = new PolarPointRssiExtended(new PolarPointRssi(), 1, Color.White);
+            PolarPointRssiExtended ptFinSegmentCourant = new PolarPointRssiExtended(new PolarPointRssi(), 1, Color.White);
+
+            for (int i = 0; i < curvatureList.Count; i++)
+            {
+                if (curvatureList[i].Courbure < seuilCourbure)
+                {
+                    if(segmentEnCours == false)
+                    {
+                        //On a un nouveau segment
+                        ptDebutSegmentCourant = ptList[i];
+                    }
+                    //linePoints.Add(ptList[i]);
+                    segmentEnCours = true;
+                }
+                else
+                {
+                    if(segmentEnCours == true)
+                    {
+                        //On a une fin de segment
+                        ptFinSegmentCourant = ptList[i-1];
+                        segmentList.Add(new SegmentExtended(new PointD(ptDebutSegmentCourant.Pt.Distance * Math.Cos(ptDebutSegmentCourant.Pt.Angle), ptDebutSegmentCourant.Pt.Distance * Math.Sin(ptDebutSegmentCourant.Pt.Angle)),
+                            new PointD(ptFinSegmentCourant.Pt.Distance * Math.Cos(ptFinSegmentCourant.Pt.Angle), ptFinSegmentCourant.Pt.Distance * Math.Sin(ptFinSegmentCourant.Pt.Angle)), Color.Orange, 5));
+                    }
+                    segmentEnCours = false;
+                }
+            }
+            return segmentList;
+        }
 
         List<PolarPointRssi> ExtractCornersFromCurvature(List<PolarPointRssi> ptList, List<PolarCourbure> curvatureList)
         {
@@ -512,8 +552,7 @@ namespace LidarProcessor
             return cornerPoints;
         }
 
-
-            List<PolarPointRssi> FindEnclosingRectangle(List<PolarPointRssi> ptList, double rectangleLength, double rectangleHeight, ShiftParameters shiftConfig)
+        List<PolarPointRssi> FindEnclosingRectangle(List<PolarPointRssi> ptList, double rectangleLength, double rectangleHeight, ShiftParameters shiftConfig)
         {
 
             double seuilProximiteLigne = 2 * shiftConfig.xShiftSpan / shiftConfig.nbStep / 3;
