@@ -220,6 +220,7 @@ namespace Robot
 
             //Update des données de la localWorldMap
             perceptionManager.OnPerceptionEvent += localWorldMapManager.OnPerceptionReceived;
+            
             strategyManager.OnDestinationEvent += localWorldMapManager.OnDestinationReceived;
             strategyManager.OnRoleEvent += localWorldMapManager.OnRoleReceived; //Utile pour l'affichage
             strategyManager.OnMessageDisplayEvent += localWorldMapManager.OnMessageDisplayReceived; //Utile pour l'affichage
@@ -249,11 +250,11 @@ namespace Robot
             strategyManager.On2WheelsAngleSetEvent += robotMsgGenerator.GenerateMessage2WheelsAngleSet;
             strategyManager.On2WheelsToPolarSetEvent += robotMsgGenerator.GenerateMessage2WheelsToPolarMatrixSet;
             herkulexManager.OnHerkulexSendToSerialEvent += robotMsgGenerator.GenerateMessageForwardHerkulex;
-
-            
+                        
             lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += perceptionManager.OnRawLidarDataReceived;
             perceptionManager.OnLidarRawDataEvent += localWorldMapManager.OnLidarDataReceived;
             perceptionManager.OnLidarProcessedDataEvent += localWorldMapManager.OnLidarDataReceived;
+            perceptionManager.OnLidarProcessedSegmentsEvent += localWorldMapManager.OnLidarProcessedSegmentsReceived;
 
             //L'envoi des commandes dépend du fait qu'on soit en mode manette ou pas. 
             //Il faut donc enregistrer les évènement ou pas en fonction de l'activation

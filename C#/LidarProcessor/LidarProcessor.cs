@@ -164,6 +164,10 @@ namespace LidarProcessor
             }
             OnLidarObjectProcessed(robotId, objectList);
             OnLidarProcessed(robotId, ptListSampled);
+            List<SegmentExtended> sList = new List<SegmentExtended>();
+            sList.Add(new SegmentExtended(new PointD(0.2, 0.5), new PointD(0.7, 0.9), System.Drawing.Color.Blue));
+            sList.Add(new SegmentExtended(new PointD(-0.2, 0.5), new PointD(-0.7, 0.9), System.Drawing.Color.Red));
+            OnLidarProcessedSegments(robotId, sList);
         }
 
         private List<PolarPointRssi> MedianFilter(List<PolarPointRssi> ptList, int size)
@@ -1325,7 +1329,17 @@ namespace LidarProcessor
             var handler = OnLidarProcessedEvent;
             if (handler != null)
             {
-                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList, Type=LidarDataType.ProcessedData3});
+                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList, Type = LidarDataType.ProcessedData1 });
+            }
+        }
+
+        public event EventHandler<SegmentExtendedListArgs> OnLidarProcessedSegmentsEvent;
+        public virtual void OnLidarProcessedSegments(int id, List<SegmentExtended> sList)
+        {
+            var handler = OnLidarProcessedSegmentsEvent;
+            if (handler != null)
+            {
+                handler(this, new SegmentExtendedListArgs {RobotId=id, SegmentList = sList});
             }
         }
 

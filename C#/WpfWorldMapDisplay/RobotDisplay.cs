@@ -29,6 +29,7 @@ namespace WpfWorldMapDisplay
         List<PointD> lidarMap;
         List<PointD>[] lidarProcessedMaps = new List<PointD>[3];
         List<PolarPointListExtended> lidarObjectList;
+        List<SegmentExtended> lidarSegmentList;
         public List<Location> ballLocationList;
 
         public RobotDisplay(PolygonExtended rbtShape, PolygonExtended ghstShape, string name)
@@ -51,6 +52,7 @@ namespace WpfWorldMapDisplay
             //lidarProcessedMap2 = new List<PointD>();
             //lidarProcessedMap3 = new List<PointD>();
             ballLocationList = new List<Location>();
+            lidarSegmentList = new List<SegmentExtended>();
         }
 
         public void SetLocation(Location loc)
@@ -128,6 +130,12 @@ namespace WpfWorldMapDisplay
         //{
         //    this.lidarProcessedMaps[2] = lidarProcessedMap;
         //}
+
+        public void SetLidarSegmentList(List<SegmentExtended> lidarSegmentList)
+        {
+            this.lidarSegmentList = lidarSegmentList;
+        }
+
         public void SetLidarObjectList(List<PolarPointListExtended> lidarObjectList)
         {
             this.lidarObjectList = lidarObjectList;
@@ -287,8 +295,8 @@ namespace WpfWorldMapDisplay
                     listY = lidarProcessedMaps[1].Select(e => e.Y);
                     break;
                 case LidarDataType.ProcessedData3:
-                    listX = lidarProcessedMaps[1].Select(e => e.X);
-                    listY = lidarProcessedMaps[1].Select(e => e.Y);
+                    listX = lidarProcessedMaps[2].Select(e => e.X);
+                    listY = lidarProcessedMaps[2].Select(e => e.Y);
                     break;
             }            
 
@@ -300,6 +308,11 @@ namespace WpfWorldMapDisplay
             return dataSeries;
         }
         
+        public List<SegmentExtended> GetRobotLidarSegments()
+        {
+            return this.lidarSegmentList;
+        }
+
         public List<PolygonExtended> GetRobotLidarObjects()
         {
             var polygonExtendedList = new List<PolygonExtended>();

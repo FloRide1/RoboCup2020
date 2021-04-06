@@ -198,6 +198,7 @@ namespace WpfWorldMapDisplay
                     if (competition == GameMode.RoboCup)
                         PolygonTerrainSeries.RedrawAll();
                     PolygonSeries.RedrawAll();
+                    SegmentSeries.RedrawAll();
                     ObjectsPolygonSeries.RedrawAll();
                     BallPolygon.RedrawAll();
                     DrawTeam();
@@ -342,6 +343,7 @@ namespace WpfWorldMapDisplay
                 UpdateLidarMap(robotId, localWorldMap.lidarMapProcessed1, LidarDataType.ProcessedData1);
                 UpdateLidarMap(robotId, localWorldMap.lidarMapProcessed2, LidarDataType.ProcessedData2);
                 UpdateLidarMap(robotId, localWorldMap.lidarMapProcessed3, LidarDataType.ProcessedData3);
+                UpdateLidarSegments(robotId, localWorldMap.lidarSegmentList);
             }
             UpdateLidarObjects(robotId, localWorldMap.lidarObjectList);
             UpdateObstacleList(localWorldMap.obstaclesLocationList);
@@ -460,32 +462,26 @@ namespace WpfWorldMapDisplay
                             break;
                         case 1:
                             {
-                                var lidarProcessedData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints(LidarDataType.ProcessedData1);
+                                var lidarProcessedData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints(LidarDataType.ProcessedData2);
                                 lidarProcessedPts[i].Append(lidarProcessedData.XValues, lidarProcessedData.YValues);
                             }
                             break;
                         case 2:
                             {
-                                var lidarProcessedData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints(LidarDataType.ProcessedData1);
+                                var lidarProcessedData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints(LidarDataType.ProcessedData3);
                                 lidarProcessedPts[i].Append(lidarProcessedData.XValues, lidarProcessedData.YValues);
                             }
                             break;
                     }
                 }
 
-                //lidarProcessedPts1.AcceptsUnsortedData = true;
-                //var lidarProcessedData1 = TeamMatesDisplayDictionary[r.Key].GetRobotLidarProcessedPoints1();
-                //lidarProcessedPts1.Append(lidarProcessedData1.XValues, lidarProcessedData1.YValues);
-
-                //lidarProcessedPts2.AcceptsUnsortedData = true;
-                //var lidarProcessedData2 = TeamMatesDisplayDictionary[r.Key].GetRobotLidarProcessedPoints2();
-                //lidarProcessedPts2.Append(lidarProcessedData2.XValues, lidarProcessedData2.YValues);
-
-                //lidarProcessedPts3.AcceptsUnsortedData = true;
-                //var lidarProcessedData3 = TeamMatesDisplayDictionary[r.Key].GetRobotLidarProcessedPoints3();
-                //lidarProcessedPts3.Append(lidarProcessedData3.XValues, lidarProcessedData3.YValues);
-
                 //Rendering des objets Lidar
+                SegmentSeries.Clear();
+                foreach (var segment in TeamMatesDisplayDictionary[r.Key].GetRobotLidarSegments())
+                {
+                    SegmentSeries.AddSegmentExtended(0, segment);
+                }
+
                 foreach (var polygonObject in TeamMatesDisplayDictionary[r.Key].GetRobotLidarObjects())
                     ObjectsPolygonSeries.AddOrUpdatePolygonExtended(ObjectsPolygonSeries.Count(), polygonObject);
             }
@@ -644,6 +640,16 @@ namespace WpfWorldMapDisplay
         //    {
         //        TeamMatesDisplayDictionary[robotId].SetLidarProcessedMap3(lidarMapProcessed);            }
         //}
+
+        private void UpdateLidarSegments(int robotId, List<SegmentExtended>  lidarSegmentList)
+        {
+            if (lidarSegmentList == null)
+                return;
+            if (TeamMatesDisplayDictionary.ContainsKey(robotId))
+            {
+                TeamMatesDisplayDictionary[robotId].SetLidarSegmentList(lidarSegmentList);
+            }
+        }
 
         private void UpdateLidarObjects(int robotId, List<PolarPointListExtended> lidarObjectList)
         {

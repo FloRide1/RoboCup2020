@@ -16,7 +16,22 @@ namespace Utilities
             Y = y;
         }
     }
-    
+
+    public class LineD
+    {
+        public double X1 { get; set; }
+        public double Y1 { get; set; }
+        public double X2 { get; set; }
+        public double Y2 { get; set; }
+        public LineD(PointD ptDebut, PointD ptFin)
+        {
+            X1 = ptDebut.X;
+            Y1 = ptDebut.Y;
+            X2 = ptFin.X;
+            Y2 = ptFin.Y;
+        }
+    }
+
     public class Point3D
     {
         public double X;// { get; set; }
@@ -165,6 +180,22 @@ namespace Utilities
         public double borderOpacity = 1;
         public double[] borderDashPattern = new double[] { 1.0 };
         public System.Drawing.Color backgroundColor = System.Drawing.Color.FromArgb(0x66, 0xFF, 0xFF, 0xFF);
+    }
+
+    public class SegmentExtended
+    {
+        public LineD Segment;
+        public double Width = 10;
+        public System.Drawing.Color Color = System.Drawing.Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF);
+        public double Opacity = 1;
+        public double[] DashPattern = new double[] { 1.0 };
+
+        public SegmentExtended(PointD ptDebut, PointD ptFin, System.Drawing.Color color, double width = 1)
+        {
+            Segment = new LineD(ptDebut, ptFin);
+            Color = color;
+            Width = width;
+        }
     }
 
     public class PolarPointListExtended

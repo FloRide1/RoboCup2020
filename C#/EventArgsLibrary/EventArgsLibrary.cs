@@ -494,6 +494,12 @@ namespace EventArgsLibrary
         public List<PolarPointListExtended> ObjectList { get; set; }
     }
 
+    public class SegmentExtendedListArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+        public List<SegmentExtended> SegmentList { get; set; }
+    }
+
 
     public class BitmapImageArgs : EventArgs
     {

@@ -202,6 +202,16 @@ namespace WorldMapManager
 
             }
         }
+
+        public void OnLidarProcessedSegmentsReceived(object sender, SegmentExtendedListArgs e)
+        {
+            if (localWorldMap == null || localWorldMap.robotLocation == null)
+                return;
+            if (localWorldMap.RobotId == e.RobotId && e.SegmentList.Count > 0)
+            {
+                localWorldMap.lidarSegmentList = e.SegmentList;
+            }
+        }
         //public void OnProcessedLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
         //{
         //    if (localWorldMap == null || localWorldMap.robotLocation == null)
