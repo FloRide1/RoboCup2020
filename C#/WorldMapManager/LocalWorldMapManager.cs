@@ -169,7 +169,7 @@ namespace WorldMapManager
         }
 
 
-        public void OnRawLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
+        public void OnLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
         {
             if (localWorldMap == null || localWorldMap.robotLocation == null)
                 return;
@@ -179,40 +179,51 @@ namespace WorldMapManager
 
                 try
                 {
-                    //for (int i = 0; i < 500; i++) //Stress test
+                    listPtLidar = e.PtList.Select(
+                           pt => new PointD(localWorldMap.robotLocation.X + pt.Distance * Math.Cos(pt.Angle + localWorldMap.robotLocation.Theta),
+                                            localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle + localWorldMap.robotLocation.Theta))).ToList();
+                    switch (e.Type)
                     {
-                        listPtLidar = e.PtList.Select(
-                        pt => new PointD(localWorldMap.robotLocation.X + pt.Distance * Math.Cos(pt.Angle + localWorldMap.robotLocation.Theta),
-                                         localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle + localWorldMap.robotLocation.Theta))).ToList();
+                        case LidarDataType.RawData:
+                            localWorldMap.lidarMap = listPtLidar;
+                            break;
+                        case LidarDataType.ProcessedData1:
+                            localWorldMap.lidarMapProcessed1 = listPtLidar;
+                            break;
+                        case LidarDataType.ProcessedData2:
+                            localWorldMap.lidarMapProcessed2 = listPtLidar;
+                            break;
+                        case LidarDataType.ProcessedData3:
+                            localWorldMap.lidarMapProcessed3 = listPtLidar;
+                            break;
                     }
                 }
                 catch { };
 
-                localWorldMap.lidarMap = listPtLidar;
             }
         }
-        public void OnProcessedLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
-        {
-            if (localWorldMap == null || localWorldMap.robotLocation == null)
-                return;
-            if (localWorldMap.RobotId == e.RobotId && e.PtList.Count != 0)
-            {
-                List<PointD> listPtLidar = new List<PointD>();
+        //public void OnProcessedLidarDataReceived(object sender, EventArgsLibrary.RawLidarArgs e)
+        //{
+        //    if (localWorldMap == null || localWorldMap.robotLocation == null)
+        //        return;
+        //    if (localWorldMap.RobotId == e.RobotId && e.PtList.Count != 0)
+        //    {
+        //        List<PointD> listPtLidar = new List<PointD>();
 
-                try
-                {
-                    //for (int i = 0; i < 500; i++) //Stress test
-                    {
-                        listPtLidar = e.PtList.Select(
-                        pt => new PointD(localWorldMap.robotLocation.X + pt.Distance * Math.Cos(pt.Angle + localWorldMap.robotLocation.Theta),
-                                         localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle + localWorldMap.robotLocation.Theta))).ToList();
-                    }
-                }
-                catch { };
+        //        try
+        //        {
+        //            //for (int i = 0; i < 500; i++) //Stress test
+        //            {
+        //                listPtLidar = e.PtList.Select(
+        //                pt => new PointD(localWorldMap.robotLocation.X + pt.Distance * Math.Cos(pt.Angle + localWorldMap.robotLocation.Theta),
+        //                                 localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle + localWorldMap.robotLocation.Theta))).ToList();
+        //            }
+        //        }
+        //        catch { };
 
-                localWorldMap.lidarMapProcessed1 = listPtLidar;
-            }
-        }
+        //        localWorldMap.lidarMapProcessed1 = listPtLidar;
+        //    }
+        //}
 
         //public void OnLidarObjectsReceived(object sender, EventArgsLibrary.PolarPointListExtendedListArgs e)
         //{

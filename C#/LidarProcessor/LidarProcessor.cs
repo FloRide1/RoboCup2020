@@ -1325,7 +1325,7 @@ namespace LidarProcessor
             var handler = OnLidarProcessedEvent;
             if (handler != null)
             {
-                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList });
+                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList, Type=LidarDataType.ProcessedData3});
             }
         }
 

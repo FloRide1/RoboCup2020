@@ -252,8 +252,8 @@ namespace Robot
 
             
             lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += perceptionManager.OnRawLidarDataReceived;
-            perceptionManager.OnLidarRawDataEvent += localWorldMapManager.OnRawLidarDataReceived;
-            perceptionManager.OnLidarProcessedDataEvent += localWorldMapManager.OnProcessedLidarDataReceived;
+            perceptionManager.OnLidarRawDataEvent += localWorldMapManager.OnLidarDataReceived;
+            perceptionManager.OnLidarProcessedDataEvent += localWorldMapManager.OnLidarDataReceived;
 
             //L'envoi des commandes dépend du fait qu'on soit en mode manette ou pas. 
             //Il faut donc enregistrer les évènement ou pas en fonction de l'activation
