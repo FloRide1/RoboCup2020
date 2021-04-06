@@ -508,7 +508,7 @@ namespace LidarProcessor
 
             for (int i = 0; i < curvatureList.Count; i++)
             {
-                if (curvatureList[i].Courbure < seuilCourbure)
+                if (curvatureList[i].Courbure < seuilCourbure && Toolbox.Distance(ptList[i].Pt, ptList[Math.Max(0, i-1)].Pt) < 3)
                 {
                     if(segmentEnCours == false)
                     {
