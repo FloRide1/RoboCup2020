@@ -80,6 +80,8 @@ namespace LidarProcessor
 
             List<SegmentExtended> segmentList = new List<SegmentExtended>();
 
+            List<PolarPointRssiExtended> ptCornerList = new List<PolarPointRssiExtended>();
+
             switch (competition)
             {
                 case GameMode.Eurobot:
@@ -116,7 +118,7 @@ namespace LidarProcessor
                     var curvatureList = ExtractCurvature(ptListSampled);
                     ptListLines = ExtractLinesFromCurvature(ptListSampled, curvatureList, 1.01);
                     segmentList = ExtractSegmentsFromCurvature(ptListSampled, curvatureList, 1.01);
-                    //var ptCornerList = ExtractCornersFromCurvature(ptList, curvatureList);
+                    ptCornerList = ExtractCornerFromCurvature(ptListSampled, curvatureList);
                     //ptObstacleList = ptListSampled;
 
                     //ShiftParameters shiftParams = new ShiftParameters();
@@ -168,7 +170,7 @@ namespace LidarProcessor
                 }
             }
             OnLidarObjectProcessed(robotId, objectList);
-            //OnLidarProcessed(robotId, ptListLines);
+            OnLidarProcessed(robotId, ptCornerList);
             OnLidarProcessedSegments(robotId, segmentList);
         }
 
@@ -486,13 +488,39 @@ namespace LidarProcessor
 
             for (int i = 0; i < curvatureList.Count; i++)
             {
+
                 if (curvatureList[i].Courbure < seuilCourbure)
                 {
                     linePoints.Add(ptList[i]);
+                } 
+                //else
+                //{
+                //    Console.WriteLine("[CURVATURE]: " + curvatureList[i].Courbure);
+                //}
+            }
+            return linePoints;
+        }
+
+        List<PolarPointRssiExtended> ExtractCornerFromCurvature(List<PolarPointRssiExtended> ptList, List<PolarCourbure> curvatureList, double seuilCourbure = 2.01)
+        {
+            bool isLineStarted = false;
+            bool isLineDiscontinuous = true;
+            int lineBeginIndex = 0;
+
+            List<PolarPointRssiExtended> linePoints = new List<PolarPointRssiExtended>();
+
+            for (int i = 0; i < curvatureList.Count; i++)
+            {
+
+                if (curvatureList[i].Courbure > seuilCourbure)
+                {
+                    linePoints.Add(ptList[i]);
+                    linePoints[linePoints.Count - 1].Color = Color.Red;
                 }
             }
             return linePoints;
         }
+
         List<SegmentExtended> ExtractSegmentsFromCurvature(List<PolarPointRssiExtended> ptList, List<PolarCourbure> curvatureList, double seuilCourbure = 1.01)
         {
             bool isLineStarted = false;
@@ -533,9 +561,9 @@ namespace LidarProcessor
             return segmentList;
         }
 
-        List<PolarPointRssi> ExtractCornersFromCurvature(List<PolarPointRssi> ptList, List<PolarCourbure> curvatureList)
+        List<PolarPointRssiExtended> ExtractCornersFromCurvature(List<PolarPointRssiExtended> ptList, List<PolarCourbure> curvatureList)
         {
-            List<PolarPointRssi> cornerPoints = new List<PolarPointRssi>();
+            List<PolarPointRssiExtended> cornerPoints = new List<PolarPointRssiExtended>();
             for (int i = 0; i < curvatureList.Count; i++)
             {
                 int i_Moins1 = i - 1;
@@ -547,6 +575,7 @@ namespace LidarProcessor
                 if (curvatureList[i].Courbure > curvatureList[i_Moins1].Courbure && curvatureList[i].Courbure > curvatureList[i_Plus1].Courbure && curvatureList[i].Courbure>1) //On a maximum local de courbure
                 {
                     cornerPoints.Add(ptList[i]);
+                    
                 }
             }
             return cornerPoints;
