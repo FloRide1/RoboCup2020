@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="FindRectangle.cs" />
     <Compile Include="LidarProcessor.cs" />
+    <Compile Include="LineDetection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

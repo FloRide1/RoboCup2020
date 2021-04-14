@@ -102,51 +102,13 @@ namespace LidarProcessor
                     break;
                 case GameMode.RoboCup:
                     double tailleNoyau = 0.2;
-                    //ptList = PrefiltragePointsIsoles(ptList, 0.05).ToList();
-                    //var ptListFiltered = Dilatation(Erosion(ptList, tailleNoyau), tailleNoyau);
-
-                    /// Marche bien mais un peu lent en vitesse de calcul
-                    //var ptListFiltered = DetectionBackgroundPoints(ptList);
-                    //var backgroundObjectList = DetectionObjetsProches(ptListFiltered, 0.5, 20.0, tailleSegmentationObjet: 0.4, tolerance: 0.2);
-                    //var backgroundObjectsCenterList = backgroundObjectList.Where(x=>x.PtList.Count>10/x.DistanceMoyenne).Select(x => new PolarPointRssi(x.AngleMoyen, x.DistanceMoyenne, 0)).ToList();
-
-
-                    ////ptList = SubSampleLidar(ptList, 5).ToList();
-                    //var curvatureList = ExtractCurvature(ptList);
-                    
                     ptListSampled = FixedStepLidarMap(ptList,0.5);
                     var curvatureList = ExtractCurvature(ptListSampled);
-                    ptListLines = ExtractLinesFromCurvature(ptListSampled, curvatureList, 1.01);
-                    segmentList = ExtractSegmentsFromCurvature(ptListSampled, curvatureList, 1.01);
+                    ptListLines = LineDetection.ExtractLinesFromCurvature(ptListSampled, curvatureList, 1.01);
+                    segmentList = LineDetection.ExtractSegmentsFromCurvature(ptListSampled, curvatureList, 1.01);
+
                     ptCornerList = ExtractCornerFromCurvature(ptListSampled, curvatureList);
-                    //ptObstacleList = ptListSampled;
-
-                    //ShiftParameters shiftParams = new ShiftParameters();
-                    //shiftParams.nbStep = 20;
-                    //shiftParams.xShiftSpan = 8;
-                    //shiftParams.yShiftSpan = 8;
-                    //shiftParams.thetaShiftSpan = Math.PI / 2;
-                    //shiftParams.centerAround = new RotationTranslation();
-                    //shiftParams.centerAround.shiftX = 0;
-                    //shiftParams.centerAround.shiftY = 0;
-                    //shiftParams.centerAround.shiftAngle = 0;
-                    //var rectanglePtList = FindEnclosingRectangle(ptObstacleList, rectangleLength: 16, rectangleHeight: 7, shiftConfig: shiftParams);// maxShiftX:8, maxShiftY:6, shiftResolution:1);
-                    //OnLidarProcessed(robotId, rectanglePtList);
-                    //ObjetsProchesList = backgroundObjectList;
-
-                    //ObjetsProchesList = DetectionObjetsProches(ptCenterObjetsProchesList, 0.5, 20.0, tailleSegmentationObjet: 0.1, tolerance: 0.2);
-
-                    //var ptCenterObjetsProchesList = ObjetsProchesList.Select(x => new PolarPointRssi(x.AngleMoyen, x.DistanceMoyenne, 0)).ToList();
-                    //var ptListFiltered = Erosion(Dilatation(ptList, tailleNoyau), tailleNoyau);
-                    //var ptListFiltered = Dilatation(ptList, tailleNoyau);
-                    //var ptListFiltered = Erosion(ptList, tailleNoyau);
-                    //var ptListFiltered = ptList;
-
-                    //for (double angleShift = 0; angleShift < Math.PI / 2; angleShift += Toolbox.DegToRad(10))
-                    //{
-                    //    FindLargestRectangle(ptListFiltered, 10, 10, angleShift, 1.0);
-                    //}
-                    //OnLidarProcessed(robotId, ptListFiltered);
+                    
                     break;
             }
             
@@ -280,6 +242,22 @@ namespace LidarProcessor
                 //    Console.WriteLine("/n");
             }
             return ptListDilated.ToList();
+        }
+
+        List<PolarPointRssiExtended> ExtractCornerFromCurvature(List<PolarPointRssiExtended> ptList, List<PolarCourbure> curvatureList, double seuilCourbure = 2.01)
+        {
+            List<PolarPointRssiExtended> linePoints = new List<PolarPointRssiExtended>();
+
+            for (int i = 0; i < curvatureList.Count; i++)
+            {
+
+                if (curvatureList[i].Courbure > seuilCourbure)
+                {
+                    linePoints.Add(ptList[i]);
+                    linePoints[linePoints.Count - 1].Color = Color.Red;
+                }
+            }
+            return linePoints;
         }
 
 
@@ -478,88 +456,7 @@ namespace LidarProcessor
                 return curvatureList;
             }
         }
-        List<PolarPointRssiExtended> ExtractLinesFromCurvature(List<PolarPointRssiExtended> ptList, List<PolarCourbure> curvatureList, double seuilCourbure = 1.01)
-        {
-            bool isLineStarted = false;
-            bool isLineDiscontinuous = true;
-            int lineBeginIndex = 0;
-
-            List<PolarPointRssiExtended> linePoints = new List<PolarPointRssiExtended>();
-
-            for (int i = 0; i < curvatureList.Count; i++)
-            {
-
-                if (curvatureList[i].Courbure < seuilCourbure)
-                {
-                    linePoints.Add(ptList[i]);
-                } 
-                //else
-                //{
-                //    Console.WriteLine("[CURVATURE]: " + curvatureList[i].Courbure);
-                //}
-            }
-            return linePoints;
-        }
-
-        List<PolarPointRssiExtended> ExtractCornerFromCurvature(List<PolarPointRssiExtended> ptList, List<PolarCourbure> curvatureList, double seuilCourbure = 2.01)
-        {
-            bool isLineStarted = false;
-            bool isLineDiscontinuous = true;
-            int lineBeginIndex = 0;
-
-            List<PolarPointRssiExtended> linePoints = new List<PolarPointRssiExtended>();
-
-            for (int i = 0; i < curvatureList.Count; i++)
-            {
-
-                if (curvatureList[i].Courbure > seuilCourbure)
-                {
-                    linePoints.Add(ptList[i]);
-                    linePoints[linePoints.Count - 1].Color = Color.Red;
-                }
-            }
-            return linePoints;
-        }
-
-        List<SegmentExtended> ExtractSegmentsFromCurvature(List<PolarPointRssiExtended> ptList, List<PolarCourbure> curvatureList, double seuilCourbure = 1.01)
-        {
-            bool isLineStarted = false;
-            bool isLineDiscontinuous = true;
-            int lineBeginIndex = 0;
-
-            List<SegmentExtended> segmentList = new List<SegmentExtended>();
-
-
-            bool segmentEnCours = false;
-            PolarPointRssiExtended ptDebutSegmentCourant = new PolarPointRssiExtended(new PolarPointRssi(), 1, Color.White);
-            PolarPointRssiExtended ptFinSegmentCourant = new PolarPointRssiExtended(new PolarPointRssi(), 1, Color.White);
-
-            for (int i = 0; i < curvatureList.Count; i++)
-            {
-                if (curvatureList[i].Courbure < seuilCourbure && Toolbox.Distance(ptList[i].Pt, ptList[Math.Max(0, i-1)].Pt) < 3)
-                {
-                    if(segmentEnCours == false)
-                    {
-                        //On a un nouveau segment
-                        ptDebutSegmentCourant = ptList[i];
-                    }
-                    //linePoints.Add(ptList[i]);
-                    segmentEnCours = true;
-                }
-                else
-                {
-                    if(segmentEnCours == true)
-                    {
-                        //On a une fin de segment
-                        ptFinSegmentCourant = ptList[i-1];
-                        segmentList.Add(new SegmentExtended(new PointD(ptDebutSegmentCourant.Pt.Distance * Math.Cos(ptDebutSegmentCourant.Pt.Angle), ptDebutSegmentCourant.Pt.Distance * Math.Sin(ptDebutSegmentCourant.Pt.Angle)),
-                            new PointD(ptFinSegmentCourant.Pt.Distance * Math.Cos(ptFinSegmentCourant.Pt.Angle), ptFinSegmentCourant.Pt.Distance * Math.Sin(ptFinSegmentCourant.Pt.Angle)), Color.Orange, 5));
-                    }
-                    segmentEnCours = false;
-                }
-            }
-            return segmentList;
-        }
+        
 
         List<PolarPointRssiExtended> ExtractCornersFromCurvature(List<PolarPointRssiExtended> ptList, List<PolarCourbure> curvatureList)
         {
