@@ -80,6 +80,7 @@ namespace LidarProcessor
 
             List<SegmentExtended> segmentList = new List<SegmentExtended>();
 
+            List<PolarPointRssiExtended> list_of_point_clusters = new List<PolarPointRssiExtended>();
             List<PolarPointRssiExtended> ptCornerList = new List<PolarPointRssiExtended>();
 
             switch (competition)
@@ -106,6 +107,15 @@ namespace LidarProcessor
                     var curvatureList = ExtractCurvature(ptListSampled);
                     ptListLines = LineDetection.ExtractLinesFromCurvature(ptListSampled, curvatureList, 1.01);
                     segmentList = LineDetection.ExtractSegmentsFromCurvature(ptListSampled, curvatureList, 1.01);
+                    segmentList = LineDetection.SetColorsOfSegments(segmentList);
+                    segmentList = LineDetection.MergeSegment(segmentList,2);
+
+                    
+
+                    Console.WriteLine(segmentList.Count);
+
+                    List<ClusterObjects> list_of_clusters = ClustersDetection.DetectClusterOfPoint(ptListSampled, 3.5);
+                    list_of_point_clusters = ClustersDetection.SetColorsOfClustersObjects(list_of_clusters);
 
                     ptCornerList = ExtractCornerFromCurvature(ptListSampled, curvatureList);
                     
@@ -131,11 +141,13 @@ namespace LidarProcessor
                     objectList.Add(currentPolarPointListExtended);
                 }
             }
-            OnLidarObjectProcessed(robotId, objectList);
-            OnLidarProcessed(robotId, ptCornerList);
+            //OnLidarObjectProcessed(robotId, objectList);
+
+            //OnLidarProcessed(robotId, list_of_point_clusters);
             OnLidarProcessedSegments(robotId, segmentList);
         }
 
+        #region Useless Methods
         private List<PolarPointRssi> MedianFilter(List<PolarPointRssi> ptList, int size)
         {
             List<PolarPointRssi> ptListFiltered = new List<PolarPointRssi>();
@@ -170,6 +182,7 @@ namespace LidarProcessor
             return ptListFiltered;
         }
 
+        
         private List<PolarPointRssi> SubSampleLidar(List<PolarPointRssi> ptList, int subsamplingFactor)
         {
             List<PolarPointRssi> ptListSubSampled = new List<PolarPointRssi>();
@@ -243,24 +256,7 @@ namespace LidarProcessor
             }
             return ptListDilated.ToList();
         }
-
-        List<PolarPointRssiExtended> ExtractCornerFromCurvature(List<PolarPointRssiExtended> ptList, List<PolarCourbure> curvatureList, double seuilCourbure = 2.01)
-        {
-            List<PolarPointRssiExtended> linePoints = new List<PolarPointRssiExtended>();
-
-            for (int i = 0; i < curvatureList.Count; i++)
-            {
-
-                if (curvatureList[i].Courbure > seuilCourbure)
-                {
-                    linePoints.Add(ptList[i]);
-                    linePoints[linePoints.Count - 1].Color = Color.Red;
-                }
-            }
-            return linePoints;
-        }
-
-
+        
         private List<PolarPointRssi> Erosion(List<PolarPointRssi> ptList, double rayon)
         {
             int originalSize = ptList.Count;
@@ -419,6 +415,7 @@ namespace LidarProcessor
 
             return ptListFixedStep;
         }
+        #endregion
 
         Object lockExtractCurvature = new object();
         List<PolarCourbure> ExtractCurvature(List<PolarPointRssiExtended> ptList, int tailleNoyau = 5)
@@ -456,7 +453,22 @@ namespace LidarProcessor
                 return curvatureList;
             }
         }
-        
+
+        List<PolarPointRssiExtended> ExtractCornerFromCurvature(List<PolarPointRssiExtended> ptList, List<PolarCourbure> curvatureList, double seuilCourbure = 2.01)
+        {
+            List<PolarPointRssiExtended> linePoints = new List<PolarPointRssiExtended>();
+
+            for (int i = 0; i < curvatureList.Count; i++)
+            {
+
+                if (curvatureList[i].Courbure > seuilCourbure)
+                {
+                    linePoints.Add(ptList[i]);
+                    linePoints[linePoints.Count - 1].Color = Color.Red;
+                }
+            }
+            return linePoints;
+        }
 
         List<PolarPointRssiExtended> ExtractCornersFromCurvature(List<PolarPointRssiExtended> ptList, List<PolarCourbure> curvatureList)
         {
@@ -478,6 +490,7 @@ namespace LidarProcessor
             return cornerPoints;
         }
 
+        #region Futur Methods
         List<PolarPointRssi> FindEnclosingRectangle(List<PolarPointRssi> ptList, double rectangleLength, double rectangleHeight, ShiftParameters shiftConfig)
         {
 
@@ -860,6 +873,7 @@ namespace LidarProcessor
 
             return BackgroundPointList;
         }
+       
 
         private List<LidarDetectedObject> DetectionObjetsSaillants(List<PolarPointRssi> ptList, double seuilSaillance)
         {
@@ -938,6 +952,7 @@ namespace LidarProcessor
             }
             return BalisesCatadioptriquesList;
         }
+        #endregion
 
         private List<LidarDetectedObject> DetectionBalisesCatadioptriquesParRssiEtTaille(List<PolarPointRssi> ptList, double distanceMax)
         {

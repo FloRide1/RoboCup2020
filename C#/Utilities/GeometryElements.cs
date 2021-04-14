@@ -107,7 +107,21 @@ namespace Utilities
         }
     }
 
-    public class PolarPointRssiExtended
+    public class ClusterObjects
+    {
+        public List<PolarPointRssiExtended> points { get; set; }
+
+        public ClusterObjects()
+        {
+            points = new List<PolarPointRssiExtended>();
+        }
+        public ClusterObjects(List<PolarPointRssiExtended> polarPointRssis)        
+        {
+            points = polarPointRssis;
+        }
+    }
+
+        public class PolarPointRssiExtended
     {
         public PolarPointRssi Pt { get; set; }
         public double Width { get; set; }

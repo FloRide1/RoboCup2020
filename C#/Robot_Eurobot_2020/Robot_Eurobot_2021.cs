@@ -252,7 +252,11 @@ namespace Robot
             herkulexManager.OnHerkulexSendToSerialEvent += robotMsgGenerator.GenerateMessageForwardHerkulex;
                         
             lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += perceptionManager.OnRawLidarDataReceived;
+
+
             perceptionManager.OnLidarRawDataEvent += localWorldMapManager.OnRawLidarDataReceived;
+
+
             perceptionManager.OnLidarProcessedDataEvent += localWorldMapManager.OnLidarDataReceived;
             perceptionManager.OnLidarProcessedSegmentsEvent += localWorldMapManager.OnLidarProcessedSegmentsReceived;
 

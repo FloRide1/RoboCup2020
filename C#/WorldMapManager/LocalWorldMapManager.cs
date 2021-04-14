@@ -183,7 +183,8 @@ namespace WorldMapManager
                            pt => new PointDExtended(
                                new PointD(localWorldMap.robotLocation.X + pt.Distance * Math.Cos(pt.Angle + localWorldMap.robotLocation.Theta),
                                             localWorldMap.robotLocation.Y + pt.Distance * Math.Sin(pt.Angle + localWorldMap.robotLocation.Theta)),
-                               System.Drawing.Color.White, 3)).ToList();
+                               System.Drawing.Color.White, 0.1 )).ToList(); 
+
                     switch (e.Type)
                     {
                         case LidarDataType.RawData:

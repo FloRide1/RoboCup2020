@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Linq;
-
+using System.Runtime.InteropServices;
 
 namespace Utilities
 {
@@ -84,6 +84,12 @@ namespace Utilities
         {
             return Math.Sqrt(pt1.Distance * pt1.Distance + pt2.Distance * pt2.Distance - 2 * pt1.Distance * pt2.Distance * Math.Cos(pt1.Angle - pt2.Angle));
         }
+
+        public static double Distance(PolarPointRssiExtended pt1, PolarPointRssiExtended pt2)
+        {
+            return Math.Sqrt(pt1.Pt.Distance * pt1.Pt.Distance + pt2.Pt.Distance * pt2.Pt.Distance - 2 * pt1.Pt.Distance * pt2.Pt.Distance * Math.Cos(pt1.Pt.Angle - pt2.Pt.Angle));
+        }
+
 
         public static double DistanceL1(PointD pt1, PointD pt2)
         {
@@ -176,6 +182,20 @@ namespace Utilities
             }
             else
                 return null;
+        }
+
+        [DllImport("shlwapi.dll")]
+        public static extern int ColorHLSToRGB(int H, int L, int S);
+
+        static public System.Drawing.Color HLSToColor(int H, int L, int S)
+        {
+            //
+            // Convert Hue, Luminance, and Saturation values to System.Drawing.Color structure.
+            // H, L, and S are in the range of 0-240.
+            // ColorHLSToRGB returns a Win32 RGB value (0x00BBGGRR).  To convert to System.Drawing.Color
+            // structure, use ColorTranslator.FromWin32.
+            //
+            return ColorTranslator.FromWin32(ColorHLSToRGB(H, L, S));
         }
     }
 }
