@@ -79,6 +79,7 @@ namespace LidarProcessor
             List<PolarPointRssiExtended> ptListLines = new List<PolarPointRssiExtended>();
 
             List<SegmentExtended> segmentList = new List<SegmentExtended>();
+            List<SegmentExtended> bestSegmentList = new List<SegmentExtended>();
 
             List<PolarPointRssiExtended> list_of_point_clusters = new List<PolarPointRssiExtended>();
             List<PolarPointRssiExtended> ptCornerList = new List<PolarPointRssiExtended>();
@@ -103,16 +104,21 @@ namespace LidarProcessor
                     break;
                 case GameMode.RoboCup:
                     double tailleNoyau = 0.2;
-                    ptListSampled = FixedStepLidarMap(ptList,0.5);
+                    ptListSampled = FixedStepLidarMap(ptList, 0.5);
                     var curvatureList = ExtractCurvature(ptListSampled);
                     ptListLines = LineDetection.ExtractLinesFromCurvature(ptListSampled, curvatureList, 1.01);
-                    segmentList = LineDetection.ExtractSegmentsFromCurvature(ptListSampled, curvatureList, 1.01);
-                    segmentList = LineDetection.SetColorsOfSegments(segmentList);
-                    segmentList = LineDetection.MergeSegment(segmentList,2);
+                    segmentList = LineDetection.ExtractSegmentsFromCurvature(ptListSampled, curvatureList, 1.01); // 1.01
+                    //segmentList = LineDetection.SetColorsOfSegments(segmentList);
 
-                    
+                    segmentList = LineDetection.MergeSegment(segmentList, 0.1);
 
-                    Console.WriteLine(segmentList.Count);
+                    List<List<SegmentExtended>> list_family_of_segments = LineDetection.FindFamilyOfSegment(segmentList);
+
+                    segmentList = LineDetection.SetColorOfFamily(list_family_of_segments.OrderByDescending(i => i.Count).ToList());
+
+                    //bestSegmentList = list_family_of_segments.OrderByDescending(i => i.Count).FirstOrDefault();
+
+                    Console.WriteLine("Numbers of Filter Segment: " + segmentList.Count + " : " + list_family_of_segments.Count);
 
                     List<ClusterObjects> list_of_clusters = ClustersDetection.DetectClusterOfPoint(ptListSampled, 3.5);
                     list_of_point_clusters = ClustersDetection.SetColorsOfClustersObjects(list_of_clusters);
