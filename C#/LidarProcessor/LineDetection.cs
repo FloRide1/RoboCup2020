@@ -97,7 +97,12 @@ namespace LidarProcessor
 
         }
 
-
+        /// <summary>
+        /// Return a list of Segment where all parallel and continuous segment are Merge
+        /// </summary>
+        /// <param name="segments"></param>
+        /// <param name="thresold"></param>
+        /// <returns></returns>
         public static List<SegmentExtended> MergeSegment(List<SegmentExtended> segments, double thresold)
         {
             List<SegmentExtended> merged_segment = segments;
@@ -108,6 +113,8 @@ namespace LidarProcessor
             {
                 isMergingEnded = true;
                 int i;
+
+                /// TODO: Add Combination
                 for (i = 0; i < merged_segment.Count; i++)
                 {
                     int j;
@@ -145,6 +152,7 @@ namespace LidarProcessor
 
                                 PointD begin_point = new PointD(0, 0);
                                 PointD end_point = new PointD(0, 0);
+
 
                                 if (max_distance == distance_aa)
                                 {
@@ -319,6 +327,28 @@ namespace LidarProcessor
                 ResultList.Add(list_of_points[end - 1]);
             }
             return ResultList;
+        }
+
+
+        public static List<PointDExtended> FindAllValidCrossingPoints(List<List<SegmentExtended>> list_of_family)
+        {
+            List<PointDExtended> list_of_crossing_points = new List<PointDExtended>();
+            foreach(List<SegmentExtended> family in list_of_family)
+            {
+                List<int> list_of_case = Enumerable.Range(0, family.Count).ToList(); /// [0,1,2,3,...,n]
+                List<List<int>> list_of_combinations_of_the_family = Toolbox.GetKCombs(list_of_case, 2).ToList().Select(x => x.ToList()).ToList(); /// [[0,1],[0,2],[0,3],[1,2],[1,3],[2,3],...]
+
+                List<List<SegmentExtended>> list_of_parallel_combination = list_of_combinations_of_the_family.Select(
+                    x => testIfSegmentArePerpendicular(family[x[0]], family[x[1]]) ? new List<SegmentExtended>() { family[x[0]], family[x[1]] } : null
+                ).ToList();
+
+                list_of_parallel_combination.RemoveAll(item => item == null);
+
+                list_of_crossing_points.AddRange(list_of_parallel_combination.Select(x => Toolbox.GetCrossingPointBetweenSegment(x[0], x[1])).ToList());
+
+            }
+
+            return list_of_crossing_points;
         }
     }
 }

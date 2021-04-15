@@ -82,6 +82,7 @@ namespace LidarProcessor
             List<SegmentExtended> bestSegmentList = new List<SegmentExtended>();
 
             List<PolarPointRssiExtended> list_of_point_clusters = new List<PolarPointRssiExtended>();
+            List<PolarPointRssiExtended> list_of_corner_points = new List<PolarPointRssiExtended>();
             List<PolarPointRssiExtended> ptCornerList = new List<PolarPointRssiExtended>();
 
             switch (competition)
@@ -131,6 +132,8 @@ namespace LidarProcessor
                     Console.WriteLine("Numbers of Filter Segment: " + segmentList.Count + " : " + list_family_of_segments.Count);
                     #endregion
 
+                    list_of_corner_points = LineDetection.FindAllValidCrossingPoints(list_family_of_segments).Select(x => Toolbox.ConvertPointDToPolar(x)).ToList();
+
                     #region Deleted
                     //ptListLines = LineDetection.ExtractLinesFromCurvature(ptListSampled, curvatureList, 1.01);
                     #endregion
@@ -160,8 +163,8 @@ namespace LidarProcessor
             }
             //OnLidarObjectProcessed(robotId, objectList);
 
-            //OnLidarProcessed(robotId, list_of_point_clusters);
-            OnLidarProcessedSegments(robotId, segmentList);
+            OnLidarProcessed(robotId, list_of_corner_points);
+            //OnLidarProcessedSegments(robotId, segmentList);
         }
 
         #region Useless Methods

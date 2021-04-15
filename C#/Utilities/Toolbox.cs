@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -109,7 +110,7 @@ namespace Utilities
             var dot = (pt.X - LinePt.X) * (yLineVect) - (pt.Y - LinePt.Y) * (xLineVect);
             return Math.Abs(dot);
         }
-        
+
         public static double DistancePointToSegment(PointD pt, PointD ptSeg1, PointD ptSeg2)
         {
             var A = pt.X - ptSeg1.X;
@@ -145,7 +146,7 @@ namespace Utilities
             var dy = pt.Y - yy;
 
             double distance = Math.Sqrt(dx * dx + dy * dy);
-            return distance;            
+            return distance;
         }
 
         public static PointD GetInterceptionLocation(Location target, Location hunter, double huntingSpeed)
@@ -196,12 +197,58 @@ namespace Utilities
             // structure, use ColorTranslator.FromWin32.
             //
             return ColorTranslator.FromWin32(ColorHLSToRGB(H, L, S));
-        
+
         }
 
         static public PointDExtended ConvertPolarToPointD(PolarPointRssiExtended point)
         {
             return new PointDExtended(new PointD(point.Pt.Distance * Math.Cos(point.Pt.Distance), point.Pt.Distance * Math.Sin(point.Pt.Angle)), point.Color, point.Width);
+        }
+
+        static public PolarPointRssiExtended ConvertPointDToPolar(PointDExtended point)
+        {
+            return new PolarPointRssiExtended(new PolarPointRssi(Math.Atan2(point.Pt.Y, point.Pt.X), Math.Sqrt(Math.Pow(point.Pt.X, 2) + Math.Pow(point.Pt.Y, 2)), 0), point.Width, point.Color);
+        }
+
+        static public PointDExtended GetCrossingPointBetweenSegment(SegmentExtended segment_a, SegmentExtended segment_b)
+        {
+            PointDExtended crossing_point = new PointDExtended(new PointD(0, 0), segment_a.Color, segment_a.Width);
+
+            if (segment_a.Segment.X1 == segment_a.Segment.X2 || segment_b.Segment.X1 == segment_b.Segment.X2)
+            {
+                return crossing_point;
+            }
+            double slope_a = (segment_a.Segment.Y2 - segment_a.Segment.Y1) / (segment_a.Segment.X2 - segment_a.Segment.X1);
+            double y_intercept_a = segment_a.Segment.Y1 - (segment_a.Segment.X1) * slope_a;
+
+            double slope_b = (segment_b.Segment.Y2 - segment_b.Segment.Y1) / (segment_b.Segment.X2 - segment_b.Segment.X1);
+            double y_intercept_b = segment_b.Segment.Y1 - (segment_b.Segment.X1) * slope_b;
+
+            if (slope_a == slope_b)
+            {
+                return crossing_point;
+            }
+
+            double x = (y_intercept_b - y_intercept_a) / (slope_a - slope_b);
+            double y = slope_a * x + y_intercept_a;
+
+            crossing_point.Pt = new PointD(x, y);
+
+            return crossing_point;
+
+        }
+
+        /// <summary>
+        /// Get all Combination of list
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static IEnumerable<IEnumerable<T>> GetKCombs<T>(IEnumerable<T> list, int length) where T : IComparable
+        {
+            if (length == 1) return list.Select(t => new T[] { t });
+            return GetKCombs(list, length - 1).SelectMany(t => list.Where(o => o.CompareTo(t.Last()) > 0), (t1, t2) => t1.Concat(new T[] { t2 }));
         }
     }
 }
