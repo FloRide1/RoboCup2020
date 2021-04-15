@@ -104,25 +104,36 @@ namespace LidarProcessor
                     break;
                 case GameMode.RoboCup:
                     double tailleNoyau = 0.2;
-                    ptListSampled = FixedStepLidarMap(ptList, 0.5);
-                    var curvatureList = ExtractCurvature(ptListSampled);
-                    ptListLines = LineDetection.ExtractLinesFromCurvature(ptListSampled, curvatureList, 1.01);
-                    segmentList = LineDetection.ExtractSegmentsFromCurvature(ptListSampled, curvatureList, 1.01); // 1.01
-                    //segmentList = LineDetection.SetColorsOfSegments(segmentList);
+                    ptListSampled = FixedStepLidarMap(ptList, 0.25);
 
+
+                    #region Clusters
+                    List<ClusterObjects> list_of_clusters = ClustersDetection.DetectClusterOfPoint(ptListSampled, 1);
+                    foreach (ClusterObjects cluster in list_of_clusters)
+                    {
+                        cluster.points = LineDetection.IEPF_Algorithm(cluster.points, 0.0001);
+                    }
+                    list_of_point_clusters = ClustersDetection.SetColorsOfClustersObjects(list_of_clusters);
+                    #endregion
+
+                    #region Lines
+                    var curvatureList = ExtractCurvature(list_of_point_clusters, 10);
+                    //var curvatureSampledList = ExtractCurvature(ptListSampled, 5);
+
+                    segmentList = LineDetection.ExtractSegmentsFromCurvature(list_of_point_clusters, curvatureList, 1.05);
                     segmentList = LineDetection.MergeSegment(segmentList, 0.1);
 
                     List<List<SegmentExtended>> list_family_of_segments = LineDetection.FindFamilyOfSegment(segmentList);
 
                     segmentList = LineDetection.SetColorOfFamily(list_family_of_segments.OrderByDescending(i => i.Count).ToList());
-
-                    //bestSegmentList = list_family_of_segments.OrderByDescending(i => i.Count).FirstOrDefault();
+                    bestSegmentList = list_family_of_segments.OrderByDescending(i => i.Count).FirstOrDefault();
 
                     Console.WriteLine("Numbers of Filter Segment: " + segmentList.Count + " : " + list_family_of_segments.Count);
+                    #endregion
 
-                    List<ClusterObjects> list_of_clusters = ClustersDetection.DetectClusterOfPoint(ptListSampled, 3.5);
-                    list_of_point_clusters = ClustersDetection.SetColorsOfClustersObjects(list_of_clusters);
-
+                    #region Deleted
+                    //ptListLines = LineDetection.ExtractLinesFromCurvature(ptListSampled, curvatureList, 1.01);
+                    #endregion
                     ptCornerList = ExtractCornerFromCurvature(ptListSampled, curvatureList);
                     
                     break;

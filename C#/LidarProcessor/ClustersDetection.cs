@@ -48,7 +48,7 @@ namespace LidarProcessor
 
                     if (Toolbox.Distance(point_n_plus_1, point_n_minus_1) <= 2 * thresold)
                     {
-                        cluster.points.Add(point_n);
+                        //cluster.points.Add(point_n);
                     }
                     else
                     {

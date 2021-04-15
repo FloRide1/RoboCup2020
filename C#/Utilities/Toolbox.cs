@@ -196,6 +196,12 @@ namespace Utilities
             // structure, use ColorTranslator.FromWin32.
             //
             return ColorTranslator.FromWin32(ColorHLSToRGB(H, L, S));
+        
+        }
+
+        static public PointDExtended ConvertPolarToPointD(PolarPointRssiExtended point)
+        {
+            return new PointDExtended(new PointD(point.Pt.Distance * Math.Cos(point.Pt.Distance), point.Pt.Distance * Math.Sin(point.Pt.Angle)), point.Color, point.Width);
         }
     }
 }
