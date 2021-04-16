@@ -164,7 +164,7 @@ namespace LidarProcessor
             //OnLidarObjectProcessed(robotId, objectList);
 
             OnLidarProcessed(robotId, list_of_corner_points);
-            //OnLidarProcessedSegments(robotId, segmentList);
+            OnLidarProcessedSegments(robotId, segmentList);
         }
 
         #region Useless Methods
