@@ -74,6 +74,30 @@ namespace Utilities
         }
     }
 
+    public class RectangleOriented
+    {
+        public PointD Center { get; set; }
+        public double Lenght { get; set; }
+        public double Width { get; set; }
+        public double Angle { get; set; }
+
+        public RectangleOriented()
+        {
+            Center = new PointD(0, 0);
+            Lenght = 0;
+            Width = 0;
+            Angle = 0;
+        }
+
+        public RectangleOriented(PointD center, double lenght, double width, double angle)
+        {
+            Center = center;
+            Lenght = lenght;
+            Width = width;
+            Angle = angle;            
+        }
+    }
+
     public class PolarPoint
     {
         public double Distance;

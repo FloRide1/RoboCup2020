@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utilities;
 
 namespace LidarProcessor
 {
@@ -10,6 +11,66 @@ namespace LidarProcessor
 	// with all 1s in a binary matrix
 	using System;
 	using System.Collections.Generic;
+
+	public static class FindRectangle
+    {
+		public static List<RectangleOriented> FindAllPossibleRectangle(List<PolarPointRssiExtended> corner_list, double thresold)
+        {
+			List<RectangleOriented> list_of_rectangles = new List<RectangleOriented>();
+
+			List<int> list_of_case = Enumerable.Range(0, corner_list.Count).ToList(); /// [0,1,2,3,...,n]
+			List<List<int>> list_of_combinations_of_corner_index = Toolbox.GetKCombs(list_of_case, 2).ToList().Select(x => x.ToList()).ToList(); /// [[0,1],[0,2],[0,3],[1,2],[1,3],[2,3],...]
+
+			List<List<PolarPointRssiExtended>> list_of_combinations_of_corner = list_of_combinations_of_corner_index.Select(x => new List<PolarPointRssiExtended>() { corner_list[x[0]], corner_list[x[1]] }).ToList();
+
+			List<Tuple<double, List<PolarPointRssiExtended>>> list_of_combinations_distance = list_of_combinations_of_corner.Select(
+				x => new Tuple<double, List<PolarPointRssiExtended>> (
+					Toolbox.Distance(x[0].Pt, x[1].Pt), 
+					new List<PolarPointRssiExtended>() { x[0], x[1] }
+				)
+			).ToList();
+
+
+
+			double distance = 0;
+			Tuple<PointD, PointD> old_point = new Tuple<PointD, PointD>(null, null);
+
+			List<List<PointD>> list_of_vectors = new List<List<PointD>>();
+
+			foreach (var combi_dist in list_of_combinations_distance.OrderByDescending(x => x.Item1))
+            {
+				if (distance + thresold >= combi_dist.Item1 && distance - thresold <= combi_dist.Item1)
+                {
+					PointD actual_point_a = Toolbox.ConvertPolarToPointD(combi_dist.Item2[0].Pt);
+					PointD actual_point_b = Toolbox.ConvertPolarToPointD(combi_dist.Item2[1].Pt);
+
+					PointD vector_point_1 = new PointD((old_point.Item1.X + actual_point_a.X) / 2, (old_point.Item1.Y + actual_point_a.Y) / 2);
+					PointD vector_point_2 = new PointD((old_point.Item2.X + actual_point_b.X) / 2, (old_point.Item2.Y + actual_point_b.Y) / 2);
+
+					if (Toolbox.Distance(vector_point_1, vector_point_2) < thresold)
+                    {
+						PointD mean_center_point = new PointD((vector_point_1.X + vector_point_2.X) / 2, (vector_point_1.Y + vector_point_2.Y) / 2);
+
+						double lenght = Toolbox.Distance(actual_point_a, old_point.Item1);
+						double width = Toolbox.Distance(actual_point_b, old_point.Item2);
+						double angle = Math.Atan2(actual_point_a.Y - mean_center_point.Y, actual_point_a.X - mean_center_point.X);
+						RectangleOriented rectangle = new RectangleOriented(mean_center_point, lenght, width, angle);
+						Console.WriteLine(Toolbox.Distance(vector_point_1, vector_point_2));
+					}
+					
+                } else
+                {
+					distance = combi_dist.Item1;
+					old_point = new Tuple<PointD, PointD> (Toolbox.ConvertPolarToPointD(combi_dist.Item2[0].Pt), Toolbox.ConvertPolarToPointD(combi_dist.Item2[1].Pt));
+                }
+            }
+
+
+
+            return list_of_rectangles;
+        } 
+    }
+
 
 	class GFG
 	{

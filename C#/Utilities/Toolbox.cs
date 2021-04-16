@@ -209,6 +209,15 @@ namespace Utilities
         {
             return new PolarPointRssiExtended(new PolarPointRssi(Math.Atan2(point.Pt.Y, point.Pt.X), Math.Sqrt(Math.Pow(point.Pt.X, 2) + Math.Pow(point.Pt.Y, 2)), 0), point.Width, point.Color);
         }
+        static public PointD ConvertPolarToPointD(PolarPointRssi point)
+        {
+            return new PointD(point.Distance * Math.Cos(point.Distance), point.Distance * Math.Sin(point.Angle));
+        }
+
+        static public PolarPointRssi ConvertPointDToPolar(PointD point)
+        {
+            return new PolarPointRssi(Math.Atan2(point.Y, point.X), Math.Sqrt(Math.Pow(point.X, 2) + Math.Pow(point.Y, 2)), 0);
+        }
 
         static public PointDExtended GetCrossingPointBetweenSegment(SegmentExtended segment_a, SegmentExtended segment_b)
         {
@@ -249,6 +258,27 @@ namespace Utilities
         {
             if (length == 1) return list.Select(t => new T[] { t });
             return GetKCombs(list, length - 1).SelectMany(t => list.Where(o => o.CompareTo(t.Last()) > 0), (t1, t2) => t1.Concat(new T[] { t2 }));
+        }
+
+        public static Tuple<PointD, PointD, PointD, PointD> GetCornerOfAnOrientedRectangle(RectangleOriented rectangle)
+        {
+            PointD a1 = new PointD(rectangle.Center.X + rectangle.Lenght / 2, rectangle.Center.Y + rectangle.Width / 2);
+            PolarPointRssi polar = ConvertPointDToPolar(a1);
+            a1 = ConvertPolarToPointD(new PolarPointRssi(polar.Angle + rectangle.Angle, polar.Distance, 0));
+
+            PointD a2 = new PointD(rectangle.Center.X + rectangle.Lenght / 2, rectangle.Center.Y - rectangle.Width / 2);
+            polar = ConvertPointDToPolar(a2);
+            a2 = ConvertPolarToPointD(new PolarPointRssi(polar.Angle + rectangle.Angle, polar.Distance, 0));
+
+            PointD a3 = new PointD(rectangle.Center.X - rectangle.Lenght / 2, rectangle.Center.Y + rectangle.Width / 2);
+            polar = ConvertPointDToPolar(a3);
+            a3 = ConvertPolarToPointD(new PolarPointRssi(polar.Angle + rectangle.Angle, polar.Distance, 0));
+
+            PointD a4 = new PointD(rectangle.Center.X - rectangle.Lenght / 2, rectangle.Center.Y - rectangle.Width / 2);
+            polar = ConvertPointDToPolar(a4);
+            a4 = ConvertPolarToPointD(new PolarPointRssi(polar.Angle + rectangle.Angle, polar.Distance, 0));
+
+            return new Tuple<PointD, PointD, PointD, PointD>(a1, a2, a3, a4);
         }
     }
 }

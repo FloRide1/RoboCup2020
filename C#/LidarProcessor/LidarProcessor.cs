@@ -133,6 +133,7 @@ namespace LidarProcessor
                     #endregion
 
                     list_of_corner_points = LineDetection.FindAllValidCrossingPoints(list_family_of_segments).Select(x => Toolbox.ConvertPointDToPolar(x)).ToList();
+                    FindRectangle.FindAllPossibleRectangle(list_of_corner_points, 1);
 
                     #region Deleted
                     //ptListLines = LineDetection.ExtractLinesFromCurvature(ptListSampled, curvatureList, 1.01);
@@ -164,7 +165,7 @@ namespace LidarProcessor
             //OnLidarObjectProcessed(robotId, objectList);
 
             OnLidarProcessed(robotId, list_of_corner_points);
-            OnLidarProcessedSegments(robotId, segmentList);
+            //OnLidarProcessedSegments(robotId, segmentList);
         }
 
         #region Useless Methods
@@ -1159,11 +1160,7 @@ namespace LidarProcessor
         public event EventHandler<LidarPolarPtListExtendedArgs> OnLidarProcessedEvent;
         public virtual void OnLidarProcessed(int id, List<PolarPointRssiExtended> ptList)
         {
-            var handler = OnLidarProcessedEvent;
-            if (handler != null)
-            {
-                handler(this, new LidarPolarPtListExtendedArgs { RobotId = id, PtList = ptList, Type = LidarDataType.ProcessedData1 });
-            }
+            OnLidarProcessedEvent?.Invoke(this, new LidarPolarPtListExtendedArgs { RobotId = id, PtList = ptList, Type = LidarDataType.ProcessedData1 });
         }
 
         public event EventHandler<SegmentExtendedListArgs> OnLidarProcessedSegmentsEvent;
