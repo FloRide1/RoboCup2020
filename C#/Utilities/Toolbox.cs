@@ -202,7 +202,7 @@ namespace Utilities
 
         static public PointDExtended ConvertPolarToPointD(PolarPointRssiExtended point)
         {
-            return new PointDExtended(new PointD(point.Pt.Distance * Math.Cos(point.Pt.Distance), point.Pt.Distance * Math.Sin(point.Pt.Angle)), point.Color, point.Width);
+            return new PointDExtended(new PointD(point.Pt.Distance * Math.Cos(point.Pt.Angle), point.Pt.Distance * Math.Sin(point.Pt.Angle)), point.Color, point.Width);
         }
 
         static public PolarPointRssiExtended ConvertPointDToPolar(PointDExtended point)
@@ -211,7 +211,7 @@ namespace Utilities
         }
         static public PointD ConvertPolarToPointD(PolarPointRssi point)
         {
-            return new PointD(point.Distance * Math.Cos(point.Distance), point.Distance * Math.Sin(point.Angle));
+            return new PointD(point.Distance * Math.Cos(point.Angle), point.Distance * Math.Sin(point.Angle));
         }
 
         static public PolarPointRssi ConvertPointDToPolar(PointD point)
@@ -262,21 +262,21 @@ namespace Utilities
 
         public static Tuple<PointD, PointD, PointD, PointD> GetCornerOfAnOrientedRectangle(RectangleOriented rectangle)
         {
-            PointD a1 = new PointD(rectangle.Center.X + rectangle.Lenght / 2, rectangle.Center.Y + rectangle.Width / 2);
-            PolarPointRssi polar = ConvertPointDToPolar(a1);
-            a1 = ConvertPolarToPointD(new PolarPointRssi(polar.Angle + rectangle.Angle, polar.Distance, 0));
+            double radius_of_the_circle = Math.Sqrt(Math.Pow(rectangle.Lenght, 2) + Math.Pow(rectangle.Width, 2)) / 2;
+            double a_1_angle = Modulo2PiAngleRad(Math.Atan2(  rectangle.Width,   rectangle.Lenght) + rectangle.Angle);
+            double a_3_angle = Modulo2PiAngleRad(Math.Atan2(  rectangle.Width, - rectangle.Lenght) + rectangle.Angle);
+            double a_2_angle = Modulo2PiAngleRad(Math.Atan2(- rectangle.Width,   rectangle.Lenght) + rectangle.Angle);
+            double a_4_angle = Modulo2PiAngleRad(Math.Atan2(- rectangle.Width, - rectangle.Lenght) + rectangle.Angle);
 
-            PointD a2 = new PointD(rectangle.Center.X + rectangle.Lenght / 2, rectangle.Center.Y - rectangle.Width / 2);
-            polar = ConvertPointDToPolar(a2);
-            a2 = ConvertPolarToPointD(new PolarPointRssi(polar.Angle + rectangle.Angle, polar.Distance, 0));
+            PointD polar_a_1 = ConvertPolarToPointD(new PolarPointRssi(a_1_angle, radius_of_the_circle, 0));
+            PointD polar_a_2 = ConvertPolarToPointD(new PolarPointRssi(a_2_angle, radius_of_the_circle, 0));
+            PointD polar_a_3 = ConvertPolarToPointD(new PolarPointRssi(a_3_angle, radius_of_the_circle, 0));
+            PointD polar_a_4 = ConvertPolarToPointD(new PolarPointRssi(a_4_angle, radius_of_the_circle, 0));
 
-            PointD a3 = new PointD(rectangle.Center.X - rectangle.Lenght / 2, rectangle.Center.Y + rectangle.Width / 2);
-            polar = ConvertPointDToPolar(a3);
-            a3 = ConvertPolarToPointD(new PolarPointRssi(polar.Angle + rectangle.Angle, polar.Distance, 0));
-
-            PointD a4 = new PointD(rectangle.Center.X - rectangle.Lenght / 2, rectangle.Center.Y - rectangle.Width / 2);
-            polar = ConvertPointDToPolar(a4);
-            a4 = ConvertPolarToPointD(new PolarPointRssi(polar.Angle + rectangle.Angle, polar.Distance, 0));
+            PointD a1 = new PointD(polar_a_1.X + rectangle.Center.X, polar_a_1.Y + rectangle.Center.Y);
+            PointD a2 = new PointD(polar_a_2.X + rectangle.Center.X, polar_a_2.Y + rectangle.Center.Y);
+            PointD a3 = new PointD(polar_a_3.X + rectangle.Center.X, polar_a_3.Y + rectangle.Center.Y);
+            PointD a4 = new PointD(polar_a_4.X + rectangle.Center.X, polar_a_4.Y + rectangle.Center.Y);
 
             return new Tuple<PointD, PointD, PointD, PointD>(a1, a2, a3, a4);
         }
