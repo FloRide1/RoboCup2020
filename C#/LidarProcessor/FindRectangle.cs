@@ -58,7 +58,6 @@ namespace LidarProcessor
 
 								RectangleOriented rectangle = new RectangleOriented(mean_center_point, lenght, width, angle);
 								list_of_rectangles.Add(rectangle);
-								Console.WriteLine("L: " + lenght + " W: " + width + " A: " + Toolbox.RadToDeg(angle));
 							}
 						}
 					}

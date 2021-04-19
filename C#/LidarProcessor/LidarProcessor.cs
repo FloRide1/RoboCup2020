@@ -137,20 +137,30 @@ namespace LidarProcessor
                     list_of_corner_points = list_of_family_corner_points.SelectMany(x => x.Select(y => Toolbox.ConvertPointDToPolar(y)).ToList()).ToList();
                     List<RectangleOriented> list_of_rectangles = FindRectangle.FindAllPossibleRectangle(list_of_family_corner_points, 1);
 
-                    RectangleOriented biggest_rectangle = list_of_rectangles.OrderByDescending(i => i.Lenght * i.Width).FirstOrDefault();
+                    RectangleOriented biggest_rectangle = list_of_rectangles.OrderBy(i => Math.Abs(i.Lenght * i.Width - 7 * 16)).FirstOrDefault();
+                    List<SegmentExtended> list_of_rectangles_lines = new List<SegmentExtended>();
 
                     list_of_corner_points = new List<PolarPointRssiExtended>();
+                    
                     if (biggest_rectangle != null)
                     {
                         Tuple<PointD, PointD, PointD, PointD> corners = Toolbox.GetCornerOfAnOrientedRectangle(biggest_rectangle);
 
                         
-                        //list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(biggest_rectangle.Center), 6, Color.Green));
-                        list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item1), 5, Color.DarkCyan));
-                        list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item2), 5, Color.DarkCyan));
-                        list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item3), 5, Color.DarkCyan));
-                        list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item4), 5, Color.DarkCyan));
+                        list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(biggest_rectangle.Center), 6, Color.Green));
+                        list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item1), 5, Color.Cyan));
+                        list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item2), 5, Color.Cyan));
+                        list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item3), 5, Color.Cyan));
+                        list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item4), 5, Color.Cyan));
+
+                        list_of_rectangles_lines.Add(new SegmentExtended(corners.Item1, corners.Item2, Color.Green, 2));
+                        list_of_rectangles_lines.Add(new SegmentExtended(corners.Item1, corners.Item3, Color.Green, 2));
+                        list_of_rectangles_lines.Add(new SegmentExtended(corners.Item4, corners.Item3, Color.Green, 2));
+                        list_of_rectangles_lines.Add(new SegmentExtended(corners.Item4, corners.Item2, Color.Green, 2));
+
                     }
+
+                    segmentList = list_of_rectangles_lines;
 
                     #region Deleted
                     //ptListLines = LineDetection.ExtractLinesFromCurvature(ptListSampled, curvatureList, 1.01);
@@ -182,7 +192,7 @@ namespace LidarProcessor
             //OnLidarObjectProcessed(robotId, objectList);
 
             OnLidarProcessed(robotId, list_of_corner_points);
-            //OnLidarProcessedSegments(robotId, segmentList);
+            OnLidarProcessedSegments(robotId, segmentList);
         }
 
         #region Useless Methods
