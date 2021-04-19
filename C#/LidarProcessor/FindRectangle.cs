@@ -21,48 +21,53 @@ namespace LidarProcessor
 			List<int> list_of_case = Enumerable.Range(0, corner_list.Count).ToList(); /// [0,1,2,3,...,n]
 			List<List<int>> list_of_combinations_of_corner_index = Toolbox.GetKCombs(list_of_case, 2).ToList().Select(x => x.ToList()).ToList(); /// [[0,1],[0,2],[0,3],[1,2],[1,3],[2,3],...]
 
-			List<List<PolarPointRssiExtended>> list_of_combinations_of_corner = list_of_combinations_of_corner_index.Select(x => new List<PolarPointRssiExtended>() { corner_list[x[0]], corner_list[x[1]] }).ToList();
-
-			List<Tuple<double, List<PolarPointRssiExtended>>> list_of_combinations_distance = list_of_combinations_of_corner.Select(
-				x => new Tuple<double, List<PolarPointRssiExtended>> (
-					Toolbox.Distance(x[0].Pt, x[1].Pt), 
-					new List<PolarPointRssiExtended>() { x[0], x[1] }
+			/// [[Dist_0-1, Corner0, Corner1],[Dist_0-2, Corner0,Corner2],[Dist_0-3, Corner0,Corner3],[Dist_1-2, Corner1,Corner2],etc...]
+			List<Tuple<double, PolarPointRssiExtended, PolarPointRssiExtended>> list_of_combinations_corners_and_distance = list_of_combinations_of_corner_index.Select(
+				x => new Tuple<double, PolarPointRssiExtended, PolarPointRssiExtended> (
+					Toolbox.Distance(corner_list[x[0]].Pt, corner_list[x[1]].Pt), 
+					corner_list[x[0]], 
+					corner_list[x[1]] 
 				)
 			).ToList();
 
 
 
-			double distance = 0;
-			Tuple<PointD, PointD> old_point = new Tuple<PointD, PointD>(null, null);
+			double previous_distance = 0;
+			PointD previous_vector_point_a = new PointD(0, 0);
+			PointD previous_vector_point_b = new PointD(0, 0);
+			PointD previous_center_vector_point = new PointD(0,0);
 
-			List<List<PointD>> list_of_vectors = new List<List<PointD>>();
-
-			foreach (var combi_dist in list_of_combinations_distance.OrderByDescending(x => x.Item1))
+			foreach (var vector_distance in list_of_combinations_corners_and_distance.OrderByDescending(x => x.Item1))
             {
-				if (distance + thresold >= combi_dist.Item1 && distance - thresold <= combi_dist.Item1)
-                {
-					PointD actual_point_a = Toolbox.ConvertPolarToPointD(combi_dist.Item2[0].Pt);
-					PointD actual_point_b = Toolbox.ConvertPolarToPointD(combi_dist.Item2[1].Pt);
+				PointD actual_vector_point_a = Toolbox.ConvertPolarToPointD(vector_distance.Item2.Pt);
+				PointD actual_vector_point_b = Toolbox.ConvertPolarToPointD(vector_distance.Item3.Pt);
+				PointD actual_center_vector_point = new PointD((actual_vector_point_b.X + actual_vector_point_a.X) / 2, (actual_vector_point_b.Y + actual_vector_point_a.Y) / 2);
+				
+				if (Toolbox.Distance(actual_vector_point_a, previous_vector_point_a) != 0 && Toolbox.Distance(actual_vector_point_a, previous_vector_point_b) != 0 && Toolbox.Distance(actual_vector_point_b, previous_vector_point_a) != 0 && Toolbox.Distance(actual_vector_point_b, previous_vector_point_b) != 0)
+				{
+					if (previous_distance + thresold >= vector_distance.Item1 && previous_distance - thresold <= vector_distance.Item1)
+					{
+						if (Toolbox.Distance(actual_center_vector_point, previous_center_vector_point) < thresold)
+						{
+							PointD mean_center_point = new PointD((actual_center_vector_point.X + previous_center_vector_point.X) / 2, (actual_center_vector_point.Y + previous_center_vector_point.Y) / 2);
 
-					PointD vector_point_1 = new PointD((old_point.Item1.X + actual_point_a.X) / 2, (old_point.Item1.Y + actual_point_a.Y) / 2);
-					PointD vector_point_2 = new PointD((old_point.Item2.X + actual_point_b.X) / 2, (old_point.Item2.Y + actual_point_b.Y) / 2);
+							double lenght = Toolbox.Distance(actual_vector_point_a, previous_vector_point_a);
+							double width = Toolbox.Distance(actual_vector_point_b, previous_vector_point_a);
+							double angle = Math.Atan2(actual_vector_point_a.Y - mean_center_point.Y, actual_vector_point_a.X - mean_center_point.X);
 
-					if (Toolbox.Distance(vector_point_1, vector_point_2) < thresold)
-                    {
-						PointD mean_center_point = new PointD((vector_point_1.X + vector_point_2.X) / 2, (vector_point_1.Y + vector_point_2.Y) / 2);
+							RectangleOriented rectangle = new RectangleOriented(mean_center_point, lenght, width, angle);
+							list_of_rectangles.Add(rectangle);
+							Console.WriteLine("L: " + lenght + " W: " + width + " A: " + Toolbox.RadToDeg(angle));
+						}
 
-						double lenght = Toolbox.Distance(actual_point_a, old_point.Item1);
-						double width = Toolbox.Distance(actual_point_b, old_point.Item2);
-						double angle = Math.Atan2(actual_point_a.Y - mean_center_point.Y, actual_point_a.X - mean_center_point.X);
-						RectangleOriented rectangle = new RectangleOriented(mean_center_point, lenght, width, angle);
-						Console.WriteLine(Toolbox.Distance(vector_point_1, vector_point_2));
 					}
-					
-                } else
-                {
-					distance = combi_dist.Item1;
-					old_point = new Tuple<PointD, PointD> (Toolbox.ConvertPolarToPointD(combi_dist.Item2[0].Pt), Toolbox.ConvertPolarToPointD(combi_dist.Item2[1].Pt));
-                }
+				}
+				previous_distance = vector_distance.Item1;
+				previous_vector_point_a = actual_vector_point_a;
+				previous_vector_point_b = actual_vector_point_b;
+				previous_center_vector_point = actual_center_vector_point;
+				
+
             }
 
 

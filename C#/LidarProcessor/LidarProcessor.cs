@@ -133,7 +133,19 @@ namespace LidarProcessor
                     #endregion
 
                     list_of_corner_points = LineDetection.FindAllValidCrossingPoints(list_family_of_segments).Select(x => Toolbox.ConvertPointDToPolar(x)).ToList();
-                    FindRectangle.FindAllPossibleRectangle(list_of_corner_points, 1);
+                    List<RectangleOriented> list_of_rectangles = FindRectangle.FindAllPossibleRectangle(list_of_corner_points, 1);
+
+                    RectangleOriented biggest_rectangle = list_of_rectangles.OrderByDescending(i => i.Lenght * i.Width).FirstOrDefault();
+                    if (biggest_rectangle != null)
+                    {
+                        Tuple<PointD, PointD, PointD, PointD> corners = Toolbox.GetCornerOfAnOrientedRectangle(biggest_rectangle);
+
+                        list_of_corner_points = new List<PolarPointRssiExtended>();
+                        list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item1), 5, Color.White));
+                        list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item2), 5, Color.White));
+                        list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item3), 5, Color.White));
+                        list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item4), 5, Color.White));
+                    }
 
                     #region Deleted
                     //ptListLines = LineDetection.ExtractLinesFromCurvature(ptListSampled, curvatureList, 1.01);
