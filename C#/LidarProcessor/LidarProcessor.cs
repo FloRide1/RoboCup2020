@@ -105,6 +105,9 @@ namespace LidarProcessor
                     break;
                 case GameMode.RoboCup:
                     double tailleNoyau = 0.2;
+
+                    PointD PositionRobot = Toolbox.ConvertPolarToPointD(ptList.OrderBy(x => x.Distance).FirstOrDefault());
+
                     ptListSampled = FixedStepLidarMap(ptList, 0.25);
 
 
@@ -121,15 +124,13 @@ namespace LidarProcessor
                     var curvatureList = ExtractCurvature(list_of_point_clusters, 10);
                     //var curvatureSampledList = ExtractCurvature(ptListSampled, 5);
 
-                    segmentList = LineDetection.ExtractSegmentsFromCurvature(list_of_point_clusters, curvatureList, 1.05);
+                    segmentList = LineDetection.ExtractSegmentsFromCurvature(list_of_point_clusters, curvatureList, 1.08);
                     segmentList = LineDetection.MergeSegment(segmentList, 0.1);
 
                     List<List<SegmentExtended>> list_family_of_segments = LineDetection.FindFamilyOfSegment(segmentList);
 
                     segmentList = LineDetection.SetColorOfFamily(list_family_of_segments.OrderByDescending(i => i.Count).ToList());
                     bestSegmentList = list_family_of_segments.OrderByDescending(i => i.Count).FirstOrDefault();
-
-                    Console.WriteLine("Numbers of Filter Segment: " + segmentList.Count + " : " + list_family_of_segments.Count);
                     #endregion
 
                     List<List<PointDExtended>> list_of_family_corner_points = LineDetection.FindAllValidCrossingPoints(list_family_of_segments);
@@ -146,18 +147,18 @@ namespace LidarProcessor
                     {
                         Tuple<PointD, PointD, PointD, PointD> corners = Toolbox.GetCornerOfAnOrientedRectangle(biggest_rectangle);
 
+                        Color used = Toolbox.TestIfPointInsideAnOrientedRectangle(biggest_rectangle, PositionRobot) ? Color.Green : Color.Red ;
                         
-                        list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(biggest_rectangle.Center), 6, Color.Green));
+                        list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(biggest_rectangle.Center), 6, used));
                         list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item1), 5, Color.Cyan));
                         list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item2), 5, Color.Cyan));
                         list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item3), 5, Color.Cyan));
                         list_of_corner_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item4), 5, Color.Cyan));
 
-                        list_of_rectangles_lines.Add(new SegmentExtended(corners.Item1, corners.Item2, Color.Green, 2));
-                        list_of_rectangles_lines.Add(new SegmentExtended(corners.Item1, corners.Item3, Color.Green, 2));
-                        list_of_rectangles_lines.Add(new SegmentExtended(corners.Item4, corners.Item3, Color.Green, 2));
-                        list_of_rectangles_lines.Add(new SegmentExtended(corners.Item4, corners.Item2, Color.Green, 2));
-
+                        list_of_rectangles_lines.Add(new SegmentExtended(corners.Item1, corners.Item2, used, 2));
+                        list_of_rectangles_lines.Add(new SegmentExtended(corners.Item1, corners.Item3, used, 2));
+                        list_of_rectangles_lines.Add(new SegmentExtended(corners.Item4, corners.Item3, used, 2));
+                        list_of_rectangles_lines.Add(new SegmentExtended(corners.Item4, corners.Item2, used, 2));
                     }
 
                     segmentList = list_of_rectangles_lines;

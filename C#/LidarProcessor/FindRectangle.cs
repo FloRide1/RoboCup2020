@@ -38,14 +38,20 @@ namespace LidarProcessor
 				PointD previous_vector_point_b = new PointD(0, 0);
 				PointD previous_center_vector_point = new PointD(0, 0);
 
+
+				/// Now we sort the list by distance (Greater -> Smaller)
 				foreach (var vector_distance in list_of_combinations_corners_and_distance.OrderByDescending(x => x.Item1))
 				{
+					 
 					PointD actual_vector_point_a = vector_distance.Item2.Pt;
 					PointD actual_vector_point_b = vector_distance.Item3.Pt;
 					PointD actual_center_vector_point = new PointD((actual_vector_point_b.X + actual_vector_point_a.X) / 2, (actual_vector_point_b.Y + actual_vector_point_a.Y) / 2);
 
+					/// We check if all points are not similar
 					if (Toolbox.Distance(actual_vector_point_a, previous_vector_point_a) != 0 && Toolbox.Distance(actual_vector_point_a, previous_vector_point_b) != 0 && Toolbox.Distance(actual_vector_point_b, previous_vector_point_a) != 0 && Toolbox.Distance(actual_vector_point_b, previous_vector_point_b) != 0)
 					{
+						/// We calculate the center of the two vector
+						/// and if the two center points are close enought whe have a rectangle
 						if (previous_distance + thresold >= vector_distance.Item1 && previous_distance - thresold <= vector_distance.Item1)
 						{
 							if (Toolbox.Distance(actual_center_vector_point, previous_center_vector_point) < thresold)

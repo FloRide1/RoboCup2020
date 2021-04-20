@@ -280,6 +280,25 @@ namespace Utilities
 
             return new Tuple<PointD, PointD, PointD, PointD>(a1, a2, a3, a4);
         }
+
+        public static bool TestIfPointInsideAnOrientedRectangle(RectangleOriented rectangle, PointD point)
+        {
+            /// Whe simply make the dot product with each angle
+            Tuple<PointD, PointD, PointD, PointD> corners = GetCornerOfAnOrientedRectangle(rectangle);
+
+            PointD a = corners.Item1;
+            PointD b = corners.Item2;
+            PointD c = corners.Item3;
+
+            PointD vector_a_b = new PointD(b.X - a.X, b.Y - a.Y);
+            PointD vector_a_c = new PointD(c.X - a.X, c.Y - a.Y);
+            PointD vector_a_point = new PointD(point.X - a.X, point.Y - a.Y);
+
+            double dot_product_point_b = (vector_a_b.X * vector_a_point.X) + (vector_a_b.Y * vector_a_point.Y);
+            double dot_product_point_c = (vector_a_c.X * vector_a_point.X) + (vector_a_c.Y * vector_a_point.Y);
+
+            return dot_product_point_b >= 0 && dot_product_point_c >= 0;
+        }
     }
 }
 
