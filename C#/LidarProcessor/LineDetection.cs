@@ -100,100 +100,50 @@ namespace LidarProcessor
         /// Return a list of Segment where all parallel and continuous segment are Merge
         /// </summary>
         /// <param name="segments"></param>
-        /// <param name="thresold"></param>
+        /// <param name="threshold"></param>
         /// <returns></returns>
-        public static List<SegmentExtended> MergeSegment(List<SegmentExtended> segments, double thresold)
+        public static List<SegmentExtended> MergeSegment(List<SegmentExtended> segments, double threshold)
         {
-            List<SegmentExtended> merged_segment = segments;
+            List<SegmentExtended> merged_segment;
+            SegmentExtended[] tempArray = new SegmentExtended[segments.Count];
+            segments.CopyTo(tempArray);
+            merged_segment = tempArray.ToList();
 
-            bool isMergingEnded = false;
-
-            while (!isMergingEnded)
+            for (int i=0; i< segments.Count; i++)
             {
-                isMergingEnded = true;
-
-                /// TODO: Add Combination
-                List<int> list_of_case = Enumerable.Range(0, segments.Count).ToList(); /// [0,1,2,3,...,n]
-                List<List<int>> list_of_combinations_of_the_family = Toolbox.GetKCombs(list_of_case, 2).ToList().Select(x => x.ToList()).ToList(); /// [[0,1],[0,2],[0,3],[1,2],[1,3],[2,3],...]
-
-                List<List<SegmentExtended>> list_of_parallel_combination = list_of_combinations_of_the_family.Select(
-                    x => testIfSegmentAreParrallel(segments[x[0]], segments[x[1]]) ? new List<SegmentExtended>() { segments[x[0]], segments[x[1]] } : null
-                ).ToList();
-
-                list_of_parallel_combination.RemoveAll(element => element == null);
-
-                /// Now we have a list with all combination of parallelel segment
-
-                foreach (List<SegmentExtended> combination in list_of_parallel_combination)
+                /// On ajoute le segment courant à la liste des segments fusionnés
+                /// il faudra donc éliminer les segments mergeable au fur et à mesure de l'algo
+                merged_segment.Add(segments[i]);
+                for (int j = i+1; j< segments.Count; j++)
                 {
-                    SegmentExtended selected_segment = combination[0];
-
-                    PointD point_segment_a = new PointD(selected_segment.Segment.X1, selected_segment.Segment.Y1);
-                    PointD point_segment_b = new PointD(selected_segment.Segment.X2, selected_segment.Segment.Y2);
-                    double lenght_of_selected_segment = Toolbox.Distance(point_segment_a, point_segment_b);
-
-                    SegmentExtended tested_segment = combination[1];
-                    PointD point_tested_a = new PointD(tested_segment.Segment.X1, tested_segment.Segment.Y1);
-                    PointD point_tested_b = new PointD(tested_segment.Segment.X2, tested_segment.Segment.Y2);
-                    double lenght_of_tested_segment = Toolbox.Distance(point_tested_a, point_tested_b);
-
-                    double angle = Math.Atan2(point_segment_b.Y - point_segment_a.Y, point_segment_b.X - point_segment_a.X);
-
-                    double distance_point_to_line_a = Toolbox.DistancePointToLine(point_tested_a, point_segment_a, angle);
-                    double distance_point_to_line_b = Toolbox.DistancePointToLine(point_tested_b, point_segment_a, angle);
-
-                    if (distance_point_to_line_a <= thresold && distance_point_to_line_b <= thresold)
+                    if (testIfSegmentAreParrallel(merged_segment[i], segments[j]))
                     {
-                        double distance_aa = Toolbox.Distance(point_segment_a, point_tested_a);
-                        double distance_ab = Toolbox.Distance(point_segment_a, point_tested_b);
-                        double distance_ba = Toolbox.Distance(point_segment_b, point_tested_a);
-                        double distance_bb = Toolbox.Distance(point_segment_b, point_tested_b);
+                        /// Les segments sont bien parallèles
+                        if (Toolbox.DistancePointToLine(new PointD(segments[j].Segment.X1, segments[j].Segment.Y1),
+                                                        new PointD(merged_segment[i].Segment.X1, merged_segment[i].Segment.Y1),
+                                                        new PointD(merged_segment[i].Segment.X2, merged_segment[i].Segment.Y2)) < threshold)
+                        {
+                            /// Le pt 1 appartient au merged_segment[i]
+                            if (Toolbox.DistancePointToLine(new PointD(segments[j].Segment.X2, segments[j].Segment.Y2),
+                                                        new PointD(merged_segment[i].Segment.X1, merged_segment[i].Segment.Y1),
+                                                        new PointD(merged_segment[i].Segment.X2, merged_segment[i].Segment.Y2)) < threshold)
+                            {
+                                /// Le pt 2 appartient au merged_segment[i]
+                                /// On fusionne les segments !!!
+                                double xMin = Math.Min(Math.Min(merged_segment[i].Segment.X1, merged_segment[i].Segment.X2), Math.Min(segments[j].Segment.X1, segments[j].Segment.X2));
+                                double xMax = Math.Max(Math.Max(merged_segment[i].Segment.X1, merged_segment[i].Segment.X2), Math.Max(segments[j].Segment.X1, segments[j].Segment.X2));
+                                double yMin = Math.Min(Math.Min(merged_segment[i].Segment.Y1, merged_segment[i].Segment.Y2), Math.Min(segments[j].Segment.Y1, segments[j].Segment.Y2));
+                                double yMax = Math.Max(Math.Max(merged_segment[i].Segment.Y1, merged_segment[i].Segment.Y2), Math.Max(segments[j].Segment.Y1, segments[j].Segment.Y2));
 
-                        double max_distance = Math.Max(Math.Max(Math.Max(distance_aa, distance_ab), Math.Max(distance_ba, distance_bb)), Math.Max(lenght_of_selected_segment, lenght_of_tested_segment));
+                                if (Toolbox.ModuloPiAngleRadian(Math.Atan2(merged_segment[i].Segment.Y2 - merged_segment[i].Segment.Y1, merged_segment[i].Segment.X2 - merged_segment[i].Segment.X1)) > 0)
+                                    merged_segment[i] = new SegmentExtended(new PointD(xMin, yMin), new PointD(xMax, yMax), merged_segment[i].Color, merged_segment[i].Width);
+                                else
+                                    merged_segment[i] = new SegmentExtended(new PointD(xMin, yMax), new PointD(xMax, yMin), merged_segment[i].Color, merged_segment[i].Width);
 
-                        PointD begin_point = new PointD(0, 0);
-                        PointD end_point = new PointD(0, 0);
-
-                        /// I don't know why but switch don't work with variable case ....
-                        if (max_distance == distance_aa)
-                        {
-                            begin_point = point_segment_a;
-                            end_point = point_tested_a;
+                                /// On supprime le segment fusionné
+                                //segments.RemoveAt(j);
+                            }
                         }
-                        else if (max_distance == distance_ab)
-                        {
-                            begin_point = point_segment_a;
-                            end_point = point_tested_b;
-                        }
-                        else if (max_distance == distance_ba)
-                        {
-                            begin_point = point_segment_b;
-                            end_point = point_tested_a;
-                        }
-                        else if (max_distance == distance_bb)
-                        {
-                            begin_point = point_segment_b;
-                            end_point = point_tested_b;
-                        }
-                        else if (max_distance == lenght_of_selected_segment)
-                        {
-                            begin_point = point_segment_a;
-                            end_point = point_segment_b;
-                        }
-                        else if (max_distance == lenght_of_tested_segment)
-                        {
-                            begin_point = point_tested_a;
-                            end_point = point_tested_b;
-                        }
-
-                        merged_segment[merged_segment.IndexOf(selected_segment)] = new SegmentExtended(begin_point, end_point, selected_segment.Color, selected_segment.Width);
-                        merged_segment.Remove(tested_segment);
-                        isMergingEnded = false;
-                    }
-
-                    if (!isMergingEnded)
-                    {
-                        break;
                     }
                 }
             }
@@ -304,7 +254,7 @@ namespace LidarProcessor
             if (dmax > epsilon)
             {
                 List<PolarPointRssiExtended> recursiveResult1 = IEPF_Algorithm(list_of_points.GetRange(0, index), epsilon);
-                List<PolarPointRssiExtended> recursiveResult2 = IEPF_Algorithm(list_of_points.GetRange(index, end - 1 - index), epsilon);
+                List<PolarPointRssiExtended> recursiveResult2 = IEPF_Algorithm(list_of_points.GetRange(index+1, end - 1 - index), epsilon);
 
                 ResultList.AddRange(recursiveResult1);
                 ResultList.AddRange(recursiveResult2);

@@ -102,64 +102,79 @@ namespace LidarProcessor
                     break;
                 case GameMode.RoboCup:
                     double tailleNoyau = 0.2;
+                                        
+                    var initialPtList = ptList.Select(x => new PolarPointRssiExtended(x, 4, Color.Blue)).ToList();// FixedStepLidarMap(ptList, 0.5);
 
-                    PointD PositionRobot = Toolbox.ConvertPolarToPointD(ptList.OrderBy(x => x.Distance).FirstOrDefault());
+                    //Découpage de la scène en segments de droites
+                    double toleranceR2000 = 0.012;
+                    double toleranceIEPF = 5 * toleranceR2000;
+                    List<PolarPointRssiExtended> IEPFPoints = LineDetection.IEPF_Algorithm(initialPtList, toleranceIEPF);
+                    display_points.AddRange(IEPFPoints);
 
-                    ptListSampled = ptList.Select(x => new PolarPointRssiExtended(x, 4, Color.Blue)).ToList();// FixedStepLidarMap(ptList, 0.5);
+                    //Tri dans les segments pour savoir si ils correspondent à des segments réels ou dans liaisons entre points distants.
+                    List<SegmentExtended> segmentRealList = new List<SegmentExtended>();
+                    double incAngle = Math.PI * 2 / initialPtList.Count;
+                    for(int i=1; i< IEPFPoints.Count; i++)
+                    {
+                        int indexDebut = (int)(IEPFPoints[i - 1].Pt.Angle / incAngle);
+                        int indexFin = (int)(IEPFPoints[i].Pt.Angle / incAngle);
+                        var distanceExtremites = Toolbox.Distance(IEPFPoints[i - 1].Pt, IEPFPoints[i].Pt);
+                        var ratioDistanceAngle = distanceExtremites / (indexFin - indexDebut);
 
-                    List<PolarPointRssiExtended> list_of_point_clusters = LineDetection.IEPF_Algorithm(ptListSampled, 0.01);
-                    list_of_point_clusters.ForEach(x => x.Color = Color.Red);
+                        if ((indexFin - indexDebut < 5) || (IEPFPoints[i - 1].Pt.Distance<0.5) || (IEPFPoints[i].Pt.Distance < 0.5))
+                        {
+                            //On a deux points qui se suivent ou trop procches du robot, c'est une liaison entre pts distants
+                        }
+                        else
+                        {
+                            //On a un vrai segment, on l'ajoute à la liste des segments
+                            segmentRealList.Add(new SegmentExtended(Toolbox.ConvertPolarToPointD(IEPFPoints[i].Pt), Toolbox.ConvertPolarToPointD(IEPFPoints[i - 1].Pt), Color.Orange, 5));
+                        }
+                    }
 
+                    display_lines = segmentRealList;
 
-                    //var curvatureCornerList = ExtractCurvature(list_of_point_clusters, 10);
-                    //List<PolarPointRssiExtended> curvature_corners_points = ExtractCornersFromCurvature(list_of_point_clusters, curvatureCornerList);
+                    List<SegmentExtended> MergedSegmentList = LineDetection.MergeSegment(segmentRealList, 0.1);
+                    display_lines = MergedSegmentList;
 
-
-
-                    ptListSampled = ptListSampled.Where(x => list_of_point_clusters.IndexOf(x) == -1).ToList();
-                    ptListSampled = FixedStepLidarMap(ptListSampled, 0.5);
-
-                    var curvatureList = ExtractCurvature(ptListSampled, 10);
-
-                    List<SegmentExtended> segmentList = LineDetection.ExtractSegmentsFromCurvature(ptListSampled, curvatureList, 1.01);
-                    List<SegmentExtended> MergedSegmentList = LineDetection.MergeSegment(segmentList, 0.1);
-                    //display_points.AddRange(ptListSampled);
-
-                    display_points.AddRange(ptListSampled);
+                    //Validé V. Gies jusqu'ici...
 
                     List<List<SegmentExtended>> list_family_of_segments = LineDetection.FindFamilyOfSegment(MergedSegmentList);
 
-                    //display_lines = LineDetection.SetColorOfFamily(list_family_of_segments.OrderByDescending(i => i.Count).ToList());
+                    display_lines = LineDetection.SetColorOfFamily(list_family_of_segments.OrderByDescending(i => i.Count).ToList());
 
-                    List<SegmentExtended> bestFamily = list_family_of_segments.OrderByDescending(i => i.Count).FirstOrDefault();
 
-                    List<List<PointDExtended>> list_of_family_corner_points = LineDetection.FindAllValidCrossingPoints(list_family_of_segments);
 
-                    List<RectangleOriented> list_of_rectangles = FindRectangle.FindAllPossibleRectangle(list_of_family_corner_points, 1);
 
-                    RectangleOriented biggest_rectangle = list_of_rectangles.OrderBy(i => Math.Abs(i.Lenght * i.Width - 7 * 16)).FirstOrDefault();
-                    List<SegmentExtended> list_of_rectangles_lines = new List<SegmentExtended>();
+                    //List<List<PointDExtended>> list_of_family_corner_points = LineDetection.FindAllValidCrossingPoints(list_family_of_segments);
 
-                    if (biggest_rectangle != null)
-                    {
-                        Tuple<PointD, PointD, PointD, PointD> corners = Toolbox.GetCornerOfAnOrientedRectangle(biggest_rectangle);
+                    ////display_points.AddRange(list_of_family_corner_points.SelectMany(x => x.Select(y => Toolbox.ConvertPointDToPolar(y)).ToList()));
 
-                        Color used = Toolbox.TestIfPointInsideAnOrientedRectangle(biggest_rectangle, PositionRobot) ? Color.Green : Color.Red ;
-                        
-                        display_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(biggest_rectangle.Center), 6, used));
-                        display_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item1), 5, Color.Cyan));
-                        display_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item2), 5, Color.Cyan));
-                        display_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item3), 5, Color.Cyan));
-                        display_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item4), 5, Color.Cyan));
+                    //List<RectangleOriented> list_of_rectangles = FindRectangle.FindAllPossibleRectangle(list_of_family_corner_points, 1);
 
-                        list_of_rectangles_lines.Add(new SegmentExtended(corners.Item1, corners.Item2, used, 2));
-                        list_of_rectangles_lines.Add(new SegmentExtended(corners.Item1, corners.Item3, used, 2));
-                        list_of_rectangles_lines.Add(new SegmentExtended(corners.Item4, corners.Item3, used, 2));
-                        list_of_rectangles_lines.Add(new SegmentExtended(corners.Item4, corners.Item2, used, 2));
-                    }
+                    //RectangleOriented biggest_rectangle = list_of_rectangles.OrderBy(i => Math.Abs(i.Lenght * i.Width - 7 * 16)).FirstOrDefault();
+                    //List<SegmentExtended> list_of_rectangles_lines = new List<SegmentExtended>();
 
-                    display_lines.AddRange(list_of_rectangles_lines);
-                    
+                    //if (biggest_rectangle != null)
+                    //{
+                    //    Tuple<PointD, PointD, PointD, PointD> corners = Toolbox.GetCornerOfAnOrientedRectangle(biggest_rectangle);
+
+                    //    Color used = Toolbox.TestIfPointInsideAnOrientedRectangle(biggest_rectangle, PositionRobot) ? Color.Green : Color.Red;
+
+                    //    display_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(biggest_rectangle.Center), 6, used));
+                    //    display_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item1), 5, Color.Cyan));
+                    //    display_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item2), 5, Color.Cyan));
+                    //    display_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item3), 5, Color.Cyan));
+                    //    display_points.Add(new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(corners.Item4), 5, Color.Cyan));
+
+                    //    list_of_rectangles_lines.Add(new SegmentExtended(corners.Item1, corners.Item2, used, 2));
+                    //    list_of_rectangles_lines.Add(new SegmentExtended(corners.Item1, corners.Item3, used, 2));
+                    //    list_of_rectangles_lines.Add(new SegmentExtended(corners.Item4, corners.Item3, used, 2));
+                    //    list_of_rectangles_lines.Add(new SegmentExtended(corners.Item4, corners.Item2, used, 2));
+                    //}
+
+                    //display_lines.AddRange(list_of_rectangles_lines);
+
                     break;
             }
             

@@ -69,6 +69,20 @@ namespace LidarProcessor
             return listOfClusters;
         }
 
+        public static List<ClusterObjects> ExtractClusterFromIEPF(List<PolarPointRssiExtended> ptList, List<PolarPointRssiExtended> ptIEPF)
+        {
+            List<ClusterObjects> list_of_clusters = new List<ClusterObjects>(); 
+
+
+            /// Maybe sort
+            for (int i = 0; i < ptIEPF.Count - 2; i += 2)
+            {
+                ClusterObjects cluster = new ClusterObjects(ptList.GetRange(ptList.IndexOf(ptIEPF[i]), ptList.IndexOf(ptIEPF[i + 1]) - ptList.IndexOf(ptIEPF[i])));
+                list_of_clusters.Add(cluster);
+            }
+            return list_of_clusters;
+        }
+
         public static List<PolarPointRssiExtended> SetColorsOfClustersObjects(List<ClusterObjects> clusterObjects)
         {
             int i;

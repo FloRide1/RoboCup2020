@@ -110,6 +110,14 @@ namespace Utilities
             var dot = (pt.X - LinePt.X) * (yLineVect) - (pt.Y - LinePt.Y) * (xLineVect);
             return Math.Abs(dot);
         }
+        public static double DistancePointToLine(PointD pt, PointD LinePt1, PointD LinePt2)
+        {
+            var lineAngle = Math.Atan2(LinePt2.Y - LinePt1.Y, LinePt2.X - LinePt1.X);
+            var xLineVect = Math.Cos(lineAngle);
+            var yLineVect = Math.Sin(lineAngle);
+            var dot = (pt.X - LinePt1.X) * (yLineVect) - (pt.Y - LinePt1.Y) * (xLineVect);
+            return Math.Abs(dot);
+        }
 
         public static double DistancePointToSegment(PointD pt, PointD ptSeg1, PointD ptSeg2)
         {
@@ -297,7 +305,7 @@ namespace Utilities
             double dot_product_point_b = (vector_a_b.X * vector_a_point.X) + (vector_a_b.Y * vector_a_point.Y);
             double dot_product_point_c = (vector_a_c.X * vector_a_point.X) + (vector_a_c.Y * vector_a_point.Y);
 
-            return dot_product_point_b >= 0 && dot_product_point_c >= 0;
+            return dot_product_point_b >= 0 && dot_product_point_c >= 0 && dot_product_point_b <= rectangle.Lenght && dot_product_point_c <= rectangle.Width;
         }
     }
 }
