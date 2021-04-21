@@ -305,7 +305,19 @@ namespace Utilities
             double dot_product_point_b = (vector_a_b.X * vector_a_point.X) + (vector_a_b.Y * vector_a_point.Y);
             double dot_product_point_c = (vector_a_c.X * vector_a_point.X) + (vector_a_c.Y * vector_a_point.Y);
 
-            return dot_product_point_b >= 0 && dot_product_point_c >= 0 && dot_product_point_b <= rectangle.Lenght && dot_product_point_c <= rectangle.Width;
+            double dot_product_b_b = Math.Pow(vector_a_b.X, 2) + Math.Pow(vector_a_b.Y, 2);
+            double dot_product_c_c = Math.Pow(vector_a_c.X, 2) + Math.Pow(vector_a_c.Y, 2);
+            return dot_product_point_b >= 0 && dot_product_point_c >= 0 && dot_product_point_b <= dot_product_b_b && dot_product_point_c <= dot_product_c_c;
+        }
+
+        public static double DotProduct(PointD vector_a, PointD vector_b)
+        {
+            return (vector_a.X * vector_b.X) + (vector_a.Y * vector_b.Y);
+        }
+
+        public static double Distance(SegmentExtended segment)
+        {
+            return Math.Sqrt(Math.Pow(segment.Segment.X2 - segment.Segment.X1, 2) + Math.Pow(segment.Segment.Y2 - segment.Segment.Y1, 2));
         }
     }
 }

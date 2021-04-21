@@ -105,16 +105,15 @@ namespace LidarProcessor
         public static List<SegmentExtended> MergeSegment(List<SegmentExtended> segments, double threshold)
         {
             List<SegmentExtended> merged_segment;
-            SegmentExtended[] tempArray = new SegmentExtended[segments.Count];
-            segments.CopyTo(tempArray);
-            merged_segment = tempArray.ToList();
 
-            for (int i=0; i< segments.Count; i++)
+            merged_segment = new List<SegmentExtended>();
+
+            for (int i=0; i < segments.Count; i++)
             {
                 /// On ajoute le segment courant à la liste des segments fusionnés
                 /// il faudra donc éliminer les segments mergeable au fur et à mesure de l'algo
                 merged_segment.Add(segments[i]);
-                for (int j = i+1; j< segments.Count; j++)
+                for (int j = i+1; j < segments.Count; j++)
                 {
                     if (testIfSegmentAreParrallel(merged_segment[i], segments[j]))
                     {
@@ -141,7 +140,7 @@ namespace LidarProcessor
                                     merged_segment[i] = new SegmentExtended(new PointD(xMin, yMax), new PointD(xMax, yMin), merged_segment[i].Color, merged_segment[i].Width);
 
                                 /// On supprime le segment fusionné
-                                //segments.RemoveAt(j);
+                                segments.RemoveAt(j);
                             }
                         }
                     }
