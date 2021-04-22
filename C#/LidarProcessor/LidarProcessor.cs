@@ -104,7 +104,7 @@ namespace LidarProcessor
                     double tailleNoyau = 0.2;
                     double toleranceR2000 = 0.012;
                     double toleranceSampling = 20 * toleranceR2000;
-                    double toleranceIEPF = 20 * toleranceR2000;
+                    double toleranceIEPF = 2 * toleranceR2000;
 
                     var initialPtList = FixedStepLidarMap(ptList, toleranceSampling);// ptList.Select(x => new PolarPointRssiExtended(x, 4, Color.Blue)).ToList();// 
 
@@ -130,10 +130,10 @@ namespace LidarProcessor
                         double angleRobotSegmentDebutFin = Toolbox.ModuloPiAngleRadian(angleRobotSegmentFin - angleRobotSegmentDebut);
 
 
-                        //int indexDebut = (int)(IEPFPoints[i - 1].Pt.Angle / incAngle);
-                        //int indexFin = (int)(IEPFPoints[i].Pt.Angle / incAngle);
-                        //var distanceExtremites = Toolbox.Distance(IEPFPoints[i - 1].Pt, IEPFPoints[i].Pt);
-                        //var ratioDistanceAngle = distanceExtremites / (indexFin - indexDebut);
+                        int indexDebut = (int)(IEPFPoints[i - 1].Pt.Angle / incAngle);
+                        int indexFin = (int)(IEPFPoints[i].Pt.Angle / incAngle);
+                        var distanceExtremites = Toolbox.Distance(IEPFPoints[i - 1].Pt, IEPFPoints[i].Pt);
+                        var ratioDistanceAngle = distanceExtremites / (indexFin - indexDebut);
 
 
                         //double angleRaRb = Math.Atan2()
@@ -141,17 +141,17 @@ namespace LidarProcessor
 
                         //if ((indexFin - indexDebut < 5) || (IEPFPoints[i - 1].Pt.Distance<0.5) || (IEPFPoints[i].Pt.Distance < 0.5) || isFalseEdgeLine)
 
-                        double angleSeuil = 0.2;
+                        double angleSeuil = 0.05;
                         double distanceMinimalePts = 0.5;
                         if(Math.Abs(angleRobotSegmentDebutFin) > angleSeuil && (IEPFPoints[i - 1].Pt.Distance > distanceMinimalePts) && (IEPFPoints[i].Pt.Distance > distanceMinimalePts))
                         {
                             //On a un vrai segment, on l'ajoute à la liste des segments
-                            segmentRealList.Add(new SegmentExtended(Toolbox.ConvertPolarToPointD(IEPFPoints[i].Pt), Toolbox.ConvertPolarToPointD(IEPFPoints[i - 1].Pt), Color.Orange, 5));
+                            segmentRealList.Add(new SegmentExtended(Toolbox.ConvertPolarToPointD(IEPFPoints[i].Pt), Toolbox.ConvertPolarToPointD(IEPFPoints[i - 1].Pt), Color.Orange, 2));
                         }
                     }
 
                     //display_lines = segmentRealList;
-                    double tailleMinimaleSegment = 0.5;
+                    double tailleMinimaleSegment = 0.2;
                     var segmentFilteredList = segmentRealList.Where(x => Toolbox.Distance(x) > tailleMinimaleSegment).ToList();
 
                     List<SegmentExtended> MergedSegmentList = LineDetection.MergeSegment(segmentFilteredList, 0.1);
