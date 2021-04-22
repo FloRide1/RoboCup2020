@@ -102,12 +102,16 @@ namespace LidarProcessor
                     break;
                 case GameMode.RoboCup:
                     double tailleNoyau = 0.2;
-                                        
-                    var initialPtList = ptList.Select(x => new PolarPointRssiExtended(x, 4, Color.Blue)).ToList();// FixedStepLidarMap(ptList, 0.5);
+                    double toleranceR2000 = 0.012;
+                    double toleranceSampling = 20 * toleranceR2000;
+                    double toleranceIEPF = 20 * toleranceR2000;
+
+                    var initialPtList = FixedStepLidarMap(ptList, toleranceSampling);// ptList.Select(x => new PolarPointRssiExtended(x, 4, Color.Blue)).ToList();// 
 
                     //Découpage de la scène en segments de droites
-                    double toleranceR2000 = 0.012;
-                    double toleranceIEPF = 5 * toleranceR2000;
+                    
+
+                    //List<PolarPointRssiExtended> ListSampledPts = 
                     List<PolarPointRssiExtended> IEPFPoints = LineDetection.IEPF_Algorithm(initialPtList, toleranceIEPF);
                     //display_points.AddRange(IEPFPoints);
 
@@ -116,17 +120,30 @@ namespace LidarProcessor
                     double incAngle = Math.PI * 2 / initialPtList.Count;
                     for(int i=1; i < IEPFPoints.Count; i++)
                     {
-                        int indexDebut = (int)(IEPFPoints[i - 1].Pt.Angle / incAngle);
-                        int indexFin = (int)(IEPFPoints[i].Pt.Angle / incAngle);
-                        var distanceExtremites = Toolbox.Distance(IEPFPoints[i - 1].Pt, IEPFPoints[i].Pt);
-                        var ratioDistanceAngle = distanceExtremites / (indexFin - indexDebut);
-                        bool isFalseEdgeLine = Toolbox.DistancePointToLine(new PointD(0, 0), Toolbox.ConvertPolarToPointD(IEPFPoints[i].Pt), Toolbox.ConvertPolarToPointD(IEPFPoints[i - 1].Pt)) < 0.5;
+                        PointD robotPos = new PointD(0, 0);
+                        PointD segmentDebut = Toolbox.ConvertPolarToPointD(IEPFPoints[i - 1].Pt);
+                        PointD segmentFin = Toolbox.ConvertPolarToPointD(IEPFPoints[i].Pt);
 
-                        if ((indexFin - indexDebut < 5) || (IEPFPoints[i - 1].Pt.Distance<0.5) || (IEPFPoints[i].Pt.Distance < 0.5) || isFalseEdgeLine)
-                        {
-                            //On a deux points qui se suivent ou trop procches du robot, c'est une liaison entre pts distants
-                        }
-                        else
+                        double angleRobotSegmentDebut = Math.Atan2(segmentDebut.Y - robotPos.Y, segmentDebut.X - robotPos.X);
+                        double angleRobotSegmentFin = Math.Atan2(segmentFin.Y - segmentDebut.Y, segmentFin.X - segmentDebut.X);
+
+                        double angleRobotSegmentDebutFin = Toolbox.ModuloPiAngleRadian(angleRobotSegmentFin - angleRobotSegmentDebut);
+
+
+                        //int indexDebut = (int)(IEPFPoints[i - 1].Pt.Angle / incAngle);
+                        //int indexFin = (int)(IEPFPoints[i].Pt.Angle / incAngle);
+                        //var distanceExtremites = Toolbox.Distance(IEPFPoints[i - 1].Pt, IEPFPoints[i].Pt);
+                        //var ratioDistanceAngle = distanceExtremites / (indexFin - indexDebut);
+
+
+                        //double angleRaRb = Math.Atan2()
+                        //bool isFalseEdgeLine = Toolbox.DistancePointToLine(new PointD(0, 0), Toolbox.ConvertPolarToPointD(IEPFPoints[i].Pt), Toolbox.ConvertPolarToPointD(IEPFPoints[i - 1].Pt)) < 0.5;
+
+                        //if ((indexFin - indexDebut < 5) || (IEPFPoints[i - 1].Pt.Distance<0.5) || (IEPFPoints[i].Pt.Distance < 0.5) || isFalseEdgeLine)
+
+                        double angleSeuil = 0.2;
+                        double distanceMinimalePts = 0.5;
+                        if(Math.Abs(angleRobotSegmentDebutFin) > angleSeuil && (IEPFPoints[i - 1].Pt.Distance > distanceMinimalePts) && (IEPFPoints[i].Pt.Distance > distanceMinimalePts))
                         {
                             //On a un vrai segment, on l'ajoute à la liste des segments
                             segmentRealList.Add(new SegmentExtended(Toolbox.ConvertPolarToPointD(IEPFPoints[i].Pt), Toolbox.ConvertPolarToPointD(IEPFPoints[i - 1].Pt), Color.Orange, 5));
@@ -134,64 +151,67 @@ namespace LidarProcessor
                     }
 
                     //display_lines = segmentRealList;
+                    double tailleMinimaleSegment = 0.5;
+                    var segmentFilteredList = segmentRealList.Where(x => Toolbox.Distance(x) > tailleMinimaleSegment).ToList();
 
-                    List<SegmentExtended> MergedSegmentList = LineDetection.MergeSegment(segmentRealList, 1);
+                    List<SegmentExtended> MergedSegmentList = LineDetection.MergeSegment(segmentFilteredList, 0.1);
                     display_lines = MergedSegmentList;
 
+                    //display_points = initialPtList;
                     //Validé V. Gies jusqu'ici...
 
-                    List<List<SegmentExtended>> list_family_of_segments = LineDetection.FindFamilyOfSegment(MergedSegmentList); //TODO check si l'algo est optimal ou pas
-
-                    
+                    //List<List<SegmentExtended>> list_family_of_segments = LineDetection.FindFamilyOfSegment(MergedSegmentList); //TODO check si l'algo est optimal ou pas
 
 
-                    List<List<SegmentExtended>> list_of_possible_segment_family = new List<List<SegmentExtended>>();
-                    foreach (List<SegmentExtended> family_segment in list_family_of_segments)
-                    {
-                        List<SegmentExtended> possible_segment_family = new List<SegmentExtended>();
-
-                        double angle_of_family = Math.Atan2(family_segment[0].Segment.Y2 - family_segment[0].Segment.Y1, family_segment[0].Segment.X2 - family_segment[0].Segment.X1);
-                        List<SegmentExtended> parallel_segments = family_segment.Where(x => LineDetection.testIfSegmentAreParrallel(family_segment[0], x) && Toolbox.Distance(x) >= 1).ToList();
-                        List<SegmentExtended> perpendicular_segments = family_segment.Where(x => LineDetection.testIfSegmentArePerpendicular(family_segment[0], x) && Toolbox.Distance(x) >= 1).ToList();
-
-                        SegmentExtended parrallel_segment_by_robot = new SegmentExtended(new PointD(0, 0), new PointD(Math.Sin(angle_of_family), Math.Cos(angle_of_family)), Color.Black, 5);
-                        SegmentExtended perpendicular_segment_by_robot = new SegmentExtended(new PointD(0, 0), new PointD(Math.Cos(angle_of_family), Math.Sin(angle_of_family)), Color.Black, 5);
-
-                        List<PointDExtended> list_of_parralel_crossing_points = parallel_segments.Select(x => Toolbox.GetCrossingPointBetweenSegment(parrallel_segment_by_robot, x)).ToList();
-                        List<PointDExtended> list_of_perpendicular_crossing_points = perpendicular_segments.Select(x => Toolbox.GetCrossingPointBetweenSegment(perpendicular_segment_by_robot, x)).ToList();
-
-                        List<double> list_of_parrallel_dot_product = list_of_parralel_crossing_points.Select(x => Toolbox.DotProduct(new PointD(Math.Sin(angle_of_family), Math.Cos(angle_of_family)), x.Pt)).ToList();
-                        List<double> list_of_perpendicular_dot_product = list_of_perpendicular_crossing_points.Select(x => Toolbox.DotProduct(new PointD(Math.Cos(angle_of_family), Math.Sin(angle_of_family)), x.Pt)).ToList();
-
-                        int indexOfSegmentA = list_of_parrallel_dot_product.IndexOf(list_of_parrallel_dot_product.Where(x => x > 0).ToList().OrderBy(x => x).FirstOrDefault());
-                        if (indexOfSegmentA != -1)
-                        {
-                            possible_segment_family.Add(parallel_segments[indexOfSegmentA]);
-                        }
-                        int indexOfSegmentB = list_of_parrallel_dot_product.IndexOf(list_of_parrallel_dot_product.Where(x => x < 0).ToList().OrderBy(x => x).FirstOrDefault());
-                        if (indexOfSegmentB != -1)
-                        {
-                            possible_segment_family.Add(parallel_segments[indexOfSegmentB]);
-                        }
-
-                        int indexOfSegmentC = list_of_perpendicular_dot_product.IndexOf(list_of_perpendicular_dot_product.Where(x => x > 0).ToList().OrderBy(x => x).FirstOrDefault());
-                        if (indexOfSegmentC != -1)
-                        {
-                            possible_segment_family.Add(perpendicular_segments[indexOfSegmentC]);
-                        }
-
-                        int indexOfSegmentD = list_of_perpendicular_dot_product.IndexOf(list_of_perpendicular_dot_product.Where(x => x < 0).ToList().OrderBy(x => x).FirstOrDefault());
-                        if (indexOfSegmentD != -1)
-                        {
-                            possible_segment_family.Add(perpendicular_segments[indexOfSegmentD]);
-                        }
 
 
-                        list_of_possible_segment_family.Add(possible_segment_family);
-                    }
+                    //List<List<SegmentExtended>> list_of_possible_segment_family = new List<List<SegmentExtended>>();
+                    //foreach (List<SegmentExtended> family_segment in list_family_of_segments)
+                    //{
+                    //    List<SegmentExtended> possible_segment_family = new List<SegmentExtended>();
 
-                    list_family_of_segments = list_of_possible_segment_family;
-                    display_lines = LineDetection.SetColorOfFamily(list_family_of_segments.OrderByDescending(i => i.Count).ToList()); //TODO check si l'algo est optimal ou pas
+                    //    double angle_of_family = Math.Atan2(family_segment[0].Segment.Y2 - family_segment[0].Segment.Y1, family_segment[0].Segment.X2 - family_segment[0].Segment.X1);
+                    //    List<SegmentExtended> parallel_segments = family_segment.Where(x => LineDetection.testIfSegmentAreParrallel(family_segment[0], x) && Toolbox.Distance(x) >= 1).ToList();
+                    //    List<SegmentExtended> perpendicular_segments = family_segment.Where(x => LineDetection.testIfSegmentArePerpendicular(family_segment[0], x) && Toolbox.Distance(x) >= 1).ToList();
+
+                    //    SegmentExtended parrallel_segment_by_robot = new SegmentExtended(new PointD(0, 0), new PointD(Math.Sin(angle_of_family), Math.Cos(angle_of_family)), Color.Black, 5);
+                    //    SegmentExtended perpendicular_segment_by_robot = new SegmentExtended(new PointD(0, 0), new PointD(Math.Cos(angle_of_family), Math.Sin(angle_of_family)), Color.Black, 5);
+
+                    //    List<PointDExtended> list_of_parralel_crossing_points = parallel_segments.Select(x => Toolbox.GetCrossingPointBetweenSegment(parrallel_segment_by_robot, x)).ToList();
+                    //    List<PointDExtended> list_of_perpendicular_crossing_points = perpendicular_segments.Select(x => Toolbox.GetCrossingPointBetweenSegment(perpendicular_segment_by_robot, x)).ToList();
+
+                    //    List<double> list_of_parrallel_dot_product = list_of_parralel_crossing_points.Select(x => Toolbox.DotProduct(new PointD(Math.Sin(angle_of_family), Math.Cos(angle_of_family)), x.Pt)).ToList();
+                    //    List<double> list_of_perpendicular_dot_product = list_of_perpendicular_crossing_points.Select(x => Toolbox.DotProduct(new PointD(Math.Cos(angle_of_family), Math.Sin(angle_of_family)), x.Pt)).ToList();
+
+                    //    int indexOfSegmentA = list_of_parrallel_dot_product.IndexOf(list_of_parrallel_dot_product.Where(x => x > 0).ToList().OrderBy(x => x).FirstOrDefault());
+                    //    if (indexOfSegmentA != -1)
+                    //    {
+                    //        possible_segment_family.Add(parallel_segments[indexOfSegmentA]);
+                    //    }
+                    //    int indexOfSegmentB = list_of_parrallel_dot_product.IndexOf(list_of_parrallel_dot_product.Where(x => x < 0).ToList().OrderBy(x => x).FirstOrDefault());
+                    //    if (indexOfSegmentB != -1)
+                    //    {
+                    //        possible_segment_family.Add(parallel_segments[indexOfSegmentB]);
+                    //    }
+
+                    //    int indexOfSegmentC = list_of_perpendicular_dot_product.IndexOf(list_of_perpendicular_dot_product.Where(x => x > 0).ToList().OrderBy(x => x).FirstOrDefault());
+                    //    if (indexOfSegmentC != -1)
+                    //    {
+                    //        possible_segment_family.Add(perpendicular_segments[indexOfSegmentC]);
+                    //    }
+
+                    //    int indexOfSegmentD = list_of_perpendicular_dot_product.IndexOf(list_of_perpendicular_dot_product.Where(x => x < 0).ToList().OrderBy(x => x).FirstOrDefault());
+                    //    if (indexOfSegmentD != -1)
+                    //    {
+                    //        possible_segment_family.Add(perpendicular_segments[indexOfSegmentD]);
+                    //    }
+
+
+                    //    list_of_possible_segment_family.Add(possible_segment_family);
+                    //}
+
+                    ////list_family_of_segments = list_of_possible_segment_family;
+                    //display_lines = LineDetection.SetColorOfFamily(list_family_of_segments.OrderByDescending(i => i.Count).ToList()); //TODO check si l'algo est optimal ou pas
 
 
                     break;
@@ -464,11 +484,11 @@ namespace LidarProcessor
             double minAngle = 0;
             double maxAngle = 2*Math.PI;
             double currentAngle = minAngle;
-            double constante =  (ptList.Count) / (maxAngle - minAngle);
+            double ptPerRadian =  (ptList.Count) / (maxAngle - minAngle);
             while (currentAngle < maxAngle && currentAngle >= minAngle)
             {
                 //On détermine l'indice du point d'angle courant dans la liste d'origine
-                int ptIndex = (int)((currentAngle - minAngle) * constante);
+                int ptIndex = (int)((currentAngle - minAngle) * ptPerRadian);
                 var ptCourant = ptList[ptIndex];
                 //On ajoute ce point à la liste des points de sortie
                 //System.Drawing.Color randomColor = System.Drawing.Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
@@ -484,8 +504,8 @@ namespace LidarProcessor
                 var distancePtGauchePtDroitCasOrthogonal = (ptDroite.Angle - ptGauche.Angle) * ptCourant.Distance;
                 var ratioAngle = distancePtGauchePtDroit / distancePtGauchePtDroitCasOrthogonal;
                 ratioAngle = Toolbox.LimitToInterval(ratioAngle, 1, 5);
-                
-                currentAngle += Math.Min(0.3, incrementAngle * step / ratioAngle);
+
+                currentAngle += Math.Max(1/ptPerRadian, Math.Min(0.3, incrementAngle * step / ratioAngle));
             }
 
             return ptListFixedStep;
