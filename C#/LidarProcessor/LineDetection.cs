@@ -267,39 +267,33 @@ namespace LidarProcessor
             return ResultList;
         }
 
-
-        public static List<List<PointDExtended>> FindAllValidCrossingPoints(List<List<SegmentExtended>> list_of_family)
+        public static List<SegmentExtended> MergeSegmentWithLSM(List<SegmentExtended> list_of_segments, double spatial_distance, double angular_difference_thresold)
         {
-            List<List<PointDExtended>> list_of_crossing_points = new List<List<PointDExtended>>();
-            foreach (List<SegmentExtended> family in list_of_family)
+            List<SegmentExtended> list_of_merged_segments = list_of_segments;
+            for (int i = 0; i < list_of_merged_segments.Count; i++)
             {
-                List<int> list_of_case = Enumerable.Range(0, family.Count).ToList(); /// [0,1,2,3,...,n]
-                List<List<int>> list_of_combinations_of_the_family = Toolbox.GetKCombs(list_of_case, 2).ToList().Select(x => x.ToList()).ToList(); /// [[0,1],[0,2],[0,3],[1,2],[1,3],[2,3],...]
-
-                List<List<SegmentExtended>> list_of_parallel_combination = list_of_combinations_of_the_family.Select(
-                    x => testIfSegmentArePerpendicular(family[x[0]], family[x[1]]) ? new List<SegmentExtended>() { family[x[0]], family[x[1]] } : null
-                ).ToList();
-
-                list_of_parallel_combination.RemoveAll(item => item == null);
-
-                list_of_crossing_points.Add(list_of_parallel_combination.Select(x => Toolbox.GetCrossingPointBetweenSegment(x[0], x[1])).ToList());
-
+                SegmentExtended currentSegment = list_of_merged_segments[i];
+                for (int j = i + 1; j < list_of_merged_segments.Count; j++)
+                {
+                    SegmentExtended mergedSegment = LSMSegmentMerger(currentSegment, list_of_merged_segments[j], spatial_distance, angular_difference_thresold);
+                    if (mergedSegment != null)
+                    {
+                        currentSegment = mergedSegment;
+                        list_of_merged_segments.RemoveAt(j);
+                    }
+                }
+                list_of_merged_segments[i] = currentSegment;
             }
 
-            list_of_crossing_points = list_of_crossing_points.Distinct().ToList();
-
-            return list_of_crossing_points;
+            return list_of_merged_segments;
         }
-
-
-
 
         /// <summary>
         /// Implemenation of segment merger "LSM: perceptually accurate linesegment merging" 
         /// https://doi.org/10.1117/1.JEI.25.6.061620
         /// </summary>
         /// <returns>Return the merged Segment or null if the condition are not </returns>
-        public static SegmentExtended CorrectedSegmentMerger(SegmentExtended Global_L1, SegmentExtended Global_L2, double xi_s, double tau_theta)
+        public static SegmentExtended LSMSegmentMerger(SegmentExtended Global_L1, SegmentExtended Global_L2, double xi_s, double tau_theta)
         {
             SegmentExtended L1 = Global_L1;
             SegmentExtended L2 = Global_L2;
