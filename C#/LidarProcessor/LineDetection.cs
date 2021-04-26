@@ -267,23 +267,57 @@ namespace LidarProcessor
             return ResultList;
         }
 
-        public static List<SegmentExtended> MergeSegmentWithLSM(List<SegmentExtended> list_of_segments, double spatial_distance, double angular_difference_thresold)
+        public static List<SegmentExtended> MergeSegmentWithLSM(List<SegmentExtended> list_of_segments, double spatial_distance, double tau_theta)
         {
+            int n;
             List<SegmentExtended> list_of_merged_segments = list_of_segments;
-            for (int i = 0; i < list_of_merged_segments.Count; i++)
+
+            do
             {
-                SegmentExtended currentSegment = list_of_merged_segments[i];
-                for (int j = i + 1; j < list_of_merged_segments.Count; j++)
+                n = list_of_merged_segments.Count();
+
+                list_of_merged_segments = list_of_merged_segments.OrderByDescending(x => Toolbox.Distance(x)).ToList();
+
+                for (int i = 0; i < list_of_merged_segments.Count; i++)
                 {
-                    SegmentExtended mergedSegment = LSMSegmentMerger(currentSegment, list_of_merged_segments[j], spatial_distance, angular_difference_thresold);
-                    if (mergedSegment != null)
+                    SegmentExtended L1 = list_of_merged_segments[i];
+
+                    double l1 = Toolbox.Distance(L1);
+                    double theta_1 = Toolbox.Angle(L1);
+
+                    double tau_s = spatial_distance * l1;
+
+                    double x_11 = L1.Segment.X1;
+                    double x_12 = L1.Segment.X2;
+                    double y_11 = L1.Segment.Y1;
+                    double y_12 = L1.Segment.Y2;
+
+                    List<SegmentExtended> P = list_of_merged_segments.Where(x => Math.Abs(Toolbox.Angle(x) - theta_1) < tau_theta).ToList();
+                    P = P.Where(
+                        s => Math.Abs(x_11 - s.Segment.X1) < tau_s || Math.Abs(x_11 - s.Segment.X2) < tau_s || Math.Abs(x_12 - s.Segment.X1) < tau_s || Math.Abs(x_12 - s.Segment.X2) < tau_s
+                    ).ToList();
+
+                    P = P.Where(
+                        s => Math.Abs(y_11 - s.Segment.Y1) < tau_s || Math.Abs(y_11 - s.Segment.Y2) < tau_s || Math.Abs(y_12 - s.Segment.Y1) < tau_s || Math.Abs(y_12 - s.Segment.Y2) < tau_s
+                    ).ToList();
+
+                    List<SegmentExtended> R = new List<SegmentExtended>();
+                    foreach (SegmentExtended L2 in P)
                     {
-                        currentSegment = mergedSegment;
-                        list_of_merged_segments.RemoveAt(j);
+                        SegmentExtended M = LSMSegmentMerger(L1, L2, spatial_distance, tau_theta);
+                        if (M != null)
+                        {
+                            L1 = M;
+                            list_of_merged_segments[i] = M;
+                            R.Add(L2);
+                        }
                     }
+
+                    R.ForEach(x => list_of_merged_segments.Remove(x));
                 }
-                list_of_merged_segments[i] = currentSegment;
             }
+            while (n != list_of_merged_segments.Count());
+
 
             return list_of_merged_segments;
         }
@@ -348,7 +382,7 @@ namespace LidarProcessor
                 SegmentExtended M = new SegmentExtended(f1, f2, L1.Color, L1.Width);
                 double theta_M = Toolbox.Angle(M);
 
-                if (Math.Abs(theta1 - theta_M) <= (1/2) * tau_theta)
+                if (Math.Abs(theta1 - theta_M) <= tau_theta / 2)
                 {
                     /// We merge
                     return M;

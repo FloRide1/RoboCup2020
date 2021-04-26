@@ -106,18 +106,17 @@ namespace LidarProcessor
                     double toleranceSampling = 20 * toleranceR2000;
                     double toleranceIEPF = 2 * toleranceR2000;
 
-                    var initialPtList = FixedStepLidarMap(ptList, toleranceSampling);// ptList.Select(x => new PolarPointRssiExtended(x, 4, Color.Blue)).ToList();// 
+                    var initialPtList = FixedStepLidarMap(ptList, toleranceSampling); // ptList.Select(x => new PolarPointRssiExtended(x, 4, Color.Blue)).ToList();// 
 
-                    //Découpage de la scène en segments de droites
+                    /// Découpage de la scène en segments de droites
                     
-
-                    //List<PolarPointRssiExtended> ListSampledPts = 
                     List<PolarPointRssiExtended> IEPFPoints = LineDetection.IEPF_Algorithm(initialPtList, toleranceIEPF);
-                    //display_points.AddRange(IEPFPoints);
 
-                    //Tri dans les segments pour savoir si ils correspondent à des segments réels ou dans liaisons entre points distants.
+                    /// Tri dans les segments pour savoir si ils correspondent à des segments réels ou dans liaisons entre points distants.
                     List<SegmentExtended> segmentRealList = new List<SegmentExtended>();
                     double incAngle = Math.PI * 2 / initialPtList.Count;
+
+                    int color_i = 0;
                     for(int i=1; i < IEPFPoints.Count; i++)
                     {
                         PointD robotPos = new PointD(0, 0);
@@ -135,30 +134,27 @@ namespace LidarProcessor
                         var distanceExtremites = Toolbox.Distance(IEPFPoints[i - 1].Pt, IEPFPoints[i].Pt);
                         var ratioDistanceAngle = distanceExtremites / (indexFin - indexDebut);
 
-
-                        //double angleRaRb = Math.Atan2()
-                        //bool isFalseEdgeLine = Toolbox.DistancePointToLine(new PointD(0, 0), Toolbox.ConvertPolarToPointD(IEPFPoints[i].Pt), Toolbox.ConvertPolarToPointD(IEPFPoints[i - 1].Pt)) < 0.5;
-
-                        //if ((indexFin - indexDebut < 5) || (IEPFPoints[i - 1].Pt.Distance<0.5) || (IEPFPoints[i].Pt.Distance < 0.5) || isFalseEdgeLine)
-
                         double angleSeuil = 0.05;
                         double distanceMinimalePts = 0.5;
+
                         if(Math.Abs(angleRobotSegmentDebutFin) > angleSeuil && (IEPFPoints[i - 1].Pt.Distance > distanceMinimalePts) && (IEPFPoints[i].Pt.Distance > distanceMinimalePts))
                         {
-                            //On a un vrai segment, on l'ajoute à la liste des segments
-                            segmentRealList.Add(new SegmentExtended(Toolbox.ConvertPolarToPointD(IEPFPoints[i].Pt), Toolbox.ConvertPolarToPointD(IEPFPoints[i - 1].Pt), Color.Orange, 2));
+                            /// On a un vrai segment, on l'ajoute à la liste des segments
+                            Color color = Toolbox.HLSToColor((35 * color_i++) % 240, 120, 240);
+                            segmentRealList.Add(new SegmentExtended(Toolbox.ConvertPolarToPointD(IEPFPoints[i].Pt), Toolbox.ConvertPolarToPointD(IEPFPoints[i - 1].Pt), color, 5));
                         }
                     }
 
-                    //display_lines = segmentRealList;
-                    double tailleMinimaleSegment = 0.2;
+                    double tailleMinimaleSegment = 0.0;
                     var segmentFilteredList = segmentRealList.Where(x => Toolbox.Distance(x) > tailleMinimaleSegment).ToList();
 
-                    List<SegmentExtended> MergedSegmentList = LineDetection.MergeSegment(segmentFilteredList, 0.1);
+                    List<SegmentExtended> MergedSegmentList = LineDetection.MergeSegmentWithLSM(segmentFilteredList, 0.5, 10 * Math.PI / 180); 
+                    // MergedSegmentList = LineDetection.MergeSegment(MergedSegmentList, 0.1);
                     display_lines = MergedSegmentList;
 
                     //display_points = initialPtList;
                     //Validé V. Gies jusqu'ici...
+
 
                     //List<List<SegmentExtended>> list_family_of_segments = LineDetection.FindFamilyOfSegment(MergedSegmentList); //TODO check si l'algo est optimal ou pas
 
