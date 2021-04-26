@@ -290,5 +290,113 @@ namespace LidarProcessor
 
             return list_of_crossing_points;
         }
+
+
+
+
+        /// <summary>
+        /// Implemenation of segment merger "LSM: perceptually accurate linesegment merging" 
+        /// https://doi.org/10.1117/1.JEI.25.6.061620
+        /// </summary>
+        /// <returns>Return the merged Segment or null if the condition are not </returns>
+        public static SegmentExtended CorrectedSegmentMerger(SegmentExtended Global_L1, SegmentExtended Global_L2, double xi_s, double tau_theta)
+        {
+            SegmentExtended L1 = Global_L1;
+            SegmentExtended L2 = Global_L2;
+
+            double l1 = Toolbox.Distance(L1);
+            double l2 = Toolbox.Distance(L2);
+
+            double theta1 = Toolbox.Angle(L1);
+            double theta2 = Toolbox.Angle(L2);
+
+            if (l1 < l2)
+            {
+                /// Yeah i know i could have made it here but for now, it's fancier to do this 
+                Toolbox.SwapNum(ref L1,ref L2);
+                Toolbox.SwapNum(ref l1, ref l2);
+                Toolbox.SwapNum(ref theta1, ref theta2);
+            }
+
+            PointD L1_a = new PointD(L1.Segment.X1, L1.Segment.Y1);
+            PointD L1_b = new PointD(L1.Segment.X2, L1.Segment.Y2);
+            PointD L2_a = new PointD(L2.Segment.X1, L2.Segment.Y1);
+            PointD L2_b = new PointD(L2.Segment.X2, L2.Segment.Y2);
+
+            /// Now we Compute d (c1 and c2 are useless)
+            Tuple<PointD, PointD, double> F1F2D = ComputeAndReturnF1F2AndD(L1_a, L1_b, L2_a, L2_b);
+
+            PointD f1 = F1F2D.Item1;
+            PointD f2 = F1F2D.Item2;
+            double d = F1F2D.Item3;
+
+
+            double tau_s = xi_s * l1;
+
+            if (d > tau_s)
+            {
+                /// We don't merge
+                return null;
+            }
+
+            /// Now we compute the adaptive angluar thresold tau_theta_prime
+            double normalise_l2 = l2 / l1;
+            double normalise_d = d / tau_s;
+
+            double lambda = normalise_l2 + normalise_d;
+
+            double tau_theta_prime = (1 - 1 / (1 + Math.Exp(-2 * (lambda - 1.5)))) * tau_theta;
+
+            double theta = Math.Abs(theta2 - theta1);
+
+            if ((theta < tau_theta_prime) || (theta > (Math.PI - tau_theta_prime)))
+            {
+                SegmentExtended M = new SegmentExtended(f1, f2, L1.Color, L1.Width);
+                double theta_M = Toolbox.Angle(M);
+
+                if (Math.Abs(theta1 - theta_M) <= (1/2) * tau_theta)
+                {
+                    /// We merge
+                    return M;
+                }
+            }
+            
+            return null;
+        }
+
+        private static Tuple<PointD, PointD, double> ComputeAndReturnF1F2AndD(PointD L1_a, PointD L1_b, PointD L2_a, PointD L2_b)
+        {
+            double d_a_a = Toolbox.Distance(L1_a, L2_a);
+            double d_a_b = Toolbox.Distance(L1_a, L2_b);
+            double d_b_a = Toolbox.Distance(L1_b, L2_a);
+            double d_b_b = Toolbox.Distance(L1_b, L2_b);
+
+            double d = Math.Min(Math.Min(d_a_a, d_a_b), Math.Min(d_b_a, d_b_b));
+
+            PointD f1, f2;
+
+            if (d == d_a_a)
+            {
+                f1 = L1_b;
+                f2 = L2_b;
+            }
+            else if (d == d_a_b)
+            {
+                f1 = L1_b;
+                f2 = L2_a;
+            }
+            else if (d == d_b_a)
+            {
+                f1 = L1_a;
+                f2 = L2_b;
+            }
+            else
+            {
+                 f1 = L1_a;
+                 f2 = L2_a;
+            }
+
+            return new Tuple<PointD, PointD, double>(f1, f2, d);
+        }
     }
 }

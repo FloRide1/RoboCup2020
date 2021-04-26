@@ -319,6 +319,30 @@ namespace Utilities
         {
             return Math.Sqrt(Math.Pow(segment.Segment.X2 - segment.Segment.X1, 2) + Math.Pow(segment.Segment.Y2 - segment.Segment.Y1, 2));
         }
+
+        public static double Angle(SegmentExtended segment)
+        {
+            return Math.Atan2(segment.Segment.Y2 - segment.Segment.Y1, segment.Segment.X2 - segment.Segment.X1);
+        }
+
+        public static double Angle(PointD pt1, PointD pt2)
+        {
+            return Math.Atan2(pt2.Y - pt1.Y, pt2.X - pt1.X);
+        }
+
+        public static void SwapNum(ref double x, ref double y)
+        {
+            x += y;
+            y = x - y;
+            x -= y;
+        }
+
+        public static void SwapNum(ref SegmentExtended s1, ref SegmentExtended s2)
+        {
+            SegmentExtended temporary_segment = s1;
+            s1 = s2;
+            s2 = temporary_segment;
+        }
     }
 }
 
