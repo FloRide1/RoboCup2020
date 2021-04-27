@@ -104,13 +104,72 @@ namespace LidarProcessor
                     double tailleNoyau = 0.2;
                     double toleranceR2000 = 0.012;
                     double toleranceSampling = 20 * toleranceR2000;
-                    double toleranceIEPF = 2 * toleranceR2000;
+                    double toleranceIEPF = 1 * toleranceR2000;
 
-                    var initialPtList = FixedStepLidarMap(ptList, toleranceSampling); // ptList.Select(x => new PolarPointRssiExtended(x, 4, Color.Blue)).ToList();// 
+
+                    List<PolarPointRssi> ptListWithOutGhostPoints = ptList.ToList(); ////// FixedStepLidarMap(ptList, toleranceSampling); 
+
+
+                    ///Algo de détection des discontinuités
+                    bool[] isGhostPointList = new bool[ptList.Count];
+                    double seuilDiscontinuite = 10 * Math.PI / 180;
+
+                    for (int i = 1; i < ptListWithOutGhostPoints.Count; i++)
+                    {
+                        PointD robotPos = new PointD(0, 0);
+                        PointD segmentDebut = Toolbox.ConvertPolarToPointD(ptList[i - 1]);
+                        PointD segmentFin = Toolbox.ConvertPolarToPointD(ptList[i]);
+
+                        double angleRobotSegmentDebut = Math.Atan2(segmentDebut.Y - robotPos.Y, segmentDebut.X - robotPos.X);
+                        double angleRobotSegmentFin = Math.Atan2(segmentFin.Y - segmentDebut.Y, segmentFin.X - segmentDebut.X);
+
+                        double angleRobotSegmentDebutFin = Toolbox.ModuloPiAngleRadian(angleRobotSegmentFin - angleRobotSegmentDebut);
+
+                        if (Math.Abs(angleRobotSegmentDebutFin) < seuilDiscontinuite)
+                        {
+                            if (ptList[i - 1].Distance < ptList[i].Distance)
+                            {
+                                isGhostPointList[i] = true;
+                                ptListWithOutGhostPoints.Remove(ptList[i]);
+                            }
+                            else
+                            {
+                                isGhostPointList[i - 1] = true;
+                                ptListWithOutGhostPoints.Remove(ptList[i - 1]);
+                            }
+                        }
+                        else
+                        {
+
+                        }
+                    }
+
+                    var initialPtList = ptListWithOutGhostPoints.Select(x => new PolarPointRssiExtended(x, 4, Color.Blue)).ToList(); // initialPtListWithoutGhostPoints;
 
                     /// Découpage de la scène en segments de droites
-                    
                     List<PolarPointRssiExtended> IEPFPoints = LineDetection.IEPF_Algorithm(initialPtList, toleranceIEPF);
+                    IEPFPoints.ForEach(x => x.Color = Color.Blue);
+
+
+                    /// Only fo UI purpose
+                    List<PolarPointRssiExtended> GhostPoints = new List<PolarPointRssiExtended>();
+                    for (int i = 0; i < ptList.Count(); i++)
+                    {
+                        if (isGhostPointList[i])
+                        {
+                            GhostPoints.Add(new PolarPointRssiExtended(ptList[i], 5, Color.Red));
+                        }
+                    }
+
+
+
+
+                    display_points = GhostPoints;
+                    //display_points.AddRange(IEPFPoints);
+
+
+
+
 
                     /// Tri dans les segments pour savoir si ils correspondent à des segments réels ou dans liaisons entre points distants.
                     List<SegmentExtended> segmentRealList = new List<SegmentExtended>();
@@ -119,37 +178,33 @@ namespace LidarProcessor
                     int color_i = 0;
                     for(int i=1; i < IEPFPoints.Count; i++)
                     {
-                        PointD robotPos = new PointD(0, 0);
-                        PointD segmentDebut = Toolbox.ConvertPolarToPointD(IEPFPoints[i - 1].Pt);
-                        PointD segmentFin = Toolbox.ConvertPolarToPointD(IEPFPoints[i].Pt);
-
-                        double angleRobotSegmentDebut = Math.Atan2(segmentDebut.Y - robotPos.Y, segmentDebut.X - robotPos.X);
-                        double angleRobotSegmentFin = Math.Atan2(segmentFin.Y - segmentDebut.Y, segmentFin.X - segmentDebut.X);
-
-                        double angleRobotSegmentDebutFin = Toolbox.ModuloPiAngleRadian(angleRobotSegmentFin - angleRobotSegmentDebut);
 
 
-                        int indexDebut = (int)(IEPFPoints[i - 1].Pt.Angle / incAngle);
-                        int indexFin = (int)(IEPFPoints[i].Pt.Angle / incAngle);
+
+                        //int indexDebut = (int) (IEPFPoints[i - 1].Pt.Angle / incAngle);
+                        //int indexFin = (int) (IEPFPoints[i].Pt.Angle / incAngle);
+                        int indexDebut = initialPtList.IndexOf(IEPFPoints[i - 1]);
+                        int indexFin = initialPtList.IndexOf(IEPFPoints[i]);
+
                         var distanceExtremites = Toolbox.Distance(IEPFPoints[i - 1].Pt, IEPFPoints[i].Pt);
-                        var ratioDistanceAngle = distanceExtremites / (indexFin - indexDebut);
-
-                        double angleSeuil = 0.05;
                         double distanceMinimalePts = 0.5;
 
-                        if(Math.Abs(angleRobotSegmentDebutFin) > angleSeuil && (IEPFPoints[i - 1].Pt.Distance > distanceMinimalePts) && (IEPFPoints[i].Pt.Distance > distanceMinimalePts))
+                        //  && Math.Abs(angleRobotSegmentDebutFin) > angleSeuil
+
+                        if (indexFin - indexDebut > 10  && (IEPFPoints[i - 1].Pt.Distance > distanceMinimalePts) && (IEPFPoints[i].Pt.Distance > distanceMinimalePts))
                         {
                             /// On a un vrai segment, on l'ajoute à la liste des segments
-                            Color color = Toolbox.HLSToColor((35 * color_i++) % 240, 120, 240);
+                            Color color = Toolbox.HLSToColor((15 * color_i++) % 240, 120, 240);
                             segmentRealList.Add(new SegmentExtended(Toolbox.ConvertPolarToPointD(IEPFPoints[i].Pt), Toolbox.ConvertPolarToPointD(IEPFPoints[i - 1].Pt), color, 5));
                         }
+
                     }
 
                     double tailleMinimaleSegment = 0.0;
                     var segmentFilteredList = segmentRealList.Where(x => Toolbox.Distance(x) > tailleMinimaleSegment).ToList();
 
-                    List<SegmentExtended> MergedSegmentList = LineDetection.MergeSegmentWithLSM(segmentFilteredList, 0.5, 10 * Math.PI / 180); 
-                    // MergedSegmentList = LineDetection.MergeSegment(MergedSegmentList, 0.1);
+                    List<SegmentExtended> MergedSegmentList = LineDetection.MergeSegmentWithLSM(segmentFilteredList, 1, 5 * Math.PI / 180); 
+                    // MergedSegmentList = LineDetection.MergeSegment(MergedSegmentList, 0.05);
                     display_lines = MergedSegmentList;
 
                     //display_points = initialPtList;
@@ -489,7 +544,7 @@ namespace LidarProcessor
                 //On ajoute ce point à la liste des points de sortie
                 //System.Drawing.Color randomColor = System.Drawing.Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
 
-                ptListFixedStep.Add(new PolarPointRssiExtended(ptCourant, 3, Color.Magenta));
+                ptListFixedStep.Add(new PolarPointRssiExtended(ptCourant, 10, Color.Magenta));
                 //On calcule l'incrément d'angle de manière à avoir une résolution constante si la paroi est orthogonale au rayon issu du robot
                 double incrementAngle = step / Math.Max(ptCourant.Distance, 0.1);
                 //On regarde le ration entre la distance entre les pts à dxroite
