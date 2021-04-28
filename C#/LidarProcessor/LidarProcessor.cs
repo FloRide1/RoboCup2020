@@ -103,109 +103,132 @@ namespace LidarProcessor
                 case GameMode.RoboCup:
                     double tailleNoyau = 0.2;
                     double toleranceR2000 = 0.012;
-                    double toleranceSampling = 20 * toleranceR2000;
+                    double toleranceSampling = 0.5;// 20 * toleranceR2000;
                     double toleranceIEPF = 1 * toleranceR2000;
 
+                    List<PolarPointRssi> originalPtList = ptList.ToList(); // FixedStepLidarMap(ptList, toleranceSampling); 
 
-                    List<PolarPointRssi> ptListWithOutGhostPoints = ptList.ToList(); ////// FixedStepLidarMap(ptList, toleranceSampling); 
+                    var FixedStepPtList = FixedStepLidarMap(ptList, toleranceSampling);
 
 
-                    ///Algo de détection des discontinuités
-                    bool[] isGhostPointList = new bool[ptList.Count];
-                    double seuilDiscontinuite = 10 * Math.PI / 180;
+                    ///// Algo de retrait des points isolés
+                    //bool[] isGhostPointList = new bool[ptList.Count];
+                    //double seuilIsolement = 0.1;
+                    //for (int i = 1; i < originalPtList.Count - 1; i++)
+                    //{
+                    //    PointD point_n_minus_1 = Toolbox.ConvertPolarToPointD(originalPtList[i - 1]);
+                    //    PointD point_n = Toolbox.ConvertPolarToPointD(originalPtList[i]);
+                    //    PointD point_n_plus_1 = Toolbox.ConvertPolarToPointD(originalPtList[i + 1]);
 
-                    for (int i = 1; i < ptListWithOutGhostPoints.Count; i++)
-                    {
-                        PointD robotPos = new PointD(0, 0);
-                        PointD segmentDebut = Toolbox.ConvertPolarToPointD(ptList[i - 1]);
-                        PointD segmentFin = Toolbox.ConvertPolarToPointD(ptList[i]);
+                    //    if (Math.Abs(originalPtList[i].Distance - originalPtList[i-1].Distance) > seuilIsolement && Math.Abs(originalPtList[i].Distance - originalPtList[i + 1].Distance) > seuilIsolement) // && Math.Abs(angleRobotSegmentDebutFinNext) < seuilDiscontinuite)
+                    //        isGhostPointList[i] = true;
+                    //}
 
-                        double angleRobotSegmentDebut = Math.Atan2(segmentDebut.Y - robotPos.Y, segmentDebut.X - robotPos.X);
-                        double angleRobotSegmentFin = Math.Atan2(segmentFin.Y - segmentDebut.Y, segmentFin.X - segmentDebut.X);
 
-                        double angleRobotSegmentDebutFin = Toolbox.ModuloPiAngleRadian(angleRobotSegmentFin - angleRobotSegmentDebut);
+                    //    /// Algo de détection des discontinuités
+                    //double seuilDiscontinuite = 1 * Math.PI / 180;
 
-                        if (Math.Abs(angleRobotSegmentDebutFin) < seuilDiscontinuite)
-                        {
-                            if (ptList[i - 1].Distance < ptList[i].Distance)
-                            {
-                                isGhostPointList[i] = true;
-                                ptListWithOutGhostPoints.Remove(ptList[i]);
-                            }
-                            else
-                            {
-                                isGhostPointList[i - 1] = true;
-                                ptListWithOutGhostPoints.Remove(ptList[i - 1]);
-                            }
-                        }
-                        else
-                        {
+                    //for (int i = 1; i < originalPtList.Count - 1; i++)
+                    //{
+                    //    PointD point_n_minus_1 = Toolbox.ConvertPolarToPointD(originalPtList[i - 1]);
+                    //    PointD point_n = Toolbox.ConvertPolarToPointD(originalPtList[i]);
+                    //    PointD point_n_plus_1 = Toolbox.ConvertPolarToPointD(originalPtList[i + 1]);
 
-                        }
-                    }
+                    //    double angle_i = originalPtList[i].Angle;
+                    //    double angle_i_minus_1 = Math.Atan2(point_n.Y - point_n_minus_1.Y, point_n.X - point_n_minus_1.X);
 
-                    var initialPtList = ptListWithOutGhostPoints.Select(x => new PolarPointRssiExtended(x, 4, Color.Blue)).ToList(); // initialPtListWithoutGhostPoints;
+                    //    double angle_i_plus_1 = Math.Atan2(point_n.Y - point_n_plus_1.Y, point_n.X - point_n_plus_1.X);
 
-                    /// Découpage de la scène en segments de droites
-                    List<PolarPointRssiExtended> IEPFPoints = LineDetection.IEPF_Algorithm(initialPtList, toleranceIEPF);
-                    IEPFPoints.ForEach(x => x.Color = Color.Blue);
+                    //    double angleRobotSegmentDebutFin = Toolbox.ModuloPiAngleRadian(angle_i_minus_1 - angle_i);
+                    //    double angleRobotSegmentDebutFinNext = Toolbox.ModuloPiAngleRadian(angle_i_plus_1 - angle_i);
 
+
+                    //    if (Math.Abs(angleRobotSegmentDebutFin) < seuilDiscontinuite) // && Math.Abs(angleRobotSegmentDebutFinNext) < seuilDiscontinuite)
+                    //    {
+                    //        isGhostPointList[i] = true;
+                    //        isGhostPointList[i - 1] = true;
+                    //        if (originalPtList[i - 1].Distance < originalPtList[i].Distance)
+                    //        {
+                    //            isGhostPointList[i] = true;
+                    //        }
+                    //        else
+                    //        {
+                    //            isGhostPointList[i - 1] = true;
+                    //        }
+                    //    }
+                    //}
+
+                    List<PointD> originalPtListXY = FixedStepPtList.Select(x => Toolbox.ConvertPolarToPointD(x.Pt)).ToList();
+
+                    List<ClusterObjects> list_of_clusters = ClustersDetection.ExtractClusterByDBScan(originalPtListXY, 0.5, 5);
+                    List<PolarPointRssiExtended> list_of_colorisez_point = ClustersDetection.SetColorsOfClustersObjects(list_of_clusters);
+
+                    display_points = list_of_colorisez_point;
 
                     /// Only fo UI purpose
-                    List<PolarPointRssiExtended> GhostPoints = new List<PolarPointRssiExtended>();
-                    for (int i = 0; i < ptList.Count(); i++)
-                    {
-                        if (isGhostPointList[i])
-                        {
-                            GhostPoints.Add(new PolarPointRssiExtended(ptList[i], 5, Color.Red));
-                        }
-                    }
+                    //List<PolarPointRssiExtended> GhostPoints = new List<PolarPointRssiExtended>();
+                    //for (int i = 0; i < originalPtList.Count(); i++)
+                    //{
+                    //    if (isGhostPointList[i])
+                    //    {
+                    //        GhostPoints.Add(new PolarPointRssiExtended(originalPtList[i], 5, Color.Red));
+                    //    }
+                    //}
+
+                    // display_points = FixedStepPtList;
+
+                    //var initialPtList = originalPtList.Select(x => new PolarPointRssiExtended(x, 4, Color.Blue)).ToList(); // initialPtListWithoutGhostPoints;
+
+                    ///// Découpage de la scène en segments de droites
+                    //List<PolarPointRssiExtended> IEPFPoints = LineDetection.IEPF_Algorithm(initialPtList, toleranceIEPF);
+                    //IEPFPoints.ForEach(x => x.Color = Color.Blue);
 
 
 
 
-                    display_points = GhostPoints;
-                    //display_points.AddRange(IEPFPoints);
+
+
+                    ////display_points.AddRange(IEPFPoints);
 
 
 
 
 
-                    /// Tri dans les segments pour savoir si ils correspondent à des segments réels ou dans liaisons entre points distants.
-                    List<SegmentExtended> segmentRealList = new List<SegmentExtended>();
-                    double incAngle = Math.PI * 2 / initialPtList.Count;
+                    ///// Tri dans les segments pour savoir si ils correspondent à des segments réels ou dans liaisons entre points distants.
+                    //List<SegmentExtended> segmentRealList = new List<SegmentExtended>();
+                    //double incAngle = Math.PI * 2 / initialPtList.Count;
 
-                    int color_i = 0;
-                    for(int i=1; i < IEPFPoints.Count; i++)
-                    {
+                    //int color_i = 0;
+                    //for(int i=1; i < IEPFPoints.Count; i++)
+                    //{
 
 
 
-                        //int indexDebut = (int) (IEPFPoints[i - 1].Pt.Angle / incAngle);
-                        //int indexFin = (int) (IEPFPoints[i].Pt.Angle / incAngle);
-                        int indexDebut = initialPtList.IndexOf(IEPFPoints[i - 1]);
-                        int indexFin = initialPtList.IndexOf(IEPFPoints[i]);
+                    //    //int indexDebut = (int) (IEPFPoints[i - 1].Pt.Angle / incAngle);
+                    //    //int indexFin = (int) (IEPFPoints[i].Pt.Angle / incAngle);
+                    //    int indexDebut = initialPtList.IndexOf(IEPFPoints[i - 1]);
+                    //    int indexFin = initialPtList.IndexOf(IEPFPoints[i]);
 
-                        var distanceExtremites = Toolbox.Distance(IEPFPoints[i - 1].Pt, IEPFPoints[i].Pt);
-                        double distanceMinimalePts = 0.5;
+                    //    var distanceExtremites = Toolbox.Distance(IEPFPoints[i - 1].Pt, IEPFPoints[i].Pt);
+                    //    double distanceMinimalePts = 0.5;
 
-                        //  && Math.Abs(angleRobotSegmentDebutFin) > angleSeuil
+                    //    //  && Math.Abs(angleRobotSegmentDebutFin) > angleSeuil
 
-                        if (indexFin - indexDebut > 10  && (IEPFPoints[i - 1].Pt.Distance > distanceMinimalePts) && (IEPFPoints[i].Pt.Distance > distanceMinimalePts))
-                        {
-                            /// On a un vrai segment, on l'ajoute à la liste des segments
-                            Color color = Toolbox.HLSToColor((15 * color_i++) % 240, 120, 240);
-                            segmentRealList.Add(new SegmentExtended(Toolbox.ConvertPolarToPointD(IEPFPoints[i].Pt), Toolbox.ConvertPolarToPointD(IEPFPoints[i - 1].Pt), color, 5));
-                        }
+                    //    if (indexFin - indexDebut > 10  && (IEPFPoints[i - 1].Pt.Distance > distanceMinimalePts) && (IEPFPoints[i].Pt.Distance > distanceMinimalePts))
+                    //    {
+                    //        /// On a un vrai segment, on l'ajoute à la liste des segments
+                    //        Color color = Toolbox.HLSToColor((15 * color_i++) % 240, 120, 240);
+                    //        segmentRealList.Add(new SegmentExtended(Toolbox.ConvertPolarToPointD(IEPFPoints[i].Pt), Toolbox.ConvertPolarToPointD(IEPFPoints[i - 1].Pt), color, 5));
+                    //    }
 
-                    }
+                    //}
 
-                    double tailleMinimaleSegment = 0.0;
-                    var segmentFilteredList = segmentRealList.Where(x => Toolbox.Distance(x) > tailleMinimaleSegment).ToList();
+                    //double tailleMinimaleSegment = 0.0;
+                    //var segmentFilteredList = segmentRealList.Where(x => Toolbox.Distance(x) > tailleMinimaleSegment).ToList();
 
-                    List<SegmentExtended> MergedSegmentList = LineDetection.MergeSegmentWithLSM(segmentFilteredList, 1, 5 * Math.PI / 180); 
-                    // MergedSegmentList = LineDetection.MergeSegment(MergedSegmentList, 0.05);
-                    display_lines = MergedSegmentList;
+                    //List<SegmentExtended> MergedSegmentList = LineDetection.MergeSegmentWithLSM(segmentFilteredList, 1, 5 * Math.PI / 180); 
+                    //// MergedSegmentList = LineDetection.MergeSegment(MergedSegmentList, 0.05);
+                    //// display_lines = MergedSegmentList;
 
                     //display_points = initialPtList;
                     //Validé V. Gies jusqu'ici...
@@ -544,10 +567,10 @@ namespace LidarProcessor
                 //On ajoute ce point à la liste des points de sortie
                 //System.Drawing.Color randomColor = System.Drawing.Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
 
-                ptListFixedStep.Add(new PolarPointRssiExtended(ptCourant, 10, Color.Magenta));
+                ptListFixedStep.Add(new PolarPointRssiExtended(ptCourant, 4, Color.Magenta));
                 //On calcule l'incrément d'angle de manière à avoir une résolution constante si la paroi est orthogonale au rayon issu du robot
                 double incrementAngle = step / Math.Max(ptCourant.Distance, 0.1);
-                //On regarde le ration entre la distance entre les pts à dxroite
+                //On regarde le ratio entre la distance entre les pts à droite
                 int n = 5;
                 var ptDroite = ptList[Math.Min(ptIndex + n, ptList.Count - 1)];
                 var ptGauche = ptList[Math.Max(ptIndex - n, 0)];
