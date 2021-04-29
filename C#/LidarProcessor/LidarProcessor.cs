@@ -103,7 +103,7 @@ namespace LidarProcessor
                 case GameMode.RoboCup:
                     double tailleNoyau = 0.2;
                     double toleranceR2000 = 0.012;
-                    double toleranceSampling = 0.5;// 20 * toleranceR2000;
+                    double toleranceSampling = 0.25;// 20 * toleranceR2000;
                     double toleranceIEPF = 1 * toleranceR2000;
 
                     List<PolarPointRssi> originalPtList = ptList.ToList(); // FixedStepLidarMap(ptList, toleranceSampling); 
@@ -124,47 +124,6 @@ namespace LidarProcessor
                     //        isGhostPointList[i] = true;
                     //}
 
-
-                    //    /// Algo de détection des discontinuités
-                    //double seuilDiscontinuite = 1 * Math.PI / 180;
-
-                    //for (int i = 1; i < originalPtList.Count - 1; i++)
-                    //{
-                    //    PointD point_n_minus_1 = Toolbox.ConvertPolarToPointD(originalPtList[i - 1]);
-                    //    PointD point_n = Toolbox.ConvertPolarToPointD(originalPtList[i]);
-                    //    PointD point_n_plus_1 = Toolbox.ConvertPolarToPointD(originalPtList[i + 1]);
-
-                    //    double angle_i = originalPtList[i].Angle;
-                    //    double angle_i_minus_1 = Math.Atan2(point_n.Y - point_n_minus_1.Y, point_n.X - point_n_minus_1.X);
-
-                    //    double angle_i_plus_1 = Math.Atan2(point_n.Y - point_n_plus_1.Y, point_n.X - point_n_plus_1.X);
-
-                    //    double angleRobotSegmentDebutFin = Toolbox.ModuloPiAngleRadian(angle_i_minus_1 - angle_i);
-                    //    double angleRobotSegmentDebutFinNext = Toolbox.ModuloPiAngleRadian(angle_i_plus_1 - angle_i);
-
-
-                    //    if (Math.Abs(angleRobotSegmentDebutFin) < seuilDiscontinuite) // && Math.Abs(angleRobotSegmentDebutFinNext) < seuilDiscontinuite)
-                    //    {
-                    //        isGhostPointList[i] = true;
-                    //        isGhostPointList[i - 1] = true;
-                    //        if (originalPtList[i - 1].Distance < originalPtList[i].Distance)
-                    //        {
-                    //            isGhostPointList[i] = true;
-                    //        }
-                    //        else
-                    //        {
-                    //            isGhostPointList[i - 1] = true;
-                    //        }
-                    //    }
-                    //}
-
-                    List<PointD> originalPtListXY = FixedStepPtList.Select(x => Toolbox.ConvertPolarToPointD(x.Pt)).ToList();
-
-                    List<ClusterObjects> list_of_clusters = ClustersDetection.ExtractClusterByDBScan(originalPtListXY, 0.5, 5);
-                    List<PolarPointRssiExtended> list_of_colorisez_point = ClustersDetection.SetColorsOfClustersObjects(list_of_clusters);
-
-                    display_points = list_of_colorisez_point;
-
                     /// Only fo UI purpose
                     //List<PolarPointRssiExtended> GhostPoints = new List<PolarPointRssiExtended>();
                     //for (int i = 0; i < originalPtList.Count(); i++)
@@ -177,115 +136,15 @@ namespace LidarProcessor
 
                     // display_points = FixedStepPtList;
 
-                    //var initialPtList = originalPtList.Select(x => new PolarPointRssiExtended(x, 4, Color.Blue)).ToList(); // initialPtListWithoutGhostPoints;
 
-                    ///// Découpage de la scène en segments de droites
-                    //List<PolarPointRssiExtended> IEPFPoints = LineDetection.IEPF_Algorithm(initialPtList, toleranceIEPF);
-                    //IEPFPoints.ForEach(x => x.Color = Color.Blue);
+                    List<PointD> originalPtListXY = FixedStepPtList.Select(x => Toolbox.ConvertPolarToPointD(x.Pt)).ToList();
 
+                    List<ClusterObjects> list_of_clusters = ClustersDetection.ExtractClusterByDBScan(originalPtListXY, 0.25, 5);
+                    List<PolarPointRssiExtended> list_of_colorisez_point = ClustersDetection.SetColorsOfClustersObjects(list_of_clusters);
 
+                    display_points = list_of_colorisez_point;
 
-
-
-
-                    ////display_points.AddRange(IEPFPoints);
-
-
-
-
-
-                    ///// Tri dans les segments pour savoir si ils correspondent à des segments réels ou dans liaisons entre points distants.
-                    //List<SegmentExtended> segmentRealList = new List<SegmentExtended>();
-                    //double incAngle = Math.PI * 2 / initialPtList.Count;
-
-                    //int color_i = 0;
-                    //for(int i=1; i < IEPFPoints.Count; i++)
-                    //{
-
-
-
-                    //    //int indexDebut = (int) (IEPFPoints[i - 1].Pt.Angle / incAngle);
-                    //    //int indexFin = (int) (IEPFPoints[i].Pt.Angle / incAngle);
-                    //    int indexDebut = initialPtList.IndexOf(IEPFPoints[i - 1]);
-                    //    int indexFin = initialPtList.IndexOf(IEPFPoints[i]);
-
-                    //    var distanceExtremites = Toolbox.Distance(IEPFPoints[i - 1].Pt, IEPFPoints[i].Pt);
-                    //    double distanceMinimalePts = 0.5;
-
-                    //    //  && Math.Abs(angleRobotSegmentDebutFin) > angleSeuil
-
-                    //    if (indexFin - indexDebut > 10  && (IEPFPoints[i - 1].Pt.Distance > distanceMinimalePts) && (IEPFPoints[i].Pt.Distance > distanceMinimalePts))
-                    //    {
-                    //        /// On a un vrai segment, on l'ajoute à la liste des segments
-                    //        Color color = Toolbox.HLSToColor((15 * color_i++) % 240, 120, 240);
-                    //        segmentRealList.Add(new SegmentExtended(Toolbox.ConvertPolarToPointD(IEPFPoints[i].Pt), Toolbox.ConvertPolarToPointD(IEPFPoints[i - 1].Pt), color, 5));
-                    //    }
-
-                    //}
-
-                    //double tailleMinimaleSegment = 0.0;
-                    //var segmentFilteredList = segmentRealList.Where(x => Toolbox.Distance(x) > tailleMinimaleSegment).ToList();
-
-                    //List<SegmentExtended> MergedSegmentList = LineDetection.MergeSegmentWithLSM(segmentFilteredList, 1, 5 * Math.PI / 180); 
-                    //// MergedSegmentList = LineDetection.MergeSegment(MergedSegmentList, 0.05);
-                    //// display_lines = MergedSegmentList;
-
-                    //display_points = initialPtList;
-                    //Validé V. Gies jusqu'ici...
-
-
-                    //List<List<SegmentExtended>> list_family_of_segments = LineDetection.FindFamilyOfSegment(MergedSegmentList); //TODO check si l'algo est optimal ou pas
-
-
-
-
-                    //List<List<SegmentExtended>> list_of_possible_segment_family = new List<List<SegmentExtended>>();
-                    //foreach (List<SegmentExtended> family_segment in list_family_of_segments)
-                    //{
-                    //    List<SegmentExtended> possible_segment_family = new List<SegmentExtended>();
-
-                    //    double angle_of_family = Math.Atan2(family_segment[0].Segment.Y2 - family_segment[0].Segment.Y1, family_segment[0].Segment.X2 - family_segment[0].Segment.X1);
-                    //    List<SegmentExtended> parallel_segments = family_segment.Where(x => LineDetection.testIfSegmentAreParrallel(family_segment[0], x) && Toolbox.Distance(x) >= 1).ToList();
-                    //    List<SegmentExtended> perpendicular_segments = family_segment.Where(x => LineDetection.testIfSegmentArePerpendicular(family_segment[0], x) && Toolbox.Distance(x) >= 1).ToList();
-
-                    //    SegmentExtended parrallel_segment_by_robot = new SegmentExtended(new PointD(0, 0), new PointD(Math.Sin(angle_of_family), Math.Cos(angle_of_family)), Color.Black, 5);
-                    //    SegmentExtended perpendicular_segment_by_robot = new SegmentExtended(new PointD(0, 0), new PointD(Math.Cos(angle_of_family), Math.Sin(angle_of_family)), Color.Black, 5);
-
-                    //    List<PointDExtended> list_of_parralel_crossing_points = parallel_segments.Select(x => Toolbox.GetCrossingPointBetweenSegment(parrallel_segment_by_robot, x)).ToList();
-                    //    List<PointDExtended> list_of_perpendicular_crossing_points = perpendicular_segments.Select(x => Toolbox.GetCrossingPointBetweenSegment(perpendicular_segment_by_robot, x)).ToList();
-
-                    //    List<double> list_of_parrallel_dot_product = list_of_parralel_crossing_points.Select(x => Toolbox.DotProduct(new PointD(Math.Sin(angle_of_family), Math.Cos(angle_of_family)), x.Pt)).ToList();
-                    //    List<double> list_of_perpendicular_dot_product = list_of_perpendicular_crossing_points.Select(x => Toolbox.DotProduct(new PointD(Math.Cos(angle_of_family), Math.Sin(angle_of_family)), x.Pt)).ToList();
-
-                    //    int indexOfSegmentA = list_of_parrallel_dot_product.IndexOf(list_of_parrallel_dot_product.Where(x => x > 0).ToList().OrderBy(x => x).FirstOrDefault());
-                    //    if (indexOfSegmentA != -1)
-                    //    {
-                    //        possible_segment_family.Add(parallel_segments[indexOfSegmentA]);
-                    //    }
-                    //    int indexOfSegmentB = list_of_parrallel_dot_product.IndexOf(list_of_parrallel_dot_product.Where(x => x < 0).ToList().OrderBy(x => x).FirstOrDefault());
-                    //    if (indexOfSegmentB != -1)
-                    //    {
-                    //        possible_segment_family.Add(parallel_segments[indexOfSegmentB]);
-                    //    }
-
-                    //    int indexOfSegmentC = list_of_perpendicular_dot_product.IndexOf(list_of_perpendicular_dot_product.Where(x => x > 0).ToList().OrderBy(x => x).FirstOrDefault());
-                    //    if (indexOfSegmentC != -1)
-                    //    {
-                    //        possible_segment_family.Add(perpendicular_segments[indexOfSegmentC]);
-                    //    }
-
-                    //    int indexOfSegmentD = list_of_perpendicular_dot_product.IndexOf(list_of_perpendicular_dot_product.Where(x => x < 0).ToList().OrderBy(x => x).FirstOrDefault());
-                    //    if (indexOfSegmentD != -1)
-                    //    {
-                    //        possible_segment_family.Add(perpendicular_segments[indexOfSegmentD]);
-                    //    }
-
-
-                    //    list_of_possible_segment_family.Add(possible_segment_family);
-                    //}
-
-                    ////list_family_of_segments = list_of_possible_segment_family;
-                    //display_lines = LineDetection.SetColorOfFamily(list_family_of_segments.OrderByDescending(i => i.Count).ToList()); //TODO check si l'algo est optimal ou pas
+                   
 
 
                     break;
