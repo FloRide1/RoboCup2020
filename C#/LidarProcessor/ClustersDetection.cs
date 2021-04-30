@@ -221,6 +221,7 @@ namespace LidarProcessor
         private static double? Core_distance(Dictionary<PointD, byte> D, PointD P, double epsilon, int min_pts)
         {
             List<PointD> neigbors = Get_neighbors_points_for_Optics(D.Keys.ToList() , P, epsilon);
+
             if (neigbors.Count() >= min_pts)
             {
                 return Toolbox.Distance(neigbors.OrderBy(x => Toolbox.Distance(P, x)).FirstOrDefault(), P);

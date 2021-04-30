@@ -78,6 +78,7 @@
     <Compile Include="Filters.cs" />
     <Compile Include="FixedSizeQueue.cs" />
     <Compile Include="GeometryElements.cs" />
+    <Compile Include="Heap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization.cs" />
     <Compile Include="Toolbox.cs" />
