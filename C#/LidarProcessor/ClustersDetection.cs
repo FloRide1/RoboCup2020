@@ -90,7 +90,7 @@ namespace LidarProcessor
         /// <param name="epsilon"></param>
         /// <param name="min_points"></param>
         /// 
-        public static List<ClusterObjects> ExtractClusterByDBScan (List<PointD> list_of_points, double epsilon, double min_points)
+        public static List<ClusterObjects> ExtractClusterByDBScan (List<PointD> list_of_points, double epsilon, int min_points)
         {
             /// The byte is just a variable representing the code:
             ///     - 0x00 : Unvisited
@@ -110,7 +110,7 @@ namespace LidarProcessor
                 {
                     /// The point is marked as Visited
                     DictionnaryOfDBScan[point] = 0x01;
-                    List<PointD> neighbors_points = Get_neighbors_points(DictionnaryOfDBScan, point, epsilon);
+                    List<PointD> neighbors_points = Get_neighbors_points_for_DbScan(DictionnaryOfDBScan, point, epsilon);
 
                     if (neighbors_points.Count() < min_points)
                     {
@@ -130,7 +130,7 @@ namespace LidarProcessor
                             {
                                 DictionnaryOfDBScan[selected_point] = 0x01;
 
-                                List<PointD> neighbors_points_prime = Get_neighbors_points(DictionnaryOfDBScan, selected_point, epsilon);
+                                List<PointD> neighbors_points_prime = Get_neighbors_points_for_DbScan(DictionnaryOfDBScan, selected_point, epsilon);
                                 if (neighbors_points_prime.Count() >= min_points)
                                 {
                                     neighbors_points.AddRange(neighbors_points_prime);
@@ -152,8 +152,14 @@ namespace LidarProcessor
         }
 
 
-
-        public static List<PointD> Get_neighbors_points (Dictionary<PointD, byte> D, PointD P, double epsilon)
+        /// <summary>
+        /// Only useful for DBScan but actually pretty terrible in term of optimisation... -> O(n) 
+        /// </summary>
+        /// <param name="D"></param>
+        /// <param name="P"></param>
+        /// <param name="epsilon"></param>
+        /// <returns>The list of points which are closest to the point P</returns>
+        public static List<PointD> Get_neighbors_points_for_DbScan (Dictionary<PointD, byte> D, PointD P, double epsilon)
         {
             List<PointD> neighbors_list = new List<PointD>();
 
@@ -169,6 +175,85 @@ namespace LidarProcessor
         }
 
 
+        public static void ExtractClusterByOPTICS (List<PointD> list_of_points, double epsilon, int min_points)
+        {
+            Dictionary<PointD, byte> DictionnaryOfOPTICS = new Dictionary<PointD, byte>();
+
+            /// UNDEFINED !_!
+            /// 
+
+            foreach (PointD point in DictionnaryOfOPTICS.Keys.ToList())
+            {
+                if (DictionnaryOfOPTICS[point] == 0x00)
+                {
+                    DictionnaryOfOPTICS[point] = 0x01;
+                    
+                    
+                    if (Core_distance(DictionnaryOfOPTICS, point, epsilon, min_points) != null)
+                    {
+                        List<PointD> list_of_neighbors = Get_neighbors_points_for_DbScan(DictionnaryOfOPTICS, point, epsilon); // Get Neighbors
+                        Heap<double> seeds;
+
+                        seeds.
+                    }
+                }
+            }
+        }
+
+        private static void Update_OPTICS(ref Dictionary<PointD, byte> DictionnaryOfOPTICS, List<PointD> list_of_neighbors, PointD point, Heap<double> seeds, double epsilon, int min_points)
+        {
+
+
+            double? core_dist = Core_distance(DictionnaryOfOPTICS, point, epsilon, min_points);
+
+            foreach (PointD O in list_of_neighbors)
+            {
+                if (DictionnaryOfOPTICS[O] == 0x00)
+                {
+                    double? reachability = Reachability_distance(DictionnaryOfOPTICS, point, O, epsilon, min_points);
+
+
+                }
+            }
+
+        }
+
+        private static double? Core_distance(Dictionary<PointD, byte> D, PointD P, double epsilon, int min_pts)
+        {
+            List<PointD> neigbors = Get_neighbors_points_for_Optics(D.Keys.ToList() , P, epsilon);
+            if (neigbors.Count() >= min_pts)
+            {
+                return Toolbox.Distance(neigbors.OrderBy(x => Toolbox.Distance(P, x)).FirstOrDefault(), P);
+            }
+
+            return null;
+        }
+
+        private static double? Reachability_distance(Dictionary<PointD, byte> D, PointD P, PointD O, double epsilon, int min_pts) 
+        {
+            double? core_dist = Core_distance(D, P, epsilon, min_pts);
+            
+            if (core_dist != null)
+            {
+                return Math.Max((double) core_dist, (double) Toolbox.Distance(P, O));
+            }
+            return null;
+        }
+
+        public static List<PointD> Get_neighbors_points_for_Optics(List<PointD> D, PointD P, double epsilon)
+        {
+            List<PointD> neighbors_list = new List<PointD>();
+
+            foreach (PointD tested_point in D)
+            {
+                if (Toolbox.Distance(P, tested_point) < epsilon)
+                {
+                    neighbors_list.Add(tested_point);
+                }
+            }
+
+            return neighbors_list;
+        }
 
         public static List<PolarPointRssiExtended> SetColorsOfClustersObjects(List<ClusterObjects> clusterObjects)
         {
