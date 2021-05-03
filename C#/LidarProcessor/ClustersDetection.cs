@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Utilities;
 using System.Drawing;
+using Priority_Queue;
 
 namespace LidarProcessor
 {
@@ -174,33 +175,55 @@ namespace LidarProcessor
             return neighbors_list;
         }
 
+        public static void ExtractClustersFromOPTICSOrderedList(List<PointD> OrderedList, double epsilon)
+        {
+
+        }
 
         public static void ExtractClusterByOPTICS (List<PointD> list_of_points, double epsilon, int min_points)
         {
-            Dictionary<PointD, byte> DictionnaryOfOPTICS = new Dictionary<PointD, byte>();
+            List<PointD> OrderedList = new List<PointD>();
+            Dictionary<PointD, Tuple<bool, double?>> DictionnaryOfOPTICS = new Dictionary<PointD, Tuple<bool, double?>>();
 
-            /// UNDEFINED !_!
-            /// 
+            foreach (PointD point in list_of_points.Distinct().ToList())
+            {
+                DictionnaryOfOPTICS.Add(point, new Tuple<bool, double?>(false, null));
+            }
 
             foreach (PointD point in DictionnaryOfOPTICS.Keys.ToList())
             {
-                if (DictionnaryOfOPTICS[point] == 0x00)
+                if (DictionnaryOfOPTICS[point].Item1 == false)
                 {
-                    DictionnaryOfOPTICS[point] = 0x01;
-                    
+                    DictionnaryOfOPTICS[point] = new Tuple<bool, double?>(true, DictionnaryOfOPTICS[point].Item2);
+                    OrderedList.Add(point);
                     
                     if (Core_distance(DictionnaryOfOPTICS, point, epsilon, min_points) != null)
                     {
-                        List<PointD> list_of_neighbors = Get_neighbors_points_for_DbScan(DictionnaryOfOPTICS, point, epsilon); // Get Neighbors
-                        Heap<double> seeds;
+                        List<PointD> list_of_neighbors = Get_neighbors_points_for_Optics(DictionnaryOfOPTICS.Keys.ToList() , point, epsilon); // Get Neighbors
 
-                        seeds.
+                        StablePriorityQueue<PointDQueue> seeds = new StablePriorityQueue<PointDQueue>(1440);
+                        Update_OPTICS(ref DictionnaryOfOPTICS, list_of_neighbors, point, ref seeds, epsilon, min_points);
+                        while (seeds.Count > 0)
+                        {
+                            PointDQueue point_temp = seeds.Dequeue();
+                            PointD neighbor_point = new PointD(point_temp.x, point_temp.y);
+                            DictionnaryOfOPTICS[neighbor_point] = new Tuple<bool, double?>(true, DictionnaryOfOPTICS[neighbor_point].Item2);
+
+                            OrderedList.Add(neighbor_point);
+
+                            if (Core_distance(DictionnaryOfOPTICS, point, epsilon, min_points) != null)
+                            {
+                                Update_OPTICS(ref DictionnaryOfOPTICS, list_of_neighbors, neighbor_point, ref seeds, epsilon, min_points);
+                            }
+
+                        }
+                        
                     }
                 }
             }
         }
 
-        private static void Update_OPTICS(ref Dictionary<PointD, byte> DictionnaryOfOPTICS, List<PointD> list_of_neighbors, PointD point, Heap<double> seeds, double epsilon, int min_points)
+        private static void Update_OPTICS(ref Dictionary<PointD, Tuple<bool, double?>> DictionnaryOfOPTICS, List<PointD> list_of_neighbors, PointD point, ref StablePriorityQueue<PointDQueue> seeds, double epsilon, int min_points)
         {
 
 
@@ -208,17 +231,26 @@ namespace LidarProcessor
 
             foreach (PointD O in list_of_neighbors)
             {
-                if (DictionnaryOfOPTICS[O] == 0x00)
+                if (DictionnaryOfOPTICS[O].Item1 == false)
                 {
                     double? reachability = Reachability_distance(DictionnaryOfOPTICS, point, O, epsilon, min_points);
-
+                    if (DictionnaryOfOPTICS[O].Item2 == null)
+                    {
+                        DictionnaryOfOPTICS[O] = new Tuple<bool, double?>(DictionnaryOfOPTICS[O].Item1, reachability);
+                        seeds.Enqueue(new PointDQueue(O.X, O.Y), (float) reachability);
+                    }
+                    else if (reachability < DictionnaryOfOPTICS[O].Item2)
+                    {
+                        DictionnaryOfOPTICS[O] = new Tuple<bool, double?>(DictionnaryOfOPTICS[O].Item1, reachability);
+                        seeds.UpdatePriority(new PointDQueue(O.X, O.Y), (float)reachability);
+                    }
 
                 }
             }
 
         }
 
-        private static double? Core_distance(Dictionary<PointD, byte> D, PointD P, double epsilon, int min_pts)
+        private static double? Core_distance(Dictionary<PointD, Tuple<bool, double?>> D, PointD P, double epsilon, int min_pts)
         {
             List<PointD> neigbors = Get_neighbors_points_for_Optics(D.Keys.ToList() , P, epsilon);
 
@@ -230,7 +262,7 @@ namespace LidarProcessor
             return null;
         }
 
-        private static double? Reachability_distance(Dictionary<PointD, byte> D, PointD P, PointD O, double epsilon, int min_pts) 
+        private static double? Reachability_distance(Dictionary<PointD, Tuple<bool, double?>> D, PointD P, PointD O, double epsilon, int min_pts) 
         {
             double? core_dist = Core_distance(D, P, epsilon, min_pts);
             
@@ -276,6 +308,17 @@ namespace LidarProcessor
             }
 
             return array_of_points;
+        }
+
+        public class PointDQueue : StablePriorityQueueNode
+        {
+            public double x { get; set; }
+            public double y { get; set; }
+            public PointDQueue(double x, double y)
+            {
+                this.x = x;
+                this.y = y;
+            }
         }
     }
 }

@@ -1192,11 +1192,7 @@ namespace LidarProcessor
         public event EventHandler<SegmentExtendedListArgs> OnLidarProcessedSegmentsEvent;
         public virtual void OnLidarProcessedSegments(int id, List<SegmentExtended> sList)
         {
-            var handler = OnLidarProcessedSegmentsEvent;
-            if (handler != null)
-            {
-                handler(this, new SegmentExtendedListArgs {RobotId=id, SegmentList = sList});
-            }
+            OnLidarProcessedSegmentsEvent?.Invoke(this, new SegmentExtendedListArgs { RobotId = id, SegmentList = sList });
         }
 
 
