@@ -177,10 +177,18 @@ namespace LidarProcessor
 
         public static void ExtractClustersFromOPTICSOrderedList(List<PointD> OrderedList, double epsilon)
         {
+            List<ClusterObjects> cluster_list = new List<ClusterObjects>();
 
+            for (int i = 0; i < OrderedList.Count(); i++)
+            {
+                // if (OrderedList[i] < epsilon)
+                {
+
+                }
+            }
         }
 
-        public static void ExtractClusterByOPTICS (List<PointD> list_of_points, double epsilon, int min_points)
+        public static List<PointD> ExtractOrderListFromOPTICS (List<PointD> list_of_points, double epsilon, int min_points)
         {
             List<PointD> OrderedList = new List<PointD>();
             Dictionary<PointD, Tuple<bool, double?>> DictionnaryOfOPTICS = new Dictionary<PointD, Tuple<bool, double?>>();
@@ -215,18 +223,16 @@ namespace LidarProcessor
                             {
                                 Update_OPTICS(ref DictionnaryOfOPTICS, list_of_neighbors, neighbor_point, ref seeds, epsilon, min_points);
                             }
-
                         }
-                        
                     }
                 }
             }
+
+            return OrderedList;
         }
 
         private static void Update_OPTICS(ref Dictionary<PointD, Tuple<bool, double?>> DictionnaryOfOPTICS, List<PointD> list_of_neighbors, PointD point, ref StablePriorityQueue<PointDQueue> seeds, double epsilon, int min_points)
         {
-
-
             double? core_dist = Core_distance(DictionnaryOfOPTICS, point, epsilon, min_points);
 
             foreach (PointD O in list_of_neighbors)
@@ -242,12 +248,10 @@ namespace LidarProcessor
                     else if (reachability < DictionnaryOfOPTICS[O].Item2)
                     {
                         DictionnaryOfOPTICS[O] = new Tuple<bool, double?>(DictionnaryOfOPTICS[O].Item1, reachability);
-                        seeds.UpdatePriority(new PointDQueue(O.X, O.Y), (float)reachability);
+                        seeds.UpdatePriority(new PointDQueue(O.X, O.Y), (float) reachability);
                     }
-
                 }
             }
-
         }
 
         private static double? Core_distance(Dictionary<PointD, Tuple<bool, double?>> D, PointD P, double epsilon, int min_pts)
