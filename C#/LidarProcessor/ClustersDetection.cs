@@ -175,12 +175,14 @@ namespace LidarProcessor
             return neighbors_list;
         }
 
-        public static void ExtractClustersFromOPTICSOrderedList(List<PointD> OrderedList, double epsilon)
+        public static void ExtractClustersFromOPTICSOrderedList(List<PointD> OrderedList, Dictionary<PointD, Tuple<bool, double?>> DictionaryOPTICS, double epsilon)
         {
             List<ClusterObjects> cluster_list = new List<ClusterObjects>();
 
             for (int i = 0; i < OrderedList.Count(); i++)
             {
+
+
                 // if (OrderedList[i] < epsilon)
                 {
 
