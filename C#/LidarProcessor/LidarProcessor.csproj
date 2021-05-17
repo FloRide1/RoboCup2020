@@ -72,6 +72,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\APUData\APUData.csproj">
+      <Project>{0aa50107-7ff8-4a4a-9b74-d59e0a2ee22b}</Project>
+      <Name>APUData</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Constants\Constants.csproj">
       <Project>{0540b497-b2ce-40a1-84b5-3109ce2f3146}</Project>
       <Name>Constants</Name>
