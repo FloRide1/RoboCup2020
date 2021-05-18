@@ -284,6 +284,7 @@ namespace Robot
 
             landmarks = new Landmarks(0);
 
+
             //  robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += strategyManager.OnMotorCurrentReceive;
 
 
