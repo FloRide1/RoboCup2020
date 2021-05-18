@@ -26,6 +26,7 @@ using UdpMulticastInterpreter;
 using UDPMulticast;
 using StrategyManagerProjetEtudiantNS.StrategyRoboCupNS;
 using StrategyManagerProjetEtudiantNS;
+using APUData;
 
 namespace Robot
 {
@@ -130,6 +131,7 @@ namespace Robot
         static LogRecorder.LogRecorder logRecorder;
         static LogReplay.LogReplay logReplay;
 
+        static Landmarks landmarks;
 
         [STAThread] //à ajouter au projet initial
 
@@ -279,6 +281,8 @@ namespace Robot
             robotMsgProcessor.OnIOValuesFromRobotGeneratedEvent += strategyManager.OnIOValuesFromRobot;
             robotMsgProcessor.OnIOValuesFromRobotGeneratedEvent += perceptionManager.OnIOValuesFromRobotEvent;
 
+
+            landmarks = new Landmarks(0);
 
             //  robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += strategyManager.OnMotorCurrentReceive;
 

@@ -70,7 +70,6 @@ namespace APUData
         int EKFLandmarks = 0;
 
         public Landmarks(double degreesPerScan)
-
         {
 
             this.degreesPerScan = degreesPerScan;
@@ -337,7 +336,7 @@ namespace APUData
             double px = (b - bo) / (ao - a);
             double py = ((ao * (b - bo)) / (ao - a)) + bo;
 
-            return Distance(x, y, px, py);
+            return Toolbox.Distance(x, y, px, py);
         }
 
         private landmark GetLineLandmark(double a, double b, double[] robotPosition)
@@ -361,7 +360,7 @@ namespace APUData
 
 
             double py = ((ao * (b - bo)) / (ao - a)) + bo;
-            double rangeError = Distance(robotPosition[0], robotPosition[1], px, py);
+            double rangeError = Toolbox.Distance(robotPosition[0], robotPosition[1], px, py);
             double bearingError = Math.Atan((py - robotPosition[1]) / (px - robotPosition[0])) - robotPosition[2]; //do you subtract or add robot bearing? I am not sure!
             landmark lm = new landmark();
             //convert landmark to map coordinate
@@ -423,11 +422,6 @@ namespace APUData
                 totalTimesObserved = landmarkDB[closestLandmark].totalTimesObserved;
             }
 
-        }
-
-        private double Distance(double x1, double y1, double x2, double y2)
-        {
-            return Math.Sqrt(Math.Pow(x1 - x2, 2) + Math.Pow(y1 - y2, 2));
         }
 
         private double Distance(landmark lm1, landmark lm2)
