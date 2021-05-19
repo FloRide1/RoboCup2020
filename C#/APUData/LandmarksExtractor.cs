@@ -12,8 +12,6 @@ namespace LandmarkExtractorNS
     /// </summary>
     public class LandmarksExtractor
     {
-
-        //const double CONVERT_DEG_TO_RAD = Math.PI / 180.0; // Convert to radians
         const int MAXLANDMARKS = 3000;
         const double MAXERROR = 0.5; // if a landmark is within 20 cm of another landmark its the same landmark
         public int MINOBSERVATIONS = 15; // Number of times a landmark must be observed to be recognized as a landmark
@@ -31,6 +29,8 @@ namespace LandmarkExtractorNS
 
         Location RobotLocation = new Location();
         List<Landmark> list_of_landmarks = new List<Landmark>(MAXLANDMARKS);
+
+        public event EventHandler<Landmark> OnLinesLandmarksExtractedEvent;
 
         public LandmarksExtractor(double degreesPerScan)
         {
