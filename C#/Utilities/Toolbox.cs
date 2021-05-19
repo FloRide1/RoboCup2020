@@ -103,6 +103,17 @@ namespace Utilities
             return Math.Sqrt(Math.Pow(xPt2 - xPt1, 2) + Math.Pow(yPt2 - yPt1, 2));
         }
 
+        public static double DistancePointToLine(PointD pt, double slope, double y_intercept)
+        {
+            double ao = -1.0 / slope;
+            //y = aox + bo => bo = y - aox
+            double bo = pt.Y - ao * pt.X;
+            double px = (y_intercept - bo) / (ao - slope);
+            double py = ((ao * (y_intercept - bo)) / (ao - slope)) + bo;
+
+            return Toolbox.Distance(pt.X, pt.Y, px, py);
+        }
+
         public static double DistancePointToLine(PointD pt, PointD LinePt, double LineAngle)
         {
             var xLineVect = Math.Cos(LineAngle);

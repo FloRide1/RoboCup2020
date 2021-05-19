@@ -131,7 +131,7 @@ namespace Robot
         static LogRecorder.LogRecorder logRecorder;
         static LogReplay.LogReplay logReplay;
 
-        static LandmarksExtractor landmarks;
+        static LandmarksExtractor landmarksExtractor;
 
         [STAThread] //à ajouter au projet initial
 
@@ -282,8 +282,8 @@ namespace Robot
             robotMsgProcessor.OnIOValuesFromRobotGeneratedEvent += perceptionManager.OnIOValuesFromRobotEvent;
 
 
-            landmarks = new LandmarksExtractor(0);
-
+            landmarksExtractor = new LandmarksExtractor(0);
+            
 
             //  robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += strategyManager.OnMotorCurrentReceive;
 
