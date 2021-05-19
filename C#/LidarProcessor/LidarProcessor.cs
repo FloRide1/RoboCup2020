@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Utilities;
-using APUData;
+using LandmarkExtractorNS;
 
 namespace LidarProcessor
 {
@@ -27,7 +27,7 @@ namespace LidarProcessor
             if (robotId == e.RobotId)
             {
                 ProcessLidarData(e.PtList);
-                Landmarks.
+                LandmarksExtractor.
                 EvaluateSpeed(e.PtList);
             }
         }

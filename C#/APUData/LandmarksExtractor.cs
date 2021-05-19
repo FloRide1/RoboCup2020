@@ -4,12 +4,12 @@ using Constants;
 using EventArgsLibrary;
 using Utilities;
 
-namespace APUData
+namespace LandmarkExtractorNS
 {
     /// <summary>
     /// Summary description for Landmarks.
     /// </summary>
-    public class Landmarks
+    public class LandmarksExtractor
     {
 
         double CONVERT_DEG_TO_RAD = Math.PI / 180.0; // Convert to radians
@@ -30,7 +30,7 @@ namespace APUData
 
         Location RobotLocation = new Location();
 
-        public class landmark
+        public class Landmark
 
         {
 
@@ -49,7 +49,7 @@ namespace APUData
 
             public double bearingError; //bearing from robot position to the wall we are using as a landmark (to calculate error)
 
-            public landmark()
+            public Landmark()
 
             {
                 totalTimesObserved = 0;
@@ -59,17 +59,14 @@ namespace APUData
                 a = -1;
                 b = -1;
             }
-
-            //keep track of bad landmarks?
-
         }
-        landmark[] landmarkDB = new landmark[MAXLANDMARKS];
+        Landmark[] landmarkDB = new Landmark[MAXLANDMARKS];
 
         int DBSize = 0;
         int[,] IDtoID = new int[MAXLANDMARKS, 2];
         int EKFLandmarks = 0;
 
-        public Landmarks(double degreesPerScan)
+        public LandmarksExtractor(double degreesPerScan)
         {
 
             this.degreesPerScan = degreesPerScan;
@@ -78,7 +75,7 @@ namespace APUData
             for (int i = 0; i < landmarkDB.Length; i++)
 
             {
-                landmarkDB[i] = new landmark();
+                landmarkDB[i] = new Landmark();
             }
         }
 
@@ -91,14 +88,14 @@ namespace APUData
         {
             degreesPerScan = Math.Abs(rawLidar.PtList[0].Angle - rawLidar.PtList[1].Angle) * CONVERT_DEG_TO_RAD;
 
-            double[] laserdata = rawLidar.PtList.Select(x => x.Distance).ToArray();
-            double[] robotPosition = new double[2] { RobotLocation.X, RobotLocation.Y };
+            
+            double[] robotPosition = new double[2] { RobotLocation.X, RobotLocation.Y }; /// FLO : NEED TO EDIT THE CODE FOR USING LOCATION CLASS INSTEAD OF THIS SH*TY ARRAY
+            double[] laserdata = rawLidar.PtList.Select(x => x.Distance).ToArray(); /// EDIT THIS TOO
 
             ExtractLineLandmarks(laserdata, robotPosition);
-
         }
 
-        public landmark[] ExtractLineLandmarks(double[] laserdata, double[] robotPosition)
+        public Landmark[] ExtractLineLandmarks(double[] laserdata, double[] robotPosition)
 
         {
 
@@ -110,9 +107,9 @@ namespace APUData
             int[] linepoints = new int[laserdata.Length];
             int totalLinepoints = 0;
             //have a large array to keep track of found landmarks
-            landmark[] tempLandmarks = new landmark[400];
+            Landmark[] tempLandmarks = new Landmark[400];
             for (int i = 0; i < tempLandmarks.Length; i++)
-                tempLandmarks[i] = new landmark();
+                tempLandmarks[i] = new Landmark();
 
             int totalFound = 0;
             double val = laserdata[0];
@@ -122,7 +119,6 @@ namespace APUData
             
             //FIXME - OR RATHER REMOVE ME SOMEHOW...
             for (int i = 0; i < laserdata.Length - 1; i++)
-
             {
                 linepoints[totalLinepoints] = i;
                 totalLinepoints++;
@@ -135,7 +131,6 @@ namespace APUData
             Random rnd = new Random();
 
             while (noTrials < MAXTRIALS && totalLinepoints > MINLINEPOINTS)
-
             {
 
                 int[] rndSelectedPoints = new int[MAXSAMPLE];
@@ -275,11 +270,11 @@ namespace APUData
 
             //now return found landmarks in an array of correct dimensions
 
-            landmark[] foundLandmarks = new landmark[totalLines];
+            Landmark[] foundLandmarks = new Landmark[totalLines];
             //copy landmarks into array of correct dimensions
             for (int i = 0; i < foundLandmarks.Length; i++)
             {
-                foundLandmarks[i] = (landmark)tempLandmarks[i];
+                foundLandmarks[i] = (Landmark)tempLandmarks[i];
             }
 
             return foundLandmarks;
@@ -339,7 +334,7 @@ namespace APUData
             return Toolbox.Distance(x, y, px, py);
         }
 
-        private landmark GetLineLandmark(double a, double b, double[] robotPosition)
+        private Landmark GetLineLandmark(double a, double b, double[] robotPosition)
         {
             //our goal is to calculate point on line closest to origin (0,0)
 
@@ -362,7 +357,7 @@ namespace APUData
             double py = ((ao * (b - bo)) / (ao - a)) + bo;
             double rangeError = Toolbox.Distance(robotPosition[0], robotPosition[1], px, py);
             double bearingError = Math.Atan((py - robotPosition[1]) / (px - robotPosition[0])) - robotPosition[2]; //do you subtract or add robot bearing? I am not sure!
-            landmark lm = new landmark();
+            Landmark lm = new Landmark();
             //convert landmark to map coordinate
 
             lm.pos[0] = x;
@@ -387,7 +382,7 @@ namespace APUData
 
         }
 
-        private void GetClosestAssociation(landmark lm, ref int id, ref int totalTimesObserved)
+        private void GetClosestAssociation(Landmark lm, ref int id, ref int totalTimesObserved)
         { //given a landmark we find the closest landmark in DB
 
             int closestLandmark = 0;
@@ -424,7 +419,7 @@ namespace APUData
 
         }
 
-        private double Distance(landmark lm1, landmark lm2)
+        private double Distance(Landmark lm1, Landmark lm2)
 
         {
             return Math.Sqrt(Math.Pow(lm1.pos[0] - lm2.pos[0], 2) + Math.Pow(lm1.pos[1] - lm2.pos[1], 2));
