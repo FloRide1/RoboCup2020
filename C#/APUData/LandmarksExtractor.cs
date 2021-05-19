@@ -12,7 +12,7 @@ namespace LandmarkExtractorNS
     public class LandmarksExtractor
     {
 
-        double CONVERT_DEG_TO_RAD = Math.PI / 180.0; // Convert to radians
+        //const double CONVERT_DEG_TO_RAD = Math.PI / 180.0; // Convert to radians
         const int MAXLANDMARKS = 3000;
         const double MAXERROR = 0.5; // if a landmark is within 20 cm of another landmark its the same landmark
         public int MINOBSERVATIONS = 15; // Number of times a landmark must be observed to be recognized as a landmark
@@ -26,7 +26,7 @@ namespace LandmarkExtractorNS
 
         const double RANSAC_TOLERANCE = 0.05; //RANSAC: if point is within x distance of line its part of line
         const int RANSAC_CONSENSUS = 30; //RANSAC: at least 30 votes required to determine if a line
-        double degreesPerScan = 0.5;
+        double LIDAR_ANGLE_RESOLUTION = 0.5;
 
         Location RobotLocation = new Location();
 
@@ -34,7 +34,7 @@ namespace LandmarkExtractorNS
 
         {
 
-            public double[] pos; //landmarks (x,y) position relative to map
+            public PointD Position; //landmarks (x,y) position relative to map
             public int id; //the landmarks unique ID
             public int life; //a life counter used to determine whether to discard a landmark
             public int totalTimesObserved; //the number of times we have seen landmark
@@ -55,7 +55,7 @@ namespace LandmarkExtractorNS
                 totalTimesObserved = 0;
                 id = -1;
                 life = LIFE;
-                pos = new double[2];
+                Position = new PointD(0, 0);
                 a = -1;
                 b = -1;
             }
@@ -69,7 +69,7 @@ namespace LandmarkExtractorNS
         public LandmarksExtractor(double degreesPerScan)
         {
 
-            this.degreesPerScan = degreesPerScan;
+            this.LIDAR_ANGLE_RESOLUTION = degreesPerScan;
 
 
             for (int i = 0; i < landmarkDB.Length; i++)
@@ -86,26 +86,25 @@ namespace LandmarkExtractorNS
 
         public void OnRobotLidarReceived(object sender, RawLidarArgs rawLidar)
         {
-            degreesPerScan = Math.Abs(rawLidar.PtList[0].Angle - rawLidar.PtList[1].Angle) * CONVERT_DEG_TO_RAD;
-
+            LIDAR_ANGLE_RESOLUTION = Math.Abs(rawLidar.PtList[0].Angle - rawLidar.PtList[1].Angle);
             
-            double[] robotPosition = new double[2] { RobotLocation.X, RobotLocation.Y }; /// FLO : NEED TO EDIT THE CODE FOR USING LOCATION CLASS INSTEAD OF THIS SH*TY ARRAY
             double[] laserdata = rawLidar.PtList.Select(x => x.Distance).ToArray(); /// EDIT THIS TOO
 
-            ExtractLineLandmarks(laserdata, robotPosition);
+            ExtractLineLandmarks(laserdata, RobotLocation);
         }
 
-        public Landmark[] ExtractLineLandmarks(double[] laserdata, double[] robotPosition)
-
+        public Landmark[] ExtractLineLandmarks(double[] laserdata, Location robotPosition)
         {
 
             //two arrays corresponding to found lines
             double[] la = new double[100];
             double[] lb = new double[100];
+
             int totalLines = 0;
             //array of laser data points corresponding to the seen lines
             int[] linepoints = new int[laserdata.Length];
             int totalLinepoints = 0;
+
             //have a large array to keep track of found landmarks
             Landmark[] tempLandmarks = new Landmark[400];
             for (int i = 0; i < tempLandmarks.Length; i++)
@@ -118,13 +117,14 @@ namespace LandmarkExtractorNS
             double lastlastreading = laserdata[2];
             
             //FIXME - OR RATHER REMOVE ME SOMEHOW...
-            for (int i = 0; i < laserdata.Length - 1; i++)
+            for (int i = 0; i < laserdata.Length - 1; i++) /// ... DOUBT ABOUT THE MINUS 1 ...
             {
                 linepoints[totalLinepoints] = i;
                 totalLinepoints++;
             }
 
             #region RANSAC
+
             //RANSAC ALGORITHM
             int noTrials = 0;
 
@@ -136,11 +136,10 @@ namespace LandmarkExtractorNS
                 int[] rndSelectedPoints = new int[MAXSAMPLE];
                 int temp = 0;
                 bool newpoint;
-                //– Randomly select a subset S1 of n data points and
-                //compute the model M1
-                //Initial version chooses entirely randomly. Now choose
-                //one point randomly and then sample from neighbours within some defined
-                //radius
+
+                //– Randomly select a subset S1 of n data points and compute the model M1
+                //Initial version chooses entirely randomly. Now choose one point randomly and then sample from neighbours within some defined radius
+
                 int centerPoint = rnd.Next(MAXSAMPLE, totalLinepoints - 1);
                 rndSelectedPoints[0] = centerPoint;
                 for (int i = 1; i < MAXSAMPLE; i++)
@@ -167,11 +166,11 @@ namespace LandmarkExtractorNS
                 }
 
                 //compute model M1
-                double a = 0;
-                double b = 0;
+                double slope = 0;
+                double y_intercept = 0;
                 //y = a+ bx
 
-                LeastSquaresLineEstimate(laserdata, robotPosition, rndSelectedPoints, MAXSAMPLE, ref a, ref b);
+                LeastSquaresLineEstimate(laserdata, robotPosition, rndSelectedPoints, MAXSAMPLE, ref slope, ref y_intercept);
 
                 //– Determine the consensus set S1* of points is P
                 //compatible with M1 (within some error tolerance)
@@ -186,13 +185,13 @@ namespace LandmarkExtractorNS
 
                     //convert ranges and bearing to coordinates
 
-                    x = (Math.Cos((linepoints[i] * degreesPerScan * CONVERT_DEG_TO_RAD) + robotPosition[2] * CONVERT_DEG_TO_RAD) * laserdata[linepoints[i]]) + robotPosition[0];
-                    y = (Math.Sin((linepoints[i] * degreesPerScan * CONVERT_DEG_TO_RAD) + robotPosition[2] * CONVERT_DEG_TO_RAD) * laserdata[linepoints[i]]) + robotPosition[1];
+                    x = (Math.Cos((linepoints[i] * LIDAR_ANGLE_RESOLUTION) + robotPosition.Theta) * laserdata[linepoints[i]]) + robotPosition.X;
+                    y = (Math.Sin((linepoints[i] * LIDAR_ANGLE_RESOLUTION) + robotPosition.Theta) * laserdata[linepoints[i]]) + robotPosition.Y;
 
                     //x =(Math.Cos((linepoints[i] * degreesPerScan * conv)) * laserdata[linepoints[i]]);//+robotPosition[0];
                     //y =(Math.Sin((linepoints[i] * degreesPerScan * conv)) * laserdata[linepoints[i]]);//+robotPosition[1];
 
-                    d = DistanceToLine(x, y, a, b);
+                    d = DistanceToLine(x, y, slope, y_intercept);
                     if (d < RANSAC_TOLERANCE)
                     {
 
@@ -219,7 +218,7 @@ namespace LandmarkExtractorNS
                 {
 
                     //Calculate updated line equation based on consensus points
-                    LeastSquaresLineEstimate(laserdata, robotPosition, consensusPoints, totalConsensusPoints, ref a, ref b);
+                    LeastSquaresLineEstimate(laserdata, robotPosition, consensusPoints, totalConsensusPoints, ref slope, ref y_intercept);
 
                     //for now add points associated to line as landmarks to see results
                     for (int i = 0; i < totalConsensusPoints; i++)
@@ -233,8 +232,8 @@ namespace LandmarkExtractorNS
                     }
 
                     //add line to found lines
-                    la[totalLines] = a;
-                    lb[totalLines] = b;
+                    la[totalLines] = slope;
+                    lb[totalLines] = y_intercept;
                     totalLines++;
 
                     //restart search since we found a line
@@ -281,7 +280,7 @@ namespace LandmarkExtractorNS
 
         }
 
-        private void LeastSquaresLineEstimate(double[] laserdata, double[] robotPosition, int[] SelectedPoints, int arraySize, ref double a, ref double b)
+        private void LeastSquaresLineEstimate(double[] laserdata, Location robotPosition, int[] SelectedPoints, int arraySize, ref double slope, ref double y_intercept)
         {
 
             double y; //y coordinate
@@ -299,8 +298,8 @@ namespace LandmarkExtractorNS
 
                 //convert ranges and bearing to coordinates
 
-                x = (Math.Cos((SelectedPoints[i] * degreesPerScan * CONVERT_DEG_TO_RAD) + robotPosition[2] * CONVERT_DEG_TO_RAD) * laserdata[SelectedPoints[i]]) + robotPosition[0];
-                y = (Math.Sin((SelectedPoints[i] * degreesPerScan * CONVERT_DEG_TO_RAD) + robotPosition[2] * CONVERT_DEG_TO_RAD) * laserdata[SelectedPoints[i]]) + robotPosition[1];
+                x = (Math.Cos((SelectedPoints[i] * LIDAR_ANGLE_RESOLUTION) + robotPosition.Theta) * laserdata[SelectedPoints[i]]) + robotPosition.X;
+                y = (Math.Sin((SelectedPoints[i] * LIDAR_ANGLE_RESOLUTION) + robotPosition.Theta) * laserdata[SelectedPoints[i]]) + robotPosition.Y;
 
                 //x =(Math.Cos((rndSelectedPoints[i] * degreesPerScan * conv)) * laserdata[rndSelectedPoints[i]]);//+robotPosition[0];
 
@@ -312,8 +311,8 @@ namespace LandmarkExtractorNS
                 sumYX += y * x;
             }
 
-            b = (sumY * sumXX - sumX * sumYX) / (arraySize * sumXX - Math.Pow(sumX, 2));
-            a = (arraySize * sumYX - sumX * sumY) / (arraySize * sumXX - Math.Pow(sumX, 2));
+            y_intercept = (sumY * sumXX - sumX * sumYX) / (arraySize * sumXX - Math.Pow(sumX, 2));
+            slope = (arraySize * sumYX - sumX * sumY) / (arraySize * sumXX - Math.Pow(sumX, 2));
         }
 
         private double DistanceToLine(double x, double y, double a, double b)
@@ -334,7 +333,7 @@ namespace LandmarkExtractorNS
             return Toolbox.Distance(x, y, px, py);
         }
 
-        private Landmark GetLineLandmark(double a, double b, double[] robotPosition)
+        private Landmark GetLineLandmark(double a, double b, Location robotPosition)
         {
             //our goal is to calculate point on line closest to origin (0,0)
 
@@ -343,11 +342,11 @@ namespace LandmarkExtractorNS
             //landmark position
             double x = b / (ao - a);
             double y = (ao * b) / (ao - a);
-            double range = Math.Sqrt(Math.Pow(x - robotPosition[0], 2) + Math.Pow(y - robotPosition[1], 2));
-            double bearing = Math.Atan((y - robotPosition[1]) / (x - robotPosition[0])) - robotPosition[2];
+            double range = Math.Sqrt(Math.Pow(x - robotPosition.X, 2) + Math.Pow(y - robotPosition.Y, 2));
+            double bearing = Math.Atan2((y - robotPosition.Y), (x - robotPosition.X)) - robotPosition.Theta; /// SERIOUSLY THEY DIDN'T EVEN KNOW ATAN2
             //now do same calculation but get point on wall closest to robot instead
             //y = aox + bo => bo = y - aox
-            double bo = robotPosition[1] - ao * robotPosition[0];
+            double bo = robotPosition.Y - ao * robotPosition.X;
             //get intersection between y = ax + b and y = aox + bo
             //so aox + bo = ax + b => aox - ax = b - bo => x = (b - bo)/(ao - a), y = ao*(b - bo)/(ao - a) + bo
 
@@ -355,13 +354,12 @@ namespace LandmarkExtractorNS
 
 
             double py = ((ao * (b - bo)) / (ao - a)) + bo;
-            double rangeError = Toolbox.Distance(robotPosition[0], robotPosition[1], px, py);
-            double bearingError = Math.Atan((py - robotPosition[1]) / (px - robotPosition[0])) - robotPosition[2]; //do you subtract or add robot bearing? I am not sure!
+            double rangeError = Toolbox.Distance(robotPosition.X, robotPosition.Y, px, py);
+            double bearingError = Math.Atan((py - robotPosition.Y) / (px - robotPosition.X)) - robotPosition.Theta; //do you subtract or add robot bearing? I am not sure! --- SERIOUSLY WHO ARE THESES GUYS !?!?!?! 
             Landmark lm = new Landmark();
             //convert landmark to map coordinate
 
-            lm.pos[0] = x;
-            lm.pos[1] = y;
+            lm.Position = new PointD(x, y);
             lm.range = range;
             lm.bearing = bearing;
             lm.a = a;
@@ -422,7 +420,7 @@ namespace LandmarkExtractorNS
         private double Distance(Landmark lm1, Landmark lm2)
 
         {
-            return Math.Sqrt(Math.Pow(lm1.pos[0] - lm2.pos[0], 2) + Math.Pow(lm1.pos[1] - lm2.pos[1], 2));
+            return Math.Sqrt(Math.Pow(lm1.Position.X - lm2.Position.X, 2) + Math.Pow(lm1.Position.Y - lm2.Position.Y, 2));
         }
     }
 }

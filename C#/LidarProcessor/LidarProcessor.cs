@@ -27,7 +27,6 @@ namespace LidarProcessor
             if (robotId == e.RobotId)
             {
                 ProcessLidarData(e.PtList);
-                LandmarksExtractor.
                 EvaluateSpeed(e.PtList);
             }
         }
