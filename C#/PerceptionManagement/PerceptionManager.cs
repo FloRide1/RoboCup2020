@@ -191,6 +191,11 @@ namespace PerceptionManagement
             }
         }
 
+        public void OnLandmarksReceived(object sender, List<Landmark> list_of_landmarks)
+        {
+            
+        }
+
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
         {
             globalWorldMap = e.GlobalWorldMap;
