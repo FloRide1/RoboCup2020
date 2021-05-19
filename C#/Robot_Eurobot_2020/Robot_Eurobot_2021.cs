@@ -283,7 +283,8 @@ namespace Robot
 
 
             landmarksExtractor = new LandmarksExtractor(0);
-            
+            perceptionManager.OnLidarRawDataEvent += landmarksExtractor.OnRobotLidarReceived;
+            perceptionManager.OnAbsolutePositionEvent += landmarksExtractor.OnRobotPositionReceived;
 
             //  robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += strategyManager.OnMotorCurrentReceive;
 

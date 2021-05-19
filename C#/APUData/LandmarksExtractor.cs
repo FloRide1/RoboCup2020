@@ -32,10 +32,6 @@ namespace LandmarkExtractorNS
         Location RobotLocation = new Location();
         List<Landmark> list_of_landmarks = new List<Landmark>(MAXLANDMARKS);
 
-        int DBSize = 0;
-        int[,] IDtoID = new int[MAXLANDMARKS, 2];
-        int EKFLandmarks = 0;
-
         public LandmarksExtractor(double degreesPerScan)
         {
             this.LIDAR_ANGLE_RESOLUTION = degreesPerScan;
@@ -240,7 +236,7 @@ namespace LandmarkExtractorNS
             int closestLandmark = 0;
             double temp;
             double? leastDistance = null;
-            for (int i = 0; i < DBSize; i++)
+            for (int i = 0; i < list_of_landmarks.Count; i++)
             {
 
                 //only associate to landmarks we have seen more than MINOBSERVATIONS times
