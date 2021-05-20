@@ -260,6 +260,7 @@ namespace Robot
 
 
             perceptionManager.OnLidarProcessedDataEvent += localWorldMapManager.OnLidarDataReceived;
+            perceptionManager.OnLidarProcessedLandmarksEvent += localWorldMapManager.OnLidarDataReceived;
             perceptionManager.OnLidarProcessedSegmentsEvent += localWorldMapManager.OnLidarProcessedSegmentsReceived;
 
 
