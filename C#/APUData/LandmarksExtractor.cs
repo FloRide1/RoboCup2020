@@ -30,7 +30,7 @@ namespace LandmarkExtractorNS
         Location RobotLocation = new Location();
         List<Landmark> list_of_landmarks = new List<Landmark>(MAXLANDMARKS);
 
-        public event EventHandler<Landmark> OnLinesLandmarksExtractedEvent;
+        public event EventHandler<List<Landmark>> OnLinesLandmarksExtractedEvent;
 
         public LandmarksExtractor(double degreesPerScan)
         {
@@ -149,6 +149,7 @@ namespace LandmarkExtractorNS
                 list_of_landmarks.Add(GetLineLandmark(list_of_lines[i].Item1, list_of_lines[i].Item2, robotPosition));
             }
 
+            OnLinesLandmarksExtractedEvent?.Invoke(this, list_of_landmarks);
             return list_of_landmarks;
         }
 

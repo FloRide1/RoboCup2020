@@ -284,6 +284,7 @@ namespace Robot
 
 
             landmarksExtractor = new LandmarksExtractor(0);
+            landmarksExtractor.OnLinesLandmarksExtractedEvent += perceptionManager.OnLandmarksReceived;
             perceptionManager.OnLidarRawDataEvent += landmarksExtractor.OnRobotLidarReceived;
             perceptionManager.OnAbsolutePositionEvent += landmarksExtractor.OnRobotPositionReceived;
 

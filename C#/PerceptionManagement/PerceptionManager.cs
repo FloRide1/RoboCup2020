@@ -201,7 +201,7 @@ namespace PerceptionManagement
             OnLidarProcessedLandmarksEvent?.Invoke(this, new LidarPolarPtListExtendedArgs() {
                 RobotId = robotId, 
                 LidarFrameNumber = 0, 
-                Type = LidarDataType.ProcessedData2, 
+                Type = LidarDataType.ProcessedData1, 
                 PtList = list_of_landmarks_points 
             });
         }
