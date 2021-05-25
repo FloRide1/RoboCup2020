@@ -206,6 +206,27 @@ namespace PerceptionManagement
             });
         }
 
+        public void OnLineLandmarksReceived(object sender, List<Tuple<double, double>> list_of_lines)
+        {
+            List<SegmentExtended> list_of_segments = new List<SegmentExtended>();
+
+            foreach (Tuple<double, double> lines in list_of_lines)
+            {
+                double slope = lines.Item1;
+                double y_intercept = lines.Item2;
+
+                double positive = 1000;
+                double negative = - 1000;
+
+                PointD point_positive = new PointD(positive, slope * positive + y_intercept);
+                PointD point_negative = new PointD(negative, slope * negative + y_intercept);
+
+                list_of_segments.Add(new SegmentExtended(point_negative, point_positive, Color.Red, 5));
+            }
+
+            OnLidarProcessedSegmentsEvent?.Invoke(this, new SegmentExtendedListArgs { RobotId = robotId, SegmentList = list_of_segments });
+        }
+
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
         {
             globalWorldMap = e.GlobalWorldMap;
@@ -249,7 +270,8 @@ namespace PerceptionManagement
         public event EventHandler<SegmentExtendedListArgs> OnLidarProcessedSegmentsEvent;
         public virtual void OnLidarProcessedSegments(object sender, SegmentExtendedListArgs e)
         {
-            OnLidarProcessedSegmentsEvent?.Invoke(this, e);
+            /// ONLY FOR DEBUG : FLO
+            // OnLidarProcessedSegmentsEvent?.Invoke(this, e); 
         }
 
         public event EventHandler<PerceptionArgs> OnPerceptionEvent;

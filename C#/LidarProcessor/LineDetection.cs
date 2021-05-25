@@ -426,5 +426,132 @@ namespace LidarProcessor
 
             return new Tuple<PointD, PointD, double>(f1, f2, d);
         }
+
+        public static List<Tuple<double, double>> RansacAlgorithm(List<PolarPointRssi> list_of_lidar_points, int MAXTRIALS = 1000, int MINLINEPOINTS = 50,
+            int MAXSAMPLE = 10, double RANSAC_TOLERANCE = 0.1, int RANSAC_CONSENSUS = 80)
+        {
+            int noTrials = 0;
+            List<int> list_of_points = Enumerable.Range(0, list_of_lidar_points.Count - 1).ToList();
+            List<Tuple<double, double>> list_of_lines = new List<Tuple<double, double>>();
+
+            Random rnd = new Random();
+
+            while (noTrials < MAXTRIALS && list_of_points.Count > MINLINEPOINTS)
+            {
+                List<int> list_of_random_selected_points = new List<int>();
+                int temp = 0;
+                bool newpoint;
+
+                //– Randomly select a subset S1 of n data points and compute the model M1
+                // Initial version chooses entirely randomly. Now choose one point randomly and then sample from neighbours within some defined radius
+
+                int centerPoint = rnd.Next(MAXSAMPLE, list_of_points.Count - 1);
+                list_of_random_selected_points.Add(centerPoint);
+                for (int i = 1; i < MAXSAMPLE; i++)
+                {
+                    newpoint = false;
+                    while (!newpoint)
+                    {
+                        temp = centerPoint + (rnd.Next(2) - 1) * rnd.Next(0, MAXSAMPLE);
+
+                        if (list_of_random_selected_points.IndexOf(temp) == -1)
+                            newpoint = true;
+                    }
+                    list_of_random_selected_points.Add(centerPoint);
+                }
+
+                //compute model M1
+                double slope = 0;
+                double y_intercept = 0;
+
+                Tuple<double, double> slope_intercept_tuple = LeastSquaresLineEstimate(list_of_lidar_points, list_of_random_selected_points, slope, y_intercept);
+
+                slope = slope_intercept_tuple.Item1;
+                y_intercept = slope_intercept_tuple.Item2;
+
+                //– Determine the consensus set S1* of points is P compatible with M1 (within some error tolerance)
+                List<int> list_of_consensus_points = new List<int>();
+                List<int> list_of_new_lines_points = new List<int>();
+
+                for (int i = 0; i < list_of_points.Count; i++)
+                {
+                    //convert ranges and bearing to coordinates
+
+                    PointD point = Toolbox.ConvertPolarToPointD(list_of_lidar_points[i]);
+
+                    double d = Toolbox.DistancePointToLine(point, slope, y_intercept);
+
+                    if (d < RANSAC_TOLERANCE)
+                    {
+                        //add points which are close to line
+                        list_of_consensus_points.Add(i);
+                    }
+                    else
+                    {
+                        //add points which are not close to line
+                        list_of_new_lines_points.Add(i);
+                    }
+                }
+
+                //– If #(S1*) > t, use S1* to compute (maybe using least squares) a new model M1
+                if (list_of_consensus_points.Count > RANSAC_CONSENSUS)
+                {
+                    //Calculate updated line equation based on consensus points
+                    slope_intercept_tuple = LeastSquaresLineEstimate(list_of_lidar_points, list_of_consensus_points, slope, y_intercept);
+                    slope = slope_intercept_tuple.Item1;
+                    y_intercept = slope_intercept_tuple.Item2;
+
+                    //for now add points associated to line as landmarks to see results
+                    for (int i = 0; i < list_of_consensus_points.Count; i++)
+                    {
+                        //Remove points that have now been associated to this line
+                        list_of_points = list_of_new_lines_points.ToList();
+                    }
+
+                    list_of_lines.Add(new Tuple<double, double>(slope, y_intercept));
+                    noTrials = 0;
+                }
+                else
+                    noTrials++;
+            }
+
+            return list_of_lines;
+        }
+
+        public static Tuple<double, double> LeastSquaresLineEstimate(List<PolarPointRssi> list_of_lidar_points, List<int> list_of_selected_points, double slope, double y_intercept)
+        {
+
+            double y; //y coordinate
+            double x; //x coordinate
+            double sumY = 0; //sum of y coordinates
+            double sumYY = 0; //sum of y^2 for each coordinat
+
+            double sumX = 0; //sum of x coordinates
+            double sumXX = 0; //sum of x^2 for each coordinate
+            double sumYX = 0; //sum of y*x for each point
+
+            foreach (int selected_point in list_of_selected_points)
+            {
+                //convert ranges and bearing to coordinates
+
+                PointD point = Toolbox.ConvertPolarToPointD(list_of_lidar_points[selected_point]);
+
+                x = point.X;
+                y = point.Y;
+
+                sumY += y;
+                sumYY += Math.Pow(y, 2);
+
+                sumX += x;
+                sumXX += Math.Pow(x, 2);
+
+                sumYX += y * x;
+            }
+
+            y_intercept = (sumY * sumXX - sumX * sumYX) / (list_of_selected_points.Count * sumXX - Math.Pow(sumX, 2));
+            slope = (list_of_selected_points.Count * sumYX - sumX * sumY) / (list_of_selected_points.Count * sumXX - Math.Pow(sumX, 2));
+
+            return new Tuple<double, double>(slope, y_intercept);
+        }
     }
 }
