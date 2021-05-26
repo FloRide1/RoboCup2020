@@ -248,11 +248,7 @@ namespace PerceptionManagement
         public event EventHandler<RawLidarArgs> OnLidarRawDataEvent;
         public virtual void OnLidarRawData(RawLidarArgs e)
         {
-            var handler = OnLidarRawDataEvent;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            OnLidarRawDataEvent?.Invoke(this, e);
         }
 
         public event EventHandler<LidarPolarPtListExtendedArgs> OnLidarProcessedDataEvent;
@@ -270,28 +266,19 @@ namespace PerceptionManagement
         public event EventHandler<SegmentExtendedListArgs> OnLidarProcessedSegmentsEvent;
         public virtual void OnLidarProcessedSegments(object sender, SegmentExtendedListArgs e)
         {
-            /// ONLY FOR DEBUG : FLO
-            // OnLidarProcessedSegmentsEvent?.Invoke(this, e); 
+            OnLidarProcessedSegmentsEvent?.Invoke(this, e); 
         }
 
         public event EventHandler<PerceptionArgs> OnPerceptionEvent;
         public virtual void OnPerception(Perception perception)
         {
-            var handler = OnPerceptionEvent;
-            if (handler != null)
-            {
-                handler(this, new PerceptionArgs { RobotId = robotId, Perception = perception });
-            }
+            OnPerceptionEvent?.Invoke(this, new PerceptionArgs { RobotId = robotId, Perception = perception });
         }
         
         public event EventHandler<RawLidarArgs> OnLidarBalisePointListForDebugEvent;
         public virtual void OnLidarBalisePointListForDebug(int id, List<PolarPointRssi> ptList)
         {
-            var handler = OnLidarBalisePointListForDebugEvent;
-            if (handler != null)
-            {
-                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList });
-            }
+            OnLidarBalisePointListForDebugEvent?.Invoke(this, new RawLidarArgs { RobotId = id, PtList = ptList });
         }
     }  
 }

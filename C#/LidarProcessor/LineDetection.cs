@@ -427,7 +427,7 @@ namespace LidarProcessor
             return new Tuple<PointD, PointD, double>(f1, f2, d);
         }
 
-        public static List<Tuple<double, double>> RansacAlgorithm(List<PolarPointRssi> list_of_lidar_points, int MAXTRIALS = 1000, int MINLINEPOINTS = 50,
+        public static List<Tuple<double, double>> RansacAlgorithm(List<PointD> list_of_lidar_points, int MAXTRIALS = 1000, int MINLINEPOINTS = 50,
             int MAXSAMPLE = 10, double RANSAC_TOLERANCE = 0.1, int RANSAC_CONSENSUS = 80)
         {
             int noTrials = 0;
@@ -477,7 +477,7 @@ namespace LidarProcessor
                 {
                     //convert ranges and bearing to coordinates
 
-                    PointD point = Toolbox.ConvertPolarToPointD(list_of_lidar_points[i]);
+                    PointD point = list_of_lidar_points[i];
 
                     double d = Toolbox.DistancePointToLine(point, slope, y_intercept);
 
@@ -518,7 +518,7 @@ namespace LidarProcessor
             return list_of_lines;
         }
 
-        public static Tuple<double, double> LeastSquaresLineEstimate(List<PolarPointRssi> list_of_lidar_points, List<int> list_of_selected_points, double slope, double y_intercept)
+        public static Tuple<double, double> LeastSquaresLineEstimate(List<PointD> list_of_lidar_points, List<int> list_of_selected_points, double slope, double y_intercept)
         {
 
             double y; //y coordinate
@@ -534,7 +534,7 @@ namespace LidarProcessor
             {
                 //convert ranges and bearing to coordinates
 
-                PointD point = Toolbox.ConvertPolarToPointD(list_of_lidar_points[selected_point]);
+                PointD point = list_of_lidar_points[selected_point];
 
                 x = point.X;
                 y = point.Y;
