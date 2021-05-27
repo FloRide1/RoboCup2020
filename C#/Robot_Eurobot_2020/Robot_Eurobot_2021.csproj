@@ -142,6 +142,10 @@
       <Project>{0540B497-B2CE-40A1-84B5-3109CE2F3146}</Project>
       <Name>Constants</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EKF\EKF.csproj">
+      <Project>{5C7D030D-B4FB-4690-B195-DFADCB411B51}</Project>
+      <Name>EKF</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EventArgsLibrary\EventArgsLibrary.csproj">
       <Project>{9c46a7c0-4675-41be-b282-e6f0825ad73e}</Project>
       <Name>EventArgsLibrary</Name>
@@ -221,6 +225,10 @@
     <ProjectReference Include="..\RobotPilot\RobotPilot.csproj">
       <Project>{4012F5AF-50E3-40BD-ABF0-4AFE3F30D5E3}</Project>
       <Name>RobotPilot</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SLAM\SLAM\SLAM\SLAM.csproj">
+      <Project>{17d9dd58-ae73-46ec-a58e-9cf512802212}</Project>
+      <Name>SLAM</Name>
     </ProjectReference>
     <ProjectReference Include="..\StrategyManager\StrategyManager.csproj">
       <Project>{F2D3FB95-F97A-4049-BCA4-71854FD4FAF3}</Project>

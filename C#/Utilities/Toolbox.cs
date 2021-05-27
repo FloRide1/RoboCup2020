@@ -99,7 +99,97 @@ namespace Utilities
             var dot = (pt.X - LinePt.X) * (yLineVect) - (pt.Y - LinePt.Y) * (xLineVect);
             return Math.Abs(dot);
         }
+
+
         
+
+        //définition d'un produit de matrice 
+        public static double[,] Multiply(double[,] matrix1, double[,] matrix2)
+        {
+            // cahing matrix lengths for better performance  
+            var matrix1Rows = matrix1.GetLength(0);
+            var matrix1Cols = matrix1.GetLength(1);
+            var matrix2Rows = matrix2.GetLength(0);
+            var matrix2Cols = matrix2.GetLength(1);
+
+            // checking if product is defined  
+            if (matrix1Cols != matrix2Rows)
+                throw new InvalidOperationException
+                  ("Product is undefined. n columns of first matrix must equal to n rows of second matrix");
+
+            // creating the final product matrix  
+            double[,] product = new double[matrix1Rows, matrix2Cols];
+
+            // looping through matrix 1 rows  
+            for (int matrix1_row = 0; matrix1_row < matrix1Rows; matrix1_row++)
+            {
+                // for each matrix 1 row, loop through matrix 2 columns  
+                for (int matrix2_col = 0; matrix2_col < matrix2Cols; matrix2_col++)
+                {
+                    // loop through matrix 1 columns to calculate the dot product  
+                    for (int matrix1_col = 0; matrix1_col < matrix1Cols; matrix1_col++)
+                    {
+                        product[matrix1_row, matrix2_col] +=
+                          matrix1[matrix1_row, matrix1_col] *
+                          matrix2[matrix1_col, matrix2_col];
+                    }
+                }
+            }
+
+            return product;
+        }
+
+        public static double[,] Inverse(double[,] matrix)
+        {
+            double a = matrix[0, 0];
+            double b = matrix[0, 1];
+            double c = matrix[1, 0];
+            double d = matrix[1, 1];
+
+            double frac = 1 / (a * d - b * c);
+
+            double[,] result = [2, 2];
+            result[0, 0] = frac * d;
+            result[0, 1] = - frac * b;
+            result[1, 0] = - frac * c;
+            result[1, 1] = frac * a;
+
+            return result;
+        }
+
+        public static double[,] Addition_Matrices (double[,] matrix1, double[,] matrix2)
+        {
+            double[,] resultat = new double[matrix1.Length, matrix1.GetLength(0)];
+            for (int lignes =0; lignes<matrix1.Length; lignes++)
+            {
+                for (int colonnes = 0; colonnes<matrix1.GetLength(0); colonnes++)
+                {
+                    resultat[lignes, colonnes] = matrix1[lignes, colonnes] + matrix2[lignes, colonnes];
+                }
+            }
+
+            return resultat;
+        }
+
+        public static double[,] Transpose(double[,] matrix)
+        {
+            int w = matrix.GetLength(0);
+            int h = matrix.GetLength(1);
+
+            double[,] result = new double[h, w];
+
+            for (int i = 0; i < w; i++)
+            {
+                for (int j = 0; j < h; j++)
+                {
+                    result[j, i] = matrix[i, j];
+                }
+            }
+
+            return result;
+        }
+
+
         public static double DistancePointToSegment(PointD pt, PointD ptSeg1, PointD ptSeg2)
         {
             var A = pt.X - ptSeg1.X;

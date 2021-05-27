@@ -25,4 +25,9 @@ namespace Constants
         Left,
         Right
     }
+
+    public enum LandmarkType
+    {
+
+    }
 }

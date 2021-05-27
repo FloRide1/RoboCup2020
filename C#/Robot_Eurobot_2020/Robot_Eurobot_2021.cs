@@ -26,6 +26,8 @@ using UdpMulticastInterpreter;
 using UDPMulticast;
 using StrategyManagerProjetEtudiantNS.StrategyRoboCupNS;
 using StrategyManagerProjetEtudiantNS;
+using SLAM_NS;
+using EKF;
 
 namespace Robot
 {
@@ -105,6 +107,8 @@ namespace Robot
         static MsgProcessor robotMsgProcessor;
         static TrajectoryPlanner trajectoryPlanner;
         static KalmanPositioning.KalmanPositioning kalmanPositioning;
+        static EKFPositionning ekfPositionning;                                          //ALEX 
+        static SLAM slam;
         static LocalWorldMapManager localWorldMapManager;
 
         //Lien de transmission par socket
@@ -307,6 +311,32 @@ namespace Robot
             robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += logRecorder.OnPolarSpeedDataReceived;
                        
             //omniCamera.OpenCvMatImageEvent += logRecorder.OnOpenCVMatImageReceived;
+
+
+
+
+            // PARTIE SLAM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             //strategyManagerDictionary.Add(robotId, strategyManager);
             trajectoryPlanner.InitRobotPosition(0, 0, 0);

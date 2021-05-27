@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Shapes;
 using ZeroFormatter;
+using Constants; 
 
 namespace Utilities
 {
@@ -77,6 +78,14 @@ namespace Utilities
 
         }
     }
+
+    public class Landmarks
+    {
+        public PointD Pt { get; set; }
+        public LandmarkType Type { get; set; }
+
+
+}
 
     public class PolarCourbure
     {

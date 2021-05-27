@@ -1,6 +1,5 @@
 ﻿using EventArgsLibrary;
 using MathNet.Numerics.LinearAlgebra;
-using PerformanceMonitorTools;
 using System;
 using Utilities;
 
@@ -148,6 +147,9 @@ namespace KalmanPositioning
             //Formule magique !
             var tt = MatrixH.Multiply(pPred).Multiply(MatrixH.Transpose()) + MatrixR;
             K = pPred.Multiply(MatrixH.Transpose()).Multiply(tt.Inverse());
+            
+            //Update
+            
             xEst = xPred + K.Multiply(observation - MatrixH.Multiply(xPred));
 
             if (double.IsNaN(xEst[0]))
@@ -184,6 +186,8 @@ namespace KalmanPositioning
                 currentGpsXRefTerrain += currentOdoVxRefTerrain / fEch;
                 currentGpsYRefTerrain += currentOdoVyRefTerrain / fEch;
                 currentGpsTheta += currentOdoVtheta / fEch;
+
+
 
                 IterateFilter(currentGpsXRefTerrain, currentGpsYRefTerrain, currentGpsTheta, currentOdoVxRefTerrain, currentOdoVyRefTerrain, currentOdoVtheta, currentGyroVtheta);
 
