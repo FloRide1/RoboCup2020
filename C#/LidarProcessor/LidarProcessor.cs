@@ -104,7 +104,7 @@ namespace LidarProcessor
                 case GameMode.RoboCup:
                     double tailleNoyau = 0.2;
                     double toleranceR2000 = 0.012;
-                    double toleranceSampling = 20 * toleranceR2000;
+                    double toleranceSampling = 30 * toleranceR2000;
                     double toleranceIEPF = 1 * toleranceR2000;
 
                     List<PolarPointRssi> originalPtList = ptList.ToList(); // FixedStepLidarMap(ptList, toleranceSampling); 
@@ -135,12 +135,12 @@ namespace LidarProcessor
                     //    }
                     //}
 
-                    // display_points = FixedStepPtList;
+                     display_points = FixedStepPtList;
 
 
                     List<PointD> originalPtListXY = FixedStepPtList.Select(x => Toolbox.ConvertPolarToPointD(x.Pt)).ToList();
 
-                    List<Tuple<double, double>> list_of_lines = LineDetection.RansacAlgorithm(originalPtListXY, 1000, 50, 20, 0.05, 30);
+                    List<Tuple<double, double>> list_of_lines = LineDetection.RansacAlgorithm(originalPtListXY, 1000, 100, 80, 0.2, 40);
 
                     List<SegmentExtended> list_of_segments = new List<SegmentExtended>();
 
@@ -161,7 +161,7 @@ namespace LidarProcessor
                     List<ClusterObjects> list_of_clusters = ClustersDetection.ExtractClusterByDBScan(originalPtListXY, 0.25, 5);
                     List<PolarPointRssiExtended> list_of_colorisez_point = ClustersDetection.SetColorsOfClustersObjects(list_of_clusters);
 
-                    display_points = list_of_colorisez_point;
+                    //display_points = list_of_colorisez_point;
                     display_lines = list_of_segments;
 
 

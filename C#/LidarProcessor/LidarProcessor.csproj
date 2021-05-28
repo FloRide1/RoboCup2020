@@ -67,6 +67,7 @@
     <Compile Include="ClustersDetection.cs" />
     <Compile Include="CornerDetection.cs" />
     <Compile Include="FindRectangle.cs" />
+    <Compile Include="Hough.cs" />
     <Compile Include="LidarProcessor.cs" />
     <Compile Include="LineDetection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

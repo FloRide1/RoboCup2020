@@ -94,7 +94,7 @@ namespace Utilities
             Center = center;
             Lenght = lenght;
             Width = width;
-            Angle = angle;            
+            Angle = angle;
         }
     }
 
@@ -166,13 +166,15 @@ namespace Utilities
         {
             points = new List<PolarPointRssiExtended>();
         }
-        public ClusterObjects(List<PolarPointRssiExtended> polarPointRssis)        
+        public ClusterObjects(List<PolarPointRssiExtended> polarPointRssis)
         {
             points = polarPointRssis;
         }
     }
 
-        public class PolarPointRssiExtended
+
+
+    public class PolarPointRssiExtended
     {
         public PolarPointRssi Pt { get; set; }
         public double Width { get; set; }
@@ -192,7 +194,7 @@ namespace Utilities
         public virtual double Angle { get; set; }
         public virtual bool Discontinuity { get; set; }
         public PolarCourbure(double angle, double courbure, bool discontinuity)
-        {            
+        {
             Angle = angle;
             Courbure = courbure;
             Discontinuity = discontinuity;
