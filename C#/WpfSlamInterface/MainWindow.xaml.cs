@@ -300,8 +300,6 @@ namespace WpfSlamInterface
 
             return PosRobot;
         }
-        
-        //C'est le plus beau jour de ma vie 
 
         public List<List<double>> fabrication_landmarks()
         {
