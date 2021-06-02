@@ -75,17 +75,68 @@ namespace EKF
         public double[] GetXEstimation() => MatrixX;
         public double[,] GetPEstimation() => MatrixP;
 
-        //Output events
-        public event EventHandler<LocationArgs> OnKalmanLocationEvent;
-        public virtual void OnEKFLocation(int id, Location locationRefTerrain, double[,] X, double[,] Covariances)
+        public double[,] Trouver_Pi_dans_Pest(int num_ld)
         {
-            var handler = OnKalmanLocationEvent;
-            if (handler != null)
+            for (int ligne = 0; ligne < 3; ligne++)
             {
-                handler(this, new LocationArgs { RobotId = id, Location = locationRefTerrain });
+                for (int colonne = 0; colonne < 3; colonne++)
+                {
+                    MatrixPi[ligne, colonne] = Matrixpest[ligne, colonne];                                  //ici on rempli de a à i
+                }
             }
+
+            MatrixPi[0, 3] = Matrixpest[0, 2 * num_ld + 3]; //k
+            MatrixPi[0, 4] = Matrixpest[0, 2 * num_ld + 4]; //l
+            MatrixPi[1, 3] = Matrixpest[1, 2 * num_ld + 3]; //m
+            MatrixPi[1, 4] = Matrixpest[1, 2 * num_ld + 4]; //n
+            MatrixPi[2, 3] = Matrixpest[2, 2 * num_ld + 3]; //o
+            MatrixPi[2, 4] = Matrixpest[2, 2 * num_ld + 4]; //p
+
+            MatrixPi[3, 0] = Matrixpest[2 * num_ld + 3, 0]; //q
+            MatrixPi[3, 1] = Matrixpest[2 * num_ld + 3, 1]; //r
+            MatrixPi[3, 2] = Matrixpest[2 * num_ld + 3, 2]; //s
+            MatrixPi[4, 0] = Matrixpest[2 * num_ld + 4, 0]; //v
+            MatrixPi[4, 1] = Matrixpest[2 * num_ld + 4, 1]; //w
+            MatrixPi[4, 2] = Matrixpest[2 * num_ld + 4, 2]; //x
+
+            MatrixPi[3, 3] = Matrixpest[2 * num_ld + 3, 2 * num_ld + 3]; //t
+            MatrixPi[3, 4] = Matrixpest[2 * num_ld + 3, 2 * num_ld + 4]; //u
+            MatrixPi[4, 3] = Matrixpest[2 * num_ld + 4, 2 * num_ld + 3]; //y
+            MatrixPi[4, 4] = Matrixpest[2 * num_ld + 4, 2 * num_ld + 4]; //z
+
+            return MatrixPi;
+
         }
 
+        public void Remettre_Pi_dans_Pest(int num_ld)
+        {
+            for (int ligne = 0; ligne < 3; ligne++)
+            {
+                for (int colonne = 0; colonne < 3; colonne++)
+                {
+                    Matrixpest[ligne, colonne] = MatrixPi[ligne, colonne];                                  //ici on rempli de a à i
+                }
+            }
+
+            Matrixpest[0, 2 * num_ld + 3] = MatrixPi[0, 3]; //k
+            Matrixpest[0, 2 * num_ld + 4] = MatrixPi[0, 4]; //l
+            Matrixpest[1, 2 * num_ld + 3] = MatrixPi[1, 3]; //m
+            Matrixpest[1, 2 * num_ld + 4] = MatrixPi[1, 4]; //n
+            Matrixpest[2, 2 * num_ld + 3] = MatrixPi[2, 3]; //o
+            Matrixpest[2, 2 * num_ld + 4] = MatrixPi[2, 4]; //p
+
+            Matrixpest[2 * num_ld + 3, 0] = MatrixPi[3, 0]; //q
+            Matrixpest[2 * num_ld + 3, 1] = MatrixPi[3, 1]; //r
+            Matrixpest[2 * num_ld + 3, 2] = MatrixPi[3, 2]; //s
+            Matrixpest[2 * num_ld + 4, 0] = MatrixPi[4, 0]; //v
+            Matrixpest[2 * num_ld + 4, 1] = MatrixPi[4, 1]; //w
+            Matrixpest[2 * num_ld + 4, 2] = MatrixPi[4, 2]; //x
+
+            Matrixpest[2 * num_ld + 3, 2 * num_ld + 3] = MatrixPi[3, 3]; //t
+            Matrixpest[2 * num_ld + 3, 2 * num_ld + 4] = MatrixPi[3, 4]; //u
+            Matrixpest[2 * num_ld + 4, 2 * num_ld + 3] = MatrixPi[4, 3]; //y
+            Matrixpest[2 * num_ld + 4, 2 * num_ld + 4] = MatrixPi[4, 4]; //z
+        }
         public double[] Ajout_ld_X(double[] vecteur_avant, double valeur, double valeur2)
         {
             vecteur_apres = new double[vecteur_avant.Length + 2];
@@ -188,69 +239,6 @@ namespace EKF
             double[,] MatrixKdeltaz = new double[5, 1];
         }
 
-        public double[,] Trouver_Pi_dans_Pest(int num_ld)
-        {
-            for (int ligne = 0; ligne < 3; ligne++)
-            {
-                for (int colonne = 0; colonne < 3; colonne++)
-                {
-                    MatrixPi[ligne, colonne] = Matrixpest[ligne, colonne];                                  //ici on rempli de a à i
-                }
-            }
-
-            MatrixPi[0, 3] = Matrixpest[0, 2 * num_ld + 3]; //k
-            MatrixPi[0, 4] = Matrixpest[0, 2 * num_ld + 4]; //l
-            MatrixPi[1, 3] = Matrixpest[1, 2 * num_ld + 3]; //m
-            MatrixPi[1, 4] = Matrixpest[1, 2 * num_ld + 4]; //n
-            MatrixPi[2, 3] = Matrixpest[2, 2 * num_ld + 3]; //o
-            MatrixPi[2, 4] = Matrixpest[2, 2 * num_ld + 4]; //p
-
-            MatrixPi[3, 0] = Matrixpest[2 * num_ld + 3, 0]; //q
-            MatrixPi[3, 1] = Matrixpest[2 * num_ld + 3, 1]; //r
-            MatrixPi[3, 2] = Matrixpest[2 * num_ld + 3, 2]; //s
-            MatrixPi[4, 0] = Matrixpest[2 * num_ld + 4, 0]; //v
-            MatrixPi[4, 1] = Matrixpest[2 * num_ld + 4, 1]; //w
-            MatrixPi[4, 2] = Matrixpest[2 * num_ld + 4, 2]; //x
-
-            MatrixPi[3, 3] = Matrixpest[2 * num_ld + 3, 2 * num_ld + 3]; //t
-            MatrixPi[3, 4] = Matrixpest[2 * num_ld + 3, 2 * num_ld + 4]; //u
-            MatrixPi[4, 3] = Matrixpest[2 * num_ld + 4, 2 * num_ld + 3]; //y
-            MatrixPi[4, 4] = Matrixpest[2 * num_ld + 4, 2 * num_ld + 4]; //z
-
-            return MatrixPi;
-
-        }
-
-        public void Remettre_Pi_dans_Pest(int num_ld)
-        {
-            for (int ligne = 0; ligne < 3; ligne++)
-            {
-                for (int colonne = 0; colonne < 3; colonne++)
-                {
-                    Matrixpest[ligne, colonne] = MatrixPi[ligne, colonne];                                  //ici on rempli de a à i
-                }
-            }
-
-            Matrixpest[0, 2 * num_ld + 3] = MatrixPi[0, 3]; //k
-            Matrixpest[0, 2 * num_ld + 4] = MatrixPi[0, 4]; //l
-            Matrixpest[1, 2 * num_ld + 3] = MatrixPi[1, 3]; //m
-            Matrixpest[1, 2 * num_ld + 4] = MatrixPi[1, 4]; //n
-            Matrixpest[2, 2 * num_ld + 3] = MatrixPi[2, 3]; //o
-            Matrixpest[2, 2 * num_ld + 4] = MatrixPi[2, 4]; //p
-
-            Matrixpest[2 * num_ld + 3, 0] = MatrixPi[3, 0]; //q
-            Matrixpest[2 * num_ld + 3, 1] = MatrixPi[3, 1]; //r
-            Matrixpest[2 * num_ld + 3, 2] = MatrixPi[3, 2]; //s
-            Matrixpest[2 * num_ld + 4, 0] = MatrixPi[4, 0]; //v
-            Matrixpest[2 * num_ld + 4, 1] = MatrixPi[4, 1]; //w
-            Matrixpest[2 * num_ld + 4, 2] = MatrixPi[4, 2]; //x
-
-            Matrixpest[2 * num_ld + 3, 2 * num_ld + 3] = MatrixPi[3, 3]; //t
-            Matrixpest[2 * num_ld + 3, 2 * num_ld + 4] = MatrixPi[3, 4]; //u
-            Matrixpest[2 * num_ld + 4, 2 * num_ld + 3] = MatrixPi[4, 3]; //y
-            Matrixpest[2 * num_ld + 4, 2 * num_ld + 4] = MatrixPi[4, 4]; //z
-        }
-
         public void Trouver_est(List<int> List_indices, double [] X, double [,] P)     
         {
             int indice = 3;
@@ -326,7 +314,7 @@ namespace EKF
                 double q = Toolbox.Multiply(Toolbox.Transpose(MatrixDelta), MatrixDelta)[0, 0];                         // c'est un réel car dimension 2*1 fois sa transposée (voir brouillon) 
 
                 MatrixZPred[0, 0] = Math.Sqrt(q);                                                                       // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
-                MatrixZPred[1, 0] = Math.Atan(deltay / deltax) - GPS_Theta;
+                MatrixZPred[1, 0] = Math.Atan2(deltay , deltax) - GPS_Theta;
 
                 deltax = landmarks_observés[list_indices[j]][0] - Matrixxest[0,0];                                      //on refait les calculs avec le landmark observé maintenant 
                 deltay = landmarks_observés[list_indices[j]][1] - Matrixxest[1,0];
@@ -442,6 +430,20 @@ namespace EKF
             }
         }                                       //Fin de l'algo ! 
 
+
+
+
+
+        //Output events
+        public event EventHandler<LocationArgs> OnEKFLocationEvent;
+        public virtual void OnEKFLocation(int id, Location locationRefTerrain, double[,] X, double[,] Covariances)
+        {
+            var handler = OnEKFLocationEvent;
+            if (handler != null)
+            {
+                handler(this, new LocationArgs { RobotId = id, Location = locationRefTerrain });
+            }
+        }
 
     }
 }

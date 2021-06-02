@@ -1,8 +1,0 @@
-﻿Activer dans les propriétés Ethernet : Paquet étendu à 9014 octets
-
-Dans Pylon : 
-Transport Layer : 
-	Inter-Packet Delay à 10000 au lieu de 0
-	Packet Size : passer la taille à 8192 : conseil des techniciens de chez BASLER.
-
-Privilégier les contrôleurs Intel I210 ou I350
