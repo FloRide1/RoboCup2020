@@ -28,7 +28,7 @@ namespace Constants
 
     public enum LandmarkType
     {
-        X,      //ALEX je pense que c'est ca 
+        X,      
         Y
     }
 }

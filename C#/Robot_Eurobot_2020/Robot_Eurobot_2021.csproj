@@ -1,0 +1,291 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7AAC58B3-251F-4A84-B891-30EBF7F76701}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Robot</RootNamespace>
+    <AssemblyName>Robot</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>7.2</LangVersion>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>7.2</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.2</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.2</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="SciChart.Charting, Version=6.2.1.13304, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL">
+      <HintPath>packages\SciChart.6.2.1.13304\lib\net452\SciChart.Charting.dll</HintPath>
+    </Reference>
+    <Reference Include="SciChart.Core, Version=6.2.1.13304, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL">
+      <HintPath>packages\SciChart.6.2.1.13304\lib\net452\SciChart.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="SciChart.Data, Version=6.2.1.13304, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL">
+      <HintPath>packages\SciChart.6.2.1.13304\lib\net452\SciChart.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="SciChart.Drawing, Version=6.2.1.13304, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL">
+      <HintPath>packages\SciChart.6.2.1.13304\lib\net452\SciChart.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Reactive, Version=4.3.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>packages\System.Reactive.4.3.2\lib\net46\System.Reactive.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Runtime.CompilerServices.Unsafe.4.7.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Threading.Tasks.Extensions.4.5.3\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ConfigRobotEurobot.cs" />
+    <Compile Include="ConfigSerialPort.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Robot_Eurobot_2021.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AbsolutePositionEstimator\AbsolutePositionEstimator.csproj">
+      <Project>{c8760a70-0073-45f9-afb7-806881456673}</Project>
+      <Name>AbsolutePositionEstimator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Constants\Constants.csproj">
+      <Project>{0540B497-B2CE-40A1-84B5-3109CE2F3146}</Project>
+      <Name>Constants</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EKF\EKF.csproj">
+      <Project>{5C7D030D-B4FB-4690-B195-DFADCB411B51}</Project>
+      <Name>EKF</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EventArgsLibrary\EventArgsLibrary.csproj">
+      <Project>{9c46a7c0-4675-41be-b282-e6f0825ad73e}</Project>
+      <Name>EventArgsLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HerkulexManager\HerkulexManager.csproj">
+      <Project>{835B8B5A-C248-4443-99CA-FF11AC77481A}</Project>
+      <Name>HerkulexManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HighFreqTimer\AdvancedTimers.csproj">
+      <Project>{ecc907ed-f9b2-457f-901e-720987934e47}</Project>
+      <Name>AdvancedTimers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ImuProcessor\ImuProcessor.csproj">
+      <Project>{C6636D02-C51F-4EDB-8089-94D4C0E51A32}</Project>
+      <Name>ImuProcessor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\KalmanPositioning\KalmanPositioning.csproj">
+      <Project>{825389C5-BF86-419E-8914-FC5A325D4A0B}</Project>
+      <Name>KalmanPositioning</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LidarProcessor\LidarProcessor.csproj">
+      <Project>{3C4270CF-77BA-4100-BBAB-6E2802C49478}</Project>
+      <Name>LidarProcessor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LidarSimulator\LidarSimulator.csproj">
+      <Project>{45A044B5-1D4F-4B6E-964B-3B2FA5E39AB2}</Project>
+      <Name>LidarSimulator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LidaRxDriver\LidaRxDriver.csproj">
+      <Project>{17007EEC-FE2B-4FF7-BDBE-0A300CBD2B7F}</Project>
+      <Name>LidaRxDriver</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LidaRxR2000\LidaRxR2000.csproj">
+      <Project>{4879c226-9cfc-4d45-87a1-e2f128e33882}</Project>
+      <Name>LidaRxR2000</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LidaRx\LidaRx.csproj">
+      <Project>{D8E0BFBA-4ED8-41C2-8068-F490A5319F43}</Project>
+      <Name>LidaRx</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LogRecorder\LogRecorder.csproj">
+      <Project>{128114E9-1A4D-4EBF-BA5C-5C4E136D3F53}</Project>
+      <Name>LogRecorder</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LogReplay\LogReplay.csproj">
+      <Project>{4A227E8F-4045-4418-98A0-228C0ACC30FF}</Project>
+      <Name>LogReplay</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MessageDecoder\MessageDecoder.csproj">
+      <Project>{4603885F-CC5E-43E5-A4AF-063030CB0A32}</Project>
+      <Name>MessageDecoder</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MessageEncoder\MessageEncoder.csproj">
+      <Project>{EFAFBA95-1787-41A9-8F12-14ECD9FE127A}</Project>
+      <Name>MessageEncoder</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MessageGenerator\MessageGenerator.csproj">
+      <Project>{a31f4a19-f674-4776-b597-e92ba3e5061e}</Project>
+      <Name>MessageGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MessageProcessor\MessageProcessor.csproj">
+      <Project>{ad4884ad-631b-42e4-b6bb-f86b16bd6a68}</Project>
+      <Name>MessageProcessor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PerceptionManagement\PerceptionManagement.csproj">
+      <Project>{CA5585EB-5C96-4DF3-823C-878C0AD7D739}</Project>
+      <Name>PerceptionManagement</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PhysicalSimulator\PhysicalSimulator.csproj">
+      <Project>{4CF48B4E-AB93-479E-B79C-F9101F24B7BA}</Project>
+      <Name>PhysicalSimulator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RefereeBoxAdapter\RefereeBoxAdapter.csproj">
+      <Project>{A8C04138-90DC-42F9-AB39-E71125B805B9}</Project>
+      <Name>RefereeBoxAdapter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RobotPilot\RobotPilot.csproj">
+      <Project>{4012F5AF-50E3-40BD-ABF0-4AFE3F30D5E3}</Project>
+      <Name>RobotPilot</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StrategyManager\StrategyManager.csproj">
+      <Project>{F2D3FB95-F97A-4049-BCA4-71854FD4FAF3}</Project>
+      <Name>StrategyManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TrajectoryGenerator\TrajectoryGenerator.csproj">
+      <Project>{bb381252-44cf-4962-984b-abd697dcc9fb}</Project>
+      <Name>TrajectoryGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UdpMulticastInterpreter\UdpMulticastInterpreter.csproj">
+      <Project>{2E2E2FF7-D7A1-4AF7-956E-0951B18B7FF5}</Project>
+      <Name>UdpMulticastInterpreter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UDPMulticast\UDPMulticast.csproj">
+      <Project>{6DA72C33-AC0E-4174-AA47-5A12453F5900}</Project>
+      <Name>UDPMulticast</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\USBVendor\USBVendor.csproj">
+      <Project>{12565644-3bf5-4bcb-84e5-6bda7d16293c}</Project>
+      <Name>USBVendor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Utilities\Utilities.csproj">
+      <Project>{8e7d0da4-9a13-4b18-a90e-0243bbcce40a}</Project>
+      <Name>Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WayPointGenerator\WayPointGenerator.csproj">
+      <Project>{66799e02-d6d6-40a0-9d98-b6cd718e76c7}</Project>
+      <Name>WayPointGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WorldMapManager\WorldMapManager.csproj">
+      <Project>{01E89552-13A5-4A24-80B2-9246700F72FD}</Project>
+      <Name>WorldMapManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WorldMap\WorldMap.csproj">
+      <Project>{B2D0126F-8C82-4EAA-87E5-67415F589098}</Project>
+      <Name>WorldMap</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WpfReplayNavigator\WpfReplayNavigator.csproj">
+      <Project>{32a52236-c210-40a2-829e-acb4bb3a1b43}</Project>
+      <Name>WpfReplayNavigator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WpfRobotHolo4RouesInterface\RobotInterface\WpfRobot4RouesHoloInterface.csproj">
+      <Project>{1cdc0611-a2e5-42e8-a28b-ba4269343c68}</Project>
+      <Name>WpfRobot4RouesHoloInterface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XboxController\XboxController.csproj">
+      <Project>{DD54A1C0-2926-45BF-82DE-36221845F1D7}</Project>
+      <Name>XboxController</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.8">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.8 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
