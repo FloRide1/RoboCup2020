@@ -33,21 +33,24 @@ namespace WpfSlamInterface
     {
 
         DispatcherTimer timer;
-        Location PosRobot;
-        List<PointDExtended> PosLandmarks; 
+        Location PosRobot = new Location(-1,-0.5,0,0,0,0);
+        List<PointDExtended> PosLandmarks;
         double date;
         double anglePerceptionRobot = Math.PI;
         bool ekfFinished = false;
-        static EKFPositionning eKFPositionning;
+
+        static EKF.EKFPositionning eKFPositionning;
         static MainWindow slamInterface;
-        public void Main(string[] args)
+        public MainWindow()
         {
             InitializeComponent();
 
-            slamInterface.OnOdoCalculatedEvent += eKFPositionning.OnOdoReceived;                //On envoie la simu de l'odo à ekf 
-            slamInterface.OnLandmarksFoundEvent += eKFPositionning.OnLandmarksReceived;         //On envoie la simu de landmarks à l'ekf 
-            eKFPositionning.OnEKFLocationEvent += slamInterface.OnEkfFinished;                  //quand ekf a fini on le balance a interface
-            
+            LocationArgs a = new LocationArgs();
+            a.RobotId = (int)TeamId.Team1 + (int)RobotId.Robot1;
+            a.Location = PosRobot;
+
+            eKFPositionning = new EKFPositionning(a);
+
             PosRobot = new Location (-1, -0.5, 0, 0, 0, 0);
             date = 0;
 
@@ -56,7 +59,6 @@ namespace WpfSlamInterface
                 robotLocation = PosRobot,
                 lidarMap = PosLandmarks
             });
-            
 
             timer = new DispatcherTimer();
             timer.Interval = new TimeSpan(0, 0, 0, 0, 20);
@@ -68,10 +70,15 @@ namespace WpfSlamInterface
         public void UpdateGUITemp(object sender, EventArgs e)
         {
 
+            OnOdoCalculatedEvent += eKFPositionning.OnOdoReceived;                //On envoie la simu de l'odo à ekf 
+            OnLandmarksFoundEvent += eKFPositionning.OnLandmarksReceived;         //On envoie la simu de landmarks à l'ekf 
+            eKFPositionning.OnEKFLocationEvent += OnEkfFinished;                  //quand ekf a fini on le balance a interface
+
             PosRobot = PosRobotQuandTuVeux(date, PosRobot);
             OnEKFOdo((int)TeamId.Team1 + (int)RobotId.Robot1, PosRobot);
             PosLandmarks = Landmarks_vus(PosRobot, anglePerceptionRobot);
             OnLandmarksFound((int)TeamId.Team1 + (int)RobotId.Robot1, PosLandmarks);
+
 
             while (!ekfFinished)
             {
@@ -114,11 +121,6 @@ namespace WpfSlamInterface
             PosRobot = e.PosRobot;
             PosLandmarks = e.PosLandmarkList;
             ekfFinished = true; 
-        }
-
-        static void Ma_fonction()
-        {
-            //doit actualiser PosRobot et PosLandmarks
         }
 
         public List<PointDExtended> Landmarks_vus(Location PosRobot, double anglePerceptionRobot)

@@ -73,10 +73,10 @@ namespace Utilities
 
         public static double[,] Addition_Matrices(double[,] matrix1, double[,] matrix2)
         {
-            double[,] resultat = new double[matrix1.Length, matrix1.GetLength(0)];
-            for (int lignes = 0; lignes < matrix1.Length; lignes++)
+            double[,] resultat = new double[matrix1.GetLength(0), matrix1.GetLength(1)];
+            for (int lignes = 0; lignes < matrix1.GetLength(0); lignes++)
             {
-                for (int colonnes = 0; colonnes < matrix1.GetLength(0); colonnes++)
+                for (int colonnes = 0; colonnes < matrix1.GetLength(1); colonnes++)
                 {
                     resultat[lignes, colonnes] = matrix1[lignes, colonnes] + matrix2[lignes, colonnes];
                 }

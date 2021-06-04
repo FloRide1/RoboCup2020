@@ -69,8 +69,6 @@ namespace WpfWorldMapDisplay
 
         GameMode competition;
 
-        Random random = new Random();
-
         public bool IsExtended = false;
 
         double LengthGameArea = 0;
@@ -83,7 +81,6 @@ namespace WpfWorldMapDisplay
 
         ConcurrentDictionary<int, RobotDisplay> OpponentDisplayDictionary = new ConcurrentDictionary<int, RobotDisplay>();
         //Dictionary<int, RobotDisplay> OpponentDisplayDictionary = new Dictionary<int, RobotDisplay>();
-        List<PolygonExtended> ObjectDisplayList = new List<PolygonExtended>();
 
         //Liste des balles vues par le robot à afficher
         List<BallDisplay> BallDisplayList = new List<BallDisplay>();
@@ -180,7 +177,7 @@ namespace WpfWorldMapDisplay
         {
             while (true)
             {
-                waitForDisplayAuthorization.WaitOne();
+                waitForDisplayAuthorization.WaitOne(); //ALEX : ca bloquait ici
 
                 Dispatcher.BeginInvoke(new Action(delegate ()
                 {
