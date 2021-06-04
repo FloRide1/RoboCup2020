@@ -1,4 +1,5 @@
 ﻿using Constants;
+using EKF; 
 using EventArgsLibrary;
 using SciChart.Charting.ChartModifiers;
 using SciChart.Charting.Model.DataSeries;
@@ -23,6 +24,7 @@ using Utilities;
 using SciChart.Charting.Visuals;
 using WorldMap;
 using System.Windows.Threading;
+using System.Web.UI.MobileControls;
 
 namespace WpfSlamInterface
 {
@@ -33,14 +35,19 @@ namespace WpfSlamInterface
         DispatcherTimer timer;
         Location PosRobot;
         List<PointDExtended> PosLandmarks; 
-        double date; 
-
-        public MainWindow()
+        double date;
+        double anglePerceptionRobot = Math.PI;
+        bool ekfFinished = false;
+        static EKFPositionning eKFPositionning;
+        static MainWindow slamInterface;
+        public void Main(string[] args)
         {
-            SciChartSurface.SetRuntimeLicenseKey("rviDeI6IkFYHxvazPlQ1Pg9nf76u8PuGK7wRqQ7R9khsGosRUfWiHG6ecygizFR+4c7wUOamApjxFMOAJv2kFhoF82yW1/KvejxkGTqWwFJ5FRYet4s7QSTUnPWuMCSkYUtvd9MBBox4tqaHYq2d9TW8wU0B6wWbgJ7T+XGIO5aW74SZKy+69WnCAbQq/yjjqpaxgSKBNZrApbrkuJupiE69geraLLhedlptkG2Jlvz5EpwJ2O5tOg9IXBP5A7P8YGQmQes9RhuXZuAA4htm4+cshLT7zfegpYm7L5I1zTJOwZNf6wXSFJ/Oa2VgC5It7LSvkuQqDbGhr7IHLPcRrhmplD0bvdM3DgRySzLva+y8ut+8ilI7vFwgRc+3HnEZQVTo92L5LnBkOSHX6IuTS4lw8NLb97WE2aQJnXwR9Apgg8aPxdy8cVmVoCTq35Z1HazmDgeVbp855bZekTNlS+htS/G/DPXNAvnCZlrG063NqDCHRZtRc+xr7RWuicGjPg==");
-
             InitializeComponent();
 
+            slamInterface.OnOdoCalculatedEvent += eKFPositionning.OnOdoReceived;                //On envoie la simu de l'odo à ekf 
+            slamInterface.OnLandmarksFoundEvent += eKFPositionning.OnLandmarksReceived;         //On envoie la simu de landmarks à l'ekf 
+            eKFPositionning.OnEKFLocationEvent += slamInterface.OnEkfFinished;                  //quand ekf a fini on le balance a interface
+            
             PosRobot = new Location (-1, -0.5, 0, 0, 0, 0);
             date = 0;
 
@@ -51,8 +58,6 @@ namespace WpfSlamInterface
             });
             
 
-
-
             timer = new DispatcherTimer();
             timer.Interval = new TimeSpan(0, 0, 0, 0, 20);
             timer.Tick += UpdateGUITemp;
@@ -62,28 +67,71 @@ namespace WpfSlamInterface
 
         public void UpdateGUITemp(object sender, EventArgs e)
         {
+
             PosRobot = PosRobotQuandTuVeux(date, PosRobot);
-            PosLandmarks = Landmarks_vus(PosRobot, fabrication_landmarks(), Math.PI);
+            OnEKFOdo((int)TeamId.Team1 + (int)RobotId.Robot1, PosRobot);
+            PosLandmarks = Landmarks_vus(PosRobot, anglePerceptionRobot);
+            OnLandmarksFound((int)TeamId.Team1 + (int)RobotId.Robot1, PosLandmarks);
 
+            while (!ekfFinished)
+            {
 
+            }
+
+            ekfFinished = false;
             My_local_map.UpdateLocalWorldMap(new LocalWorldMap() { RobotId = (int)TeamId.Team1 + (int)RobotId.Robot1,
                 robotLocation = PosRobot,
                 lidarMap = PosLandmarks,
-            });
+            }); 
 
             date += 0.05;
         }
-         
-        public List<PointDExtended> Landmarks_vus(Location PosRobot, List<List<double>> liste_total_landmarks, double anglePerceptionRobot)
+
+
+        public event EventHandler<LocationArgs> OnOdoCalculatedEvent;
+        public virtual void OnEKFOdo(int id, Location locationRefTerrain)
         {
+            var handler = OnOdoCalculatedEvent;
+            if (handler != null)
+            {
+                handler(this, new LocationArgs { RobotId = id, Location = PosRobot });
+            }
+        }
+
+
+        public event EventHandler<PointDExtendedListArgs> OnLandmarksFoundEvent;
+        public virtual void OnLandmarksFound(int id, List<PointDExtended> PosLandmarks)
+        {
+            var handler = OnLandmarksFoundEvent;
+            if (handler != null)
+            {
+                handler(this, new PointDExtendedListArgs { RobotId = id, LandmarkList= PosLandmarks });
+            }
+        }
+
+        public void OnEkfFinished(object sender, PosRobotAndLandmarksArgs e)
+        {
+            PosRobot = e.PosRobot;
+            PosLandmarks = e.PosLandmarkList;
+            ekfFinished = true; 
+        }
+
+        static void Ma_fonction()
+        {
+            //doit actualiser PosRobot et PosLandmarks
+        }
+
+        public List<PointDExtended> Landmarks_vus(Location PosRobot, double anglePerceptionRobot)
+        {
+            List<List<double>> liste_total_landmarks = fabrication_landmarks();
             List<PointDExtended> MaListe = new List<PointDExtended> { };
-            PointD pt =new PointD (0,0); 
-            PointDExtended Obstacle = new PointDExtended(pt, System.Drawing.Color.Aqua, 5); 
-            
+            PointD pt = new PointD(0, 0);
+            PointDExtended Obstacle = new PointDExtended(pt, System.Drawing.Color.Aqua, 5);
+
             foreach (List<double> ld in liste_total_landmarks)
             {
 
-                double alpha = (Math.Atan2((ld[1] - PosRobot.Y), (ld[0] - PosRobot.X))) ; 
+                double alpha = (Math.Atan2((ld[1] - PosRobot.Y), (ld[0] - PosRobot.X)));
 
                 if (PosRobot.Theta <= -Math.PI)
                     PosRobot.Theta += 2 * Math.PI;
@@ -92,11 +140,11 @@ namespace WpfSlamInterface
 
                 double dif = Math.Abs(PosRobot.Theta - alpha);
 
-                if (dif>Math.PI)
+                if (dif > Math.PI)
                 {
-                    dif = 2 * Math.PI - dif; 
+                    dif = 2 * Math.PI - dif;
                 }
-                if (dif < anglePerceptionRobot /2)
+                if (dif < anglePerceptionRobot / 2)
                 {
                     pt = new PointD(0, 0);
                     pt.X = ld[0];
@@ -105,10 +153,12 @@ namespace WpfSlamInterface
                     MaListe.Add(Obstacle);
                 }
             }
+
+            MaListe = Bruitage_Landmarks(MaListe);
+
             return MaListe;
         }
-
-        public Location PosRobotQuandTuVeux(double date, Location PosRobot)
+        static public Location PosRobotQuandTuVeux(double date, Location PosRobot)
         {
             if (date <= 4)
             {
@@ -133,7 +183,7 @@ namespace WpfSlamInterface
                 {
                     date -= 3.5;
                     PosRobot.X = -0.5 * date * date + 0.5 * date + 1.875 - 1;
-                    PosRobot.Vx = - date + 0.5;
+                    PosRobot.Vx = -date + 0.5;
                     PosRobot.Y = -0.5;
                     PosRobot.Vy = 0;
                     PosRobot.Theta = 0;
@@ -164,7 +214,7 @@ namespace WpfSlamInterface
                 {
                     date -= 2;
                     PosRobot.Y = -0.5 * date * date + 0.5 * date + 0.875 - 0.5;
-                    PosRobot.Vy = - date + 0.5;
+                    PosRobot.Vy = -date + 0.5;
                     PosRobot.X = 1;
                     PosRobot.Vx = 0;
                     PosRobot.Theta = 0;
@@ -184,7 +234,7 @@ namespace WpfSlamInterface
                 }
                 else if (date <= 6) //v=cst
                 {
-                    date -= 1; 
+                    date -= 1;
                     PosRobot.Theta = date * Math.PI / 6 + Math.PI / 12;
                     PosRobot.Vtheta = Math.PI / 6;
                     PosRobot.X = 1;
@@ -226,7 +276,7 @@ namespace WpfSlamInterface
                 {
                     date -= 3.5;
                     PosRobot.X = 0.5 * date * date - 0.5 * date - 1.875 + 1;
-                    PosRobot.Vx = - date + 0.5;
+                    PosRobot.Vx = -date + 0.5;
                     PosRobot.Y = 0.5;
                     PosRobot.Vy = 0;
                     PosRobot.Theta = Math.PI;
@@ -273,7 +323,7 @@ namespace WpfSlamInterface
                     PosRobot.Vy = 0;
                     PosRobot.X = -1;
                     PosRobot.Vx = date;
-                    PosRobot.Theta = -Math.PI/2;
+                    PosRobot.Theta = -Math.PI / 2;
                 }
                 else if (date <= 2) //v = cst
                 {
@@ -295,17 +345,19 @@ namespace WpfSlamInterface
                 }
             } // 6nd trajet
 
-            else if (date >28)
-                PosRobot.Theta -= Math.PI/50 ;  // FIN
+            else if (date > 28)
+                PosRobot.Theta -= Math.PI / 50;  // FIN
 
+            PosRobot = Bruitage_position(PosRobot);
             return PosRobot;
         }
+
 
         public List<List<double>> fabrication_landmarks()
         {
             List<List<double>> liste_total_landmarks = new List<List<double>> { };
 
-            List<double>  ld = new List<double> { -1.5, -1 };
+            List<double> ld = new List<double> { -1.5, -1 };
             liste_total_landmarks.Add(ld);
 
             ld = new List<double> { -1.5, 0 };
@@ -334,41 +386,63 @@ namespace WpfSlamInterface
 
             return liste_total_landmarks; // Cette liste doit être triée
         }
+        static public Location Bruitage_position(Location PosPropre)
+        {
+            Location PosSale = new Location(0, 0, 0, 0, 0, 0);
 
-        //private void OnDataToPrintCalculated(object sender, RoutedEventArgs e)
-        //{
+            Random rd = new Random();
 
-        //    //guetho mais après deux heures a chercher comment faire j'ai pas pu faire mieux 
-        //    var Pointnuls = new XyDataSeries<double>();
-        //    Pointnuls.Append(-2, -1.5);
-        //    Pointnuls.Append( 2,  1.5);           
-        //    limfenêtre.DataSeries = Pointnuls;
+            double eps = rd.NextDouble();
+            double signe = rd.Next(-1, 2);
+            PosSale.X = PosPropre.X + eps * signe / 100; //on rajoute une erreur de entre 0 et 1 cm en positif ou négatif 
+            eps = rd.NextDouble();
+            signe = rd.Next(-1, 2);
+            PosSale.Y = PosPropre.Y + eps * signe / 100;
 
-        //    //Affichage du robot
-        //    PosRobot = PosRobotQuandTuVeux(date, PosRobot);    //Update posRobot 
-        //    var ScatterData = new XyDataSeries<double>();
-        //    var lineData = new XyDataSeries<double>();
-        //    ScatterData.Append(PosRobot.X, PosRobot.Y); //Point 
-        //    lineData.Append(PosRobot.X, PosRobot.Y);    //Stick angulaire
-        //    lineData.Append(PosRobot.X + 0.1 * Math.Cos(PosRobot.Theta) , PosRobot.Y + 0.1 * Math.Sin(PosRobot.Theta));
-        //    // assigne les pos robot a ce qui s'affiche après 
-        //    StickRobot.DataSeries = lineData;
-        //    PointRobot.DataSeries = ScatterData;
+            eps = rd.NextDouble();
+            signe = rd.Next(-1, 2);
+            PosSale.Theta = PosPropre.Theta + eps * signe * 0.00024434; // ici on rajoute une erreur positive ou négative inférieure à 0.014 deg 
+
+            eps = rd.NextDouble() / 100;
+            signe = rd.Next(-1, 2);
+            PosSale.Vx = PosPropre.Vx + eps * signe; //erreur de 1cm/s 
+
+            eps = rd.NextDouble() / 100;
+            signe = rd.Next(-1, 2);
+            PosSale.Vy = PosPropre.Vy + eps * signe; //erreur de 1cm/s 
+
+            eps = rd.NextDouble() * 2 * Math.PI / 360;
+            signe = rd.Next(-1, 2);
+            PosSale.Vtheta = PosPropre.Vtheta + eps * signe; //erreur de 1deg/s
+
+            return PosSale;
+        }
+        public List<PointDExtended> Bruitage_Landmarks(List<PointDExtended> ListPropre)
+        {
+            List<PointDExtended> ListSale = new List<PointDExtended>();
+
+            Random rd = new Random();
+
+            foreach (PointDExtended ld in ListPropre)
+            {
+                double eps = rd.NextDouble() / 100;
+                double signe = rd.Next(-1, 2);
+
+                double eps2 = rd.NextDouble() / 100;
+                double signe2 = rd.Next(-1, 2);
+
+                PointD a = new PointD(ld.Pt.X + eps * signe, ld.Pt.Y + eps2 * signe2);
+                PointDExtended Pt_sale = new PointDExtended(a, ld.Color, ld.Width);
+
+                ListSale.Add(Pt_sale);
+            }
+
+            return ListSale;
+        }
 
 
-        //    //Affichage landmark
-
-        //    var PointLd = new XyDataSeries<double>();
-        //    List<List<double>> Ma_Liste = fabrication_landmarks(); // WTF ne fonctionne que si la liste est triée 
-        //    Ma_Liste = Landmarks_vus(PosRobot,Ma_Liste, Math.PI );
 
 
-        //    foreach (List<double> ld in Ma_Liste)
-        //    {
-        //        PointLd.Append(ld[0], ld[1]);
-        //    }
-        //    AffichageLandmark.DataSeries = PointLd;
-        //}
 
     }
 }

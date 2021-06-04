@@ -44,7 +44,7 @@ namespace WpfWorldMapDisplay
             robotName = name;
 
             lidarMap = new List<PointDExtended>();
-            for (int i =0; i< lidarProcessedMaps.Count(); i++)
+            for (int i = 0; i < lidarProcessedMaps.Count(); i++)
             {
                 lidarProcessedMaps[i] = new List<PointDExtended>();
             }
@@ -167,7 +167,7 @@ namespace WpfWorldMapDisplay
             }
             return polygonToDisplay;
         }
-        
+
         public PolygonExtended GetRobotGhostPolygon()
         {
             PolygonExtended polygonToDisplay = new PolygonExtended();
@@ -271,17 +271,46 @@ namespace WpfWorldMapDisplay
         //    return dataSeries;
         //}
 
+        private List<PointDExtended> SortList(List<PointDExtended> Unsorted)
+        {
+            List<PointDExtended> Sorted = new List<PointDExtended> { };
+
+            while (Unsorted.Count>0)
+            {
+                int indice=0;
+                int indice_petit=0;
+                double val=100;
+                PointDExtended pluspetit=Unsorted[0];
+
+                foreach (PointDExtended elt in Unsorted)
+                {
+                    if (val > elt.Pt.X)
+                    {
+                        pluspetit = elt;
+                        val = elt.Pt.X;
+                        indice_petit = indice;
+                    }
+                    indice++;
+                } // fct min 
+                Sorted.Add(pluspetit);
+                Unsorted.RemoveAt(indice_petit);
+            }
+            return Sorted;
+        }
+
+
         public XyDataSeries<double, double> GetRobotLidarPoints(LidarDataType type)
         {
             var dataSeries = new XyDataSeries<double, double>();
             if (lidarMap == null)
                 return dataSeries;
 
-            IEnumerable<double> listX = new List<double>();
-            IEnumerable<double> listY = new List<double>();
+            //IEnumerable<double> listX = new List<double>();
+            //IEnumerable<double> listY = new List<double>();
 
             if (type == LidarDataType.RawData)
             {
+                lidarMap = SortList(lidarMap);
                 foreach (var ld in lidarMap)
                 {
                     dataSeries.Append(ld.Pt.X, ld.Pt.Y);
@@ -338,16 +367,16 @@ namespace WpfWorldMapDisplay
                 PolygonExtended polygonToDisplay = new PolygonExtended();
                 foreach (var pt in obj.polarPointList)
                 {
-                    polygonToDisplay.polygon.Points.Add(new Point(robotLocation.X + pt.Distance * Math.Cos(pt.Angle+robotLocation.Theta), robotLocation.Y + pt.Distance * Math.Sin(pt.Angle + robotLocation.Theta)));
+                    polygonToDisplay.polygon.Points.Add(new Point(robotLocation.X + pt.Distance * Math.Cos(pt.Angle + robotLocation.Theta), robotLocation.Y + pt.Distance * Math.Sin(pt.Angle + robotLocation.Theta)));
                 }
                 //Cas des polygones à un seul point (objets représentés par leur centre : 
                 //on trace un second point juste à coté
-                if(obj.polarPointList.Count==1)
+                if (obj.polarPointList.Count == 1)
                 {
                     Point pt = polygonToDisplay.polygon.Points[0];
-                    polygonToDisplay.polygon.Points.Add(new Point(pt.X+0.001, pt.Y + 0.001));
+                    polygonToDisplay.polygon.Points.Add(new Point(pt.X + 0.001, pt.Y + 0.001));
                 }
-                switch(obj.type)
+                switch (obj.type)
                 {
                     case ObjectType.Obstacle:
                         polygonToDisplay.borderColor = System.Drawing.Color.Red;
@@ -365,7 +394,7 @@ namespace WpfWorldMapDisplay
                         polygonToDisplay.backgroundColor = System.Drawing.Color.LightBlue;
                         break;
                 }
-                
+
                 polygonExtendedList.Add(polygonToDisplay);
             }
             return polygonExtendedList;

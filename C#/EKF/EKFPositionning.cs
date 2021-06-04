@@ -60,6 +60,11 @@ namespace EKF
 
         Location EKFLocationRefTerrain = new Location(0, 0, 0, 0, 0, 0);
 
+        List<PointD> liste_landmarks; //pour odo
+        int id;
+        double freqEchOdometry;
+
+
         //fonctions pour acquérir des positions
 
         public void OnCamLidarSimulatedRobotPositionReceived(object sender, PositionArgs e)
@@ -149,7 +154,6 @@ namespace EKF
 
             return vecteur_apres;
         }
-
         public double[,] Ajout_ld_P(double[,] P)
         {
             matrice_apres = new double[P.Length + 2, P.Length + 2];
@@ -165,7 +169,6 @@ namespace EKF
 
             return matrice_apres;
         }
-
         public List<int> acceuil_landmarks(List<List<double>> list_ld_recus, int grande_taille)   
         {
             List<int> list_index = new List<int> { };
@@ -365,22 +368,30 @@ namespace EKF
             }   // FIN DE MEGA BOUCLE         
         }
 
-        public void OnLandmarksAndOdoReceived(object sender, PolarSpeedArgs e, List<Landmarks> liste_landmarks_PoinD, int id, double freqEchOdometry)
+
+        public void OnOdoReceived(object sender, LocationArgs e)
+        {
+            currentOdoVxRefRobot = e.Location.Vx;
+            currentOdoVyRefRobot = e.Location.Vy;
+
+            currentOdoVxRefTerrain = currentOdoVxRefRobot * Math.Cos(currentGpsTheta) - currentOdoVyRefRobot * Math.Sin(currentGpsTheta);
+            currentOdoVyRefTerrain = currentOdoVxRefRobot * Math.Sin(currentGpsTheta) + currentOdoVyRefRobot * Math.Cos(currentGpsTheta);
+            currentOdoVtheta = e.Location.Vtheta;
+            currentGpsTheta += currentOdoVtheta / fEch;
+        }
+
+
+        public void OnLandmarksReceived(object sender, PointDExtendedListArgs e)  
         {
             if (robotId == e.RobotId)
             {
+                foreach(PointDExtended Point in e.LandmarkList)
+                {
+                    liste_landmarks.Add(Point.Pt);
+                }
+                List<List<double>> landmarks = liste_landmarks.Select(l => new List<double>(2) { l.X, l.Y }).ToList(); //on commence par mettre les ld en liste de liste
 
-                Location EKFLocationRefTerrain = new Location();
-
-                List<List<double>> landmarks = liste_landmarks_PoinD.Select(l => new List<double>(2) { l.Pt.X, l.Pt.Y }).ToList(); //on commence par mettre les ld en liste de liste
-
-                currentOdoVxRefRobot = e.Vx;
-                currentOdoVyRefRobot = e.Vy;
-
-                currentOdoVxRefTerrain = currentOdoVxRefRobot * Math.Cos(currentGpsTheta) - currentOdoVyRefRobot * Math.Sin(currentGpsTheta);
-                currentOdoVyRefTerrain = currentOdoVxRefRobot * Math.Sin(currentGpsTheta) + currentOdoVyRefRobot * Math.Cos(currentGpsTheta);
-                currentOdoVtheta = e.Vtheta;
-                currentGpsTheta += currentOdoVtheta / fEch;
+                
 
                 if (Appel_pour_la_première_fois == 0)
                 {
@@ -435,13 +446,23 @@ namespace EKF
 
 
         //Output events
-        public event EventHandler<LocationArgs> OnEKFLocationEvent;
+        public event EventHandler<PosRobotAndLandmarksArgs> OnEKFLocationEvent;
         public virtual void OnEKFLocation(int id, Location locationRefTerrain, double[,] X, double[,] Covariances)
         {
             var handler = OnEKFLocationEvent;
+
+            List<PointDExtended> Liste_Sortie = new List<PointDExtended>();
+            
             if (handler != null)
             {
-                handler(this, new LocationArgs { RobotId = id, Location = locationRefTerrain });
+                for (int i = 3; i < X.Length; i = i + 2)
+                {
+                    PointD ptd = new PointD(X[i, 0], X[i + 1, 0]);
+                    PointDExtended Ptde = new PointDExtended(ptd, System.Drawing.Color.Aqua, 5); //A FAIRE  voir si la taille et la couleur des ld sont bien 
+                    Liste_Sortie.Add(Ptde);
+                }
+
+                handler(this, new PosRobotAndLandmarksArgs { RobotId = id, PosLandmarkList = Liste_Sortie, PosRobot = locationRefTerrain }); 
             }
         }
 

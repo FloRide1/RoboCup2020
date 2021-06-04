@@ -91,8 +91,6 @@ namespace WpfWorldMapDisplay
         //Liste des obstacles vus par le robot à afficher
         List<ObstacleDisplay> ObstacleDisplayList = new List<ObstacleDisplay>();
 
-        string typeTerrain = "RoboCup";
-
         BindingClass imageBinding = new BindingClass();
         Thread tDisplayMap;
         AutoResetEvent waitForDisplayAuthorization = new AutoResetEvent(false);
@@ -189,10 +187,10 @@ namespace WpfWorldMapDisplay
                     UpdateBallPolygons();
                     UpdateObstaclesPolygons();
                     if (TeamMatesDisplayDictionary.Count == 1) //Cas d'un affichage de robot unique (localWorldMap)
-                {
+                    {
                         AnnotRobotRole.Text = TeamMatesDisplayDictionary.First().Value.robotRole.ToString();
-                    //DrawLidar(); 
-                    DrawHeatMap(TeamMatesDisplayDictionary.First().Key);
+                        //DrawLidar(); 
+                        DrawHeatMap(TeamMatesDisplayDictionary.First().Key);
                     }
 
                     if (competition == GameMode.RoboCup)
@@ -452,7 +450,7 @@ namespace WpfWorldMapDisplay
                 var lidarData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints(LidarDataType.RawData);
                 lidarPts.Append(lidarData.XValues, lidarData.YValues);
 
-                for (int i=0; i< lidarProcessedPts.Length; i++)
+                for (int i = 0; i < lidarProcessedPts.Length; i++)
                 {
                     lidarProcessedPts[i] = new XyDataSeries<double, double>();
                     lidarProcessedPts[i].AcceptsUnsortedData = true;
@@ -491,7 +489,7 @@ namespace WpfWorldMapDisplay
                 {
                     LidarPtExtendedSeries.AddPtExtended(pt);
                 }
-                
+
 
                 foreach (var polygonObject in TeamMatesDisplayDictionary[r.Key].GetRobotLidarObjects())
                     ObjectsPolygonSeries.AddOrUpdatePolygonExtended(ObjectsPolygonSeries.Count(), polygonObject);
@@ -652,7 +650,7 @@ namespace WpfWorldMapDisplay
         //        TeamMatesDisplayDictionary[robotId].SetLidarProcessedMap3(lidarMapProcessed);            }
         //}
 
-        private void UpdateLidarSegments(int robotId, List<SegmentExtended>  lidarSegmentList)
+        private void UpdateLidarSegments(int robotId, List<SegmentExtended> lidarSegmentList)
         {
             if (lidarSegmentList == null)
                 return;
@@ -1123,7 +1121,7 @@ namespace WpfWorldMapDisplay
 
                         var xHeatMap = xmin + (xmax - xmin) * hitTestPoint.X / width;
                         var yHeatMap = -(ymin + (ymax - ymin) * hitTestPoint.Y / height);
-                        
+
                         Console.WriteLine("Click on : x=" + xHeatMap + " - y=" + yHeatMap);
                         OnCtrlClickOnHeatMap(xHeatMap, yHeatMap);
                     }

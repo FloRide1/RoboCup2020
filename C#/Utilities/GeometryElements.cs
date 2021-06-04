@@ -132,14 +132,6 @@ namespace Utilities
         }
     }
 
-    public class Landmarks
-    {
-        public PointD Pt { get; set; }
-        public LandmarkType Type { get; set; }
-
-
-    }
-
     public class ClusterObjects
     {
         public List<PolarPointRssiExtended> points { get; set; }

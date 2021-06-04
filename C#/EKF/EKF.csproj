@@ -48,9 +48,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="simulateur_ekf.cs" />
     <Compile Include="EKFPositionning.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="simulateur_ekf.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Constants\Constants.csproj">

@@ -50,6 +50,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Web.Mobile" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -114,7 +115,7 @@
       <Name>Constants</Name>
     </ProjectReference>
     <ProjectReference Include="..\EKF\EKF.csproj">
-      <Project>{5c7d030d-b4fb-4690-b195-dfadcb411b51}</Project>
+      <Project>{5C7D030D-B4FB-4690-B195-DFADCB411B51}</Project>
       <Name>EKF</Name>
     </ProjectReference>
     <ProjectReference Include="..\EventArgsLibrary\EventArgsLibrary.csproj">

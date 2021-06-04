@@ -501,6 +501,19 @@ namespace EventArgsLibrary
         public List<PolarPointListExtended> ObjectList { get; set; }
     }
 
+    public class PointDExtendedListArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+        public List<PointDExtended> LandmarkList { get; set; }
+    }
+    
+    public class PosRobotAndLandmarksArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+        public List<PointDExtended> PosLandmarkList { get; set; } //Là il y a les pos landmarks
+        public Location PosRobot { get; set; }
+    }
+
     public class SegmentExtendedListArgs : EventArgs
     {
         public int RobotId { get; set; }
