@@ -38,7 +38,6 @@ namespace EKF
         private double[,] MatrixZ;
         private double[,] MatrixG;
         private double[,] MatrixA;
-        private double[,] MatrixlowH;
         private double[,] MatrixHi;
         private double[,] MatrixH;
         private double[,] MatrixK;
@@ -99,20 +98,7 @@ namespace EKF
         //    currentGpsTheta = e.Theta;
         //}
 
-        //cette fonction sert juste à recopier Xest et Pest quand on en a besoins 
-        public double[,] GetXestEstimation() => Matrixxest;
-        public double[,] GetPestEstimation() => Matrixpest; 
-        public double[] GetXEstimation() => MatrixX;
-        public double[,] GetPEstimation() => MatrixP;
-        public double [,] GetG() => MatrixG;
-        public double[,] GetR() => MatrixR;
-        public double[,] GetPpred() => MatrixpPred;
-        public double[,] GetXpred() => MatrixxPred;
-        public double[,] GetZ() => MatrixZ;
-        public double[,] GetZpred() => MatrixZPred;
-        public double[,] GetParenthèses() => MatrixParentheses;
-        public double[,] GetDelta() => MatrixDelta;
-
+        //cette fonction sert juste à recopier Xest et Pest quand on en a besoin
 
         public double[,] Trouver_Xi_Dans_Xest(int num_ld)
         {
@@ -159,6 +145,54 @@ namespace EKF
 
             return MatrixSortie;
 
+        }
+
+        public void Remettre_Xest_Dans_X(List<int> list_indices_dans_X)
+        {
+            MatrixX[0] = Matrixxest[0, 0];
+            MatrixX[1] = Matrixxest[1, 0];
+            MatrixX[2] = Matrixxest[2, 0];
+
+            for (int indice_dans_xest = 0; indice_dans_xest<list_indices_dans_X.Count; indice_dans_xest++)
+            {
+                MatrixX[list_indices_dans_X[indice_dans_xest]  ] = Matrixxest[indice_dans_xest  , 0];
+                MatrixX[list_indices_dans_X[indice_dans_xest]+1] = Matrixxest[indice_dans_xest+1, 0];
+            }
+        } 
+
+        public void Remettre_Pest_Dans_P(List<int> list_indices_dans_P)
+        {
+            for (int ligne = 0; ligne < 3; ligne++)
+            {
+                for (int colonne = 0; colonne < 3; colonne++)
+                {
+                    MatrixP[ligne, colonne] = Matrixpest[ligne, colonne];                                  //ici on rempli de a à i
+                }
+            }
+
+            for(int indice_pest = 3; indice_pest < 2*(list_indices_dans_P.Count)+3; indice_pest += 2 )
+            {
+                
+                MatrixP[0, list_indices_dans_P[(int)((indice_pest - 3) / 2)]  ] = Matrixpest[0, indice_pest  ]; //k
+                MatrixP[0, list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1] = Matrixpest[0, indice_pest+1]; //l
+                MatrixP[1, list_indices_dans_P[(int)((indice_pest - 3) / 2)]  ] = Matrixpest[1, indice_pest  ]; //m
+                MatrixP[1, list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1] = Matrixpest[1, indice_pest+1]; //n
+                MatrixP[2, list_indices_dans_P[(int)((indice_pest - 3) / 2)]  ] = Matrixpest[2, indice_pest  ]; //o
+                MatrixP[2, list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1] = Matrixpest[2, indice_pest+1]; //p
+
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]  , 0] = Matrixpest[indice_pest  , 0]; //q
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]  , 1] = Matrixpest[indice_pest  , 1]; //r
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]  , 2] = Matrixpest[indice_pest  , 2]; //s
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1, 0] = Matrixpest[indice_pest+1, 0]; //v
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1, 1] = Matrixpest[indice_pest+1, 1]; //w
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1, 2] = Matrixpest[indice_pest+1, 2]; //x
+
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]  , list_indices_dans_P[(int)((indice_pest - 3) / 2)]  ] = Matrixpest[indice_pest  , indice_pest  ]; //t
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]  , list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1] = Matrixpest[indice_pest  , indice_pest+1]; //u
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1, list_indices_dans_P[(int)((indice_pest - 3) / 2)]  ] = Matrixpest[indice_pest+1, indice_pest  ]; //y
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1, list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1] = Matrixpest[indice_pest+1, indice_pest+1]; //z
+            }
+            
         }
 
         public void Remettre_Pi_dans_Pest(int num_ld)
@@ -230,9 +264,9 @@ namespace EKF
                 {
                     double x = MatrixX[3 + 2 * indice_en_cours];
                     double y = MatrixX[4 + 2 * indice_en_cours];
-                    if (Math.Sqrt(Math.Pow((x - xld), 2) + Math.Pow((y - yld), 2)) < 0.1)
+                    if (Math.Sqrt(Math.Pow((x - xld), 2) + Math.Pow((y - yld), 2)) < 0.1) // distance entre deux landmarks distinct : 10 cm 
                     {
-                        list_index.Add(indice_en_cours);
+                        list_index.Add(2*indice_en_cours+3);
                         ld_identifié = true;
                     }
                     else
@@ -276,8 +310,8 @@ namespace EKF
             MatrixDelta = new double[2, 1];
 
             MatrixH = new double[2, 5];
+            MatrixHi = new double[2, 5];
             MatrixK = new double[5, 2];
-            MatrixlowH = new double[2, 5];
             MatrixFx = new double[5, 5];
             MatrixXi = new double[5, 5];
 
@@ -354,9 +388,8 @@ namespace EKF
         }
         
 
-        public void SLAMCorrection(double GPS_Theta, double Odo_VX, double Odo_VY, double Odo_VTheta, int nbre_landmarks, List<List<double>> landmarks_observés, List<int> list_indices)
+        public void SLAMCorrection(double GPS_Theta, double Odo_VX, double Odo_VY, double Odo_VTheta, int nbre_landmarks, List<List<double>> landmarks_observés)
         {
-            
             MatrixG[0, 2] = -(Odo_VX * Math.Sin(GPS_Theta) / fEch) - Odo_VY * Math.Cos(GPS_Theta) / fEch;         // ici cest la dérivée du modele (xpred)
             MatrixG[1, 2] = (Odo_VX * Math.Cos(GPS_Theta) / fEch) - Odo_VY * Math.Sin(GPS_Theta) / fEch;
 
@@ -390,26 +423,26 @@ namespace EKF
                 MatrixZPred[0, 0] = Math.Sqrt(q);                                                                       // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
                 MatrixZPred[1, 0] = Math.Atan2(deltay , deltax) - GPS_Theta;
 
-                deltax = landmarks_observés[list_indices[j]][0] - Matrixxest[0,0];                                      //on refait les calculs avec le landmark observé maintenant 
-                deltay = landmarks_observés[list_indices[j]][1] - Matrixxest[1,0];
+                deltax = landmarks_observés[j][0] - Matrixxest[0, 0];                           //on refait les calculs avec le landmark observé maintenant 
+                deltay = landmarks_observés[j][1] - Matrixxest[1, 0];
+
+                
                 MatrixDelta[0, 0] = deltax;
                 MatrixDelta[1, 0] = deltay;
                 q= Toolbox.Multiply(Toolbox.Transpose(MatrixDelta), MatrixDelta)[0, 0];
                 MatrixZ[0, 0] = Math.Sqrt(q);                                                                           // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
                 MatrixZ[1, 0] = Math.Atan(deltay / deltax) - GPS_Theta;
 
-                MatrixlowH[0, 0] = -(1 / Math.Sqrt(q)) * deltax;                                                        //ici on prépare lowH
-                MatrixlowH[0, 1] = -(1 / Math.Sqrt(q)) * deltay;
-                MatrixlowH[0, 2] = 0;
-                MatrixlowH[0, 3] = (1 / Math.Sqrt(q)) * deltax;
-                MatrixlowH[0, 4] = (1 / Math.Sqrt(q)) * deltay;                                                         //A FAIRE : vu que lowH=Hi supprimer lowH du programme
-                MatrixlowH[1, 0] = (1 / q) * deltay;
-                MatrixlowH[1, 1] = (-1 / q) * deltax;
-                MatrixlowH[1, 2] = -1;
-                MatrixlowH[1, 3] = (-1 / q) * deltay;
-                MatrixlowH[1, 4] = (1 / q) * deltax;
-
-                MatrixHi = MatrixlowH;                                                                                  //calcul de Hi=lowH dans notre cas car F=I
+                MatrixHi[0, 0] = -(1 / Math.Sqrt(q)) * deltax;                                                        //ici on prépare lowH
+                MatrixHi[0, 1] = -(1 / Math.Sqrt(q)) * deltay;
+                MatrixHi[0, 2] = 0;
+                MatrixHi[0, 3] = (1 / Math.Sqrt(q)) * deltax;
+                MatrixHi[0, 4] = (1 / Math.Sqrt(q)) * deltay;                                                      
+                MatrixHi[1, 0] = (1 / q) * deltay;
+                MatrixHi[1, 1] = (-1 / q) * deltax;
+                MatrixHi[1, 2] = -1;
+                MatrixHi[1, 3] = (-1 / q) * deltay;
+                MatrixHi[1, 4] = (1 / q) * deltax;
 
                 MatrixParentheses = Toolbox.Multiply(MatrixHi, Toolbox.Multiply(MatrixPi, Toolbox.Transpose(MatrixHi)));
 
@@ -427,16 +460,20 @@ namespace EKF
 
                 MatrixKdeltaz = Toolbox.Addition_Matrices(MatrixXi, MatrixKdeltaz);
 
-                Matrixxest[0, 0] = MatrixKdeltaz[0, 0];
+                Matrixxest[0, 0] = MatrixKdeltaz[0, 0];                                                                 //sert a remettre xi dans xest 
                 Matrixxest[1, 0] = MatrixKdeltaz[1, 0];
                 Matrixxest[2, 0] = MatrixKdeltaz[2, 0];
                 Matrixxest[2 * j + 3, 0] = MatrixKdeltaz[3, 0];
                 Matrixxest[2 * j + 4, 0] = MatrixKdeltaz[4, 0];
 
-                Remettre_Pi_dans_Pest(j);            //Alexandre Larribau, tu en es là c'est bien joué ! voir si tu arrives a sortir de la boucle et appeler l'event maintenant
+                Remettre_Pi_dans_Pest(j); 
+                
 
 
-            }   // FIN DE MEGA BOUCLE         
+            }   // FIN DE MEGA BOUCLE
+
+
+            
         }
 
 
@@ -466,8 +503,6 @@ namespace EKF
 
                 List<List<double>> landmarks = liste_landmarks.Select(l => new List<double>(2) { l.X, l.Y }).ToList(); //on commence par mettre les ld en liste de liste
 
-                
-
                 if (Appel_pour_la_première_fois == 0)
                 {
                     InitEKF(id, freqEchOdometry);
@@ -484,16 +519,14 @@ namespace EKF
 
                 List<int> list_indice_landmarks = acceuil_landmarks(landmarks,grande_taille);
 
-                MatrixX = GetXEstimation();
-                MatrixP = GetPEstimation();
-
-                Matrixxest =  TrouverXestDansX(list_indice_landmarks, MatrixX);        //  A FAIRE ecrire deux fonction séparées
+                Matrixxest =  TrouverXestDansX(list_indice_landmarks, MatrixX);       
                 Matrixpest = TrouverPestDansP(list_indice_landmarks, MatrixP);
                       
-                SLAMCorrection(currentGpsTheta, currentOdoVxRefTerrain, currentOdoVyRefTerrain, currentOdoVtheta, nbre_landmarks, landmarks, list_indice_landmarks);
+                SLAMCorrection(currentGpsTheta, currentOdoVxRefTerrain, currentOdoVyRefTerrain, currentOdoVtheta, nbre_landmarks, landmarks);
 
-                Matrixxest = GetXestEstimation();
-                Matrixpest = GetPestEstimation();
+                Remettre_Pest_Dans_P(list_indice_landmarks);
+
+                Remettre_Xest_Dans_X(list_indice_landmarks);
 
                 EKFLocationRefTerrain.X = Matrixxest[0, 0];
                 //EKFLocationRefTerrain.Vx = output[1,0];                                       
@@ -533,7 +566,7 @@ namespace EKF
                 for (int i = 3; i < X.Length; i = i + 2)
                 {
                     PointD ptd = new PointD(X[i, 0], X[i + 1, 0]);
-                    PointDExtended Ptde = new PointDExtended(ptd, System.Drawing.Color.Aqua, 5); //A FAIRE  voir si la taille et la couleur des ld sont bien 
+                    PointDExtended Ptde = new PointDExtended(ptd, System.Drawing.Color.Aqua, 5); 
                     Liste_Sortie.Add(Ptde);
                 }
 

@@ -177,7 +177,7 @@ namespace WpfWorldMapDisplay
         {
             while (true)
             {
-                waitForDisplayAuthorization.WaitOne(); //ALEX : ca bloquait ici
+                waitForDisplayAuthorization.WaitOne();
 
                 Dispatcher.BeginInvoke(new Action(delegate ()
                 {

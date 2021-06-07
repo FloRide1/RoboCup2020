@@ -37,10 +37,8 @@ namespace WpfSlamInterface
         List<PointDExtended> PosLandmarks;
         double date;
         double anglePerceptionRobot = Math.PI;
-        bool ekfFinished = false;
 
         static EKF.EKFPositionning eKFPositionning;
-        static MainWindow slamInterface;
         public MainWindow()
         {
             InitializeComponent();
@@ -51,7 +49,6 @@ namespace WpfSlamInterface
 
             eKFPositionning = new EKFPositionning(a);
 
-            PosRobot = new Location (-1, -0.5, 0, 0, 0, 0);
             date = 0;
 
             My_local_map.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, GameMode.RoboCup, "Wally");
@@ -60,32 +57,30 @@ namespace WpfSlamInterface
                 lidarMap = PosLandmarks
             });
 
+            OnOdoCalculatedEvent += eKFPositionning.OnOdoReceived;                //On envoie la simu de l'odo à ekf 
+            OnLandmarksFoundEvent += eKFPositionning.OnLandmarksReceived;         //On envoie la simu de landmarks à l'ekf 
+            eKFPositionning.OnEKFLocationEvent += OnEkfFinished;                  //quand ekf a fini on le balance a interface
+
             timer = new DispatcherTimer();
             timer.Interval = new TimeSpan(0, 0, 0, 0, 20);
             timer.Tick += UpdateGUITemp;
             timer.Start();
+
+
 
         }
 
         public void UpdateGUITemp(object sender, EventArgs e)
         {
 
-            OnOdoCalculatedEvent += eKFPositionning.OnOdoReceived;                //On envoie la simu de l'odo à ekf 
-            OnLandmarksFoundEvent += eKFPositionning.OnLandmarksReceived;         //On envoie la simu de landmarks à l'ekf 
-            eKFPositionning.OnEKFLocationEvent += OnEkfFinished;                  //quand ekf a fini on le balance a interface
-
-            PosRobot = PosRobotQuandTuVeux(date, PosRobot);
+            PosRobot = PosRobotQuandTuVeux(date, PosRobot);                                                     //fonctionne
             OnEKFOdo((int)TeamId.Team1 + (int)RobotId.Robot1, PosRobot);
-            PosLandmarks = Landmarks_vus(PosRobot, anglePerceptionRobot);
+            PosLandmarks = Landmarks_vus(PosRobot, anglePerceptionRobot);                                       //fonctionne 
             OnLandmarksFound((int)TeamId.Team1 + (int)RobotId.Robot1, PosLandmarks);
 
+            Console.WriteLine(PosRobot.X);
+            Console.WriteLine(PosRobot.Y);
 
-            while (!ekfFinished)
-            {
-
-            }
-
-            ekfFinished = false;
             My_local_map.UpdateLocalWorldMap(new LocalWorldMap() { RobotId = (int)TeamId.Team1 + (int)RobotId.Robot1,
                 robotLocation = PosRobot,
                 lidarMap = PosLandmarks,
@@ -120,7 +115,6 @@ namespace WpfSlamInterface
         {
             PosRobot = e.PosRobot;
             PosLandmarks = e.PosLandmarkList;
-            ekfFinished = true; 
         }
 
         public List<PointDExtended> Landmarks_vus(Location PosRobot, double anglePerceptionRobot)
@@ -156,7 +150,7 @@ namespace WpfSlamInterface
                 }
             }
 
-            MaListe = Bruitage_Landmarks(MaListe);
+            //MaListe = Bruitage_Landmarks(MaListe);
 
             return MaListe;
         }
@@ -350,7 +344,7 @@ namespace WpfSlamInterface
             else if (date > 28)
                 PosRobot.Theta -= Math.PI / 50;  // FIN
 
-            PosRobot = Bruitage_position(PosRobot);
+            //PosRobot = Bruitage_position(PosRobot);
             return PosRobot;
         }
 
