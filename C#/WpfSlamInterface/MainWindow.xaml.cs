@@ -88,6 +88,8 @@ namespace WpfSlamInterface
         }
 
 
+        #region events
+
         public event EventHandler<LocationArgs> OnOdoCalculatedEvent;
         public virtual void OnEKFOdo(int id, Location locationRefTerrain)
         {
@@ -115,6 +117,9 @@ namespace WpfSlamInterface
             PosLandmarks = e.PosLandmarkList;
         }
 
+        #endregion events
+
+        #region simu 
         public List<PointDExtended> Landmarks_vus(Location PosRobot, double anglePerceptionRobot)
         {
             List<List<double>> liste_total_landmarks = fabrication_landmarks();
@@ -440,7 +445,7 @@ namespace WpfSlamInterface
             return ListSale;
         }
 
-
+        #endregion simu
 
     }
 }

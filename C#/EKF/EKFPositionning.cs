@@ -13,6 +13,7 @@ namespace EKF
 {
     public class EKFPositionning
     {
+        #region variables 
         List<PointD> liste_landmarks = new List<PointD> { }; //pour odo
         int robotId = (int)TeamId.Team1 + (int)RobotId.Robot1;
         double freqEchOdometry = 50;
@@ -59,6 +60,7 @@ namespace EKF
 
         Location EKFLocationRefTerrain = new Location(0, 0, 0, 0, 0, 0);
 
+        #endregion variables
 
         public EKFPositionning(LocationArgs Init)
         {
@@ -81,18 +83,100 @@ namespace EKF
             InitEKF(robotId, 50); //ALEX  je fais des petits tests 
 
         }
+        public double[] CleanXFromWeardLandmarks(double[] X)
+        {
+            List<double> liste_matrice = new List<double> { };   //on connait pas encore la dim de sortie donc on fait une liste 
+            
+            for (int i =0; i<3; i++)
+                liste_matrice.Add(X[i]);                            //pas de critère sur la position, A FAIRE : voir si on peut en trouver un
+            
+            for (int i = 3; i<X.Length; i++)
+            {
+                if ((X[i] < -2) | (X[i] > 2))
+                {
+                    if (i % 2 == 1)
+                        i++; // en faisant ca on skip le y si le x est >2 ou <-2
+                    else
+                        liste_matrice.RemoveAt(liste_matrice.Count()-1); // si c'est le y qui est >2 ou <-2 on supprime le x de la liste 
+                }
+                else
+                    liste_matrice.Add(X[i]);
+            }
+
+            double[] matrice_sortie = new double[liste_matrice.Count];
+
+            for (int valeur = 0; valeur < liste_matrice.Count; valeur++)
+                matrice_sortie[valeur] = liste_matrice[valeur];
 
 
-        ////fonctions pour acquérir des positions
+            return matrice_sortie;
+        }
 
-        //public void OnCamLidarSimulatedRobotPositionReceived(object sender, PositionArgs e)
-        //{
-        //    currentGpsXRefTerrain = e.X;
-        //    currentGpsYRefTerrain = e.Y;
-        //    currentGpsTheta = e.Theta;
-        //}
+        #region Fonctions pour gérer les tailles de matrices 
 
-        //cette fonction sert juste à recopier Xest et Pest quand on en a besoin
+        public void Remettre_Pest_Dans_P(List<int> list_indices_dans_P)
+        {
+            for (int ligne = 0; ligne < 3; ligne++)
+            {
+                for (int colonne = 0; colonne < 3; colonne++)
+                {
+                    MatrixP[ligne, colonne] = Matrixpest[ligne, colonne];                                  //ici on rempli de a à i
+                }
+            }
+
+            for (int indice_pest = 3; indice_pest < 2 * (list_indices_dans_P.Count) + 3; indice_pest += 2)
+            {
+
+                MatrixP[0, list_indices_dans_P[(int)((indice_pest - 3) / 2)]] = Matrixpest[0, indice_pest]; //k
+                MatrixP[0, list_indices_dans_P[(int)((indice_pest - 3) / 2)] + 1] = Matrixpest[0, indice_pest + 1]; //l
+                MatrixP[1, list_indices_dans_P[(int)((indice_pest - 3) / 2)]] = Matrixpest[1, indice_pest]; //m
+                MatrixP[1, list_indices_dans_P[(int)((indice_pest - 3) / 2)] + 1] = Matrixpest[1, indice_pest + 1]; //n
+                MatrixP[2, list_indices_dans_P[(int)((indice_pest - 3) / 2)]] = Matrixpest[2, indice_pest]; //o
+                MatrixP[2, list_indices_dans_P[(int)((indice_pest - 3) / 2)] + 1] = Matrixpest[2, indice_pest + 1]; //p
+
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)], 0] = Matrixpest[indice_pest, 0]; //q
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)], 1] = Matrixpest[indice_pest, 1]; //r
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)], 2] = Matrixpest[indice_pest, 2]; //s
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)] + 1, 0] = Matrixpest[indice_pest + 1, 0]; //v
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)] + 1, 1] = Matrixpest[indice_pest + 1, 1]; //w
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)] + 1, 2] = Matrixpest[indice_pest + 1, 2]; //x
+
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)], list_indices_dans_P[(int)((indice_pest - 3) / 2)]] = Matrixpest[indice_pest, indice_pest]; //t
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)], list_indices_dans_P[(int)((indice_pest - 3) / 2)] + 1] = Matrixpest[indice_pest, indice_pest + 1]; //u
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)] + 1, list_indices_dans_P[(int)((indice_pest - 3) / 2)]] = Matrixpest[indice_pest + 1, indice_pest]; //y
+                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)] + 1, list_indices_dans_P[(int)((indice_pest - 3) / 2)] + 1] = Matrixpest[indice_pest + 1, indice_pest + 1]; //z
+            }
+
+        }
+        public void Remettre_Pi_dans_Pest(int num_ld)
+        {
+            for (int ligne = 0; ligne < 3; ligne++)
+            {
+                for (int colonne = 0; colonne < 3; colonne++)
+                {
+                    Matrixpest[ligne, colonne] = MatrixPi[ligne, colonne];                                  //ici on rempli de a à i
+                }
+            }
+
+            Matrixpest[0, 2 * num_ld + 3] = MatrixPi[0, 3]; //k
+            Matrixpest[0, 2 * num_ld + 4] = MatrixPi[0, 4]; //l
+            Matrixpest[1, 2 * num_ld + 3] = MatrixPi[1, 3]; //m
+            Matrixpest[1, 2 * num_ld + 4] = MatrixPi[1, 4]; //n
+            Matrixpest[2, 2 * num_ld + 3] = MatrixPi[2, 3]; //o
+            Matrixpest[2, 2 * num_ld + 4] = MatrixPi[2, 4]; //p
+
+            Matrixpest[2 * num_ld + 3, 0] = MatrixPi[3, 0]; //q
+            Matrixpest[2 * num_ld + 3, 1] = MatrixPi[3, 1]; //r
+            Matrixpest[2 * num_ld + 3, 2] = MatrixPi[3, 2]; //s
+            Matrixpest[2 * num_ld + 4, 0] = MatrixPi[4, 0]; //v
+            Matrixpest[2 * num_ld + 4, 1] = MatrixPi[4, 1]; //w
+            Matrixpest[2 * num_ld + 4, 2] = MatrixPi[4, 2]; //x
+
+            Matrixpest[2 * num_ld + 3, 2 * num_ld + 3] = MatrixPi[3, 3]; //t
+            Matrixpest[2 * num_ld + 3, 2 * num_ld + 4] = MatrixPi[3, 4]; //u
+            Matrixpest[2 * num_ld + 4, 2 * num_ld + 3] = MatrixPi[4, 3]; //y
+            Matrixpest[2 * num_ld + 4, 2 * num_ld + 4] = MatrixPi[4, 4]; //z
+        }
 
         public double[,] Trouver_Xi_Dans_Xest(int num_ld)
         {
@@ -108,8 +192,8 @@ namespace EKF
         }
         public double[,] Trouver_Pi_dans_Pest(int num_ld)
         {
-            double[,] MatrixSortie = new double[5, 5]; 
-            
+            double[,] MatrixSortie = new double[5, 5];
+
             for (int ligne = 0; ligne < 3; ligne++)
             {
                 for (int colonne = 0; colonne < 3; colonne++)
@@ -140,114 +224,80 @@ namespace EKF
             return MatrixSortie;
 
         }
-
         public void Remettre_Xest_Dans_X(List<int> list_indices_dans_X)
         {
             MatrixX[0] = Matrixxest[0, 0];
             MatrixX[1] = Matrixxest[1, 0];
             MatrixX[2] = Matrixxest[2, 0];
-            int indice_dans_X = 0; 
-            for (int indice_dans_xest = 3; indice_dans_xest<list_indices_dans_X.Count; indice_dans_xest +=2 )
+            int indice_dans_X = 0;
+            for (int indice_dans_xest = 3; indice_dans_xest < list_indices_dans_X.Count; indice_dans_xest += 2)
             {
-                MatrixX[list_indices_dans_X[indice_dans_X]  ] = Matrixxest[indice_dans_xest  , 0];
-                MatrixX[list_indices_dans_X[indice_dans_X] +1] = Matrixxest[indice_dans_xest+1, 0];
+                MatrixX[list_indices_dans_X[indice_dans_X]] = Matrixxest[indice_dans_xest, 0];
+                MatrixX[list_indices_dans_X[indice_dans_X] + 1] = Matrixxest[indice_dans_xest + 1, 0];
                 indice_dans_X += 1;
             }
-        } 
-
-        public double[] CleanXFromWeardLandmarks(double[] X)
-        {
-            List<double> liste_matrice = new List<double> { };   //on connait pas encore la dim de sortie donc on fait une liste 
-            
-            for (int i =0; i<3; i++)
-                liste_matrice.Add(X[i]);                            //pas de critère sur la position, A FAIRE : voir si on peut en trouver un
-            
-            for (int i = 3; i<X.Length; i++)
-            {
-                if ((X[i] < -2) | (X[i] > 2))
-                {
-                    if (i % 2 == 1)
-                        i++; // en faisant ca on skip le y si le x est >2 ou <-2
-                    else
-                        liste_matrice.RemoveAt(liste_matrice.Count()-1); // si c'est le y qui est >2 ou <-2 on supprime le x de la liste 
-                }
-                else
-                    liste_matrice.Add(X[i]);
-            }
-
-            double[] matrice_sortie = new double[liste_matrice.Count];
-
-            for (int valeur = 0; valeur < liste_matrice.Count; valeur++)
-                matrice_sortie[valeur] = liste_matrice[valeur];
-
-
-            return matrice_sortie;
         }
-
-        public void Remettre_Pest_Dans_P(List<int> list_indices_dans_P)
+        public double[,] TrouverXestDansX(List<int> Indices, double[] X)
         {
-            for (int ligne = 0; ligne < 3; ligne++)
+            double[,] MatrixSortie = new double[2 * Indices.Count + 3, 1];
+            MatrixSortie[0, 0] = X[0];
+            MatrixSortie[1, 0] = X[1];
+            MatrixSortie[2, 0] = X[2];
+            int indice = 3;
+
+            foreach (int item in Indices)
             {
-                for (int colonne = 0; colonne < 3; colonne++)
+                MatrixSortie[indice, 0] = X[item];
+                MatrixSortie[indice + 1, 0] = X[item + 1];
+                indice += 2;
+            }
+            MatrixxPred = MatrixSortie;
+
+            return MatrixSortie;
+        }
+        public double[,] TrouverPestDansP(List<int> List_indices, double[,] P)
+        {
+            double[,] MatrixSortie = new double[2 * List_indices.Count + 3, 2 * List_indices.Count + 3];
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
                 {
-                    MatrixP[ligne, colonne] = Matrixpest[ligne, colonne];                                  //ici on rempli de a à i
+                    Matrixpest[i, j] = P[i, j];
                 }
             }
-
-            for(int indice_pest = 3; indice_pest < 2*(list_indices_dans_P.Count)+3; indice_pest += 2 )
+            int indice = 3;
+            foreach (int item in List_indices)
             {
-                
-                MatrixP[0, list_indices_dans_P[(int)((indice_pest - 3) / 2)]  ] = Matrixpest[0, indice_pest  ]; //k
-                MatrixP[0, list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1] = Matrixpest[0, indice_pest+1]; //l
-                MatrixP[1, list_indices_dans_P[(int)((indice_pest - 3) / 2)]  ] = Matrixpest[1, indice_pest  ]; //m
-                MatrixP[1, list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1] = Matrixpest[1, indice_pest+1]; //n
-                MatrixP[2, list_indices_dans_P[(int)((indice_pest - 3) / 2)]  ] = Matrixpest[2, indice_pest  ]; //o
-                MatrixP[2, list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1] = Matrixpest[2, indice_pest+1]; //p
 
-                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]  , 0] = Matrixpest[indice_pest  , 0]; //q
-                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]  , 1] = Matrixpest[indice_pest  , 1]; //r
-                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]  , 2] = Matrixpest[indice_pest  , 2]; //s
-                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1, 0] = Matrixpest[indice_pest+1, 0]; //v
-                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1, 1] = Matrixpest[indice_pest+1, 1]; //w
-                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1, 2] = Matrixpest[indice_pest+1, 2]; //x
+                MatrixSortie[0, indice] = P[0, item]; //k
+                MatrixSortie[0, indice + 1] = P[0, item + 1]; //l
+                MatrixSortie[1, indice] = P[1, item]; //m
+                MatrixSortie[1, indice + 1] = P[1, item + 1]; //n
+                MatrixSortie[2, indice] = P[2, item]; //o
+                MatrixSortie[2, indice + 1] = P[2, item + 1]; //p
+                MatrixSortie[indice, 0] = P[item, 0];     //q
+                MatrixSortie[indice, 1] = P[item, 1];     //r
+                MatrixSortie[indice, 2] = P[item, 2];     //s
+                MatrixSortie[indice + 1, 0] = P[item + 1, 0]; //v
+                MatrixSortie[indice + 1, 1] = P[item + 1, 1]; //w
+                MatrixSortie[indice + 1, 2] = P[item + 1, 2]; //x
 
-                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]  , list_indices_dans_P[(int)((indice_pest - 3) / 2)]  ] = Matrixpest[indice_pest  , indice_pest  ]; //t
-                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]  , list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1] = Matrixpest[indice_pest  , indice_pest+1]; //u
-                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1, list_indices_dans_P[(int)((indice_pest - 3) / 2)]  ] = Matrixpest[indice_pest+1, indice_pest  ]; //y
-                MatrixP[list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1, list_indices_dans_P[(int)((indice_pest - 3) / 2)]+1] = Matrixpest[indice_pest+1, indice_pest+1]; //z
-            }
-            
-        }
+                MatrixSortie[indice, indice] = P[item, item]; //t
+                MatrixSortie[indice, indice + 1] = P[item, item + 1]; //u
+                MatrixSortie[indice + 1, indice] = P[item + 1, item]; //y
+                MatrixSortie[indice + 1, indice + 1] = P[item + 1, item + 1]; //z
 
-        public void Remettre_Pi_dans_Pest(int num_ld)
-        {
-            for (int ligne = 0; ligne < 3; ligne++)
-            {
-                for (int colonne = 0; colonne < 3; colonne++)
-                {
-                    Matrixpest[ligne, colonne] = MatrixPi[ligne, colonne];                                  //ici on rempli de a à i
-                }
+                indice += 2;
             }
 
-            Matrixpest[0, 2 * num_ld + 3] = MatrixPi[0, 3]; //k
-            Matrixpest[0, 2 * num_ld + 4] = MatrixPi[0, 4]; //l
-            Matrixpest[1, 2 * num_ld + 3] = MatrixPi[1, 3]; //m
-            Matrixpest[1, 2 * num_ld + 4] = MatrixPi[1, 4]; //n
-            Matrixpest[2, 2 * num_ld + 3] = MatrixPi[2, 3]; //o
-            Matrixpest[2, 2 * num_ld + 4] = MatrixPi[2, 4]; //p
-
-            Matrixpest[2 * num_ld + 3, 0] = MatrixPi[3, 0]; //q
-            Matrixpest[2 * num_ld + 3, 1] = MatrixPi[3, 1]; //r
-            Matrixpest[2 * num_ld + 3, 2] = MatrixPi[3, 2]; //s
-            Matrixpest[2 * num_ld + 4, 0] = MatrixPi[4, 0]; //v
-            Matrixpest[2 * num_ld + 4, 1] = MatrixPi[4, 1]; //w
-            Matrixpest[2 * num_ld + 4, 2] = MatrixPi[4, 2]; //x
-
-            Matrixpest[2 * num_ld + 3, 2 * num_ld + 3] = MatrixPi[3, 3]; //t
-            Matrixpest[2 * num_ld + 3, 2 * num_ld + 4] = MatrixPi[3, 4]; //u
-            Matrixpest[2 * num_ld + 4, 2 * num_ld + 3] = MatrixPi[4, 3]; //y
-            Matrixpest[2 * num_ld + 4, 2 * num_ld + 4] = MatrixPi[4, 4]; //z
+            MatrixpPred = MatrixSortie;
+            return MatrixSortie;
         }
+
+        #endregion Fonctions pour gérer les tailles de matrices 
+
+        #region Fonctions pour acceuillir les ld 
+
         public double[] Ajout_ld_X(double[] vecteur_avant, double valeur, double valeur2)
         {
             vecteur_apres = new double[vecteur_avant.Length + 2];
@@ -275,7 +325,7 @@ namespace EKF
 
             return matrice_apres;
         }
-        public List<int> acceuil_landmarks(List<List<double>> list_ld_recus)   
+        public List<int> acceuil_landmarks(List<List<double>> list_ld_recus)
         {
             List<int> list_index = new List<int> { };
             bool ld_identifié = false;
@@ -284,13 +334,13 @@ namespace EKF
                 xld = list_ld_recus[landmark][0];
                 yld = list_ld_recus[landmark][1];
                 int indice_en_cours = 0;
-                while ((!ld_identifié) & (3 + 2 * indice_en_cours < MatrixX.Length)) 
+                while ((!ld_identifié) & (3 + 2 * indice_en_cours < MatrixX.Length))
                 {
                     double x = MatrixX[3 + 2 * indice_en_cours];
                     double y = MatrixX[4 + 2 * indice_en_cours];
-                    if (Math.Sqrt((x - xld)*(x - xld) + (y - yld)*(y - yld)) < 0.4) // distance entre deux landmarks distinct : 10 cm 
+                    if (Math.Sqrt((x - xld) * (x - xld) + (y - yld) * (y - yld)) < 0.4) // distance entre deux landmarks distinct : 10 cm 
                     {
-                        list_index.Add(2*indice_en_cours+3);
+                        list_index.Add(2 * indice_en_cours + 3);
                         ld_identifié = true;
                     }
                     else
@@ -302,12 +352,14 @@ namespace EKF
                 {
                     MatrixX = Ajout_ld_X(MatrixX, xld, yld);
                     MatrixP = Ajout_ld_P(MatrixP);
-                    list_index.Add(MatrixX.Length-2);
+                    list_index.Add(MatrixX.Length - 2);
                 }
                 ld_identifié = false;
             }
             return list_index;
         }
+
+        #endregion Fonctions pour acceuillir les ld 
 
         //initialisation de l'ekf quand ce programme est appelé pour la première fois 
         public void InitEKF(int id, double freqEchOdometry)
@@ -350,65 +402,9 @@ namespace EKF
             MatrixKdeltaz = new double[5, 1];
         }
 
-        public double[,] TrouverXestDansX(List<int> Indices, double[] X)
-        {
-            double[,] MatrixSortie = new double[2 * Indices.Count + 3, 1];
-            MatrixSortie[0, 0] = X[0];
-            MatrixSortie[1, 0] = X[1];
-            MatrixSortie[2, 0] = X[2];
-            int indice = 3;
 
-            foreach (int item in Indices)
-            {
-                MatrixSortie[indice, 0] = X[item];
-                MatrixSortie[indice + 1, 0] = X[item+1];
-                indice += 2;
-            }
-            MatrixxPred = MatrixSortie;
 
-            return MatrixSortie;
-        }
-
-        public double[,] TrouverPestDansP(List<int> List_indices, double[,] P)
-        {
-            double[,] MatrixSortie = new double[2 * List_indices.Count + 3, 2 * List_indices.Count + 3 ];
-            for (int i = 0; i < 3; i++)
-            {
-                for (int j = 0; j < 3; j++)
-                {
-                    Matrixpest[i, j] = P[i, j];
-                }
-            }
-            int indice = 3;
-            foreach (int item in List_indices)
-            {
-
-                MatrixSortie[0, indice] = P[0,item ]; //k
-                MatrixSortie[0, indice + 1] = P[0,item+1]; //l
-                MatrixSortie[1, indice] = P[1,item]; //m
-                MatrixSortie[1, indice + 1] = P[1, item + 1]; //n
-                MatrixSortie[2, indice] = P[2, item]; //o
-                MatrixSortie[2, indice + 1] = P[2, item+1]; //p
-                MatrixSortie[indice, 0] = P[item, 0];     //q
-                MatrixSortie[indice, 1] = P[item, 1];     //r
-                MatrixSortie[indice, 2] = P[item, 2];     //s
-                MatrixSortie[indice + 1, 0] = P[item+1, 0]; //v
-                MatrixSortie[indice + 1, 1] = P[item+1, 1]; //w
-                MatrixSortie[indice + 1, 2] = P[item+1, 2]; //x
-
-                MatrixSortie[indice, indice] = P[item,item]; //t
-                MatrixSortie[indice, indice + 1] = P[item, item+1]; //u
-                MatrixSortie[indice + 1, indice] = P[item+1, item]; //y
-                MatrixSortie[indice + 1, indice + 1] = P[item + 1, item + 1]; //z
-
-                indice += 2;
-            }
-
-            MatrixpPred = MatrixSortie;
-            return MatrixSortie;
-        }
-        
-
+        // itération de l'ekf
         public void SLAMCorrection(double GPS_Theta, double Odo_VX, double Odo_VY, double Odo_VTheta, int nbre_landmarks, List<List<double>> landmarks_observés)
         {
             MatrixG[0, 2] = -(Odo_VX * Math.Sin(GPS_Theta) / fEch) - Odo_VY * Math.Cos(GPS_Theta) / fEch;         // ici cest la dérivée du modele (xpred)
@@ -503,6 +499,8 @@ namespace EKF
         }
 
 
+
+        //Inputs events
         public void OnOdoReceived(object sender, LocationArgs e)
         {
             currentOdoVxRefRobot = e.Location.Vx;
@@ -518,8 +516,6 @@ namespace EKF
             currentGpsTheta += currentOdoVtheta / fEch;
 
         }
-
-
         public void OnLandmarksReceived(object sender, PointDExtendedListArgs e)  
         {
             if (robotId == e.RobotId)
@@ -577,8 +573,6 @@ namespace EKF
             }
 
         }                                       //Fin de l'algo ! 
-
-
 
 
 
