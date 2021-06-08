@@ -37,6 +37,7 @@ namespace WpfSlamInterface
         List<PointDExtended> PosLandmarks;
         double date;
         double anglePerceptionRobot = Math.PI;
+        private double tEch = 0.02;       // fEch = 50 dans ekf_positionning 
 
         static EKF.EKFPositionning eKFPositionning;
         public MainWindow()
@@ -78,15 +79,12 @@ namespace WpfSlamInterface
             PosLandmarks = Landmarks_vus(PosRobot, anglePerceptionRobot);                                       //fonctionne 
             OnLandmarksFound((int)TeamId.Team1 + (int)RobotId.Robot1, PosLandmarks);
 
-            Console.WriteLine(PosRobot.X);
-            Console.WriteLine(PosRobot.Y);
-
             My_local_map.UpdateLocalWorldMap(new LocalWorldMap() { RobotId = (int)TeamId.Team1 + (int)RobotId.Robot1,
                 robotLocation = PosRobot,
                 lidarMap = PosLandmarks,
             }); 
 
-            date += 0.05;
+            date += tEch;
         }
 
 
@@ -121,8 +119,7 @@ namespace WpfSlamInterface
         {
             List<List<double>> liste_total_landmarks = fabrication_landmarks();
             List<PointDExtended> MaListe = new List<PointDExtended> { };
-            PointD pt = new PointD(0, 0);
-            PointDExtended Obstacle = new PointDExtended(pt, System.Drawing.Color.Aqua, 5);
+            PointDExtended Obstacle ;
 
             foreach (List<double> ld in liste_total_landmarks)
             {
@@ -142,7 +139,7 @@ namespace WpfSlamInterface
                 }
                 if (dif < anglePerceptionRobot / 2)
                 {
-                    pt = new PointD(0, 0);
+                    PointD pt = new PointD(0, 0);
                     pt.X = ld[0];
                     pt.Y = ld[1];
                     Obstacle = new PointDExtended(pt, System.Drawing.Color.Aqua, 5);
@@ -150,13 +147,19 @@ namespace WpfSlamInterface
                 }
             }
 
-            //MaListe = Bruitage_Landmarks(MaListe);
+            MaListe = Bruitage_Landmarks(MaListe);
 
             return MaListe;
         }
         static public Location PosRobotQuandTuVeux(double date, Location PosRobot)
         {
-            if (date <= 4)
+            if (date<0.05)
+            {
+                PosRobot.X = -1;
+                PosRobot.Y = -0.5;
+                PosRobot.Theta = PosRobot.Vtheta = PosRobot.Vx = PosRobot.Vy = 0; 
+            }
+            else if (date <= 4)
             {
                 if (date < 0.5) //accélération 
                 {
@@ -344,10 +347,11 @@ namespace WpfSlamInterface
             else if (date > 28)
                 PosRobot.Theta -= Math.PI / 50;  // FIN
 
-            //PosRobot = Bruitage_position(PosRobot);
+            if (date != 0)
+                PosRobot = Bruitage_position(PosRobot);
+
             return PosRobot;
         }
-
 
         public List<List<double>> fabrication_landmarks()
         {
@@ -356,24 +360,24 @@ namespace WpfSlamInterface
             List<double> ld = new List<double> { -1.5, -1 };
             liste_total_landmarks.Add(ld);
 
-            ld = new List<double> { -1.5, 0 };
-            liste_total_landmarks.Add(ld);
+            //ld = new List<double> { -1.5, 0 };
+            //liste_total_landmarks.Add(ld);
 
             ld = new List<double> { -1.5, 1 };
             liste_total_landmarks.Add(ld);
 
 
-            ld = new List<double> { 0, -1 };
-            liste_total_landmarks.Add(ld);
+            //ld = new List<double> { 0, -1 };
+            //liste_total_landmarks.Add(ld);
 
-            ld = new List<double> { 0, 1 };
-            liste_total_landmarks.Add(ld);
+            //ld = new List<double> { 0, 1 };
+            //liste_total_landmarks.Add(ld);
 
             ld = new List<double> { 1.5, -1 };
             liste_total_landmarks.Add(ld);
 
-            ld = new List<double> { 1.5, 0 };
-            liste_total_landmarks.Add(ld);
+            //ld = new List<double> { 1.5, 0 };
+            //liste_total_landmarks.Add(ld);
 
 
             ld = new List<double> { 1.5, 1 };
@@ -435,8 +439,6 @@ namespace WpfSlamInterface
 
             return ListSale;
         }
-
-
 
 
 

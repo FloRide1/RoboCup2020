@@ -13,13 +13,14 @@ namespace EKF
 {
     public class EKFPositionning
     {
-        int robotId;
+        List<PointD> liste_landmarks = new List<PointD> { }; //pour odo
+        int robotId = (int)TeamId.Team1 + (int)RobotId.Robot1;
+        double freqEchOdometry = 50;
 
         private int Appel_pour_la_première_fois = 0;
 
         private double tEch = 0.02;
         private double fEch = 50;
-
         private double deltax;
         private double deltay;
 
@@ -37,10 +38,7 @@ namespace EKF
         private double[,] MatrixZPred;
         private double[,] MatrixZ;
         private double[,] MatrixG;
-        private double[,] MatrixA;
         private double[,] MatrixHi;
-        private double[,] MatrixH;
-        private double[,] MatrixK;
         private double[,] MatrixKi;
         private double[,] MatrixParentheses;
         private double[,] MatrixKdeltaz;
@@ -83,10 +81,6 @@ namespace EKF
             InitEKF(robotId, 50); //ALEX  je fais des petits tests 
 
         }
-
-        List<PointD> liste_landmarks = new List<PointD>{ }; //pour odo
-        int id = (int)TeamId.Team1 + (int)RobotId.Robot1;
-        double freqEchOdometry = 50;
 
 
         ////fonctions pour acquérir des positions
@@ -152,13 +146,43 @@ namespace EKF
             MatrixX[0] = Matrixxest[0, 0];
             MatrixX[1] = Matrixxest[1, 0];
             MatrixX[2] = Matrixxest[2, 0];
-
-            for (int indice_dans_xest = 0; indice_dans_xest<list_indices_dans_X.Count; indice_dans_xest++)
+            int indice_dans_X = 0; 
+            for (int indice_dans_xest = 3; indice_dans_xest<list_indices_dans_X.Count; indice_dans_xest +=2 )
             {
-                MatrixX[list_indices_dans_X[indice_dans_xest]  ] = Matrixxest[indice_dans_xest  , 0];
-                MatrixX[list_indices_dans_X[indice_dans_xest]+1] = Matrixxest[indice_dans_xest+1, 0];
+                MatrixX[list_indices_dans_X[indice_dans_X]  ] = Matrixxest[indice_dans_xest  , 0];
+                MatrixX[list_indices_dans_X[indice_dans_X] +1] = Matrixxest[indice_dans_xest+1, 0];
+                indice_dans_X += 1;
             }
         } 
+
+        public double[] CleanXFromWeardLandmarks(double[] X)
+        {
+            List<double> liste_matrice = new List<double> { };   //on connait pas encore la dim de sortie donc on fait une liste 
+            
+            for (int i =0; i<3; i++)
+                liste_matrice.Add(X[i]);                            //pas de critère sur la position, A FAIRE : voir si on peut en trouver un
+            
+            for (int i = 3; i<X.Length; i++)
+            {
+                if ((X[i] < -2) | (X[i] > 2))
+                {
+                    if (i % 2 == 1)
+                        i++; // en faisant ca on skip le y si le x est >2 ou <-2
+                    else
+                        liste_matrice.RemoveAt(liste_matrice.Count()-1); // si c'est le y qui est >2 ou <-2 on supprime le x de la liste 
+                }
+                else
+                    liste_matrice.Add(X[i]);
+            }
+
+            double[] matrice_sortie = new double[liste_matrice.Count];
+
+            for (int valeur = 0; valeur < liste_matrice.Count; valeur++)
+                matrice_sortie[valeur] = liste_matrice[valeur];
+
+
+            return matrice_sortie;
+        }
 
         public void Remettre_Pest_Dans_P(List<int> list_indices_dans_P)
         {
@@ -251,7 +275,7 @@ namespace EKF
 
             return matrice_apres;
         }
-        public List<int> acceuil_landmarks(List<List<double>> list_ld_recus, int grande_taille)   
+        public List<int> acceuil_landmarks(List<List<double>> list_ld_recus)   
         {
             List<int> list_index = new List<int> { };
             bool ld_identifié = false;
@@ -260,11 +284,11 @@ namespace EKF
                 xld = list_ld_recus[landmark][0];
                 yld = list_ld_recus[landmark][1];
                 int indice_en_cours = 0;
-                while ((!ld_identifié) & (3 + 2 * indice_en_cours < MatrixX.Length)) // avant yavait 4 et j(ai mis 3, avant yavait grande taille et j'ai mis X.count 
+                while ((!ld_identifié) & (3 + 2 * indice_en_cours < MatrixX.Length)) 
                 {
                     double x = MatrixX[3 + 2 * indice_en_cours];
                     double y = MatrixX[4 + 2 * indice_en_cours];
-                    if (Math.Sqrt(Math.Pow((x - xld), 2) + Math.Pow((y - yld), 2)) < 0.1) // distance entre deux landmarks distinct : 10 cm 
+                    if (Math.Sqrt((x - xld)*(x - xld) + (y - yld)*(y - yld)) < 0.4) // distance entre deux landmarks distinct : 10 cm 
                     {
                         list_index.Add(2*indice_en_cours+3);
                         ld_identifié = true;
@@ -276,7 +300,6 @@ namespace EKF
                 }
                 if (!ld_identifié)
                 {
-                    grande_taille += 2;
                     MatrixX = Ajout_ld_X(MatrixX, xld, yld);
                     MatrixP = Ajout_ld_P(MatrixP);
                     list_index.Add(MatrixX.Length-2);
@@ -299,19 +322,17 @@ namespace EKF
             MatrixParentheses = new double[2, 2];
 
             MatrixQ = new double[2, 2];
-            MatrixQ[0, 0] = 0.01;                                                                               //incertitude odo en cylindriques  0.1 deg et 1 cm
+            MatrixQ[0, 0] = 0.01;                                                               //incertitude odo en cylindriques  0.1 deg et 1 cm
             MatrixQ[1, 1] = 0.2 * Math.PI / 360;
 
-            MatrixR[0, 0] = MatrixR[1, 1] = 0.01;                                                               //incertitudes odo puis lidar 
+            MatrixR[0, 0] = MatrixR[1, 1] = 0.01;                                               //incertitudes odo puis lidar 
             MatrixR[2, 2] = 0.2 * Math.PI / 360;
             MatrixR[3, 3] = 0.012;
             MatrixR[4, 4] = 0.014 * 2 * Math.PI / 360;
 
             MatrixDelta = new double[2, 1];
 
-            MatrixH = new double[2, 5];
             MatrixHi = new double[2, 5];
-            MatrixK = new double[5, 2];
             MatrixFx = new double[5, 5];
             MatrixXi = new double[5, 5];
 
@@ -396,9 +417,9 @@ namespace EKF
             // Prédiction
             //ici j'ai simplifié, plutot que de faire *F je met direct dans la bonne case donc pas besoin de MatrixOdo
 
-            MatrixxPred[0, 0] = Matrixxest[0, 0] + Odo_VX * Math.Cos(GPS_Theta) / tEch - Odo_VY * Math.Sin(GPS_Theta) / tEch;
-            MatrixxPred[1, 0] = Matrixxest[1, 0] - Odo_VX * Math.Sin(GPS_Theta) / tEch + Odo_VY * Math.Cos(GPS_Theta) / tEch;
-            MatrixxPred[2, 0] = Matrixxest[2, 0] + Odo_VTheta / tEch;
+            MatrixxPred[0, 0] = currentGpsXRefTerrain;
+            MatrixxPred[1, 0] = currentGpsYRefTerrain; 
+            MatrixxPred[2, 0] = currentGpsTheta;
 
             //MEGA BOUCLE//
 
@@ -413,8 +434,8 @@ namespace EKF
                 Toolbox.Multiply(MatrixG, Toolbox.Multiply(MatrixPi, Toolbox.Transpose(MatrixG))),
                 Toolbox.Multiply(Toolbox.Transpose(MatrixFx), Toolbox.Multiply(MatrixR, MatrixFx)));        
 
-                deltax = MatrixX[2 * j + 3] - MatrixX[0];                                                               //construction du vecteur delta du dernier ld 
-                deltay = MatrixX[2 * j + 4] - MatrixX[1];
+                deltax = MatrixXi[3,0] - MatrixXi[0,0];                                                               //construction du vecteur delta du dernier ld 
+                deltay = MatrixXi[4,0] - MatrixXi[1,0];
                 MatrixDelta[0, 0] = deltax;
                 MatrixDelta[1, 0] = deltay;
 
@@ -433,7 +454,7 @@ namespace EKF
                 MatrixZ[0, 0] = Math.Sqrt(q);                                                                           // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
                 MatrixZ[1, 0] = Math.Atan(deltay / deltax) - GPS_Theta;
 
-                MatrixHi[0, 0] = -(1 / Math.Sqrt(q)) * deltax;                                                        //ici on prépare lowH
+                MatrixHi[0, 0] = -(1 / Math.Sqrt(q)) * deltax;                                                        //ici on prépare Hi = lowH
                 MatrixHi[0, 1] = -(1 / Math.Sqrt(q)) * deltay;
                 MatrixHi[0, 2] = 0;
                 MatrixHi[0, 3] = (1 / Math.Sqrt(q)) * deltax;
@@ -456,7 +477,7 @@ namespace EKF
                 {
                     MatrixZ[indices, 0] -= MatrixZPred[indices, 0];                                                       // A partir de là MatrixZ contient la différence entre prédiction et observation 
                 }
-                MatrixKdeltaz = Toolbox.Multiply(MatrixK, MatrixZ);
+                MatrixKdeltaz = Toolbox.Multiply(MatrixKi, MatrixZ);
 
                 MatrixKdeltaz = Toolbox.Addition_Matrices(MatrixXi, MatrixKdeltaz);
 
@@ -465,6 +486,11 @@ namespace EKF
                 Matrixxest[2, 0] = MatrixKdeltaz[2, 0];
                 Matrixxest[2 * j + 3, 0] = MatrixKdeltaz[3, 0];
                 Matrixxest[2 * j + 4, 0] = MatrixKdeltaz[4, 0];
+
+                MatrixKi = Toolbox.Multiply(MatrixKi, MatrixHi);                                                        //maintenant ki continient K*H
+                for(int ligne =0; ligne<5; ligne++){ for (int colonne =0; colonne<5; colonne++) { MatrixKi[ligne, colonne] = -MatrixKi[ligne, colonne]; } } 
+
+                MatrixPi = Toolbox.Multiply(Toolbox.Addition_Matrices(MatrixFx , MatrixKi ), MatrixpPred); 
 
                 Remettre_Pi_dans_Pest(j); 
                 
@@ -486,7 +512,11 @@ namespace EKF
             currentOdoVxRefTerrain = currentOdoVxRefRobot * Math.Cos(currentGpsTheta) - currentOdoVyRefRobot * Math.Sin(currentGpsTheta);
             currentOdoVyRefTerrain = currentOdoVxRefRobot * Math.Sin(currentGpsTheta) + currentOdoVyRefRobot * Math.Cos(currentGpsTheta);
             currentOdoVtheta = e.Location.Vtheta;
-            
+
+            currentGpsXRefTerrain += currentOdoVxRefTerrain / fEch;
+            currentGpsYRefTerrain += currentOdoVyRefTerrain / fEch;
+            currentGpsTheta += currentOdoVtheta / fEch;
+
         }
 
 
@@ -505,7 +535,7 @@ namespace EKF
 
                 if (Appel_pour_la_première_fois == 0)
                 {
-                    InitEKF(id, freqEchOdometry);
+                    InitEKF(robotId, freqEchOdometry);
                     Appel_pour_la_première_fois = 1;
                 }               //Initialisation de l'ekf si c'est la premiere fois qu'on l'appelle 
 
@@ -517,7 +547,7 @@ namespace EKF
 
                 //on crée X ET P en regardant s'il y a des new ld ou pas et on trouve en même temps la liste d'indice des landmarks 
 
-                List<int> list_indice_landmarks = acceuil_landmarks(landmarks,grande_taille);
+                List<int> list_indice_landmarks = acceuil_landmarks(landmarks);
 
                 Matrixxest =  TrouverXestDansX(list_indice_landmarks, MatrixX);       
                 Matrixpest = TrouverPestDansP(list_indice_landmarks, MatrixP);
@@ -528,14 +558,11 @@ namespace EKF
 
                 Remettre_Xest_Dans_X(list_indice_landmarks);
 
-                EKFLocationRefTerrain.X = Matrixxest[0, 0];
-                //EKFLocationRefTerrain.Vx = output[1,0];                                       
+                EKFLocationRefTerrain.X = Matrixxest[0, 0];                          
 
                 EKFLocationRefTerrain.Y = Matrixxest[1, 0];
-                //EKFLocationRefTerrain.Vy = output[3,0];
 
                 EKFLocationRefTerrain.Theta = Matrixxest[2, 0];
-                //EKFLocationRefTerrain.Vtheta = output[5,0];
 
                 //Attention la location a renvoyer est dans le ref terrain pour les positions et dans le ref robot pour les vitesses
                 double EKFLocationRefRobotVx = currentOdoVxRefTerrain * Math.Cos(-EKFLocationRefTerrain.Theta) - currentOdoVyRefTerrain * Math.Sin(-EKFLocationRefTerrain.Theta);
@@ -545,8 +572,10 @@ namespace EKF
                                                             EKFLocationRefRobotVx, EKFLocationRefRobotVy, EKFLocationRefTerrain.Vtheta);
 
                 OnEKFLocation(robotId, EKFOutputLocation, Matrixxest, Matrixpest); //On balance à l'event les landmarks vus à cet instant et leurs covariances 
-                                                                                   // note : possible de retourner tout les landmarks connus mais chiant car il faut remettre xest dans X
+                                                                                   // NOTE : possible d'afficher tout les ld connus si on veut (MatrixX)
+                MatrixX=CleanXFromWeardLandmarks(MatrixX);
             }
+
         }                                       //Fin de l'algo ! 
 
 
