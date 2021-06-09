@@ -22,12 +22,11 @@ namespace EKF
 
         private double tEch = 0.02;
         private double fEch = 50;
-        private double deltax;
-        private double deltay;
 
         private double[] MatrixX;
         private double[,] Matrixxest;
         private double[,] MatrixxPred;
+        private double[,] MatrixXiPred;
         private double[,] MatrixP;
         private double[,] MatrixpPred;
         private double[,] MatrixDelta;
@@ -83,33 +82,112 @@ namespace EKF
             InitEKF(robotId, 50); //ALEX  je fais des petits tests 
 
         }
-        public double[] CleanXFromWeardLandmarks(double[] X)
+        public List<int> CleanXestFromWeardLandmarks(double[,] X)
         {
             List<double> liste_matrice = new List<double> { };   //on connait pas encore la dim de sortie donc on fait une liste 
-            
-            for (int i =0; i<3; i++)
-                liste_matrice.Add(X[i]);                            //pas de critère sur la position, A FAIRE : voir si on peut en trouver un
-            
-            for (int i = 3; i<X.Length; i++)
+
+            List<int> List_indices = new List<int> { }; // ici une liste des indices à enlever de P ensuite 
+
+            for (int i = 0; i < 3; i++)
             {
-                if ((X[i] < -2) | (X[i] > 2))
-                {
-                    if (i % 2 == 1)
-                        i++; // en faisant ca on skip le y si le x est >2 ou <-2
-                    else
-                        liste_matrice.RemoveAt(liste_matrice.Count()-1); // si c'est le y qui est >2 ou <-2 on supprime le x de la liste 
-                }
-                else
-                    liste_matrice.Add(X[i]);
+                liste_matrice.Add(X[i, 0]);                           //pas de critère sur la position
             }
 
-            double[] matrice_sortie = new double[liste_matrice.Count];
+            for (int i = 3; i < X.Length; i++)
+            {
+                if ((X[i, 0] < -1.6) | (X[i, 0] > 1.6))
+                {
+                    if (i % 2 == 1) //impair => x
+                    {
+                        List_indices.Add(i);
+                        i++; // en faisant ca on skip le y si le x est >2 ou <-2
+                    }
+                    else
+                    {
+                        liste_matrice.RemoveAt(liste_matrice.Count() - 1); // si c'est le y qui est >2 ou <-2 on supprime le x de la liste
+                        List_indices.Add(i - 1);
+                    }
+                }
+                else
+                    liste_matrice.Add(X[i, 0]);
+            }
+
+            double[,] matrice_sortie = new double[liste_matrice.Count, 1];
 
             for (int valeur = 0; valeur < liste_matrice.Count; valeur++)
-                matrice_sortie[valeur] = liste_matrice[valeur];
+                matrice_sortie[valeur, 0] = liste_matrice[valeur];
 
+            Matrixxest = matrice_sortie;
 
-            return matrice_sortie;
+            return List_indices;
+        }
+        public void CleanPestFromWeardLandmarks(List<int> AEnleverDePest)
+        {
+            if (AEnleverDePest.Count != 0)
+            {
+                matrice_apres = new double[(int)Math.Sqrt(Matrixpest.Length) - 2 * AEnleverDePest.Count, (int)Math.Sqrt(Matrixpest.Length) - 2 * AEnleverDePest.Count];
+
+                for (int row = 0; row < 3; row++)
+                {
+                    for (int column = 0; column < 3; column++) { matrice_apres[row, column] = Matrixpest[row, column]; }
+                }
+
+                for (int indice = 3; indice < (int)Math.Sqrt(matrice_apres.Length); indice += 2)
+                {
+                    bool AEnlever = false;
+
+                    for (int i = 0; i < AEnleverDePest.Count; i++)
+                    {
+                        if (indice == AEnleverDePest[i]) { AEnlever = true; }
+                        else { AEnlever = false; }
+                    }  //savoir si on doit enlever cet indice ou pas 
+
+                    if (!AEnlever)
+                    {
+                        matrice_apres[0, indice] = Matrixpest[0, indice]; //k
+                        matrice_apres[0, indice + 1] = Matrixpest[0, indice + 1]; //l
+                        matrice_apres[1, indice] = Matrixpest[1, indice]; //m
+                        matrice_apres[1, indice + 1] = Matrixpest[1, indice + 1]; //n
+                        matrice_apres[2, indice] = Matrixpest[2, indice]; //o
+                        matrice_apres[2, indice + 1] = Matrixpest[2, indice + 1]; //p
+
+                        matrice_apres[indice, 0] = Matrixpest[indice, 0]; //q
+                        matrice_apres[indice, 1] = Matrixpest[indice, 1]; //r
+                        matrice_apres[indice, 2] = Matrixpest[indice, 2]; //s
+                        matrice_apres[indice + 1, 0] = Matrixpest[indice + 1, 0]; //v
+                        matrice_apres[indice + 1, 1] = Matrixpest[indice + 1, 1]; //w
+                        matrice_apres[indice + 1, 2] = Matrixpest[indice + 1, 2]; //x
+
+                        matrice_apres[indice, indice] = Matrixpest[indice, indice]; //t
+                        matrice_apres[indice, indice + 1] = Matrixpest[indice, indice + 1]; //u
+                        matrice_apres[indice + 1, indice] = Matrixpest[indice + 1, indice]; //y
+                        matrice_apres[indice + 1, indice + 1] = Matrixpest[indice + 1, indice + 1]; //z
+                    }
+                }
+                Matrixpest = matrice_apres;
+            } // pas la peine de reflechir, si la liste est vide on a rien a faire 
+        }
+
+        public List<int> CleanListIndices(List<int> AEnlever, List<int> ListIndices)
+        {
+            foreach (int indice_a_enlever in AEnlever)
+            {
+                for (int indice_en_cours =0; indice_en_cours < ListIndices.Count; indice_en_cours++)
+                {
+                    int indice_dans_list_indices = ListIndices[indice_en_cours];
+                    if (indice_dans_list_indices == indice_a_enlever) 
+                    {
+                        for (int i = 0; i < ListIndices.Count; i++)
+                            if(ListIndices[i]> ListIndices[indice_en_cours]) { ListIndices[i] -= 2; }
+                        ListIndices.RemoveAt(indice_en_cours);
+                        indice_en_cours -= 1;
+                    }
+
+                    
+                }
+            }
+
+            return ListIndices;
         }
 
         #region Fonctions pour gérer les tailles de matrices 
@@ -229,31 +307,45 @@ namespace EKF
             MatrixX[0] = Matrixxest[0, 0];
             MatrixX[1] = Matrixxest[1, 0];
             MatrixX[2] = Matrixxest[2, 0];
-            int indice_dans_X = 0;
-            for (int indice_dans_xest = 3; indice_dans_xest < list_indices_dans_X.Count; indice_dans_xest += 2)
+
+            int indiceDansXest = 3;
+
+            foreach(int indiceDansX in list_indices_dans_X)
             {
-                MatrixX[list_indices_dans_X[indice_dans_X]] = Matrixxest[indice_dans_xest, 0];
-                MatrixX[list_indices_dans_X[indice_dans_X] + 1] = Matrixxest[indice_dans_xest + 1, 0];
-                indice_dans_X += 1;
+                MatrixX[indiceDansX] = Matrixxest[indiceDansXest, 0];
+                MatrixX[indiceDansX +1 ] = Matrixxest[indiceDansXest +1, 0];
+                indiceDansXest += 2;
             }
+            
         }
-        public double[,] TrouverXestDansX(List<int> Indices, double[] X)
+        public void TrouverXestEtXpredDansX(List<int> Indices, double[] X, List<List<double>> landmarks)
         {
-            double[,] MatrixSortie = new double[2 * Indices.Count + 3, 1];
-            MatrixSortie[0, 0] = X[0];
-            MatrixSortie[1, 0] = X[1];
-            MatrixSortie[2, 0] = X[2];
+            double[,] MatrixXestSortie = new double[2 * Indices.Count + 3, 1];
+            MatrixXestSortie[0, 0] = X[0];
+            MatrixXestSortie[1, 0] = X[1];
+            MatrixXestSortie[2, 0] = X[2];
             int indice = 3;
 
             foreach (int item in Indices)
             {
-                MatrixSortie[indice, 0] = X[item];
-                MatrixSortie[indice + 1, 0] = X[item + 1];
+                MatrixXestSortie[indice, 0] = X[item];
+                MatrixXestSortie[indice + 1, 0] = X[item + 1];
                 indice += 2;
             }
-            MatrixxPred = MatrixSortie;
+            Matrixxest = MatrixXestSortie;   // Xest se fait a partir de ce qu'on avait avant 
 
-            return MatrixSortie;
+            double[,] MatrixXpredSortie = new double[2 * Indices.Count + 3, 1];
+            indice = 3;                                        // la pred se fait avec ce qu'on vient de recevoir 
+
+            foreach (List<double> ld in landmarks)
+            {
+                MatrixXpredSortie[indice, 0] = ld[0];
+                MatrixXpredSortie[indice + 1, 0] = ld[1];
+                indice += 2;
+            }
+
+            MatrixxPred = MatrixXpredSortie;
+
         }
         public double[,] TrouverPestDansP(List<int> List_indices, double[,] P)
         {
@@ -293,6 +385,18 @@ namespace EKF
             MatrixpPred = MatrixSortie;
             return MatrixSortie;
         }
+        public double[,] TrouverXiPredDansXpred(int num_ld)
+        {
+            double[,] MatrixSortie = new double[5, 1];
+            MatrixSortie[0, 0] = MatrixxPred[0, 0];
+            MatrixSortie[1, 0] = MatrixxPred[1, 0];
+            MatrixSortie[2, 0] = MatrixxPred[2, 0];
+
+            MatrixSortie[3, 0] = MatrixxPred[2 * num_ld + 3, 0];
+            MatrixSortie[4, 0] = MatrixxPred[2 * num_ld + 4, 0];
+
+            return MatrixSortie;
+        }
 
         #endregion Fonctions pour gérer les tailles de matrices 
 
@@ -320,8 +424,8 @@ namespace EKF
                     matrice_apres[row, column] = P[row, column];
                 }
             }
-            matrice_apres[(int)Math.Sqrt(P.Length), (int)Math.Sqrt(P.Length)] = 30;                                                                     //Initialisation de P à "l'infini"
-            matrice_apres[(int)Math.Sqrt(P.Length) + 1, (int)Math.Sqrt(P.Length) + 1] = 30;
+            matrice_apres[(int)Math.Sqrt(P.Length), (int)Math.Sqrt(P.Length)] = 10000;                                                                     //Initialisation de P à "l'infini"
+            matrice_apres[(int)Math.Sqrt(P.Length) + 1, (int)Math.Sqrt(P.Length) + 1] = 10000;
 
             return matrice_apres;
         }
@@ -338,7 +442,7 @@ namespace EKF
                 {
                     double x = MatrixX[3 + 2 * indice_en_cours];
                     double y = MatrixX[4 + 2 * indice_en_cours];
-                    if (Math.Sqrt((x - xld) * (x - xld) + (y - yld) * (y - yld)) < 0.4) // distance entre deux landmarks distinct : 10 cm 
+                    if (Math.Sqrt((x - xld) * (x - xld) + (y - yld) * (y - yld)) < 0.4) // distance entre deux landmarks distinct : 40 cm 
                     {
                         list_index.Add(2 * indice_en_cours + 3);
                         ld_identifié = true;
@@ -368,10 +472,12 @@ namespace EKF
             fEch = freqEchOdometry;
             tEch = 1 / freqEchOdometry;
 
-            MatrixR = new double[5, 5];     
+            MatrixR = new double[5, 5];
             MatrixZ = new double[2, 1];
             MatrixZPred = new double[2, 1];
             MatrixParentheses = new double[2, 2];
+
+            MatrixXiPred = new double[5, 1];
 
             MatrixQ = new double[2, 2];
             MatrixQ[0, 0] = 0.01;                                                               //incertitude odo en cylindriques  0.1 deg et 1 cm
@@ -414,7 +520,7 @@ namespace EKF
             //ici j'ai simplifié, plutot que de faire *F je met direct dans la bonne case donc pas besoin de MatrixOdo
 
             MatrixxPred[0, 0] = currentGpsXRefTerrain;
-            MatrixxPred[1, 0] = currentGpsYRefTerrain; 
+            MatrixxPred[1, 0] = currentGpsYRefTerrain;
             MatrixxPred[2, 0] = currentGpsTheta;
 
             //MEGA BOUCLE//
@@ -424,37 +530,43 @@ namespace EKF
 
                 MatrixXi = Trouver_Xi_Dans_Xest(j);                                                                     //on initialise Xi
                 MatrixPi = Trouver_Pi_dans_Pest(j);                                                                     //on initialise Pi
-                
+
+                MatrixXiPred = TrouverXiPredDansXpred(j);
 
                 MatrixpPred = Toolbox.Addition_Matrices(
                 Toolbox.Multiply(MatrixG, Toolbox.Multiply(MatrixPi, Toolbox.Transpose(MatrixG))),
-                Toolbox.Multiply(Toolbox.Transpose(MatrixFx), Toolbox.Multiply(MatrixR, MatrixFx)));        
+                Toolbox.Multiply(Toolbox.Transpose(MatrixFx), Toolbox.Multiply(MatrixR, MatrixFx)));
 
-                deltax = MatrixXi[3,0] - MatrixXi[0,0];                                                               //construction du vecteur delta du dernier ld 
-                deltay = MatrixXi[4,0] - MatrixXi[1,0];
+
+
+                double deltax = MatrixXi[3, 0] - MatrixXi[0, 0];                                                               //construction du vecteur delta du dernier ld 
+                double deltay = MatrixXi[4, 0] - MatrixXi[1, 0];
                 MatrixDelta[0, 0] = deltax;
                 MatrixDelta[1, 0] = deltay;
-
                 double q = Toolbox.Multiply(Toolbox.Transpose(MatrixDelta), MatrixDelta)[0, 0];                         // c'est un réel car dimension 2*1 fois sa transposée (voir brouillon) 
-
                 MatrixZPred[0, 0] = Math.Sqrt(q);                                                                       // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
-                MatrixZPred[1, 0] = Math.Atan2(deltay , deltax) - GPS_Theta;
+                MatrixZPred[1, 0] = Math.Atan2(deltay, deltax) - GPS_Theta;
 
-                deltax = landmarks_observés[j][0] - Matrixxest[0, 0];                           //on refait les calculs avec le landmark observé maintenant 
-                deltay = landmarks_observés[j][1] - Matrixxest[1, 0];
 
-                
-                MatrixDelta[0, 0] = deltax;
-                MatrixDelta[1, 0] = deltay;
-                q= Toolbox.Multiply(Toolbox.Transpose(MatrixDelta), MatrixDelta)[0, 0];
+
+                double deltax2 = landmarks_observés[j][0] - Matrixxest[0, 0];                           //on refait les calculs avec le landmark observé maintenant 
+                double deltay2 = landmarks_observés[j][1] - Matrixxest[1, 0];
+
+                MatrixDelta[0, 0] = deltax2;
+                MatrixDelta[1, 0] = deltay2;
+                q = Toolbox.Multiply(Toolbox.Transpose(MatrixDelta), MatrixDelta)[0, 0];
                 MatrixZ[0, 0] = Math.Sqrt(q);                                                                           // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
-                MatrixZ[1, 0] = Math.Atan(deltay / deltax) - GPS_Theta;
+                MatrixZ[1, 0] = Math.Atan2(deltay2 , deltax2) - GPS_Theta;
+
+
+
+
 
                 MatrixHi[0, 0] = -(1 / Math.Sqrt(q)) * deltax;                                                        //ici on prépare Hi = lowH
                 MatrixHi[0, 1] = -(1 / Math.Sqrt(q)) * deltay;
                 MatrixHi[0, 2] = 0;
                 MatrixHi[0, 3] = (1 / Math.Sqrt(q)) * deltax;
-                MatrixHi[0, 4] = (1 / Math.Sqrt(q)) * deltay;                                                      
+                MatrixHi[0, 4] = (1 / Math.Sqrt(q)) * deltay;
                 MatrixHi[1, 0] = (1 / q) * deltay;
                 MatrixHi[1, 1] = (-1 / q) * deltax;
                 MatrixHi[1, 2] = -1;
@@ -475,7 +587,7 @@ namespace EKF
                 }
                 MatrixKdeltaz = Toolbox.Multiply(MatrixKi, MatrixZ);
 
-                MatrixKdeltaz = Toolbox.Addition_Matrices(MatrixXi, MatrixKdeltaz);
+                MatrixKdeltaz = Toolbox.Addition_Matrices(MatrixXiPred, MatrixKdeltaz);
 
                 Matrixxest[0, 0] = MatrixKdeltaz[0, 0];                                                                 //sert a remettre xi dans xest 
                 Matrixxest[1, 0] = MatrixKdeltaz[1, 0];
@@ -484,18 +596,17 @@ namespace EKF
                 Matrixxest[2 * j + 4, 0] = MatrixKdeltaz[4, 0];
 
                 MatrixKi = Toolbox.Multiply(MatrixKi, MatrixHi);                                                        //maintenant ki continient K*H
-                for(int ligne =0; ligne<5; ligne++){ for (int colonne =0; colonne<5; colonne++) { MatrixKi[ligne, colonne] = -MatrixKi[ligne, colonne]; } } 
+                for (int ligne = 0; ligne < 5; ligne++) { for (int colonne = 0; colonne < 5; colonne++) { MatrixKi[ligne, colonne] = -MatrixKi[ligne, colonne]; } }
 
-                MatrixPi = Toolbox.Multiply(Toolbox.Addition_Matrices(MatrixFx , MatrixKi ), MatrixpPred); 
+                MatrixPi = Toolbox.Multiply(Toolbox.Addition_Matrices(MatrixFx, MatrixKi), MatrixpPred);
 
-                Remettre_Pi_dans_Pest(j); 
-                
+                Remettre_Pi_dans_Pest(j);
+
 
 
             }   // FIN DE MEGA BOUCLE
 
 
-            
         }
 
 
@@ -505,18 +616,18 @@ namespace EKF
         {
             currentOdoVxRefRobot = e.Location.Vx;
             currentOdoVyRefRobot = e.Location.Vy;
-            currentGpsTheta += currentOdoVtheta / fEch;
+
 
             currentOdoVxRefTerrain = currentOdoVxRefRobot * Math.Cos(currentGpsTheta) - currentOdoVyRefRobot * Math.Sin(currentGpsTheta);
             currentOdoVyRefTerrain = currentOdoVxRefRobot * Math.Sin(currentGpsTheta) + currentOdoVyRefRobot * Math.Cos(currentGpsTheta);
             currentOdoVtheta = e.Location.Vtheta;
 
-            currentGpsXRefTerrain += currentOdoVxRefTerrain / fEch;
-            currentGpsYRefTerrain += currentOdoVyRefTerrain / fEch;
+            currentGpsXRefTerrain += currentOdoVxRefRobot * tEch * Math.Cos(currentGpsTheta) - currentOdoVyRefRobot * tEch * Math.Sin(currentGpsTheta);
+            currentGpsYRefTerrain += currentOdoVxRefRobot * tEch * Math.Sin(currentGpsTheta) + currentOdoVyRefRobot * tEch * Math.Cos(currentGpsTheta);
             currentGpsTheta += currentOdoVtheta / fEch;
 
         }
-        public void OnLandmarksReceived(object sender, PointDExtendedListArgs e)  
+        public void OnLandmarksReceived(object sender, PointDExtendedListArgs e)
         {
             if (robotId == e.RobotId)
             {
@@ -536,25 +647,26 @@ namespace EKF
                 }               //Initialisation de l'ekf si c'est la premiere fois qu'on l'appelle 
 
                 int nbre_landmarks = landmarks.Count;
-                int taille = 3 + 2 * nbre_landmarks;
-                int grande_taille = taille;        
-                
-
 
                 //on crée X ET P en regardant s'il y a des new ld ou pas et on trouve en même temps la liste d'indice des landmarks 
 
                 List<int> list_indice_landmarks = acceuil_landmarks(landmarks);
 
-                Matrixxest =  TrouverXestDansX(list_indice_landmarks, MatrixX);       
-                Matrixpest = TrouverPestDansP(list_indice_landmarks, MatrixP);
-                      
+                TrouverXestEtXpredDansX(list_indice_landmarks, MatrixX, landmarks); //Ici on remplie Xest avec ce qu'on connaissait et Xpred avec ce qu'on vient de recevoir
+
+                Matrixpest = TrouverPestDansP(list_indice_landmarks, MatrixP); 
+
                 SLAMCorrection(currentGpsTheta, currentOdoVxRefTerrain, currentOdoVyRefTerrain, currentOdoVtheta, nbre_landmarks, landmarks);
+
+                //List<int> AEnlever = CleanXestFromWeardLandmarks(Matrixxest);                  //A FAIRE : améliorer ça
+                //CleanPestFromWeardLandmarks(AEnlever);
+                //list_indice_landmarks = CleanListIndices(AEnlever, list_indice_landmarks);
 
                 Remettre_Pest_Dans_P(list_indice_landmarks);
 
                 Remettre_Xest_Dans_X(list_indice_landmarks);
 
-                EKFLocationRefTerrain.X = Matrixxest[0, 0];                          
+                EKFLocationRefTerrain.X = Matrixxest[0, 0];
 
                 EKFLocationRefTerrain.Y = Matrixxest[1, 0];
 
@@ -567,9 +679,11 @@ namespace EKF
                 Location EKFOutputLocation = new Location(EKFLocationRefTerrain.X, EKFLocationRefTerrain.Y, EKFLocationRefTerrain.Theta,
                                                             EKFLocationRefRobotVx, EKFLocationRefRobotVy, EKFLocationRefTerrain.Vtheta);
 
+
+
                 OnEKFLocation(robotId, EKFOutputLocation, Matrixxest, Matrixpest); //On balance à l'event les landmarks vus à cet instant et leurs covariances 
                                                                                    // NOTE : possible d'afficher tout les ld connus si on veut (MatrixX)
-                MatrixX=CleanXFromWeardLandmarks(MatrixX);
+
             }
 
         }                                       //Fin de l'algo ! 
@@ -583,17 +697,17 @@ namespace EKF
             var handler = OnEKFLocationEvent;
 
             List<PointDExtended> Liste_Sortie = new List<PointDExtended>();
-            
+
             if (handler != null)
             {
                 for (int i = 3; i < X.Length; i = i + 2)
                 {
                     PointD ptd = new PointD(X[i, 0], X[i + 1, 0]);
-                    PointDExtended Ptde = new PointDExtended(ptd, System.Drawing.Color.Aqua, 5); 
+                    PointDExtended Ptde = new PointDExtended(ptd, System.Drawing.Color.Aqua, 5);
                     Liste_Sortie.Add(Ptde);
                 }
 
-                handler(this, new PosRobotAndLandmarksArgs { RobotId = id, PosLandmarkList = Liste_Sortie, PosRobot = locationRefTerrain }); 
+                handler(this, new PosRobotAndLandmarksArgs { RobotId = id, PosLandmarkList = Liste_Sortie, PosRobot = locationRefTerrain });
             }
         }
 

@@ -34,6 +34,7 @@ namespace WpfSlamInterface
 
         DispatcherTimer timer;
         Location PosRobot = new Location(-1,-0.5,0,0,0,0);
+        static Location PosRobotInconnue = new Location(0,0,0,0,0,0);
         List<PointDExtended> PosLandmarks;
         double date;
         double anglePerceptionRobot = Math.PI;
@@ -74,15 +75,21 @@ namespace WpfSlamInterface
         public void UpdateGUITemp(object sender, EventArgs e)
         {
 
-            PosRobot = PosRobotQuandTuVeux(date, PosRobot);                                                     //fonctionne
+            PosRobot = PosRobotQuandTuVeux(date, PosRobot);                             
             OnEKFOdo((int)TeamId.Team1 + (int)RobotId.Robot1, PosRobot);
-            PosLandmarks = Landmarks_vus(PosRobot, anglePerceptionRobot);                                       //fonctionne 
+            PosLandmarks = Landmarks_vus(PosRobotInconnue, anglePerceptionRobot);               
             OnLandmarksFound((int)TeamId.Team1 + (int)RobotId.Robot1, PosLandmarks);
 
-            My_local_map.UpdateLocalWorldMap(new LocalWorldMap() { RobotId = (int)TeamId.Team1 + (int)RobotId.Robot1,
+            //PosRobot.X += PosRobot.Vx * tEch * Math.Cos(PosRobot.Theta) - PosRobot.Vy * tEch * Math.Sin(PosRobot.Theta);
+            //PosRobot.Y += PosRobot.Vx * tEch * Math.Sin(PosRobot.Theta) + PosRobot.Vy * tEch * Math.Cos(PosRobot.Theta);
+            //PosRobot.Theta += PosRobot.Vtheta * tEch;
+
+            My_local_map.UpdateLocalWorldMap(new LocalWorldMap()
+            {
+                RobotId = (int)TeamId.Team1 + (int)RobotId.Robot1,
                 robotLocation = PosRobot,
                 lidarMap = PosLandmarks,
-            }); 
+            });
 
             date += tEch;
         }
@@ -158,100 +165,107 @@ namespace WpfSlamInterface
         }
         static public Location PosRobotQuandTuVeux(double date, Location PosRobot)
         {
-            if (date<0.05)
+            if (date < 0.02)
             {
-                PosRobot.X = -1;
-                PosRobot.Y = -0.5;
-                PosRobot.Theta = PosRobot.Vtheta = PosRobot.Vx = PosRobot.Vy = 0; 
+                PosRobotInconnue.X = -1;
+                PosRobotInconnue.Y = -0.5;
+                PosRobotInconnue.Theta = PosRobot.Vtheta = PosRobot.Vx = PosRobot.Vy = 0;
             }
+
             else if (date <= 4)
             {
                 if (date < 0.5) //accélération 
                 {
-                    PosRobot.X = 0.5 * date * date - 1;
+                    PosRobotInconnue.X = 0.5 * date * date - 1;
                     PosRobot.Vx = date;
-                    PosRobot.Y = -0.5;
+                    PosRobotInconnue.Y = -0.5;
                     PosRobot.Vy = 0;
-                    PosRobot.Theta = 0;
+                    PosRobotInconnue.Theta = 0;
+                    PosRobot.Vtheta = 0;
                 }
                 else if (date < 3.5) // v =cst
                 {
                     date -= 0.5;
-                    PosRobot.X = 0.5 * date + 0.125 - 1;
+                    PosRobotInconnue.X = 0.5 * date + 0.125 - 1;
                     PosRobot.Vx = 0.5;
-                    PosRobot.Y = -0.5;
+                    PosRobotInconnue.Y = -0.5;
                     PosRobot.Vy = 0;
-                    PosRobot.Theta = 0;
+                    PosRobotInconnue.Theta = 0;
+                    PosRobot.Vtheta = 0;
                 }
                 else //descélération
                 {
                     date -= 3.5;
-                    PosRobot.X = -0.5 * date * date + 0.5 * date + 1.875 - 1;
+                    PosRobotInconnue.X = -0.5 * date * date + 0.5 * date + 1.875 - 1;
                     PosRobot.Vx = -date + 0.5;
-                    PosRobot.Y = -0.5;
+                    PosRobotInconnue.Y = -0.5;
                     PosRobot.Vy = 0;
-                    PosRobot.Theta = 0;
+                    PosRobotInconnue.Theta = 0;
+                    PosRobot.Vtheta = 0;
                 }
-            } //1er trajet, REMARQUE : j'ai mis -1 dans tout les x car on part de (-1, -0.5)
+            } //1er trajet
 
             else if (date <= 6.5)
             {
                 date = date - 4;
                 if (date <= 0.5) //accélération 
                 {
-                    PosRobot.Y = 0.5 * date * date - 0.5;
+                    PosRobotInconnue.Y = 0.5 * date * date - 0.5;
                     PosRobot.Vy = date;
-                    PosRobot.X = 1;
+                    PosRobotInconnue.X = 1;
                     PosRobot.Vx = 0;
-                    PosRobot.Theta = 0;
+                    PosRobotInconnue.Theta = 0;
+                    PosRobot.Vtheta = 0;
                 }
                 else if (date <= 2) //v = cst
                 {
                     date -= 0.5;
-                    PosRobot.Y = 0.5 * date + 0.125 - 0.5;
+                    PosRobotInconnue.Y = 0.5 * date + 0.125 - 0.5;
                     PosRobot.Vy = 0.5;
                     PosRobot.X = 1;
-                    PosRobot.Vx = 0;
-                    PosRobot.Theta = 0;
+                    PosRobotInconnue.Vx = 0;
+                    PosRobotInconnue.Theta = 0;
+                    PosRobot.Vtheta = 0;
                 }
                 else //descélération
                 {
                     date -= 2;
-                    PosRobot.Y = -0.5 * date * date + 0.5 * date + 0.875 - 0.5;
+                    PosRobotInconnue.Y = -0.5 * date * date + 0.5 * date + 0.875 - 0.5;
                     PosRobot.Vy = -date + 0.5;
-                    PosRobot.X = 1;
+                    PosRobotInconnue.X = 1;
                     PosRobot.Vx = 0;
-                    PosRobot.Theta = 0;
+                    PosRobotInconnue.Theta = 0;
+                    PosRobot.Vtheta = 0;
                 }
-            } // 2nd trajet : REMARQUE : j'ai mis -0.5 dans tout les y car on part de (1, -0.5)
+            } // 2nd trajet
 
             else if (date <= 13.5)
             {
                 date -= 6.5;
                 if (date < 1) //accélération
                 {
-                    PosRobot.Theta = date * date * Math.PI / 12;
+                    PosRobotInconnue.Theta = date * date * Math.PI / 12;
                     PosRobot.Vtheta = date * Math.PI / 6;
-                    PosRobot.X = 1;
-                    PosRobot.Y = 0.5;
+                    PosRobotInconnue.X = 1;
+                    PosRobotInconnue.Y = 0.5;
                     PosRobot.Vx = PosRobot.Vy = 0;
                 }
                 else if (date <= 6) //v=cst
                 {
                     date -= 1;
-                    PosRobot.Theta = date * Math.PI / 6 + Math.PI / 12;
+                    PosRobotInconnue.Theta = date * Math.PI / 6 + Math.PI / 12;
                     PosRobot.Vtheta = Math.PI / 6;
-                    PosRobot.X = 1;
-                    PosRobot.Y = 0.5;
+                    PosRobotInconnue.X = 1;
+                    PosRobotInconnue.Y = 0.5;
                     PosRobot.Vx = PosRobot.Vy = 0;
                 }
                 else
                 {
                     date -= 6;
-                    PosRobot.Theta = -date * date * Math.PI / 12 + date * Math.PI / 6 + 11 * Math.PI / 12;
+                    PosRobotInconnue.Theta = -date * date * Math.PI / 12 + date * Math.PI / 6 + 11 * Math.PI / 12;
                     PosRobot.Vtheta = -date * Math.PI / 6 + Math.PI / 6;
-                    PosRobot.X = 1;
-                    PosRobot.Y = 0.5;
+                    PosRobotInconnue.X = 1;
+                    PosRobotInconnue.Y = 0.5;
                     PosRobot.Vx = PosRobot.Vy = 0;
                 }
             } // 3eme trajet
@@ -261,29 +275,32 @@ namespace WpfSlamInterface
                 date -= 13.5;
                 if (date < 0.5) //accélération 
                 {
-                    PosRobot.X = -0.5 * date * date + 1;
+                    PosRobotInconnue.X = -0.5 * date * date + 1;
                     PosRobot.Vx = date;
-                    PosRobot.Y = 0.5;
+                    PosRobotInconnue.Y = 0.5;
                     PosRobot.Vy = 0;
-                    PosRobot.Theta = Math.PI;
+                    PosRobotInconnue.Theta = Math.PI;
+                    PosRobot.Vtheta = 0;
                 }
                 else if (date < 3.5) // v =cst
                 {
                     date -= 0.5;
-                    PosRobot.X = -0.5 * date - 0.125 + 1;
+                    PosRobotInconnue.X = -0.5 * date - 0.125 + 1;
                     PosRobot.Vx = 0.5;
-                    PosRobot.Y = 0.5;
+                    PosRobotInconnue.Y = 0.5;
                     PosRobot.Vy = 0;
-                    PosRobot.Theta = Math.PI;
+                    PosRobotInconnue.Theta = Math.PI;
+                    PosRobot.Vtheta = 0;
                 }
                 else //descélération
                 {
                     date -= 3.5;
-                    PosRobot.X = 0.5 * date * date - 0.5 * date - 1.875 + 1;
+                    PosRobotInconnue.X = 0.5 * date * date - 0.5 * date - 1.875 + 1;
                     PosRobot.Vx = -date + 0.5;
-                    PosRobot.Y = 0.5;
+                    PosRobotInconnue.Y = 0.5;
                     PosRobot.Vy = 0;
-                    PosRobot.Theta = Math.PI;
+                    PosRobotInconnue.Theta = Math.PI;
+                    PosRobot.Vtheta = 0;
                 }
             } //4eme trajet
 
@@ -292,28 +309,28 @@ namespace WpfSlamInterface
                 date -= 17.5;
                 if (date < 1) //accélération
                 {
-                    PosRobot.Theta = date * date * Math.PI / 12 + Math.PI;
+                    PosRobotInconnue.Theta = date * date * Math.PI / 12 + Math.PI;
                     PosRobot.Vtheta = date * Math.PI / 6;
-                    PosRobot.X = -1;
-                    PosRobot.Y = 0.5;
+                    PosRobotInconnue.X = -1;
+                    PosRobotInconnue.Y = 0.5;
                     PosRobot.Vx = PosRobot.Vy = 0;
                 }
                 else if (date <= 6) //v=cst
                 {
                     date -= 1;
-                    PosRobot.Theta = date * Math.PI / 6 + 13 * Math.PI / 12;
+                    PosRobotInconnue.Theta = date * Math.PI / 6 + 13 * Math.PI / 12;
                     PosRobot.Vtheta = Math.PI / 6;
-                    PosRobot.X = -1;
-                    PosRobot.Y = 0.5;
+                    PosRobotInconnue.X = -1;
+                    PosRobotInconnue.Y = 0.5;
                     PosRobot.Vx = PosRobot.Vy = 0;
                 }
                 else
                 {
                     date -= 6;
-                    PosRobot.Theta = -date * date * Math.PI / 12 + date * Math.PI / 6 + 11 * Math.PI / 12;
+                    PosRobotInconnue.Theta = -date * date * Math.PI / 12 + date * Math.PI / 6 + 11 * Math.PI / 12;
                     PosRobot.Vtheta = -date * Math.PI / 6 + Math.PI / 6;
-                    PosRobot.X = -1;
-                    PosRobot.Y = 0.5;
+                    PosRobotInconnue.X = -1;
+                    PosRobotInconnue.Y = 0.5;
                     PosRobot.Vx = PosRobot.Vy = 0;
                 }
             } // 5eme trajet
@@ -323,41 +340,51 @@ namespace WpfSlamInterface
                 date = date - 21;
                 if (date <= 0.5) //accélération 
                 {
-                    PosRobot.Y = -0.5 * date * date + 0.5;
+                    PosRobotInconnue.Y = -0.5 * date * date + 0.5;
                     PosRobot.Vy = 0;
-                    PosRobot.X = -1;
+                    PosRobotInconnue.X = -1;
                     PosRobot.Vx = date;
-                    PosRobot.Theta = -Math.PI / 2;
+                    PosRobotInconnue.Theta = -Math.PI / 2;
+                    PosRobot.Vtheta = 0;
                 }
                 else if (date <= 2) //v = cst
                 {
                     date -= 0.5;
-                    PosRobot.Y = -0.5 * date - 0.125 + 0.5;
+                    PosRobotInconnue.Y = -0.5 * date - 0.125 + 0.5;
                     PosRobot.Vy = 0;
-                    PosRobot.X = -1;
+                    PosRobotInconnue.X = -1;
                     PosRobot.Vx = 0.5;
-                    PosRobot.Theta = -Math.PI / 2;
+                    PosRobotInconnue.Theta = -Math.PI / 2;
+                    PosRobot.Vtheta = 0;
                 }
                 else //descélération
                 {
                     date -= 2;
-                    PosRobot.Y = 0.5 * date * date - 0.5 * date - 0.875 + 0.5;
+                    PosRobotInconnue.Y = 0.5 * date * date - 0.5 * date - 0.875 + 0.5;
                     PosRobot.Vy = 0;
-                    PosRobot.X = -1;
+                    PosRobotInconnue.X = -1;
                     PosRobot.Vx = -date + 0.5;
-                    PosRobot.Theta = -Math.PI / 2;
+                    PosRobotInconnue.Theta = -Math.PI / 2;
+                    PosRobot.Vtheta = 0;
                 }
             } // 6nd trajet
 
             else if (date > 28)
-                PosRobot.Theta -= Math.PI / 50;  // FIN
+            {
+                PosRobot.Vx = PosRobot.Vy = 0; 
+                PosRobotInconnue.Theta -= Math.PI / 100;  
+                PosRobot.Vtheta = -Math.PI/2 ;
+            } // FIN
 
-            if (date != 0)
-                PosRobot = Bruitage_position(PosRobot);
+            //if (date != 0)
+            //    PosRobot = Bruitage_position(PosRobot);
+
+            PosRobotInconnue.Vx = PosRobot.Vx;
+            PosRobotInconnue.Vy = PosRobot.Vy;
+            PosRobotInconnue.Vtheta = PosRobot.Vtheta;
 
             return PosRobot;
         }
-
         public List<List<double>> fabrication_landmarks()
         {
             List<List<double>> liste_total_landmarks = new List<List<double>> { };
@@ -365,12 +392,14 @@ namespace WpfSlamInterface
             List<double> ld = new List<double> { -1.5, -1 };
             liste_total_landmarks.Add(ld);
 
-            //ld = new List<double> { -1.5, 0 };
-            //liste_total_landmarks.Add(ld);
-
             ld = new List<double> { -1.5, 1 };
             liste_total_landmarks.Add(ld);
 
+            ld = new List<double> { 1.5, -1 };
+            liste_total_landmarks.Add(ld);
+
+            ld = new List<double> { 1.5, 1 };
+            liste_total_landmarks.Add(ld);
 
             //ld = new List<double> { 0, -1 };
             //liste_total_landmarks.Add(ld);
@@ -378,16 +407,11 @@ namespace WpfSlamInterface
             //ld = new List<double> { 0, 1 };
             //liste_total_landmarks.Add(ld);
 
-            ld = new List<double> { 1.5, -1 };
-            liste_total_landmarks.Add(ld);
-
             //ld = new List<double> { 1.5, 0 };
+            //liste_total_landmarks.Add(ld);                                    // on crée des ld artificiels là ou on veut 
+
+            //ld = new List<double> { -1.5, 0 };
             //liste_total_landmarks.Add(ld);
-
-
-            ld = new List<double> { 1.5, 1 };
-            liste_total_landmarks.Add(ld);                                          // on crée des ld artificiels là ou on veut 
-
 
             return liste_total_landmarks; // Cette liste doit être triée
         }
