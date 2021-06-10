@@ -82,6 +82,8 @@ namespace EKF
             InitEKF(robotId, 50); //ALEX  je fais des petits tests 
 
         }
+
+        #region Cleaning Weard Landmarks
         public List<int> CleanXestFromWeardLandmarks(double[,] X)
         {
             List<double> liste_matrice = new List<double> { };   //on connait pas encore la dim de sortie donc on fait une liste 
@@ -167,7 +169,6 @@ namespace EKF
                 Matrixpest = matrice_apres;
             } // pas la peine de reflechir, si la liste est vide on a rien a faire 
         }
-
         public List<int> CleanListIndices(List<int> AEnlever, List<int> ListIndices)
         {
             foreach (int indice_a_enlever in AEnlever)
@@ -190,7 +191,9 @@ namespace EKF
             return ListIndices;
         }
 
-        #region Fonctions pour gérer les tailles de matrices 
+        #endregion 
+
+        #region Fonctions pour trouver ou remettre des matrices dans d'autres 
 
         public void Remettre_Pest_Dans_P(List<int> list_indices_dans_P)
         {
@@ -398,7 +401,7 @@ namespace EKF
             return MatrixSortie;
         }
 
-        #endregion Fonctions pour gérer les tailles de matrices 
+        #endregion 
 
         #region Fonctions pour acceuillir les ld 
 
@@ -465,6 +468,7 @@ namespace EKF
 
         #endregion Fonctions pour acceuillir les ld 
 
+        
         //initialisation de l'ekf quand ce programme est appelé pour la première fois 
         public void InitEKF(int id, double freqEchOdometry)
         {                                                                                                       // Ici on doit initialiser MatrixDelta, R et Q et les trucs qui ne changeront pas 
@@ -508,8 +512,6 @@ namespace EKF
             MatrixKdeltaz = new double[5, 1];
         }
 
-
-
         // itération de l'ekf
         public void SLAMCorrection(double GPS_Theta, double Odo_VX, double Odo_VY, double Odo_VTheta, int nbre_landmarks, List<List<double>> landmarks_observés)
         {
@@ -524,12 +526,11 @@ namespace EKF
             MatrixxPred[2, 0] = currentGpsTheta;
 
             //MEGA BOUCLE//
-
-            for (int j = 0; j < nbre_landmarks; j++)                                                                    //on parcours 1 par 1 les landmarks
+            for (int j = 0; j < nbre_landmarks; j++)                                                        //on parcours 1 par 1 les landmarks
             {
 
-                MatrixXi = Trouver_Xi_Dans_Xest(j);                                                                     //on initialise Xi
-                MatrixPi = Trouver_Pi_dans_Pest(j);                                                                     //on initialise Pi
+                MatrixXi = Trouver_Xi_Dans_Xest(j);                                                         //on initialise Xi
+                MatrixPi = Trouver_Pi_dans_Pest(j);                                                         //on initialise Pi
 
                 MatrixXiPred = TrouverXiPredDansXpred(j);
 
@@ -537,32 +538,31 @@ namespace EKF
                 Toolbox.Multiply(MatrixG, Toolbox.Multiply(MatrixPi, Toolbox.Transpose(MatrixG))),
                 Toolbox.Multiply(Toolbox.Transpose(MatrixFx), Toolbox.Multiply(MatrixR, MatrixFx)));
 
+                #region Calcul de Zpred
 
-
-                double deltax = MatrixXi[3, 0] - MatrixXi[0, 0];                                                               //construction du vecteur delta du dernier ld 
+                double deltax = MatrixXi[3, 0] - MatrixXi[0, 0];                                            //construction du vecteur delta du dernier ld 
                 double deltay = MatrixXi[4, 0] - MatrixXi[1, 0];
                 MatrixDelta[0, 0] = deltax;
                 MatrixDelta[1, 0] = deltay;
-                double q = Toolbox.Multiply(Toolbox.Transpose(MatrixDelta), MatrixDelta)[0, 0];                         // c'est un réel car dimension 2*1 fois sa transposée (voir brouillon) 
-                MatrixZPred[0, 0] = Math.Sqrt(q);                                                                       // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
+                double q = Toolbox.Multiply(Toolbox.Transpose(MatrixDelta), MatrixDelta)[0, 0];             // c'est un réel car dimension 2*1 fois sa transposée (voir brouillon) 
+                MatrixZPred[0, 0] = Math.Sqrt(q);                                                           // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
                 MatrixZPred[1, 0] = Math.Atan2(deltay, deltax) - GPS_Theta;
 
+                #endregion
 
-
-                double deltax2 = landmarks_observés[j][0] - Matrixxest[0, 0];                           //on refait les calculs avec le landmark observé maintenant 
+                #region Calcul de ZObservé
+                double deltax2 = landmarks_observés[j][0] - Matrixxest[0, 0];                               //on refait les calculs avec le landmark observé maintenant 
                 double deltay2 = landmarks_observés[j][1] - Matrixxest[1, 0];
 
                 MatrixDelta[0, 0] = deltax2;
                 MatrixDelta[1, 0] = deltay2;
                 q = Toolbox.Multiply(Toolbox.Transpose(MatrixDelta), MatrixDelta)[0, 0];
-                MatrixZ[0, 0] = Math.Sqrt(q);                                                                           // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
+                MatrixZ[0, 0] = Math.Sqrt(q);                                                               // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
                 MatrixZ[1, 0] = Math.Atan2(deltay2 , deltax2) - GPS_Theta;
+                #endregion
 
-
-
-
-
-                MatrixHi[0, 0] = -(1 / Math.Sqrt(q)) * deltax;                                                        //ici on prépare Hi = lowH
+                #region Calcul de H
+                MatrixHi[0, 0] = -(1 / Math.Sqrt(q)) * deltax;                                              //ici on prépare Hi = lowH
                 MatrixHi[0, 1] = -(1 / Math.Sqrt(q)) * deltay;
                 MatrixHi[0, 2] = 0;
                 MatrixHi[0, 3] = (1 / Math.Sqrt(q)) * deltax;
@@ -572,44 +572,41 @@ namespace EKF
                 MatrixHi[1, 2] = -1;
                 MatrixHi[1, 3] = (-1 / q) * deltay;
                 MatrixHi[1, 4] = (1 / q) * deltax;
+                #endregion
 
                 MatrixParentheses = Toolbox.Multiply(MatrixHi, Toolbox.Multiply(MatrixPi, Toolbox.Transpose(MatrixHi)));
 
-                MatrixParentheses = Toolbox.Addition_Matrices(MatrixParentheses, MatrixQ);                              //On ajoute Q à la parenthèse
+                MatrixParentheses = Toolbox.Addition_Matrices(MatrixParentheses, MatrixQ);                                  //On ajoute Q à la parenthèse
 
-                MatrixParentheses = Toolbox.Inverse(MatrixParentheses);                                                 //on fais l'inverse de la parenthèses
+                MatrixParentheses = Toolbox.Inverse(MatrixParentheses);                                                     //on fais l'inverse de la parenthèses
 
                 MatrixKi = Toolbox.Multiply(MatrixpPred, Toolbox.Multiply(Toolbox.Transpose(MatrixHi), MatrixParentheses)); //On trouve enfin Ki
 
                 for (int indices = 0; indices < MatrixZ.Length; indices++)
                 {
-                    MatrixZ[indices, 0] -= MatrixZPred[indices, 0];                                                       // A partir de là MatrixZ contient la différence entre prédiction et observation 
+                    MatrixZ[indices, 0] -= MatrixZPred[indices, 0];                                                         // A partir de là MatrixZ contient la différence entre prédiction et observation 
                 }
+
                 MatrixKdeltaz = Toolbox.Multiply(MatrixKi, MatrixZ);
 
                 MatrixKdeltaz = Toolbox.Addition_Matrices(MatrixXiPred, MatrixKdeltaz);
 
-                Matrixxest[0, 0] = MatrixKdeltaz[0, 0];                                                                 //sert a remettre xi dans xest 
+                Matrixxest[0, 0] = MatrixKdeltaz[0, 0];                                                     //sert a remettre xi dans xest 
                 Matrixxest[1, 0] = MatrixKdeltaz[1, 0];
                 Matrixxest[2, 0] = MatrixKdeltaz[2, 0];
                 Matrixxest[2 * j + 3, 0] = MatrixKdeltaz[3, 0];
                 Matrixxest[2 * j + 4, 0] = MatrixKdeltaz[4, 0];
 
-                MatrixKi = Toolbox.Multiply(MatrixKi, MatrixHi);                                                        //maintenant ki continient K*H
+                MatrixKi = Toolbox.Multiply(MatrixKi, MatrixHi);                                            //maintenant ki continient K*H
                 for (int ligne = 0; ligne < 5; ligne++) { for (int colonne = 0; colonne < 5; colonne++) { MatrixKi[ligne, colonne] = -MatrixKi[ligne, colonne]; } }
 
                 MatrixPi = Toolbox.Multiply(Toolbox.Addition_Matrices(MatrixFx, MatrixKi), MatrixpPred);
 
                 Remettre_Pi_dans_Pest(j);
 
-
-
             }   // FIN DE MEGA BOUCLE
 
-
         }
-
-
 
         //Inputs events
         public void OnOdoReceived(object sender, LocationArgs e)
@@ -686,9 +683,7 @@ namespace EKF
 
             }
 
-        }                                       //Fin de l'algo ! 
-
-
+        }                       //Fin de l'algo ! 
 
         //Output events
         public event EventHandler<PosRobotAndLandmarksArgs> OnEKFLocationEvent;

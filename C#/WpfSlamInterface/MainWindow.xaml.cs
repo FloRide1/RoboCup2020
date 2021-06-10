@@ -127,6 +127,7 @@ namespace WpfSlamInterface
         #endregion events
 
         #region simu 
+
         public List<PointDExtended> Landmarks_vus(Location PosRobot, double anglePerceptionRobot)
         {
             List<List<double>> liste_total_landmarks = fabrication_landmarks();
@@ -165,6 +166,7 @@ namespace WpfSlamInterface
         }
         static public Location PosRobotQuandTuVeux(double date, Location PosRobot)
         {
+            #region pos=f(t)
             if (date < 0.02)
             {
                 PosRobotInconnue.X = -1;
@@ -375,6 +377,7 @@ namespace WpfSlamInterface
                 PosRobotInconnue.Theta -= Math.PI / 100;  
                 PosRobot.Vtheta = -Math.PI/2 ;
             } // FIN
+            #endregion
 
             //if (date != 0)
             //    PosRobot = Bruitage_position(PosRobot);
@@ -469,7 +472,7 @@ namespace WpfSlamInterface
             return ListSale;
         }
 
-        #endregion simu
+        #endregion 
 
     }
 }
