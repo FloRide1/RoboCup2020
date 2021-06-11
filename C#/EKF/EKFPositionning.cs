@@ -13,10 +13,15 @@ namespace EKF
 {
     public class EKFPositionning
     {
+        //Paramètres
+        bool wantToClean = false;
+        bool newPMethode = false; 
+
         #region variables 
         List<PointD> liste_landmarks = new List<PointD> { }; //pour odo
         int robotId = (int)TeamId.Team1 + (int)RobotId.Robot1;
         double freqEchOdometry = 50;
+        int init_de_P = 1000000000;
 
         private int Appel_pour_la_première_fois = 0;
 
@@ -60,9 +65,6 @@ namespace EKF
         double currentOdoVtheta = 0;
 
         Location EKFLocationRefTerrain = new Location(0, 0, 0, 0, 0, 0);
-
-        #endregion variables
-
         public EKFPositionning(LocationArgs Init)
         {
             robotId = Init.RobotId;
@@ -84,6 +86,7 @@ namespace EKF
             InitEKF(robotId, 50); //ALEX  je fais des petits tests 
 
         }
+        #endregion variables
 
         #region Cleaning Weard Landmarks
         public List<int> CleanXestFromWeardLandmarks(double[,] X)
@@ -99,7 +102,7 @@ namespace EKF
 
             for (int i = 3; i < X.Length; i++)
             {
-                if ((X[i, 0] < -(LongueurTerrain+0.5)) | (X[i, 0] > LongueurTerrain + 0.5))
+                if ((X[i, 0] < -(LongueurTerrain + 0.5)) | (X[i, 0] > LongueurTerrain + 0.5))
                 {
                     if (i % 2 == 1) //impair => x
                     {
@@ -178,15 +181,15 @@ namespace EKF
                 for (int indice_en_cours = 0; indice_en_cours < ListIndices.Count; indice_en_cours++)
                 {
                     int indice_dans_list_indices = ListIndices[indice_en_cours];
-                    if (indice_dans_list_indices == indice_a_enlever) 
+                    if (indice_dans_list_indices == indice_a_enlever)
                     {
                         for (int i = 0; i < ListIndices.Count; i++)
-                            if(ListIndices[i]> ListIndices[indice_en_cours]) { ListIndices[i] -= 2; }
+                            if (ListIndices[i] > ListIndices[indice_en_cours]) { ListIndices[i] -= 2; }
                         ListIndices.RemoveAt(indice_en_cours);
                         indice_en_cours -= 1;
                     }
 
-                    
+
                 }
             }
 
@@ -268,13 +271,13 @@ namespace EKF
 
             int indiceDansXest = 3;
 
-            foreach(int indiceDansX in list_indices_dans_X)
+            foreach (int indiceDansX in list_indices_dans_X)
             {
                 MatrixX[indiceDansX] = Matrixxest[indiceDansXest, 0];
-                MatrixX[indiceDansX +1 ] = Matrixxest[indiceDansXest +1, 0];
+                MatrixX[indiceDansX + 1] = Matrixxest[indiceDansXest + 1, 0];
                 indiceDansXest += 2;
             }
-            
+
         }
 
         public double[,] Trouver_Xi_Dans_Xest(int num_ld)
@@ -325,6 +328,7 @@ namespace EKF
         }
         public void TrouverXestEtXpredDansX(List<int> Indices, double[] X, List<List<double>> landmarks)
         {
+            #region Xest
             double[,] MatrixXestSortie = new double[2 * Indices.Count + 3, 1];
             MatrixXestSortie[0, 0] = X[0];
             MatrixXestSortie[1, 0] = X[1];
@@ -338,7 +342,9 @@ namespace EKF
                 indice += 2;
             }
             Matrixxest = MatrixXestSortie;   // Xest se fait a partir de ce qu'on avait avant 
+            #endregion
 
+            #region Xpred
             double[,] MatrixXpredSortie = new double[2 * Indices.Count + 3, 1];
             indice = 3;                                        // la pred se fait avec ce qu'on vient de recevoir 
 
@@ -350,7 +356,69 @@ namespace EKF
             }
 
             MatrixxPred = MatrixXpredSortie;
+            #endregion 
+        }
 
+        public void TrouverPestEtPpredDansP(List<int> Indices, double[,] P)
+        {
+            #region Pest
+            double[,] MatrixPestSortie = new double[2 * Indices.Count + 3, 2 * Indices.Count + 3];
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    MatrixPestSortie[i, j] = P[i, j];
+                }
+            }
+            int indice = 3;
+            foreach (int item in Indices)
+            {
+
+                MatrixPestSortie[0, indice] = P[0, item]; //k
+                MatrixPestSortie[0, indice + 1] = P[0, item + 1]; //l
+                MatrixPestSortie[1, indice] = P[1, item]; //m
+                MatrixPestSortie[1, indice + 1] = P[1, item + 1]; //n
+                MatrixPestSortie[2, indice] = P[2, item]; //o
+                MatrixPestSortie[2, indice + 1] = P[2, item + 1]; //p
+                MatrixPestSortie[indice, 0] = P[item, 0]; //q
+                MatrixPestSortie[indice, 1] = P[item, 1]; //r
+                MatrixPestSortie[indice, 2] = P[item, 2]; //s
+                MatrixPestSortie[indice + 1, 0] = P[item + 1, 0]; //v
+                MatrixPestSortie[indice + 1, 1] = P[item + 1, 1]; //w
+                MatrixPestSortie[indice + 1, 2] = P[item + 1, 2]; //x
+                MatrixPestSortie[indice, indice] = P[item, item]; //t
+                MatrixPestSortie[indice, indice + 1] = P[item, item + 1]; //u
+                MatrixPestSortie[indice + 1, indice] = P[item + 1, item]; //y
+                MatrixPestSortie[indice + 1, indice + 1] = P[item + 1, item + 1]; //z
+
+                indice += 2;
+            }
+
+            Matrixpest = MatrixPestSortie;
+            #endregion
+
+            #region Ppred 
+            double[,] MatrixPpredSortie = new double[2 * Indices.Count + 3, 2 * Indices.Count + 3];
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    MatrixPestSortie[i, j] = P[i, j];
+                }
+            }
+
+            int indice2 = 3;
+
+            foreach (int item in Indices)
+            {
+                MatrixPpredSortie[indice2, indice2] = init_de_P; // t
+                MatrixPpredSortie[indice2 + 1, indice2 + 1] = init_de_P; //z
+
+                indice += 2;
+            }
+
+            MatrixpPred = MatrixPpredSortie; 
+            #endregion 
         }
         public double[,] TrouverPestDansP(List<int> List_indices, double[,] P)
         {
@@ -429,8 +497,8 @@ namespace EKF
                     matrice_apres[row, column] = P[row, column];
                 }
             }
-            matrice_apres[(int)Math.Sqrt(P.Length), (int)Math.Sqrt(P.Length)] = 1051;                                                                     //Initialisation de P à "l'infini"
-            matrice_apres[(int)Math.Sqrt(P.Length) + 1, (int)Math.Sqrt(P.Length) + 1] = 1051;
+            matrice_apres[(int)Math.Sqrt(P.Length), (int)Math.Sqrt(P.Length)] = init_de_P;                                                                     //Initialisation de P à "l'infini"
+            matrice_apres[(int)Math.Sqrt(P.Length) + 1, (int)Math.Sqrt(P.Length) + 1] = init_de_P;
 
             return matrice_apres;
         }
@@ -469,10 +537,6 @@ namespace EKF
         }
 
         #endregion Fonctions pour acceuillir les ld 
-
-        
-
-
 
         //initialisation de l'ekf quand ce programme est appelé pour la première fois 
         public void InitEKF(int id, double freqEchOdometry)
@@ -516,7 +580,6 @@ namespace EKF
 
             MatrixKdeltaz = new double[5, 1];
         }
-
         // itération de l'ekf
         public void SLAMCorrection(double GPS_Theta, double Odo_VX, double Odo_VY, double Odo_VTheta, int nbre_landmarks, List<List<double>> landmarks_observés)
         {
@@ -544,27 +607,27 @@ namespace EKF
                 Toolbox.Multiply(MatrixG, Toolbox.Multiply(MatrixPi, Toolbox.Transpose(MatrixG))),
                 Toolbox.Multiply(Toolbox.Transpose(MatrixFx), Toolbox.Multiply(MatrixR, MatrixFx)));
 
-                #region Calcul de Zpred
+                #region Calcul de Z
 
                 double deltax = MatrixXi[3, 0] - MatrixXi[0, 0];                                            //construction du vecteur delta du dernier ld 
                 double deltay = MatrixXi[4, 0] - MatrixXi[1, 0];
                 MatrixDelta[0, 0] = deltax;
                 MatrixDelta[1, 0] = deltay;
                 double q = Toolbox.Multiply(Toolbox.Transpose(MatrixDelta), MatrixDelta)[0, 0];             // c'est un réel car dimension 2*1 fois sa transposée (voir brouillon) 
-                MatrixZPred[0, 0] = Math.Sqrt(q);                                                           // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
-                MatrixZPred[1, 0] = Math.Atan2(deltay, deltax) - GPS_Theta;
+                MatrixZ[0, 0] = Math.Sqrt(q);                                                           // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
+                MatrixZ[1, 0] = Math.Atan2(deltay, deltax) - GPS_Theta;
 
                 #endregion
-
-                #region Calcul de Zobservé
+                // A FAIRE UTILISER XPRED AU LIEU DES LD ET ENLEVER landmarks_observés 
+                #region Calcul de ZPred          
                 double deltax2 = landmarks_observés[j][0] - Matrixxest[0, 0];                               //on refait les calculs avec le landmark observé maintenant 
                 double deltay2 = landmarks_observés[j][1] - Matrixxest[1, 0];
 
                 MatrixDelta[0, 0] = deltax2;
                 MatrixDelta[1, 0] = deltay2;
                 q = Toolbox.Multiply(Toolbox.Transpose(MatrixDelta), MatrixDelta)[0, 0];
-                MatrixZ[0, 0] = Math.Sqrt(q);                                                               // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
-                MatrixZ[1, 0] = Math.Atan2(deltay2 , deltax2) - GPS_Theta;
+                MatrixZPred[0, 0] = Math.Sqrt(q);                                                               // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
+                MatrixZPred[1, 0] = Math.Atan2(deltay2, deltax2) - GPS_Theta;
 
                 #endregion
 
@@ -591,10 +654,10 @@ namespace EKF
 
                 for (int indices = 0; indices < MatrixZ.Length; indices++)
                 {
-                    MatrixZ[indices, 0] -= MatrixZPred[indices, 0];                         // A partir de là MatrixZ contient la différence entre prédiction et observation 
+                    MatrixZPred[indices, 0] -= MatrixZ[indices, 0];                         // A partir de là MatrixZ contient la différence entre prédiction et observation 
                 }
 
-                MatrixKdeltaz = Toolbox.Multiply(MatrixKi, MatrixZ);
+                MatrixKdeltaz = Toolbox.Multiply(MatrixKi, MatrixZPred);
 
                 MatrixKdeltaz = Toolbox.Addition_Matrices(MatrixXiPred, MatrixKdeltaz);
 
@@ -605,12 +668,12 @@ namespace EKF
                 Matrixxest[2 * j + 4, 0] = MatrixKdeltaz[4, 0];
 
                 MatrixKi = Toolbox.Multiply(MatrixKi, MatrixHi);                                            //maintenant ki continient K*H
-                for (int ligne = 0; ligne < 5; ligne++) 
-                { 
-                    for (int colonne = 0; colonne < 5; colonne++) 
-                    { 
-                        MatrixKi[ligne, colonne] = -MatrixKi[ligne, colonne]; 
-                    } 
+                for (int ligne = 0; ligne < 5; ligne++)
+                {
+                    for (int colonne = 0; colonne < 5; colonne++)
+                    {
+                        MatrixKi[ligne, colonne] = -MatrixKi[ligne, colonne];
+                    }
                 }
 
                 MatrixPi = Toolbox.Multiply(Toolbox.Addition_Matrices(MatrixFx, MatrixKi), MatrixpPred);
@@ -620,7 +683,10 @@ namespace EKF
             }   // FIN DE MEGA BOUCLE
 
         }
+        
 
+
+        #region events
         //Inputs events
         public void OnOdoReceived(object sender, LocationArgs e)
         {
@@ -664,13 +730,25 @@ namespace EKF
 
                 TrouverXestEtXpredDansX(list_indice_landmarks, MatrixX, landmarks); //Ici on remplie Xest avec ce qu'on connaissait et Xpred avec ce qu'on vient de recevoir
 
-                Matrixpest = TrouverPestDansP(list_indice_landmarks, MatrixP); 
+
+                if (newPMethode)
+                    TrouverPestEtPpredDansP(list_indice_landmarks, MatrixP);
+                else 
+                    Matrixpest = TrouverPestDansP(list_indice_landmarks, MatrixP);
 
                 SLAMCorrection(currentGpsTheta, currentOdoVxRefTerrain, currentOdoVyRefTerrain, currentOdoVtheta, nbre_landmarks, landmarks);
 
-                //List<int> AEnlever = CleanXestFromWeardLandmarks(Matrixxest);
-                //CleanPestFromWeardLandmarks(AEnlever);
-                //list_indice_landmarks = CleanListIndices(AEnlever, list_indice_landmarks);
+                #region Clean weard landmraks
+
+                if (wantToClean)
+                {
+                    List<int> AEnlever = CleanXestFromWeardLandmarks(Matrixxest);
+                    CleanPestFromWeardLandmarks(AEnlever);
+                    list_indice_landmarks = CleanListIndices(AEnlever, list_indice_landmarks);
+                }
+
+
+                #endregion
 
                 Remettre_Pest_Dans_P(list_indice_landmarks);
 
@@ -697,7 +775,6 @@ namespace EKF
             }
 
         }                       //Fin de l'algo ! 
-
         //Output events
         public event EventHandler<PosRobotAndLandmarksArgs> OnEKFLocationEvent;
         public virtual void OnEKFLocation(int id, Location locationRefTerrain, double[,] X, double[,] Covariances)
@@ -718,7 +795,7 @@ namespace EKF
                 handler(this, new PosRobotAndLandmarksArgs { RobotId = id, PosLandmarkList = Liste_Sortie, PosRobot = locationRefTerrain });
             }
         }
-
+        #endregion
     }
 }
 

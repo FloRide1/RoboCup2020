@@ -31,6 +31,12 @@ namespace WpfSlamInterface
     
     public partial class MainWindow : Window
     {
+        //Paramètres
+        static bool bruitage_odo = false;
+        bool bruitage_ld = false;
+        bool tout_les_ld = false;
+
+
 
         DispatcherTimer timer;
         Location PosRobot = new Location(-1,-0.5,0,0,0,0);
@@ -93,7 +99,6 @@ namespace WpfSlamInterface
 
             date += tEch;
         }
-
 
         #region events
 
@@ -160,7 +165,8 @@ namespace WpfSlamInterface
                 }
             }
 
-            MaListe = Bruitage_Landmarks(MaListe);
+            if (bruitage_ld)  
+                MaListe = Bruitage_Landmarks(MaListe); 
 
             return MaListe;
         }
@@ -379,8 +385,8 @@ namespace WpfSlamInterface
             } // FIN
             #endregion
 
-            //if (date != 0)
-            //    PosRobot = Bruitage_position(PosRobot);
+            if (bruitage_odo)
+                PosRobot = Bruitage_position(PosRobot);
 
             PosRobotInconnue.Vx = PosRobot.Vx;
             PosRobotInconnue.Vy = PosRobot.Vy;
@@ -395,7 +401,7 @@ namespace WpfSlamInterface
             List<double> ld = new List<double> { -1.5, -1 };
             liste_total_landmarks.Add(ld);
 
-            ld = new List<double> { -1.5, 1 };
+            ld = new List<double> { -1.5, 1 };                  // on crée des ld artificiels là ou on veut 
             liste_total_landmarks.Add(ld);
 
             ld = new List<double> { 1.5, -1 };
@@ -404,17 +410,21 @@ namespace WpfSlamInterface
             ld = new List<double> { 1.5, 1 };
             liste_total_landmarks.Add(ld);
 
-            //ld = new List<double> { 0, -1 };
-            //liste_total_landmarks.Add(ld);
+            if (tout_les_ld)
+            {
+                ld = new List<double> { 0, -1 };
+                liste_total_landmarks.Add(ld);
 
-            //ld = new List<double> { 0, 1 };
-            //liste_total_landmarks.Add(ld);
+                ld = new List<double> { 0, 1 };
+                liste_total_landmarks.Add(ld);
 
-            //ld = new List<double> { 1.5, 0 };
-            //liste_total_landmarks.Add(ld);                                    // on crée des ld artificiels là ou on veut 
+                ld = new List<double> { 1.5, 0 };
+                liste_total_landmarks.Add(ld);                                    
 
-            //ld = new List<double> { -1.5, 0 };
-            //liste_total_landmarks.Add(ld);
+                ld = new List<double> { -1.5, 0 };
+                liste_total_landmarks.Add(ld);
+            }
+
 
             return liste_total_landmarks; // Cette liste doit être triée
         }
