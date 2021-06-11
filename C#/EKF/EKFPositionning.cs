@@ -20,6 +20,8 @@ namespace EKF
 
         private int Appel_pour_la_première_fois = 0;
 
+        int LongueurTerrain = 3; // on met la grande longueur
+
         private double tEch = 0.02;
         private double fEch = 50;
 
@@ -97,7 +99,7 @@ namespace EKF
 
             for (int i = 3; i < X.Length; i++)
             {
-                if ((X[i, 0] < -1.6) | (X[i, 0] > 1.6))
+                if ((X[i, 0] < -(LongueurTerrain+0.5)) | (X[i, 0] > LongueurTerrain + 0.5))
                 {
                     if (i % 2 == 1) //impair => x
                     {
@@ -173,7 +175,7 @@ namespace EKF
         {
             foreach (int indice_a_enlever in AEnlever)
             {
-                for (int indice_en_cours =0; indice_en_cours < ListIndices.Count; indice_en_cours++)
+                for (int indice_en_cours = 0; indice_en_cours < ListIndices.Count; indice_en_cours++)
                 {
                     int indice_dans_list_indices = ListIndices[indice_en_cours];
                     if (indice_dans_list_indices == indice_a_enlever) 
@@ -191,7 +193,7 @@ namespace EKF
             return ListIndices;
         }
 
-        #endregion 
+        #endregion  // A FAIRE, PRENDRE LES DIM TERRAIN 
 
         #region Fonctions pour trouver ou remettre des matrices dans d'autres 
 
@@ -258,6 +260,22 @@ namespace EKF
             Matrixpest[2 * num_ld + 4, 2 * num_ld + 3] = MatrixPi[4, 3]; //y
             Matrixpest[2 * num_ld + 4, 2 * num_ld + 4] = MatrixPi[4, 4]; //z
         }
+        public void Remettre_Xest_Dans_X(List<int> list_indices_dans_X)
+        {
+            MatrixX[0] = Matrixxest[0, 0];
+            MatrixX[1] = Matrixxest[1, 0];
+            MatrixX[2] = Matrixxest[2, 0];
+
+            int indiceDansXest = 3;
+
+            foreach(int indiceDansX in list_indices_dans_X)
+            {
+                MatrixX[indiceDansX] = Matrixxest[indiceDansXest, 0];
+                MatrixX[indiceDansX +1 ] = Matrixxest[indiceDansXest +1, 0];
+                indiceDansXest += 2;
+            }
+            
+        }
 
         public double[,] Trouver_Xi_Dans_Xest(int num_ld)
         {
@@ -304,22 +322,6 @@ namespace EKF
 
             return MatrixSortie;
 
-        }
-        public void Remettre_Xest_Dans_X(List<int> list_indices_dans_X)
-        {
-            MatrixX[0] = Matrixxest[0, 0];
-            MatrixX[1] = Matrixxest[1, 0];
-            MatrixX[2] = Matrixxest[2, 0];
-
-            int indiceDansXest = 3;
-
-            foreach(int indiceDansX in list_indices_dans_X)
-            {
-                MatrixX[indiceDansX] = Matrixxest[indiceDansXest, 0];
-                MatrixX[indiceDansX +1 ] = Matrixxest[indiceDansXest +1, 0];
-                indiceDansXest += 2;
-            }
-            
         }
         public void TrouverXestEtXpredDansX(List<int> Indices, double[] X, List<List<double>> landmarks)
         {
@@ -427,8 +429,8 @@ namespace EKF
                     matrice_apres[row, column] = P[row, column];
                 }
             }
-            matrice_apres[(int)Math.Sqrt(P.Length), (int)Math.Sqrt(P.Length)] = 10000;                                                                     //Initialisation de P à "l'infini"
-            matrice_apres[(int)Math.Sqrt(P.Length) + 1, (int)Math.Sqrt(P.Length) + 1] = 10000;
+            matrice_apres[(int)Math.Sqrt(P.Length), (int)Math.Sqrt(P.Length)] = 1051;                                                                     //Initialisation de P à "l'infini"
+            matrice_apres[(int)Math.Sqrt(P.Length) + 1, (int)Math.Sqrt(P.Length) + 1] = 1051;
 
             return matrice_apres;
         }
@@ -469,6 +471,9 @@ namespace EKF
         #endregion Fonctions pour acceuillir les ld 
 
         
+
+
+
         //initialisation de l'ekf quand ce programme est appelé pour la première fois 
         public void InitEKF(int id, double freqEchOdometry)
         {                                                                                                       // Ici on doit initialiser MatrixDelta, R et Q et les trucs qui ne changeront pas 
@@ -525,7 +530,8 @@ namespace EKF
             MatrixxPred[1, 0] = currentGpsYRefTerrain;
             MatrixxPred[2, 0] = currentGpsTheta;
 
-            //MEGA BOUCLE//
+
+            //MEGA BOUCLE
             for (int j = 0; j < nbre_landmarks; j++)                                                        //on parcours 1 par 1 les landmarks
             {
 
@@ -550,7 +556,7 @@ namespace EKF
 
                 #endregion
 
-                #region Calcul de ZObservé
+                #region Calcul de Zobservé
                 double deltax2 = landmarks_observés[j][0] - Matrixxest[0, 0];                               //on refait les calculs avec le landmark observé maintenant 
                 double deltay2 = landmarks_observés[j][1] - Matrixxest[1, 0];
 
@@ -559,9 +565,10 @@ namespace EKF
                 q = Toolbox.Multiply(Toolbox.Transpose(MatrixDelta), MatrixDelta)[0, 0];
                 MatrixZ[0, 0] = Math.Sqrt(q);                                                               // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
                 MatrixZ[1, 0] = Math.Atan2(deltay2 , deltax2) - GPS_Theta;
+
                 #endregion
 
-                #region Calcul de H
+                #region Calcul de H //normalement ca c ok 
                 MatrixHi[0, 0] = -(1 / Math.Sqrt(q)) * deltax;                                              //ici on prépare Hi = lowH
                 MatrixHi[0, 1] = -(1 / Math.Sqrt(q)) * deltay;
                 MatrixHi[0, 2] = 0;
@@ -572,7 +579,7 @@ namespace EKF
                 MatrixHi[1, 2] = -1;
                 MatrixHi[1, 3] = (-1 / q) * deltay;
                 MatrixHi[1, 4] = (1 / q) * deltax;
-                #endregion
+                #endregion      
 
                 MatrixParentheses = Toolbox.Multiply(MatrixHi, Toolbox.Multiply(MatrixPi, Toolbox.Transpose(MatrixHi)));
 
@@ -584,7 +591,7 @@ namespace EKF
 
                 for (int indices = 0; indices < MatrixZ.Length; indices++)
                 {
-                    MatrixZ[indices, 0] -= MatrixZPred[indices, 0];                                                         // A partir de là MatrixZ contient la différence entre prédiction et observation 
+                    MatrixZ[indices, 0] -= MatrixZPred[indices, 0];                         // A partir de là MatrixZ contient la différence entre prédiction et observation 
                 }
 
                 MatrixKdeltaz = Toolbox.Multiply(MatrixKi, MatrixZ);
@@ -598,7 +605,13 @@ namespace EKF
                 Matrixxest[2 * j + 4, 0] = MatrixKdeltaz[4, 0];
 
                 MatrixKi = Toolbox.Multiply(MatrixKi, MatrixHi);                                            //maintenant ki continient K*H
-                for (int ligne = 0; ligne < 5; ligne++) { for (int colonne = 0; colonne < 5; colonne++) { MatrixKi[ligne, colonne] = -MatrixKi[ligne, colonne]; } }
+                for (int ligne = 0; ligne < 5; ligne++) 
+                { 
+                    for (int colonne = 0; colonne < 5; colonne++) 
+                    { 
+                        MatrixKi[ligne, colonne] = -MatrixKi[ligne, colonne]; 
+                    } 
+                }
 
                 MatrixPi = Toolbox.Multiply(Toolbox.Addition_Matrices(MatrixFx, MatrixKi), MatrixpPred);
 
@@ -655,7 +668,7 @@ namespace EKF
 
                 SLAMCorrection(currentGpsTheta, currentOdoVxRefTerrain, currentOdoVyRefTerrain, currentOdoVtheta, nbre_landmarks, landmarks);
 
-                //List<int> AEnlever = CleanXestFromWeardLandmarks(Matrixxest);                  //A FAIRE : améliorer ça
+                //List<int> AEnlever = CleanXestFromWeardLandmarks(Matrixxest);
                 //CleanPestFromWeardLandmarks(AEnlever);
                 //list_indice_landmarks = CleanListIndices(AEnlever, list_indice_landmarks);
 
