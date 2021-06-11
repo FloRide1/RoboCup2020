@@ -35,18 +35,16 @@ namespace WpfSlamInterface
         static bool bruitage_odo = false;
         bool bruitage_ld = false;
         bool tout_les_ld = false;
-
-
+        double anglePerceptionRobot = Math.PI;
+        private double tEch = 0.02;       // fEch = 50 dans ekf_positionning 
 
         DispatcherTimer timer;
         Location PosRobot = new Location(-1,-0.5,0,0,0,0);
         static Location PosRobotInconnue = new Location(0,0,0,0,0,0);
         List<PointDExtended> PosLandmarks;
         double date;
-        double anglePerceptionRobot = Math.PI;
-        private double tEch = 0.02;       // fEch = 50 dans ekf_positionning 
-
-        static EKF.EKFPositionning eKFPositionning;
+        
+        static EKFPositionning eKFPositionning;
         public MainWindow()
         {
             InitializeComponent();

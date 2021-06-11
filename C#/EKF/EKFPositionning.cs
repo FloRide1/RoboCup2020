@@ -13,22 +13,22 @@ namespace EKF
 {
     public class EKFPositionning
     {
-        //Paramètres
+        //Paramètres à regler
         bool wantToClean = false;
-        bool newPMethode = false; 
+        bool newPMethode = false;
+
+        double freqEchOdometry = 50;
+        int init_de_P = 1000000000;
+        int LongueurTerrain = 3; // on met la grande longueur
+        private double tEch = 0.02;
+        private double fEch = 50;
+
 
         #region variables 
         List<PointD> liste_landmarks = new List<PointD> { }; //pour odo
         int robotId = (int)TeamId.Team1 + (int)RobotId.Robot1;
-        double freqEchOdometry = 50;
-        int init_de_P = 1000000000;
-
+        
         private int Appel_pour_la_première_fois = 0;
-
-        int LongueurTerrain = 3; // on met la grande longueur
-
-        private double tEch = 0.02;
-        private double fEch = 50;
 
         private double[] MatrixX;
         private double[,] Matrixxest;
@@ -65,27 +65,7 @@ namespace EKF
         double currentOdoVtheta = 0;
 
         Location EKFLocationRefTerrain = new Location(0, 0, 0, 0, 0, 0);
-        public EKFPositionning(LocationArgs Init)
-        {
-            robotId = Init.RobotId;
-            MatrixX = new double[3];
-            MatrixP = new double[3, 3];
-            Matrixxest = new double[3, 0];
-            Matrixpest = new double[3, 3];
-
-            currentGpsXRefTerrain = MatrixX[0] = Init.Location.X;
-            currentGpsYRefTerrain = MatrixX[1] = Init.Location.Y;
-            currentGpsTheta = MatrixX[2] = Init.Location.Theta;
-
-            currentOdoVxRefRobot = Init.Location.Vx;
-            currentOdoVyRefRobot = Init.Location.Vy;
-            currentOdoVtheta = Init.Location.Vtheta;
-
-            MatrixP[0, 0] = MatrixP[1, 1] = MatrixP[1, 1] = 0;
-
-            InitEKF(robotId, 50); //ALEX  je fais des petits tests 
-
-        }
+        
         #endregion variables
 
         #region Cleaning Weard Landmarks
@@ -538,6 +518,139 @@ namespace EKF
 
         #endregion Fonctions pour acceuillir les ld 
 
+        #region events
+        //Inputs events
+        public void OnOdoReceived(object sender, LocationArgs e)
+        {
+            currentOdoVxRefRobot = e.Location.Vx;
+            currentOdoVyRefRobot = e.Location.Vy;
+
+
+            currentOdoVxRefTerrain = currentOdoVxRefRobot * Math.Cos(currentGpsTheta) - currentOdoVyRefRobot * Math.Sin(currentGpsTheta);
+            currentOdoVyRefTerrain = currentOdoVxRefRobot * Math.Sin(currentGpsTheta) + currentOdoVyRefRobot * Math.Cos(currentGpsTheta);
+            currentOdoVtheta = e.Location.Vtheta;
+
+            currentGpsXRefTerrain += currentOdoVxRefRobot * tEch * Math.Cos(currentGpsTheta) - currentOdoVyRefRobot * tEch * Math.Sin(currentGpsTheta);
+            currentGpsYRefTerrain += currentOdoVxRefRobot * tEch * Math.Sin(currentGpsTheta) + currentOdoVyRefRobot * tEch * Math.Cos(currentGpsTheta);
+            currentGpsTheta += currentOdoVtheta / fEch;
+
+        }
+        public void OnLandmarksReceived(object sender, PointDExtendedListArgs e)
+        {
+            if (robotId == e.RobotId)
+            {
+                liste_landmarks.Clear();
+
+                foreach (PointDExtended Point in e.LandmarkList)
+                {
+                    liste_landmarks.Add(Point.Pt);
+                }
+
+                List<List<double>> landmarks = liste_landmarks.Select(l => new List<double>(2) { l.X, l.Y }).ToList(); //on commence par mettre les ld en liste de liste
+
+                if (Appel_pour_la_première_fois == 0)
+                {
+                    InitEKF(robotId, freqEchOdometry);
+                    Appel_pour_la_première_fois = 1;
+                }               //Initialisation de l'ekf si c'est la premiere fois qu'on l'appelle 
+
+                int nbre_landmarks = landmarks.Count;
+
+                //on crée X ET P en regardant s'il y a des new ld ou pas et on trouve en même temps la liste d'indice des landmarks 
+
+                List<int> list_indice_landmarks = acceuil_landmarks(landmarks);
+
+                TrouverXestEtXpredDansX(list_indice_landmarks, MatrixX, landmarks); //Ici on remplie Xest avec ce qu'on connaissait et Xpred avec ce qu'on vient de recevoir
+
+
+                if (newPMethode)
+                    TrouverPestEtPpredDansP(list_indice_landmarks, MatrixP);
+                else
+                    Matrixpest = TrouverPestDansP(list_indice_landmarks, MatrixP);
+
+                SLAMCorrection(currentGpsTheta, currentOdoVxRefTerrain, currentOdoVyRefTerrain, currentOdoVtheta, nbre_landmarks, landmarks);
+
+                #region Clean weard landmraks
+
+                if (wantToClean)
+                {
+                    List<int> AEnlever = CleanXestFromWeardLandmarks(Matrixxest);
+                    CleanPestFromWeardLandmarks(AEnlever);
+                    list_indice_landmarks = CleanListIndices(AEnlever, list_indice_landmarks);
+                }
+
+
+                #endregion
+
+                Remettre_Pest_Dans_P(list_indice_landmarks);
+
+                Remettre_Xest_Dans_X(list_indice_landmarks);
+
+                EKFLocationRefTerrain.X = Matrixxest[0, 0];
+
+                EKFLocationRefTerrain.Y = Matrixxest[1, 0];
+
+                EKFLocationRefTerrain.Theta = Matrixxest[2, 0];
+
+                //Attention la location a renvoyer est dans le ref terrain pour les positions et dans le ref robot pour les vitesses
+                double EKFLocationRefRobotVx = currentOdoVxRefTerrain * Math.Cos(-EKFLocationRefTerrain.Theta) - currentOdoVyRefTerrain * Math.Sin(-EKFLocationRefTerrain.Theta);
+                double EKFLocationRefRobotVy = currentOdoVxRefTerrain * Math.Sin(-EKFLocationRefTerrain.Theta) + currentOdoVyRefTerrain * Math.Cos(-EKFLocationRefTerrain.Theta);
+
+                Location EKFOutputLocation = new Location(EKFLocationRefTerrain.X, EKFLocationRefTerrain.Y, EKFLocationRefTerrain.Theta,
+                                                            EKFLocationRefRobotVx, EKFLocationRefRobotVy, EKFLocationRefTerrain.Vtheta);
+
+
+
+                OnEKFLocation(robotId, EKFOutputLocation, Matrixxest, Matrixpest); //On balance à l'event les landmarks vus à cet instant et leurs covariances 
+                                                                                   // NOTE : possible d'afficher tout les ld connus si on veut (MatrixX)
+
+            }
+
+        }                       //Fin de l'algo ! 
+        //Output events
+        public event EventHandler<PosRobotAndLandmarksArgs> OnEKFLocationEvent;
+        public virtual void OnEKFLocation(int id, Location locationRefTerrain, double[,] X, double[,] Covariances)
+        {
+            var handler = OnEKFLocationEvent;
+
+            List<PointDExtended> Liste_Sortie = new List<PointDExtended>();
+
+            if (handler != null)
+            {
+                for (int i = 3; i < X.Length; i = i + 2)
+                {
+                    PointD ptd = new PointD(X[i, 0], X[i + 1, 0]);
+                    PointDExtended Ptde = new PointDExtended(ptd, System.Drawing.Color.Aqua, 5);
+                    Liste_Sortie.Add(Ptde);
+                }
+
+                handler(this, new PosRobotAndLandmarksArgs { RobotId = id, PosLandmarkList = Liste_Sortie, PosRobot = locationRefTerrain });
+            }
+        }
+        #endregion
+
+
+        public EKFPositionning(LocationArgs Init)
+        {
+            robotId = Init.RobotId;
+            MatrixX = new double[3];
+            MatrixP = new double[3, 3];
+            Matrixxest = new double[3, 0];
+            Matrixpest = new double[3, 3];
+
+            currentGpsXRefTerrain = MatrixX[0] = Init.Location.X;
+            currentGpsYRefTerrain = MatrixX[1] = Init.Location.Y;
+            currentGpsTheta = MatrixX[2] = Init.Location.Theta;
+
+            currentOdoVxRefRobot = Init.Location.Vx;
+            currentOdoVyRefRobot = Init.Location.Vy;
+            currentOdoVtheta = Init.Location.Vtheta;
+
+            MatrixP[0, 0] = MatrixP[1, 1] = MatrixP[1, 1] = 0;
+
+            InitEKF(robotId, 50); //ALEX  je fais des petits tests 
+
+        }
         //initialisation de l'ekf quand ce programme est appelé pour la première fois 
         public void InitEKF(int id, double freqEchOdometry)
         {                                                                                                       // Ici on doit initialiser MatrixDelta, R et Q et les trucs qui ne changeront pas 
@@ -684,118 +797,6 @@ namespace EKF
 
         }
         
-
-
-        #region events
-        //Inputs events
-        public void OnOdoReceived(object sender, LocationArgs e)
-        {
-            currentOdoVxRefRobot = e.Location.Vx;
-            currentOdoVyRefRobot = e.Location.Vy;
-
-
-            currentOdoVxRefTerrain = currentOdoVxRefRobot * Math.Cos(currentGpsTheta) - currentOdoVyRefRobot * Math.Sin(currentGpsTheta);
-            currentOdoVyRefTerrain = currentOdoVxRefRobot * Math.Sin(currentGpsTheta) + currentOdoVyRefRobot * Math.Cos(currentGpsTheta);
-            currentOdoVtheta = e.Location.Vtheta;
-
-            currentGpsXRefTerrain += currentOdoVxRefRobot * tEch * Math.Cos(currentGpsTheta) - currentOdoVyRefRobot * tEch * Math.Sin(currentGpsTheta);
-            currentGpsYRefTerrain += currentOdoVxRefRobot * tEch * Math.Sin(currentGpsTheta) + currentOdoVyRefRobot * tEch * Math.Cos(currentGpsTheta);
-            currentGpsTheta += currentOdoVtheta / fEch;
-
-        }
-        public void OnLandmarksReceived(object sender, PointDExtendedListArgs e)
-        {
-            if (robotId == e.RobotId)
-            {
-                liste_landmarks.Clear();
-
-                foreach (PointDExtended Point in e.LandmarkList)
-                {
-                    liste_landmarks.Add(Point.Pt);
-                }
-
-                List<List<double>> landmarks = liste_landmarks.Select(l => new List<double>(2) { l.X, l.Y }).ToList(); //on commence par mettre les ld en liste de liste
-
-                if (Appel_pour_la_première_fois == 0)
-                {
-                    InitEKF(robotId, freqEchOdometry);
-                    Appel_pour_la_première_fois = 1;
-                }               //Initialisation de l'ekf si c'est la premiere fois qu'on l'appelle 
-
-                int nbre_landmarks = landmarks.Count;
-
-                //on crée X ET P en regardant s'il y a des new ld ou pas et on trouve en même temps la liste d'indice des landmarks 
-
-                List<int> list_indice_landmarks = acceuil_landmarks(landmarks);
-
-                TrouverXestEtXpredDansX(list_indice_landmarks, MatrixX, landmarks); //Ici on remplie Xest avec ce qu'on connaissait et Xpred avec ce qu'on vient de recevoir
-
-
-                if (newPMethode)
-                    TrouverPestEtPpredDansP(list_indice_landmarks, MatrixP);
-                else 
-                    Matrixpest = TrouverPestDansP(list_indice_landmarks, MatrixP);
-
-                SLAMCorrection(currentGpsTheta, currentOdoVxRefTerrain, currentOdoVyRefTerrain, currentOdoVtheta, nbre_landmarks, landmarks);
-
-                #region Clean weard landmraks
-
-                if (wantToClean)
-                {
-                    List<int> AEnlever = CleanXestFromWeardLandmarks(Matrixxest);
-                    CleanPestFromWeardLandmarks(AEnlever);
-                    list_indice_landmarks = CleanListIndices(AEnlever, list_indice_landmarks);
-                }
-
-
-                #endregion
-
-                Remettre_Pest_Dans_P(list_indice_landmarks);
-
-                Remettre_Xest_Dans_X(list_indice_landmarks);
-
-                EKFLocationRefTerrain.X = Matrixxest[0, 0];
-
-                EKFLocationRefTerrain.Y = Matrixxest[1, 0];
-
-                EKFLocationRefTerrain.Theta = Matrixxest[2, 0];
-
-                //Attention la location a renvoyer est dans le ref terrain pour les positions et dans le ref robot pour les vitesses
-                double EKFLocationRefRobotVx = currentOdoVxRefTerrain * Math.Cos(-EKFLocationRefTerrain.Theta) - currentOdoVyRefTerrain * Math.Sin(-EKFLocationRefTerrain.Theta);
-                double EKFLocationRefRobotVy = currentOdoVxRefTerrain * Math.Sin(-EKFLocationRefTerrain.Theta) + currentOdoVyRefTerrain * Math.Cos(-EKFLocationRefTerrain.Theta);
-
-                Location EKFOutputLocation = new Location(EKFLocationRefTerrain.X, EKFLocationRefTerrain.Y, EKFLocationRefTerrain.Theta,
-                                                            EKFLocationRefRobotVx, EKFLocationRefRobotVy, EKFLocationRefTerrain.Vtheta);
-
-
-
-                OnEKFLocation(robotId, EKFOutputLocation, Matrixxest, Matrixpest); //On balance à l'event les landmarks vus à cet instant et leurs covariances 
-                                                                                   // NOTE : possible d'afficher tout les ld connus si on veut (MatrixX)
-
-            }
-
-        }                       //Fin de l'algo ! 
-        //Output events
-        public event EventHandler<PosRobotAndLandmarksArgs> OnEKFLocationEvent;
-        public virtual void OnEKFLocation(int id, Location locationRefTerrain, double[,] X, double[,] Covariances)
-        {
-            var handler = OnEKFLocationEvent;
-
-            List<PointDExtended> Liste_Sortie = new List<PointDExtended>();
-
-            if (handler != null)
-            {
-                for (int i = 3; i < X.Length; i = i + 2)
-                {
-                    PointD ptd = new PointD(X[i, 0], X[i + 1, 0]);
-                    PointDExtended Ptde = new PointDExtended(ptd, System.Drawing.Color.Aqua, 5);
-                    Liste_Sortie.Add(Ptde);
-                }
-
-                handler(this, new PosRobotAndLandmarksArgs { RobotId = id, PosLandmarkList = Liste_Sortie, PosRobot = locationRefTerrain });
-            }
-        }
-        #endregion
     }
 }
 
