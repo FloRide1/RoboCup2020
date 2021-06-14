@@ -35,7 +35,7 @@ namespace WpfSlamInterface
         static bool bruitage_odo = false;
         bool bruitage_ld = false;
         bool tout_les_ld = false;
-        bool usingEkf = false;
+        bool usingEkf = true;
         double anglePerceptionRobot = Math.PI;
         private double tEch = 0.02;       // fEch = 50 dans ekf_positionning 
          

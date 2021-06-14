@@ -330,8 +330,9 @@ namespace EKF
 
             foreach (List<double> ld in landmarks)
             {
-                MatrixXpredSortie[indice, 0] = ld[0];
-                MatrixXpredSortie[indice + 1, 0] = ld[1];
+                List<double> ld_bien = ConversionRefTerrain(ld);
+                MatrixXpredSortie[indice, 0] = ld_bien[0];
+                MatrixXpredSortie[indice + 1, 0] = ld_bien[1];
                 indice += 2;
             }
 
@@ -584,7 +585,7 @@ namespace EKF
                 else
                     Matrixpest = TrouverPestDansP(list_indice_landmarks, MatrixP);
 
-                SLAMCorrection(currentGpsTheta, currentOdoVxRefTerrain, currentOdoVyRefTerrain, currentOdoVtheta, nbre_landmarks, landmarks);
+                SLAMCorrection(currentGpsTheta, currentOdoVxRefTerrain, currentOdoVyRefTerrain, nbre_landmarks, landmarks);
 
                 #region Clean weard landmraks
 
@@ -598,7 +599,9 @@ namespace EKF
 
                 #endregion
 
-                ConversionXestRefTerrain();
+                ConversionXestRefTerrain();         //pas normal qu'en sortie de slam il soit en ref terrain, 
+                                                    // pas normal qu'en entrée de slam xest et xpred soit en ref terrain 
+                                                    //=> normal que ca fasse de la merde, donc revoir la fonction trouverxestetxpreddansx
 
                 Remettre_Pest_Dans_P(list_indice_landmarks);
 
@@ -711,7 +714,7 @@ namespace EKF
             MatrixKdeltaz = new double[5, 1];
         }
         // itération de l'ekf
-        public void SLAMCorrection(double GPS_Theta, double Odo_VX, double Odo_VY, double Odo_VTheta, int nbre_landmarks, List<List<double>> landmarks_observés)
+        public void SLAMCorrection(double GPS_Theta, double Odo_VX, double Odo_VY, int nbre_landmarks, List<List<double>> landmarks_observés)
         {
             MatrixG[0, 2] = -(Odo_VX * Math.Sin(GPS_Theta) / fEch) - Odo_VY * Math.Cos(GPS_Theta) / fEch;         // ici cest la dérivée du modele (xpred)
             MatrixG[1, 2] = (Odo_VX * Math.Cos(GPS_Theta) / fEch) - Odo_VY * Math.Sin(GPS_Theta) / fEch;
@@ -727,6 +730,7 @@ namespace EKF
             //MEGA BOUCLE
             for (int j = 0; j < nbre_landmarks; j++)                                                        //on parcours 1 par 1 les landmarks
             {
+
 
                 MatrixXi = Trouver_Xi_Dans_Xest(j);                                                         //on initialise Xi
                 MatrixPi = Trouver_Pi_dans_Pest(j);                                                         //on initialise Pi
@@ -752,8 +756,8 @@ namespace EKF
 
                 #region Calcul de ZPred          
 
-                double deltax2 = landmarks_observés[j][0] * Math.Cos(landmarks_observés[j][1] + MatrixXi[2, 0]);                               //on refait les calculs avec le landmark observé maintenant 
-                double deltay2 = landmarks_observés[j][0] * Math.Sin(landmarks_observés[j][1] + MatrixXi[2, 0]);
+                double deltax2 = MatrixXiPred[3, 0] - MatrixXiPred[0, 0];                               //on refait les calculs avec le landmark observé maintenant 
+                double deltay2 = MatrixXiPred[4, 0] - MatrixXiPred[1, 0];
 
                 MatrixDelta[0, 0] = deltax2;
                 MatrixDelta[1, 0] = deltay2;
