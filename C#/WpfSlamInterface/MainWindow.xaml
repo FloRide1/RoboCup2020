@@ -14,5 +14,7 @@
         <ext:LocalWorldMapDisplay x:Name="My_local_map">
             
         </ext:LocalWorldMapDisplay>
+        
+        
     </Grid>
 </Window>

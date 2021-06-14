@@ -15,11 +15,11 @@ namespace EKF
     {
         //Paramètres à regler
         bool wantToClean = false;
-        bool newPMethode = false;
+        bool newPMethode = true;
 
         double freqEchOdometry = 50;
         int init_de_P = 1000000000;
-        int LongueurTerrain = 3; // on met la grande longueur
+        int LongueurTerrain = 3; // on met la grande longueur pour clean
         private double tEch = 0.02;
         private double fEch = 50;
 
@@ -482,14 +482,31 @@ namespace EKF
 
             return matrice_apres;
         }
+        public List<double> ConversionRefTerrain(List<double> LdEntrée) 
+        {
+            return new List<double> { LdEntrée[0] * Math.Cos(LdEntrée[1] + currentGpsTheta) + currentGpsXRefTerrain, LdEntrée[0] * Math.Sin(LdEntrée[1] + currentGpsTheta) + currentGpsYRefTerrain };
+        }
+
+        public void ConversionXestRefTerrain()
+        {
+            double[,] MatrixSortie = new double[Matrixxest.Length, 1];
+            for (int ligne = 0; ligne<3; ligne++) { MatrixSortie[ligne, 0] = Matrixxest[ligne, 0]; }
+
+            for (int i = 3; i<Matrixxest.Length; i += 2)
+            {
+                MatrixSortie[i, 0] = Matrixxest[i, 0] * Math.Cos(Matrixxest[i + 1, 0] + Matrixxest[2,0]) + Matrixxest[0, 0];
+                MatrixSortie[i+1, 0] = Matrixxest[i, 0] * Math.Sin(Matrixxest[i + 1, 0] + Matrixxest[2, 0]) + Matrixxest[1, 0];
+            }
+            Matrixxest = MatrixSortie;
+        }
         public List<int> acceuil_landmarks(List<List<double>> list_ld_recus)
         {
             List<int> list_index = new List<int> { };
             bool ld_identifié = false;
             for (int landmark = 0; landmark < list_ld_recus.Count; landmark++)
             {
-                xld = list_ld_recus[landmark][0];
-                yld = list_ld_recus[landmark][1];
+                xld = ConversionRefTerrain(list_ld_recus[landmark])[0];
+                yld = ConversionRefTerrain(list_ld_recus[landmark])[1];
                 int indice_en_cours = 0;
                 while ((!ld_identifié) & (3 + 2 * indice_en_cours < MatrixX.Length))
                 {
@@ -524,7 +541,6 @@ namespace EKF
         {
             currentOdoVxRefRobot = e.Location.Vx;
             currentOdoVyRefRobot = e.Location.Vy;
-
 
             currentOdoVxRefTerrain = currentOdoVxRefRobot * Math.Cos(currentGpsTheta) - currentOdoVyRefRobot * Math.Sin(currentGpsTheta);
             currentOdoVyRefTerrain = currentOdoVxRefRobot * Math.Sin(currentGpsTheta) + currentOdoVyRefRobot * Math.Cos(currentGpsTheta);
@@ -582,6 +598,8 @@ namespace EKF
 
                 #endregion
 
+                ConversionXestRefTerrain();
+
                 Remettre_Pest_Dans_P(list_indice_landmarks);
 
                 Remettre_Xest_Dans_X(list_indice_landmarks);
@@ -619,8 +637,7 @@ namespace EKF
             {
                 for (int i = 3; i < X.Length; i = i + 2)
                 {
-                    PointD ptd = new PointD(X[i, 0], X[i + 1, 0]);
-                    PointDExtended Ptde = new PointDExtended(ptd, System.Drawing.Color.Aqua, 5);
+                    PointDExtended Ptde = new PointDExtended(new PointD(X[i, 0], X[i + 1, 0]), System.Drawing.Color.Aqua, 5);
                     Liste_Sortie.Add(Ptde);
                 }
 
@@ -732,9 +749,11 @@ namespace EKF
 
                 #endregion
                 // A FAIRE UTILISER XPRED AU LIEU DES LD ET ENLEVER landmarks_observés 
+
                 #region Calcul de ZPred          
-                double deltax2 = landmarks_observés[j][0] - Matrixxest[0, 0];                               //on refait les calculs avec le landmark observé maintenant 
-                double deltay2 = landmarks_observés[j][1] - Matrixxest[1, 0];
+
+                double deltax2 = landmarks_observés[j][0] * Math.Cos(landmarks_observés[j][1] + MatrixXi[2, 0]);                               //on refait les calculs avec le landmark observé maintenant 
+                double deltay2 = landmarks_observés[j][0] * Math.Sin(landmarks_observés[j][1] + MatrixXi[2, 0]);
 
                 MatrixDelta[0, 0] = deltax2;
                 MatrixDelta[1, 0] = deltay2;

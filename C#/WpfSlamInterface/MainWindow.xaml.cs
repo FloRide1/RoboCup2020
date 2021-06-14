@@ -35,8 +35,10 @@ namespace WpfSlamInterface
         static bool bruitage_odo = false;
         bool bruitage_ld = false;
         bool tout_les_ld = false;
+        bool usingEkf = false;
         double anglePerceptionRobot = Math.PI;
         private double tEch = 0.02;       // fEch = 50 dans ekf_positionning 
+         
 
         DispatcherTimer timer;
         Location PosRobot = new Location(-1,-0.5,0,0,0,0);
@@ -72,21 +74,28 @@ namespace WpfSlamInterface
             timer.Tick += UpdateGUITemp;
             timer.Start();
 
-
-
-        }
+        }   
 
         public void UpdateGUITemp(object sender, EventArgs e)
         {
 
             PosRobot = PosRobotQuandTuVeux(date, PosRobot);                             
-            OnEKFOdo((int)TeamId.Team1 + (int)RobotId.Robot1, PosRobot);
-            PosLandmarks = Landmarks_vus(PosRobotInconnue, anglePerceptionRobot);               
-            OnLandmarksFound((int)TeamId.Team1 + (int)RobotId.Robot1, PosLandmarks);
+            
+            PosLandmarks = Landmarks_vus(PosRobotInconnue, anglePerceptionRobot);
 
-            //PosRobot.X += PosRobot.Vx * tEch * Math.Cos(PosRobot.Theta) - PosRobot.Vy * tEch * Math.Sin(PosRobot.Theta);
-            //PosRobot.Y += PosRobot.Vx * tEch * Math.Sin(PosRobot.Theta) + PosRobot.Vy * tEch * Math.Cos(PosRobot.Theta);
-            //PosRobot.Theta += PosRobot.Vtheta * tEch;
+            if (usingEkf)
+            {
+                OnEKFOdo((int)TeamId.Team1 + (int)RobotId.Robot1, PosRobot);
+                OnLandmarksFound((int)TeamId.Team1 + (int)RobotId.Robot1, PosLandmarks);
+            }
+            else
+            {
+                PosRobot.X += PosRobot.Vx * tEch * Math.Cos(PosRobot.Theta) - PosRobot.Vy * tEch * Math.Sin(PosRobot.Theta);
+                PosRobot.Y += PosRobot.Vx * tEch * Math.Sin(PosRobot.Theta) + PosRobot.Vy * tEch * Math.Cos(PosRobot.Theta);
+                PosRobot.Theta += PosRobot.Vtheta * tEch;
+                PosLandmarks = PassageRefTerrain(PosLandmarks, PosRobot);
+            }  // test de la simu 
+            
 
             My_local_map.UpdateLocalWorldMap(new LocalWorldMap()
             {
@@ -94,6 +103,8 @@ namespace WpfSlamInterface
                 robotLocation = PosRobot,
                 lidarMap = PosLandmarks,
             });
+
+
 
             date += tEch;
         }
@@ -130,55 +141,11 @@ namespace WpfSlamInterface
         #endregion events
 
         #region simu 
-
-        public List<PointDExtended> Landmarks_vus(Location PosRobot, double anglePerceptionRobot)
-        {
-            List<List<double>> liste_total_landmarks = fabrication_landmarks();
-            List<PointDExtended> MaListe = new List<PointDExtended> { };
-            PointDExtended Obstacle ;
-
-            foreach (List<double> ld in liste_total_landmarks)
-            {
-
-                double alpha = (Math.Atan2((ld[1] - PosRobot.Y), (ld[0] - PosRobot.X)));
-
-                if (PosRobot.Theta <= -Math.PI)
-                    PosRobot.Theta += 2 * Math.PI;
-                if (PosRobot.Theta > Math.PI)
-                    PosRobot.Theta -= 2 * Math.PI;
-
-                double dif = Math.Abs(PosRobot.Theta - alpha);
-
-                if (dif > Math.PI)
-                {
-                    dif = 2 * Math.PI - dif;
-                }
-                if (dif < anglePerceptionRobot / 2)
-                {
-                    PointD pt = new PointD(0, 0);
-                    pt.X = ld[0];
-                    pt.Y = ld[1];
-                    Obstacle = new PointDExtended(pt, System.Drawing.Color.Aqua, 5);
-                    MaListe.Add(Obstacle);
-                }
-            }
-
-            if (bruitage_ld)  
-                MaListe = Bruitage_Landmarks(MaListe); 
-
-            return MaListe;
-        }
         static public Location PosRobotQuandTuVeux(double date, Location PosRobot)
         {
             #region pos=f(t)
-            if (date < 0.02)
-            {
-                PosRobotInconnue.X = -1;
-                PosRobotInconnue.Y = -0.5;
-                PosRobotInconnue.Theta = PosRobot.Vtheta = PosRobot.Vx = PosRobot.Vy = 0;
-            }
 
-            else if (date <= 4)
+            if (date <= 4.5)
             {
                 if (date < 0.5) //accélération 
                 {
@@ -189,7 +156,7 @@ namespace WpfSlamInterface
                     PosRobotInconnue.Theta = 0;
                     PosRobot.Vtheta = 0;
                 }
-                else if (date < 3.5) // v =cst
+                else if (date < 4) // v =cst
                 {
                     date -= 0.5;
                     PosRobotInconnue.X = 0.5 * date + 0.125 - 1;
@@ -201,7 +168,7 @@ namespace WpfSlamInterface
                 }
                 else //descélération
                 {
-                    date -= 3.5;
+                    date -= 4;
                     PosRobotInconnue.X = -0.5 * date * date + 0.5 * date + 1.875 - 1;
                     PosRobot.Vx = -date + 0.5;
                     PosRobotInconnue.Y = -0.5;
@@ -211,9 +178,10 @@ namespace WpfSlamInterface
                 }
             } //1er trajet
 
-            else if (date <= 6.5)
+            else if (date <= 7)
             {
-                date = date - 4;
+                
+                date = date - 4.5;
                 if (date <= 0.5) //accélération 
                 {
                     PosRobotInconnue.Y = 0.5 * date * date - 0.5;
@@ -245,9 +213,9 @@ namespace WpfSlamInterface
                 }
             } // 2nd trajet
 
-            else if (date <= 13.5)
+            else if (date <= 14)
             {
-                date -= 6.5;
+                date -= 7;
                 if (date < 1) //accélération
                 {
                     PosRobotInconnue.Theta = date * date * Math.PI / 12;
@@ -276,9 +244,9 @@ namespace WpfSlamInterface
                 }
             } // 3eme trajet
 
-            else if (date <= 17.5)
+            else if (date <= 18.5)
             {
-                date -= 13.5;
+                date -= 14;
                 if (date < 0.5) //accélération 
                 {
                     PosRobotInconnue.X = -0.5 * date * date + 1;
@@ -288,7 +256,7 @@ namespace WpfSlamInterface
                     PosRobotInconnue.Theta = Math.PI;
                     PosRobot.Vtheta = 0;
                 }
-                else if (date < 3.5) // v =cst
+                else if (date < 4) // v =cst
                 {
                     date -= 0.5;
                     PosRobotInconnue.X = -0.5 * date - 0.125 + 1;
@@ -300,7 +268,7 @@ namespace WpfSlamInterface
                 }
                 else //descélération
                 {
-                    date -= 3.5;
+                    date -= 4;
                     PosRobotInconnue.X = 0.5 * date * date - 0.5 * date - 1.875 + 1;
                     PosRobot.Vx = -date + 0.5;
                     PosRobotInconnue.Y = 0.5;
@@ -310,9 +278,9 @@ namespace WpfSlamInterface
                 }
             } //4eme trajet
 
-            else if (date <= 21)
+            else if (date <= 22)
             {
-                date -= 17.5;
+                date -= 18.5;
                 if (date < 1) //accélération
                 {
                     PosRobotInconnue.Theta = date * date * Math.PI / 12 + Math.PI;
@@ -341,9 +309,9 @@ namespace WpfSlamInterface
                 }
             } // 5eme trajet
 
-            else if (date <= 23.5)
+            else if (date <= 24.5)
             {
-                date = date - 21;
+                date = date - 22;
                 if (date <= 0.5) //accélération 
                 {
                     PosRobotInconnue.Y = -0.5 * date * date + 0.5;
@@ -377,9 +345,9 @@ namespace WpfSlamInterface
 
             else if (date > 28)
             {
-                PosRobot.Vx = PosRobot.Vy = 0; 
-                PosRobotInconnue.Theta -= Math.PI / 100;  
-                PosRobot.Vtheta = -Math.PI/2 ;
+                PosRobot.Vx = PosRobot.Vy = 0;
+                PosRobotInconnue.Theta -= Math.PI / 100;
+                PosRobot.Vtheta = -Math.PI / 2;
             } // FIN
             #endregion
 
@@ -391,6 +359,74 @@ namespace WpfSlamInterface
             PosRobotInconnue.Vtheta = PosRobot.Vtheta;
 
             return PosRobot;
+        }
+        public List<PointDExtended> Landmarks_vus(Location PosRobot, double anglePerceptionRobot)
+        {
+            List<List<double>> liste_total_landmarks = fabrication_landmarks();
+            List<PointDExtended> MaListe = new List<PointDExtended> { };
+            PointDExtended Obstacle ;
+
+            foreach (List<double> ld in liste_total_landmarks)
+            {
+
+                double alpha = (Math.Atan2((ld[1] - PosRobot.Y), (ld[0] - PosRobot.X)));
+
+                if (PosRobot.Theta <= -Math.PI)
+                    PosRobot.Theta += 2 * Math.PI;
+                if (PosRobot.Theta > Math.PI)
+                    PosRobot.Theta -= 2 * Math.PI;
+
+                double dif = Math.Abs(PosRobot.Theta - alpha);
+
+                if (dif > Math.PI)
+                {
+                    dif = 2 * Math.PI - dif;
+                }
+                if (dif < anglePerceptionRobot / 2)
+                {
+                    PointD pt = new PointD(0, 0);
+                    pt.X = ld[0];
+                    pt.Y = ld[1];
+                    Obstacle = new PointDExtended(pt, System.Drawing.Color.Aqua, 5);
+                    MaListe.Add(Obstacle);
+                }
+            }
+
+            if (bruitage_ld)  
+                MaListe = Bruitage_Landmarks(MaListe);
+
+            
+            MaListe = PassageRefRobot(MaListe, PosRobot);   // A partir de là on a une liste de x et theta dans le ref robot 
+
+            return MaListe;
+        }
+        static List<PointDExtended> PassageRefRobot(List<PointDExtended> ListeLdRefTerrain, Location PosRobot)
+        {
+            List<PointDExtended> ListeLdRefRobot = new List<PointDExtended> { };
+
+            foreach (PointDExtended Ld in ListeLdRefTerrain)
+            {
+                PointD newPtd = new PointD(0,0);
+                newPtd.X = Math.Sqrt((Ld.Pt.X - PosRobot.X) * (Ld.Pt.X - PosRobot.X) + (Ld.Pt.Y - PosRobot.Y) * (Ld.Pt.Y - PosRobot.Y));
+                newPtd.Y = Math.Atan2((Ld.Pt.Y - PosRobot.Y), (Ld.Pt.X - PosRobot.X)) - PosRobot.Theta;
+
+                ListeLdRefRobot.Add(new PointDExtended(newPtd, System.Drawing.Color.Aqua, 5));
+            }
+
+            return ListeLdRefRobot;
+        }
+        static List<PointDExtended> PassageRefTerrain(List<PointDExtended> ListeLdRefRobot, Location PosRobot)
+        {
+            List<PointDExtended> ListeLdRefTerrain = new List<PointDExtended> { };
+
+            foreach (PointDExtended Ld in ListeLdRefRobot)
+            {
+                PointD newPtd = new PointD(0, 0);
+                newPtd.X = PosRobot.X + Ld.Pt.X * Math.Cos(PosRobot.Theta + Ld.Pt.Y);
+                newPtd.Y = PosRobot.Y + Ld.Pt.X * Math.Sin(PosRobot.Theta + Ld.Pt.Y);
+                ListeLdRefTerrain.Add(new PointDExtended(newPtd, System.Drawing.Color.Aqua, 5));
+            }
+            return ListeLdRefTerrain;
         }
         public List<List<double>> fabrication_landmarks()
         {
