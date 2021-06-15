@@ -34,9 +34,9 @@ namespace WpfSlamInterface
         //Paramètres
         static bool bruitage_odo = false;
         bool bruitage_ld = false;
-        bool tout_les_ld = false;
+        bool tout_les_ld = true;
         bool usingEkf = true;
-        static bool translation_circulaire = true; 
+        static bool translation_circulaire = false;
         double anglePerceptionRobot = Math.PI;
         private double tEch = 0.02;       // fEch = 50 dans ekf_positionning 
          
@@ -57,6 +57,7 @@ namespace WpfSlamInterface
             a.Location = PosRobot;
 
             eKFPositionning = new EKFPositionning(a);
+            Simulateur_ekf simulateur_ = new Simulateur_ekf();
 
             date = 0;
 
@@ -64,6 +65,13 @@ namespace WpfSlamInterface
             My_local_map.UpdateLocalWorldMap(new LocalWorldMap() { RobotId = (int)TeamId.Team1 + (int)RobotId.Robot1, 
                 robotLocation = PosRobot,
                 lidarMap = PosLandmarks
+            });
+
+            LocalMapLdSeen.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, GameMode.RoboCup, "Wally");
+            LocalMapLdSeen.UpdateLocalWorldMap(new LocalWorldMap()
+            {
+                RobotId = (int)TeamId.Team1 + (int)RobotId.Robot1,
+                robotLocation = new Location(0, 0, 0, 0, 0, 0),
             });
 
             OnOdoCalculatedEvent += eKFPositionning.OnOdoReceived;                //On envoie la simu de l'odo à ekf 
@@ -83,6 +91,15 @@ namespace WpfSlamInterface
             PosRobot = PosRobotQuandTuVeux(date, PosRobot);                             
             
             PosLandmarks = Landmarks_vus(PosRobotInconnue, anglePerceptionRobot);
+
+            //List<PointDExtended>  Pos2Landmarks = new List<PointDExtended> (PassageRefRobot(PosLandmarks, new Location(0, 0, 0, 0, 0, 0)));
+
+            LocalMapLdSeen.UpdateLocalWorldMap(new LocalWorldMap()
+            {
+                RobotId = (int)TeamId.Team1 + (int)RobotId.Robot1,
+                robotLocation = new Location(0,0,0,0,0,0),
+                lidarMap= PassageRefTerrain(PosLandmarks, new Location(0, 0, 0, 0, 0, 0)),
+            });
 
             if (usingEkf)
             {
@@ -138,6 +155,7 @@ namespace WpfSlamInterface
             PosRobot = e.PosRobot;
             PosLandmarks = e.PosLandmarkList;
         }
+
 
         #endregion events
 
@@ -669,7 +687,7 @@ namespace WpfSlamInterface
             return ListSale;
         }
 
-        #endregion 
+        #endregion
 
     }
 }

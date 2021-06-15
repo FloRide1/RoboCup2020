@@ -65,9 +65,17 @@
       <Project>{8e7d0da4-9a13-4b18-a90e-0243bbcce40a}</Project>
       <Name>Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WorldMap\WorldMap.csproj">
+      <Project>{b2d0126f-8c82-4eaa-87e5-67415f589098}</Project>
+      <Name>WorldMap</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WpfRobotHolo4RouesInterface\RobotInterface\WpfRobot4RouesHoloInterface.csproj">
       <Project>{1cdc0611-a2e5-42e8-a28b-ba4269343c68}</Project>
       <Name>WpfRobot4RouesHoloInterface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WpfWorldMapDisplay\WpfWorldMapDisplay.csproj">
+      <Project>{89604641-927e-47ff-8db6-91cf5c4976c1}</Project>
+      <Name>WpfWorldMapDisplay</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

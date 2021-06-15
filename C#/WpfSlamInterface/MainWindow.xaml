@@ -7,14 +7,22 @@
         xmlns:ext="clr-namespace:WpfWorldMapDisplay;assembly=WpfWorldMapDisplay"
         x:Class="WpfSlamInterface.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="552.374" Width="623.016"
+        Title="MainWindow" Height="550" Width="1400"
         >
 
     <Grid>
-        <ext:LocalWorldMapDisplay x:Name="My_local_map">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="700" />
+            <ColumnDefinition Width="700" />
+        </Grid.ColumnDefinitions>
+        
+        <ext:LocalWorldMapDisplay x:Name="My_local_map" Grid.Column="0">
             
         </ext:LocalWorldMapDisplay>
-        
+
+        <ext:LocalWorldMapDisplay x:Name="LocalMapLdSeen" Grid.Column="1">
+            
+        </ext:LocalWorldMapDisplay>
         
     </Grid>
 </Window>
