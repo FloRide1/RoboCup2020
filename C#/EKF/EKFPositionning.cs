@@ -306,9 +306,11 @@ namespace EKF
             return MatrixSortie;
 
         }
-        public void TrouverXestEtXpredDansX(List<int> Indices, double[] X, List<List<double>> landmarks)
+        public void TrouverXestEtXpredDansX(List<int> Indices, double[] X, List<List<double>> landmarks, Location PosRobot)
         {
-            #region Xest
+            //x ref terrain landmark ref robot
+            #region Xest    
+            X = ConversionVecteurRefRobot(X,PosRobot);
             double[,] MatrixXestSortie = new double[2 * Indices.Count + 3, 1];
             MatrixXestSortie[0, 0] = X[0];
             MatrixXestSortie[1, 0] = X[1];
@@ -322,7 +324,8 @@ namespace EKF
                 indice += 2;
             }
             Matrixxest = MatrixXestSortie;   // Xest se fait a partir de ce qu'on avait avant 
-            #endregion
+            X=ConversionVecteurRefTerrain(X);  
+            #endregion // ca ca marche 
 
             #region Xpred
             double[,] MatrixXpredSortie = new double[2 * Indices.Count + 3, 1];
@@ -330,13 +333,14 @@ namespace EKF
 
             foreach (List<double> ld in landmarks)
             {
-                List<double> ld_bien = ConversionRefTerrain(ld);
-                MatrixXpredSortie[indice, 0] = ld_bien[0];
-                MatrixXpredSortie[indice + 1, 0] = ld_bien[1];
+                //List<double> ld_bien = ConversionRefTerrain(ld);
+                MatrixXpredSortie[indice, 0] = ld[0];
+                MatrixXpredSortie[indice + 1, 0] = ld[1];
                 indice += 2;
             }
 
             MatrixxPred = MatrixXpredSortie;
+            //x ref terrain, xest ref robot et xpred ref robot
             #endregion 
         }
 
@@ -483,31 +487,72 @@ namespace EKF
 
             return matrice_apres;
         }
-        public List<double> ConversionRefTerrain(List<double> LdEntrée) 
+        public List<double> ConversionLdRefTerrain(List<double> LdEntrée) 
         {
             return new List<double> { LdEntrée[0] * Math.Cos(LdEntrée[1] + currentGpsTheta) + currentGpsXRefTerrain, LdEntrée[0] * Math.Sin(LdEntrée[1] + currentGpsTheta) + currentGpsYRefTerrain };
         }
-
-        public void ConversionXestRefTerrain()
+        public double[] ConversionVecteurRefTerrain(double[] vecteur)
         {
-            double[,] MatrixSortie = new double[Matrixxest.Length, 1];
-            for (int ligne = 0; ligne<3; ligne++) { MatrixSortie[ligne, 0] = Matrixxest[ligne, 0]; }
+            double[] MatrixSortie = new double[vecteur.Length];
+            for (int ligne = 0; ligne<3; ligne++) { MatrixSortie[ligne] = vecteur[ligne]; }
 
-            for (int i = 3; i<Matrixxest.Length; i += 2)
+            for (int i = 3; i< vecteur.Length; i += 2)
             {
-                MatrixSortie[i, 0] = Matrixxest[i, 0] * Math.Cos(Matrixxest[i + 1, 0] + Matrixxest[2,0]) + Matrixxest[0, 0];
-                MatrixSortie[i+1, 0] = Matrixxest[i, 0] * Math.Sin(Matrixxest[i + 1, 0] + Matrixxest[2, 0]) + Matrixxest[1, 0];
+                MatrixSortie[i] = vecteur[i] * Math.Cos(vecteur[i + 1] + vecteur[2]) + vecteur[0];
+                MatrixSortie[i+1] = vecteur[i] * Math.Sin(vecteur[i + 1] + vecteur[2]) + vecteur[1];
             }
-            Matrixxest = MatrixSortie;
+            return MatrixSortie;
         }
-        public List<int> acceuil_landmarks(List<List<double>> list_ld_recus)
+        public double[,] ConversionMatriceRefTerrain (double[,] matrice)
+        {
+            double[,] MatrixSortie = new double[matrice.Length,1];
+            for (int ligne = 0; ligne < 3; ligne++) { MatrixSortie[ligne,0] = matrice[ligne,0]; }
+
+            for (int i = 3; i < matrice.Length; i += 2)
+            {
+                MatrixSortie[i,0] = matrice[i,0] * Math.Cos(matrice[i + 1,0] + matrice[2,0]) + matrice[0,0];
+                MatrixSortie[i + 1,0] = matrice[i,0] * Math.Sin(matrice[i + 1,0] + matrice[2,0]) + matrice[1,0];
+            }
+            return MatrixSortie;
+        }
+        public double[] ConversionVecteurRefRobot(double[] vecteur, Location PosRobot)
+        {
+
+            double[] MatrixSortie = new double[vecteur.Length];
+            for (int ligne = 0; ligne < 3; ligne++) { MatrixSortie[ligne] = vecteur[ligne]; }
+
+            for (int ligne =3; ligne<vecteur.Length; ligne+=2)
+            {
+                MatrixSortie[ligne] = Math.Sqrt((vecteur[ligne] - PosRobot.X) * (vecteur[ligne] - PosRobot.X) + (vecteur[ligne+1] - PosRobot.Y) * (vecteur[ligne+1] - PosRobot.Y));
+                MatrixSortie[ligne+1] = Math.Atan2((vecteur[ligne+1] - PosRobot.Y), (vecteur[ligne] - PosRobot.X)) - PosRobot.Theta;
+            }
+
+            return MatrixSortie;
+        }
+
+        public double[,] ConversionMatriceRefRobot(double[,] vecteur, Location PosRobot)
+        {
+
+            double[,] MatrixSortie = new double[vecteur.Length,1];
+            for (int ligne = 0; ligne < 3; ligne++) { MatrixSortie[ligne,0] = vecteur[ligne,0]; }
+
+            for (int ligne = 3; ligne < vecteur.Length; ligne += 2)
+            {
+                MatrixSortie[ligne,0] = Math.Sqrt((vecteur[ligne,0] - PosRobot.X) * (vecteur[ligne,0] - PosRobot.X) + (vecteur[ligne + 1,0] - PosRobot.Y) * (vecteur[ligne + 1,0] - PosRobot.Y));
+                MatrixSortie[ligne + 1,0] = Math.Atan2((vecteur[ligne + 1,0] - PosRobot.Y), (vecteur[ligne,0] - PosRobot.X)) - PosRobot.Theta;
+            }
+
+            return MatrixSortie;
+        }
+
+        public List<int> acceuil_landmarks(List<List<double>> list_ld_recus) //ref robot
         {
             List<int> list_index = new List<int> { };
             bool ld_identifié = false;
             for (int landmark = 0; landmark < list_ld_recus.Count; landmark++)
             {
-                xld = ConversionRefTerrain(list_ld_recus[landmark])[0];
-                yld = ConversionRefTerrain(list_ld_recus[landmark])[1];
+                xld = ConversionLdRefTerrain(list_ld_recus[landmark])[0]; // ref terrain pour stocker dans x
+                yld = ConversionLdRefTerrain(list_ld_recus[landmark])[1];
                 int indice_en_cours = 0;
                 while ((!ld_identifié) & (3 + 2 * indice_en_cours < MatrixX.Length))
                 {
@@ -531,7 +576,7 @@ namespace EKF
                 }
                 ld_identifié = false;
             }
-            return list_index;
+            return list_index; // x ref terrain
         }
 
         #endregion Fonctions pour acceuillir les ld 
@@ -575,19 +620,20 @@ namespace EKF
 
                 //on crée X ET P en regardant s'il y a des new ld ou pas et on trouve en même temps la liste d'indice des landmarks 
 
-                List<int> list_indice_landmarks = acceuil_landmarks(landmarks);
+                 List<int> list_indice_landmarks = acceuil_landmarks(landmarks);
 
-                TrouverXestEtXpredDansX(list_indice_landmarks, MatrixX, landmarks); //Ici on remplie Xest avec ce qu'on connaissait et Xpred avec ce qu'on vient de recevoir
+                TrouverXestEtXpredDansX(list_indice_landmarks, MatrixX, landmarks,new Location (MatrixX[0], MatrixX[1], MatrixX[2],0,0,0)); //Ici on remplie Xest avec ce qu'on connaissait et Xpred avec ce qu'on vient de recevoir
 
+                //x ref terrain, xest ref robot et xpred ref robot
 
                 if (newPMethode)
                     TrouverPestEtPpredDansP(list_indice_landmarks, MatrixP);
                 else
                     Matrixpest = TrouverPestDansP(list_indice_landmarks, MatrixP);
 
-                SLAMCorrection(currentGpsTheta, currentOdoVxRefTerrain, currentOdoVyRefTerrain, nbre_landmarks, landmarks);
+                SLAMCorrection(currentGpsTheta, currentOdoVxRefTerrain, currentOdoVyRefTerrain, nbre_landmarks);
 
-                #region Clean weard landmraks
+                #region Clean weard landmarks
 
                 if (wantToClean)
                 {
@@ -599,9 +645,11 @@ namespace EKF
 
                 #endregion
 
-                ConversionXestRefTerrain();         //pas normal qu'en sortie de slam il soit en ref terrain, 
-                                                    // pas normal qu'en entrée de slam xest et xpred soit en ref terrain 
-                                                    //=> normal que ca fasse de la merde, donc revoir la fonction trouverxestetxpreddansx
+                //xest ref robot 
+
+                Matrixxest=ConversionMatriceRefTerrain(Matrixxest); 
+
+                //xest ref terrain
 
                 Remettre_Pest_Dans_P(list_indice_landmarks);
 
@@ -714,7 +762,7 @@ namespace EKF
             MatrixKdeltaz = new double[5, 1];
         }
         // itération de l'ekf
-        public void SLAMCorrection(double GPS_Theta, double Odo_VX, double Odo_VY, int nbre_landmarks, List<List<double>> landmarks_observés)
+        public void SLAMCorrection(double GPS_Theta, double Odo_VX, double Odo_VY, int nbre_landmarks)
         {
             MatrixG[0, 2] = -(Odo_VX * Math.Sin(GPS_Theta) / fEch) - Odo_VY * Math.Cos(GPS_Theta) / fEch;         // ici cest la dérivée du modele (xpred)
             MatrixG[1, 2] = (Odo_VX * Math.Cos(GPS_Theta) / fEch) - Odo_VY * Math.Sin(GPS_Theta) / fEch;
@@ -726,16 +774,16 @@ namespace EKF
             MatrixxPred[1, 0] = currentGpsYRefTerrain;
             MatrixxPred[2, 0] = currentGpsTheta;
 
+            //x ref terrain, xest ref robot et xpred ref robot
 
             //MEGA BOUCLE
             for (int j = 0; j < nbre_landmarks; j++)                                                        //on parcours 1 par 1 les landmarks
             {
 
-
-                MatrixXi = Trouver_Xi_Dans_Xest(j);                                                         //on initialise Xi
+                MatrixXi = Trouver_Xi_Dans_Xest(j);                                                         //on initialise Xi ref robot
                 MatrixPi = Trouver_Pi_dans_Pest(j);                                                         //on initialise Pi
 
-                MatrixXiPred = TrouverXiPredDansXpred(j);
+                MatrixXiPred = TrouverXiPredDansXpred(j);                                                   //ref robot
 
                 MatrixpPred = Toolbox.Addition_Matrices(
                 Toolbox.Multiply(MatrixG, Toolbox.Multiply(MatrixPi, Toolbox.Transpose(MatrixG))),
@@ -743,31 +791,30 @@ namespace EKF
 
                 #region Calcul de Z
 
-                double deltax = MatrixXi[3, 0] - MatrixXi[0, 0];                                            //construction du vecteur delta du dernier ld 
-                double deltay = MatrixXi[4, 0] - MatrixXi[1, 0];
+                double deltax = MatrixXi[3, 0]*Math.Cos(MatrixXi[4, 0]-MatrixXi[2,0]);                                    //construction du vecteur delta du dernier ld 
+                double deltay = MatrixXi[3, 0] * Math.Sin(MatrixXi[4, 0] - MatrixXi[2, 0]);
                 MatrixDelta[0, 0] = deltax;
                 MatrixDelta[1, 0] = deltay;
                 double q = Toolbox.Multiply(Toolbox.Transpose(MatrixDelta), MatrixDelta)[0, 0];             // c'est un réel car dimension 2*1 fois sa transposée (voir brouillon) 
-                MatrixZ[0, 0] = Math.Sqrt(q);                                                           // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
+                MatrixZ[0, 0] = Math.Sqrt(q);                                                               // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
                 MatrixZ[1, 0] = Math.Atan2(deltay, deltax) - GPS_Theta;
 
                 #endregion
-                // A FAIRE UTILISER XPRED AU LIEU DES LD ET ENLEVER landmarks_observés 
 
                 #region Calcul de ZPred          
 
-                double deltax2 = MatrixXiPred[3, 0] - MatrixXiPred[0, 0];                               //on refait les calculs avec le landmark observé maintenant 
-                double deltay2 = MatrixXiPred[4, 0] - MatrixXiPred[1, 0];
+                double deltax2 = MatrixXiPred[3, 0] * Math.Cos(MatrixXiPred[4, 0]-MatrixXiPred[2,0]);                         //on refait les calculs avec le landmark observé maintenant 
+                double deltay2 = MatrixXiPred[3, 0] * Math.Sin(MatrixXiPred[4, 0]-MatrixXiPred[2,0]);
 
                 MatrixDelta[0, 0] = deltax2;
                 MatrixDelta[1, 0] = deltay2;
                 q = Toolbox.Multiply(Toolbox.Transpose(MatrixDelta), MatrixDelta)[0, 0];
-                MatrixZPred[0, 0] = Math.Sqrt(q);                                                               // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
+                MatrixZPred[0, 0] = Math.Sqrt(q);                                                           // Là on à une observation attendue par rapport a la dernière fois ou on a vu le ld 
                 MatrixZPred[1, 0] = Math.Atan2(deltay2, deltax2) - GPS_Theta;
 
                 #endregion
 
-                #region Calcul de H //normalement ca c ok 
+                #region Calcul de H
                 MatrixHi[0, 0] = -(1 / Math.Sqrt(q)) * deltax;                                              //ici on prépare Hi = lowH
                 MatrixHi[0, 1] = -(1 / Math.Sqrt(q)) * deltay;
                 MatrixHi[0, 2] = 0;
@@ -801,7 +848,7 @@ namespace EKF
                 Matrixxest[1, 0] = MatrixKdeltaz[1, 0];
                 Matrixxest[2, 0] = MatrixKdeltaz[2, 0];
                 Matrixxest[2 * j + 3, 0] = MatrixKdeltaz[3, 0];
-                Matrixxest[2 * j + 4, 0] = MatrixKdeltaz[4, 0];
+                Matrixxest[2 * j + 4, 0] = MatrixKdeltaz[4, 0];                                             //ref robot
 
                 MatrixKi = Toolbox.Multiply(MatrixKi, MatrixHi);                                            //maintenant ki continient K*H
                 for (int ligne = 0; ligne < 5; ligne++)

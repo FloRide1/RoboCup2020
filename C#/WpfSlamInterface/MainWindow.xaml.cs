@@ -36,6 +36,7 @@ namespace WpfSlamInterface
         bool bruitage_ld = false;
         bool tout_les_ld = false;
         bool usingEkf = true;
+        static bool translation_circulaire = true; 
         double anglePerceptionRobot = Math.PI;
         private double tEch = 0.02;       // fEch = 50 dans ekf_positionning 
          
@@ -145,210 +146,362 @@ namespace WpfSlamInterface
         {
             #region pos=f(t)
 
-            if (date <= 4.5)
+            if (!translation_circulaire)
             {
-                if (date < 0.5) //accélération 
+                if (date <= 4.5)
                 {
-                    PosRobotInconnue.X = 0.5 * date * date - 1;
-                    PosRobot.Vx = date;
-                    PosRobotInconnue.Y = -0.5;
-                    PosRobot.Vy = 0;
-                    PosRobotInconnue.Theta = 0;
-                    PosRobot.Vtheta = 0;
-                }
-                else if (date < 4) // v =cst
-                {
-                    date -= 0.5;
-                    PosRobotInconnue.X = 0.5 * date + 0.125 - 1;
-                    PosRobot.Vx = 0.5;
-                    PosRobotInconnue.Y = -0.5;
-                    PosRobot.Vy = 0;
-                    PosRobotInconnue.Theta = 0;
-                    PosRobot.Vtheta = 0;
-                }
-                else //descélération
-                {
-                    date -= 4;
-                    PosRobotInconnue.X = -0.5 * date * date + 0.5 * date + 1.875 - 1;
-                    PosRobot.Vx = -date + 0.5;
-                    PosRobotInconnue.Y = -0.5;
-                    PosRobot.Vy = 0;
-                    PosRobotInconnue.Theta = 0;
-                    PosRobot.Vtheta = 0;
-                }
-            } //1er trajet
+                    if (date < 0.5) //accélération 
+                    {
+                        PosRobotInconnue.X = 0.5 * date * date - 1;
+                        PosRobot.Vx = date;
+                        PosRobotInconnue.Y = -0.5;
+                        PosRobot.Vy = 0;
+                        PosRobotInconnue.Theta = 0;
+                        PosRobot.Vtheta = 0;
+                    }
+                    else if (date < 4) // v =cst
+                    {
+                        date -= 0.5;
+                        PosRobotInconnue.X = 0.5 * date + 0.125 - 1;
+                        PosRobot.Vx = 0.5;
+                        PosRobotInconnue.Y = -0.5;
+                        PosRobot.Vy = 0;
+                        PosRobotInconnue.Theta = 0;
+                        PosRobot.Vtheta = 0;
+                    }
+                    else //descélération
+                    {
+                        date -= 4;
+                        PosRobotInconnue.X = -0.5 * date * date + 0.5 * date + 1.875 - 1;
+                        PosRobot.Vx = -date + 0.5;
+                        PosRobotInconnue.Y = -0.5;
+                        PosRobot.Vy = 0;
+                        PosRobotInconnue.Theta = 0;
+                        PosRobot.Vtheta = 0;
+                    }
+                } //1er trajet
 
-            else if (date <= 7)
-            {
-                
-                date = date - 4.5;
-                if (date <= 0.5) //accélération 
+                else if (date <= 7)
                 {
-                    PosRobotInconnue.Y = 0.5 * date * date - 0.5;
-                    PosRobot.Vy = date;
-                    PosRobotInconnue.X = 1;
-                    PosRobot.Vx = 0;
-                    PosRobotInconnue.Theta = 0;
-                    PosRobot.Vtheta = 0;
-                }
-                else if (date <= 2) //v = cst
-                {
-                    date -= 0.5;
-                    PosRobotInconnue.Y = 0.5 * date + 0.125 - 0.5;
-                    PosRobot.Vy = 0.5;
-                    PosRobot.X = 1;
-                    PosRobotInconnue.Vx = 0;
-                    PosRobotInconnue.Theta = 0;
-                    PosRobot.Vtheta = 0;
-                }
-                else //descélération
-                {
-                    date -= 2;
-                    PosRobotInconnue.Y = -0.5 * date * date + 0.5 * date + 0.875 - 0.5;
-                    PosRobot.Vy = -date + 0.5;
-                    PosRobotInconnue.X = 1;
-                    PosRobot.Vx = 0;
-                    PosRobotInconnue.Theta = 0;
-                    PosRobot.Vtheta = 0;
-                }
-            } // 2nd trajet
 
-            else if (date <= 14)
-            {
-                date -= 7;
-                if (date < 1) //accélération
-                {
-                    PosRobotInconnue.Theta = date * date * Math.PI / 12;
-                    PosRobot.Vtheta = date * Math.PI / 6;
-                    PosRobotInconnue.X = 1;
-                    PosRobotInconnue.Y = 0.5;
-                    PosRobot.Vx = PosRobot.Vy = 0;
-                }
-                else if (date <= 6) //v=cst
-                {
-                    date -= 1;
-                    PosRobotInconnue.Theta = date * Math.PI / 6 + Math.PI / 12;
-                    PosRobot.Vtheta = Math.PI / 6;
-                    PosRobotInconnue.X = 1;
-                    PosRobotInconnue.Y = 0.5;
-                    PosRobot.Vx = PosRobot.Vy = 0;
-                }
-                else
-                {
-                    date -= 6;
-                    PosRobotInconnue.Theta = -date * date * Math.PI / 12 + date * Math.PI / 6 + 11 * Math.PI / 12;
-                    PosRobot.Vtheta = -date * Math.PI / 6 + Math.PI / 6;
-                    PosRobotInconnue.X = 1;
-                    PosRobotInconnue.Y = 0.5;
-                    PosRobot.Vx = PosRobot.Vy = 0;
-                }
-            } // 3eme trajet
+                    date = date - 4.5;
+                    if (date <= 0.5) //accélération 
+                    {
+                        PosRobotInconnue.Y = 0.5 * date * date - 0.5;
+                        PosRobot.Vy = date;
+                        PosRobotInconnue.X = 1;
+                        PosRobot.Vx = 0;
+                        PosRobotInconnue.Theta = 0;
+                        PosRobot.Vtheta = 0;
+                    }
+                    else if (date <= 2) //v = cst
+                    {
+                        date -= 0.5;
+                        PosRobotInconnue.Y = 0.5 * date + 0.125 - 0.5;
+                        PosRobot.Vy = 0.5;
+                        PosRobot.X = 1;
+                        PosRobotInconnue.Vx = 0;
+                        PosRobotInconnue.Theta = 0;
+                        PosRobot.Vtheta = 0;
+                    }
+                    else //descélération
+                    {
+                        date -= 2;
+                        PosRobotInconnue.Y = -0.5 * date * date + 0.5 * date + 0.875 - 0.5;
+                        PosRobot.Vy = -date + 0.5;
+                        PosRobotInconnue.X = 1;
+                        PosRobot.Vx = 0;
+                        PosRobotInconnue.Theta = 0;
+                        PosRobot.Vtheta = 0;
+                    }
+                } // 2nd trajet
 
-            else if (date <= 18.5)
-            {
-                date -= 14;
-                if (date < 0.5) //accélération 
+                else if (date <= 14)
                 {
-                    PosRobotInconnue.X = -0.5 * date * date + 1;
-                    PosRobot.Vx = date;
-                    PosRobotInconnue.Y = 0.5;
-                    PosRobot.Vy = 0;
-                    PosRobotInconnue.Theta = Math.PI;
-                    PosRobot.Vtheta = 0;
-                }
-                else if (date < 4) // v =cst
-                {
-                    date -= 0.5;
-                    PosRobotInconnue.X = -0.5 * date - 0.125 + 1;
-                    PosRobot.Vx = 0.5;
-                    PosRobotInconnue.Y = 0.5;
-                    PosRobot.Vy = 0;
-                    PosRobotInconnue.Theta = Math.PI;
-                    PosRobot.Vtheta = 0;
-                }
-                else //descélération
-                {
-                    date -= 4;
-                    PosRobotInconnue.X = 0.5 * date * date - 0.5 * date - 1.875 + 1;
-                    PosRobot.Vx = -date + 0.5;
-                    PosRobotInconnue.Y = 0.5;
-                    PosRobot.Vy = 0;
-                    PosRobotInconnue.Theta = Math.PI;
-                    PosRobot.Vtheta = 0;
-                }
-            } //4eme trajet
+                    date -= 7;
+                    if (date < 1) //accélération
+                    {
+                        PosRobotInconnue.Theta = date * date * Math.PI / 12;
+                        PosRobot.Vtheta = date * Math.PI / 6;
+                        PosRobotInconnue.X = 1;
+                        PosRobotInconnue.Y = 0.5;
+                        PosRobot.Vx = PosRobot.Vy = 0;
+                    }
+                    else if (date <= 6) //v=cst
+                    {
+                        date -= 1;
+                        PosRobotInconnue.Theta = date * Math.PI / 6 + Math.PI / 12;
+                        PosRobot.Vtheta = Math.PI / 6;
+                        PosRobotInconnue.X = 1;
+                        PosRobotInconnue.Y = 0.5;
+                        PosRobot.Vx = PosRobot.Vy = 0;
+                    }
+                    else
+                    {
+                        date -= 6;
+                        PosRobotInconnue.Theta = -date * date * Math.PI / 12 + date * Math.PI / 6 + 11 * Math.PI / 12;
+                        PosRobot.Vtheta = -date * Math.PI / 6 + Math.PI / 6;
+                        PosRobotInconnue.X = 1;
+                        PosRobotInconnue.Y = 0.5;
+                        PosRobot.Vx = PosRobot.Vy = 0;
+                    }
+                } // 3eme trajet
 
-            else if (date <= 22)
-            {
-                date -= 18.5;
-                if (date < 1) //accélération
+                else if (date <= 18.5)
                 {
-                    PosRobotInconnue.Theta = date * date * Math.PI / 12 + Math.PI;
-                    PosRobot.Vtheta = date * Math.PI / 6;
-                    PosRobotInconnue.X = -1;
-                    PosRobotInconnue.Y = 0.5;
-                    PosRobot.Vx = PosRobot.Vy = 0;
-                }
-                else if (date <= 6) //v=cst
-                {
-                    date -= 1;
-                    PosRobotInconnue.Theta = date * Math.PI / 6 + 13 * Math.PI / 12;
-                    PosRobot.Vtheta = Math.PI / 6;
-                    PosRobotInconnue.X = -1;
-                    PosRobotInconnue.Y = 0.5;
-                    PosRobot.Vx = PosRobot.Vy = 0;
-                }
-                else
-                {
-                    date -= 6;
-                    PosRobotInconnue.Theta = -date * date * Math.PI / 12 + date * Math.PI / 6 + 11 * Math.PI / 12;
-                    PosRobot.Vtheta = -date * Math.PI / 6 + Math.PI / 6;
-                    PosRobotInconnue.X = -1;
-                    PosRobotInconnue.Y = 0.5;
-                    PosRobot.Vx = PosRobot.Vy = 0;
-                }
-            } // 5eme trajet
+                    date -= 14;
+                    if (date < 0.5) //accélération 
+                    {
+                        PosRobotInconnue.X = -0.5 * date * date + 1;
+                        PosRobot.Vx = date;
+                        PosRobotInconnue.Y = 0.5;
+                        PosRobot.Vy = 0;
+                        PosRobotInconnue.Theta = Math.PI;
+                        PosRobot.Vtheta = 0;
+                    }
+                    else if (date < 4) // v =cst
+                    {
+                        date -= 0.5;
+                        PosRobotInconnue.X = -0.5 * date - 0.125 + 1;
+                        PosRobot.Vx = 0.5;
+                        PosRobotInconnue.Y = 0.5;
+                        PosRobot.Vy = 0;
+                        PosRobotInconnue.Theta = Math.PI;
+                        PosRobot.Vtheta = 0;
+                    }
+                    else //descélération
+                    {
+                        date -= 4;
+                        PosRobotInconnue.X = 0.5 * date * date - 0.5 * date - 1.875 + 1;
+                        PosRobot.Vx = -date + 0.5;
+                        PosRobotInconnue.Y = 0.5;
+                        PosRobot.Vy = 0;
+                        PosRobotInconnue.Theta = Math.PI;
+                        PosRobot.Vtheta = 0;
+                    }
+                } //4eme trajet
 
-            else if (date <= 24.5)
-            {
-                date = date - 22;
-                if (date <= 0.5) //accélération 
+                else if (date <= 22)
                 {
-                    PosRobotInconnue.Y = -0.5 * date * date + 0.5;
-                    PosRobot.Vy = 0;
-                    PosRobotInconnue.X = -1;
-                    PosRobot.Vx = date;
-                    PosRobotInconnue.Theta = -Math.PI / 2;
-                    PosRobot.Vtheta = 0;
-                }
-                else if (date <= 2) //v = cst
-                {
-                    date -= 0.5;
-                    PosRobotInconnue.Y = -0.5 * date - 0.125 + 0.5;
-                    PosRobot.Vy = 0;
-                    PosRobotInconnue.X = -1;
-                    PosRobot.Vx = 0.5;
-                    PosRobotInconnue.Theta = -Math.PI / 2;
-                    PosRobot.Vtheta = 0;
-                }
-                else //descélération
-                {
-                    date -= 2;
-                    PosRobotInconnue.Y = 0.5 * date * date - 0.5 * date - 0.875 + 0.5;
-                    PosRobot.Vy = 0;
-                    PosRobotInconnue.X = -1;
-                    PosRobot.Vx = -date + 0.5;
-                    PosRobotInconnue.Theta = -Math.PI / 2;
-                    PosRobot.Vtheta = 0;
-                }
-            } // 6nd trajet
+                    date -= 18.5;
+                    if (date < 1) //accélération
+                    {
+                        PosRobotInconnue.Theta = date * date * Math.PI / 12 + Math.PI;
+                        PosRobot.Vtheta = date * Math.PI / 6;
+                        PosRobotInconnue.X = -1;
+                        PosRobotInconnue.Y = 0.5;
+                        PosRobot.Vx = PosRobot.Vy = 0;
+                    }
+                    else if (date <= 6) //v=cst
+                    {
+                        date -= 1;
+                        PosRobotInconnue.Theta = date * Math.PI / 6 + 13 * Math.PI / 12;
+                        PosRobot.Vtheta = Math.PI / 6;
+                        PosRobotInconnue.X = -1;
+                        PosRobotInconnue.Y = 0.5;
+                        PosRobot.Vx = PosRobot.Vy = 0;
+                    }
+                    else
+                    {
+                        date -= 6;
+                        PosRobotInconnue.Theta = -date * date * Math.PI / 12 + date * Math.PI / 6 + 11 * Math.PI / 12;
+                        PosRobot.Vtheta = -date * Math.PI / 6 + Math.PI / 6;
+                        PosRobotInconnue.X = -1;
+                        PosRobotInconnue.Y = 0.5;
+                        PosRobot.Vx = PosRobot.Vy = 0;
+                    }
+                } // 5eme trajet
 
-            else if (date > 28)
+                else if (date <= 24.5)
+                {
+                    date = date - 22;
+                    if (date <= 0.5) //accélération 
+                    {
+                        PosRobotInconnue.Y = -0.5 * date * date + 0.5;
+                        PosRobot.Vy = 0;
+                        PosRobotInconnue.X = -1;
+                        PosRobot.Vx = date;
+                        PosRobotInconnue.Theta = -Math.PI / 2;
+                        PosRobot.Vtheta = 0;
+                    }
+                    else if (date <= 2) //v = cst
+                    {
+                        date -= 0.5;
+                        PosRobotInconnue.Y = -0.5 * date - 0.125 + 0.5;
+                        PosRobot.Vy = 0;
+                        PosRobotInconnue.X = -1;
+                        PosRobot.Vx = 0.5;
+                        PosRobotInconnue.Theta = -Math.PI / 2;
+                        PosRobot.Vtheta = 0;
+                    }
+                    else //descélération
+                    {
+                        date -= 2;
+                        PosRobotInconnue.Y = 0.5 * date * date - 0.5 * date - 0.875 + 0.5;
+                        PosRobot.Vy = 0;
+                        PosRobotInconnue.X = -1;
+                        PosRobot.Vx = -date + 0.5;
+                        PosRobotInconnue.Theta = -Math.PI / 2;
+                        PosRobot.Vtheta = 0;
+                    }
+                } // 6nd trajet
+
+                else if (date > 28)
+                {
+                    PosRobot.Vx = PosRobot.Vy = 0;
+                    PosRobotInconnue.Theta -= Math.PI / 100;
+                    PosRobot.Vtheta = -Math.PI / 2;
+                } // FIN
+            }
+            else
             {
-                PosRobot.Vx = PosRobot.Vy = 0;
-                PosRobotInconnue.Theta -= Math.PI / 100;
-                PosRobot.Vtheta = -Math.PI / 2;
-            } // FIN
+                if (date <= 4.5)
+                {
+                    if (date < 0.5) //accélération 
+                    {
+                        PosRobotInconnue.X = 0.5 * date * date - 1;
+                        PosRobot.Vx = date;
+                        PosRobotInconnue.Y = -0.5;
+                        PosRobot.Vy = 0;
+                        PosRobotInconnue.Theta = 0;
+                        PosRobot.Vtheta = 0;
+                    }
+                    else if (date < 4) // v =cst
+                    {
+                        date -= 0.5;
+                        PosRobotInconnue.X = 0.5 * date + 0.125 - 1;
+                        PosRobot.Vx = 0.5;
+                        PosRobotInconnue.Y = -0.5;
+                        PosRobot.Vy = 0;
+                        PosRobotInconnue.Theta = 0;
+                        PosRobot.Vtheta = 0;
+                    }
+                    else //descélération
+                    {
+                        date -= 4;
+                        PosRobotInconnue.X = -0.5 * date * date + 0.5 * date + 1.875 - 1;
+                        PosRobot.Vx = -date + 0.5;
+                        PosRobotInconnue.Y = -0.5;
+                        PosRobot.Vy = 0;
+                        PosRobotInconnue.Theta = 0;
+                        PosRobot.Vtheta = 0;
+                    }
+                } //1er trajet
+
+                else if (date <= 7)
+                {
+
+                    date = date - 4.5;
+                    if (date <= 0.5) //accélération 
+                    {
+                        PosRobotInconnue.Y = 0.5 * date * date - 0.5;
+                        PosRobot.Vy = date;
+                        PosRobotInconnue.X = 1;
+                        PosRobot.Vx = 0;
+                        PosRobotInconnue.Theta = 0;
+                        PosRobot.Vtheta = 0;
+                    }
+                    else if (date <= 2) //v = cst
+                    {
+                        date -= 0.5;
+                        PosRobotInconnue.Y = 0.5 * date + 0.125 - 0.5;
+                        PosRobot.Vy = 0.5;
+                        PosRobot.X = 1;
+                        PosRobotInconnue.Vx = 0;
+                        PosRobotInconnue.Theta = 0;
+                        PosRobot.Vtheta = 0;
+                    }
+                    else //descélération
+                    {
+                        date -= 2;
+                        PosRobotInconnue.Y = -0.5 * date * date + 0.5 * date + 0.875 - 0.5;
+                        PosRobot.Vy = -date + 0.5;
+                        PosRobotInconnue.X = 1;
+                        PosRobot.Vx = 0;
+                        PosRobotInconnue.Theta = 0;
+                        PosRobot.Vtheta = 0;
+                    }
+                } // 2nd trajet
+
+                else if (date <= 14)
+                {
+                    
+                } // 3eme trajet
+
+                else if (date <= 18.5)
+                {
+                    date -= 14;
+                    if (date < 0.5) //accélération 
+                    {
+                        PosRobotInconnue.X = -0.5 * date * date + 1;
+                        PosRobot.Vx = -date;
+                        PosRobotInconnue.Y = 0.5;
+                        PosRobot.Vy = 0;
+                        PosRobotInconnue.Theta = 0;
+                        PosRobot.Vtheta = 0;
+                    }
+                    else if (date < 4) // v =cst
+                    {
+                        date -= 0.5;
+                        PosRobotInconnue.X = -0.5 * date - 0.125 + 1;
+                        PosRobot.Vx = -0.5;
+                        PosRobotInconnue.Y = 0.5;
+                        PosRobot.Vy = 0;
+                        PosRobotInconnue.Theta = 0;
+                        PosRobot.Vtheta = 0;
+                    }
+                    else //descélération
+                    {
+                        date -= 4;
+                        PosRobotInconnue.X = 0.5 * date * date - 0.5 * date - 1.875 + 1;
+                        PosRobot.Vx = date - 0.5;
+                        PosRobotInconnue.Y = 0.5;
+                        PosRobot.Vy = 0;
+                        PosRobotInconnue.Theta = 0;
+                        PosRobot.Vtheta = 0;
+                    }
+                } //4eme trajet
+
+                else if (date <= 22)
+                {
+                    
+                } // 5eme trajet
+
+                else if (date <= 24.5)
+                {
+                    date = date - 22;
+                    if (date <= 0.5) //accélération 
+                    {
+                        PosRobotInconnue.Y = -0.5 * date * date + 0.5;
+                        PosRobot.Vy = -date;
+                        PosRobotInconnue.X = -1;
+                        PosRobot.Vx = 0;
+                        PosRobotInconnue.Theta = 0;
+                        PosRobot.Vtheta = 0;
+                    }
+                    else if (date <= 2) //v = cst
+                    {
+                        date -= 0.5;
+                        PosRobotInconnue.Y = -0.5 * date - 0.125 + 0.5;
+                        PosRobot.Vy = -0.5;
+                        PosRobotInconnue.X = -1;
+                        PosRobot.Vx = 0;
+                        PosRobotInconnue.Theta = 0;
+                        PosRobot.Vtheta = 0;
+                    }
+                    else //descélération
+                    {
+                        date -= 2;
+                        PosRobotInconnue.Y = 0.5 * date * date - 0.5 * date - 0.875 + 0.5;
+                        PosRobot.Vy = -(-date + 0.5);
+                        PosRobotInconnue.X = -1;
+                        PosRobot.Vx = 0;
+                        PosRobotInconnue.Theta = 0;
+                        PosRobot.Vtheta = 0;
+                    }
+                } // 6nd trajet
+
+            }
             #endregion
 
             if (bruitage_odo)
