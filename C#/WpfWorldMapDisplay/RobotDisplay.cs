@@ -279,7 +279,7 @@ namespace WpfWorldMapDisplay
             {
                 int indice=0;
                 int indice_petit=0;
-                double val=100;
+                double val=Unsorted[0].Pt.X;
                 PointDExtended pluspetit=Unsorted[0];
 
                 foreach (PointDExtended elt in Unsorted)

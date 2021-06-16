@@ -32,11 +32,15 @@ namespace WpfSlamInterface
     public partial class MainWindow : Window
     {
         //Paramètres
+        bool tout_les_ld = false;
+        bool usingEkf = true;
+
         static bool bruitage_odo = false;
         bool bruitage_ld = false;
-        bool tout_les_ld = true;
-        bool usingEkf = true;
-        static bool translation_circulaire = false;
+        
+        static bool translation_circulaire = true;             //A FAIRE : rajouter une dérive a la simu 
+        static bool dont_moove = false; 
+
         double anglePerceptionRobot = Math.PI;
         private double tEch = 0.02;       // fEch = 50 dans ekf_positionning 
          
@@ -163,8 +167,14 @@ namespace WpfSlamInterface
         static public Location PosRobotQuandTuVeux(double date, Location PosRobot)
         {
             #region pos=f(t)
-
-            if (!translation_circulaire)
+            // 3modes : fixe, translation circulaire, parcours complet
+            
+            if (dont_moove)
+            {
+                PosRobot = new Location(-1, -0.5, 0, 0, 0, 0);
+                PosRobotInconnue = PosRobot; 
+            }
+            else if (!translation_circulaire)
             {
                 if (date <= 4.5)
                 {

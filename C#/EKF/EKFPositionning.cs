@@ -815,16 +815,16 @@ namespace EKF
                 #endregion
 
                 #region Calcul de H
-                MatrixHi[0, 0] = -(1 / Math.Sqrt(q)) * deltax;                                              //ici on prépare Hi = lowH
-                MatrixHi[0, 1] = -(1 / Math.Sqrt(q)) * deltay;
+                MatrixHi[0, 0] = -deltax2 / Math.Sqrt(q);                                              //ici on prépare Hi = lowH
+                MatrixHi[0, 1] = -deltay2 / Math.Sqrt(q);
                 MatrixHi[0, 2] = 0;
-                MatrixHi[0, 3] = (1 / Math.Sqrt(q)) * deltax;
-                MatrixHi[0, 4] = (1 / Math.Sqrt(q)) * deltay;
-                MatrixHi[1, 0] = (1 / q) * deltay;
-                MatrixHi[1, 1] = (-1 / q) * deltax;
+                MatrixHi[0, 3] = deltax2 / Math.Sqrt(q);
+                MatrixHi[0, 4] = deltay2 / Math.Sqrt(q);
+                MatrixHi[1, 0] = deltay2 / q ;
+                MatrixHi[1, 1] = -deltax2 / q;
                 MatrixHi[1, 2] = -1;
-                MatrixHi[1, 3] = (-1 / q) * deltay;
-                MatrixHi[1, 4] = (1 / q) * deltax;
+                MatrixHi[1, 3] = -deltay2 / q;
+                MatrixHi[1, 4] = deltax2 / q;
                 #endregion      
 
                 MatrixParentheses = Toolbox.Multiply(MatrixHi, Toolbox.Multiply(MatrixPi, Toolbox.Transpose(MatrixHi)));
@@ -837,10 +837,10 @@ namespace EKF
 
                 for (int indices = 0; indices < MatrixZ.Length; indices++)
                 {
-                    MatrixZPred[indices, 0] -= MatrixZ[indices, 0];                         // A partir de là MatrixZ contient la différence entre prédiction et observation 
+                    MatrixZ[indices, 0] -= MatrixZPred[indices, 0];                         // A partir de là MatrixZ contient la différence entre prédiction et observation 
                 }
 
-                MatrixKdeltaz = Toolbox.Multiply(MatrixKi, MatrixZPred);
+                MatrixKdeltaz = Toolbox.Multiply(MatrixKi, MatrixZ);
 
                 MatrixKdeltaz = Toolbox.Addition_Matrices(MatrixXiPred, MatrixKdeltaz);
 
