@@ -35,18 +35,22 @@ namespace WpfSlamInterface
         bool tout_les_ld = false;
         bool usingEkf = true;
 
-        static bool bruitage_odo = false;
-        bool bruitage_ld = false;
+        static bool bruitage_odo = true ;
+        bool bruitage_ld = true;
         
-        static bool translation_circulaire = true;             //A FAIRE : rajouter une dérive a la simu 
+        static bool translation_circulaire = false;             //A FAIRE : rajouter une dérive a la simu 
         static bool dont_moove = false; 
 
         double anglePerceptionRobot = Math.PI;
         private double tEch = 0.02;       // fEch = 50 dans ekf_positionning 
-         
+
+
+        
+
+        Location PosRobot = new Location(-1, -0.5, 0, 0, 0, 0);
+        static Location PosInitRobot = new Location(-1, -0.5, 0, 0, 0, 0);
 
         DispatcherTimer timer;
-        Location PosRobot = new Location(-1,-0.5,0,0,0,0);
         static Location PosRobotInconnue = new Location(0,0,0,0,0,0);
         List<PointDExtended> PosLandmarks;
         double date;
@@ -58,7 +62,7 @@ namespace WpfSlamInterface
 
             LocationArgs a = new LocationArgs();
             a.RobotId = (int)TeamId.Team1 + (int)RobotId.Robot1;
-            a.Location = PosRobot;
+            a.Location = PosInitRobot;
 
             eKFPositionning = new EKFPositionning(a);
             Simulateur_ekf simulateur_ = new Simulateur_ekf();
@@ -97,6 +101,18 @@ namespace WpfSlamInterface
             PosLandmarks = Landmarks_vus(PosRobotInconnue, anglePerceptionRobot);
 
             //List<PointDExtended>  Pos2Landmarks = new List<PointDExtended> (PassageRefRobot(PosLandmarks, new Location(0, 0, 0, 0, 0, 0)));
+
+            foreach(var ld in PosLandmarks)
+            {
+                if (ld.Pt.Y < - anglePerceptionRobot / 2) 
+                { 
+                    ld.Pt.Y += 2 * Math.PI; 
+                }
+                else if (ld.Pt.Y > anglePerceptionRobot / 2) 
+                { 
+                    ld.Pt.Y -= 2 * Math.PI; 
+                }
+            }
 
             LocalMapLdSeen.UpdateLocalWorldMap(new LocalWorldMap()
             {
