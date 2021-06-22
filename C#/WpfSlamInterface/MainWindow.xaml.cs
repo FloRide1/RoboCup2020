@@ -32,6 +32,8 @@ namespace WpfSlamInterface
     public partial class MainWindow : Window
     {
         //Paramètres
+        bool useSimu = true;
+
         bool tout_les_ld = false;
         bool usingEkf = true;
 
@@ -45,12 +47,12 @@ namespace WpfSlamInterface
         private double tEch = 0.02;       // fEch = 50 dans ekf_positionning 
 
 
-        
+
+        DispatcherTimer timer;
 
         Location PosRobot = new Location(-1, -0.5, 0, 0, 0, 0);
         static Location PosInitRobot = new Location(-1, -0.5, 0, 0, 0, 0);
 
-        DispatcherTimer timer;
         static Location PosRobotInconnue = new Location(0,0,0,0,0,0);
         List<PointDExtended> PosLandmarks;
         double date;
@@ -96,10 +98,15 @@ namespace WpfSlamInterface
         public void UpdateGUITemp(object sender, EventArgs e)
         {
 
-            PosRobot = PosRobotQuandTuVeux(date, PosRobot);                             
-            
-            PosLandmarks = Landmarks_vus(PosRobotInconnue, anglePerceptionRobot);
+            if (useSimu)
+            {
+                PosRobot = PosRobotQuandTuVeux(date, PosRobot);
+                PosLandmarks = Landmarks_vus(PosRobotInconnue, anglePerceptionRobot);
+            }
+            else
+            {
 
+            }
             //List<PointDExtended>  Pos2Landmarks = new List<PointDExtended> (PassageRefRobot(PosLandmarks, new Location(0, 0, 0, 0, 0, 0)));
 
             foreach(var ld in PosLandmarks)
@@ -142,8 +149,6 @@ namespace WpfSlamInterface
                 lidarMap = PosLandmarks,
             });
 
-
-
             date += tEch;
         }
 
@@ -158,7 +163,6 @@ namespace WpfSlamInterface
                 handler(this, new LocationArgs { RobotId = id, Location = PosRobot });
             }
         }
-
 
         public event EventHandler<PointDExtendedListArgs> OnLandmarksFoundEvent;
         public virtual void OnLandmarksFound(int id, List<PointDExtended> PosLandmarks)
@@ -175,7 +179,6 @@ namespace WpfSlamInterface
             PosRobot = e.PosRobot;
             PosLandmarks = e.PosLandmarkList;
         }
-
 
         #endregion events
 
@@ -717,3 +720,8 @@ namespace WpfSlamInterface
 
     }
 }
+
+
+
+
+ESSAIE DE VOIR SI ON PEUT CHANGER LA TAILLE DES MATRICES   

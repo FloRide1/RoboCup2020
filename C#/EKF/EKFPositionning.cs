@@ -437,8 +437,6 @@ namespace EKF
                         MatrixZ[1, 0] -= 2 * Math.PI;
                     }
 
-                    
-
                     XPredUpdate = Toolbox.Addition_Matrices(XPredUpdate,Toolbox.Multiply(MatrixKi,MatrixZ));
 
                     #region Calculs pour Ppred
