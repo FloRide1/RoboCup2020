@@ -26,6 +26,7 @@ using UdpMulticastInterpreter;
 using UDPMulticast;
 using StrategyManagerProjetEtudiantNS.StrategyRoboCupNS;
 using StrategyManagerProjetEtudiantNS;
+using LandmarkExtractorNS;
 
 namespace Robot
 {
@@ -130,6 +131,7 @@ namespace Robot
         static LogRecorder.LogRecorder logRecorder;
         static LogReplay.LogReplay logReplay;
 
+        static LandmarksExtractor landmarksExtractor;
 
         [STAThread] //à ajouter au projet initial
 
@@ -258,6 +260,7 @@ namespace Robot
 
 
             perceptionManager.OnLidarProcessedDataEvent += localWorldMapManager.OnLidarDataReceived;
+            perceptionManager.OnLidarProcessedLandmarksEvent += localWorldMapManager.OnLidarDataReceived;
             perceptionManager.OnLidarProcessedSegmentsEvent += localWorldMapManager.OnLidarProcessedSegmentsReceived;
 
 
@@ -279,6 +282,11 @@ namespace Robot
             robotMsgProcessor.OnIOValuesFromRobotGeneratedEvent += strategyManager.OnIOValuesFromRobot;
             robotMsgProcessor.OnIOValuesFromRobotGeneratedEvent += perceptionManager.OnIOValuesFromRobotEvent;
 
+
+            landmarksExtractor = new LandmarksExtractor();
+            landmarksExtractor.OnLinesLandmarksExtractedEvent += perceptionManager.OnLandmarksReceived;
+            perceptionManager.OnLidarRawDataEvent += landmarksExtractor.OnRobotLidarReceived;
+            perceptionManager.OnAbsolutePositionEvent += landmarksExtractor.OnRobotPositionReceived;
 
             //  robotMsgProcessor.OnMotorsCurrentsFromRobotGeneratedEvent += strategyManager.OnMotorCurrentReceive;
 

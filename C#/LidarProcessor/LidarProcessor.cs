@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Utilities;
+using LandmarkExtractorNS;
 
 namespace LidarProcessor
 {
@@ -103,7 +104,7 @@ namespace LidarProcessor
                 case GameMode.RoboCup:
                     double tailleNoyau = 0.2;
                     double toleranceR2000 = 0.012;
-                    double toleranceSampling = 0.25;// 20 * toleranceR2000;
+                    double toleranceSampling = 30 * toleranceR2000;
                     double toleranceIEPF = 1 * toleranceR2000;
 
                     List<PolarPointRssi> originalPtList = ptList.ToList(); // FixedStepLidarMap(ptList, toleranceSampling); 
@@ -134,17 +135,36 @@ namespace LidarProcessor
                     //    }
                     //}
 
-                    // display_points = FixedStepPtList;
+                     display_points = FixedStepPtList;
 
 
                     List<PointD> originalPtListXY = FixedStepPtList.Select(x => Toolbox.ConvertPolarToPointD(x.Pt)).ToList();
 
+                    List<Tuple<double, double>> list_of_lines = LineDetection.RansacAlgorithm(originalPtListXY, 1000, 100, 80, 0.2, 40);
+
+                    List<SegmentExtended> list_of_segments = new List<SegmentExtended>();
+
+                    foreach (Tuple<double, double> lines in list_of_lines)
+                    {
+                        double slope = lines.Item1;
+                        double y_intercept = lines.Item2;
+
+                        double positive = 1000;
+                        double negative = -1000;
+
+                        PointD point_positive = new PointD(positive, slope * positive + y_intercept);
+                        PointD point_negative = new PointD(negative, slope * negative + y_intercept);
+
+                        list_of_segments.Add(new SegmentExtended(point_negative, point_positive, Color.Red, 5));
+                    }
+
                     List<ClusterObjects> list_of_clusters = ClustersDetection.ExtractClusterByDBScan(originalPtListXY, 0.25, 5);
                     List<PolarPointRssiExtended> list_of_colorisez_point = ClustersDetection.SetColorsOfClustersObjects(list_of_clusters);
 
-                    display_points = list_of_colorisez_point;
+                    //display_points = list_of_colorisez_point;
+                    display_lines = list_of_segments;
 
-                   
+
 
 
                     break;

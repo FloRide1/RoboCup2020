@@ -4,8 +4,10 @@ using EventArgsLibrary;
 using PerformanceMonitorTools;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Utilities;
 using WorldMap;
+using System.Drawing;
 
 namespace PerceptionManagement
 {
@@ -191,6 +193,40 @@ namespace PerceptionManagement
             }
         }
 
+        public event EventHandler<LidarPolarPtListExtendedArgs> OnLidarProcessedLandmarksEvent;
+        public void OnLandmarksReceived(object sender, List<Landmark> list_of_landmarks)
+        {
+            List<PolarPointRssiExtended> list_of_landmarks_points = list_of_landmarks.Select(x => new PolarPointRssiExtended(Toolbox.ConvertPointDToPolar(x.Position), 10, Color.Red)).ToList();
+
+            OnLidarProcessedLandmarksEvent?.Invoke(this, new LidarPolarPtListExtendedArgs() {
+                RobotId = robotId, 
+                LidarFrameNumber = 0, 
+                Type = LidarDataType.ProcessedData1, 
+                PtList = list_of_landmarks_points 
+            });
+        }
+
+        public void OnLineLandmarksReceived(object sender, List<Tuple<double, double>> list_of_lines)
+        {
+            List<SegmentExtended> list_of_segments = new List<SegmentExtended>();
+
+            foreach (Tuple<double, double> lines in list_of_lines)
+            {
+                double slope = lines.Item1;
+                double y_intercept = lines.Item2;
+
+                double positive = 1000;
+                double negative = - 1000;
+
+                PointD point_positive = new PointD(positive, slope * positive + y_intercept);
+                PointD point_negative = new PointD(negative, slope * negative + y_intercept);
+
+                list_of_segments.Add(new SegmentExtended(point_negative, point_positive, Color.Red, 5));
+            }
+
+            OnLidarProcessedSegmentsEvent?.Invoke(this, new SegmentExtendedListArgs { RobotId = robotId, SegmentList = list_of_segments });
+        }
+
         public void OnGlobalWorldMapReceived(object sender, GlobalWorldMapArgs e)
         {
             globalWorldMap = e.GlobalWorldMap;
@@ -212,51 +248,37 @@ namespace PerceptionManagement
         public event EventHandler<RawLidarArgs> OnLidarRawDataEvent;
         public virtual void OnLidarRawData(RawLidarArgs e)
         {
-            var handler = OnLidarRawDataEvent;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            OnLidarRawDataEvent?.Invoke(this, e);
         }
 
         public event EventHandler<LidarPolarPtListExtendedArgs> OnLidarProcessedDataEvent;
         public virtual void OnLidarProcessedData(object sender, LidarPolarPtListExtendedArgs e)
         {
-            var handler = OnLidarProcessedDataEvent;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            OnLidarProcessedDataEvent?.Invoke(this, e);
         }
+
+        //public event EventHandler<List<Landmark>> OnLidarLandmarksDataEvent;
+        //public virtual void OnLidarProcessedData(object sender, List<Landmark> e)
+        //{
+        //    OnLidarLandmarksDataEvent?.Invoke(this, e);
+        //}
 
         public event EventHandler<SegmentExtendedListArgs> OnLidarProcessedSegmentsEvent;
         public virtual void OnLidarProcessedSegments(object sender, SegmentExtendedListArgs e)
         {
-            var handler = OnLidarProcessedSegmentsEvent;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            OnLidarProcessedSegmentsEvent?.Invoke(this, e); 
         }
 
         public event EventHandler<PerceptionArgs> OnPerceptionEvent;
         public virtual void OnPerception(Perception perception)
         {
-            var handler = OnPerceptionEvent;
-            if (handler != null)
-            {
-                handler(this, new PerceptionArgs { RobotId = robotId, Perception = perception });
-            }
+            OnPerceptionEvent?.Invoke(this, new PerceptionArgs { RobotId = robotId, Perception = perception });
         }
         
         public event EventHandler<RawLidarArgs> OnLidarBalisePointListForDebugEvent;
         public virtual void OnLidarBalisePointListForDebug(int id, List<PolarPointRssi> ptList)
         {
-            var handler = OnLidarBalisePointListForDebugEvent;
-            if (handler != null)
-            {
-                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList });
-            }
+            OnLidarBalisePointListForDebugEvent?.Invoke(this, new RawLidarArgs { RobotId = id, PtList = ptList });
         }
     }  
 }

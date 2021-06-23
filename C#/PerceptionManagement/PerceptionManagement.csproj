@@ -52,6 +52,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -67,6 +68,10 @@
     <ProjectReference Include="..\AbsolutePositionEstimator\AbsolutePositionEstimator.csproj">
       <Project>{c8760a70-0073-45f9-afb7-806881456673}</Project>
       <Name>AbsolutePositionEstimator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\APUData\LandmarksExtractor.csproj">
+      <Project>{0aa50107-7ff8-4a4a-9b74-d59e0a2ee22b}</Project>
+      <Name>LandmarksExtractor</Name>
     </ProjectReference>
     <ProjectReference Include="..\Constants\Constants.csproj">
       <Project>{0540b497-b2ce-40a1-84b5-3109ce2f3146}</Project>

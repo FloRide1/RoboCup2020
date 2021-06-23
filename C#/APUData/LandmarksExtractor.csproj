@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3C4270CF-77BA-4100-BBAB-6E2802C49478}</ProjectGuid>
+    <ProjectGuid>{0AA50107-7FF8-4A4A-9B74-D59E0A2EE22B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LidarProcessor</RootNamespace>
-    <AssemblyName>LidarProcessor</AssemblyName>
+    <RootNamespace>APUData</RootNamespace>
+    <AssemblyName>APUData</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -30,32 +30,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -64,19 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClustersDetection.cs" />
-    <Compile Include="CornerDetection.cs" />
-    <Compile Include="FindRectangle.cs" />
-    <Compile Include="Hough.cs" />
-    <Compile Include="LidarProcessor.cs" />
-    <Compile Include="LineDetection.cs" />
+    <Compile Include="LandmarksExtractor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\APUData\LandmarksExtractor.csproj">
-      <Project>{0aa50107-7ff8-4a4a-9b74-d59e0a2ee22b}</Project>
-      <Name>LandmarksExtractor</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Constants\Constants.csproj">
       <Project>{0540b497-b2ce-40a1-84b5-3109ce2f3146}</Project>
       <Name>Constants</Name>
@@ -86,17 +54,9 @@
       <Name>EventArgsLibrary</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
-      <Project>{8E7D0DA4-9A13-4B18-A90E-0243BBCCE40A}</Project>
+      <Project>{8e7d0da4-9a13-4b18-a90e-0243bbcce40a}</Project>
       <Name>Utilities</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="MathNet.Numerics">
-      <Version>4.15.0</Version>
-    </PackageReference>
-    <PackageReference Include="OptimizedPriorityQueue">
-      <Version>5.1.0</Version>
-    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
