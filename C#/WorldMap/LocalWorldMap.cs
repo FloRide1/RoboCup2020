@@ -49,10 +49,19 @@ namespace WorldMap
 
         [JsonIgnore]
         [IgnoreFormat]
-        public virtual List<PointD> lidarMap { get; set; }
+        public virtual List<PointDExtended> lidarMap { get; set; }
         [JsonIgnore]
         [IgnoreFormat]
-        public virtual List<PointD> lidarMapProcessed { get; set; }
+        public virtual List<PointDExtended> lidarMapProcessed1 { get; set; }
+        [JsonIgnore]
+        [IgnoreFormat]
+        public virtual List<PointDExtended> lidarMapProcessed2 { get; set; }
+        [JsonIgnore]
+        [IgnoreFormat]
+        public virtual List<PointDExtended> lidarMapProcessed3 { get; set; }
+        [JsonIgnore]
+        [IgnoreFormat]
+        public virtual List<SegmentExtended> lidarSegmentList { get; set; }
         [JsonIgnore]
         [IgnoreFormat]
         public virtual Heatmap heatMapStrategy { get; set; }

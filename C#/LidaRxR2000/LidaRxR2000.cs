@@ -734,7 +734,7 @@ namespace LidaRxR2000NS
             var handler = OnLidarDecodedFrameEvent;
             if (handler != null)
             {
-                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList, LidarFrameNumber=lidarFrameNumber});
+                handler(this, new RawLidarArgs { RobotId = id, PtList = ptList, LidarFrameNumber=lidarFrameNumber, Type=LidarDataType.RawData});
             }
         }
     }

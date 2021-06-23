@@ -198,6 +198,8 @@ namespace WpfWorldMapDisplay
                     if (competition == GameMode.RoboCup)
                         PolygonTerrainSeries.RedrawAll();
                     PolygonSeries.RedrawAll();
+                    SegmentSeries.RedrawAll();
+                    LidarPtExtendedSeries.RedrawAll();
                     ObjectsPolygonSeries.RedrawAll();
                     BallPolygon.RedrawAll();
                     DrawTeam();
@@ -338,8 +340,11 @@ namespace WpfWorldMapDisplay
             //Affichage du lidar uniquement dans la strategy map
             if (lwmdType == LocalWorldMapDisplayType.StrategyMap)
             {
-                UpdateLidarMap(robotId, localWorldMap.lidarMap);
-                UpdateLidarProcessedMap(robotId, localWorldMap.lidarMapProcessed);
+                UpdateLidarMap(robotId, localWorldMap.lidarMap, LidarDataType.RawData);
+                UpdateLidarMap(robotId, localWorldMap.lidarMapProcessed1, LidarDataType.ProcessedData1);
+                UpdateLidarMap(robotId, localWorldMap.lidarMapProcessed2, LidarDataType.ProcessedData2);
+                UpdateLidarMap(robotId, localWorldMap.lidarMapProcessed3, LidarDataType.ProcessedData3);
+                UpdateLidarSegments(robotId, localWorldMap.lidarSegmentList);
             }
             UpdateLidarObjects(robotId, localWorldMap.lidarObjectList);
             UpdateObstacleList(localWorldMap.obstaclesLocationList);
@@ -419,7 +424,14 @@ namespace WpfWorldMapDisplay
         public void DrawTeam()
         {
             XyDataSeries<double, double> lidarPts = new XyDataSeries<double, double>();
-            XyDataSeries<double, double> lidarProcessedPts = new XyDataSeries<double, double>();
+            XyDataSeries<double, double>[] lidarProcessedPts = new XyDataSeries<double, double>[3];
+            //foreach(var l in lidarProcessedPts)
+            //{
+            //    l = new XyDataSeries<double, double>();
+            //}
+
+            //XyDataSeries<double, double> lidarProcessedPts2 = new XyDataSeries<double, double>();
+            //XyDataSeries<double, double> lidarProcessedPts3 = new XyDataSeries<double, double>();
             ObjectsPolygonSeries.Clear();
 
             foreach (var r in TeamMatesDisplayDictionary)
@@ -434,13 +446,49 @@ namespace WpfWorldMapDisplay
 
                 //Rendering des points Lidar
                 lidarPts.AcceptsUnsortedData = true;
-                var lidarData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints();
+                var lidarData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints(LidarDataType.RawData);
                 lidarPts.Append(lidarData.XValues, lidarData.YValues);
-                lidarProcessedPts.AcceptsUnsortedData = true;
-                var lidarProcessedData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarProcessedPoints();
-                lidarProcessedPts.Append(lidarProcessedData.XValues, lidarProcessedData.YValues);
+
+                for (int i=0; i< lidarProcessedPts.Length; i++)
+                {
+                    lidarProcessedPts[i] = new XyDataSeries<double, double>();
+                    lidarProcessedPts[i].AcceptsUnsortedData = true;
+                    switch (i)
+                    {
+                        case 0:
+                            {
+                                var lidarProcessedData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints(LidarDataType.ProcessedData1);
+                                lidarProcessedPts[i].Append(lidarProcessedData.XValues, lidarProcessedData.YValues);
+                            }
+                            break;
+                        case 1:
+                            {
+                                var lidarProcessedData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints(LidarDataType.ProcessedData2);
+                                lidarProcessedPts[i].Append(lidarProcessedData.XValues, lidarProcessedData.YValues);
+                            }
+                            break;
+                        case 2:
+                            {
+                                var lidarProcessedData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints(LidarDataType.ProcessedData3);
+                                lidarProcessedPts[i].Append(lidarProcessedData.XValues, lidarProcessedData.YValues);
+                            }
+                            break;
+                    }
+                }
 
                 //Rendering des objets Lidar
+                SegmentSeries.Clear();
+                foreach (var segment in TeamMatesDisplayDictionary[r.Key].GetRobotLidarSegments())
+                {
+                    SegmentSeries.AddSegmentExtended(0, segment);
+                }
+
+                LidarPtExtendedSeries.Clear();
+                foreach(var pt in TeamMatesDisplayDictionary[r.Key].GetRobotLidarExtendedPoints())
+                {
+                    LidarPtExtendedSeries.AddPtExtended(pt);
+                }
+
                 foreach (var polygonObject in TeamMatesDisplayDictionary[r.Key].GetRobotLidarObjects())
                     ObjectsPolygonSeries.AddOrUpdatePolygonExtended(ObjectsPolygonSeries.Count(), polygonObject);
             }
@@ -455,13 +503,17 @@ namespace WpfWorldMapDisplay
             }
             //Affichage des points lidar
             LidarPoints.DataSeries = lidarPts;
-            LidarProcessedPoints.DataSeries = lidarProcessedPts;
+            LidarProcessedPoints1.DataSeries = lidarProcessedPts[0];
+            LidarProcessedPoints2.DataSeries = lidarProcessedPts[1];
+            LidarProcessedPoints3.DataSeries = lidarProcessedPts[2];
         }
 
         public void DrawLidar()
         {
             XyDataSeries<double, double> lidarPts = new XyDataSeries<double, double>();
-            XyDataSeries<double, double> lidarProcessedPts = new XyDataSeries<double, double>();
+            XyDataSeries<double, double> lidarProcessedPts1 = new XyDataSeries<double, double>();
+            XyDataSeries<double, double> lidarProcessedPts2 = new XyDataSeries<double, double>();
+            XyDataSeries<double, double> lidarProcessedPts3 = new XyDataSeries<double, double>();
             foreach (var r in TeamMatesDisplayDictionary)
             {
                 ////Affichage des robots
@@ -472,14 +524,25 @@ namespace WpfWorldMapDisplay
 
                 //Rendering des points Lidar
                 lidarPts.AcceptsUnsortedData = true;
-                var lidarData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints();
+                var lidarData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints(LidarDataType.RawData);
                 lidarPts.Append(lidarData.XValues, lidarData.YValues);
                 LidarPoints.DataSeries = lidarPts;
 
-                lidarProcessedPts.AcceptsUnsortedData = true;
-                var lidarProcessedData = TeamMatesDisplayDictionary[r.Key].GetRobotLidarProcessedPoints();
-                lidarProcessedPts.Append(lidarProcessedData.XValues, lidarProcessedData.YValues);
-                LidarProcessedPoints.DataSeries = lidarProcessedPts;
+                lidarProcessedPts1.AcceptsUnsortedData = true;
+                var lidarProcessedData1 = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints(LidarDataType.ProcessedData1);
+                lidarProcessedPts1.Append(lidarProcessedData1.XValues, lidarProcessedData1.YValues);
+
+                lidarProcessedPts2.AcceptsUnsortedData = true;
+                var lidarProcessedData2 = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints(LidarDataType.ProcessedData2);
+                lidarProcessedPts2.Append(lidarProcessedData2.XValues, lidarProcessedData2.YValues);
+
+                lidarProcessedPts3.AcceptsUnsortedData = true;
+                var lidarProcessedData3 = TeamMatesDisplayDictionary[r.Key].GetRobotLidarPoints(LidarDataType.ProcessedData3);
+                lidarProcessedPts3.Append(lidarProcessedData3.XValues, lidarProcessedData3.YValues);
+
+                LidarProcessedPoints1.DataSeries = lidarProcessedPts1;
+                LidarProcessedPoints2.DataSeries = lidarProcessedPts2;
+                LidarProcessedPoints3.DataSeries = lidarProcessedPts3;
             }
         }
 
@@ -546,23 +609,52 @@ namespace WpfWorldMapDisplay
             }
         }
 
-        private void UpdateLidarMap(int robotId, List<PointD> lidarMap)
+        private void UpdateLidarMap(int robotId, List<PointDExtended> lidarMap, LidarDataType type)
         {
             if (lidarMap == null)
                 return;
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
             {
-                TeamMatesDisplayDictionary[robotId].SetLidarMap(lidarMap);
+                TeamMatesDisplayDictionary[robotId].SetLidarMap(lidarMap, type);
             }
         }
 
-        private void UpdateLidarProcessedMap(int robotId, List<PointD> lidarMapProcessed)
+        //private void UpdateLidarProcessedMap1(int robotId, List<PointD> lidarMapProcessed)
+        //{
+        //    if (lidarMapProcessed == null)
+        //        return;
+        //    if (TeamMatesDisplayDictionary.ContainsKey(robotId))
+        //    {
+        //        TeamMatesDisplayDictionary[robotId].SetLidarProcessedMap1(lidarMapProcessed);
+        //    }
+        //}
+
+        //private void UpdateLidarProcessedMap2(int robotId, List<PointD> lidarMapProcessed)
+        //{
+        //    if (lidarMapProcessed == null)
+        //        return;
+        //    if (TeamMatesDisplayDictionary.ContainsKey(robotId))
+        //    {
+        //        TeamMatesDisplayDictionary[robotId].SetLidarProcessedMap2(lidarMapProcessed);
+        //    }
+        //}
+
+        //private void UpdateLidarProcessedMap3(int robotId, List<PointD> lidarMapProcessed)
+        //{
+        //    if (lidarMapProcessed == null)
+        //        return;
+        //    if (TeamMatesDisplayDictionary.ContainsKey(robotId))
+        //    {
+        //        TeamMatesDisplayDictionary[robotId].SetLidarProcessedMap3(lidarMapProcessed);            }
+        //}
+
+        private void UpdateLidarSegments(int robotId, List<SegmentExtended>  lidarSegmentList)
         {
-            if (lidarMapProcessed == null)
+            if (lidarSegmentList == null)
                 return;
             if (TeamMatesDisplayDictionary.ContainsKey(robotId))
             {
-                TeamMatesDisplayDictionary[robotId].SetLidarProcessedMap(lidarMapProcessed);
+                TeamMatesDisplayDictionary[robotId].SetLidarSegmentList(lidarSegmentList);
             }
         }
 

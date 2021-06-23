@@ -75,6 +75,8 @@
   <ItemGroup>
     <Compile Include="ObstacleDisplay.cs" />
     <Compile Include="BallDisplay.cs" />
+    <Compile Include="PointListRenderableSeries.cs" />
+    <Compile Include="SegmentRenderableSeries.cs" />
     <Compile Include="PolygonRenderableSeries.cs" />
     <Compile Include="RobotDisplay.cs" />
     <Compile Include="GlobalWorldMapDisplay.xaml.cs">
@@ -147,7 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SciChart">
-      <Version>6.2.1.13304</Version>
+      <Version>6.3.0.13476</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

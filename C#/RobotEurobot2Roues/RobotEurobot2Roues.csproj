@@ -92,13 +92,25 @@
       <Project>{AD4884AD-631B-42E4-B6BB-F86B16BD6A68}</Project>
       <Name>MessageProcessor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Positioning2Wheels\Positioning2Wheels.csproj">
+      <Project>{e1eddd83-8dd6-4c4a-9b8e-9d30b53e6fea}</Project>
+      <Name>Positioning2Wheels</Name>
+    </ProjectReference>
     <ProjectReference Include="..\StrategyManagerProjetEtudiant\StrategyManagerProjetEtudiant.csproj">
       <Project>{45b66b72-b07f-4bbd-85f5-db8a5c438b69}</Project>
       <Name>StrategyManagerProjetEtudiant</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TrajectoryGeneratorNonHolonome\TrajectoryGeneratorNonHolonome.csproj">
+      <Project>{a90f4ffc-dc2b-489c-a90f-b2acd3086bc6}</Project>
+      <Name>TrajectoryGeneratorNonHolonome</Name>
+    </ProjectReference>
     <ProjectReference Include="..\USBVendor\USBVendor.csproj">
       <Project>{12565644-3BF5-4BCB-84E5-6BDA7D16293C}</Project>
       <Name>USBVendor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WorldMapManager\WorldMapManager.csproj">
+      <Project>{01e89552-13a5-4a24-80b2-9246700f72fd}</Project>
+      <Name>WorldMapManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\WpfRobot2RouesInterface\RobotInterface\WpfRobot2RouesInterface.csproj">
       <Project>{ef0acd78-0bfb-4ac0-9685-90c53bee0df1}</Project>

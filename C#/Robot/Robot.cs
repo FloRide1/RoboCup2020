@@ -9,7 +9,7 @@ using SciChart.Charting.Visuals;
 using System;
 using System.IO.Ports;
 using System.Threading;
-using TrajectoryGenerator;
+using TrajectoryGeneratorHolonomeNS;
 using WayPointGenerator;
 using WorldMapManager;
 using PerceptionManagement;
@@ -97,7 +97,7 @@ namespace Robot
         }
         #endregion
 
-        static RobotMode robotMode = RobotMode.Standard;
+        static RobotMode robotMode = RobotMode.Replay;
 
         static bool usingSimulatedCamera = true;
         static bool usingPhysicalSimulator = true;
@@ -125,7 +125,7 @@ namespace Robot
         static ImageProcessingPositionFromOmniCamera imageProcessingPositionFromOmniCamera;
         static AbsolutePositionEstimator absolutePositionEstimator;
         static WaypointGenerator waypointGenerator;
-        static TrajectoryPlanner trajectoryPlanner;
+        static TrajectoryGeneratorHolonome trajectoryPlanner;
         static KalmanPositioning.KalmanPositioning kalmanPositioning;
 
         static HerkulexManager herkulexManager;
@@ -212,7 +212,7 @@ namespace Robot
             robotPilot = new RobotPilot.RobotPilot(robotId);
             strategyManager = new StrategyRoboCup(robotId, teamId, "224.16.32.79");
             waypointGenerator = new WaypointGenerator(robotId, GameMode.RoboCup);
-            trajectoryPlanner = new TrajectoryPlanner(robotId, GameMode.RoboCup);
+            trajectoryPlanner = new TrajectoryGeneratorHolonome(robotId, GameMode.RoboCup);
             kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
 
             localWorldMapManager = new LocalWorldMapManager(robotId, teamId, bypassMulticast:false);
@@ -278,7 +278,7 @@ namespace Robot
 
 
             //Filtre de Kalman perceptionManager.OnAbsolutePositionEvent += kalmanPositioning.OnAbsolutePositionCalculatedEvent;
-            robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
+            robotMsgProcessor.OnPolarOdometrySpeedFromRobotEvent += kalmanPositioning.OnOdometryRobotSpeedReceived;
             imuProcessor.OnGyroSpeedEvent += kalmanPositioning.OnGyroRobotSpeedReceived;
             kalmanPositioning.OnKalmanLocationEvent += trajectoryPlanner.OnPhysicalPositionReceived;
             kalmanPositioning.OnKalmanLocationEvent += perceptionManager.OnPhysicalRobotPositionReceived;
@@ -318,8 +318,8 @@ namespace Robot
             if (usingLidar)
             {
                 lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += perceptionManager.OnRawLidarDataReceived;
-                lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnRawLidarDataReceived;
-                lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnProcessedLidarDataReceived;
+                //lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += localWorldMapManager.OnLidarDataReceived;
+                lidarProcessor.OnLidarProcessedEvent += localWorldMapManager.OnLidarDataReceived;
             }
 
             //Events de recording
@@ -329,7 +329,7 @@ namespace Robot
                 lidar_OMD60M_TCP.OnLidarDecodedFrameEvent += logRecorder.OnRawLidarDataReceived;
                 omniCamera.BitmapFishEyeImageEvent += logRecorder.OnBitmapImageReceived;
                 imuProcessor.OnIMUProcessedDataGeneratedEvent += logRecorder.OnIMURawDataReceived;
-                robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += logRecorder.OnPolarSpeedDataReceived;
+                robotMsgProcessor.OnPolarOdometrySpeedFromRobotEvent += logRecorder.OnPolarSpeedDataReceived;
                 //omniCamera.OpenCvMatImageEvent += logRecorder.OnOpenCVMatImageReceived;
             }
 
@@ -433,7 +433,7 @@ namespace Robot
                 robotMsgProcessor.OnEnableDisableTirACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableDisableTirButton;
 
                 robotMsgProcessor.OnAsservissementModeStatusFromRobotGeneratedEvent += interfaceRobot.UpdateAsservissementMode;
-                robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += interfaceRobot.UpdateSpeedPolarOdometryOnInterface;
+                robotMsgProcessor.OnPolarOdometrySpeedFromRobotEvent += interfaceRobot.UpdateSpeedPolarOdometryOnInterface;
                 robotMsgProcessor.OnIndependantOdometrySpeedFromRobotEvent += interfaceRobot.UpdateSpeedIndependantOdometryOnInterface;
                 robotMsgProcessor.On4WheelsSpeedPolarPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedPolarPidErrorCorrectionConsigneDataOnGraph;
                 robotMsgProcessor.On4WheelsSpeedIndependantPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedIndependantPidErrorCorrectionConsigneDataOnGraph;
@@ -452,7 +452,7 @@ namespace Robot
             }
             robotMsgGenerator.OnSetSpeedConsigneToRobotReceivedEvent += interfaceRobot.UpdatePolarSpeedConsigneOnGraph; //Valable quelque soit la source des consignes vitesse
             interfaceRobot.OnEnableDisableMotorsFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableMotors;
-            interfaceRobot.OnEnableDisableServosFromInterfaceGeneratedEvent += herkulexManager.OnEnableDisableServosRequestEvent;
+            //interfaceRobot.OnEnableDisableServosFromInterfaceGeneratedEvent += herkulexManager.OnEnableDisableServosRequestEvent;
             interfaceRobot.OnEnableDisableTirFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageEnableDisableTir;
             interfaceRobot.OnEnableDisableControlManetteFromInterfaceGeneratedEvent += ChangeUseOfXBoxController;
             interfaceRobot.OnSetAsservissementModeFromInterfaceGeneratedEvent += robotMsgGenerator.GenerateMessageSetAsservissementMode;

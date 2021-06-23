@@ -84,7 +84,16 @@ namespace Utilities
             if (d.ContainsKey(key))
                 d[key] = value;
             else
-                d.Add(key, value);
+            {
+                try
+                {
+                    d.Add(key, value);
+                }
+                catch
+                {
+                    Console.WriteLine("AddOrUpdate error");
+                }
+            }
         }
     }
 

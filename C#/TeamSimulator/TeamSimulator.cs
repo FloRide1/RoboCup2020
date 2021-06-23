@@ -5,7 +5,7 @@ using WorldMapManager;
 using System.Threading;
 using PerceptionManagement;
 using Constants;
-using TrajectoryGenerator;
+using TrajectoryGeneratorHolonomeNS;
 using UDPMulticast;
 using UdpMulticastInterpreter;
 using WpfTeamInterfaceNS;
@@ -21,7 +21,7 @@ namespace TeamSimulator
         //static GlobalWorldMapManager globalWorldMapManagerTeam2;
 
         static Dictionary<int, StrategyManagerProjetEtudiantNS.StrategyGenerique> strategyManagerDictionary;
-        static List<TrajectoryPlanner> trajectoryPlannerList;
+        static List<TrajectoryGeneratorHolonome> trajectoryPlannerList;
         static List<SensorSimulator.SensorSimulator> sensorSimulatorList;
         static List<KalmanPositioning.KalmanPositioning> kalmanPositioningList;
         static List<LocalWorldMapManager> localWorldMapManagerList;
@@ -56,7 +56,7 @@ namespace TeamSimulator
             SciChartSurface.SetRuntimeLicenseKey("wsCOsvBlAs2dax4o8qBefxMi4Qe5BVWax7TGOMLcwzWFYRNCa/f1rA5VA1ITvLHSULvhDMKVTc+niao6URAUXmGZ9W8jv/4jtziBzFZ6Z15ek6SLU49eIqJxGoQEFWvjANJqzp0asw+zvLV0HMirjannvDRj4i/WoELfYDubEGO1O+oAToiJlgD/e2lVqg3F8JREvC0iqBbNrmfeUCQdhHt6SKS2QpdmOoGbvtCossAezGNxv92oUbog6YIhtpSyGikCEwwKSDrlKlAab6302LLyFsITqogZychLYrVXJTFvFVnDfnkQ9cDi7017vT5flesZwIzeH497lzGp3B8fKWFQyZemD2RzlQkvj5GUWBwxiKAHrYMnQjJ/PsfojF1idPEEconVsh1LoYofNk2v/Up8AzXEAvxWUEcgzANeQggaUNy+OFet8b/yACa/bgYG7QYzFQZzgdng8IK4vCPdtg4/x7g5EdovN2PI9vB76coMuKnNVPnZN60kSjtd/24N8A==");
 
             //waypointGeneratorList = new List<WaypointGenerator>();
-            trajectoryPlannerList = new List<TrajectoryPlanner>();
+            trajectoryPlannerList = new List<TrajectoryGeneratorHolonome>();
             sensorSimulatorList = new List<SensorSimulator.SensorSimulator>();
             kalmanPositioningList = new List<KalmanPositioning.KalmanPositioning>();
             strategyManagerDictionary = new Dictionary<int, StrategyManagerProjetEtudiantNS.StrategyGenerique>();
@@ -127,7 +127,7 @@ namespace TeamSimulator
             int robotId = TeamNumber + RobotNumber;
             var strategyManager = new StrategyRoboCup(robotId, TeamNumber, multicastIpAddress);
             //var waypointGenerator = new WaypointGenerator(robotId, GameMode.RoboCup);
-            var trajectoryPlanner = new TrajectoryPlanner(robotId, GameMode.RoboCup);
+            var trajectoryPlanner = new TrajectoryGeneratorHolonome(robotId, GameMode.RoboCup);
             var sensorSimulator = new SensorSimulator.SensorSimulator(robotId);
             var kalmanPositioning = new KalmanPositioning.KalmanPositioning(robotId, 50, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.02);
             var localWorldMapManager = new LocalWorldMapManager(robotId, TeamNumber, bypassMulticast: false);

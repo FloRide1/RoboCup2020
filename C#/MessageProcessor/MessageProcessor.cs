@@ -561,10 +561,10 @@ namespace MessageProcessorNS
             }
         }
 
-        public event EventHandler<PolarSpeedEventArgs> OnSpeedPolarOdometryFromRobotEvent;
+        public event EventHandler<PolarSpeedEventArgs> OnPolarOdometrySpeedFromRobotEvent;
         public virtual void OnPolarOdometrySpeedFromRobot(int robotID,uint timeStamp, double vX, double vY, double vTheta)
         {
-            var handler = OnSpeedPolarOdometryFromRobotEvent;
+            var handler = OnPolarOdometrySpeedFromRobotEvent;
             if (handler != null)
             {
                 handler(this, new PolarSpeedEventArgs
@@ -579,7 +579,7 @@ namespace MessageProcessorNS
         }
         public virtual void OnPolarOdometrySpeedFromRobot(PolarSpeedEventArgs e)
         {
-            var handler = OnSpeedPolarOdometryFromRobotEvent;
+            var handler = OnPolarOdometrySpeedFromRobotEvent;
             if (handler != null)
             {
                 handler(this, e);

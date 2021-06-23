@@ -72,8 +72,8 @@ namespace RobotInterface
                 //worldMapDisplayWaypoint.Init(gameMode, LocalWorldMapDisplayType.WayPointMap, imagePath + "RoboCup.png");
             }
 
-            worldMapDisplayStrategy.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, GameMode.Eurobot, "Wally");
-            worldMapDisplayWaypoint.InitTeamMate((int)TeamId.Team1 + (int)RobotId.Robot1, GameMode.Eurobot, "Wally");
+            worldMapDisplayStrategy.InitTeamMate((int) TeamId.Team1 + (int) RobotId.Robot1, GameMode.Eurobot, "Wally");
+            worldMapDisplayWaypoint.InitTeamMate((int) TeamId.Team1 + (int) RobotId.Robot1, GameMode.Eurobot, "Wally");
 
             worldMapDisplayStrategy.OnCtrlClickOnHeatMapEvent += WorldMapDisplay_OnCtrlClickOnHeatMapEvent;
             worldMapDisplayWaypoint.OnCtrlClickOnHeatMapEvent += WorldMapDisplay_OnCtrlClickOnHeatMapEvent;

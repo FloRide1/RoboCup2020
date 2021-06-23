@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-
+using System.Runtime.InteropServices;
 
 namespace Utilities
 {
@@ -77,10 +78,20 @@ namespace Utilities
 
         public static double Distance(PointD pt1, PointD pt2)
         {
-            return Math.Sqrt((pt2.X - pt1.X)* (pt2.X - pt1.X) + (pt2.Y - pt1.Y)* (pt2.Y - pt1.Y));
+            return Math.Sqrt((pt2.X - pt1.X) * (pt2.X - pt1.X) + (pt2.Y - pt1.Y) * (pt2.Y - pt1.Y));
             //return Math.Sqrt(Math.Pow(pt2.X - pt1.X, 2) + Math.Pow(pt2.Y - pt1.Y, 2));
         }
-        
+        public static double Distance(PolarPointRssi pt1, PolarPointRssi pt2)
+        {
+            return Math.Sqrt(pt1.Distance * pt1.Distance + pt2.Distance * pt2.Distance - 2 * pt1.Distance * pt2.Distance * Math.Cos(pt1.Angle - pt2.Angle));
+        }
+
+        public static double Distance(PolarPointRssiExtended pt1, PolarPointRssiExtended pt2)
+        {
+            return Math.Sqrt(pt1.Pt.Distance * pt1.Pt.Distance + pt2.Pt.Distance * pt2.Pt.Distance - 2 * pt1.Pt.Distance * pt2.Pt.Distance * Math.Cos(pt1.Pt.Angle - pt2.Pt.Angle));
+        }
+
+
         public static double DistanceL1(PointD pt1, PointD pt2)
         {
             return Math.Abs(pt2.X - pt1.X) + Math.Abs(pt2.Y - pt1.Y);
@@ -99,7 +110,15 @@ namespace Utilities
             var dot = (pt.X - LinePt.X) * (yLineVect) - (pt.Y - LinePt.Y) * (xLineVect);
             return Math.Abs(dot);
         }
-        
+        public static double DistancePointToLine(PointD pt, PointD LinePt1, PointD LinePt2)
+        {
+            var lineAngle = Math.Atan2(LinePt2.Y - LinePt1.Y, LinePt2.X - LinePt1.X);
+            var xLineVect = Math.Cos(lineAngle);
+            var yLineVect = Math.Sin(lineAngle);
+            var dot = (pt.X - LinePt1.X) * (yLineVect) - (pt.Y - LinePt1.Y) * (xLineVect);
+            return Math.Abs(dot);
+        }
+
         public static double DistancePointToSegment(PointD pt, PointD ptSeg1, PointD ptSeg2)
         {
             var A = pt.X - ptSeg1.X;
@@ -135,7 +154,7 @@ namespace Utilities
             var dy = pt.Y - yy;
 
             double distance = Math.Sqrt(dx * dx + dy * dy);
-            return distance;            
+            return distance;
         }
 
         public static PointD GetInterceptionLocation(Location target, Location hunter, double huntingSpeed)
@@ -172,6 +191,157 @@ namespace Utilities
             }
             else
                 return null;
+        }
+
+        [DllImport("shlwapi.dll")]
+        public static extern int ColorHLSToRGB(int H, int L, int S);
+
+        static public System.Drawing.Color HLSToColor(int H, int L, int S)
+        {
+            //
+            // Convert Hue, Luminance, and Saturation values to System.Drawing.Color structure.
+            // H, L, and S are in the range of 0-240.
+            // ColorHLSToRGB returns a Win32 RGB value (0x00BBGGRR).  To convert to System.Drawing.Color
+            // structure, use ColorTranslator.FromWin32.
+            //
+            return ColorTranslator.FromWin32(ColorHLSToRGB(H, L, S));
+
+        }
+
+        static public PointDExtended ConvertPolarToPointD(PolarPointRssiExtended point)
+        {
+            return new PointDExtended(new PointD(point.Pt.Distance * Math.Cos(point.Pt.Angle), point.Pt.Distance * Math.Sin(point.Pt.Angle)), point.Color, point.Width);
+        }
+
+        static public PolarPointRssiExtended ConvertPointDToPolar(PointDExtended point)
+        {
+            return new PolarPointRssiExtended(new PolarPointRssi(Math.Atan2(point.Pt.Y, point.Pt.X), Math.Sqrt(Math.Pow(point.Pt.X, 2) + Math.Pow(point.Pt.Y, 2)), 0), point.Width, point.Color);
+        }
+        static public PointD ConvertPolarToPointD(PolarPointRssi point)
+        {
+            return new PointD(point.Distance * Math.Cos(point.Angle), point.Distance * Math.Sin(point.Angle));
+        }
+
+        static public PolarPointRssi ConvertPointDToPolar(PointD point)
+        {
+            return new PolarPointRssi(Math.Atan2(point.Y, point.X), Math.Sqrt(Math.Pow(point.X, 2) + Math.Pow(point.Y, 2)), 0);
+        }
+
+        static public PointDExtended GetCrossingPointBetweenSegment(SegmentExtended segment_a, SegmentExtended segment_b)
+        {
+            PointDExtended crossing_point = new PointDExtended(new PointD(0, 0), segment_a.Color, segment_a.Width);
+
+            if (segment_a.Segment.X1 == segment_a.Segment.X2 || segment_b.Segment.X1 == segment_b.Segment.X2)
+            {
+                return crossing_point;
+            }
+            double slope_a = (segment_a.Segment.Y2 - segment_a.Segment.Y1) / (segment_a.Segment.X2 - segment_a.Segment.X1);
+            double y_intercept_a = segment_a.Segment.Y1 - (segment_a.Segment.X1) * slope_a;
+
+            double slope_b = (segment_b.Segment.Y2 - segment_b.Segment.Y1) / (segment_b.Segment.X2 - segment_b.Segment.X1);
+            double y_intercept_b = segment_b.Segment.Y1 - (segment_b.Segment.X1) * slope_b;
+
+            if (slope_a == slope_b)
+            {
+                return crossing_point;
+            }
+
+            double x = (y_intercept_b - y_intercept_a) / (slope_a - slope_b);
+            double y = slope_a * x + y_intercept_a;
+
+            crossing_point.Pt = new PointD(x, y);
+
+            return crossing_point;
+
+        }
+
+        /// <summary>
+        /// Get all Combination of list
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static IEnumerable<IEnumerable<T>> GetKCombs<T>(IEnumerable<T> list, int length) where T : IComparable
+        {
+            if (length == 1) return list.Select(t => new T[] { t });
+            return GetKCombs(list, length - 1).SelectMany(t => list.Where(o => o.CompareTo(t.Last()) > 0), (t1, t2) => t1.Concat(new T[] { t2 }));
+        }
+
+        public static Tuple<PointD, PointD, PointD, PointD> GetCornerOfAnOrientedRectangle(RectangleOriented rectangle)
+        {
+            double radius_of_the_circle = Math.Sqrt(Math.Pow(rectangle.Lenght, 2) + Math.Pow(rectangle.Width, 2)) / 2;
+            double a_1_angle = Modulo2PiAngleRad(Math.Atan2(  rectangle.Width,   rectangle.Lenght) + rectangle.Angle);
+            double a_3_angle = Modulo2PiAngleRad(Math.Atan2(  rectangle.Width, - rectangle.Lenght) + rectangle.Angle);
+            double a_2_angle = Modulo2PiAngleRad(Math.Atan2(- rectangle.Width,   rectangle.Lenght) + rectangle.Angle);
+            double a_4_angle = Modulo2PiAngleRad(Math.Atan2(- rectangle.Width, - rectangle.Lenght) + rectangle.Angle);
+
+            PointD polar_a_1 = ConvertPolarToPointD(new PolarPointRssi(a_1_angle, radius_of_the_circle, 0));
+            PointD polar_a_2 = ConvertPolarToPointD(new PolarPointRssi(a_2_angle, radius_of_the_circle, 0));
+            PointD polar_a_3 = ConvertPolarToPointD(new PolarPointRssi(a_3_angle, radius_of_the_circle, 0));
+            PointD polar_a_4 = ConvertPolarToPointD(new PolarPointRssi(a_4_angle, radius_of_the_circle, 0));
+
+            PointD a1 = new PointD(polar_a_1.X + rectangle.Center.X, polar_a_1.Y + rectangle.Center.Y);
+            PointD a2 = new PointD(polar_a_2.X + rectangle.Center.X, polar_a_2.Y + rectangle.Center.Y);
+            PointD a3 = new PointD(polar_a_3.X + rectangle.Center.X, polar_a_3.Y + rectangle.Center.Y);
+            PointD a4 = new PointD(polar_a_4.X + rectangle.Center.X, polar_a_4.Y + rectangle.Center.Y);
+
+            return new Tuple<PointD, PointD, PointD, PointD>(a1, a2, a3, a4);
+        }
+
+        public static bool TestIfPointInsideAnOrientedRectangle(RectangleOriented rectangle, PointD point)
+        {
+            /// Whe simply make the dot product with each angle
+            Tuple<PointD, PointD, PointD, PointD> corners = GetCornerOfAnOrientedRectangle(rectangle);
+
+            PointD a = corners.Item1;
+            PointD b = corners.Item2;
+            PointD c = corners.Item3;
+
+            PointD vector_a_b = new PointD(b.X - a.X, b.Y - a.Y);
+            PointD vector_a_c = new PointD(c.X - a.X, c.Y - a.Y);
+            PointD vector_a_point = new PointD(point.X - a.X, point.Y - a.Y);
+
+            double dot_product_point_b = (vector_a_b.X * vector_a_point.X) + (vector_a_b.Y * vector_a_point.Y);
+            double dot_product_point_c = (vector_a_c.X * vector_a_point.X) + (vector_a_c.Y * vector_a_point.Y);
+
+            double dot_product_b_b = Math.Pow(vector_a_b.X, 2) + Math.Pow(vector_a_b.Y, 2);
+            double dot_product_c_c = Math.Pow(vector_a_c.X, 2) + Math.Pow(vector_a_c.Y, 2);
+            return dot_product_point_b >= 0 && dot_product_point_c >= 0 && dot_product_point_b <= dot_product_b_b && dot_product_point_c <= dot_product_c_c;
+        }
+
+        public static double DotProduct(PointD vector_a, PointD vector_b)
+        {
+            return (vector_a.X * vector_b.X) + (vector_a.Y * vector_b.Y);
+        }
+
+        public static double Distance(SegmentExtended segment)
+        {
+            return Math.Sqrt(Math.Pow(segment.Segment.X2 - segment.Segment.X1, 2) + Math.Pow(segment.Segment.Y2 - segment.Segment.Y1, 2));
+        }
+
+        public static double Angle(SegmentExtended segment)
+        {
+            return Math.Atan2(segment.Segment.Y2 - segment.Segment.Y1, segment.Segment.X2 - segment.Segment.X1);
+        }
+
+        public static double Angle(PointD pt1, PointD pt2)
+        {
+            return Math.Atan2(pt2.Y - pt1.Y, pt2.X - pt1.X);
+        }
+
+        public static void SwapNum(ref double x, ref double y)
+        {
+            x += y;
+            y = x - y;
+            x -= y;
+        }
+
+        public static void SwapNum(ref SegmentExtended s1, ref SegmentExtended s2)
+        {
+            SegmentExtended temporary_segment = s1;
+            s1 = s2;
+            s2 = temporary_segment;
         }
     }
 }

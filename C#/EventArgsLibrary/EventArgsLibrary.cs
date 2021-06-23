@@ -473,16 +473,38 @@ namespace EventArgsLibrary
         public int SentByRobotId { get; set; }
         public GlobalWorldMap GlobalWorldMap { get; set; }
     }
+
+    public enum LidarDataType
+    {
+        RawData = 0,
+        ProcessedData1 = 1,
+        ProcessedData2 = 2,
+        ProcessedData3 = 3,
+    }
     public class RawLidarArgs : EventArgs
     {
         public int RobotId { get; set; }
         public List<PolarPointRssi> PtList { get; set; }
         public int LidarFrameNumber { get; set; }
+        public LidarDataType Type { get; set; }
+    }
+    public class LidarPolarPtListExtendedArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+        public List<PolarPointRssiExtended> PtList { get; set; }
+        public int LidarFrameNumber { get; set; }
+        public LidarDataType Type { get; set; }
     }
     public class PolarPointListExtendedListArgs : EventArgs
     {
         public int RobotId { get; set; }
         public List<PolarPointListExtended> ObjectList { get; set; }
+    }
+
+    public class SegmentExtendedListArgs : EventArgs
+    {
+        public int RobotId { get; set; }
+        public List<SegmentExtended> SegmentList { get; set; }
     }
 
 

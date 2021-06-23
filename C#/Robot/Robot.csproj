@@ -60,17 +60,17 @@
   <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="SciChart.Charting, Version=6.2.1.13304, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL">
-      <HintPath>packages\SciChart.6.2.1.13304\lib\net452\SciChart.Charting.dll</HintPath>
+    <Reference Include="SciChart.Charting, Version=6.3.0.13476, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL">
+      <HintPath>packages\SciChart.6.3.0.13476\lib\net452\SciChart.Charting.dll</HintPath>
     </Reference>
-    <Reference Include="SciChart.Core, Version=6.2.1.13304, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL">
-      <HintPath>packages\SciChart.6.2.1.13304\lib\net452\SciChart.Core.dll</HintPath>
+    <Reference Include="SciChart.Core, Version=6.3.0.13476, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL">
+      <HintPath>packages\SciChart.6.3.0.13476\lib\net452\SciChart.Core.dll</HintPath>
     </Reference>
-    <Reference Include="SciChart.Data, Version=6.2.1.13304, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL">
-      <HintPath>packages\SciChart.6.2.1.13304\lib\net452\SciChart.Data.dll</HintPath>
+    <Reference Include="SciChart.Data, Version=6.3.0.13476, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL">
+      <HintPath>packages\SciChart.6.3.0.13476\lib\net452\SciChart.Data.dll</HintPath>
     </Reference>
-    <Reference Include="SciChart.Drawing, Version=6.2.1.13304, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL">
-      <HintPath>packages\SciChart.6.2.1.13304\lib\net452\SciChart.Drawing.dll</HintPath>
+    <Reference Include="SciChart.Drawing, Version=6.3.0.13476, Culture=neutral, PublicKeyToken=b55dd9efe817e823, processorArchitecture=MSIL">
+      <HintPath>packages\SciChart.6.3.0.13476\lib\net452\SciChart.Drawing.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -217,9 +217,9 @@
       <Project>{f2d3fb95-f97a-4049-bca4-71854fd4faf3}</Project>
       <Name>StrategyManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TrajectoryGenerator\TrajectoryGenerator.csproj">
-      <Project>{bb381252-44cf-4962-984b-abd697dcc9fb}</Project>
-      <Name>TrajectoryGenerator</Name>
+    <ProjectReference Include="..\TrajectoryGeneratorHolonome\TrajectoryGeneratorHolonome.csproj">
+      <Project>{BB381252-44CF-4962-984B-ABD697DCC9FB}</Project>
+      <Name>TrajectoryGeneratorHolonome</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{8e7d0da4-9a13-4b18-a90e-0243bbcce40a}</Project>

@@ -12,6 +12,9 @@ using XBoxControllerNS;
 using Constants;
 using StrategyManagerProjetEtudiantNS;
 using SciChart.Charting.Visuals;
+using WorldMapManager;
+using TrajectoryGeneratorNonHolonomeNS;
+using Positioning2WheelsNS;
 
 namespace RobotEurobot2Roues
 {
@@ -24,6 +27,10 @@ namespace RobotEurobot2Roues
         static MsgProcessor robotMsgProcessor;
         static XBoxController xBoxManette;
         static StrategyGenerique strategyManager;
+        static LocalWorldMapManager localWorldMapManager;
+
+        static Positioning2Wheels positioning2Wheels;
+        static TrajectoryGeneratorNonHolonome trajectoryGenerator;
 
         static WpfRobot2RouesInterface interfaceRobot;
         static GameMode competition = GameMode.Eurobot;
@@ -48,6 +55,9 @@ namespace RobotEurobot2Roues
             robotMsgProcessor = new MsgProcessor(robotId, competition);
             xBoxManette = new XBoxControllerNS.XBoxController(robotId);
             strategyManager = new StrategyEurobot(robotId, teamId, "224.16.32.79");
+            localWorldMapManager = new LocalWorldMapManager(robotId, teamId, bypassMulticast: false);
+            positioning2Wheels = new Positioning2Wheels();
+            trajectoryGenerator = new TrajectoryGeneratorNonHolonome(robotId);
 
             /// Création des liens entre module, sauf depuis et vers l'interface graphique           
             usbDriver.OnUSBDataReceivedEvent += msgDecoder.DecodeMsgReceived;                                   // Transmission des messages reçus par l'USB au Message Decoder
@@ -58,10 +68,16 @@ namespace RobotEurobot2Roues
             strategyManager.OnOdometryPointToMeterSetupEvent += robotMsgGenerator.GenerateMessageOdometryPointToMeter;      //Transmission des messages de set-up du coeff pointToMeter en embarqué
             strategyManager.On2WheelsPolarSpeedPIDSetupEvent += robotMsgGenerator.GenerateMessage2WheelsPolarSpeedPIDSetup;                 //Setup du PID Polaire
             strategyManager.On2WheelsIndependantSpeedPIDSetupEvent += robotMsgGenerator.GenerateMessage2WheelsIndependantSpeedPIDSetup;     //Setup du PID independant
+            strategyManager.OnSetAsservissementModeEvent += robotMsgGenerator.GenerateMessageSetAsservissementMode;
+
             strategyManager.OnSetSpeedConsigneToMotor += robotMsgGenerator.GenerateMessageSetSpeedConsigneToMotor;                          //Transmission des commande de vitesse (en polaire)
 
             robotMsgGenerator.OnMessageToRobotGeneratedEvent += msgEncoder.EncodeMessageToRobot;                // Envoi des messages du générateur de message à l'encoder
             msgEncoder.OnMessageEncodedEvent += usbDriver.SendUSBMessage;                                       // Envoi des messages en USB depuis le message encoder
+
+            robotMsgProcessor.OnPolarOdometrySpeedFromRobotEvent += positioning2Wheels.OnOdometryRobotSpeedReceived;        //Envoi des vitesses reçues de l'embarqué au module de calcul de positionnement
+            positioning2Wheels.OnCalculatedLocationEvent += trajectoryGenerator.OnPhysicalPositionReceived;                 //Envoi du positionnement calculé au module de génération de trajectoire
+            trajectoryGenerator.OnGhostLocationEvent += localWorldMapManager.OnGhostLocationReceived;             // Envoi de la position du ghost au localWorldMapManager
 
             strategyManager.InitStrategy(); //à faire après avoir abonné les events !
 
@@ -104,11 +120,11 @@ namespace RobotEurobot2Roues
             robotMsgProcessor.OnEnableDisableMotorsACKFromRobotGeneratedEvent += interfaceRobot.ActualizeEnableDisableMotorsButton;
 
             robotMsgProcessor.OnAsservissementModeStatusFromRobotGeneratedEvent += interfaceRobot.UpdateAsservissementMode;
-            robotMsgProcessor.OnSpeedPolarOdometryFromRobotEvent += interfaceRobot.UpdateSpeedPolarOdometryOnInterface;
+            robotMsgProcessor.OnPolarOdometrySpeedFromRobotEvent += interfaceRobot.UpdateSpeedPolarOdometryOnInterface;
 
             robotMsgProcessor.OnIndependantOdometrySpeedFromRobotEvent += interfaceRobot.UpdateSpeedIndependantOdometryOnInterface;
-            robotMsgProcessor.On4WheelsSpeedPolarPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedPolarPidErrorCorrectionConsigneDataOnGraph;
-            robotMsgProcessor.On4WheelsSpeedIndependantPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedIndependantPidErrorCorrectionConsigneDataOnGraph;
+            //robotMsgProcessor.On4WheelsSpeedPolarPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedPolarPidErrorCorrectionConsigneDataOnGraph;
+            //robotMsgProcessor.On4WheelsSpeedIndependantPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedIndependantPidErrorCorrectionConsigneDataOnGraph;
             robotMsgProcessor.On2WheelsSpeedPolarPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedPolarPidErrorCorrectionConsigneDataOnGraph;
             robotMsgProcessor.On2WheelsSpeedIndependantPidErrorCorrectionConsigneDataFromRobotGeneratedEvent += interfaceRobot.UpdateSpeedIndependantPidErrorCorrectionConsigneDataOnGraph;
 
@@ -144,7 +160,6 @@ namespace RobotEurobot2Roues
 
             /// Affichage des infos en provenance du strategyManager
             strategyManager.OnTextMessageEvent += interfaceRobot.AppendConsole;
-
 
         }
 

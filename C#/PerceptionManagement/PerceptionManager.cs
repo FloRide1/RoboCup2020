@@ -40,11 +40,19 @@ namespace PerceptionManagement
             lidarProcessor.OnLidarBalisePointListForDebugEvent += OnLidarBalisePointListForDebugReceived;
             lidarProcessor.OnLidarObjectProcessedEvent += OnLidarObjectsReceived;
             lidarProcessor.OnLidarProcessedEvent += OnLidarProcessedData;
+            lidarProcessor.OnLidarProcessedSegmentsEvent += OnLidarProcessedSegmentsReceived;
+
 
             absolutePositionEstimator.OnAbsolutePositionCalculatedEvent += OnAbsolutePositionCalculatedEvent;
 
             PerceptionMonitor.swPerception.Start();
 
+        }
+
+        private void OnLidarProcessedSegmentsReceived(object sender, SegmentExtendedListArgs e)
+        {
+            //On transmet l'event
+            OnLidarProcessedSegments(sender, e);
         }
 
         private void OnLidarBalisePointListForDebugReceived(object sender, RawLidarArgs e)
@@ -211,10 +219,20 @@ namespace PerceptionManagement
             }
         }
 
-        public event EventHandler<RawLidarArgs> OnLidarProcessedDataEvent;
-        public virtual void OnLidarProcessedData(object sender, RawLidarArgs e)
+        public event EventHandler<LidarPolarPtListExtendedArgs> OnLidarProcessedDataEvent;
+        public virtual void OnLidarProcessedData(object sender, LidarPolarPtListExtendedArgs e)
         {
             var handler = OnLidarProcessedDataEvent;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        public event EventHandler<SegmentExtendedListArgs> OnLidarProcessedSegmentsEvent;
+        public virtual void OnLidarProcessedSegments(object sender, SegmentExtendedListArgs e)
+        {
+            var handler = OnLidarProcessedSegmentsEvent;
             if (handler != null)
             {
                 handler(this, e);
