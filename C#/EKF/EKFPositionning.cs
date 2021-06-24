@@ -19,8 +19,7 @@ namespace EKF
         int init_de_P = 1000000000;
         private double tEch = 0.02;
         private double fEch = 50;
-        int nb_total_landmarks = 4;
-        double anglePerceptionRobot = Math.PI;
+        double anglePerceptionRobot = Math.PI ;
 
 
         #region variables 
@@ -67,10 +66,10 @@ namespace EKF
             PosInitRobot = Init.Location;
 
             robotId = Init.RobotId;
-            MatrixX = new double[3+ 2* nb_total_landmarks];
-            XPredUpdate = new double[3 + 2 * nb_total_landmarks,1];
-            MatrixP = new double[3+ 2*nb_total_landmarks, 3+ 2*nb_total_landmarks];
-            for (int i = 3; i< 3 + 2 * nb_total_landmarks; i++) { MatrixP[i, i] = init_de_P; }
+            MatrixX = new double[3+ 2* nb_ld_deja_vus];
+            XPredUpdate = new double[3 + 2 * nb_ld_deja_vus, 1];
+            MatrixP = new double[3+ 2* nb_ld_deja_vus, 3+ 2* nb_ld_deja_vus];
+            for (int i = 3; i< 3 + 2 * nb_ld_deja_vus; i++) { MatrixP[i, i] = init_de_P; }
 
             currentGpsXRefTerrain = MatrixX[0] = Init.Location.X;
             currentGpsYRefTerrain = MatrixX[1] = Init.Location.Y;
@@ -104,10 +103,6 @@ namespace EKF
             MatrixDelta = new double[2, 1];
 
             MatrixHi = new double[2, 5];
-
-            MatrixIdentity = new double[3 + 2 * nb_total_landmarks, 3 + 2 * nb_total_landmarks];
-            for (int i = 0; i < 3 + 2 * nb_total_landmarks; i++)
-                MatrixIdentity[i, i] = 1;
         }
 
         #endregion
@@ -223,6 +218,46 @@ namespace EKF
 
         #endregion  //A FAIRE VOIR SI ON VEUT TJR DE CA 
 
+        #region acceuil landmarks
+
+        public double[] Ajout_ld_X(double[] vecteur_avant)
+        {
+            double[] vecteur_apres = new double[vecteur_avant.Length + 2];
+            for (int i = 0; i < vecteur_avant.Length; i++)
+            {
+                vecteur_apres[i] = vecteur_avant[i];
+            }
+
+            return vecteur_apres;
+        }
+
+        public double[,] Ajout_ld_Xpred(double[,] vecteur_avant)
+        {
+            double[,] vecteur_apres = new double[vecteur_avant.Length + 2,1];
+            for (int i = 0; i < vecteur_avant.Length; i++)
+            {
+                vecteur_apres[i,0] = vecteur_avant[i,0];
+            }
+
+            return vecteur_apres;
+        }
+
+        public double[,] Ajout_ld_P(double[,] P)
+        {
+            double[,] matrice_apres = new double[(int)Math.Sqrt(P.Length) + 2, (int)Math.Sqrt(P.Length) + 2];
+            for (int row = 0; row < (int)Math.Sqrt(P.Length); row++)
+            {
+                for (int column = 0; column < (int)Math.Sqrt(P.Length); column++)
+                {
+                    matrice_apres[row, column] = P[row, column];
+                }
+            }
+            matrice_apres[(int)Math.Sqrt(P.Length), (int)Math.Sqrt(P.Length) ] = init_de_P;
+            matrice_apres[(int)Math.Sqrt(P.Length) + 1, (int)Math.Sqrt(P.Length) + 1] = init_de_P;
+
+            return matrice_apres;
+        }
+
         public List<int> acceuil_landmarks(List<List<double>> list_ld_recus) //ref robot
         {
             List<int> list_index = new List<int> { };
@@ -248,13 +283,14 @@ namespace EKF
                 } // on parcourt la liste des ld qu'on connait et s'il y a un ld à moins de 40 cm de ce qu'on a reçu on dit que c'est le même 
                 if (!ld_identifié)
                 {
-                    MatrixX[3 + 2 * nb_ld_deja_vus] = xld;
-                    MatrixX[4 + 2 * nb_ld_deja_vus] = yld;
+                    MatrixX=Ajout_ld_X(MatrixX);
+                    XPredUpdate = Ajout_ld_Xpred(XPredUpdate);
 
-                    XPredUpdate[3 + 2 * nb_ld_deja_vus, 0] = xld;
-                    XPredUpdate[4 + 2 * nb_ld_deja_vus, 0] = yld;
-                    PPredUpdate[3 + 2 * nb_ld_deja_vus, 3 + 2 * nb_ld_deja_vus] = init_de_P;
-                    PPredUpdate[4 + 2 * nb_ld_deja_vus, 4 + 2 * nb_ld_deja_vus] = init_de_P;
+                    MatrixX[3 + 2 * nb_ld_deja_vus] = XPredUpdate[3 + 2 * nb_ld_deja_vus, 0] = xld;
+                    MatrixX[4 + 2 * nb_ld_deja_vus] = XPredUpdate[4 + 2 * nb_ld_deja_vus, 0] = yld;
+
+                    PPredUpdate = Ajout_ld_P(PPredUpdate);
+                    MatrixP = Ajout_ld_P(MatrixP);
 
                     list_index.Add(3+2*(nb_ld_deja_vus));
                     nb_ld_deja_vus += 1;
@@ -263,6 +299,8 @@ namespace EKF
             }
             return list_index; // x ref terrain
         }
+
+        #endregion
 
         #region Conversion Reférentiels 
 
@@ -281,6 +319,8 @@ namespace EKF
         #endregion
 
         #region events
+
+
         //Inputs events
         public void OnOdoReceived(object sender, LocationArgs e)
         {
@@ -311,28 +351,62 @@ namespace EKF
                 List<List<double>> landmarks = liste_landmarks.Select(l => new List<double>(2) { l.X, l.Y }).ToList(); //on commence par mettre les ld en liste de liste
                 #endregion
 
+                PPredUpdate = new double[MatrixX.Length, MatrixX.Length];
+
+                list_indice_landmarks = acceuil_landmarks(landmarks);
+
                 //prediction step  
 
                 #region state prediction
 
-                XPredUpdate[0,0] = MatrixX[0] + currentOdoVxRefRobot * tEch * Math.Cos(MatrixX[2]) - currentOdoVyRefRobot * tEch * Math.Sin(MatrixX[2]);
-                XPredUpdate[1,0] = MatrixX[1] + currentOdoVxRefRobot * tEch * Math.Sin(MatrixX[2]) + currentOdoVyRefRobot * tEch * Math.Cos(MatrixX[2]);
-                XPredUpdate[2,0] = MatrixX[2] + currentOdoVtheta / fEch;
+                double[,] Gx = new double[3, 3]; //jacobienne de l'odométrie donc doit être fait en même temps que la state prediction 
 
-                //if (XPredUpdate[2, 0] > Math.PI) { XPredUpdate[2, 0] -= 2 * Math.PI; }
+                if (currentOdoVtheta!=0)
+                { 
+                    XPredUpdate[0, 0] = MatrixX[0] 
+                    - currentOdoVxRefRobot * Math.Sin(MatrixX[2]) / currentOdoVtheta 
+                    + currentOdoVxRefRobot * Math.Sin(MatrixX[2] + currentOdoVtheta * tEch) / currentOdoVtheta
+                    + currentOdoVyRefRobot * Math.Cos(MatrixX[2]) / currentOdoVtheta
+                    - currentOdoVyRefRobot * Math.Cos(MatrixX[2] + currentOdoVtheta * tEch) / currentOdoVtheta;
+
+                    XPredUpdate[1, 0] = MatrixX[1]
+                    + currentOdoVxRefRobot * Math.Cos(       MatrixX[2]                     ) / currentOdoVtheta 
+                    - currentOdoVxRefRobot * Math.Cos(MatrixX[2] + currentOdoVtheta * tEch) / currentOdoVtheta
+                    + currentOdoVyRefRobot* Math.Sin(       MatrixX[2]                    ) / currentOdoVtheta
+                    - currentOdoVyRefRobot * Math.Sin(MatrixX[2] + currentOdoVtheta * tEch) / currentOdoVtheta;
+                
+                    XPredUpdate[2, 0] = MatrixX[2] + currentOdoVtheta * tEch;
+
+                    Gx[0, 2] = -currentOdoVxRefRobot * Math.Cos(MatrixX[2]) / currentOdoVtheta
+                    + currentOdoVxRefRobot * Math.Cos(MatrixX[2] + currentOdoVtheta * tEch) / currentOdoVtheta
+                    - currentOdoVyRefRobot * Math.Sin(MatrixX[2]) / currentOdoVtheta
+                    + currentOdoVyRefRobot * Math.Sin(MatrixX[2] + currentOdoVtheta * tEch) / currentOdoVtheta;
+
+                    Gx[1, 2] = -currentOdoVxRefRobot * Math.Sin(MatrixX[2]) / currentOdoVtheta
+                        + currentOdoVxRefRobot * Math.Sin(MatrixX[2] + currentOdoVtheta * tEch) / currentOdoVtheta
+                        + currentOdoVyRefRobot * Math.Cos(MatrixX[2]) / currentOdoVtheta
+                        - currentOdoVyRefRobot * Math.Cos(MatrixX[2] + currentOdoVtheta * tEch) / currentOdoVtheta;
+                }
+                else
+                {
+                    XPredUpdate[0, 0] = MatrixX[0] + currentOdoVxRefRobot * tEch * Math.Cos(MatrixX[2]) - currentOdoVyRefRobot * tEch * Math.Sin(MatrixX[2]);
+                    XPredUpdate[1, 0] = MatrixX[1] + currentOdoVxRefRobot * tEch * Math.Sin(MatrixX[2]) + currentOdoVyRefRobot * tEch * Math.Cos(MatrixX[2]);
+                    XPredUpdate[2, 0] = MatrixX[2] + currentOdoVtheta * tEch;
+
+                    
+                    Gx[0, 0] = Gx[1, 1] = Gx[2, 2] = 1;
+
+                    Gx[0, 0] = Gx[1, 1] = Gx[2, 2] = 1;
+                    Gx[0, 2] = -(currentOdoVxRefRobot * Math.Sin(XPredUpdate[2, 0]) / fEch) - currentOdoVyRefRobot * Math.Cos(XPredUpdate[2, 0]) / fEch;
+                    Gx[1, 2] = (currentOdoVxRefRobot * Math.Cos(XPredUpdate[2, 0]) / fEch) - currentOdoVyRefRobot * Math.Sin(XPredUpdate[2, 0]) / fEch;
+
+                }
 
                 #endregion
 
-                # region covariance prediction
+                #region covariance prediction
 
-                PPredUpdate = new double[3 + 2 * nb_total_landmarks, 3 + 2 * nb_total_landmarks]; 
-
-                double[,] Gx = new double[3, 3]; //ca c'est la jacobienne dont on a besoin pour update la position
-                Gx[0, 0] = Gx[1, 1] = Gx[2, 2] = 1;
-                Gx[0,2]= -(currentOdoVxRefRobot * Math.Sin(XPredUpdate[2,0]) / fEch) - currentOdoVyRefRobot * Math.Cos(XPredUpdate[2,0]) / fEch;
-                Gx[1, 2] = (currentOdoVxRefRobot * Math.Cos(XPredUpdate[2,0]) / fEch) - currentOdoVyRefRobot * Math.Sin(XPredUpdate[2,0]) / fEch;
-
-                double[,] Pup = new double[3, 2 * nb_ld_deja_vus]; 
+                 double[,] Pup = new double[3, 2 * nb_ld_deja_vus]; 
 
                 for (int ligne =0; ligne <3; ligne++)
                 {
@@ -350,7 +424,7 @@ namespace EKF
 
                 Pupleft = Toolbox.Addition_Matrices(Toolbox.Multiply(Gx,Toolbox.Multiply(Pupleft,Toolbox.Transpose(Gx))),MatrixR);
 
-                for (int i = 0; i < 3; i++) { for (int j = 0; j < 3; j++) { PPredUpdate[i, j] = Pupleft[i, j]; } } //actualise Pupleft
+                for ( int i = 0; i < 3; i++) { for (int j = 0; j < 3; j++) { PPredUpdate[i, j] = Pupleft[i, j]; } } //actualise Pupleft
 
                 for (int ligne = 0; ligne < 3; ligne++)
                 {
@@ -363,14 +437,18 @@ namespace EKF
 
                 #endregion
 
-                list_indice_landmarks = acceuil_landmarks(landmarks);
                 // Correction step 
 
-                #region Init de Fx
+                #region Init de Fx et Identité
                 MatrixFx = new double[5, MatrixX.Length];
                 MatrixFx[0, 0] = MatrixFx[1, 1] = MatrixFx[2, 2] = 1;
-                #endregion
+                
 
+                MatrixIdentity = new double[3 + 2 * nb_ld_deja_vus, 3 + 2 * nb_ld_deja_vus];
+                for (int i = 0; i < 3 + 2 * nb_ld_deja_vus; i++)
+                    MatrixIdentity[i, i] = 1;
+
+                #endregion
                 //MEGA BOUCLE
                 for (int j = 0; j<list_indice_landmarks.Count; j++)
                 {
@@ -439,6 +517,7 @@ namespace EKF
 
                     XPredUpdate = Toolbox.Addition_Matrices(XPredUpdate,Toolbox.Multiply(MatrixKi,MatrixZ));
 
+                    // Tempo = -KH
                     #region Calculs pour Ppred
                     double[,] MatrixTempo = Toolbox.Multiply(MatrixKi,MatrixHi);
                     
@@ -448,14 +527,28 @@ namespace EKF
                         {
                             MatrixTempo[ligne, colonne] = -MatrixTempo[ligne, colonne]; 
                         }
-                    } //A FAIRE voir si tu peux pas simplifier ca 
+                    } 
 
-                    #endregion
+                    #endregion 
 
                     PPredUpdate = Toolbox.Multiply(Toolbox.Addition_Matrices(MatrixIdentity,MatrixTempo),PPredUpdate);
 
                     MatrixFx[3, list_indice_landmarks[j]] = MatrixFx[4, list_indice_landmarks[j]+1] = 0; //Remise du Fx a 0
+
+                    if (XPredUpdate[0, 0] > 1.5 | XPredUpdate[1, 0] > 1 | XPredUpdate[0, 0] < -1.5 | XPredUpdate[1, 0] < -1)
+                    {
+
+                    } //mettre un pt d'arret pour comprendre quand ca couille 
+
+
                 }//MEGA BOUCLE
+
+                if (XPredUpdate[0,0]-MatrixX[0]>0.1 | XPredUpdate[1, 0] - MatrixX[1] > 0.1 | XPredUpdate[2, 0] - MatrixX[2] > 0.5)
+                {
+                    XPredUpdate[0, 0] = MatrixX[0];
+                    XPredUpdate[1, 0] = MatrixX[1];
+                    XPredUpdate[2, 0] = MatrixX[2];
+                }
 
                 //X = xpred
                 for (int i = 0; i < XPredUpdate.Length; i++)
@@ -493,6 +586,7 @@ namespace EKF
         }                       //Fin de l'algo ! 
 
 
+
         //Output events
         public event EventHandler<PosRobotAndLandmarksArgs> OnEKFLocationEvent;
         public virtual void OnEKFLocation(int id, Location locationRefTerrain, double[] X)
@@ -512,6 +606,8 @@ namespace EKF
                 handler(this, new PosRobotAndLandmarksArgs { RobotId = id, PosLandmarkList = Liste_Sortie, PosRobot = locationRefTerrain });
             }
         }
+        
+        
         #endregion
 
 

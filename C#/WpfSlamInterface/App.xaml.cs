@@ -16,7 +16,9 @@ namespace WpfSlamInterface
     {
         public App()
         {
-            SciChartSurface.SetRuntimeLicenseKey("vp2JL7o7kMHc7AqtjzBbX0T1YSkNH8SvTze00Ntxrd6uFjVul0nPieUV8goffiECNgMxQGY0vD/CLURVNf0QfkU0qDeqCqRU5usid1YvjSwvNkD/93rGJItZvKoLRgFntT8LJQbk4t+KPMlFgrF3nSsYBX5QKPXpVapDgif1F4uuli+VCSXl4VfVws/7aAdagZqcWHEMcF6wSzbh+UlLtfn00aU0pMZzOuNQ+XPX2NppamvLgyuHOwfbVifZFvqUwhD0ZT8obkxTsNaOdDyHPyqazPLPJxYSBQjdrAkIgqxAmI2dtoJdth0cDN8Fo2qKIECHfh4n2lE60xsG1jg3QH2ogiotuGQvTlFu8qwYo8It9nkUR4Od60r+5ExxN3rbC1Ebe5XRJhUVTM0JYKbgpZfJjIsgCTTy0eQ10+Xjqdyubq6geYkdIUZaR0K/yM1eDnH6w0D0WQoYx8hX1uYq+6ahUlSOlKb9w8H+O8dz3jB0kRTnNBOzPaes0xPgYe2UjQ==");
+
+            // Set this code once in App.xaml.cs or application startup
+            SciChartSurface.SetRuntimeLicenseKey("MrEjVl2U2utDBvl4YTL3HzaW+WQKDbdwoRzkV1AIJcWkOgE1M7ezWxCMhOrbfab6yhdkTvVFRZPtlx9ABRK4cHzFLIRKq3EPX2W+O48rEMRyCvAfVk+6UMbgmOFtFGbpb9fbXOKDvXECwSrKjcb6NocEUWiiA27iHwmJXuSGJZeZfu/v47NUPXScJ951D4inEuUvqqTzzQXw2tlVS9kU0CI+OLGbsNWGA9Nx6rVmyAH4naEA2bGMqyW1KKch/+yNdtwOwuyXU48Db2vnzgaJGaew0eQAxBW09BjhFyjsb04TwJA6W2yRPetaTbRQ0lDq+emIcZIARfpRA+53KJZQDpLTxuIrobCx48L4txdeLYkofuRHfskzxZdVJUlbKD32GkxjH9BejdCo6Gv4ip15EVsmDsG+4+1rMlViVVNQNH4LX1mI9Av4yRQ67aOFu1w1vAsH+sawCAmhtVAAt6QSCoTt53HBqeIYTGCKQSaNR8jQ8fyE0xTO0e9/P65xuIyKtw==");
         }
     }
 }

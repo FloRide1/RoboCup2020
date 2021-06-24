@@ -30,14 +30,14 @@ namespace WpfSlamInterface
 {
     
     public partial class MainWindow : Window
-    {
+    {        
         //Paramètres
         bool useSimu = true;
 
         bool tout_les_ld = false;
         bool usingEkf = true;
 
-        static bool bruitage_odo = true ;
+        static bool bruitage_odo = true;
         bool bruitage_ld = true;
         
         static bool translation_circulaire = false;             //A FAIRE : rajouter une dérive a la simu 
@@ -46,12 +46,11 @@ namespace WpfSlamInterface
         double anglePerceptionRobot = Math.PI;
         private double tEch = 0.02;       // fEch = 50 dans ekf_positionning 
 
+        Location PosRobot = new Location(-1, -0.5, 0, 0, 0, 0);
+        static Location PosInitRobot = new Location(-1, -0.5, 0, 0, 0, 0);
 
 
         DispatcherTimer timer;
-
-        Location PosRobot = new Location(-1, -0.5, 0, 0, 0, 0);
-        static Location PosInitRobot = new Location(-1, -0.5, 0, 0, 0, 0);
 
         static Location PosRobotInconnue = new Location(0,0,0,0,0,0);
         List<PointDExtended> PosLandmarks;
@@ -653,12 +652,11 @@ namespace WpfSlamInterface
                 liste_total_landmarks.Add(ld);
 
                 ld = new List<double> { 1.5, 0 };
-                liste_total_landmarks.Add(ld);                                    
+                liste_total_landmarks.Add(ld);
 
                 ld = new List<double> { -1.5, 0 };
                 liste_total_landmarks.Add(ld);
             }
-
 
             return liste_total_landmarks; // Cette liste doit être triée
         }
@@ -720,8 +718,3 @@ namespace WpfSlamInterface
 
     }
 }
-
-
-
-
-ESSAIE DE VOIR SI ON PEUT CHANGER LA TAILLE DES MATRICES   
